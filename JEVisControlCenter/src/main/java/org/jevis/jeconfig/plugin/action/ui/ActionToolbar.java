@@ -14,6 +14,7 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.action.ActionController;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
 
 public class ActionToolbar extends ToolBar {
 
@@ -80,8 +81,14 @@ public class ActionToolbar extends ToolBar {
                 JEVisDataSource ds = JEConfig.getDataSource();
                 ActionPlanData plan = actionController.getActiveActionPlan();
 
-                deletePlan.setDisable(!ds.getCurrentUser().canDelete(plan.getObject().getID()));
-                deleteAction.setDisable(!ds.getCurrentUser().canDelete(actionController.getSelectedData().getObject().getID()));
+                if (plan instanceof ActionPlanOverviewData) {
+                    deletePlan.setDisable(true);
+                } else {
+                    deletePlan.setDisable(!ds.getCurrentUser().canDelete(plan.getObject().getID()));
+                    deleteAction.setDisable(!ds.getCurrentUser().canDelete(actionController.getSelectedData().getObject().getID()));
+                }
+
+
             }
             //newPlan.setDisable(!da.getCurrentUser().canCreate(plan.getObject().getID()));
         } catch (Exception ex) {

@@ -26,7 +26,7 @@ public class TimeFilterSelector extends GridPane {
 
 
     //TODo locale name from Column
-    JFXComboBox<DateFilter.DateField> fDateField = new JFXComboBox<>(FXCollections.observableArrayList(ALLES, UMSETZUNG, ABGESCHLOSSEN, ERSTELLT));
+    JFXComboBox<DateFilter.DateField> fDateField = new JFXComboBox<>(FXCollections.observableArrayList(ALL, UMSETZUNG, ABGESCHLOSSEN, ERSTELLT));
     JFXComboBox<Month> fFromMonth = generateMonthBox();
     JFXComboBox<Month> fToMonth = generateMonthBox();
     JFXComboBox<Integer> fFromYear = generateYearBox();
@@ -57,7 +57,7 @@ public class TimeFilterSelector extends GridPane {
                         super.updateItem(item, empty);
                         if (item != null) {
                             switch (item) {
-                                case ALLES:
+                                case ALL:
                                     setText(I18n.getInstance().getString("plugin.action.tfiler.all"));
                                     break;
                                 case ABGESCHLOSSEN:
@@ -87,6 +87,7 @@ public class TimeFilterSelector extends GridPane {
         ChangeListener changeListener = new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                /*
                 lFrom.setDisable(newValue == ALLES);
                 lTo.setDisable(newValue == ALLES);
                 lDatum.setDisable(newValue == ALLES);
@@ -95,6 +96,8 @@ public class TimeFilterSelector extends GridPane {
                 fToMonth.setDisable(newValue == ALLES);
                 fToYear.setDisable(newValue == ALLES);
                 fFromYear.setDisable(newValue == ALLES);
+
+                 */
 
                 updateValue();
             }
@@ -108,16 +111,8 @@ public class TimeFilterSelector extends GridPane {
         fFromYear.valueProperty().addListener(changeListener);
         fDateField.getSelectionModel().selectFirst();
 
-        //GridPane.setColumnSpan(fDateField, 3);
-        //TimeFilterSelector.this.addRow(0, lDatum);
         TimeFilterSelector.this.addRow(0, fDateField, new Label("von"), fFromMonth, fFromYear, new Label("bis"), fToMonth, fToYear);
 
-        /*
-        this.addRow(0, lDatum, fDateField);
-        this.addRow(1, lFrom, fFromMonth, fFromYear);
-        this.addRow(2, lTo, fToMonth, fToYear);
-
-         */
     }
 
     private void initValues(ActionPlanData actionPlan) {
@@ -227,16 +222,16 @@ public class TimeFilterSelector extends GridPane {
 
     private JFXComboBox<Integer> generateYearBox() {
 
-        ObservableList<Integer> months = FXCollections.observableArrayList();
-        months.add(2018);
-        months.add(2019);
-        months.add(2020);
-        months.add(2021);
-        months.add(2022);
-        months.add(2023);
-        months.add(2024);
+        ObservableList<Integer> years = FXCollections.observableArrayList();
+        years.add(2018);
+        years.add(2019);
+        years.add(2020);
+        years.add(2021);
+        years.add(2022);
+        years.add(2023);
+        years.add(2024);
 
-        JFXComboBox<Integer> field = new JFXComboBox(months);
+        JFXComboBox<Integer> field = new JFXComboBox(years);
         field.setConverter(new StringConverter<Integer>() {
             @Override
             public String toString(Integer object) {
