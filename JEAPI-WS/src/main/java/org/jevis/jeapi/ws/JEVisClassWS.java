@@ -240,20 +240,26 @@ public class JEVisClassWS implements JEVisClass {
 
     @Override
     public List<JEVisClass> getValidParents() throws JEVisException {
-        List<JEVisClass> vaildParents = new LinkedList<JEVisClass>();
+        List<JEVisClass> validParents = new LinkedList<JEVisClass>();
 
         if (getInheritance() != null) {
-            vaildParents.addAll(getInheritance().getValidParents());
+            validParents.addAll(getInheritance().getValidParents());
         }
 
         for (JEVisClassRelationship rel : getRelationships()) {
             try {
                 if (rel.isType(JEVisConstants.ClassRelationship.OK_PARENT)
                         && rel.getStart().equals(this)) {
-                    if (!vaildParents.contains(rel.getOtherClass(this))) {
-                        vaildParents.add(rel.getOtherClass(this));
+                    if (!validParents.contains(rel.getOtherClass(this))) {
+                        JEVisClass otherClass = rel.getOtherClass(this);
+                        if (otherClass != null) {
+                            validParents.add(otherClass);
+                        }
                     }
-                    vaildParents.addAll(rel.getOtherClass(this).getHeirs());
+                    List<JEVisClass> heirs = rel.getOtherClass(this).getHeirs();
+                    if (heirs != null) {
+                        validParents.addAll(heirs);
+                    }
 
                 }
             } catch (Exception ex) {
@@ -262,9 +268,9 @@ public class JEVisClassWS implements JEVisClass {
         }
 
 
-        Collections.sort(vaildParents);
+        Collections.sort(validParents);
 
-        return vaildParents;
+        return validParents;
     }
 
     @Override
