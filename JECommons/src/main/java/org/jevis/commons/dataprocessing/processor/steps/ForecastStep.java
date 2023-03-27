@@ -1,6 +1,5 @@
 package org.jevis.commons.dataprocessing.processor.steps;
 
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.GapFillingBoundToSpecific;
 import org.jevis.commons.constants.GapFillingReferencePeriod;
@@ -144,7 +143,7 @@ public class ForecastStep implements ProcessStep {
             case ALL:
                 try {
                     return sampleCache.get(0).getTimestamp();
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             default:

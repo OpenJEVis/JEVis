@@ -32,7 +32,6 @@ public class PrepareForecast implements ProcessStep {
         ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
         WorkDays workDays = new WorkDays(forecastDataObject.getForecastDataObject());
         DateTimeZone tz = workDays.getDateTimeZone();
-        //TODO: TimeZone Shift
 
         List<PeriodRule> periodRules = forecastDataObject.getInputDataPeriodAlignment();
         List<CleanInterval> intervals = new ArrayList<>();
