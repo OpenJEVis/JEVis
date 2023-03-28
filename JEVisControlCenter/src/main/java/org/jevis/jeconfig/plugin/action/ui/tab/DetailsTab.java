@@ -135,7 +135,7 @@ public class DetailsTab extends Tab {
             }
         });
         try {
-            System.out.println("Select Object: " + data.getEnpi().dataObject.get());
+            //System.out.println("Select Object: " + data.getEnpi().dataObject.get());
             if (data.getEnpi().dataObject.get() <= 0l) {
                 f_EnpiSelection.setValue(FreeObject.getInstance());
             } else {
@@ -219,8 +219,6 @@ public class DetailsTab extends Tab {
         NumberStringConverter nsc = NumerFormating.getInstance().getCurrencyConverter();
         NumberStringConverter nscNoUnit = NumerFormating.getInstance().getDoubleConverter();
 
-        System.out.println("Consumption field: " + data.consumptionProperty());
-        f_consumptionBefore.getTextField().textProperty().addListener((observable, oldValue, newValue) -> System.out.println("text event: " + newValue));
         Bindings.bindBidirectional(f_consumptionBefore.getTextField().textProperty(), data.consumptionProperty().get().actualProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_consumptionBefore.getUnitField().textProperty(), data.consumptionProperty().get().unitProperty());
         Bindings.bindBidirectional(f_consumptionAfter.getTextField().textProperty(), data.consumptionProperty().get().afterProperty(), nscNoUnit);

@@ -133,7 +133,6 @@
 .table-view,
 .tree-table-view{
     -fx-background-color: -fx-table-color-background;
-    -fx-font-size: 15px;
     -fx-font-family: "Calibri";
 
 

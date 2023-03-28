@@ -143,7 +143,6 @@ public class CapitalTab extends Tab {
         Bindings.bindBidirectional(f_kapitalrateOverX.textProperty(), data.npv.get().piResultOverX, decimalFormat);
         Bindings.bindBidirectional(f_infation.textProperty(), data.npv.get().inflation, nscNoUnit);
         Bindings.bindBidirectional(f_runningCost.textProperty(), data.npv.get().runningCost, nscNoUnit);
-        System.out.println("f_einsparrung: " + f_einsparrung.textProperty());
 
         f_zinssatz.setAlignment(Pos.CENTER_RIGHT);
         f_kapitalwert.setAlignment(Pos.CENTER_RIGHT);

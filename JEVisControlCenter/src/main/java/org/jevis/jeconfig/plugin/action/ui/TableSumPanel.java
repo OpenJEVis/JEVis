@@ -10,7 +10,6 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -86,7 +85,7 @@ public class TableSumPanel extends GridPane {
     }
 
     private void updateLayout() {
-        System.out.println("UpdateLayout");
+        //System.out.println("UpdateLayout");
         columns.clear();
         getChildren().clear();
         getColumnConstraints().clear();
@@ -104,30 +103,22 @@ public class TableSumPanel extends GridPane {
 
         for (String s : mediums) {
             if (!columns.containsKey(s)) {
-                System.out.println("-addMedium: " + s);
                 Label label = new Label(s);
                 JFXTextField field = new JFXTextField();
-                System.out.println("- " + field);
                 field.setAlignment(Pos.CENTER_RIGHT);
-                field.setTooltip(new Tooltip("m:" + (columns.size() + 2) + ""));
                 int newColumn = columns.size() + 2;
                 columns.put(s, field);
                 this.getColumnConstraints().add(newColumn,
                         new ColumnConstraints(100, 100, 300, Priority.NEVER, HPos.RIGHT, true));//160
                 add(label, newColumn, 0);
                 add(field, newColumn, 1);
-            } else {
-                System.out.println("-is there allready");
             }
         }
 
         for (String s : actionPlan.getStatustags()) {
             if (!columns.containsKey(s)) {
-                System.out.println("-addStatus: " + s);
                 Label label = new Label(s);
                 JFXTextField field = new JFXTextField();
-                System.out.println("- " + field);
-                field.setTooltip(new Tooltip("s:" + (columns.size() + 2) + ""));
                 field.setAlignment(Pos.CENTER_RIGHT);
                 int newColumn = columns.size() + 2;
                 columns.put(s, field);
@@ -135,8 +126,6 @@ public class TableSumPanel extends GridPane {
                         new ColumnConstraints(100, 100, 300, Priority.NEVER, HPos.RIGHT, true));//170
                 add(label, newColumn, 0);
                 add(field, newColumn, 1);
-            } else {
-                System.out.println("-is there allready");
             }
         }
 
@@ -170,17 +159,16 @@ public class TableSumPanel extends GridPane {
             });
 
             data.forEach(actionData -> {
-                System.out.println("------------");
-                System.out.println("mediumSum: ad: " + actionData + "   isIn: " + mediumSum.containsKey(actionData.mediaTagsProperty().get()));
+                //System.out.println("------------");
+                //System.out.println("mediumSum: ad: " + actionData + "   isIn: " + mediumSum.containsKey(actionData.mediaTagsProperty().get()));
                 if (mediumSum.containsKey(actionData.mediaTagsProperty().get())) {
 
                     DoubleProperty value = mediumSum.get(actionData.mediaTagsProperty().get());
                     if (!actionData.consumption.get().diffProperty().getValue().isNaN()) {
-                        System.out.println("Add: " + actionData.consumption.get().diffProperty().get());
-                        ;
+                        // System.out.println("Add: " + actionData.consumption.get().diffProperty().get());
                         value.setValue(value.get() + actionData.consumption.get().diffProperty().get());
                     }
-                    System.out.println("new sum: " + value.get());
+                    // System.out.println("new sum: " + value.get());
 
 
                 }
@@ -231,11 +219,16 @@ public class TableSumPanel extends GridPane {
             });
 
             statusMap.forEach((s, doubleProperty) -> {
-                // System.out.println("Fill GUIs: " + s + "  double: " + doubleProperty + " field: " + columns.get(s));
+                //System.out.println("Fill GUIs: " + s + "  double: " + doubleProperty + " field: " + columns.get(s));
                 JFXTextField jfxTextField = columns.get(s);
-                Platform.runLater(() -> {
-                    jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()));
-                });
+                if (jfxTextField != null) {
+                    Platform.runLater(() -> {
+                        jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()));
+                    });
+
+                } else {
+                    // System.out.println("Missing  textField in sum: " + s);
+                }
 
                 //System.out.println("set status: " + s + "=" + doubleProperty.get());
             });

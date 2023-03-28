@@ -103,21 +103,6 @@ public class GeneralTab extends Tab {
         data.getActionPlan().getFieldsTags().forEach(s -> {
             f_fieldTags2Data.add(new CheckBoxData(s, false));
         });
-/*
-        Arrays.stream(data.fieldTagsProperty().get().split(",")).forEach(s -> {
-            f_fieldTags2Data.add(new CheckBoxData(s, true));
-        });
-
- */
-
-        /*
-        f_fieldTags2 = new JFXCheckComboBox(data.getActionPlan().getFieldsTags(), data.fieldTagsProperty().get());
-        f_fieldTags2.textProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("FieldTags2: " + newValue + "     " + f_fieldTags2.getValue());
-            data.getActionPlan().getFieldsTags().setAll(newValue);
-        });
-
-         */
 
         f_Title.widthProperty().addListener((observable, oldValue, newValue) -> {
             f_statusTags.setPrefWidth(newValue.doubleValue());
@@ -138,7 +123,7 @@ public class GeneralTab extends Tab {
         f_statusTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                System.out.println("Status change: " + newValue + " = " + ActionPlanData.STATUS_DONE + " = " + newValue.equals(ActionPlanData.STATUS_DONE));
+                //System.out.println("Status change: " + newValue + " = " + ActionPlanData.STATUS_DONE + " = " + newValue.equals(ActionPlanData.STATUS_DONE));
                 data.statusTagsProperty().set(newValue);
                 if (newValue.equals(ActionPlanData.STATUS_DONE)) {
                     data.doneDateProperty().set(new DateTime());
@@ -206,6 +191,13 @@ public class GeneralTab extends Tab {
 
         Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, NumerFormating.getInstance().getDoubleConverter());
         Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, NumerFormating.getInstance().getDoubleConverter());
+
+        f_savingYear.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                f_savingYear.textProperty().set(NumerFormating.getInstance().getDoubleFormate().format(data.npv.get().einsparung.get()));
+            }
+        });
+
 
         // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
         JFXTextField l_savingsUnitLabel = new JFXTextField("€");
@@ -306,7 +298,7 @@ public class GeneralTab extends Tab {
 
 
         l_doneDate.setText("Abgeschlossen");
-        l_plannedDate.setText("Umsetzung");
+        l_plannedDate.setText(I18n.getInstance().getString("plugin.action.plandate"));
         l_Note.setText(I18n.getInstance().getString("plugin.action.note"));
         l_Description.setText(I18n.getInstance().getString("plugin.action.description"));
         l_ActionNr.setText(I18n.getInstance().getString("plugin.action.nr"));

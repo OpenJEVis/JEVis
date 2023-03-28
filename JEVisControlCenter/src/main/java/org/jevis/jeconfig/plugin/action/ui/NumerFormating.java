@@ -21,7 +21,7 @@ public class NumerFormating {
         currencyFormat = NumberFormat.getCurrencyInstance();
         numberFormat = NumberFormat.getNumberInstance();
         currencyFormat.setCurrency(Currency.getInstance(Locale.GERMANY));
-        NumberFormat doubleFormat = NumberFormat.getNumberInstance();
+        NumberFormat doubleFormat = NumberFormat.getNumberInstance(Locale.GERMANY);
         doubleFormat.setGroupingUsed(true);
 
         //doubleFormat.setMinimumFractionDigits(-1);
@@ -40,8 +40,23 @@ public class NumerFormating {
         nscNoUnit = new NumberStringConverter() {
             @Override
             public String toString(Number value) {
+                //System.out.println("toString: " + value + "  f: " + doubleFormat.format(value));
                 return doubleFormat.format(value);
             }
+
+
+            @Override
+            public Number fromString(String value) {
+                try {
+                    //System.out.println("fromString: " + value + "  f: " + doubleFormat.parse(value));
+                    return doubleFormat.parse(value);
+                } catch (Exception ex) {
+                    return 0d;
+                }
+
+            }
+
+
         };
     }
 

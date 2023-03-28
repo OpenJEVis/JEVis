@@ -7,6 +7,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.ActionController;
 
 import java.util.stream.Collectors;
@@ -26,9 +27,9 @@ public class ActionPlanOverviewData extends ActionPlanData {
     private ActionController controller;
 
     public ActionPlanOverviewData(ActionController controller) {
-        System.out.println("New OverVieData from Object: " + controller);
+        //System.out.println("New OverViewData from Object: " + controller);
         this.controller = controller;
-        name.set("Übersicht");
+        name.set(I18n.getInstance().getString("plugin.action.plan.overview"));
 
         statusTags = FXCollections.observableArrayList();
         fieldsTags = FXCollections.observableArrayList();
@@ -40,13 +41,13 @@ public class ActionPlanOverviewData extends ActionPlanData {
             @Override
             public void onChanged(Change<? extends ActionPlanData> c) {
                 while (c.next()) {
-                    System.out.println("!!!!!! Overview: " + c);
+                    // System.out.println("!!!!!! Overview: " + c);
                     if (c.getList().equals(actions)) {
-                        System.out.println("is master Liste");
+                        // System.out.println("is master Liste");
                     } else {
-                        System.out.println("is not master list");
+                        //System.out.println("is not master list");
                         if (c.wasAdded() || c.wasRemoved()) {
-                            System.out.println("new list: " + c.getList());
+                            // System.out.println("new list: " + c.getList());
                             updateData();
                         }
                     }
@@ -61,7 +62,7 @@ public class ActionPlanOverviewData extends ActionPlanData {
 
 
     public void updateData() {
-        System.out.println("Update Overview Data");
+        //System.out.println("Update Overview Data");
         statusTags.clear();
         fieldsTags.clear();
         mediumTags.clear();
@@ -71,7 +72,7 @@ public class ActionPlanOverviewData extends ActionPlanData {
             if (actionPlanData instanceof ActionPlanOverviewData) {
                 return;
             }
-            System.out.println("Add actionPlan to overview: " + actionPlanData);
+            //System.out.println("Add actionPlan to overview: " + actionPlanData);
 
             //actionPlanData.loadActionList();
 
@@ -101,9 +102,6 @@ public class ActionPlanOverviewData extends ActionPlanData {
                 }
             });
         });
-
-
-        System.out.println("Status nach update: " + statusTags);
 
     }
 

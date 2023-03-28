@@ -159,10 +159,11 @@ public class ActionData {
     }
 
     public void update() {
-        System.out.println("-ActionData.update: " + this);
+        //System.out.println("-ActionData.update: " + this);
         nr.addListener((observable, oldValue, newValue) -> updateNrText());
         originalSettings = gson.toJson(this);
         consumption.get().update();
+        enpi.get().setEnPI(true);
         enpi.get().update();
         npv.get().update();
     }
