@@ -274,18 +274,17 @@ public class TableChartV extends XYChart {
                                 if (!empty) {
                                     try {
                                         String customCSS = xyChartSerie.getSingleRow().getCustomCSS();
+                                        setText(item);
 
-                                        JFXTextField jfxTextField = new JFXTextField(item);
                                         if (showRowSums && getTableRow() != null && getTableRow().getIndex() == rowSums.size() - 1) {
-                                            jfxTextField.setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
+                                            setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
                                         } else {
-                                            jfxTextField.setStyle("-fx-alignment: CENTER-RIGHT;");
+                                            setStyle("-fx-alignment: CENTER-RIGHT;");
                                         }
 
                                         if (customCSS != null) {
-                                            this.setStyle(customCSS);
+                                            setStyle(getStyle() + customCSS);
                                         }
-                                        setGraphic(jfxTextField);
 
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -366,10 +365,8 @@ public class TableChartV extends XYChart {
 
                                     if (!empty) {
                                         try {
-                                            JFXTextField jfxTextField = new JFXTextField(item);
-                                            jfxTextField.setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
-                                            setGraphic(jfxTextField);
-
+                                            setText(item);
+                                            setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -517,23 +514,18 @@ public class TableChartV extends XYChart {
                             setGraphic(null);
                         } else {
                             try {
-                                JFXTextField textField = new JFXTextField();
-
                                 if (item.equals(maxDate)) {
-                                    textField.setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
-                                    textField.setText(I18n.getInstance().getString("plugin.graph.table.sum"));
+                                    setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
+                                    setText(I18n.getInstance().getString("plugin.graph.table.sum"));
                                 } else {
-                                    textField.setStyle("-fx-alignment: CENTER-RIGHT;");
+                                    setStyle("-fx-alignment: CENTER-RIGHT;");
                                     if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
                                         DateTime modDateTime = item.plusDays(1);
-                                        textField.setText(modDateTime.toString(normalPattern));
+                                        setText(modDateTime.toString(normalPattern));
                                     } else {
-                                        textField.setText(item.toString(normalPattern));
+                                        setText(item.toString(normalPattern));
                                     }
                                 }
-
-                                setGraphic(textField);
-
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
