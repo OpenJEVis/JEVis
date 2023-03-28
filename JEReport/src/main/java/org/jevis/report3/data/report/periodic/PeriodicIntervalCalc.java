@@ -28,10 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PeriodicIntervalCalc implements IntervalCalculator {
 
     private static final Logger logger = LogManager.getLogger(PeriodicIntervalCalc.class);
-    private static final Map<String, Interval> intervalMap = new ConcurrentHashMap<>();
-    private static boolean isInit = false;
+    private final Map<String, Interval> intervalMap = new ConcurrentHashMap<>();
     private final SampleHandler samplesHandler;
     private JEVisObject reportObject = null;
+    private DateTime start;
 
     @Inject
     public PeriodicIntervalCalc(SampleHandler samplesHandler) {
@@ -43,22 +43,25 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         return intervalMap.get(period);
     }
 
-    public synchronized boolean getIsInit() {
-        return isInit;
-    }
-
-    public synchronized void setIsInitTrue() {
-        isInit = true;
+    @Override
+    public JEVisObject getReportObject() {
+        return reportObject;
     }
 
     private void initializeIntervalMap(JEVisObject reportObject) {
         this.reportObject = reportObject;
 
         String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
-        Period schedule = Period.valueOf(scheduleString.toUpperCase());
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
-        DateTime start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
-//        WorkDays wd = new WorkDays(reportObject);
+        start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
+
+        buildIntervals(scheduleString, start);
+    }
+
+    public void buildIntervals(String scheduleString, DateTime start) {
+        intervalMap.clear();
+
+        Period schedule = Period.valueOf(scheduleString.toUpperCase());
 
         org.jevis.commons.datetime.DateHelper dateHelper = null;
 
@@ -67,19 +70,6 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         for (PeriodMode mode : PeriodMode.values()) {
             DateTime startRecord = calcStartRecord(start, schedule, mode, FixedPeriod.NONE, dateHelper);
             DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
-
-//            boolean isGreaterThenDays = PeriodHelper.isGreaterThenDays(new org.joda.time.Period(startRecord, endRecord));
-
-//            if (isGreaterThenDays && wd.isCustomWorkDay()) {
-//                startRecord = startRecord.withHourOfDay(wd.getWorkdayStart().getHour()).withMinuteOfHour(wd.getWorkdayStart().getMinute())
-//                        .withSecondOfMinute(wd.getWorkdayStart().getSecond());
-//                endRecord = endRecord.withHourOfDay(wd.getWorkdayEnd().getHour()).withMinuteOfHour(wd.getWorkdayEnd().getMinute())
-//                        .withSecondOfMinute(wd.getWorkdayEnd().getSecond());
-//
-//                if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) {
-//                    startRecord = startRecord.minusDays(1);
-//                }
-//            }
 
             Interval interval = new Interval(startRecord, endRecord);
             intervalMap.put(mode.toString().toUpperCase(), interval);
@@ -94,9 +84,11 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             Interval intervalFixed = new Interval(startRecordFixed, endRecord);
             Interval intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecord);
             Interval intervalRelative = new Interval(startRecordFixedToReportEnd, endRecordRelative);
+
             String nameFixed = PeriodMode.FIXED + "_" + fixedPeriod.toString().toUpperCase();
             String nameFixedToReportEnd = PeriodMode.FIXED_TO_REPORT_END + "_" + fixedPeriod.toString().toUpperCase();
             String nameRelative = PeriodMode.RELATIVE + "_" + fixedPeriod.toString().toUpperCase();
+
             intervalMap.put(nameFixed, intervalFixed);
             intervalMap.put(nameFixedToReportEnd, intervalFixedToReportEnd);
             intervalMap.put(nameRelative, intervalRelative);
@@ -228,9 +220,52 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         return resultStartRecord;
     }
 
+    public DateTime alignDateToSchedule(String scheduleString, DateTime dateTime) {
+        DateTime resultDateTime = dateTime;
+        switch (scheduleString) {
+            case "MINUTELY":
+                resultDateTime = dateTime.withSecondOfMinute(0).withMillisOfSecond(0);
+                break;
+            case "HOURLY":
+                resultDateTime = dateTime.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                break;
+            case "DAILY":
+                resultDateTime = dateTime.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                break;
+            case "WEEKLY":
+                resultDateTime = dateTime.withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                break;
+            case "MONTHLY":
+                resultDateTime = dateTime.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                break;
+            case "QUARTERLY":
+                if (dateTime.getMonthOfYear() <= 3) {
+                    resultDateTime = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (dateTime.getMonthOfYear() <= 6) {
+                    resultDateTime = dateTime.withMonthOfYear(4).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (dateTime.getMonthOfYear() <= 9) {
+                    resultDateTime = dateTime.withMonthOfYear(7).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                } else if (dateTime.getMonthOfYear() <= 12) {
+                    resultDateTime = dateTime.withMonthOfYear(10).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                }
+                break;
+            case "YEARLY":
+                resultDateTime = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                break;
+            case "NONE":
+            default:
+                break;
+        }
+
+        return resultDateTime;
+    }
+
     @Override
     public void buildIntervals(JEVisObject reportObject) {
         initializeIntervalMap(reportObject);
     }
 
+    public DateTime getStart() {
+        return start;
+    }
 }

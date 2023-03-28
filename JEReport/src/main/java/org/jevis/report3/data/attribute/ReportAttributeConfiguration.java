@@ -25,6 +25,7 @@ public interface ReportAttributeConfiguration {
         String AGGREGATION = "Aggregation";
         String MANIPULATION = "Manipulation";
         String FIXED_PERIOD = "Fixed Period";
+        String OVERRIDE_SCHEDULE = "Override Schedule";
     }
 
     interface ReportAttributeSpecificValueConfiguration extends ReportAttributeConfiguration {
