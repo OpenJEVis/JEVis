@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -173,7 +174,7 @@ public class TreeSelectionDialog extends Dialog {
                     selectionShow.show();
                 }
             } catch (Exception e) {
-
+                logger.error(e);
             }
         });
 
@@ -181,13 +182,16 @@ public class TreeSelectionDialog extends Dialog {
         cancelButton.setCancelButton(true);
         cancelButton.setOnAction(event -> this.close());
 
-        HBox buttonBar = new HBox(8, filterVBox, filterTextField, classVBox, filterBox);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox buttonBar = new HBox(8, filterVBox, filterTextField, classVBox, filterBox, spacer);
         buttonBar.setAlignment(Pos.CENTER_RIGHT);
 
         box.getChildren().addAll(new TreeViewPath(treeView), treeView, buttonBar);
         VBox.setVgrow(treeView, Priority.ALWAYS);
-        box.setMinHeight(768);
-        box.setMinWidth(1024);
+        box.setMinHeight(480);
+        box.setMinWidth(640);
 
         this.getDialogPane().setContent(box);
     }

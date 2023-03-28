@@ -236,7 +236,12 @@ public class ReportWizardDialog {
                                         JEVisSample templateVariableSample = templateVariableName.buildSample(new DateTime(), variableName);
                                         templateVariableSample.commit();
 
-                                        if (reportType == ReportType.STANDARD && (ds.getObject(jevisIdSample.getValueAsLong()).getJEVisClass().getName().equals(JC.Data.name) || ds.getObject(jevisIdSample.getValueAsLong()).getJEVisClass().getName().equals(JC.Data.CleanData.name))) {
+                                        if (reportType == ReportType.STANDARD &&
+                                                (ds.getObject(jevisIdSample.getValueAsLong()).getJEVisClass().getName().equals(JC.Data.name)
+                                                        || ds.getObject(jevisIdSample.getValueAsLong()).getJEVisClass().getName().equals(JC.Data.CleanData.name)
+                                                        || ds.getObject(jevisIdSample.getValueAsLong()).getJEVisClass().getName().equals(JC.Data.ForecastData.name)
+                                                        || ds.getObject(jevisIdSample.getValueAsLong()).getJEVisClass().getName().equals(JC.Data.MathData.name)
+                                                        || ds.getObject(jevisIdSample.getValueAsLong()).getJEVisClass().getName().equals(JC.Data.BaseData.name))) {
                                             JEVisObject reportAttribute = object.buildObject(I18n.getInstance().getString("tree.treehelper.reportattribute.name"), finalReportAttributeClass);
                                             reportAttribute.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.reportattribute.name"));
                                             reportAttribute.commit();

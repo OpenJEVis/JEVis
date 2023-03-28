@@ -1,6 +1,5 @@
 package org.jevis.commons.dataprocessing.processor.steps;
 
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.GapFillingBoundToSpecific;
 import org.jevis.commons.constants.GapFillingReferencePeriod;
@@ -144,7 +143,7 @@ public class ForecastStep implements ProcessStep {
             case ALL:
                 try {
                     return sampleCache.get(0).getTimestamp();
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             default:
@@ -152,7 +151,7 @@ public class ForecastStep implements ProcessStep {
         }
     }
 
-    private Double getSpecificValue(List<JEVisSample> sampleCache, List<CleanInterval> intervals, JsonGapFillingConfig c, DateTime lastDate) throws JEVisException {
+    private Double getSpecificValue(List<JEVisSample> sampleCache, List<CleanInterval> intervals, JsonGapFillingConfig c, DateTime lastDate) throws Exception {
 
         GapFillingBoundToSpecific bindToSpecificValue = GapFillingBoundToSpecific.parse(c.getBindtospecific());
         if (Objects.isNull(bindToSpecificValue)) bindToSpecificValue = GapFillingBoundToSpecific.NONE;
@@ -176,7 +175,7 @@ public class ForecastStep implements ProcessStep {
             case WEEKOFYEAR:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
                     for (JEVisSample sample : sampleCache) {
-                        if (sample.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
+                        if (sample.getTimestamp().getWeekOfWeekyear() == lastDate.getWeekOfWeekyear()) {
                             if ((sample.getTimestamp().getHourOfDay() == lastDate.getHourOfDay()) && (sample.getTimestamp().getMinuteOfHour() == lastDate.getMinuteOfHour())) {
                                 boundListSamples.add(sample);
                             }
@@ -208,7 +207,7 @@ public class ForecastStep implements ProcessStep {
     }
 
     private Double calcValueWithType(List<JEVisSample> listSamples, JsonGapFillingConfig c) throws
-            JEVisException {
+            Exception {
         final GapFillingType gapFillingType = GapFillingType.parse(c.getType());
 
         if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {

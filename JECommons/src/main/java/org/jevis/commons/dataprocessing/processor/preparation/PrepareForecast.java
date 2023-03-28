@@ -6,7 +6,9 @@ import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.datetime.WorkDays;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
@@ -14,9 +16,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrepareForecast implements ProcessStep {
+    private static DateTime fixTimeZoneOffset(DateTimeZone tz, DateTime start, int offset) {
+        int newOffset = tz.getOffset(start);
+
+        if (newOffset > offset) {
+            start = start.minus(newOffset - offset);
+        } else if (newOffset < offset) {
+            start = start.plus(offset - newOffset);
+        }
+        return start;
+    }
+
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
         ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
+        WorkDays workDays = new WorkDays(forecastDataObject.getForecastDataObject());
+        DateTimeZone tz = workDays.getDateTimeZone();
 
         List<PeriodRule> periodRules = forecastDataObject.getInputDataPeriodAlignment();
         List<CleanInterval> intervals = new ArrayList<>();
@@ -37,7 +52,9 @@ public class PrepareForecast implements ProcessStep {
         if (periodHasMonths || periodHasYear || periodHasWeeks || periodHasDays || periodHasHours || periodHasMinutes || periodHasSeconds || periodHasMillis) {
 
             if (start != null && end != null) {
+                int offset = tz.getOffset(start);
                 while (start.isBefore(end)) {
+
                     inputPeriod = CleanDataObject.getPeriodForDate(periodRules, start);
                     DateTime endOfInterval;
                     if (periodHasYear) {
@@ -64,7 +81,9 @@ public class PrepareForecast implements ProcessStep {
                     } else {
                         endOfInterval = start.plus(inputPeriod);
                     }
+                    endOfInterval = fixTimeZoneOffset(tz, endOfInterval, offset);
                     endOfInterval = endOfInterval.minusMillis(1);
+
                     Interval interval = new Interval(start, endOfInterval);
                     CleanInterval cleanInterval = new CleanInterval(interval, start);
                     cleanInterval.getResult().setTimeStamp(start);
@@ -95,6 +114,8 @@ public class PrepareForecast implements ProcessStep {
                     } else {
                         start = start.plus(inputPeriod);
                     }
+                    start = fixTimeZoneOffset(tz, start, offset);
+                    offset = tz.getOffset(start);
                 }
                 resourceManager.setIntervals(intervals);
             }

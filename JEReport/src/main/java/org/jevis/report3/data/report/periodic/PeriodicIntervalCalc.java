@@ -89,13 +89,17 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             DateTime startRecordFixed = calcStartRecord(start, schedule, PeriodMode.FIXED, fixedPeriod, dateHelper);
             DateTime startRecordFixedToReportEnd = calcStartRecord(start, schedule, PeriodMode.FIXED_TO_REPORT_END, fixedPeriod, dateHelper);
             DateTime endRecord = PeriodHelper.calcEndRecord(start, schedule, dateHelper);
+            DateTime endRecordRelative = PeriodHelper.calcEndRecord(startRecordFixedToReportEnd, schedule, dateHelper);
 
             Interval intervalFixed = new Interval(startRecordFixed, endRecord);
             Interval intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecord);
+            Interval intervalRelative = new Interval(startRecordFixedToReportEnd, endRecordRelative);
             String nameFixed = PeriodMode.FIXED + "_" + fixedPeriod.toString().toUpperCase();
             String nameFixedToReportEnd = PeriodMode.FIXED_TO_REPORT_END + "_" + fixedPeriod.toString().toUpperCase();
+            String nameRelative = PeriodMode.RELATIVE + "_" + fixedPeriod.toString().toUpperCase();
             intervalMap.put(nameFixed, intervalFixed);
             intervalMap.put(nameFixedToReportEnd, intervalFixedToReportEnd);
+            intervalMap.put(nameRelative, intervalRelative);
         }
 
         logger.info("Initialized Interval Map. Created {} entries", intervalMap.size());
@@ -180,6 +184,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                     default:
                         break;
                 }
+            case RELATIVE:
             case FIXED_TO_REPORT_END:
                 switch (fixedPeriod) {
                     case QUARTER_HOUR:
