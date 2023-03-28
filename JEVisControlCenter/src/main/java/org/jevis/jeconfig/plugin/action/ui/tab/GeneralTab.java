@@ -25,7 +25,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.ui.CheckBoxData;
-import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
+import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -103,21 +103,6 @@ public class GeneralTab extends Tab {
         data.getActionPlan().getFieldsTags().forEach(s -> {
             f_fieldTags2Data.add(new CheckBoxData(s, false));
         });
-/*
-        Arrays.stream(data.fieldTagsProperty().get().split(",")).forEach(s -> {
-            f_fieldTags2Data.add(new CheckBoxData(s, true));
-        });
-
- */
-
-        /*
-        f_fieldTags2 = new JFXCheckComboBox(data.getActionPlan().getFieldsTags(), data.fieldTagsProperty().get());
-        f_fieldTags2.textProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("FieldTags2: " + newValue + "     " + f_fieldTags2.getValue());
-            data.getActionPlan().getFieldsTags().setAll(newValue);
-        });
-
-         */
 
         f_Title.widthProperty().addListener((observable, oldValue, newValue) -> {
             f_statusTags.setPrefWidth(newValue.doubleValue());
@@ -138,7 +123,7 @@ public class GeneralTab extends Tab {
         f_statusTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                System.out.println("Status change: " + newValue + " = " + ActionPlanData.STATUS_DONE + " = " + newValue.equals(ActionPlanData.STATUS_DONE));
+                //System.out.println("Status change: " + newValue + " = " + ActionPlanData.STATUS_DONE + " = " + newValue.equals(ActionPlanData.STATUS_DONE));
                 data.statusTagsProperty().set(newValue);
                 if (newValue.equals(ActionPlanData.STATUS_DONE)) {
                     data.doneDateProperty().set(new DateTime());
@@ -177,7 +162,12 @@ public class GeneralTab extends Tab {
         });
 
         f_doneDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            if (newValue.isAfter(LocalDate.now())) {
+                data.doneDateProperty().set(new DateTime());
+            } else {
+                data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            }
+
         });
 
 
@@ -199,8 +189,15 @@ public class GeneralTab extends Tab {
         });
 
 
-        Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, DoubleConverter.getInstance().getDoubleConverter());
-        Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, DoubleConverter.getInstance().getDoubleConverter());
+        Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, NumerFormating.getInstance().getDoubleConverter());
+        Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, NumerFormating.getInstance().getDoubleConverter());
+
+        f_savingYear.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                f_savingYear.textProperty().set(NumerFormating.getInstance().getDoubleFormate().format(data.npv.get().einsparung.get()));
+            }
+        });
+
 
         // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
         JFXTextField l_savingsUnitLabel = new JFXTextField("€");
@@ -231,17 +228,17 @@ public class GeneralTab extends Tab {
         add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_ActionNr);
         add(gridPane, 1, 2, 1, 1, Priority.NEVER, l_Title);
         add(gridPane, 1, 3, 1, 1, Priority.NEVER, l_Responsible);
-        add(gridPane, 1, 4, 1, 1, Priority.NEVER, l_plannedDate);
-        add(gridPane, 1, 5, 1, 1, Priority.NEVER, l_doneDate);
-        add(gridPane, 1, 6, 1, 1, Priority.NEVER, l_CreateDate);
+        add(gridPane, 1, 4, 1, 1, Priority.NEVER, l_CreateDate);
+        add(gridPane, 1, 5, 1, 1, Priority.NEVER, l_plannedDate);
+        add(gridPane, 1, 6, 1, 1, Priority.NEVER, l_doneDate);
         // add(gridPane, 1, 7, 1, 1, Priority.NEVER, l_distributor);
 
         add(gridPane, 2, 1, 1, 1, Priority.SOMETIMES, f_ActionNr);
         add(gridPane, 2, 2, 1, 1, Priority.SOMETIMES, f_Title);
         add(gridPane, 2, 3, 1, 1, Priority.SOMETIMES, f_Responsible);
-        add(gridPane, 2, 4, 1, 1, Priority.SOMETIMES, f_plannedDate);
-        add(gridPane, 2, 5, 1, 1, Priority.SOMETIMES, f_doneDate);
-        add(gridPane, 2, 6, 1, 1, Priority.SOMETIMES, f_CreateDate);
+        add(gridPane, 2, 4, 1, 1, Priority.SOMETIMES, f_CreateDate);
+        add(gridPane, 2, 5, 1, 1, Priority.SOMETIMES, f_plannedDate);
+        add(gridPane, 2, 6, 1, 1, Priority.SOMETIMES, f_doneDate);
         //add(gridPane, 2, 7, 1, 1, Priority.NEVER, f_distributor);
 
         add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, l_Description);
@@ -255,17 +252,17 @@ public class GeneralTab extends Tab {
         add(gridPane, 4, 1, 1, 1, Priority.SOMETIMES, l_statusTags);
         add(gridPane, 4, 2, 1, 1, Priority.SOMETIMES, l_fieldTags);
         add(gridPane, 4, 3, 1, 1, Priority.SOMETIMES, l_seu);
-        add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, l_Investment);
+        add(gridPane, 4, 4, 1, 1, Priority.SOMETIMES, l_FromUser);
         add(gridPane, 4, 5, 1, 1, Priority.SOMETIMES, l_changeKost);
-        add(gridPane, 4, 6, 1, 1, Priority.SOMETIMES, l_FromUser);
+        add(gridPane, 4, 6, 1, 1, Priority.SOMETIMES, l_Investment);
         add(gridPane, 4, 7, 1, 1, Priority.SOMETIMES, l_Attachment);
 
         add(gridPane, 5, 1, 1, 1, Priority.SOMETIMES, f_statusTags);
         add(gridPane, 5, 2, 1, 1, Priority.SOMETIMES, f_fieldTags);//f_fieldTags2);
         add(gridPane, 5, 3, 1, 1, Priority.SOMETIMES, f_sueTags);
-        add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, investBox);
+        add(gridPane, 5, 4, 1, 1, Priority.SOMETIMES, f_FromUser);
         add(gridPane, 5, 5, 1, 1, Priority.SOMETIMES, savingsBox);//f_Investment
-        add(gridPane, 5, 6, 1, 1, Priority.SOMETIMES, f_FromUser);//f_savings
+        add(gridPane, 5, 6, 1, 1, Priority.SOMETIMES, investBox);//f_savings
         add(gridPane, 5, 7, 1, 1, Priority.SOMETIMES, f_Attachment);
 
         add(gridPane, 4, 8, 2, 1, Priority.SOMETIMES, l_NoteEnergiefluss);
@@ -301,7 +298,7 @@ public class GeneralTab extends Tab {
 
 
         l_doneDate.setText("Abgeschlossen");
-        l_plannedDate.setText("Umsetzung");
+        l_plannedDate.setText(I18n.getInstance().getString("plugin.action.plandate"));
         l_Note.setText(I18n.getInstance().getString("plugin.action.note"));
         l_Description.setText(I18n.getInstance().getString("plugin.action.description"));
         l_ActionNr.setText(I18n.getInstance().getString("plugin.action.nr"));
@@ -320,6 +317,7 @@ public class GeneralTab extends Tab {
         l_NoteEnergiefluss.setWrapText(true);
 
         setContent(scrollPane);
+
     }
 
     private void add(GridPane pane, int column, int row, int colspan, int rowspan, Priority priority, Node node) {

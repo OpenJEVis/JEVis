@@ -36,7 +36,7 @@ public class TableSumPanel extends GridPane {
     Label l_sumSavingsYear = new Label(fakeNames.npv.get().einsparung.getName());
     Label l_sumSavingEnergy = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
     ObservableList<ActionData> data;
-    NumberFormat currencyFormat = DoubleConverter.getInstance().getCurrencyFormat();
+    NumberFormat currencyFormat = NumerFormating.getInstance().getCurrencyFormat();
     NumberStringConverter nsc = new NumberStringConverter() {
         @Override
         public String toString(Number value) {
@@ -65,17 +65,6 @@ public class TableSumPanel extends GridPane {
         // addRow(1, l_sumLabel, f_sumInvestment, f_sumSavingsYear);
 
 
-        this.getColumnConstraints().add(0, new ColumnConstraints(100, 150, 300, Priority.NEVER, HPos.RIGHT, true));
-        this.getColumnConstraints().add(1, new ColumnConstraints(100, 175, 300, Priority.NEVER, HPos.RIGHT, true));
-        //this.getColumnConstraints().add(2, new ColumnConstraints(180, 180, 300, Priority.NEVER, HPos.RIGHT, true));
-        //this.getColumnConstraints().add(3, new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
-        //this.getColumnConstraints().add(4, new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
-
-        getChildren().clear();
-        addRow(0, new Region(), l_sumSavingsYear); //l_sumInvestment
-        addRow(1, l_sumLabel, f_sumSavingsYear); //f_sumInvestment
-        updateLayout();
-
         actionPlan.getMediumTags().addListener((ListChangeListener<String>) c -> {
             while (c.next()) {
                 updateLayout();
@@ -96,7 +85,22 @@ public class TableSumPanel extends GridPane {
     }
 
     private void updateLayout() {
+        //System.out.println("UpdateLayout");
+        columns.clear();
+        getChildren().clear();
+        getColumnConstraints().clear();
+
+        this.getColumnConstraints().add(0, new ColumnConstraints(100, 150, 300, Priority.NEVER, HPos.RIGHT, true));
+        this.getColumnConstraints().add(1, new ColumnConstraints(100, 175, 300, Priority.NEVER, HPos.RIGHT, true));
+
+        addRow(0, new Region(), l_sumSavingsYear); //l_sumInvestment
+        addRow(1, l_sumLabel, f_sumSavingsYear); //f_sumInvestment
+        //updateLayout();
+
+
+        //this.getColumnConstraints().clear();
         ObservableList<String> mediums = actionPlan.getMediumTags();
+
         for (String s : mediums) {
             if (!columns.containsKey(s)) {
                 Label label = new Label(s);
@@ -105,34 +109,47 @@ public class TableSumPanel extends GridPane {
                 int newColumn = columns.size() + 2;
                 columns.put(s, field);
                 this.getColumnConstraints().add(newColumn,
-                        new ColumnConstraints(100, 170, 300, Priority.NEVER, HPos.RIGHT, true));
+                        new ColumnConstraints(100, 100, 300, Priority.NEVER, HPos.RIGHT, true));//160
                 add(label, newColumn, 0);
                 add(field, newColumn, 1);
-
-                Platform.runLater(() -> {
-
-                });
             }
         }
+
+        for (String s : actionPlan.getStatustags()) {
+            if (!columns.containsKey(s)) {
+                Label label = new Label(s);
+                JFXTextField field = new JFXTextField();
+                field.setAlignment(Pos.CENTER_RIGHT);
+                int newColumn = columns.size() + 2;
+                columns.put(s, field);
+                this.getColumnConstraints().add(newColumn,
+                        new ColumnConstraints(100, 100, 300, Priority.NEVER, HPos.RIGHT, true));//170
+                add(label, newColumn, 0);
+                add(field, newColumn, 1);
+            }
+        }
+
     }
 
 
     private void updateData() {
-        //System.out.println("UpdateSumTable:" + actionPlan.getName() + " data:" + data.size());
+        //System.out.println("UpdateSumTable:" + actionPlan + " data:" + data.size());
 
 
         Platform.runLater(() -> {
-            double sumInvest = 0;
-            double sumEinsparrung = 0;
-            for (ActionData actionData : data) {
-                sumInvest += actionData.npv.get().getInvestment();
-                sumEinsparrung += actionData.npv.get().einsparung.get();
 
-            }
-            f_sumInvestment.setText(nsc.toString(sumInvest));
-            f_sumSavingsYear.setText(nsc.toString(sumEinsparrung));
-            f_sumSavingEnergy.setText("");
         });
+
+        double sumInvest = 0;
+        double sumEinsparrung = 0;
+        for (ActionData actionData : data) {
+            sumInvest += actionData.npv.get().getInvestment();
+            sumEinsparrung += actionData.npv.get().einsparung.get();
+
+        }
+        f_sumInvestment.setText(nsc.toString(sumInvest));
+        f_sumSavingsYear.setText(nsc.toString(sumEinsparrung));
+        f_sumSavingEnergy.setText("");
 
 
         if (actionPlan != null) {
@@ -141,19 +158,79 @@ public class TableSumPanel extends GridPane {
                 mediumSum.put(s, new SimpleDoubleProperty(0));
             });
 
-            actionPlan.getActionData().forEach(actionData -> {
+            data.forEach(actionData -> {
+                //System.out.println("------------");
+                //System.out.println("mediumSum: ad: " + actionData + "   isIn: " + mediumSum.containsKey(actionData.mediaTagsProperty().get()));
                 if (mediumSum.containsKey(actionData.mediaTagsProperty().get())) {
+
                     DoubleProperty value = mediumSum.get(actionData.mediaTagsProperty().get());
                     if (!actionData.consumption.get().diffProperty().getValue().isNaN()) {
+                        // System.out.println("Add: " + actionData.consumption.get().diffProperty().get());
                         value.setValue(value.get() + actionData.consumption.get().diffProperty().get());
                     }
+                    // System.out.println("new sum: " + value.get());
 
 
                 }
             });
+            /*
             columns.forEach((s, jfxTextField) -> {
                 jfxTextField.setText(DoubleConverter.getInstance().getDoubleConverter().toString(mediumSum.get(s).get()) + " kWh");
                 mediumSum.put(s, new SimpleDoubleProperty(0));
+            });
+
+             */
+
+
+            /* Staus sum */
+            Map<String, DoubleProperty> statusMap = new HashMap<>();
+            actionPlan.getStatustags().forEach(s -> {
+                statusMap.put(s, new SimpleDoubleProperty(0));
+            });
+            /*
+            columns.forEach((s, jfxTextField) -> {
+
+            });
+
+             */
+
+            data.forEach(actionData -> {
+                //System.out.println("Entry: " + actionData.statusTagsProperty().get() + "  in: " + statusMap.keySet());
+                if (statusMap.containsKey(actionData.statusTagsProperty().get())) {
+                    DoubleProperty value = statusMap.get(actionData.statusTagsProperty().get());
+                    value.setValue(value.get() + 1);
+                }
+            });
+
+            /*
+            columns.forEach((s, jfxTextField) -> {
+                //System.out.println("Reset field: " + s);
+                jfxTextField.setText("");
+            });
+             */
+
+            mediumSum.forEach((s, doubleProperty) -> {
+                //System.out.println("Fill GUI: " + s + "  double: " + doubleProperty + " field: " + columns.get(s));
+                JFXTextField jfxTextField = columns.get(s);
+
+                Platform.runLater(() -> {
+                    jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()) + " kWh");
+                });
+            });
+
+            statusMap.forEach((s, doubleProperty) -> {
+                //System.out.println("Fill GUIs: " + s + "  double: " + doubleProperty + " field: " + columns.get(s));
+                JFXTextField jfxTextField = columns.get(s);
+                if (jfxTextField != null) {
+                    Platform.runLater(() -> {
+                        jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()));
+                    });
+
+                } else {
+                    // System.out.println("Missing  textField in sum: " + s);
+                }
+
+                //System.out.println("set status: " + s + "=" + doubleProperty.get());
             });
 
 

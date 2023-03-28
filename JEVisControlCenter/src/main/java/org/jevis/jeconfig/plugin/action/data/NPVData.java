@@ -110,8 +110,8 @@ public class NPVData {
 
 
     public void updateResults() {
-        System.out.println("######################");
-        System.out.println("Update NPV sums");
+        //System.out.println("######################");
+        // System.out.println("Update NPV sums");
 
         for (NPVYearData npvYearData : npvYears) {
             npvYearData.setInvestment(runningCost.doubleValue());

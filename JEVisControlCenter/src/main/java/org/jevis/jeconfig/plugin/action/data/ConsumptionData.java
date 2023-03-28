@@ -72,23 +72,28 @@ public class ConsumptionData {
         return unit;
     }
 
+    public boolean isEnPI = false;
+
     public ConsumptionData() {
     }
 
     public void update() {
-        diff.bind(Bindings.subtract(after, actual).multiply(-1));
-        //actual.addListener((observable, oldValue, newValue) -> System.out.println("new Value. " + newValue));
-        //after.addListener((observable, oldValue, newValue) -> System.out.println("new Value. " + newValue));
+        if (isEnPI) {
+            diff.bind(Bindings.subtract(after, actual));
+        } else {
+            diff.bind(Bindings.subtract(after, actual).multiply(-1));
+        }
+        //diff.bind(Bindings.subtract(after, actual).multiply(-1));
     }
 
     public void updateEnPIData() {
         try {
             if (jevisLink.get().isEmpty()) {
-                System.out.println("Update manual Consumption");
+                //System.out.println("Update manual Consumption");
                 diff.bind(Bindings.subtract(after, actual));
 
             } else {
-                System.out.println("Update EnPI Consumption");
+                //System.out.println("Update EnPI Consumption");
                 JEVisObject dataObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.dataObject.get());
                 JEVisObject calcObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.calcObject.get());
                 diff.bind(Bindings.subtract(after, actual));
@@ -120,7 +125,7 @@ public class ConsumptionData {
 
     private Double calcEnpi(JEVisObject dataObj, JEVisObject calcObj, JEVisUnit unit, DateTime from, DateTime until) {
         try {
-            System.out.println("ENPI changed: " + dataObj);
+            //System.out.println("ENPI changed: " + dataObj);
             ChartDataRow chartDataRow = new ChartDataRow(actionData.getActionPlan().getObject().getDataSource());
             chartDataRow.setId(dataObj.getID());
             chartDataRow.setCalculation(true);
@@ -132,12 +137,12 @@ public class ConsumptionData {
             chartDataRow.setAbsolute(true);
             // JEVisUnit unit = unit;//dataObj.getAttribute("Value").getDisplayUnit();
             chartDataRow.setUnit(unit);
-            System.out.println("Get Data");
+            //System.out.println("Get Data");
             List<JEVisSample> samples = chartDataRow.getSamples();
 
             for (JEVisSample jeVisSample : samples) {
                 try {
-                    System.out.println("Sample: " + jeVisSample);
+                    //System.out.println("Sample: " + jeVisSample);
                     return jeVisSample.getValueAsDouble();
 
                 } catch (Exception e) {
@@ -152,6 +157,9 @@ public class ConsumptionData {
         return new Double(0);
     }
 
+    public void setEnPI(boolean enPI) {
+        isEnPI = enPI;
+    }
 
     public SimpleDoubleProperty afterProperty() {
         return after;

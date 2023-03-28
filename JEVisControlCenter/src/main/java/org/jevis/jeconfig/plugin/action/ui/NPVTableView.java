@@ -39,20 +39,6 @@ public class NPVTableView extends TableView<NPVYearData> {
     public NPVTableView(ObservableList<NPVYearData> data) {
         super();
         setItems(data);
-        //this.getStylesheets().add(this.getClass().getResource("/styles/Table2.css").toExternalForm());
-        System.out.println("this.createDefaultSkin(): " + this.createDefaultSkin());
-
-        this.getPseudoClassStates().forEach(pseudoClass -> {
-            System.out.println(" pseudoClass ------ ");
-            System.out.println(pseudoClass);
-            System.out.println(" pseudoClass end------ ");
-        });
-        this.getStylesheets().forEach(s -> {
-            System.out.println(" Style ------ ");
-            System.out.println(s);
-            System.out.println(" Style end------ ");
-        });
-
         TableColumn<NPVYearData, Integer> yearCol = new TableColumn(I18n.getInstance().getString("plugin.action.nvp.year"));
         yearCol.setCellValueFactory(new PropertyValueFactory<>("year"));
         yearCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
