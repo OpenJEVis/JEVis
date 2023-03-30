@@ -121,7 +121,7 @@ public class ResourceObject {
 
 
             if (!jclass.isEmpty()) {
-                this.returnList = this.ds.filterObjectByClass(this.returnList, jclass);
+                this.returnList = this.ds.filterObjectByClass(this.returnList, jclass, inherit);
             }
 
             if (rel) {
