@@ -218,8 +218,7 @@ public class ActionTab extends Tab {
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
         borderPane.setCenter(actionTable);
-
-        TableSumPanel tableSumPanel = new TableSumPanel(plan, actionTable.getItems());
+        TableSumPanel tableSumPanel = new TableSumPanel(plan, actionTable.getFilteredList());
         borderPane.setBottom(tableSumPanel);
 
         actionTable.setOnMousePressed(new EventHandler<MouseEvent>() {
