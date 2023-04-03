@@ -182,7 +182,9 @@ public class ReportSheet extends Tab {
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
             periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
-            if (reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED) || reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED_TO_REPORT_END)) {
+            if (reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED)
+                    || reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED_TO_REPORT_END)
+                    || reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.RELATIVE)) {
                 showFixedPeriodComboBox(currentRow, fixedPeriodComboBox);
             }
         }

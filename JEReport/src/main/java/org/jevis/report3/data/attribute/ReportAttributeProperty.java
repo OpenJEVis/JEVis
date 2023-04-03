@@ -7,7 +7,6 @@ package org.jevis.report3.data.attribute;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.JEVisObjectDataManager;
@@ -98,7 +97,7 @@ public class ReportAttributeProperty {
         }
         try {
             attributeName = sample.getValueAsString();
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
     }

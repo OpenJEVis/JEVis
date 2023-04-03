@@ -9,7 +9,6 @@ package org.jevis.report3.data.report.event;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.report3.data.report.IntervalCalculator;
@@ -29,6 +28,7 @@ public class EventIntervalCalc implements IntervalCalculator {
     private static boolean isInit = false;
     private final SampleHandler samplesHandler;
     private Interval interval;
+    private JEVisObject reportObject;
 
     @Inject
     public EventIntervalCalc(SampleHandler samplesHandler) {
@@ -38,6 +38,11 @@ public class EventIntervalCalc implements IntervalCalculator {
     @Override
     public Interval getInterval(String periodMode) {
         return interval;
+    }
+
+    @Override
+    public JEVisObject getReportObject() {
+        return reportObject;
     }
 
     public synchronized boolean getIsInit() {
@@ -50,6 +55,8 @@ public class EventIntervalCalc implements IntervalCalculator {
 
     @Override
     public void buildIntervals(JEVisObject reportObject) {
+        this.reportObject = reportObject;
+
         try {
             String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
             DateTime start = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
@@ -60,7 +67,7 @@ public class EventIntervalCalc implements IntervalCalculator {
             DateTime lastDate = samplesHandler.getTimeStampFromLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
 
             interval = new Interval(start, lastDate);
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
     }
