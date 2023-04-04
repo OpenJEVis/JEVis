@@ -23,10 +23,8 @@ import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUnit;
+import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -234,10 +232,18 @@ public class XYChart implements Chart {
 
 
         if (chartType != ChartType.BUBBLE) {
+            List<ChartDataRow> toRemove = chartDataRows.stream().filter(chartDataRow -> chartDataRow.getName().contains(" - " + I18n.getInstance().getString("graph.processing.raw"))).collect(Collectors.toList());
+            List<XYChartSerie> toRemoveChartSeries = xyChartSerieList.stream().filter(xyChartSerie -> xyChartSerie.getTableEntryName().contains(" - " + I18n.getInstance().getString("graph.processing.raw"))).collect(Collectors.toList());
+            chartDataRows.removeAll(toRemove);
+            xyChartSerieList.removeAll(toRemoveChartSeries);
+
             for (ChartDataRow chartDataRow : chartDataRows) {
                 try {
                     if (showRawData && chartDataRow.getDataProcessor() != null) {
-                        xyChartSerieList.add(generateSerie(changedBoth, getRawDataModel(chartModel, chartDataRow)));
+                        ChartDataRow rawDataModel = getRawDataModel(chartModel, chartDataRow);
+                        if (rawDataModel != null) {
+                            xyChartSerieList.add(generateSerie(changedBoth, rawDataModel));
+                        }
                     }
 
                     xyChartSerieList.add(generateSerie(changedBoth, chartDataRow));
@@ -751,19 +757,34 @@ public class XYChart implements Chart {
     }
 
     private ChartDataRow getRawDataModel(ChartModel dataModel, ChartDataRow singleRow) {
-        ChartDataRow newModel = singleRow.clone();
-        newModel.setDataProcessor(null);
-        newModel.setAttribute(null);
-        newModel.setSamples(null);
-        newModel.setUnit("");
-        newModel.setColor(newModel.getColor().darker());
-        newModel.setName(newModel.getName() + " - " + I18n.getInstance().getString("graph.processing.raw"));
+        try {
+            ChartDataRow newModel = singleRow.clone();
+            JEVisObject newObject;
+            if (singleRow.getObject().getJEVisClassName().equals(JC.Data.name)) {
+                newObject = singleRow.getObject();
+            } else {
+                newObject = singleRow.getObject().getParent();
+            }
 
-        singleRow.setAxis(0);
-        newModel.setAxis(1);
+            newModel.setId(newObject.getID());
 
-        dataModel.getChartData().add(newModel);
-        return newModel;
+            newModel.setDataProcessor(null);
+            newModel.setAttribute(null);
+            newModel.setSamples(null);
+            newModel.setUnit("");
+            newModel.setColor(newModel.getColor().darker());
+            newModel.setName(newModel.getName() + " - " + I18n.getInstance().getString("graph.processing.raw"));
+
+            singleRow.setAxis(0);
+            newModel.setAxis(1);
+
+            dataModel.getChartData().add(newModel);
+            return newModel;
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        return null;
     }
 
     public void init() {

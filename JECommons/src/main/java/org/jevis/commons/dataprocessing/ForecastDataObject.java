@@ -374,7 +374,14 @@ public class ForecastDataObject {
         DateTime lastRun = getLastRun(object);
         Long cycleTime = getCycleTime(object);
         DateTime nextRun = lastRun.plusMillis(cycleTime.intValue());
-        return DateTime.now().withZone(getTimeZone()).equals(nextRun) || DateTime.now().isAfter(nextRun);
+        try {
+            DateTime lastTsOfInputData = getInputAttribute().getLatestSample().getTimestamp();
+            return lastTsOfInputData.withZone(getTimeZone()).equals(nextRun) || lastTsOfInputData.withZone(getTimeZone()).isAfter(nextRun);
+        } catch (Exception e) {
+            logger.error("Could not get last ts of input data", e);
+        }
+
+        return false;
     }
 
     private DateTimeZone getTimeZone() {

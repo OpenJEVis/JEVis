@@ -235,12 +235,19 @@ public class ReportLinkProperty implements ReportData {
 
                                     JEVisAttribute overrideScheduleAttribute = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.OVERRIDE_SCHEDULE);
                                     String overrideSchedule = "NONE";
-                                    if (overrideScheduleAttribute.hasSample()) {
+                                    if (overrideScheduleAttribute.hasSample() || mode == PeriodMode.RELATIVE) {
                                         overrideSchedule = overrideScheduleAttribute.getLatestSample().getValueAsString();
                                         periodicIntervalCalc = new PeriodicIntervalCalc(new SampleHandler());
                                         periodicIntervalCalc.buildIntervals(intervalCalc.getReportObject());
-                                        DateTime newStart = periodicIntervalCalc.alignDateToSchedule(overrideSchedule, periodicIntervalCalc.getStart());
-                                        periodicIntervalCalc.buildIntervals(overrideSchedule, newStart);
+
+                                        if (!overrideSchedule.equals("NONE")) {
+                                            DateTime newStart = periodicIntervalCalc.alignDateToSchedule(overrideSchedule, periodicIntervalCalc.getStart());
+                                            periodicIntervalCalc.buildIntervals(overrideSchedule, newStart);
+
+                                        } else {
+                                            DateTime newStart = periodicIntervalCalc.alignDateToSchedule(intervalCalc.getSchedule(), periodicIntervalCalc.getStart());
+                                            periodicIntervalCalc.buildIntervals(intervalCalc.getSchedule(), newStart);
+                                        }
                                     }
 
                                     switch (mode) {

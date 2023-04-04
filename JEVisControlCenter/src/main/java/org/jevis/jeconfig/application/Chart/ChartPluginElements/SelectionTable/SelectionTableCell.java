@@ -34,7 +34,7 @@ public class SelectionTableCell extends TableCell<ChartData, JEVisObject> {
                 selectionDialog = TreeSelectionDialog.createSelectionDialog(this);
             }
 
-            TreeSelectionDialog.startEdit(this, null, null, selectionDialog);
+            TreeSelectionDialog.startEdit(this, null, selectionDialog);
         }
     }
 
@@ -47,7 +47,7 @@ public class SelectionTableCell extends TableCell<ChartData, JEVisObject> {
     @Override
     public void updateItem(JEVisObject item, boolean empty) {
         super.updateItem(item, empty);
-        TreeSelectionDialog.updateItem(this, null, null, selectionDialog);
+        TreeSelectionDialog.updateItem(this, null, selectionDialog);
     }
 
 }
