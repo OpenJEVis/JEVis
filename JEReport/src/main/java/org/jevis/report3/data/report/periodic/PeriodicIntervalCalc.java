@@ -32,6 +32,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
     private final SampleHandler samplesHandler;
     private JEVisObject reportObject = null;
     private DateTime start;
+    private String schedule;
 
     @Inject
     public PeriodicIntervalCalc(SampleHandler samplesHandler) {
@@ -48,14 +49,19 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         return reportObject;
     }
 
+    @Override
+    public String getSchedule() {
+        return schedule;
+    }
+
     private void initializeIntervalMap(JEVisObject reportObject) {
         this.reportObject = reportObject;
 
-        String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
+        schedule = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
 
-        buildIntervals(scheduleString, start);
+        buildIntervals(schedule, start);
     }
 
     public void buildIntervals(String scheduleString, DateTime start) {
@@ -189,7 +195,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                         resultStartRecord = startRecord.minusDays(1);
                         break;
                     case WEEK:
-                        resultStartRecord = startRecord.minusDays(7);
+                        resultStartRecord = startRecord.minusWeeks(1);
                         break;
                     case MONTH:
                         resultStartRecord = startRecord.minusMonths(1);
