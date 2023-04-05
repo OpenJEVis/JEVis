@@ -243,10 +243,6 @@ public class ReportLinkProperty implements ReportData {
                                         if (!overrideSchedule.equals("NONE")) {
                                             DateTime newStart = periodicIntervalCalc.alignDateToSchedule(overrideSchedule, periodicIntervalCalc.getStart());
                                             periodicIntervalCalc.buildIntervals(overrideSchedule, newStart);
-
-                                        } else {
-                                            DateTime newStart = periodicIntervalCalc.alignDateToSchedule(intervalCalc.getSchedule(), periodicIntervalCalc.getStart());
-                                            periodicIntervalCalc.buildIntervals(intervalCalc.getSchedule(), newStart);
                                         }
                                     }
 

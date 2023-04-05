@@ -184,6 +184,12 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                 }
             case RELATIVE:
             case FIXED_TO_REPORT_END:
+                int weekOfWeekyear = startRecord.getWeekOfWeekyear();
+                int dayOfWeek = startRecord.getDayOfWeek();
+                int hourOfDay = startRecord.getHourOfDay();
+                int minuteOfHour = startRecord.getMinuteOfHour();
+                int secondOfMinute = startRecord.getSecondOfMinute();
+                int millisOfSecond = startRecord.getMillisOfSecond();
                 switch (fixedPeriod) {
                     case QUARTER_HOUR:
                         resultStartRecord = startRecord.minusMinutes(15);
@@ -205,15 +211,47 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                         break;
                     case YEAR:
                         resultStartRecord = startRecord.minusYears(1);
+                        if (schedule == Period.WEEKLY) {
+                            resultStartRecord = resultStartRecord.withWeekOfWeekyear(weekOfWeekyear)
+                                    .withDayOfWeek(dayOfWeek)
+                                    .withHourOfDay(hourOfDay)
+                                    .withMinuteOfHour(minuteOfHour)
+                                    .withSecondOfMinute(secondOfMinute)
+                                    .withMillisOfSecond(millisOfSecond);
+                        }
                         break;
                     case THREEYEARS:
                         resultStartRecord = startRecord.minusYears(2);
+                        if (schedule == Period.WEEKLY) {
+                            resultStartRecord = resultStartRecord.withWeekOfWeekyear(weekOfWeekyear)
+                                    .withDayOfWeek(dayOfWeek)
+                                    .withHourOfDay(hourOfDay)
+                                    .withMinuteOfHour(minuteOfHour)
+                                    .withSecondOfMinute(secondOfMinute)
+                                    .withMillisOfSecond(millisOfSecond);
+                        }
                         break;
                     case FIVEYEARS:
                         resultStartRecord = startRecord.minusYears(4);
+                        if (schedule == Period.WEEKLY) {
+                            resultStartRecord = resultStartRecord.withWeekOfWeekyear(weekOfWeekyear)
+                                    .withDayOfWeek(dayOfWeek)
+                                    .withHourOfDay(hourOfDay)
+                                    .withMinuteOfHour(minuteOfHour)
+                                    .withSecondOfMinute(secondOfMinute)
+                                    .withMillisOfSecond(millisOfSecond);
+                        }
                         break;
                     case TENYEARS:
                         resultStartRecord = startRecord.minusYears(9);
+                        if (schedule == Period.WEEKLY) {
+                            resultStartRecord = resultStartRecord.withWeekOfWeekyear(weekOfWeekyear)
+                                    .withDayOfWeek(dayOfWeek)
+                                    .withHourOfDay(hourOfDay)
+                                    .withMinuteOfHour(minuteOfHour)
+                                    .withSecondOfMinute(secondOfMinute)
+                                    .withMillisOfSecond(millisOfSecond);
+                        }
                         break;
                     case NONE:
                     default:
