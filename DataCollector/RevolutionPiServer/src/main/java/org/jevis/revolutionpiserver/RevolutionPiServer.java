@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
-import org.jevis.commons.json.JsonSample;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeapi.ws.HTTPConnection;
 import org.jevis.jeapi.ws.REQUEST;
@@ -40,11 +39,12 @@ public class RevolutionPiServer implements DataSource {
     private Boolean ssl = false;
     private DateTimeZone timezone;
     private Importer importer;
-    private List<Result> result;
     private HTTPConnection con;
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss").withZoneUTC();
     public static final DateTimeFormatter FMT2 = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZoneUTC();
     public static final Integer OK = 1;
+
+    public static String API_STRING = "api/data";
 
 
     @Override
@@ -60,14 +60,13 @@ public class RevolutionPiServer implements DataSource {
                 JEVisAttribute lastReadoutAttribute = channel.getAttribute(lastReadoutType);
                 DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, lastReadoutType);
                 Long sourceId = DatabaseHelper.getObjectAsLong(channel, sourceIdType);
-                String sourceAttribute = DatabaseHelper.getObjectAsString(channel, sourceAttributeType);
                 String targetString = DatabaseHelper.getObjectAsString(channel, targetIdType);
                 TargetHelper targetHelper = new TargetHelper(channel.getDataSource(), targetString);
                 JEVisAttribute targetAttribute = targetHelper.getAttribute().get(0);
 
                 List<JEVisSample> samples = new ArrayList<>();
 
-                String resource = "api/data";
+                String resource = API_STRING;
                 if (lastReadout == null) {
                     lastReadout = new DateTime(1990, 1, 1, 0, 0, 0, 0);
                 }
@@ -92,14 +91,15 @@ public class RevolutionPiServer implements DataSource {
                     InputStream inputStream = this.con.getInputStreamRequest(resource);
                     if (inputStream != null) {
                         String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-                        ObjectMapper mapper = new ObjectMapper();
-                        RevPiResult[] revPiResults = mapper.readValue(result, RevPiResult[].class);
+                        RevPiResult[] revPiResults = objectMapper.readValue(result, RevPiResult[].class);
                         inputStream.close();
                         for (RevPiResult sample : revPiResults) {
                             try {
                                 DateTime dateTime = DateTime.parse(sample.getDateTime(), FMT2);
                                 if (sample.getStatus() == OK) {
-                                    samples.add(targetAttribute.buildSample(dateTime, sample.getValue()));
+                                    JEVisSample jeVisSample = targetAttribute.buildSample((dateTime), sample.getValue());
+                                    logger.debug("Add Sample {}", jeVisSample);
+                                    samples.add(jeVisSample);
                                 }
                                 if (lastReadout.isBefore(dateTime)) {
                                     lastReadout = dateTime;
@@ -213,7 +213,7 @@ public class RevolutionPiServer implements DataSource {
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
             List<JEVisObject> channels = getChannels(jevisServer);
-            //logger.info("Found " + channels.size() + " channel objects in " + channelDir.getName() + ":" + channelDir.getID());
+            logger.info("Found " + channels.size());
 
             channels.forEach(channelObject -> {
                 if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
@@ -226,8 +226,6 @@ public class RevolutionPiServer implements DataSource {
                     counterCheckForErrorInAPI.add(channelObject.getID());
                 }
             });
-
-            //logger.info(channelDir.getName() + ":" + channelDir.getID() + " has " + this.channels.size() + " channels.");
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -241,11 +239,12 @@ public class RevolutionPiServer implements DataSource {
             jeVisObject.getChildren(channelDirClass, false).forEach(dir -> {
                 channels.addAll(getChannels(dir));
             });
-            channels.addAll(jeVisObject.getChildren(channelClass, false));
+            List<JEVisObject> channelsToBeAdded = jeVisObject.getChildren(channelClass, false);
+            logger.debug("Added Channels to List {}",channelsToBeAdded);
+            channels.addAll(channelsToBeAdded);
         } catch (Exception e) {
             logger.error(e);
         }
-        logger.info("Channels: {}",channels);
         return channels;
 
     }
