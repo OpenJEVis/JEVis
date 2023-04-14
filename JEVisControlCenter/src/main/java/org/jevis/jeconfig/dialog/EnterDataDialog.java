@@ -108,8 +108,8 @@ public class EnterDataDialog extends Dialog implements EventTarget {
 
     public EnterDataDialog(JEVisDataSource dataSource) {
         super();
-        setTitle(I18n.getInstance().getString("plugin.configuration.enterdata.title"));
-        setHeaderText(I18n.getInstance().getString("plugin.configuration.enterdata.header"));
+        setTitle(I18n.getInstance().getString("plugin.object.dialog.data.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.object.dialog.data.header"));
         setResizable(true);
         initOwner(JEConfig.getStage());
         initModality(Modality.APPLICATION_MODAL);
@@ -169,24 +169,11 @@ public class EnterDataDialog extends Dialog implements EventTarget {
             selectTargetDialog.show();
         });
 
-        final JFXButton showMore = new JFXButton(I18n.getInstance().getString("plugin.object.dialog.data.history"));
-        showMore.setOnAction(actionEvent -> {
-            JEVisAttribute value = null;
-            try {
-                value = selectedObject.getAttribute("Value");
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-            if (value != null) {
-                DataDialog dataDialog = new DataDialog(value);
-                dataDialog.show();
-            }
-        });
-
+        ButtonType showMoreType = new ButtonType(I18n.getInstance().getString("plugin.object.dialog.data.history"), ButtonBar.ButtonData.HELP);
         ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+        this.getDialogPane().getButtonTypes().addAll(showMoreType, cancelType, okType);
 
         Button okButton = (Button) this.getDialogPane().lookupButton(okType);
         okButton.setDefaultButton(true);
@@ -194,11 +181,14 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
         cancelButton.setCancelButton(true);
 
+        Button showMoreButton = (Button) this.getDialogPane().lookupButton(showMoreType);
+
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
         VBox vBox = new VBox(6, gridPane, separator);
         getDialogPane().setContent(vBox);
+        getDialogPane().setMinWidth(450);
 
         okButton.setOnAction(event -> {
 //            event.consume();
@@ -407,6 +397,19 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         });
 
         cancelButton.setOnAction(event -> close());
+
+        showMoreButton.setOnAction(actionEvent -> {
+            JEVisAttribute value = null;
+            try {
+                value = selectedObject.getAttribute("Value");
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+            if (value != null) {
+                DataDialog dataDialog = new DataDialog(value);
+                dataDialog.show();
+            }
+        });
     }
 
     private void updateView() {
