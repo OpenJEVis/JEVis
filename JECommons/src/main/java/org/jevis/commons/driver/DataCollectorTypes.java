@@ -218,12 +218,15 @@ public interface DataCollectorTypes {
             String SOURCEID = "Source Id";
             String SOURCEATTRIBUTE = "Source Attribute";
             String TARGETID = "Target Id";
+
+
         }
         interface RevolutionPiChannel extends Channel {
             String NAME = "Revolution PI Channel";
             String SOURCEID = "Source Id";
             String SOURCEATTRIBUTE = "Source Attribute";
             String TARGETID = "Target Id";
+            String STATUS = "Status Log";
         }
     }
 

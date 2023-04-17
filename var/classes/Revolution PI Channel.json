@@ -17,8 +17,8 @@
   "types": [
     {
       "name": "Source Id",
-      "primitiveType": 2,
-      "guiType": "Number",
+      "primitiveType": 0,
+      "guiType": "Text",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
@@ -28,6 +28,15 @@
       "name": "Target Id",
       "primitiveType": 0,
       "guiType": "Attribute Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Revolution PI Channel"
+    },
+    {
+      "name": "Status Log",
+      "primitiveType": 2,
+      "guiType": "Number",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,

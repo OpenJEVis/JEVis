@@ -42,7 +42,7 @@ public class RevolutionPiServer implements DataSource {
     private HTTPConnection con;
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss").withZoneUTC();
     public static final DateTimeFormatter FMT2 = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZoneUTC();
-    public static final Integer OK = 1;
+    public static final Integer OK = 0;
 
     public static String API_STRING = "api/data";
 
@@ -54,17 +54,19 @@ public class RevolutionPiServer implements DataSource {
                 JEVisClass channelClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Channel.RevolutionPiChannel.NAME);
                 JEVisType lastReadoutType = channelClass.getType(DataCollectorTypes.Channel.RevolutionPiChannel.LAST_READOUT);
                 JEVisType sourceIdType = channelClass.getType(DataCollectorTypes.Channel.RevolutionPiChannel.SOURCEID);
-                JEVisType sourceAttributeType = channelClass.getType(DataCollectorTypes.Channel.RevolutionPiChannel.SOURCEATTRIBUTE);
                 JEVisType targetIdType = channelClass.getType(DataCollectorTypes.Channel.RevolutionPiChannel.TARGETID);
+                JEVisType statusType = channelClass.getType(DataCollectorTypes.Channel.RevolutionPiChannel.STATUS);
 
                 JEVisAttribute lastReadoutAttribute = channel.getAttribute(lastReadoutType);
+                JEVisAttribute statusAttribute = channel.getAttribute(statusType);
                 DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, lastReadoutType);
-                Long sourceId = DatabaseHelper.getObjectAsLong(channel, sourceIdType);
+                String sourceId = DatabaseHelper.getObjectAsString(channel, sourceIdType);
                 String targetString = DatabaseHelper.getObjectAsString(channel, targetIdType);
                 TargetHelper targetHelper = new TargetHelper(channel.getDataSource(), targetString);
                 JEVisAttribute targetAttribute = targetHelper.getAttribute().get(0);
 
                 List<JEVisSample> samples = new ArrayList<>();
+                List<JEVisSample> stati = new ArrayList<>();
 
                 String resource = API_STRING;
                 if (lastReadout == null) {
@@ -96,6 +98,8 @@ public class RevolutionPiServer implements DataSource {
                         for (RevPiResult sample : revPiResults) {
                             try {
                                 DateTime dateTime = DateTime.parse(sample.getDateTime(), FMT2);
+                                JEVisSample statusSample = statusAttribute.buildSample(dateTime, sample.getStatus());
+                                stati.add(statusSample);
                                 if (sample.getStatus() == OK) {
                                     JEVisSample jeVisSample = targetAttribute.buildSample((dateTime), sample.getValue());
                                     logger.debug("Add Sample {}", jeVisSample);
@@ -121,6 +125,7 @@ public class RevolutionPiServer implements DataSource {
                     logger.error("Interrupted exception. Error in getting samples.", e);
                 }
                 targetAttribute.addSamples(samples);
+                statusAttribute.addSamples(stati);
                 JEVisSample sample = lastReadoutAttribute.buildSample(new DateTime(), lastReadout);
                 sample.commit();
             } catch (Exception e) {

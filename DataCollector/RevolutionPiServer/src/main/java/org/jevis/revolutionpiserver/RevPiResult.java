@@ -21,7 +21,7 @@ public class RevPiResult {
     @JsonProperty("id")
     private Integer id;
     @JsonProperty("trend_id")
-    private Integer trendId;
+    private String trendId;
     @JsonProperty("status")
     private Integer status;
     @JsonProperty("value")
@@ -42,12 +42,12 @@ public class RevPiResult {
     }
 
     @JsonProperty("trend_id")
-    public Integer getTrendId() {
+    public String getTrendId() {
         return trendId;
     }
 
     @JsonProperty("trend_id")
-    public void setTrendId(Integer trendId) {
+    public void setTrendId(String trendId) {
         this.trendId = trendId;
     }
 
