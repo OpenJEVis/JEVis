@@ -1725,6 +1725,14 @@ public class XYChart implements Chart {
         });
 
         Platform.runLater(() -> updateXAxisLabel(lower, upper));
+
+        if (y1SumSerie != null) {
+            Platform.runLater(() -> y1Axis.setMax(y1SumSerie.getMaxValue().getValue()));
+        }
+
+        if (y2SumSerie != null) {
+            Platform.runLater(() -> y2Axis.setMax(y2SumSerie.getMaxValue().getValue()));
+        }
     }
 
     @Override
