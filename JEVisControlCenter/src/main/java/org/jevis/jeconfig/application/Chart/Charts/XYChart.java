@@ -1727,11 +1727,55 @@ public class XYChart implements Chart {
         Platform.runLater(() -> updateXAxisLabel(lower, upper));
 
         if (y1SumSerie != null) {
-            Platform.runLater(() -> y1Axis.setMax(y1SumSerie.getMaxValue().getValue()));
+            try {
+                ValueWithDateTime min = new ValueWithDateTime(Double.MAX_VALUE);
+                ValueWithDateTime max = new ValueWithDateTime(-Double.MAX_VALUE);
+
+                List<JEVisSample> samples = y1SumSerie.getSingleRow().getSamples();
+                JEVisUnit unit = y1SumSerie.getSingleRow().getUnit();
+                min.setUnit(unit);
+                max.setUnit(unit);
+
+                for (JEVisSample smp : samples) {
+                    if ((smp.getTimestamp().equals(lower) || smp.getTimestamp().isAfter(lower)) && (smp.getTimestamp().isBefore(upper) || smp.getTimestamp().equals(upper))) {
+
+                        DateTime ts = smp.getTimestamp();
+                        Double currentValue = smp.getValueAsDouble();
+
+                        min.minCheck(ts, currentValue);
+                        max.maxCheck(ts, currentValue);
+                    }
+                }
+                Platform.runLater(() -> y1Axis.setMax(max.getValue()));
+            } catch (Exception e) {
+                logger.error("Error while generating max/min values for sum y1 sum serie", e);
+            }
         }
 
         if (y2SumSerie != null) {
-            Platform.runLater(() -> y2Axis.setMax(y2SumSerie.getMaxValue().getValue()));
+            try {
+                ValueWithDateTime min = new ValueWithDateTime(Double.MAX_VALUE);
+                ValueWithDateTime max = new ValueWithDateTime(-Double.MAX_VALUE);
+
+                List<JEVisSample> samples = y2SumSerie.getSingleRow().getSamples();
+                JEVisUnit unit = y2SumSerie.getSingleRow().getUnit();
+                min.setUnit(unit);
+                max.setUnit(unit);
+
+                for (JEVisSample smp : samples) {
+                    if ((smp.getTimestamp().equals(lower) || smp.getTimestamp().isAfter(lower)) && (smp.getTimestamp().isBefore(upper) || smp.getTimestamp().equals(upper))) {
+
+                        DateTime ts = smp.getTimestamp();
+                        Double currentValue = smp.getValueAsDouble();
+
+                        min.minCheck(ts, currentValue);
+                        max.maxCheck(ts, currentValue);
+                    }
+                }
+                Platform.runLater(() -> y2Axis.setMax(max.getValue()));
+            } catch (Exception e) {
+                logger.error("Error while generating max/min values for sum y2 sum serie", e);
+            }
         }
     }
 
