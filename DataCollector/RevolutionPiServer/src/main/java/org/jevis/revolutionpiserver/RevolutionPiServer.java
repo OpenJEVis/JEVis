@@ -89,12 +89,10 @@ public class RevolutionPiServer implements DataSource {
                     prefix = "?";
                 }
                 resource += prefix + "id" + "=" + sourceId;
-                try {
-                    InputStream inputStream = this.con.getInputStreamRequest(resource);
+                try(InputStream inputStream = this.con.getInputStreamRequest(resource)) {
                     if (inputStream != null) {
                         String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
                         RevPiResult[] revPiResults = objectMapper.readValue(result, RevPiResult[].class);
-                        inputStream.close();
                         for (RevPiResult sample : revPiResults) {
                             try {
                                 DateTime dateTime = DateTime.parse(sample.getDateTime(), FMT2);
