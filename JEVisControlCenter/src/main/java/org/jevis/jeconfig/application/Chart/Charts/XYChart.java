@@ -1671,8 +1671,12 @@ public class XYChart implements Chart {
         Double ub = upperBound * 1000;
         DateTime lower = new DateTime(lb.longValue());
         DateTime upper = new DateTime(ub.longValue());
+        Double y1Min = Double.MAX_VALUE;
+        Double y1Max = -Double.MAX_VALUE;
+        Double y2Min = Double.MAX_VALUE;
+        Double y2Max = -Double.MAX_VALUE;
 
-        xyChartSerieList.forEach(serie -> {
+        for (XYChartSerie serie : xyChartSerieList) {
             try {
 
                 ValueWithDateTime min = new ValueWithDateTime(Double.MAX_VALUE);
@@ -1698,6 +1702,14 @@ public class XYChart implements Chart {
                             min.minCheck(ts, currentValue);
                             max.maxCheck(ts, currentValue);
                             sum += currentValue;
+
+                            if (serie.getyAxis() == 0) {
+                                y1Max = Math.max(y1Max, currentValue);
+                                y1Min = Math.min(y1Min, currentValue);
+                            } else {
+                                y2Max = Math.max(y2Max, currentValue);
+                                y2Min = Math.min(y2Min, currentValue);
+                            }
                         } else {
                             zeroCount++;
                         }
@@ -1722,14 +1734,14 @@ public class XYChart implements Chart {
             } catch (Exception ex) {
             }
 
-        });
+        }
 
         Platform.runLater(() -> updateXAxisLabel(lower, upper));
 
         if (y1SumSerie != null) {
             try {
-                ValueWithDateTime min = new ValueWithDateTime(Double.MAX_VALUE);
-                ValueWithDateTime max = new ValueWithDateTime(-Double.MAX_VALUE);
+                ValueWithDateTime min = new ValueWithDateTime(y1Min);
+                ValueWithDateTime max = new ValueWithDateTime(y1Max);
 
                 List<JEVisSample> samples = y1SumSerie.getSingleRow().getSamples();
                 JEVisUnit unit = y1SumSerie.getSingleRow().getUnit();
@@ -1754,8 +1766,8 @@ public class XYChart implements Chart {
 
         if (y2SumSerie != null) {
             try {
-                ValueWithDateTime min = new ValueWithDateTime(Double.MAX_VALUE);
-                ValueWithDateTime max = new ValueWithDateTime(-Double.MAX_VALUE);
+                ValueWithDateTime min = new ValueWithDateTime(y2Min);
+                ValueWithDateTime max = new ValueWithDateTime(y2Max);
 
                 List<JEVisSample> samples = y2SumSerie.getSingleRow().getSamples();
                 JEVisUnit unit = y2SumSerie.getSingleRow().getUnit();
