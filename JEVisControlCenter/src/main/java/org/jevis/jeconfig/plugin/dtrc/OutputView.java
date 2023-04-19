@@ -129,8 +129,7 @@ public class OutputView extends Tab {
 
         intervalSelector = new IntervalSelector(ds, startDate, startTime, endDate, endTime);
         intervalSelector.getTimeFactoryBox().getItems().clear();
-        TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
-        intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrameFactory.getReduced());
+
         intervalSelector.updateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 requestUpdate();
@@ -234,7 +233,6 @@ public class OutputView extends Tab {
         List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
         final Map<String, Boolean> intervalConfiguration = templateHandler.getRcTemplate().getIntervalSelectorConfiguration();
 
-
         if (timeframeField != null) {
             String overall = String.format("%s %s %s",
                     dtfOutLegend.print(start),
@@ -247,24 +245,18 @@ public class OutputView extends Tab {
         createOutputs(templateOutputs);
 
         TimeFrame lastSelectedTimeFrame = intervalSelector.getTimeFactoryBox().getSelectionModel().getSelectedItem();
-        List<TimeFrame> inactiveTimeFrames = new ArrayList<>();
-        for (TimeFrame item : intervalSelector.getTimeFactoryBox().getItems()) {
-            Boolean aBoolean = intervalConfiguration.get(item.getID());
-            if (aBoolean == null || !aBoolean) {
-                inactiveTimeFrames.add(item);
-            }
-        }
+        List<TimeFrame> timeFrames = new ArrayList<>();
         TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
-        List<TimeFrame> missingTimeFrames = new ArrayList<>();
-        for (TimeFrame timeFrame : timeFrameFactory.getReduced()) {
-            if (!intervalSelector.getTimeFactoryBox().getItems().contains(timeFrame)) {
-                missingTimeFrames.add(timeFrame);
+        for (TimeFrame item : timeFrameFactory.getReduced()) {
+            Boolean aBoolean = intervalConfiguration.get(item.getID());
+            if (aBoolean) {
+                timeFrames.add(item);
             }
         }
 
         Platform.runLater(() -> {
-            intervalSelector.getTimeFactoryBox().getItems().addAll(missingTimeFrames);
-            intervalSelector.getTimeFactoryBox().getItems().removeAll(inactiveTimeFrames);
+            intervalSelector.getTimeFactoryBox().getItems().clear();
+            intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrames);
 
             if (intervalSelector.getTimeFactoryBox().getItems().contains(lastSelectedTimeFrame)) {
                 intervalSelector.getTimeFactoryBox().getSelectionModel().select(lastSelectedTimeFrame);

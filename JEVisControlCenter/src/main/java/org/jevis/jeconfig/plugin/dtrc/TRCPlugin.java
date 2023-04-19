@@ -239,8 +239,10 @@ public class TRCPlugin implements Plugin {
                 templateHandler.setTemplateObject(newValue);
 
                 TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
-                for (TimeFrame timeFrame : timeFrameFactory.getAll()) {
-                    Boolean isSelected = templateHandler.getRcTemplate().getIntervalSelectorConfiguration().get(timeFrame.getID());
+                final Map<String, Boolean> intervalConfiguration = templateHandler.getRcTemplate().getIntervalSelectorConfiguration();
+
+                for (TimeFrame timeFrame : timeFrameFactory.getReduced()) {
+                    Boolean isSelected = intervalConfiguration.get(timeFrame.getID());
                     if (isSelected != null) {
                         Platform.runLater(() -> intervalSelectorMap.get(timeFrame.getID()).setSelected(isSelected));
                     } else Platform.runLater(() -> intervalSelectorMap.get(timeFrame.getID()).setSelected(false));
@@ -532,6 +534,7 @@ public class TRCPlugin implements Plugin {
             initialized = true;
 
             initToolBar();
+            initGui();
 
             List<JEVisObject> allTemplateCalculations = getAllTemplateCalculations();
             if (allTemplateCalculations.isEmpty()) {
@@ -542,7 +545,6 @@ public class TRCPlugin implements Plugin {
                 trcs.getSelectionModel().selectFirst();
             }
 
-            initGui();
         }
 
     }
@@ -593,7 +595,7 @@ public class TRCPlugin implements Plugin {
         VBox intervalSelectionVBox = new VBox(6);
         intervalSelectionVBox.setPadding(new Insets(15));
         TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
-        for (TimeFrame timeFrame : timeFrameFactory.getAll()) {
+        for (TimeFrame timeFrame : timeFrameFactory.getReduced()) {
             JFXCheckBox checkBox = new JFXCheckBox(timeFrame.getListName());
             checkBox.setSelected(false);
             intervalSelectorMap.put(timeFrame.getID(), checkBox);
