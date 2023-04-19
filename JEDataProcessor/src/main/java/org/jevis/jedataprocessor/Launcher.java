@@ -8,7 +8,6 @@ package org.jevis.jedataprocessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.ObjectHandler;
@@ -135,7 +134,6 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
 
         if (checkConnection()) {
 
@@ -157,12 +155,12 @@ public class Launcher extends AbstractCliApp {
 
                 if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                     try {
-                        enabledCleanDataObjects = getAllCleaningObjects();
+                        List<JEVisObject> enabledCleanDataObjects = getAllCleaningObjects();
+
+                        executeProcesses(enabledCleanDataObjects);
                     } catch (Exception e) {
                         logger.error("Could not get cleaning objects. ", e);
                     }
-
-                    this.executeProcesses(enabledCleanDataObjects);
                 } else {
                     logger.info("Service is disabled.");
                 }
@@ -206,47 +204,47 @@ public class Launcher extends AbstractCliApp {
         List<JEVisObject> filteredObjects = new ArrayList<>();
 
         try {
-            JEVisDataSourceWS dsWS = (JEVisDataSourceWS) ds;
+            ((JEVisDataSourceWS) ds).getObjectsWS();
             cleanDataClass = ds.getJEVisClass(CleanDataObject.CLASS_NAME);
-            cleanDataObjects = dsWS.getObjectsWS(cleanDataClass, false);
+            cleanDataObjects = ds.getObjects(cleanDataClass, false);
             logger.info("Total amount of Clean Data Objects: {}", cleanDataObjects.size());
             forecastDataClass = ds.getJEVisClass(ForecastDataObject.CLASS_NAME);
-            forecastDataObjects = dsWS.getObjectsWS(forecastDataClass, false);
+            forecastDataObjects = ds.getObjects(forecastDataClass, false);
             logger.info("Total amount of Forecast Data Objects: {}", forecastDataObjects.size());
             mathDataClass = ds.getJEVisClass(MathDataObject.CLASS_NAME);
-            mathDataObjects = dsWS.getObjectsWS(mathDataClass, false);
+            mathDataObjects = ds.getObjects(mathDataClass, false);
             logger.info("Total amount of Math Data Objects: {}", forecastDataObjects.size());
 
-            cleanDataObjects.forEach(jeVisObject -> {
+            for (JEVisObject jeVisObject : cleanDataObjects) {
                 if (isEnabled(jeVisObject)) {
                     if (!plannedJobs.containsKey(jeVisObject.getID())) {
                         filteredObjects.add(jeVisObject);
                         plannedJobs.put(jeVisObject.getID(), new DateTime());
                     }
                 }
-            });
-            forecastDataObjects.forEach(object -> {
+            }
+            for (JEVisObject forecastDataObject : forecastDataObjects) {
+                if (isEnabled(forecastDataObject)) {
+                    if (!plannedJobs.containsKey(forecastDataObject.getID())) {
+                        filteredObjects.add(forecastDataObject);
+                        plannedJobs.put(forecastDataObject.getID(), new DateTime());
+                    }
+                }
+            }
+            for (JEVisObject object : mathDataObjects) {
                 if (isEnabled(object)) {
                     if (!plannedJobs.containsKey(object.getID())) {
                         filteredObjects.add(object);
                         plannedJobs.put(object.getID(), new DateTime());
                     }
                 }
-            });
-            mathDataObjects.forEach(object -> {
-                if (isEnabled(object)) {
-                    if (!plannedJobs.containsKey(object.getID())) {
-                        filteredObjects.add(object);
-                        plannedJobs.put(object.getID(), new DateTime());
-                    }
-                }
-            });
+            }
 
-            logger.info("Amount of enabled Clean Data Objects: {}", cleanDataObjects.size());
-        } catch (JEVisException ex) {
+            logger.info("Amount of enabled Clean Data Objects: {}, enabled Forecast Data Objects: {}, enabled Math Data Objects: {}", cleanDataObjects.size(), forecastDataObjects.size(), mathDataObjects.size());
+        } catch (Exception ex) {
             throw new Exception("Process classes missing", ex);
         }
-        logger.info("{} cleaning objects found", cleanDataObjects.size());
+        logger.info("{} objects found for cleaning", filteredObjects.size());
 
         Collections.shuffle(filteredObjects);
 

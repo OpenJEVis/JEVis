@@ -12,10 +12,9 @@ import java.lang.reflect.Type;
 public class GsonBuilder {
 
     public static com.google.gson.GsonBuilder createDefaultBuilder() {
-        com.google.gson.GsonBuilder builder = FxGson.coreBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation();
+        com.google.gson.GsonBuilder builder = FxGson.coreBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().serializeSpecialFloatingPointValues();
         registerDateTime(builder);
         registerSimpleListProperty(builder);
-
         return builder;
     }
 
@@ -46,7 +45,7 @@ public class GsonBuilder {
         builder.registerTypeAdapter(SimpleListProperty.class, new JsonDeserializer<SimpleListProperty>() {
             @Override
             public SimpleListProperty deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-               return new SimpleListProperty<>(FXCollections.observableArrayList(jsonElement));
+                return new SimpleListProperty<>(FXCollections.observableArrayList(jsonElement));
             }
         });
     }

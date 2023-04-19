@@ -18,6 +18,7 @@ public class ReportPeriodBox extends JFXComboBox<PeriodMode> {
         final String keyAll = I18n.getInstance().getString("plugin.object.report.dialog.period.all");
         final String keyFixed = I18n.getInstance().getString("plugin.object.report.dialog.period.fixed");
         final String keyFixedReportStart = I18n.getInstance().getString("plugin.object.report.dialog.period.fixedreportstart");
+        final String keyFixedRelativeStart = I18n.getInstance().getString("plugin.object.report.dialog.period.relativestart");
 
         setItems(FXCollections.observableArrayList(PeriodMode.values()));
 
@@ -47,6 +48,9 @@ public class ReportPeriodBox extends JFXComboBox<PeriodMode> {
                                     break;
                                 case FIXED_TO_REPORT_END:
                                     text = keyFixedReportStart;
+                                    break;
+                                case RELATIVE:
+                                    text = keyFixedRelativeStart;
                                     break;
                             }
 

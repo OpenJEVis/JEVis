@@ -1,0 +1,46 @@
+{
+  "name": "Revolution PI Channel",
+  "description": "Revolution PI Channel",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Revolution PI Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "Revolution PI Channel",
+      "end": "Revolution PI Channel Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Source Id",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Revolution PI Channel"
+    },
+    {
+      "name": "Target Id",
+      "primitiveType": 0,
+      "guiType": "Attribute Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Revolution PI Channel"
+    },
+    {
+      "name": "Status Log",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Revolution PI Channel"
+    }
+  ]
+}

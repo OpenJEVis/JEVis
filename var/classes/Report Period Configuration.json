@@ -49,6 +49,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Report Period Configuration"
+    },
+    {
+      "name": "Override Schedule",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Period Configuration"
     }
   ]
 }

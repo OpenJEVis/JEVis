@@ -116,7 +116,7 @@ public class TimeFilterSelector extends GridPane {
     }
 
     private void initValues(ActionPlanData actionPlan) {
-        System.out.println("MonthSelector.initValues: " + actionPlan + "  " + actionPlan.getActionData().size());
+        //System.out.println("MonthSelector.initValues: " + actionPlan + "  " + actionPlan.getActionData().size());
         DateTime minDate = null;
         DateTime maxDate = null;
 

@@ -43,7 +43,9 @@ public class DateFilter {
         try {
             if (dateField == DateField.ALL) {
                 //System.out.println("Filter is all");
-                boolean oneIsTrue = false;
+                /* Fallback, if all dates are empty show it */
+                if (data.doneDate.get() == null && data.createDate.get() == null && data.plannedDate.get() == null)
+                    return true;
                 // System.out.println("data.doneDate.get(): " + data.doneDate.get());
                 if (data.doneDate.get() != null && data.doneDate.get().isBefore(getUntilDate()) && data.doneDate.get().isAfter(getFromDate())) {
                     //System.out.println("done date true");

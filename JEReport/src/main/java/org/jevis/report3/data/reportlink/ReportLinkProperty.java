@@ -24,6 +24,7 @@ import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.attribute.*;
 import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
+import org.jevis.report3.data.report.periodic.PeriodicIntervalCalc;
 import org.jevis.report3.process.LastSampleGenerator;
 import org.jevis.report3.process.ProcessHelper;
 import org.joda.time.DateTime;
@@ -186,19 +187,33 @@ public class ReportLinkProperty implements ReportData {
                         switch (config.getConfigName()) {
                             case Period: {
                                 try {
+                                    PeriodicIntervalCalc periodicIntervalCalc = (PeriodicIntervalCalc) intervalCalc;
+
                                     AttributeConfiguration periodConfiguration = attributeProperty.getAttributeConfiguration(AttributeConfigurationFactory.ReportConfigurationName.Period);
                                     JEVisObject dataObject = linkProperty.getDataObject();
 
                                     JEVisAttribute attribute = dataObject.getAttribute(attributeProperty.getAttributeName());
                                     JEVisDataSource ds = dataObject.getDataSource();
 
-                                    String aggregationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).getLatestSample().getValueAsString();
+                                    JEVisAttribute aggregationAttribute = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION);
+                                    String aggregationName = AggregationPeriod.NONE.toString();
+                                    if (aggregationAttribute.hasSample()) {
+                                        aggregationName = aggregationAttribute.getLatestSample().getValueAsString();
+                                    } else {
+                                        logger.warn("No aggregation configuration set, selecting no aggregation");
+                                    }
 
                                     AggregationPeriod aggregationPeriod = AggregationPeriod.get(aggregationName.toUpperCase());
 
                                     logger.debug("aggregationPeriod: {}", aggregationPeriod.toString());
 
-                                    String manipulationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.MANIPULATION).getLatestSample().getValueAsString();
+                                    JEVisAttribute manipulationAttribute = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.MANIPULATION);
+                                    String manipulationName = ManipulationMode.NONE.toString();
+                                    if (manipulationAttribute.hasSample()) {
+                                        manipulationName = manipulationAttribute.getLatestSample().getValueAsString();
+                                    } else {
+                                        logger.warn("No manipulation configuration set, selecting no manipulation");
+                                    }
                                     ManipulationMode manipulationMode = ManipulationMode.NONE;
                                     if (manipulationName != null) {
                                         manipulationMode = ManipulationMode.parseManipulation(manipulationName.toUpperCase());
@@ -209,22 +224,50 @@ public class ReportLinkProperty implements ReportData {
 
                                     Interval interval = null;
 
-                                    String modeName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD).getLatestSample().getValueAsString();
+                                    JEVisAttribute periodAttribute = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD);
+                                    String modeName = PeriodMode.CURRENT.toString();
+                                    if (periodAttribute.hasSample()) {
+                                        modeName = periodAttribute.getLatestSample().getValueAsString();
+                                    } else {
+                                        logger.warn("No period configuration set, selecting current");
+                                    }
                                     PeriodMode mode = PeriodMode.valueOf(modeName.toUpperCase());
 
-                                    if (mode != PeriodMode.FIXED && mode != PeriodMode.FIXED_TO_REPORT_END) {
-                                        interval = intervalCalc.getInterval(mode.toString().toUpperCase());
-                                    } else {
-                                        String fixedPeriodName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.FIXED_PERIOD).getLatestSample().getValueAsString();
-                                        FixedPeriod fixedPeriod = FixedPeriod.valueOf(fixedPeriodName.toUpperCase());
-                                        String name;
-                                        if (mode == PeriodMode.FIXED) {
-                                            name = PeriodMode.FIXED.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
-                                        } else {
-                                            name = PeriodMode.FIXED_TO_REPORT_END.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
-                                        }
+                                    JEVisAttribute overrideScheduleAttribute = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.OVERRIDE_SCHEDULE);
+                                    String overrideSchedule = "NONE";
+                                    if (overrideScheduleAttribute.hasSample() || mode == PeriodMode.RELATIVE) {
+                                        overrideSchedule = overrideScheduleAttribute.getLatestSample().getValueAsString();
+                                        periodicIntervalCalc = new PeriodicIntervalCalc(new SampleHandler());
+                                        periodicIntervalCalc.buildIntervals(intervalCalc.getReportObject());
 
-                                        interval = intervalCalc.getInterval(name);
+                                        if (!overrideSchedule.equals("NONE")) {
+                                            DateTime newStart = periodicIntervalCalc.alignDateToSchedule(overrideSchedule, periodicIntervalCalc.getStart());
+                                            periodicIntervalCalc.buildIntervals(overrideSchedule, newStart);
+                                        }
+                                    }
+
+                                    switch (mode) {
+                                        case CURRENT:
+                                        case LAST:
+                                        case ALL:
+                                            interval = periodicIntervalCalc.getInterval(mode.toString().toUpperCase());
+                                            break;
+                                        case FIXED:
+                                        case FIXED_TO_REPORT_END:
+                                        case RELATIVE:
+                                            String fixedPeriodName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.FIXED_PERIOD).getLatestSample().getValueAsString();
+                                            FixedPeriod fixedPeriod = FixedPeriod.valueOf(fixedPeriodName.toUpperCase());
+                                            String name;
+                                            if (mode == PeriodMode.FIXED) {
+                                                name = PeriodMode.FIXED.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
+                                            } else if (mode == PeriodMode.FIXED_TO_REPORT_END) {
+                                                name = PeriodMode.FIXED_TO_REPORT_END.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
+                                            } else {
+                                                name = PeriodMode.RELATIVE.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
+                                            }
+
+                                            interval = periodicIntervalCalc.getInterval(name);
+                                            break;
                                     }
 
                                     logger.info("variable named {} for interval: {} getting data from object {}:{} of attribute {}",

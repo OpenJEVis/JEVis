@@ -239,17 +239,22 @@ public class SQLDataSource {
     }
 
 
-    public List<JsonObject> filterObjectByClass(List<JsonObject> objects, String jclass) {
-        List<JsonObject> filterd = new ArrayList<>();
-        List<String> heir = new ArrayList<>();
-        heir.add(jclass);
-        JEVisClassHelper.findHeir(jclass, heir);
+    public List<JsonObject> filterObjectByClass(List<JsonObject> objects, String jClass, boolean inherit) {
+        List<JsonObject> filtered = new ArrayList<>();
+        List<String> classList = new ArrayList<>();
+        classList.add(jClass);
+
+        if (inherit) {
+            JEVisClassHelper.findHeir(jClass, classList);
+        }
+
         for (JsonObject obj : objects) {
-            if (heir.contains(obj.getJevisClass())) {
-                filterd.add(obj);
+            if (classList.contains(obj.getJevisClass())) {
+                filtered.add(obj);
             }
         }
-        return filterd;
+
+        return filtered;
     }
 
     private void jevisLogin(HttpHeaders httpHeaders) throws AuthenticationException {

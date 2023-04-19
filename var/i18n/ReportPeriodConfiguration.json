@@ -326,6 +326,18 @@
             "th": "ระยะเวลาจนถึงจุดสิ้นสุดของรายงาน",
             "ar": "الفترة حتى نهاية التقرير"
           }
+        },
+        "RELATIVE": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Relative Periode",
+            "en": "Relative period",
+            "ru": "относительный период",
+            "uk": "відносний період",
+            "th": "ระยะเวลาสัมพัทธ์",
+            "ar": "الفترة النسبية"
+          }
         }
       }
     },
@@ -467,6 +479,126 @@
             "uk": "10 роки",
             "th": "10 ปี",
             "ar": "عشر سنوات"
+          }
+        }
+      }
+    },
+    {
+      "type": "Override Schedule",
+      "descriptions": {
+        "de": "Die Periode überschreibt die Berichtsperiode",
+        "ru": "",
+        "en": "",
+        "uk": "",
+        "th": "",
+        "ar": ""
+      },
+      "names": {
+        "de": "Überschreib-Zeitplan",
+        "ru": "",
+        "en": "Override Schedule",
+        "uk": "",
+        "th": "",
+        "ar": ""
+      },
+      "enums": {
+        "NONE": {
+          "descriptions": null,
+          "names": {
+            "de": "Keine",
+            "en": "No",
+            "ru": "Нет",
+            "uk": "Немає",
+            "th": "ไม่",
+            "ar": "لا أحد"
+          }
+        },
+        "MINUTELY": {
+          "descriptions": null,
+          "names": {
+            "de": "Minütlich",
+            "ru": "Каждую минуту",
+            "en": "Minutely",
+            "uk": "Щохвилини",
+            "th": "ทุกๆนาที",
+            "ar": "كل دقيقة"
+          }
+        },
+        "QUARTER_HOURLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Viertelstündlich",
+            "ru": "Каждые четверть часа",
+            "en": "Quarter-hourly",
+            "uk": "Кожні чверть години",
+            "th": "ทุก ๆ ไตรมาสของหนึ่งชั่วโมง",
+            "ar": "كل ربع ساعة"
+          }
+        },
+        "HOURLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Stündlich",
+            "ru": "Ежечасно",
+            "en": "Hourly",
+            "uk": "Щогодини",
+            "th": "ทุกชั่วโมง",
+            "ar": "كل ساعة"
+          }
+        },
+        "DAILY": {
+          "descriptions": null,
+          "names": {
+            "de": "Täglich",
+            "ru": "Ежедневно",
+            "en": "Daily",
+            "th": "รายวัน",
+            "uk": "Щодня",
+            "ar": "يوميًا"
+          }
+        },
+        "WEEKLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Wöchentlich",
+            "ru": "Eженедельно",
+            "en": "Weekly",
+            "uk": "Щотижня",
+            "th": "รายสัปดาห์",
+            "ar": "أسبوعي"
+          }
+        },
+        "MONTHLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Monatlich",
+            "ru": "В месяц",
+            "en": "Monthly",
+            "uk": "На місяць",
+            "th": "ต่อเดือน",
+            "ar": "كل شهر"
+          }
+        },
+        "QUARTERLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Vierteljährlich",
+            "ru": "Ежеквартальный",
+            "en": "Quarterly",
+            "uk": "Щоквартально",
+            "th": "รายไตรมาส",
+            "ar": "ربعي"
+          }
+        },
+        "YEARLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Jährlich",
+            "ru": "Ежегодно",
+            "en": "Yearly",
+            "uk": "Щорічно",
+            "th": "ทุกปี",
+            "ar": "كل عام"
           }
         }
       }

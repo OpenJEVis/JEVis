@@ -22,7 +22,7 @@ import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.FreeObject;
-import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
+import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 import org.jevis.jeconfig.plugin.action.ui.TimeRangeDialog;
 import org.jevis.jeconfig.plugin.action.ui.control.TextFieldWithUnit;
 import org.joda.time.DateTime;
@@ -135,7 +135,7 @@ public class DetailsTab extends Tab {
             }
         });
         try {
-            System.out.println("Select Object: " + data.getEnpi().dataObject.get());
+            //System.out.println("Select Object: " + data.getEnpi().dataObject.get());
             if (data.getEnpi().dataObject.get() <= 0l) {
                 f_EnpiSelection.setValue(FreeObject.getInstance());
             } else {
@@ -216,11 +216,9 @@ public class DetailsTab extends Tab {
 
         });
 
-        NumberStringConverter nsc = DoubleConverter.getInstance().getCurrencyConverter();
-        NumberStringConverter nscNoUnit = DoubleConverter.getInstance().getDoubleConverter();
+        NumberStringConverter nsc = NumerFormating.getInstance().getCurrencyConverter();
+        NumberStringConverter nscNoUnit = NumerFormating.getInstance().getDoubleConverter();
 
-        System.out.println("Consumption field: " + data.consumptionProperty());
-        f_consumptionBefore.getTextField().textProperty().addListener((observable, oldValue, newValue) -> System.out.println("text event: " + newValue));
         Bindings.bindBidirectional(f_consumptionBefore.getTextField().textProperty(), data.consumptionProperty().get().actualProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_consumptionBefore.getUnitField().textProperty(), data.consumptionProperty().get().unitProperty());
         Bindings.bindBidirectional(f_consumptionAfter.getTextField().textProperty(), data.consumptionProperty().get().afterProperty(), nscNoUnit);

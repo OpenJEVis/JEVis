@@ -33,6 +33,8 @@ public class ActionPlugin implements Plugin {
         toolbar = new ActionToolbar(actionController);
         rootPane.setCenter(actionController.getContent());
         //initGUI();
+
+
     }
 
     private void initGUI() {
