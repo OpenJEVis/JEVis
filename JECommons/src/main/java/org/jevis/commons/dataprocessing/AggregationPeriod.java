@@ -239,4 +239,29 @@ public enum AggregationPeriod {
         }
         return FXCollections.observableArrayList(tempList);
     }
+
+    public org.jevis.commons.datetime.Period toPeriod() {
+        switch (this) {
+            default:
+            case NONE:
+                return org.jevis.commons.datetime.Period.NONE;
+            case MINUTELY:
+                return org.jevis.commons.datetime.Period.MINUTELY;
+            case QUARTER_HOURLY:
+                return org.jevis.commons.datetime.Period.QUARTER_HOURLY;
+            case HOURLY:
+                return org.jevis.commons.datetime.Period.HOURLY;
+            case DAILY:
+                return org.jevis.commons.datetime.Period.DAILY;
+            case WEEKLY:
+                return org.jevis.commons.datetime.Period.WEEKLY;
+            case MONTHLY:
+                return org.jevis.commons.datetime.Period.MONTHLY;
+            case QUARTERLY:
+                return org.jevis.commons.datetime.Period.QUARTERLY;
+            case YEARLY:
+                return org.jevis.commons.datetime.Period.YEARLY;
+
+        }
+    }
 }

@@ -202,8 +202,11 @@ public class TemplateCalculationFormulaDialog extends Dialog {
 
         ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType deleteType = new ButtonType(I18n.getInstance().getString("jevistree.menu.delete"), ButtonBar.ButtonData.OTHER);
 
-        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+        this.getDialogPane().getButtonTypes().addAll(deleteType, cancelType, okType);
+
+        Button deleteButton = (Button) this.getDialogPane().lookupButton(deleteType);
 
         Button okButton = (Button) this.getDialogPane().lookupButton(okType);
         okButton.setDefaultButton(true);
@@ -218,12 +221,10 @@ public class TemplateCalculationFormulaDialog extends Dialog {
 
         cancelButton.setOnAction(event -> this.close());
 
-        JFXButton delete = new JFXButton(I18n.getInstance().getString("jevistree.menu.delete"));
-        delete.setOnAction(event -> {
+        deleteButton.setOnAction(event -> {
             response = Response.DELETE;
             this.close();
         });
-
 
         ScrollPane outputsScrollPane = new ScrollPane(outputsGridPane);
         outputsScrollPane.setMinHeight(550);

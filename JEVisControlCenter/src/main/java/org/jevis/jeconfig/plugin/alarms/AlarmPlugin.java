@@ -35,6 +35,7 @@ import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmConfiguration;
 import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
@@ -56,6 +57,7 @@ import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.object.attribute.AlarmEditor;
 import org.jevis.jeconfig.plugin.object.attribute.LimitEditor;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -972,8 +974,23 @@ public class AlarmPlugin implements Plugin {
     }
 
     private Object getAnalysisRequest(AlarmRow alarmRow, JEVisObject item) {
-        DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
-        DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
+
+        DateTime ts = alarmRow.getAlarm().getTimeStamp();
+        Period period = Period.hours(12);
+
+        Period newPeriod = CleanDataObject.getPeriodForDate(item, ts);
+
+        if (!newPeriod.equals(Period.ZERO)) {
+            period = newPeriod;
+        }
+
+        DateTime start = ts.minus(period);
+        DateTime end = ts.plus(period);
+
+        for (int i = 0; i < 10; i++) {
+            start = start.minus(period);
+            end = end.plus(period);
+        }
 
         return new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, start, end);
     }
