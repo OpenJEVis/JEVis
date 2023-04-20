@@ -835,7 +835,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             if (object != null) {
                 HttpURLConnection response = getHTTPConnection().getDeleteConnection(resource);
                 if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
-
+                    response.disconnect();
 
                     object.getParents().forEach(parent -> {
                         try {
@@ -872,6 +872,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                         object.notifyListeners(new JEVisEvent(object, JEVisEvent.TYPE.OBJECT_DELETE_BIN, object));
                     }
                     /* reload should already have the delete ts but it seems to not work */
+
                     object.setDeleteTS(new DateTime());
                     reloadObject(object);
 
@@ -901,8 +902,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     + jclass;
 
             HttpURLConnection conn = getHTTPConnection().getDeleteConnection(resource);
-
-            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
+            boolean response = conn.getResponseCode() == HttpURLConnection.HTTP_OK;
+            conn.disconnect();
+            return response;
 
         } catch (Exception ex) {
             logger.catching(ex);
@@ -933,8 +935,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 logger.error("Error while deleting Relationship {}", conn.getResponseCode());
             }
 
-
-            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
+            boolean response = conn.getResponseCode() == HttpURLConnection.HTTP_OK;
+            conn.disconnect();
+            return response;
 
         } catch (Exception ex) {
             logger.catching(ex);
