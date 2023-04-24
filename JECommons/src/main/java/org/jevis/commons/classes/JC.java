@@ -3836,5 +3836,24 @@ public interface JC {
         public static String a_StartDashboard = "Start Dashboard";
     }
 
+    public interface Nonconformities {
+        public static String name = "Nonconformities";
 
+        public static String a_CustomStatus = "Custom Status";
+        public static String a_CustomFields = "Custom Fields";
+        public static String a_CustomMedium = "Custom Medium";
+        public static String a_EnPI = "EnPI";
+
+        public interface NonconformitiesDirectory {
+            public static String name = "Nonconformities Directory";
+
+            public interface Nonconformity {
+                public static String name = "Nonconformity";
+
+                public static String a_Data = "Data";
+
+
+            }
+        }
+    }
 }

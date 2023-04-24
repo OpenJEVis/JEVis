@@ -1,27 +1,25 @@
 package org.jevis.jeconfig.tool;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeItem;
 import org.jevis.jeconfig.dialog.DialogHeader;
@@ -41,7 +39,7 @@ public class AttributeCopy {
 
     private void doPaste(List<JEVisAttribute> jeVisAttributes, List<JEVisObject> objectsTargets, boolean overwrite) {
         objectsTargets.forEach(object -> {
-            logger.error("- Checking objetc Object: {}", object);
+            logger.debug("- Checking object Object: {}", object);
 
             try {
                 for (JEVisAttribute targetAttribute : object.getAttributes()) {
@@ -49,33 +47,51 @@ public class AttributeCopy {
                     jeVisAttributes.forEach(sourceAttribute -> {
                         if (targetAttribute.getName().equals(sourceAttribute.getName())) {
                             //System.out.println("target attribute: " + sourceAttribute);
+
                             javafx.concurrent.Task<Object> task = new javafx.concurrent.Task<Object>() {
                                 @Override
                                 protected Object call() throws Exception {
                                     StringProperty name = new SimpleStringProperty();
                                     try {
-                                        logger.error("Starting copy for: {}", targetAttribute);
+                                        logger.debug("Starting copy for: {}", targetAttribute);
                                         //System.out.println("--- Copy attribute: " + sourceAttribute.getName());
                                         name.set("[" + object.getID() + "] " + object + ":" + sourceAttribute.getName());
                                         /**
                                          JEConfig.getStatusBar().startProgressJob("Copy setting"
-                                         , DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count()
+                                         , DashboardControl.this.widgetList.stream().filter(widget -> !widget.isStatic()).count()
                                          , I18n.getInstance().getString("plugin.dashboard.message.startupdate"));
                                          **/
                                         Platform.runLater(() -> this.updateTitle("Copy setting to " + name.get()));
 
+                                        boolean commit = false;
+                                        try {
+                                            JEVisUnit inputUnit = sourceAttribute.getInputUnit();
+                                            JEVisUnit displayUnit = sourceAttribute.getDisplayUnit();
+                                            if (inputUnit != null) {
+                                                targetAttribute.setInputUnit(inputUnit);
+                                                commit = true;
+                                            }
+                                            if (displayUnit != null) {
+                                                targetAttribute.setDisplayUnit(displayUnit);
+                                                commit = true;
+                                            }
+                                        } catch (Exception e) {
+                                            logger.error("Unit copy failed for attribute {}", sourceAttribute.getName(), e);
+                                        }
+
+                                        if (commit) {
+                                            targetAttribute.commit();
+                                        }
+
                                         if (overwrite) {
-                                            logger.error("Delete samples for: {}", targetAttribute);
+                                            logger.debug("Delete samples for: {}", targetAttribute);
                                             targetAttribute.deleteAllSample();
                                         }
 
                                         if (sourceAttribute.hasSample()) {
                                             targetAttribute.addSamples(sourceAttribute.getAllSamples());
-                                            logger.error("Sample to copy: {}", targetAttribute.getSampleCount());
-                                            //targetAttribute.commit();
+                                            logger.debug("Sample to copy: {}", targetAttribute.getSampleCount());
                                         }
-
-
                                     } catch (Exception ex) {
                                         this.failed();
                                         logger.error("Widget update error: [{}]", ex, ex);
@@ -102,11 +118,24 @@ public class AttributeCopy {
     }
 
     public void startPaste(List<JEVisAttribute> jeVisAttributes, List<JEVisTreeItem> objectsTargets) {
-        JFXDialog jfxDialog = new JFXDialog();
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"));
-        cancel.setCancelButton(true);
+        Dialog dialog = new Dialog();
+        dialog.setResizable(true);
+        dialog.initOwner(JEConfig.getStage());
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
+
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        dialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         GridPane gridLayout = new GridPane();
         gridLayout.setPadding(new Insets(10, 10, 10, 10));
@@ -120,18 +149,14 @@ public class AttributeCopy {
         final JFXCheckBox question = new JFXCheckBox(I18n.getInstance().getString("dialog.attributecopy.replace"));
         final JFXCheckBox clearBefore = new JFXCheckBox(I18n.getInstance().getString("dialog.attributecopy.delete"));
         clearBefore.selectedProperty().set(true);
-        HBox hBox = new HBox(ok, cancel);
-        hBox.setSpacing(10);
-        hBox.setAlignment(Pos.BOTTOM_RIGHT);
 
         gridLayout.add(header, 0, 0, 1, 1);
         //gridLayout.add(new Separator(), 0, 1, 1, 1);
         gridLayout.add(question, 0, 3, 1, 1);
         gridLayout.add(clearBefore, 0, 4, 1, 1);
         //gridLayout.add(new Separator(), 5, 1, 1, 1);
-        gridLayout.add(hBox, 0, 6, 1, 1);
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             List<JEVisObject> objectList = new ArrayList<>();
             List<JEVisObject> childList = new ArrayList<>();
             objectsTargets.forEach(jeVisTreeItem -> {
@@ -146,16 +171,15 @@ public class AttributeCopy {
             });
             objectList.addAll(childList);
             doPaste(jeVisAttributes, objectList, clearBefore.isSelected());
-            jfxDialog.close();
+            dialog.close();
         });
-        cancel.setOnAction(event -> {
-            jfxDialog.close();
+
+        cancelButton.setOnAction(event -> {
+            dialog.close();
         });
-        jfxDialog.setContent(gridLayout);
-        jfxDialog.setDialogContainer(JEConfig.getStackPane());
-        jfxDialog.show();
 
-
+        dialog.getDialogPane().setContent(gridLayout);
+        dialog.show();
     }
 
     private void addAllChildren(List<JEVisObject> newList, JEVisObject parent) throws JEVisException {
@@ -171,11 +195,24 @@ public class AttributeCopy {
 
 
     public void showAttributeSelection(JEVisObject object) {
-        JFXDialog jfxDialog = new JFXDialog();
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"));
-        cancel.setCancelButton(true);
+        Dialog dialog = new Dialog();
+        dialog.setResizable(true);
+        dialog.initOwner(JEConfig.getStage());
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
+
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        dialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         GridPane gridLayout = new GridPane();
         gridLayout.setPadding(new Insets(10, 10, 10, 10));
@@ -224,21 +261,17 @@ public class AttributeCopy {
         }
 
         gridLayout.add(new Separator(), 0, 6, 1, 1);
-        HBox hBox = new HBox(ok, cancel);
-        hBox.setSpacing(10);
-        hBox.setAlignment(Pos.BOTTOM_RIGHT);
-        gridLayout.add(hBox, 0, 7, 1, 1);
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
 
-            jfxDialog.close();
+            dialog.close();
         });
-        cancel.setOnAction(event -> {
-            jfxDialog.close();
+        cancelButton.setOnAction(event -> {
+            dialog.close();
         });
-        jfxDialog.setContent(gridLayout);
-        jfxDialog.setDialogContainer(JEConfig.getStackPane());
-        jfxDialog.show();
+        dialog.getDialogPane().setContent(gridLayout);
+
+        dialog.show();
     }
 
 

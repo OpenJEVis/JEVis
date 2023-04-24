@@ -5,14 +5,16 @@
     "ru": "прогноз",
     "uk": "прогноз",
     "th": "พยากรณ์",
-    "en": "Forecast"
+    "en": "Forecast",
+    "ar": "بيانات التنبؤ"
   },
   "descriptions": {
     "de": "Die Prognose-Klasse stellt einen Container für eine Reihe von vorhergesagten numerischen Werten dar, die auf dem übergeordneten Element basieren.",
     "ru": "Класс Forecast Data представляет контейнер для серии предсказанных числовых значений, основанных на родительском элементе.",
     "uk": "Прогнозовані дані класу являють собою контейнер для серії передбачуваних числових значень, які базуються на батьківському.",
     "th": "ข้อมูลที่คาดการณ์ระดับหมายถึงภาชนะสำหรับชุดของค่าตัวเลขที่ทำนายซึ่งจะขึ้นอยู่กับผู้ปกครอง",
-    "en": "The class Forecast Data represents a container for a series of predicted numeric values, which are based on the parent."
+    "en": "The class Forecast Data represents a container for a series of predicted numeric values, which are based on the parent.",
+    "ar": "تمثل فئة التنبؤ حاوية لمجموعة من القيم الرقمية المتوقعة بناءً على الأصل."
   },
   "types": [
     {
@@ -22,14 +24,16 @@
         "ru": "Включает/выключает очистку данных.",
         "uk": "Ввімкнути / Вимкнути очищення даних",
         "th": "เปิดใช้งาน / ปิดใช้งานการล้างข้อมูล",
-        "en": "Enables/Disables the data cleaning"
+        "en": "Enables/Disables the data cleaning",
+        "ar": "مفعل"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Активированный",
         "uk": "Увімкнено",
         "th": "เปิดการใช้งาน",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "تمكين / تعطيل تنظيف البيانات"
       }
     },
     {
@@ -39,14 +43,16 @@
         "ru": "Значение ряда данных",
         "uk": "Значення ряду даних",
         "th": "ค่าของชุดข้อมูล",
-        "en": "Value of the data series"
+        "en": "Value of the data series",
+        "ar": "القيمة"
       },
       "names": {
         "de": "Wert",
         "ru": "ценность",
         "uk": "Значення",
         "th": "ความคุ้มค่า",
-        "en": "Value"
+        "en": "Value",
+        "ar": "القيمة"
       }
     },
     {
@@ -56,42 +62,48 @@
         "ru": "Тип сгенерированных данных прогноза вы можете выбрать из расчетов на основе среднего значения, медианы, минимума или максимума за выбранный прошедший период времени.",
         "uk": "Тип згенерованих прогнозних даних ви можете обрати з розрахунків виходячи із середнього, медіанного, мінімального чи максимуму вибраного минулого періоду часу.",
         "th": "ประเภทของข้อมูลการพยากรณ์ที่สร้างขึ้นคุณสามารถเลือกจากการคำนวณตามค่าเฉลี่ยค่ามัธยฐานค่าต่ำสุดหรือสูงสุดของช่วงเวลาที่ผ่านมาที่เลือก",
-        "en": "Type of generated forecast data, you can choose from calculations based on the average, the median, the minimum or the maximum of the selected past time period."
+        "en": "Type of generated forecast data, you can choose from calculations based on the average, the median, the minimum or the maximum of the selected past time period.",
+        "ar": "نوع بيانات التنبؤ التي تم إنشاؤها ، والخيارات عبارة عن حسابات تستند إلى المتوسط \u200B\u200Bأو المتوسط \u200B\u200Bأو الأدنى أو الأقصى للفترة الزمنية الماضية المحددة."
       },
       "names": {
         "de": "Typ",
         "ru": "тип",
         "uk": "тип",
         "th": "ชนิด",
-        "en": "Type"
+        "en": "Type",
+        "ar": "نوع"
       },
       "enums": {
         "MINIMUM": {
           "descriptions": null,
           "names": {
             "de": "Minimalwert",
-            "en": "Minimum value"
+            "en": "Minimum value",
+            "ar": "الحد الأدنى للقيمة"
           }
         },
         "MAXIMUM": {
           "descriptions": null,
           "names": {
             "de": "Maximalwert",
-            "en": "Maximum value"
+            "en": "Maximum value",
+            "ar": "القيمة القصوى"
           }
         },
         "MEDIAN": {
           "descriptions": null,
           "names": {
             "de": "Medianwert",
-            "en": "Median value"
+            "en": "Median value",
+            "ar": "متوسط"
           }
         },
         "AVERAGE": {
           "descriptions": null,
           "names": {
             "de": "Durchschnittswert",
-            "en": "Average value"
+            "en": "Average value",
+            "ar": "متوسط القيمة"
           }
         }
       }
@@ -103,56 +115,64 @@
         "ru": "Базисный период, из которого создаются данные прогноза.",
         "uk": "Опорний період, з якого формуються прогнозні дані.",
         "th": "ช่วงเวลาอ้างอิงที่สร้างข้อมูลการพยากรณ์",
-        "en": "The reference period from which the forecast data is generated."
+        "en": "The reference period from which the forecast data is generated.",
+        "ar": "الفاصل الزمني المرجعي الذي يقوم بإنشاء بيانات التنبؤ."
       },
       "names": {
         "de": "Bezugszeitraum",
         "ru": "Учетный период",
         "uk": "Обліковий період",
         "th": "ระยะเวลาการอ้างอิง",
-        "en": "Reference Period"
+        "en": "Reference Period",
+        "ar": "الفترة المرجعية"
       },
       "enums": {
         "DAY": {
           "descriptions": null,
           "names": {
             "de": "Tag",
-            "en": "Day"
+            "en": "Day",
+            "ar": "يوم "
           }
         },
         "WEEK": {
           "descriptions": null,
           "names": {
             "de": "Woche",
-            "en": "Week"
+            "en": "Week",
+            "ar": "أسبوع"
           }
         },
         "MONTH": {
           "descriptions": null,
           "names": {
             "de": "Monat",
-            "en": "Month"
+            "en": "Month",
+            "ar": "شهر"
           }
         },
         "YEAR": {
           "descriptions": null,
           "names": {
             "de": "Jahr",
-            "en": "Year"
+            "en": "Year",
+            "ar": "سنة"
           }
         },
         "ALL": {
           "descriptions": null,
           "names": {
             "de": "Alle",
-            "en": "All"
+            "en": "All",
+            "ar": "الجميع"
           }
         },
         "NONE": {
           "descriptions": null,
           "names": {
             "de": "Keine",
-            "en": "None"
+            "en": "None",
+            "ar": "لا أحد/لا شيء"
           }
         }
       }
@@ -164,14 +184,16 @@
         "ru": "Множитель для выбранного отчетного периода.",
         "uk": "Множник для вибраного еталонного періоду.",
         "th": "ตัวคูณสำหรับช่วงเวลาอ้างอิงที่เลือก",
-        "en": "Multiplier for the selected reference period."
+        "en": "Multiplier for the selected reference period.",
+        "ar": "عدد الفترة المرجعية"
       },
       "names": {
         "de": "Anzahl Bezugszeitraum",
         "ru": "Номер отчетного периода",
         "uk": "Кількість еталонного періоду",
         "th": "จำนวนระยะเวลาอ้างอิง",
-        "en": "Reference Period Count"
+        "en": "Reference Period Count",
+        "ar": "رقم الفترة المرجعية"
       }
     },
     {
@@ -181,42 +203,48 @@
         "ru": "Расчетное значение прогноза формируется из интервалов заданного периода.",
         "uk": "Розраховане прогнозне значення формується з інтервалів заданого періоду.",
         "th": "ค่าพยากรณ์ที่คำนวณได้จะเกิดขึ้นจากช่วงเวลาของช่วงเวลาที่กำหนด",
-        "en": "The calculated forecast value is formed from the intervals of the set period."
+        "en": "The calculated forecast value is formed from the intervals of the set period.",
+        "ar": "يتم تكوين قيمة التنبؤ المحددة من فترات الفترة المحددة."
       },
       "names": {
         "de": "Gebunden auf",
         "ru": "Привязать к конкретному",
         "uk": "Прив’язати до конкретного",
         "th": "ผูกกับเฉพาะ",
-        "en": "Bind To Specific"
+        "en": "Bind To Specific",
+        "ar": "مقيد"
       },
       "enums": {
         "NONE": {
           "descriptions": null,
           "names": {
             "de": "Tag",
-            "en": "Day"
+            "en": "Day",
+            "ar": "يوم "
           }
         },
         "WEEKDAY": {
           "descriptions": null,
           "names": {
             "de": "Wochentag",
-            "en": "Weekday"
+            "en": "Weekday",
+            "ar": "يوم من أيام الأسبوع"
           }
         },
         "WEEKOFYEAR": {
           "descriptions": null,
           "names": {
             "de": "Woche des Jahres",
-            "en": "Week of Year"
+            "en": "Week of Year",
+            "ar": "أسبوع من السنة"
           }
         },
         "MONTHOFYEAR": {
           "descriptions": null,
           "names": {
             "de": "Monat des Jahres",
-            "en": "Month of Year"
+            "en": "Month of Year",
+            "ar": "شهر من السنة"
           }
         }
       }
@@ -228,49 +256,63 @@
         "ru": "Период для прогнозных значений формируется.",
         "uk": "Формується період для прогнозних значень.",
         "th": "ช่วงเวลาสำหรับค่าการพยากรณ์จะเกิดขึ้น",
-        "en": "The period for the forecast values are formed."
+        "en": "The period for the forecast values are formed.",
+        "ar": "الفترة التي يتم فيها تكوين القيم المتوقعة."
       },
       "names": {
         "de": "Prognose Zeitraum",
         "ru": "ценность",
         "uk": "Прогнозний період",
         "th": "ความคุ้มค่า",
-        "en": "Forecast Duration"
+        "en": "Forecast Duration",
+        "ar": "فترة التوقعات"
       },
       "enums": {
         "MINUTES": {
           "descriptions": null,
           "names": {
             "de": "Minuten",
-            "en": "Minutes"
+            "en": "Minutes",
+            "ar": "الدقائق"
           }
         },
         "HOURS": {
           "descriptions": null,
           "names": {
             "de": "Stunden",
-            "en": "Hours"
+            "en": "Hours",
+            "ar": "ساعات"
           }
         },
         "DAYS": {
           "descriptions": null,
           "names": {
             "de": "Tage",
-            "en": "Days"
+            "en": "Days",
+            "ar": "أيام"
           }
         },
         "WEEKS": {
           "descriptions": null,
           "names": {
             "de": "Wochen",
-            "en": "Weeks"
+            "en": "Weeks",
+            "ar": "أسابيع"
           }
         },
         "MONTHS": {
           "descriptions": null,
           "names": {
             "de": "Monate",
-            "en": "Months"
+            "en": "Months",
+            "ar": "شهور"
+          }
+        },
+        "YEARS": {
+          "description": null,
+          "names": {
+            "de": "Jahre",
+            "en": "Years"
           }
         }
       }
@@ -282,14 +324,16 @@
         "ru": "Множитель на прогнозный период.",
         "uk": "Мультиплікатор на прогнозний період.",
         "th": "ตัวคูณสำหรับช่วงเวลาพยากรณ์",
-        "en": "Multiplier for the forecast period."
+        "en": "Multiplier for the forecast period.",
+        "ar": "المضاعف لفترة التنبؤ."
       },
       "names": {
         "de": "Anzahl Prognose Zeitraum",
         "ru": "Номер прогнозируемого периода",
         "uk": "Кількість прогнозного періоду",
         "th": "จำนวนช่วงเวลาที่คาดการณ์",
-        "en": "Forecast Duration Count"
+        "en": "Forecast Duration Count",
+        "ar": "عدد فترة التنبؤ"
       }
     },
     {
@@ -299,14 +343,16 @@
         "ru": "В последний раз прогнозные значения были сформированы.",
         "uk": "Востаннє формувалися прогнозні значення.",
         "th": "ครั้งสุดท้ายที่ค่าการพยากรณ์เกิดขึ้น",
-        "en": "The last time the forecast values were formed."
+        "en": "The last time the forecast values were formed.",
+        "ar": "آخر نقطة زمنية عندما تم تكوين قيم التوقعات."
       },
       "names": {
         "de": "Letzter Zyklus",
         "ru": "Последний цикл",
         "uk": "Останній цикл",
         "th": "รอบสุดท้าย",
-        "en": "Last cycle"
+        "en": "Last cycle",
+        "ar": "الدورة الماضية"
       }
     },
     {
@@ -316,14 +362,16 @@
         "ru": "Указывает интервал, в котором повторяется формирование значений прогноза.",
         "uk": "Вказує інтервал, в якому повторюється формування прогнозних значень.",
         "th": "ระบุช่วงเวลาที่การก่อตัวของค่าพยากรณ์ซ้ำ",
-        "en": "Specifies the interval in which the formation of the forecast values repeats."
+        "en": "Specifies the interval in which the formation of the forecast values repeats.",
+        "ar": "دورة الزمن"
       },
       "names": {
         "de": "Taktzeit",
         "ru": "время цикла",
         "uk": "час циклу",
         "th": "รอบเวลา",
-        "en": "Cycle Time"
+        "en": "Cycle Time",
+        "ar": "دورة الزمن"
       }
     },
     {
@@ -333,14 +381,16 @@
         "ru": "Указывает часовой пояс для цикла (часовой пояс сервера).",
         "uk": "Вказує часовий пояс для циклу (часовий пояс сервера).",
         "th": "ระบุเขตเวลาสำหรับรอบ (เขตเวลาของเซิร์ฟเวอร์)",
-        "en": "Specifies the time zone for the cycle (server time zone)."
+        "en": "Specifies the time zone for the cycle (server time zone).",
+        "ar": "تحدد المنطقة الزمنية للدورة (المنطقة الزمنية للخادم)."
       },
       "names": {
         "de": "Zeitzone",
         "ru": "часовой пояс",
         "uk": "часовий пояс",
         "th": "โซนเวลา",
-        "en": "Timezone"
+        "en": "Timezone",
+        "ar": "المنطقة الزمنية"
       }
     }
   ]

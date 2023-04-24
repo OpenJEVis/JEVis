@@ -31,7 +31,6 @@ import javafx.scene.control.TreeSortMode;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.input.*;
-import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -176,22 +175,22 @@ public class JEVisTreeFactory {
 
     }
 
-    public static JEVisTree buildBasicDefault(StackPane dialogContainer, JEVisDataSource ds, boolean withMinMaxTSColumn) {
+    public static JEVisTree buildBasicDefault(JEVisDataSource ds, boolean withMinMaxTSColumn) {
 
         BasicCellFilter cellFilter = new BasicCellFilter(I18n.getInstance().getString("tree.filter.nofilter"));
         cellFilter.addItemFilter(new ObjectAttributeFilter(ObjectAttributeFilter.ALL, ObjectAttributeFilter.NONE));
 
-        return buildBasicDefault(dialogContainer, ds, cellFilter, withMinMaxTSColumn);
+        return buildBasicDefault(ds, cellFilter, withMinMaxTSColumn);
     }
 
-    private static void addContextMenu(StackPane dialogContainer, JEVisTree tree) {
+    private static void addContextMenu(JEVisTree tree) {
 
-        final JEVisTreeContextMenu contextMenu = new JEVisTreeContextMenu(dialogContainer);
+        final JEVisTreeContextMenu contextMenu = new JEVisTreeContextMenu();
         contextMenu.setTree(tree);
         tree.setContextMenu(contextMenu);
     }
 
-    public static JEVisTree buildBasicDefault(StackPane dialogContainer, JEVisDataSource ds, JEVisTreeFilter filter, boolean withMinMaxTSColumn) {
+    public static JEVisTree buildBasicDefault(JEVisDataSource ds, JEVisTreeFilter filter, boolean withMinMaxTSColumn) {
 
         TreeTableColumn<JEVisTreeRow, JEVisTreeRow> nameCol = ColumnFactory.buildName();
         TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
@@ -221,7 +220,7 @@ public class JEVisTreeFactory {
         }
 
         addDefaultKeys(tree);
-        addContextMenu(dialogContainer, tree);
+        addContextMenu(tree);
 
         return tree;
     }

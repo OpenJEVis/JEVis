@@ -14,7 +14,6 @@ import org.jxls.util.JxlsHelper;
 import org.jxls.util.TransformerFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -24,7 +23,7 @@ public class TemplateTransformator {
 
     private byte[] outputBytes;
 
-    public void transform(byte[] templateBytes, Context context) throws IOException {
+    public void transform(byte[] templateBytes, Context context) throws Exception {
         InputStream input = new ByteArrayInputStream(templateBytes);
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 

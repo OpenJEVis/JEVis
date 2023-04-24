@@ -3,12 +3,14 @@
   "names": {
     "de": "Benutzer",
     "ru": "Users",
-    "en": "Users"
+    "en": "Users",
+    "ar": "دليل المستخدم"
   },
   "descriptions": {
     "de": "Im Benutzerverzeichnis werden die Benutzer des JEVis Servers verwaltet.",
     "ru": "In the User Directory the users of the JEVis server are managed.",
-    "en": "In the User Directory the users of the JEVis server are managed."
+    "en": "In the User Directory the users of the JEVis server are managed.",
+    "ar": "يتم إدارة مستخدمي خادم JEVis في دليل المستخدم"
   },
   "types": []
 }

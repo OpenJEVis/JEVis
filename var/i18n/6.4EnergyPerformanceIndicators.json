@@ -3,12 +3,14 @@
   "names": {
     "de": "6.4 Energieleistungskennzahlen (EnPI)",
     "ru": "6.4 Energy Performance Indicators",
-    "en": "6.4 Energy Performance Indicators"
+    "en": "6.4 Energy Performance Indicators",
+    "ar": "6.4 مؤشرات أداء الطاقة"
   },
   "descriptions": {
     "de": "Die Organisation muss für die Überwachung und Messung der energiebezogenen Leistung angemessene EnPIs bestimmen, die der Organisation ermöglichen, die Verbesserung der energiebezogenen Leistung nachzuweisen. Das Verfahren für die Bestimmung und Aktualisierung der EnPIs muss als dokumentierte Information aufrechterhalten werden. Wo die Organisation Daten besitzt, die darauf hinweisen, dass relevante Variablen sich wesentlich auf die energiebezogene Leistung auswirken, ist die Berücksichtigung von relevanten Variablen und statischen Faktoren angemessen.\nEnPI-Werte müssen, soweit angemessen, überprüft und mit der/den entsprechenden energetischen Ausgangsbasis/en verglichen werden. Die EnPI-Werte müssen als dokumentierte Information aufbewahrt werden.",
     "ru": "The organization shall determine EnPIs that are appropriate for measuring and monitoring its energy performance and enable the organization to demonstrate energy performance improvement. The method for determining and updating the EnPIs shall be maintained as documented information. Where the organization has data indicating that relevant variables significantly affect energy performance, consideration of relevant variables and static factors is appropriate.  \nEnPI values shall be reviewed and compared to their respective energy baseline(s), as appropriate. EnPI value(s) shall be retained as documented information. ",
-    "en": "The organization shall determine EnPIs that are appropriate for measuring and monitoring its energy performance and enable the organization to demonstrate energy performance improvement. The method for determining and updating the EnPIs shall be maintained as documented information. Where the organization has data indicating that relevant variables significantly affect energy performance, consideration of relevant variables and static factors is appropriate.  \nEnPI values shall be reviewed and compared to their respective energy baseline(s), as appropriate. EnPI value(s) shall be retained as documented information. "
+    "en": "The organization shall determine EnPIs that are appropriate for measuring and monitoring its energy performance and enable the organization to demonstrate energy performance improvement. The method for determining and updating the EnPIs shall be maintained as documented information. Where the organization has data indicating that relevant variables significantly affect energy performance, consideration of relevant variables and static factors is appropriate.  \nEnPI values shall be reviewed and compared to their respective energy baseline(s), as appropriate. EnPI value(s) shall be retained as documented information. ",
+    "ar": "يجب على المنظمة تحديد EnPIs المناسبة لرصد وقياس أداء الطاقة التي تمكن المنظمة من إظهار التحسن في أداء الطاقة. يجب الحفاظ على إجراء تحديد وتحديث EnPIs كمعلومات موثقة. عندما يكون لدى المنظمة بيانات تشير إلى أن المتغيرات ذات الصلة لها تأثير مادي على أداء الطاقة ، يكون النظر في المتغيرات ذات الصلة والعوامل الثابتة مناسبًا.\nعند الاقتضاء ، يجب مراجعة قيم EnPI ومقارنتها بخط (خطوط) الأساس النشطة المقابلة. يجب الاحتفاظ بقيم EnPI كمعلومات موثقة."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "التاريخ الذي تم فيه إنشاء المستند"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "التاريخ الذي تم فيه إنشاء المستند"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

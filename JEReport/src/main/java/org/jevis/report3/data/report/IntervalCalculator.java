@@ -16,4 +16,8 @@ public interface IntervalCalculator {
     void buildIntervals(JEVisObject reportObject);
 
     Interval getInterval(String periodMode);
+
+    JEVisObject getReportObject();
+
+    String getSchedule();
 }

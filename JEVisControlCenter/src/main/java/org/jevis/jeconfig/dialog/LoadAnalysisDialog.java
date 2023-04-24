@@ -6,15 +6,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +28,8 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationPeriodBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
@@ -47,7 +49,7 @@ import java.util.prefs.Preferences;
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
-public class LoadAnalysisDialog extends JFXDialog {
+public class LoadAnalysisDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private final ObjectRelations objectRelations;
     private final ChartPlugin chartPlugin;
@@ -65,10 +67,7 @@ public class LoadAnalysisDialog extends JFXDialog {
     private final AggregationPeriodBox aggregationBox = new AggregationPeriodBox(AggregationPeriod.NONE);
     private final DisabledItemsComboBox<ManipulationMode> mathBox = getMathBox();
     private List<CustomPeriodObject> finalListCustomPeriodObjects;
-    private final JFXButton loadButton = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"));
     private final JFXComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
-    private final JFXButton newButton = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.new"));
-    private final JFXButton cancelButton = new JFXButton(I18n.getInstance().getString("plugin.graph.changedate.cancel"));
     private final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
 
     /**
@@ -93,14 +92,23 @@ public class LoadAnalysisDialog extends JFXDialog {
     private final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
     private final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
 
-    public LoadAnalysisDialog(StackPane dialogContainer, ChartPlugin chartPlugin, JEVisDataSource ds, ObservableList<JEVisObject> analyses) {
+    private final ButtonType loadType = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.OK_DONE);
+    private final ButtonType cancelType = new ButtonType(I18n.getInstance().getString("plugin.graph.changedate.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+    private final ButtonType newType = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.NEXT_FORWARD);
+
+    public LoadAnalysisDialog(ChartPlugin chartPlugin, JEVisDataSource ds, ObservableList<JEVisObject> analyses) {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.chartPlugin = chartPlugin;
 
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
-        setOverlayClose(false);
+        setTitle(I18n.getInstance().getString("plugin.graph.loadanalyisdialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.graph.loadanalyisdialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         filteredData = new FilteredList<>(analyses, s -> true);
 
@@ -140,6 +148,7 @@ public class LoadAnalysisDialog extends JFXDialog {
         analysisListView.getSelectionModel().selectedIndexProperty().addListener(
                 (observable, oldValue, newValue) ->
                         Platform.runLater(() -> {
+                            Button loadButton = (Button) this.getDialogPane().lookupButton(loadType);
                             loadButton.setDisable(analysisListView.getSelectionModel().getSelectedItem() == null);
                             analysisListView.scrollTo(analysisListView.getSelectionModel().getSelectedIndex());
                         }));
@@ -174,7 +183,7 @@ public class LoadAnalysisDialog extends JFXDialog {
 
         initializeControls();
 
-        updateGridLayout();
+        updateGridLayout(true);
 
         JEVisHelp.getInstance().setActiveSubModule(this.getClass().getSimpleName());
         JEVisHelp.getInstance().update();
@@ -200,15 +209,54 @@ public class LoadAnalysisDialog extends JFXDialog {
         mathBox.getSelectionModel().select(chartPlugin.getDataSettings().getManipulationMode());
         mathBox.setMaxWidth(200);
 
-        cancelButton.setId("cancel-button");
-        cancelButton.setCancelButton(true);
+        this.getDialogPane().getButtonTypes().addAll(cancelType, newType, loadType);
 
+        Button loadButton = (Button) this.getDialogPane().lookupButton(loadType);
         loadButton.setId("ok-button");
         loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.load")));
         loadButton.setDefaultButton(true);
         loadButton.setDisable(true);
+        loadButton.setOnAction(actionEvent -> {
+            response = Response.LOAD;
 
+            chartPlugin.getDataSettings().setAggregationPeriod(AggregationPeriod.parseAggregationIndex(aggregationBox.getSelectionModel().getSelectedIndex()));
+            chartPlugin.getDataSettings().setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
+            AnalysisTimeFrame analysisTimeFrame = presetDateBox.getSelectionModel().getSelectedItem();
+            if (analysisTimeFrame == null && comboBoxCustomPeriods.getSelectionModel().getSelectedIndex() > 0) {
+                analysisTimeFrame = chartPlugin.getDataSettings().getAnalysisTimeFrame();
+            } else if (presetDateBox.getSelectionModel().getSelectedItem().getTimeFrame().equals(TimeFrame.CUSTOM)) {
+                DateTime start = new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
+                        pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond());
+                DateTime end = new DateTime(pickerDateEnd.getValue().getYear(), pickerDateEnd.getValue().getMonthValue(), pickerDateEnd.getValue().getDayOfMonth(),
+                        pickerTimeEnd.getValue().getHour(), pickerTimeEnd.getValue().getMinute(), pickerTimeEnd.getValue().getSecond());
+                analysisTimeFrame.setStart(start);
+                analysisTimeFrame.setEnd(end);
+            }
+            chartPlugin.getDataSettings().setAnalysisTimeFrame(analysisTimeFrame);
+
+            if (analysisListView.getSelectionModel().getSelectedItem() != null) {
+                chartPlugin.getDataSettings().setCurrentAnalysis(null);
+                chartPlugin.getDataSettings().setCurrentAnalysis(analysisListView.getSelectionModel().getSelectedItem());
+            }
+
+            this.close();
+        });
+
+        Button newButton = (Button) this.getDialogPane().lookupButton(newType);
         newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.new")));
+
+        newButton.setOnAction(event -> {
+            response = Response.NEW;
+            this.close();
+        });
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setId("cancel-button");
+        cancelButton.setCancelButton(true);
+
+        cancelButton.setOnAction(event -> {
+            this.close();
+        });
     }
 
 
@@ -241,62 +289,62 @@ public class LoadAnalysisDialog extends JFXDialog {
                     //today
                     case CURRENT:
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.CURRENT));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     //today
                     case TODAY:
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.TODAY));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     //yesterday
                     case YESTERDAY:
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.YESTERDAY));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     //last 7 days
                     case LAST_7_DAYS:
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.LAST_7_DAYS));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     //this Week
                     case THIS_WEEK:
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.THIS_WEEK));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     //last Week
                     case LAST_WEEK:
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.LAST_WEEK));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     //last 30 days
                     case LAST_30_DAYS:
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.LAST_30_DAYS));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     case THIS_MONTH:
                         //last Month
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.THIS_MONTH));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     case LAST_MONTH:
                         //last Month
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.LAST_MONTH));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     case THIS_YEAR:
                         //this Year
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.THIS_YEAR));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     case LAST_YEAR:
                         //last Year
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.LAST_YEAR));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     case THE_YEAR_BEFORE_LAST:
                         //last Year
                         chartPlugin.getDataSettings().setAnalysisTimeFrame(new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.THE_YEAR_BEFORE_LAST));
-                        updateGridLayout();
+                        updateGridLayout(false);
                         break;
                     case CUSTOM_START_END:
                     default:
@@ -326,7 +374,7 @@ public class LoadAnalysisDialog extends JFXDialog {
                     analysisTimeFrame.setEnd(now);
                 }
                 chartPlugin.getDataSettings().setAnalysisTimeFrame(analysisTimeFrame);
-                updateGridLayout();
+                updateGridLayout(false);
             }
         });
 
@@ -353,7 +401,7 @@ public class LoadAnalysisDialog extends JFXDialog {
                     analysisTimeFrame.setEnd(now);
                 }
                 chartPlugin.getDataSettings().setAnalysisTimeFrame(analysisTimeFrame);
-                updateGridLayout();
+                updateGridLayout(false);
             }
         });
 
@@ -378,7 +426,7 @@ public class LoadAnalysisDialog extends JFXDialog {
                 }
                 analysisTimeFrame.setEnd(endDate);
                 chartPlugin.getDataSettings().setAnalysisTimeFrame(analysisTimeFrame);
-                updateGridLayout();
+                updateGridLayout(false);
             }
         });
 
@@ -405,58 +453,22 @@ public class LoadAnalysisDialog extends JFXDialog {
                 }
                 analysisTimeFrame.setEnd(endDate);
                 chartPlugin.getDataSettings().setAnalysisTimeFrame(analysisTimeFrame);
-                updateGridLayout();
+                updateGridLayout(false);
             }
         });
 
         mathBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 chartPlugin.getDataSettings().setManipulationMode(newValue);
-                updateGridLayout();
+                updateGridLayout(false);
             }
         });
 
         aggregationBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 chartPlugin.getDataSettings().setAggregationPeriod(AggregationPeriod.parseAggregationIndex(newValue.intValue()));
-                updateGridLayout();
+                updateGridLayout(false);
             }
-        });
-
-
-        loadButton.setOnAction(event -> {
-            response = Response.LOAD;
-
-            chartPlugin.getDataSettings().setAggregationPeriod(AggregationPeriod.parseAggregationIndex(aggregationBox.getSelectionModel().getSelectedIndex()));
-            chartPlugin.getDataSettings().setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
-            AnalysisTimeFrame analysisTimeFrame = presetDateBox.getSelectionModel().getSelectedItem();
-            if (analysisTimeFrame == null && comboBoxCustomPeriods.getSelectionModel().getSelectedIndex() > 0) {
-                analysisTimeFrame = chartPlugin.getDataSettings().getAnalysisTimeFrame();
-            } else if (presetDateBox.getSelectionModel().getSelectedItem().getTimeFrame().equals(TimeFrame.CUSTOM)) {
-                DateTime start = new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
-                        pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond());
-                DateTime end = new DateTime(pickerDateEnd.getValue().getYear(), pickerDateEnd.getValue().getMonthValue(), pickerDateEnd.getValue().getDayOfMonth(),
-                        pickerTimeEnd.getValue().getHour(), pickerTimeEnd.getValue().getMinute(), pickerTimeEnd.getValue().getSecond());
-                analysisTimeFrame.setStart(start);
-                analysisTimeFrame.setEnd(end);
-            }
-            chartPlugin.getDataSettings().setAnalysisTimeFrame(analysisTimeFrame);
-
-            if (analysisListView.getSelectionModel().getSelectedItem() != null) {
-                chartPlugin.getDataSettings().setCurrentAnalysis(null);
-                chartPlugin.getDataSettings().setCurrentAnalysis(analysisListView.getSelectionModel().getSelectedItem());
-            }
-
-            this.close();
-        });
-
-        newButton.setOnAction(event -> {
-            response = Response.NEW;
-            this.close();
-        });
-
-        cancelButton.setOnAction(event -> {
-            this.close();
         });
 
         pickerDateStart.setTooltip(pickerDateStartTT);
@@ -598,7 +610,7 @@ public class LoadAnalysisDialog extends JFXDialog {
 
                                 AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.CUSTOM_START_END);
                                 chartPlugin.getDataSettings().setAnalysisTimeFrame(newTimeFrame);
-                                updateGridLayout();
+                                updateGridLayout(false);
                             }
                         }
                     }
@@ -615,109 +627,89 @@ public class LoadAnalysisDialog extends JFXDialog {
         return response;
     }
 
-    private void updateGridLayout() {
-        Platform.runLater(() -> {
+    private void updateGridLayout(boolean isInit) {
+        if (!isInit) {
+            Platform.runLater(() -> updateDialog());
+        } else {
+            updateDialog();
+        }
+    }
 
-            pickerCombo = new PickerCombo(ds, chartPlugin, false);
-            pickerCombo.updateCellFactory();
-            presetDateBox = pickerCombo.getPresetDateBox();
-            pickerDateStart = pickerCombo.getStartDatePicker();
-            pickerTimeStart = pickerCombo.getStartTimePicker();
-            pickerDateEnd = pickerCombo.getEndDatePicker();
-            pickerTimeEnd = pickerCombo.getEndTimePicker();
-            filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
-            filterInput.setStyle("-fx-font-weight: bold;");
+    private void updateDialog() {
+        pickerCombo = new PickerCombo(ds, chartPlugin, false);
+        pickerCombo.updateCellFactory();
+        presetDateBox = pickerCombo.getPresetDateBox();
+        pickerDateStart = pickerCombo.getStartDatePicker();
+        pickerTimeStart = pickerCombo.getStartTimePicker();
+        pickerDateEnd = pickerCombo.getEndDatePicker();
+        pickerTimeEnd = pickerCombo.getEndTimePicker();
+        filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
+        filterInput.setStyle("-fx-font-weight: bold;");
 
-            Region freeSpace = new Region();
-            freeSpace.setPrefWidth(40);
+        Region freeSpace = new Region();
+        freeSpace.setPrefWidth(40);
 
-            GridPane gridLayout = new GridPane();
-            gridLayout.setPadding(new Insets(10, 10, 10, 10));
-            gridLayout.setVgap(10);
+        GridPane gridLayout = new GridPane();
+        gridLayout.setPadding(new Insets(10, 10, 10, 10));
+        gridLayout.setVgap(10);
 //            GridPane.setFillWidth(freeSpace, true);
 
-            /** Column 0 */
-            gridLayout.add(filterInput, 0, 0, 1, 1);
-            gridLayout.add(analysisListView, 0, 1, 1, 13);
+        /** Column 0 */
+        gridLayout.add(filterInput, 0, 0, 1, 1);
+        gridLayout.add(analysisListView, 0, 1, 1, 13);
 
-            /** Column 1 **/
-            gridLayout.add(freeSpace, 1, 0, 1, 16);
+        /** Column 1 **/
+        gridLayout.add(freeSpace, 1, 0, 1, 16);
 
-            /** column 2**/
-            gridLayout.add(timeRange, 2, 0, 2, 1);
-            gridLayout.add(startText, 2, 1);
-            gridLayout.add(endText, 2, 3);
+        /** column 2**/
+        gridLayout.add(timeRange, 2, 0, 2, 1);
+        gridLayout.add(startText, 2, 1);
+        gridLayout.add(endText, 2, 3);
 
-            /** Column 3 **/
-            gridLayout.add(pickerDateStart, 3, 1);
-            gridLayout.add(pickerDateEnd, 3, 3); // column=1 row=0
+        /** Column 3 **/
+        gridLayout.add(pickerDateStart, 3, 1);
+        gridLayout.add(pickerDateEnd, 3, 3); // column=1 row=0
 
 
-            /** Column 4 **/
-            gridLayout.add(pickerTimeStart, 4, 1);
-            gridLayout.add(pickerTimeEnd, 4, 3);
+        /** Column 4 **/
+        gridLayout.add(pickerTimeStart, 4, 1);
+        gridLayout.add(pickerTimeEnd, 4, 3);
 
-            /** Column 2 - 4 **/
-            gridLayout.add(standardSelectionsLabel, 2, 5, 3, 1);
-            GridPane.setFillWidth(presetDateBox, true);
-            presetDateBox.setMaxWidth(200);
-            gridLayout.add(presetDateBox, 2, 6, 3, 1);
+        /** Column 2 - 4 **/
+        gridLayout.add(standardSelectionsLabel, 2, 5, 3, 1);
+        GridPane.setFillWidth(presetDateBox, true);
+        presetDateBox.setMaxWidth(200);
+        gridLayout.add(presetDateBox, 2, 6, 3, 1);
 
-            gridLayout.add(customSelectionsLabel, 2, 7, 3, 1);
-            GridPane.setFillWidth(comboBoxCustomPeriods, true);
-            gridLayout.add(comboBoxCustomPeriods, 2, 8, 3, 1);
+        gridLayout.add(customSelectionsLabel, 2, 7, 3, 1);
+        GridPane.setFillWidth(comboBoxCustomPeriods, true);
+        gridLayout.add(comboBoxCustomPeriods, 2, 8, 3, 1);
 
-            gridLayout.add(labelAggregation, 2, 9, 3, 1);
-            GridPane.setFillWidth(aggregationBox, true);
-            gridLayout.add(aggregationBox, 2, 10, 3, 1);
+        gridLayout.add(labelAggregation, 2, 9, 3, 1);
+        GridPane.setFillWidth(aggregationBox, true);
+        gridLayout.add(aggregationBox, 2, 10, 3, 1);
 
-            gridLayout.add(labelMath, 2, 11, 3, 1);
-            GridPane.setFillWidth(mathBox, true);
-            gridLayout.add(mathBox, 2, 12, 3, 1);
+        gridLayout.add(labelMath, 2, 11, 3, 1);
+        GridPane.setFillWidth(mathBox, true);
+        gridLayout.add(mathBox, 2, 12, 3, 1);
 
-            GridPane.setFillWidth(analysisListView, true);
-            GridPane.setFillHeight(analysisListView, true);
-            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds)) analysisListView.setMinWidth(600d);
-            else analysisListView.setMinWidth(900d);
+        GridPane.setFillWidth(analysisListView, true);
+        GridPane.setFillHeight(analysisListView, true);
+        if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds)) analysisListView.setMinWidth(600d);
+        else analysisListView.setMinWidth(900d);
 //            analysisListView.setMaxWidth(600d);
-            GridPane.setHgrow(analysisListView, Priority.ALWAYS);
-            GridPane.setVgrow(analysisListView, Priority.ALWAYS);
+        GridPane.setHgrow(analysisListView, Priority.ALWAYS);
+        GridPane.setVgrow(analysisListView, Priority.ALWAYS);
 
-            HBox buttonBox = new HBox(10);
-            Region spacer = new Region();
-            //drawOptimization = new JFXCheckBox(I18n.getInstance().getString("plugin.graph.analysis.drawopt"));
-            //drawOptimization.setSelected(HiddenConfig.CHART_PRECISION_ON);
+        getDialogPane().setContent(gridLayout);
+        getDialogPane().getScene().getWindow().sizeToScene();
+        getDialogPane().getScene().getWindow().centerOnScreen();
 
-            HBox.setHgrow(loadButton, Priority.NEVER);
-            HBox.setHgrow(newButton, Priority.NEVER);
-            HBox.setHgrow(cancelButton, Priority.NEVER);
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-            HBox.setMargin(cancelButton, new Insets(10));
-            HBox.setMargin(loadButton, new Insets(10));
-            HBox.setMargin(newButton, new Insets(10));
-            //HBox.setMargin(drawOptimization, new Insets(10));
+        addListener();
 
-            buttonBox.getChildren().setAll(cancelButton, spacer, newButton, loadButton);
-            VBox vBox = new VBox(4);
-            vBox.setPadding(new Insets(15));
-
-            Separator sep = new Separator(Orientation.HORIZONTAL);
-
-            vBox.getChildren().setAll(gridLayout, sep, buttonBox);
-
-            VBox.setVgrow(analysisListView, Priority.ALWAYS);
-            VBox.setVgrow(gridLayout, Priority.ALWAYS);
-            VBox.setVgrow(sep, Priority.NEVER);
-            VBox.setVgrow(buttonBox, Priority.NEVER);
-
-            setContent(vBox);
-
-            addListener();
-
-            JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), this.getClass().getSimpleName(),
-                    JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, pickerDateStart, pickerDateEnd, pickerTimeEnd, analysisListView,
-                    aggregationBox, mathBox, presetDateBox, loadButton, newButton, comboBoxCustomPeriods);
-        });
+        JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), this.getClass().getSimpleName(),
+                JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, pickerDateStart, pickerDateEnd, pickerTimeEnd, analysisListView,
+                aggregationBox, mathBox, presetDateBox, comboBoxCustomPeriods);
     }
 
     public JFXTextField getFilterInput() {

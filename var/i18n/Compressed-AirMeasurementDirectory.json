@@ -3,11 +3,13 @@
   "names": {
     "de": "Messstellen (Druckluft)",
     "ru": "Measurement (compressed-air)",
-    "en": "Measurement (compressed-air)"
+    "en": "Measurement (compressed-air)",
+    "ar": "دليل قياس الهواء المضغوط"
   },
   "descriptions": {
     "de": "Dient der Verwaltung von Messstellen (Druckluft).",
     "ru": "For managing measurements (compressed-air).",
-    "en": "For managing measurements (compressed-air)."
+    "en": "For managing measurements (compressed-air).",
+    "ar": "يعمل على إدارة نقاط القياس (الهواء المضغوط)."
   }
 }

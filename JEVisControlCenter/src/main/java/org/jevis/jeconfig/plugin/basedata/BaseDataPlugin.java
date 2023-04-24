@@ -232,11 +232,12 @@ public class BaseDataPlugin extends TablePlugin {
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(20, 20);
 
         Separator sep1 = new Separator(Orientation.VERTICAL);
+        Separator sep2 = new Separator(Orientation.VERTICAL);
 
         reduceFractionDigitsButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> updateSelectedTable());
         increaseFractionDigitsButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> updateSelectedTable());
 
-        toolBar.getItems().setAll(filterInput, reload, sep1, reduceFractionDigitsButton, increaseFractionDigitsButton, JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        toolBar.getItems().setAll(filterInput, reload, sep1, reduceFractionDigitsButton, increaseFractionDigitsButton, sep2, xlsxButton, JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
         JEVisHelp.getInstance().addHelpItems(BaseDataPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
     }
 
@@ -632,7 +633,7 @@ public class BaseDataPlugin extends TablePlugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.DATABASE, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.DATABASE, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override
@@ -678,7 +679,7 @@ public class BaseDataPlugin extends TablePlugin {
 
     @Override
     public int getPrefTapPos() {
-        return 7;
+        return 5;
     }
 
 }

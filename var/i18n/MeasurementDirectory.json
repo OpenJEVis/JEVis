@@ -3,11 +3,13 @@
   "names": {
     "de": "Messstellen",
     "ru": "Measurement Directory",
-    "en": "Measurement Directory"
+    "en": "Measurement Directory",
+    "ar": "دليل القياس"
   },
   "descriptions": {
     "de": "Messstellen dienen der Verwaltung des Messaufbaus.",
     "ru": "The Measurement Directory manages the physical metering setup.",
-    "en": "The Measurement Directory manages the physical metering setup."
+    "en": "The Measurement Directory manages the physical metering setup.",
+    "ar": "تُستخدم نقاط القياس لإدارة إعداد القياس."
   }
 }

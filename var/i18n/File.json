@@ -3,12 +3,14 @@
   "names": {
     "de": "Datei",
     "ru": "File",
-    "en": "File"
+    "en": "File",
+    "ar": "ملف"
   },
   "descriptions": {
     "de": "Die Klasse Datei repräsentiert einen Container für eine Reihe von Dateien.",
     "ru": "The class File represents a container for a series of files.",
-    "en": "The class File represents a container for a series of files."
+    "en": "The class File represents a container for a series of files.",
+    "ar": "تمثل فئة الملف حاوية لمجموعة من الملفات."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "File description",
         "ru": "File description",
-        "en": "File description"
+        "en": "File description",
+        "ar": "ملف"
       },
       "names": {
         "de": "Datei",
         "ru": "File",
-        "en": "File"
+        "en": "File",
+        "ar": "ملف"
       }
     }
   ]

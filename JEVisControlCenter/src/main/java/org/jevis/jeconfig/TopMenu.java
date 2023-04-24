@@ -19,24 +19,20 @@
  */
 package org.jevis.jeconfig;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -90,12 +86,10 @@ public class TopMenu extends MenuBar {
             greenString, indigoString, redString, whiteString);
     private static String activeTheme;
     private final List<MenuItem> items = new ArrayList<>();
-    private final StackPane dialogContainer;
     private final SimpleObjectProperty<Plugin> activePlugin = new SimpleObjectProperty<>();
 
-    public TopMenu(StackPane dialogContainer) {
+    public TopMenu() {
         super();
-        this.dialogContainer = dialogContainer;
 
         updateLayout();
 
@@ -151,18 +145,28 @@ public class TopMenu extends MenuBar {
                 DataSettings dataSettings = chartPlugin.getDataSettings();
 
                 if (selectedAnalysis != null) {
-                    JFXDialog confirmationDialog = new JFXDialog();
-                    confirmationDialog.setDialogContainer(dialogContainer);
-                    confirmationDialog.setOverlayClose(false);
+                    Dialog confirmationDialog = new Dialog();
 
-                    final JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok"));
-                    ok.setDefaultButton(true);
-                    final JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"));
-                    cancel.setOnAction(actionEvent -> confirmationDialog.close());
+                    confirmationDialog.setTitle(I18n.getInstance().getString("menu.confirmationdialog.title"));
+                    confirmationDialog.setHeaderText(I18n.getInstance().getString("menu.confirmationdialog.header"));
+                    confirmationDialog.setResizable(true);
+                    confirmationDialog.initOwner(JEConfig.getStage());
+                    confirmationDialog.initModality(Modality.APPLICATION_MODAL);
+                    Stage stage = (Stage) confirmationDialog.getDialogPane().getScene().getWindow();
+                    TopMenu.applyActiveTheme(stage.getScene());
+                    stage.setAlwaysOnTop(true);
 
-                    HBox buttonBar = new HBox(6, cancel, ok);
-                    buttonBar.setAlignment(Pos.CENTER_RIGHT);
-                    buttonBar.setPadding(new Insets(12));
+                    ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+                    ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                    confirmationDialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+                    Button okButton = (Button) confirmationDialog.getDialogPane().lookupButton(okType);
+                    okButton.setDefaultButton(true);
+
+                    Button cancelButton = (Button) confirmationDialog.getDialogPane().lookupButton(cancelType);
+                    cancelButton.setCancelButton(true);
+                    cancelButton.setOnAction(actionEvent -> confirmationDialog.close());
 
                     FavoriteAnalysis favoriteAnalysis = new FavoriteAnalysis();
                     favoriteAnalysis.setId(selectedAnalysis.getID());
@@ -181,17 +185,17 @@ public class TopMenu extends MenuBar {
                     favoriteName.setText(suggestedName);
                     favoriteName.selectAll();
 
-                    ok.setOnAction(actionEvent -> {
+                    okButton.setOnAction(actionEvent -> {
                         favoriteAnalysisHandler.getFavoriteAnalysesList().add(favoriteAnalysis);
                         favoriteAnalysisHandler.saveDataModel();
                         confirmationDialog.close();
                         Platform.runLater(this::updateLayout);
                     });
 
-                    VBox content = new VBox(6, favoriteName, buttonBar);
+                    VBox content = new VBox(6, favoriteName);
                     content.setPadding(new Insets(15));
 
-                    confirmationDialog.setContent(content);
+                    confirmationDialog.getDialogPane().setContent(content);
 
                     confirmationDialog.show();
                 }
@@ -794,7 +798,7 @@ public class TopMenu extends MenuBar {
         });
 
         manualData.setOnAction(event -> {
-            EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, getActivePlugin().getDataSource());
+            EnterDataDialog enterDataDialog = new EnterDataDialog(getActivePlugin().getDataSource());
             enterDataDialog.show();
         });
 

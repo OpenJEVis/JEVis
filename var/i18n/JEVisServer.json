@@ -2,7 +2,8 @@
   "jevisclass": "JEVis Server",
   "names": {
     "de": "JEVis Server",
-    "en": "JEVis Server"
+    "en": "JEVis Server",
+    "ar": "خادم JEVis"
   },
   "descriptions": {},
   "types": [
@@ -10,99 +11,117 @@
       "type": "Connection Timeout",
       "descriptions": {
         "de": "Connection Timeout description",
-        "en": "Connection Timeout description"
+        "en": "Connection Timeout description",
+        "ar": "انتهى وقت محاولة الاتصال"
       },
       "names": {
         "de": "Verbindungs-Timeout",
-        "en": "Connection Timeout"
+        "en": "Connection Timeout",
+        "ar": "انتهى وقت محاولة الاتصال"
       }
     },
     {
       "type": "Enabled",
       "descriptions": {
         "de": "Enabled description",
-        "en": "Enabled description"
+        "en": "Enabled description",
+        "ar": "تم التمكين"
       },
       "names": {
         "de": "Aktiviert",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
       "type": "Host",
       "descriptions": {
         "de": "Host description",
-        "en": "Host description"
+        "en": "Host description",
+        "ar": "مضيف"
       },
       "names": {
         "de": "Host",
-        "en": "Host"
+        "en": "Host",
+        "ar": "مضيف"
       }
     },
     {
       "type": "Password",
       "descriptions": {
         "de": "Password description",
-        "en": "Password description"
+        "en": "Password description",
+        "ar": "كلمه السر"
       },
       "names": {
         "de": "Passwort",
-        "en": "Password"
+        "en": "Password",
+        "ar": "كلمه السر"
       }
     },
     {
       "type": "Port",
       "descriptions": {
         "de": "Port description",
-        "en": "Port description"
+        "en": "Port description",
+        "ar": "المنفذ"
       },
       "names": {
         "de": "Port",
-        "en": "Port"
+        "en": "Port",
+        "ar": "المنفذ"
       }
     },
     {
       "type": "Read Timeout",
       "descriptions": {
         "de": "Read Timeout description",
-        "en": "Read Timeout description"
+        "en": "Read Timeout description",
+        "ar": "إنتهى وقت القراءة"
       },
       "names": {
         "de": "Lese-Timeout",
-        "en": "Read Timeout"
+        "en": "Read Timeout",
+        "ar": "إنتهى وقت القراءة"
       }
     },
     {
       "type": "SSL",
       "descriptions": {
         "de": "SSL description",
-        "en": "SSL description"
+        "en": "SSL description",
+        "ar": "SSL"
       },
       "names": {
         "de": "SSL",
-        "en": "SSL"
+        "en": "SSL",
+        "ar": "SSL"
       }
     },
     {
       "type": "Timezone",
       "descriptions": {
         "de": "Timezone description",
-        "en": "Timezone description"
+        "en": "Timezone description",
+        "ar": "المنطقة الزمنية"
       },
       "names": {
         "de": "Zeitzone",
-        "en": "Timezone"
+        "en": "Timezone",
+        "ar": "المنطقة الزمنية"
       }
     },
     {
       "type": "User",
       "descriptions": {
         "de": "User description",
-        "en": "User description"
+        "en": "User description",
+        "ar": "مستخدم"
       },
       "names": {
         "de": "Benutzer",
-        "en": "User"
+        "en": "User",
+        "ar": "مستخدم"
       }
     }
   ]

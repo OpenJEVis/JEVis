@@ -3,12 +3,14 @@
   "names": {
     "de": "5.3 Rollen, Verantwortlichkeiten und Befugnisse in der Organisation",
     "ru": "5.3 Organization Roles, Responsibilities and Authorities",
-    "en": "5.3 Organization Roles, Responsibilities and Authorities"
+    "en": "5.3 Organization Roles, Responsibilities and Authorities",
+    "ar": "5.3 أدوار المنظمة والمسؤوليات والصلاحيات"
   },
   "descriptions": {
     "de": "Die oberste Leitung muss sicherstellen, dass die Verantwortlichkeiten und Befugnisse für relevante Rollen zugewiesen und innerhalb der Organisation bekannt gemacht werden. Die oberste Leitung muss dem Energiemanagement-Team die Verantwortlichkeit und Befugnis zuweisen für:\na) das Sicherstellen, dass das EnMS aufgebaut, verwirklicht, aufrechterhalten und fortlaufend verbessert wird;\nb) das Sicherstellen, dass das EnMS die Anforderungen dieses Dokuments erfüllt;\nc) die Einführung von Aktionsplänen (siehe 6.6.3) zur fortlaufenden Verbesserung der energiebezogenen Leistung;\nd) das Berichten in bestimmten Zeitabständen an die oberste Leitung über die Leistung des EnMS und die Verbesserung der energiebezogenen Leistung;\ne) das Festlegen von Kriterien und Verfahren, die für das Sicherstellen einer wirksamen Funktion und Steuerung des EnMS erforderlich sind;\n",
     "ru": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned  and communicated within the organization.  \nTop management shall assign the responsibility and authority to the energy management team for:  \na) ensuring the EnMS is established, implemented, maintained and continually improved;  \nb) ensuring that the EnMS conforms to the requirements of this document;  \nc) implementing action plans (see 6.6.3) to continually improve energy performance;    \nd) reporting on the performance of the EnMS and improvement of the energy performance to top  management at determined intervals;    \ne) establishing criteria and methods needed to ensure that the operation and control of the EnMS  are effective.",
-    "en": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned  and communicated within the organization.  \nTop management shall assign the responsibility and authority to the energy management team for:  \na) ensuring the EnMS is established, implemented, maintained and continually improved;  \nb) ensuring that the EnMS conforms to the requirements of this document;  \nc) implementing action plans (see 6.6.3) to continually improve energy performance;    \nd) reporting on the performance of the EnMS and improvement of the energy performance to top  management at determined intervals;    \ne) establishing criteria and methods needed to ensure that the operation and control of the EnMS  are effective."
+    "en": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned  and communicated within the organization.  \nTop management shall assign the responsibility and authority to the energy management team for:  \na) ensuring the EnMS is established, implemented, maintained and continually improved;  \nb) ensuring that the EnMS conforms to the requirements of this document;  \nc) implementing action plans (see 6.6.3) to continually improve energy performance;    \nd) reporting on the performance of the EnMS and improvement of the energy performance to top  management at determined intervals;    \ne) establishing criteria and methods needed to ensure that the operation and control of the EnMS  are effective.",
+    "ar": "يجب أن تضمن الإدارة العليا أن المسؤوليات والصلاحيات الخاصة بالأدوار ذات الصلة يتم تعيينها وإبلاغها داخل المنظمة. يجب على الإدارة العليا إسناد المسؤولية والسلطة إلى فريق إدارة الطاقة من أجل:\nأ) ضمان بناء نظام إدارة الطاقة وتنفيذه وصيانته وتحسينه باستمرار ؛\nب) التأكد من أن نظام إدارة الطاقة يفي بمتطلبات هذه الوثيقة ؛\nج) إدخال خطط العمل (انظر 6.6.3) لتحسين أداء الطاقة باستمرار ؛\nد) رفع التقارير على فترات زمنية محددة إلى الإدارة العليا عن أداء نظام إدارة الطاقة وتحسين الأداء المرتبط بالطاقة ؛\nه) تحديد المعايير والإجراءات المطلوبة لضمان الأداء الفعال لنظام إدارة الطاقة ومراقبته ؛"
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الإنشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "نشر من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "العنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

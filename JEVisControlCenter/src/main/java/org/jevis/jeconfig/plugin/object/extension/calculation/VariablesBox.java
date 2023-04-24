@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.object.extension.calculation;
 
 import com.jfoenix.controls.JFXButton;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.StackPane;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
@@ -11,7 +10,6 @@ import org.jevis.commons.classes.JC;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.TreeHelper;
-import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +18,6 @@ public class VariablesBox extends FlowPane {
 
 
     private final List<JEVisObject> variables = new ArrayList<>();
-    private StackPane dialogContainer;
     private FormulaBox expression;
 
     public VariablesBox() {
@@ -70,7 +67,7 @@ public class VariablesBox extends FlowPane {
         JFXButton addInputButton = new JFXButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 15, 15));
         addInputButton.setOnAction(event -> {
             try {
-                TreeHelper.createCalcInput(dialogContainer, obj, null, this, expression);
+                TreeHelper.createCalcInput(obj, null, this, expression);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -88,9 +85,5 @@ public class VariablesBox extends FlowPane {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    public void setDialogContainer(StackPane dialogContainer) {
-        this.dialogContainer = dialogContainer;
     }
 }

@@ -283,7 +283,7 @@ public class QuantityUnits {
             return kkg;
         } else if (unit.equals(t) || unit.getLabel().equals(t.getLabel())) {
             return t;
-        } else return null;
+        } else return unit;
     }
 
     public boolean isQuantityIfCleanData(JEVisAttribute attribute, boolean isQuantity) {

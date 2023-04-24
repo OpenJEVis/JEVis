@@ -3,12 +3,14 @@
   "names": {
     "de": "Loytec XML-DL Server",
     "ru": "Loytec XML-DL Server",
-    "en": "Loytec XML-DL Server"
+    "en": "Loytec XML-DL Server",
+    "ar": "خادم Loytec XML-DL"
   },
   "descriptions": {
     "de": "Der Loytec XML-DL Driver unterstützt LINX Automation Server und LIOB Controller Geräte.",
     "ru": "The Loytec XML-DL Driver supports LINX Automation Server and LIOB Controller devices.",
-    "en": "The Loytec XML-DL Driver supports LINX Automation Server and LIOB Controller devices."
+    "en": "The Loytec XML-DL Driver supports LINX Automation Server and LIOB Controller devices.",
+    "ar": "يدعم برنامج تشغيل Loytec XML-DL أجهزة LINX Automation Server و LIOB Controller."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Verbindungs Timeout in Sekunden [90]",
         "ru": "Connection Timeout description",
-        "en": "Connection Timeout in seconds"
+        "en": "Connection Timeout in seconds",
+        "ar": "مهلة الاتصال بالثواني [90]"
       },
       "names": {
         "de": "Verbindungs-Timeout",
         "ru": "Connection Timeout",
-        "en": "Connection Timeout"
+        "en": "Connection Timeout",
+        "ar": "انتهى وقت محاولة الاتصال"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Aktiviert das Auslesen des Gerätes",
         "ru": "Enabled description",
-        "en": "Enables read out of the device"
+        "en": "Enables read out of the device",
+        "ar": "ينشط قراءة الجهاز"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Enabled",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Hostname oder IP-Adresse des Gerätes",
         "ru": "Host description",
-        "en": "Host name or ip address"
+        "en": "Host name or ip address",
+        "ar": "اسم المضيف أو عنوان IP للجهاز"
       },
       "names": {
         "de": "Hostname / IP-Adresse",
         "ru": "Host",
-        "en": "Host"
+        "en": "Host",
+        "ar": "اسم المضيف / عنوان IP"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Gerätepasswort, das auch auf der Web-UI des Gerätes benutzt wird. [loytec4u]",
         "ru": "Password description",
-        "en": "Password description"
+        "en": "Password description",
+        "ar": "كلمه السر"
       },
       "names": {
         "de": "Passwort",
         "ru": "Password",
-        "en": "Password"
+        "en": "Password",
+        "ar": "كلمه السر"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Port der Verbindung. Der XML-DL nutzt das HTTP(S) Protokoll [80]",
         "ru": "Port",
-        "en": "Port"
+        "en": "Port",
+        "ar": "منفذ الاتصال. يستخدم XML-DL بروتوكول HTTP (S) [80]"
       },
       "names": {
         "de": "Port",
         "ru": "Port",
-        "en": "Port"
+        "en": "Port",
+        "ar": "المنفذ"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Lese-Time-out [60]",
         "ru": "Read Timeout description",
-        "en": "Read Timeout description"
+        "en": "Read Timeout description",
+        "ar": "إنتهى وقت القراءة"
       },
       "names": {
         "de": "Lese-Time-out",
         "ru": "Read Timeout",
-        "en": "Read Timeout"
+        "en": "Read Timeout",
+        "ar": "إنتهى وقت القراءة"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "SSL Verbindung. Das Gerät ist über HTTPS erreichbar. [aus]",
         "ru": "SSL description",
-        "en": "SSL encryped connection. [off]"
+        "en": "SSL encryped connection. [off]",
+        "ar": "اتصال SSL. يمكن الوصول إلى الجهاز عبر HTTPS. [بعيدا عن المكان]"
       },
       "names": {
         "de": "SSL Verbindung",
         "ru": "SSL",
-        "en": "SSL"
+        "en": "SSL",
+        "ar": "اتصال SSL"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Eingestellte Zeitzone am Gerät. [UTC]",
         "ru": "Timezone description",
-        "en": "Timezone description"
+        "en": "Timezone description",
+        "ar": "وحدة زمنية"
       },
       "names": {
         "de": "Zeitzone",
         "ru": "Timezone",
-        "en": "Timezone"
+        "en": "Timezone",
+        "ar": "المنطقة الزمنية"
       }
     },
     {
@@ -120,26 +138,30 @@
       "descriptions": {
         "de": "Benutzername [operator]",
         "ru": "User description",
-        "en": "User description"
+        "en": "User description",
+        "ar": "اسم المستخدم [عامل التشغيل]"
       },
       "names": {
         "de": "Benutzer",
         "ru": "User",
-        "en": "User"
+        "en": "User",
+        "ar": "المستخدم"
       },
       "enums" : {
         "admin" : {
           "descriptions" : null,
           "names" : {
-            "de" : "admin",
-            "en" : "admin"
+            "de": "admin",
+            "en": "admin",
+            "ar": "مشرف"
           }
         },
         "operator" : {
           "descriptions" : null,
           "names" : {
-            "de" : "operator",
-            "en" : "operator"
+            "de": "operator",
+            "en": "operator",
+            "ar": "المشغل"
           }
         }
       }
@@ -149,12 +171,14 @@
       "descriptions": {
         "de": "Basispfad für die Anfrage [00/var/lib/]",
         "ru": "Base path for data request [00/var/lib/]",
-        "en": "Base path for data request [00/var/lib/]"
+        "en": "Base path for data request [00/var/lib/]",
+        "ar": "المسار الأساسي للطلب [00 / var / lib /]"
       },
       "names": {
         "de": "LogHandle Pfad",
         "ru": "LogHandle Base Path",
-        "en": "LogHandle Base Path"
+        "en": "LogHandle Base Path",
+        "ar": "مسار LogHandle"
       }
     }
   ]

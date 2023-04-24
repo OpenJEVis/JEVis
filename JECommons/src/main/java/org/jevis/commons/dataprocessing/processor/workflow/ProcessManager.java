@@ -8,7 +8,6 @@ package org.jevis.commons.dataprocessing.processor.workflow;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -31,6 +30,8 @@ public class ProcessManager {
 
     private static final Logger logger = LogManager.getLogger(ProcessManager.class);
     private final ResourceManager resourceManager;
+    private final ObjectHandler objectHandler;
+    private final int processingSize;
     private String name;
     private Long id;
     private List<ProcessStep> processSteps = new ArrayList<>();
@@ -42,6 +43,8 @@ public class ProcessManager {
 
         this.name = cleanObject.getName();
         this.id = cleanObject.getID();
+        this.objectHandler = objectHandler;
+        this.processingSize = processingSize;
 
         JEVisClass cleanDataClass;
         JEVisClass forecastDataClass;
@@ -76,11 +79,8 @@ public class ProcessManager {
                 this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
                 addDefaultSteps();
             }
-        } catch (JEVisException e) {
-            e.printStackTrace();
-            this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
-            this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
-            addDefaultSteps();
+        } catch (Exception e) {
+            logger.error("Could not determine object", e);
         }
     }
 
@@ -153,23 +153,82 @@ public class ProcessManager {
 
                 logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
 
-                resourceManager.setIntervals(null);
-                resourceManager.setNotesMap(null);
-                resourceManager.setRawSamplesDown(null);
-                resourceManager.setSampleCache(null);
-                resourceManager.setRawIntervals(null);
+                reinitializeCleanData();
             } while (!isFinished);
         } else if (resourceManager.getForecastDataObject() != null) {
+            logger.info("[{}:{}] Starting Process", resourceManager.getForecastDataObject().getForecastDataObject().getName(), resourceManager.getID());
+
             while (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject())) {
                 reRun();
                 resourceManager.getForecastDataObject().finishCurrentRun(resourceManager.getForecastDataObject().getForecastDataObject());
+
+                reinitializeForecastData();
             }
+
+            logger.info("[{}:{}] Finished", resourceManager.getForecastDataObject().getForecastDataObject().getName(), resourceManager.getID());
         } else if (resourceManager.getMathDataObject() != null) {
+            logger.info("[{}:{}] Starting Process", resourceManager.getMathDataObject().getMathDataObject().getName(), resourceManager.getID());
+
             while (resourceManager.getMathDataObject().isReady()) {
                 reRun();
                 resourceManager.getMathDataObject().finishCurrentRun(resourceManager.getMathDataObject().getMathDataObject());
+
+                reinitializeMathData();
             }
+
+            logger.info("[{}:{}] Finished", resourceManager.getMathDataObject().getMathDataObject().getName(), resourceManager.getID());
         }
+    }
+
+    private void reinitializeCleanData() {
+        processSteps.clear();
+
+        JEVisObject cleanObject = resourceManager.getCleanDataObject().getCleanObject();
+
+        resourceManager.setIntervals(null);
+        resourceManager.setNotesMap(null);
+        resourceManager.setUserDataMap(null);
+        resourceManager.setRawSamplesDown(null);
+        resourceManager.setSampleCache(null);
+        resourceManager.setRawIntervals(null);
+        resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+        resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+
+        addDefaultSteps();
+    }
+
+    private void reinitializeForecastData() {
+        processSteps.clear();
+
+        JEVisObject forecastObject = resourceManager.getForecastDataObject().getForecastDataObject();
+
+        resourceManager.setIntervals(null);
+        resourceManager.setNotesMap(null);
+        resourceManager.setUserDataMap(null);
+        resourceManager.setRawSamplesDown(null);
+        resourceManager.setSampleCache(null);
+        resourceManager.setRawIntervals(null);
+        resourceManager.setForecastDataObject(new ForecastDataObject(forecastObject, objectHandler));
+        resourceManager.getForecastDataObject().setProcessingSize(processingSize);
+
+        addForecastSteps();
+    }
+
+    private void reinitializeMathData() {
+        processSteps.clear();
+
+        JEVisObject mathObject = resourceManager.getMathDataObject().getMathDataObject();
+
+        resourceManager.setIntervals(null);
+        resourceManager.setNotesMap(null);
+        resourceManager.setUserDataMap(null);
+        resourceManager.setRawSamplesDown(null);
+        resourceManager.setSampleCache(null);
+        resourceManager.setRawIntervals(null);
+        resourceManager.setMathDataObject(new MathDataObject(mathObject, objectHandler));
+        resourceManager.getMathDataObject().setProcessingSize(processingSize);
+
+        addDefaultSteps();
     }
 
     private void reRun() throws Exception {

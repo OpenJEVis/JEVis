@@ -4,12 +4,14 @@
     "de": "Dokumente",
     "ru": "папка документов",
     "uk": "Папка документів",
-    "en": "Document Directory"
+    "en": "Document Directory",
+    "ar": "دليل المستندات"
   },
   "descriptions": {
     "de": "In einem Dokumentenverzeichnis werden Dateien wie z.B. PDFs verwaltet.",
     "ru": "In a Document Directory files, such as PDF files, are managed.",
-    "en": "In a Document Directory files, such as PDF files, are managed."
+    "en": "In a Document Directory files, such as PDF files, are managed.",
+    "ar": "تتم إدارة ملفات مثل ملفات PDF في دليل مستند."
   },
   "types": []
 }

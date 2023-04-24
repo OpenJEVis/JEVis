@@ -3,12 +3,14 @@
   "names": {
     "de": "Channel",
     "ru": "Channel",
-    "en": "Channel"
+    "en": "Channel",
+    "ar": "قناة"
   },
   "descriptions": {
     "de": "Der Channel gibt den Datenkanal bzw. Datenpfad einer Datenauslesung an.",
     "ru": "The class Channel represents a none-specific directory for the structuring of the system. The class Channel is only used for the inheritance of specific channel types.",
-    "en": "The Channel defines the data channel or data path of a data read-out."
+    "en": "The Channel defines the data channel or data path of a data read-out.",
+    "ar": "تحدد القناة قناة البيانات أو مسار البيانات لقراءة البيانات."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Datum und Zeit der letzten Auslesung in der Zeitzone, die im Server Objekt eingestellt ist",
         "ru": "Last Readout description",
-        "en": "Date and Time of last readout in time zone setup in the server object"
+        "en": "Date and Time of last readout in time zone setup in the server object",
+        "ar": "آخر قراءة"
       },
       "names": {
         "de": "Letzte Auslesung",
         "ru": "Last Readout",
-        "en": "Last Readout"
+        "en": "Last Readout",
+        "ar": "القراءة الأخيرة"
       }
     }
   ]

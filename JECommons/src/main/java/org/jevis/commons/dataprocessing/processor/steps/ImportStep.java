@@ -45,15 +45,17 @@ public class ImportStep implements ProcessStep {
             cleanObject = cleanAttr.getCleanObject();
             periodOffset = cleanAttr.getPeriodOffset();
 
-            if (!resourceManager.getIntervals().isEmpty()) {
-                DateTime lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
-                removeOldForecastSamples(cleanObject, lastDateTimeOfResults);
-            }
+//            if (!resourceManager.getIntervals().isEmpty()) {
+//                DateTime lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
+//                removeOldForecastSamples(cleanObject, lastDateTimeOfResults);
+//            }
         } else if (resourceManager.getForecastDataObject() != null) {
             ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
             cleanObject = forecastDataObject.getForecastDataObject();
             JEVisAttribute attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
-            attribute.deleteAllSample();
+            if (!resourceManager.getIntervals().isEmpty()) {
+                attribute.deleteAllSample();
+            }
         } else if (resourceManager.getMathDataObject() != null) {
             MathDataObject mathDataObject = resourceManager.getMathDataObject();
             cleanObject = mathDataObject.getMathDataObject();
@@ -102,7 +104,7 @@ public class ImportStep implements ProcessStep {
             if (date != null) {
                 DateTime timestamp = sample.getTimestamp().plusSeconds(periodOffset);
 
-                if (hasSamples) {
+                if (hasSamples && resourceManager.isClean()) {
                     JEVisSample smp = listOldSamples.get(timestamp);
                     if (smp != null) {
                         attribute.deleteSamplesBetween(timestamp, timestamp);

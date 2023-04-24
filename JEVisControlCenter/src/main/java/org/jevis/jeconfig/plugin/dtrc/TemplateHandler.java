@@ -58,8 +58,31 @@ public class TemplateHandler {
             removeOldStyleFormulaInputs();
 
             createFormulaInputs();
+
+            checkFormulaInputs();
         } catch (JsonProcessingException e) {
             logger.error("Could not parse json model", e);
+        }
+    }
+
+    private void checkFormulaInputs() {
+
+        for (TemplateFormula templateFormula : getRcTemplate().getTemplateFormulas()) {
+            List<String> inputIdsToRemove = new ArrayList<>();
+            for (String inputId : templateFormula.getInputIds()) {
+                boolean found = getRcTemplate().getTemplateFormulas().stream().anyMatch(formula -> inputId.equals(formula.getId()));
+
+                if (!found) {
+                    found = getRcTemplate().getTemplateInputs().stream().anyMatch(input -> inputId.equals(input.getId()));
+                }
+
+                if (!found) {
+                    inputIdsToRemove.add(inputId);
+                    logger.debug("Could not find input with Id {} in formula {} with formula of {}. Will be removed on save.", inputId, templateFormula.getName(), templateFormula.getFormula());
+                }
+            }
+
+            templateFormula.getInputIds().removeAll(inputIdsToRemove);
         }
     }
 
@@ -116,9 +139,12 @@ public class TemplateHandler {
             outputNode.put("name", templateOutput.getName());
             outputNode.put("nameBold", templateOutput.getNameBold());
             outputNode.put("variableName", templateOutput.getVariableName());
+            outputNode.put("tooltip", templateOutput.getTooltip());
+            outputNode.put("showTooltip", templateOutput.getShowTooltip());
             outputNode.put("resultBold", templateOutput.getResultBold());
             outputNode.put("unit", templateOutput.getUnit());
             outputNode.put("showLabel", templateOutput.getShowLabel());
+            outputNode.put("showAnalysisLink", templateOutput.getShowAnalysisLink());
             outputNode.put("link", templateOutput.getLink());
             outputNode.put("column", templateOutput.getColumn());
             outputNode.put("row", templateOutput.getRow());

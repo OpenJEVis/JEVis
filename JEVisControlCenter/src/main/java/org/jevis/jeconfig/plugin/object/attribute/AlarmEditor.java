@@ -21,7 +21,6 @@ package org.jevis.jeconfig.plugin.object.attribute;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -30,10 +29,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,6 +48,7 @@ import org.jevis.commons.json.JsonScheduler;
 import org.jevis.commons.json.JsonTools;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
@@ -68,7 +69,6 @@ public class AlarmEditor implements AttributeEditor {
 
     private final ObservableList<AlarmConstants.Operator> operator = FXCollections.observableArrayList(AlarmConstants.Operator.SMALLER, AlarmConstants.Operator.BIGGER, AlarmConstants.Operator.EQUALS,
             AlarmConstants.Operator.SMALLER_EQUALS, AlarmConstants.Operator.BIGGER_EQUALS, AlarmConstants.Operator.NOT_EQUALS);
-    private final StackPane dialogContainer;
     public JEVisAttribute _attribute;
     private final HBox box = new HBox(12);
     private JEVisSample _newSample;
@@ -77,8 +77,8 @@ public class AlarmEditor implements AttributeEditor {
     private final boolean delete = false;
     private boolean initialized = false;
 
-    public AlarmEditor(StackPane dialogContainer, JEVisAttribute att) {
-        this.dialogContainer = dialogContainer;
+    public AlarmEditor(JEVisAttribute att) {
+
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
@@ -228,9 +228,15 @@ public class AlarmEditor implements AttributeEditor {
         tabPane.setPrefWidth(480);
         tabPane.setPrefHeight(350);
 
-        JFXDialog dialog = new JFXDialog();
-        dialog.setDialogContainer(dialogContainer);
-        dialog.setTransitionType(JFXDialog.DialogTransition.NONE);
+        Dialog dialog = new Dialog();
+        dialog.setTitle(I18n.getInstance().getString("plugin.configuration.alarmeditor.title"));
+        dialog.setHeaderText(I18n.getInstance().getString("plugin.configuration.alarmeditor.header"));
+        dialog.setResizable(true);
+        dialog.initOwner(JEConfig.getStage());
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         for (JsonAlarmConfig config : _listConfig) {
             Tab newTab = new Tab(config.getName());
@@ -239,22 +245,24 @@ public class AlarmEditor implements AttributeEditor {
 
         }
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        dialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox vBox = new VBox(6, tabPane, separator, buttonBar);
-        dialog.setContent(vBox);
+        VBox vBox = new VBox(6, tabPane, separator);
+        dialog.getDialogPane().setContent(vBox);
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             try {
                 _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
                 _changed.setValue(true);
@@ -266,7 +274,7 @@ public class AlarmEditor implements AttributeEditor {
             dialog.close();
         });
 
-        cancel.setOnAction(event -> dialog.close());
+        cancelButton.setOnAction(event -> dialog.close());
 
         dialog.show();
     }
@@ -375,9 +383,9 @@ public class AlarmEditor implements AttributeEditor {
             }
 
             try {
-                SelectTargetDialog selectTargetDialog = new SelectTargetDialog(dialogContainer, allFilter, allDataFilter, null, SelectionMode.SINGLE, _attribute.getDataSource(), openList);
+                SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE, _attribute.getDataSource(), openList);
 
-                selectTargetDialog.setOnDialogClosed(event1 -> {
+                selectTargetDialog.setOnCloseRequest(event1 -> {
                     if (selectTargetDialog.getResponse() == SelectTargetDialog.Response.OK) {
                         logger.trace("Selection Done");
 

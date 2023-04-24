@@ -19,12 +19,14 @@
  */
 package org.jevis.jeconfig.plugin.object.permission;
 
-import java.util.List;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
+
+import java.util.List;
+
 import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
 
 /**

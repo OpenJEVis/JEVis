@@ -3,10 +3,13 @@ package org.jevis.jeconfig.plugin.object.extension.role;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.relationship.ObjectRelations;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Membership {
 
@@ -19,6 +22,7 @@ public class Membership {
     private final SimpleBooleanProperty create;
     private final SimpleBooleanProperty delete;
     private final SimpleBooleanProperty hasChanged;
+    private ObjectRelations objectRelations;
     private int initHash;
 
     public Membership(JEVisObject groupObject, boolean read, boolean write, boolean execute, boolean create, boolean delete) {
@@ -30,50 +34,73 @@ public class Membership {
         this.execute = new SimpleBooleanProperty(execute);
         this.create = new SimpleBooleanProperty(create);
         this.delete = new SimpleBooleanProperty(delete);
-        this.hasChanged=new SimpleBooleanProperty(false);
-
+        this.hasChanged = new SimpleBooleanProperty(false);
+        try {
+            objectRelations = new ObjectRelations(groupObject.getDataSource());
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
 
         //initHash= createHash();
 
         /**
-        ChangeListener changeListener = new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                System.out.println("initHash: "+initHash);
-                System.out.println("new Hash: "+createHash());
-                hasChanged.setValue(createHash()!=initHash);
-                System.out.println("Change: "+groupObject.getID()+" "+hasChanged.get());
-            }
+         ChangeListener changeListener = new ChangeListener() {
+        @Override public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+        System.out.println("initHash: "+initHash);
+        System.out.println("new Hash: "+createHash());
+        hasChanged.setValue(createHash()!=initHash);
+        System.out.println("Change: "+groupObject.getID()+" "+hasChanged.get());
+        }
         };
-        this.read.addListener(changeListener);
-        this.write.addListener(changeListener);
-        this.execute.addListener(changeListener);
-        this.create.addListener(changeListener);
-        this.delete.addListener(changeListener);
-        **/
+         this.read.addListener(changeListener);
+         this.write.addListener(changeListener);
+         this.execute.addListener(changeListener);
+         this.create.addListener(changeListener);
+         this.delete.addListener(changeListener);
+         **/
 
     }
 
-    public boolean hasChanged(){
-        return createHash()!=initHash;
+    public boolean hasChanged() {
+        return createHash() != initHash;
     }
 
-    public void createInitHash(){
-        initHash=createHash();
+    public void createInitHash() {
+        initHash = createHash();
     }
 
-    private int createHash(){
-        return (""+read.getValue()+write.getValue()+execute.getValue()+create.getValue()+delete.getValue()).hashCode();
+    private int createHash() {
+        return ("" + read.getValue() + write.getValue() + execute.getValue() + create.getValue() + delete.getValue()).hashCode();
     }
 
 
-    private String getFullPath(JEVisObject group){
+    private String getFullPath(JEVisObject group) {
+        try {
+            List<JEVisObject> objectList = new ArrayList<>();
 
-        try{
-            //TODO: replace with intelligent code
-            return group.getParents().get(0).getParents().get(0).getParents().get(0).getName()+" / "+group.getName();
-        }catch (Exception ex){
+            getPath(objectList, group);
+
+            StringBuilder path = new StringBuilder();
+            for (int i = objectList.size() - 1; i > -1; i--) {
+                path.append(objectList.get(i).getName());
+                path.append(" \\ ");
+            }
+
+            path.append(group.getName());
+
+            return path.toString();
+        } catch (Exception ex) {
             return group.getName();
+        }
+    }
+
+    private void getPath(List<JEVisObject> objectList, JEVisObject object) throws JEVisException {
+        List<String> classesForPathing = new ArrayList<>(Arrays.asList("Organization", "Building", "Group Directory"));
+        if (classesForPathing.contains(object.getJEVisClassName())) {
+            objectList.add(object);
+        }
+        if (object.getParent() != null) {
+            getPath(objectList, object.getParent());
         }
     }
 

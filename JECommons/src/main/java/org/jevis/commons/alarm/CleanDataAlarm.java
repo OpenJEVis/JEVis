@@ -51,6 +51,7 @@ public class CleanDataAlarm {
     }
 
     private boolean parseJsonList(JEVisObject cleanDataObject) {
+
         if (!jsonList.isEmpty()) {
             for (JsonAlarmConfig jac : jsonList) {
                 try {
@@ -60,30 +61,14 @@ public class CleanDataAlarm {
                         limitDataObject = th.getObject().get(0);
                         limitDataAttribute = th.getAttribute().get(0);
                         alarmType = AlarmType.DYNAMIC;
+
+                        createAlarmSettings(jac);
                     }
+
                     if (jac.getLimit() != null) {
                         limit = Double.parseDouble(jac.getLimit());
                         alarmType = AlarmType.STATIC;
-                    }
-
-                    if (alarmType != null) {
-                        if (jac.getOperator() != null)
-                            operator = AlarmConstants.Operator.parse(jac.getOperator());
-
-                        if (jac.getSilentTime() != null) {
-                            String json = jac.getSilentTime().toString();
-                            silentTime = SchedulerHandler.BuildScheduler(json);
-                            usageSchedules.add(new UsageSchedule(silentTime, UsageScheduleType.SILENT));
-                        }
-
-                        if (jac.getStandbyTime() != null) {
-                            String json = jac.getStandbyTime().toString();
-                            standByTime = SchedulerHandler.BuildScheduler(json);
-                            usageSchedules.add(new UsageSchedule(standByTime, UsageScheduleType.STANDBY));
-                        }
-
-                        if (jac.getTolerance() != null)
-                            tolerance = Double.parseDouble(jac.getTolerance());
+                        createAlarmSettings(jac);
                     }
                 } catch (Exception e) {
                     logger.error("Error parsing alarm configuration: " + e);
@@ -92,6 +77,27 @@ public class CleanDataAlarm {
         }
         return (((limitDataObject != null && limitDataAttribute != null) || limit != null) && operator != null
                 && tolerance != null);
+    }
+
+    private void createAlarmSettings(JsonAlarmConfig jac) throws IOException {
+        if (jac.getOperator() != null)
+            operator = AlarmConstants.Operator.parse(jac.getOperator());
+
+        if (jac.getSilentTime() != null) {
+            String json = jac.getSilentTime().toString();
+            silentTime = SchedulerHandler.BuildScheduler(json);
+            usageSchedules.add(new UsageSchedule(silentTime, UsageScheduleType.SILENT));
+        }
+
+        if (jac.getStandbyTime() != null) {
+            String json = jac.getStandbyTime().toString();
+            standByTime = SchedulerHandler.BuildScheduler(json);
+            usageSchedules.add(new UsageSchedule(standByTime, UsageScheduleType.STANDBY));
+        }
+
+        if (jac.getTolerance() != null) {
+            tolerance = Double.parseDouble(jac.getTolerance());
+        }
     }
 
     private void createJsonList(JEVisObject cleanDataObject) {

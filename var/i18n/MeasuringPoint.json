@@ -3,7 +3,8 @@
   "names": {
     "de": "Messstelle",
     "ru": "Measuring Point",
-    "en": "Measuring Point"
+    "en": "Measuring Point",
+    "ar": "نقطة القياس"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Comment description",
         "ru": "Comment description",
-        "en": "Comment description"
+        "en": "Comment description",
+        "ar": "تعليق"
       },
       "names": {
         "de": "Comment",
         "ru": "Comment",
-        "en": "Comment"
+        "en": "Comment",
+        "ar": "تعليق"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Data Point Assignment description",
         "ru": "Data Point Assignment description",
-        "en": "Data Point Assignment description"
+        "en": "Data Point Assignment description",
+        "ar": "تخصيص نقطة البيانات"
       },
       "names": {
         "de": "Data Point Assignment",
         "ru": "Data Point Assignment",
-        "en": "Data Point Assignment"
+        "en": "Data Point Assignment",
+        "ar": "تخصيص نقطة البيانات"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Installation Location description",
         "ru": "Installation Location description",
-        "en": "Installation Location description"
+        "en": "Installation Location description",
+        "ar": "موقع التثبيت"
       },
       "names": {
         "de": "Installation Location",
         "ru": "Installation Location",
-        "en": "Installation Location"
+        "en": "Installation Location",
+        "ar": "موقع التثبيت"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Meter description",
         "ru": "Meter description",
-        "en": "Meter description"
+        "en": "Meter description",
+        "ar": "متر"
       },
       "names": {
         "de": "Meter",
         "ru": "Meter",
-        "en": "Meter"
+        "en": "Meter",
+        "ar": "متر"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Monitoring ID description",
         "ru": "Monitoring ID description",
-        "en": "Monitoring ID description"
+        "en": "Monitoring ID description",
+        "ar": "معرف المراقبة"
       },
       "names": {
         "de": "Monitoring ID",
         "ru": "Monitoring ID",
-        "en": "Monitoring ID"
+        "en": "Monitoring ID",
+        "ar": "معرف المراقبة"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Name description",
         "ru": "Name description",
-        "en": "Name description"
+        "en": "Name description",
+        "ar": "الاسم"
       },
       "names": {
         "de": "Name",
         "ru": "Name",
-        "en": "Name"
+        "en": "Name",
+        "ar": "الاسم"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Photo description",
         "ru": "Photo description",
-        "en": "Photo description"
+        "en": "Photo description",
+        "ar": "صورة"
       },
       "names": {
         "de": "Photo",
         "ru": "Photo",
-        "en": "Photo"
+        "en": "Photo",
+        "ar": "صورة"
       }
     },
     {
@@ -103,12 +118,14 @@
       "descriptions": {
         "de": "Physical Property description",
         "ru": "Physical Property description",
-        "en": "Physical Property description"
+        "en": "Physical Property description",
+        "ar": "خاصية فيزيائية"
       },
       "names": {
         "de": "Physical Property",
         "ru": "Physical Property",
-        "en": "Physical Property"
+        "en": "Physical Property",
+        "ar": "خاصية فيزيائية"
       }
     },
     {
@@ -116,12 +133,14 @@
       "descriptions": {
         "de": "Station description",
         "ru": "Station description",
-        "en": "Station description"
+        "en": "Station description",
+        "ar": "محطة"
       },
       "names": {
         "de": "Station",
         "ru": "Station",
-        "en": "Station"
+        "en": "Station",
+        "ar": "محطة"
       }
     },
     {
@@ -129,12 +148,14 @@
       "descriptions": {
         "de": "Unit description",
         "ru": "Unit description",
-        "en": "Unit description"
+        "en": "Unit description",
+        "ar": "وحدة"
       },
       "names": {
         "de": "Unit",
         "ru": "Unit",
-        "en": "Unit"
+        "en": "Unit",
+        "ar": "وحدة"
       }
     }
   ]

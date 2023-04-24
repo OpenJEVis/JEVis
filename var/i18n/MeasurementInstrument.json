@@ -3,56 +3,66 @@
   "names": {
     "de": "Messgerät",
     "ru": "Measurement Instrument",
-    "en": "Measurement Instrument"
+    "en": "Measurement Instrument",
+    "ar": "أداة قياس"
   },
   "descriptions": {
     "de": "Das Messgerät beschreibt eine einzelene Komponente in einem Messaufbau.",
     "ru": "The Measurement Instrument represents a specific component within a metering setup.",
-    "en": "The Measurement Instrument represents a specific component within a metering setup."
+    "en": "The Measurement Instrument represents a specific component within a metering setup.",
+    "ar": "يصف جهاز القياس مكونًا واحدًا في إعداد القياس."
   },
   "types": [
     {
       "type": "Location",
       "descriptions": {
         "de": "Der Ort gibt die räumliche Lage des Messgeräts an.",
-        "en": "The location indicates the spatial position of the measuring device."
+        "en": "The location indicates the spatial position of the measuring device.",
+        "ar": "يشير الموقع إلى الموقع المكاني لجهاز القياس."
       },
       "names": {
         "de": "Ort",
-        "en": "Location"
+        "en": "Location",
+        "ar": "موقع"
       }
     },
     {
       "type": "Company",
       "descriptions": {
         "de": "",
-        "en": ""
+        "en": "",
+        "ar": "شركة"
       },
       "names": {
         "de": "Firma",
-        "en": "Company"
+        "en": "Company",
+        "ar": "شركة"
       }
     },
     {
       "type": "Cost Center",
       "descriptions": {
         "de": "",
-        "en": ""
+        "en": "",
+        "ar": "مراكز تكلفة"
       },
       "names": {
         "de": "Kostenstelle",
-        "en": "Cost Center"
+        "en": "Cost Center",
+        "ar": "مركز التكلفة"
       }
     },
     {
       "type": "Meter Point",
       "descriptions": {
         "de": "",
-        "en": ""
+        "en": "",
+        "ar": "نقطة متر"
       },
       "names": {
         "de": "Zählpunkt",
-        "en": "Meter Point"
+        "en": "Meter Point",
+        "ar": "نقطة التسليم"
       }
     },
     {
@@ -60,177 +70,209 @@
       "descriptions": {
         "de": "Photo des Zählers.",
         "ru": "Фото счетчика.",
-        "en": "A picture of the mesaurement instrument"
+        "en": "A picture of the mesaurement instrument",
+        "ar": "صورة العداد."
       },
       "names": {
         "de": "Bild",
         "ru": "снимок",
-        "en": "Picture"
+        "en": "Picture",
+        "ar": "صورة"
       }
     },
     {
       "type": "Measuring Point ID",
       "descriptions": {
         "de": "Die Messpunkt ID gibt die interne Zuordnung an.",
-        "en": "The measuring point ID indicates the internal assignment."
+        "en": "The measuring point ID indicates the internal assignment.",
+        "ar": "يشير معرف نقطة القياس إلى التخصيص الداخلي."
       },
       "names": {
         "de": "Messpunkt ID",
-        "en": "Measuring Point ID"
+        "en": "Measuring Point ID",
+        "ar": "معرف نقطة القياس"
       }
     },
     {
       "type": "Measuring Point Name",
       "descriptions": {
         "de": "Der Messpunktname gibt den Namen der Messstelle an.",
-        "en": "The measuring point name indicates the name of the measuring point."
+        "en": "The measuring point name indicates the name of the measuring point.",
+        "ar": "يشير اسم نقطة القياس إلى اسم نقطة القياس."
       },
       "names": {
         "de": "Messpunktname",
-        "en": "Measuring Point Name"
+        "en": "Measuring Point Name",
+        "ar": "اسم نقطة القياس"
       }
     },
     {
       "type": "Serial Number",
       "descriptions": {
         "de": "Die Seriennummer gibt die externe Zuordnung an.",
-        "en": "The serial number indicates the external assignment."
+        "en": "The serial number indicates the external assignment.",
+        "ar": "يشير الرقم التسلسلي إلى المهمة الخارجية."
       },
       "names": {
         "de": "Seriennummer",
-        "en": "Serial Number"
+        "en": "Serial Number",
+        "ar": "الرقم التسلسلي"
       }
     },
     {
       "type": "Type",
       "descriptions": {
         "de": "Gibt den Gerätetyp an.",
-        "en": "Indicates the device model."
+        "en": "Indicates the device model.",
+        "ar": "يحدد نوع الجهاز."
       },
       "names": {
         "de": "Gerätetyp",
-        "en": "Device Model"
+        "en": "Device Model",
+        "ar": "نوع الجهاز"
       }
     },
     {
       "type": "Datasheet",
       "descriptions": {
         "de": "Ermöglicht es, ein Datenblatt für das Gerät zu hinterlegen.",
-        "en": "Allows to store a data sheet for the device."
+        "en": "Allows to store a data sheet for the device.",
+        "ar": "يجعل من الممكن تخزين ورقة بيانات للجهاز."
       },
       "names": {
         "de": "Datenblatt",
-        "en": "Datasheet"
+        "en": "Datasheet",
+        "ar": "ورقة البيانات"
       }
     },
     {
       "type": "Accuracy",
       "descriptions": {
         "de": "Spezifiziert die technische Genauigkeit des Messgeräts.",
-        "en": "Specifies the technical accuracy of the meter."
+        "en": "Specifies the technical accuracy of the meter.",
+        "ar": "يحدد الدقة الفنية لجهاز القياس."
       },
       "names": {
         "de": "Genauigkeit",
-        "en": "Accuracy"
+        "en": "Accuracy",
+        "ar": "دقه"
       }
     },
     {
       "type": "Conversion Factor",
       "descriptions": {
         "de": "Der Umrechenfaktor gibt den Zahlenwert an, mit welchem das Messergebnis multipliziert werden muss, um den wahren Wert zu erhalten.",
-        "en": "The conversion factor indicates the numerical value with which the measurement result must be multiplied in order to obtain the true value."
+        "en": "The conversion factor indicates the numerical value with which the measurement result must be multiplied in order to obtain the true value.",
+        "ar": "يحدد عامل التحويل القيمة العددية التي يجب مضاعفة نتيجة القياس بها للحصول على القيمة الحقيقية."
       },
       "names": {
         "de": "Umrechenfaktor",
-        "en": "Conversion Factor"
+        "en": "Conversion Factor",
+        "ar": "عامل التحويل"
       }
     },
     {
       "type": "Installation Date",
       "descriptions": {
         "de": "Gibt das Datum des Einbaus des Messgeräts an.",
-        "en": "Specifies the date of installation of the meter."
+        "en": "Specifies the date of installation of the meter.",
+        "ar": "يشير إلى تاريخ تركيب العداد."
       },
       "names": {
         "de": "Einbau",
-        "en": "Installation"
+        "en": "Installation",
+        "ar": "التركيب"
       }
     },
     {
       "type": "Verified Date",
       "descriptions": {
         "de": "Das Geprüft-Datum gibt an, wann das Messgerät das letzte mal kontrolliert oder ggf. kalibriert wurde, um die Messgenauigkeit sicherzustelen.",
-        "en": "The verified date indicates when the meter was checked or, if necessary, was calibrated to ensure measurement accuracy."
+        "en": "The verified date indicates when the meter was checked or, if necessary, was calibrated to ensure measurement accuracy.",
+        "ar": "يشير تاريخ الاختبار إلى آخر مرة تم فيها فحص جهاز القياس أو ، إذا لزم الأمر ، معايرته لضمان دقة القياس."
       },
       "names": {
         "de": "Geprüft",
-        "en": "Verified"
+        "en": "Verified",
+        "ar": "التحقق"
       }
     },
     {
       "type": "Verification Date",
       "descriptions": {
         "de": "Das Überprüfungsdatum gibt an, wann das Messgerät das nächste mal kontrolliert und ggf. kalibriert werden muss, um die Messgenauigkeit sicherzustelen.",
-        "en": "The verification date indicates when the meter must next be checked and, if necessary, calibrated to ensure measurement accuracy."
+        "en": "The verification date indicates when the meter must next be checked and, if necessary, calibrated to ensure measurement accuracy.",
+        "ar": "يشير تاريخ التحقق إلى الوقت الذي سيحتاج فيه جهاز القياس إلى الفحص بعد ذلك ، وإذا لزم الأمر ، يتم معايرته لضمان دقة القياس."
       },
       "names": {
         "de": "Überprüfung",
-        "en": "Verification"
+        "en": "Verification",
+        "ar": "تَحَقّق"
       }
     },
     {
       "type": "Online ID",
       "descriptions": {
         "de": "Die Online ID verweist auf die im JEVis System gespeicherten Daten.",
-        "en": "The online ID refers to the data stored in the JEVis system."
+        "en": "The online ID refers to the data stored in the JEVis system.",
+        "ar": "يشير المعرّف عبر الإنترنت إلى البيانات المخزنة في نظام JEVis."
       },
       "names": {
         "de": "Online ID",
-        "en": "Online ID"
+        "en": "Online ID",
+        "ar": "معرف الإنترنت"
       }
     },
     {
       "type": "Device IP",
       "descriptions": {
         "de": "",
-        "en": ""
+        "en": "",
+        "ar": "الجهاز IP"
       },
       "names": {
         "de": "Geräte IP",
-        "en": "Device IP"
+        "en": "Device IP",
+        "ar": "الجهاز IP"
       }
     },
     {
       "type": "Device Number",
       "descriptions": {
         "de": "",
-        "en": ""
+        "en": "",
+        "ar": "رقم الجهاز"
       },
       "names": {
         "de": "Gerätenummer",
-        "en": "Device Number"
+        "en": "Device Number",
+        "ar": "رقم الجهاز"
       }
     },
     {
       "type": "Connection",
       "descriptions": {
         "de": "",
-        "en": ""
+        "en": "",
+        "ar": "اتصال"
       },
       "names": {
         "de": "Verbindung",
-        "en": "Connection"
+        "en": "Connection",
+        "ar": "اتصال"
       }
     },
     {
       "type": "Remarks",
       "descriptions": {
         "de": "Platz für zusätzliche Anmerkungen zu dem Messgerät und dem Messaufbau.",
-        "en": "Space for additional notes on the meter and the test setup."
+        "en": "Space for additional notes on the meter and the test setup.",
+        "ar": "مساحة لملاحظات إضافية حول جهاز القياس وإعداد القياس."
       },
       "names": {
         "de": "Anmerkungen",
-        "en": "Remarks"
+        "en": "Remarks",
+        "ar": "ملاحظات"
       }
     }
   ]

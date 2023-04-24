@@ -1,17 +1,17 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Cell;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.layout.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -19,6 +19,9 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.CommonMethods;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.tree.FilterableTreeItem;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.tree.JEVisTreeView;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.tree.TreeItemPredicate;
@@ -33,7 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class TreeSelectionDialog extends JFXDialog {
+public class TreeSelectionDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(TreeSelectionDialog.class);
     public static List<String> allData = new ArrayList<>(Arrays.asList("Data", "Base Data"));
     public static List<String> allCleanData = new ArrayList<>(Arrays.asList("Data", "Clean Data", "Base Data", "Math Data", "Forecast Data"));
@@ -61,14 +64,21 @@ public class TreeSelectionDialog extends JFXDialog {
     private Response response = Response.CANCEL;
     private final JFXTextField filterTextField = new JFXTextField();
 
-    public TreeSelectionDialog(StackPane dialogContainer, JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode) {
-        this(dialogContainer, ds, classFilter, selectionMode, new ArrayList<>(), false);
+    public TreeSelectionDialog(JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode) {
+        this(ds, classFilter, selectionMode, new ArrayList<>(), false);
     }
 
-    public TreeSelectionDialog(StackPane dialogContainer, JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode, List<UserSelection> selection, boolean showAttributes) {
+    public TreeSelectionDialog(JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode, List<UserSelection> selection, boolean showAttributes) {
         super();
 
-        this.setDialogContainer(dialogContainer);
+        setTitle(I18n.getInstance().getString("plugin.graph.treeselectiondialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.graph.treeselectiondialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         buildClasses(ds);
 
@@ -134,8 +144,14 @@ public class TreeSelectionDialog extends JFXDialog {
 
         updateFilter(classFilter);
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
-        ok.setOnAction(event -> {
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+        okButton.setOnAction(event -> {
             try {
                 boolean correctChoice = true;
                 List<JEVisObject> incorrectObjects = new ArrayList<>();
@@ -159,58 +175,70 @@ public class TreeSelectionDialog extends JFXDialog {
                     selectionShow.show();
                 }
             } catch (Exception e) {
-
+                logger.error(e);
             }
         });
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-        cancel.setOnAction(event -> this.close());
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+        cancelButton.setOnAction(event -> this.close());
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox buttonBar = new HBox(8, filterVBox, filterTextField, classVBox, filterBox, spacer, cancel, ok);
+        HBox buttonBar = new HBox(8, filterVBox, filterTextField, classVBox, filterBox, spacer);
         buttonBar.setAlignment(Pos.CENTER_RIGHT);
 
         box.getChildren().addAll(new TreeViewPath(treeView), treeView, buttonBar);
         VBox.setVgrow(treeView, Priority.ALWAYS);
-        box.setMinHeight(dialogContainer.getHeight() - 80);
-        box.setMinWidth(1024);
+        box.setMinHeight(480);
+        box.setMinWidth(640);
 
-        this.setContent(box);
-
+        this.getDialogPane().setContent(box);
     }
 
-    public static TreeSelectionDialog createSelectionDialog(final Cell<JEVisObject> cell, StackPane dialogContainer) {
-        JEVisObject item = cell.getItem();
-        UserSelection userSelection = new UserSelection(UserSelection.SelectionType.Object, item);
-        TreeSelectionDialog treeSelectionDialog = null;
+    public static TreeSelectionDialog createSelectionDialog(final Cell<JEVisObject> cell) {
         try {
+            JEVisObject item = cell.getItem();
+            UserSelection userSelection = new UserSelection(UserSelection.SelectionType.Object, item);
+
             List<JEVisClass> classes = new ArrayList<>();
             for (String className : allData) {
-                JEVisClass jeVisClass = item.getDataSource().getJEVisClass(className);
+                JEVisClass jeVisClass = null;
+
+                jeVisClass = item.getDataSource().getJEVisClass(className);
+
                 classes.add(jeVisClass);
                 classes.addAll(jeVisClass.getHeirs());
+
             }
 
-            treeSelectionDialog = new TreeSelectionDialog(dialogContainer, item.getDataSource(), classes, SelectionMode.SINGLE, Collections.singletonList(userSelection), false);
+            TreeSelectionDialog treeSelectionDialog = new TreeSelectionDialog(item.getDataSource(), classes, SelectionMode.SINGLE, Collections.singletonList(userSelection), false);
 
             // Use onAction here rather than onKeyReleased (with check for Enter),
             // as otherwise we encounter RT-34685
-            TreeSelectionDialog finalTreeSelectionDialog = treeSelectionDialog;
-            treeSelectionDialog.setOnDialogClosed(event -> {
-                if (finalTreeSelectionDialog.getResponse() == Response.OK) {
-                    cell.commitEdit(finalTreeSelectionDialog.getTreeView().getSelectedObjects().get(0));
+            treeSelectionDialog.setOnCloseRequest(event -> {
+                if (treeSelectionDialog.getResponse() == Response.OK) {
+                    JEVisObject firstParentalDataObject = null;
+                    try {
+                        firstParentalDataObject = CommonMethods.getFirstParentalDataObject(treeSelectionDialog.getTreeView().getSelectedObjects().get(0));
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
+                    if (firstParentalDataObject != null) {
+                        cell.commitEdit(firstParentalDataObject);
+                    } else cell.commitEdit(treeSelectionDialog.getTreeView().getSelectedObjects().get(0));
                 } else {
                     cell.cancelEdit();
                 }
-
-                event.consume();
             });
 
-        } catch (Exception ignored) {
+            return treeSelectionDialog;
+        } catch (Exception e) {
+            logger.error(e);
         }
-        return treeSelectionDialog;
+
+        return null;
     }
 
     private void buildClasses(JEVisDataSource ds) {
@@ -275,13 +303,48 @@ public class TreeSelectionDialog extends JFXDialog {
         return (DataMethods.getObjectName(cell.getItem()));
     }
 
+    public static void startEdit(final Cell<JEVisObject> cell,
+                                 final Node graphic,
+                                 final TreeSelectionDialog treeSelectionDialog) {
+        if (treeSelectionDialog != null) {
+            treeSelectionDialog.getTreeView().select(cell.getItem());
+            treeSelectionDialog.showAndWait();
+        }
+    }
+
+    public static void updateItem(final Cell<JEVisObject> cell,
+                                  final Node graphic,
+                                  final TreeSelectionDialog treeSelectionDialog) {
+        if (cell.isEmpty()) {
+            cell.setText(null);
+            cell.setGraphic(null);
+        } else {
+            if (cell.isEditing()) {
+                if (treeSelectionDialog != null) {
+                    treeSelectionDialog.getTreeView().select(cell.getItem());
+                    treeSelectionDialog.showAndWait();
+                }
+            } else {
+                cell.setText(getItemText(cell));
+                cell.setGraphic(graphic);
+            }
+        }
+    }
+
+    public static void cancelEdit(Cell<JEVisObject> cell, Node graphic) {
+        cell.setText(getItemText(cell));
+        cell.setGraphic(graphic);
+    }
+
     private void updateFilter(List<JEVisClass> classFilter) {
         if (treeView.getRoot() instanceof FilterableTreeItem) {
             ((FilterableTreeItem) treeView.getRoot()).predicateProperty().unbind();
             ((FilterableTreeItem) treeView.getRoot()).predicateProperty().bind(Bindings.createObjectBinding(() -> {
                 if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (classFilter.isEmpty()))
                     return null;
-                else if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (!classFilter.isEmpty())) {
+                else if ((filterTextField.getText() != null || !filterTextField.getText().isEmpty()) && (classFilter.isEmpty())) {
+                    return TreeItemPredicate.create(jeVisTreeViewItem -> jeVisTreeViewItem.getObject().getLocalName(I18n.getInstance().getLocale().getLanguage()).toLowerCase(I18n.getInstance().getLocale()).contains(filterTextField.getText().toLowerCase(I18n.getInstance().getLocale())));
+                } else if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (!classFilter.isEmpty())) {
                     return TreeItemPredicate.create(jeVisTreeViewItem -> {
                         try {
                             return classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
@@ -298,46 +361,15 @@ public class TreeSelectionDialog extends JFXDialog {
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
-                    return containsName && classFiltered;
+
+                    boolean b = containsName && classFiltered;
+                    if (b) {
+                        this.treeView.select(jeVisTreeViewItem.getObject());
+                    }
+
+                    return b;
                 });
             }, filterTextField.textProperty()));
-        }
-    }
-
-    public static void startEdit(final Cell<JEVisObject> cell,
-                                 final HBox hbox,
-                                 final Node graphic,
-                                 final TreeSelectionDialog treeSelectionDialog) {
-        if (treeSelectionDialog != null) {
-            treeSelectionDialog.getTreeView().select(cell.getItem());
-            treeSelectionDialog.show();
-
-            treeSelectionDialog.requestFocus();
-        }
-    }
-
-    public static void cancelEdit(Cell<JEVisObject> cell, Node graphic) {
-        cell.setText(getItemText(cell));
-        cell.setGraphic(graphic);
-    }
-
-    public static void updateItem(final Cell<JEVisObject> cell,
-                                  final HBox hbox,
-                                  final Node graphic,
-                                  final TreeSelectionDialog treeSelectionDialog) {
-        if (cell.isEmpty()) {
-            cell.setText(null);
-            cell.setGraphic(null);
-        } else {
-            if (cell.isEditing()) {
-                if (treeSelectionDialog != null) {
-                    treeSelectionDialog.getTreeView().select(cell.getItem());
-                    treeSelectionDialog.show();
-                }
-            } else {
-                cell.setText(getItemText(cell));
-                cell.setGraphic(graphic);
-            }
         }
     }
 

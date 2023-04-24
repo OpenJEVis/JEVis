@@ -4,12 +4,14 @@
     "de": "Datenerfassung",
     "ru": "Папка измерения",
     "uk": "Папка вимірювання",
-    "en": "Data Source Directory"
+    "en": "Data Source Directory",
+    "ar": "دليل مصدر البيانات"
   },
   "descriptions": {
     "de": "Im Datenquellenverzeichnis werden die Quellen der Datenerfassung, wie z.B. Datenlogger, verwaltet.",
     "ru": "In the Data Source Directory sources, such as data loggers, are managed.",
-    "en": "In the Data Source Directory sources, such as data loggers, are managed."
+    "en": "In the Data Source Directory sources, such as data loggers, are managed.",
+    "ar": "تتم إدارة مصادر الحصول على البيانات ، مثل أجهزة تسجيل البيانات ، في دليل مصدر البيانات."
   },
   "types": []
 }

@@ -111,7 +111,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public int addSamples(List<JEVisSample> samples) throws JEVisException {
-        logger.debug("addSamples toWS: O|a: {}|{} samples: {}",getObjectID(),getName(),samples.size());
+        logger.debug("addSamples toWS: O|a: {}|{} samples: {}", getObjectID(), getName(), samples.size());
         List<JsonSample> jsonSamples = new ArrayList<>();
         int imported = 0;
 
@@ -171,6 +171,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
                         os.close();
                     }
                     int responseCode = connection.getResponseCode();
+                    connection.disconnect();
                     imported = 1;/** TODO: fix server side, missing response **/
                 } catch (Exception ex) {
                     logger.catching(ex);
@@ -275,7 +276,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
         } catch (Exception nex) {
             return null;
         }
-        
+
     }
 
     @Override
@@ -320,7 +321,9 @@ public class JEVisAttributeWS implements JEVisAttribute {
             HttpURLConnection conn = ds.getHTTPConnection().getDeleteConnection(resource);
 
             ds.reloadAttribute(this);
-            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
+            boolean response = conn.getResponseCode() == HttpURLConnection.HTTP_OK;
+            conn.disconnect();
+            return response;
         } catch (Exception ex) {
             return false;
         }

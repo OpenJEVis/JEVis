@@ -3,12 +3,14 @@
   "names": {
     "de": "Gruppen",
     "ru": "Group Directory",
-    "en": "Groups"
+    "en": "Groups",
+    "ar": "دليل المجموعة"
   },
   "descriptions": {
     "de": "In einem Gruppenverzeichnis werden die Zugriffsrechte von Benutzergruppen verwaltet.",
     "ru": "A Group Directory is used to manage the privileges of different user groups.",
-    "en": "A Group Directory is used to manage the privileges of different user groups."
+    "en": "A Group Directory is used to manage the privileges of different user groups.",
+    "ar": "تتم إدارة حقوق الوصول لمجموعات المستخدمين في دليل المجموعة."
   },
   "types": []
 }

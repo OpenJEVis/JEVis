@@ -36,7 +36,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -77,7 +80,6 @@ public class ObjectPlugin implements Plugin {
     private final StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private final BorderPane viewPane = new BorderPane();
-    private final StackPane dialogContainer = new StackPane(viewPane);
     //    private ObjectTree tf;
 //    private ObjectTree tree;
     private JEVisTree tree;
@@ -154,7 +156,7 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 5;
+        return 10;
     }
 
     @Override
@@ -200,11 +202,11 @@ public class ObjectPlugin implements Plugin {
 
         }
 
-        return dialogContainer;
+        return viewPane;
     }
 
     public void initGUI() {
-        tree = JEVisTreeFactory.buildBasicDefault(dialogContainer, ds, true);
+        tree = JEVisTreeFactory.buildBasicDefault(ds, true);
         tree.setId("objecttree");
 //            tree.getStylesheets().add("/styles/Styles.css");
 //        tree.setStyle("-fx-background-color: #E2E2E2;");
@@ -373,7 +375,7 @@ public class ObjectPlugin implements Plugin {
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(wizardItem);
             wizardItem.setOnAction(event -> {
                 JEVisObject jeVisObject = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
-                KPIWizard wizard = new KPIWizard(dialogContainer, jeVisObject);
+                KPIWizard wizard = new KPIWizard(jeVisObject);
                 wizard.show();
 
             });
@@ -413,7 +415,7 @@ public class ObjectPlugin implements Plugin {
                 try {
                     JEVisObject obj = ((TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
                     JEVisSample lastValue = obj.getAttribute("Value").getLatestSample();
-                    EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, obj.getDataSource());
+                    EnterDataDialog enterDataDialog = new EnterDataDialog(obj.getDataSource());
                     enterDataDialog.setTarget(false, obj.getAttribute("Value"));
                     enterDataDialog.setSample(lastValue);
                     enterDataDialog.setShowValuePrompt(true);
@@ -738,7 +740,7 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.CONFIG, Plugin.IconSize, Plugin.IconSize,Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.CONFIG, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     //@AITBilal - Edit a new Table!

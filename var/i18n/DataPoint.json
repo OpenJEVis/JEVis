@@ -3,12 +3,14 @@
   "names": {
     "de": "Datenpunkt",
     "ru": "Data Point",
-    "en": "Data Point"
+    "en": "Data Point",
+    "ar": "نقطة البيانات"
   },
   "descriptions": {
     "de": "Die Klasse Datenpunkt stellt ein unspezifisches Verzeichnis für die Strukturierung des Systems dar. Die Klasse Datenpunkt wird nur für die Vererbung bestimmter Datenpunkttypen verwendet.",
     "ru": "The class Data Point represents a none-specific directory for the structuring of the system. The class Data Point is only used for the inheritance of specific data point types.",
-    "en": "The class Data Point represents a none-specific directory for the structuring of the system. The class Data Point is only used for the inheritance of specific data point types."
+    "en": "The class Data Point represents a none-specific directory for the structuring of the system. The class Data Point is only used for the inheritance of specific data point types.",
+    "ar": "تمثل فئة نقطة البيانات دليلاً غير محدد لهيكلة النظام ، ولا تستخدم فئة نقطة البيانات إلا لوراثة أنواع معينة من نقاط البيانات."
   },
   "types": []
 }

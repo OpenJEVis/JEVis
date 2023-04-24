@@ -1,7 +1,5 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -11,14 +9,22 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.dialog.Response;
 
 import java.lang.reflect.Field;
@@ -27,7 +33,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class LightSelectionDialog extends JFXDialog {
+public class LightSelectionDialog extends Dialog {
+    private static final Logger logger = LogManager.getLogger(LightSelectionDialog.class);
 
     private final FilterableTreeItem<SelectionObject> rootNode = new FilterableTreeItem<>(new SelectionObject("Root", 0L, 0L, null));//, rootIcon);
     private final SelectionMode selectionMode;
@@ -35,11 +42,18 @@ public class LightSelectionDialog extends JFXDialog {
     private final List<SelectionObject> selectionObjects = new ArrayList<>();
     private Response response = Response.CANCEL;
 
-    public LightSelectionDialog(StackPane dialogContainer, JEVisDataSource ds, SelectionMode selectionMode) {
+    public LightSelectionDialog(JEVisDataSource ds, SelectionMode selectionMode) {
         super();
         this.selectionMode = selectionMode;
 
-        this.setDialogContainer(dialogContainer);
+        setTitle(I18n.getInstance().getString("plugin.graph.selectiondialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.graph.selectiondialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) this.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         rootNode.setExpanded(true);
         final TreeTableView<SelectionObject> treeView = new TreeTableView<>(rootNode);
@@ -57,10 +71,10 @@ public class LightSelectionDialog extends JFXDialog {
         selectionColumn.setCellFactory(SelectionTreeTableCell.forTreeTableColumn(selectionColumn));
         selectionColumn.setEditable(true);
         selectionColumn.setOnEditStart(selectionObjectBooleanCellEditEvent -> {
-            System.out.println("Edit start");
+            logger.debug("Edit start");
         });
         selectionColumn.setOnEditCancel(selectionObjectBooleanCellEditEvent -> {
-            System.out.println("Edit cancel");
+            logger.debug("Edit cancel");
         });
         selectionColumn.setOnEditCommit(selectionObjectBooleanCellEditEvent -> {
             selectionObjectBooleanCellEditEvent.getRowValue().getValue().setSelected(selectionObjectBooleanCellEditEvent.getNewValue());
@@ -101,8 +115,8 @@ public class LightSelectionDialog extends JFXDialog {
 
             List<JEVisObject> doneObject = new ArrayList<>();
             addChildren(allObjects, doneObject, rootNode.getInternalChildren());
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error(e);
         }
 
         VBox box = new VBox();
@@ -119,31 +133,37 @@ public class LightSelectionDialog extends JFXDialog {
             return TreeItemPredicate.create(selectionObject -> selectionObject.getName().contains(filterField.getText()));
         }, filterField.textProperty()));
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
-        ok.setOnAction(event -> {
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+
+        okButton.setOnAction(event -> {
             try {
                 response = Response.OK;
                 this.close();
             } catch (Exception e) {
-
+                logger.error(e);
             }
         });
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-        cancel.setOnAction(event -> this.close());
+        cancelButton.setOnAction(event -> this.close());
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox buttonBar = new HBox(8, spacer, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-
-        box.getChildren().addAll(new TreeTableViewPath(treeView), treeView, filterField, buttonBar);
+        box.getChildren().addAll(new TreeTableViewPath(treeView), treeView, filterField);
         VBox.setVgrow(treeView, Priority.ALWAYS);
         box.setMinHeight(960);
         box.setMinWidth(1024);
 
-        this.setContent(box);
+        getDialogPane().setContent(box);
     }
 
     private void addChildren(List<JEVisObject> allObjects, List<JEVisObject> doneObject, ObservableList<TreeItem<SelectionObject>> internalChildren) throws JEVisException {

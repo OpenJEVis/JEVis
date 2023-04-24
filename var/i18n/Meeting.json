@@ -3,7 +3,8 @@
   "names": {
     "de": "Termin",
     "ru": "Meeting",
-    "en": "Meeting"
+    "en": "Meeting",
+    "ar": "مقابلة"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Content of Meeting and Results description",
         "ru": "Content of Meeting and Results description",
-        "en": "Content of Meeting and Results description"
+        "en": "Content of Meeting and Results description",
+        "ar": "محتوى الاجتماع والنتائج"
       },
       "names": {
         "de": "Content of Meeting and Results",
         "ru": "Content of Meeting and Results",
-        "en": "Content of Meeting and Results"
+        "en": "Content of Meeting and Results",
+        "ar": "محتوى الاجتماع والنتائج"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Meeting Date description",
         "ru": "Meeting Date description",
-        "en": "Meeting Date description"
+        "en": "Meeting Date description",
+        "ar": "وصف تاريخ الاجتماع"
       },
       "names": {
         "de": "Meeting Date",
         "ru": "Meeting Date",
-        "en": "Meeting Date"
+        "en": "Meeting Date",
+        "ar": "تاريخ الاجتماع"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Meeting Participants description",
         "ru": "Meeting Participants description",
-        "en": "Meeting Participants description"
+        "en": "Meeting Participants description",
+        "ar": "المشاركون في الاجتماع"
       },
       "names": {
         "de": "Meeting Participants",
         "ru": "Meeting Participants",
-        "en": "Meeting Participants"
+        "en": "Meeting Participants",
+        "ar": "المشاركون في الاجتماع"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "Meeting Time description",
         "ru": "Meeting Time description",
-        "en": "Meeting Time description"
+        "en": "Meeting Time description",
+        "ar": "وقت الاجتماع"
       },
       "names": {
         "de": "Meeting Time",
         "ru": "Meeting Time",
-        "en": "Meeting Time"
+        "en": "Meeting Time",
+        "ar": "وقت الاجتماع"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "Minutes of Meeting description",
         "ru": "Minutes of Meeting description",
-        "en": "Minutes of Meeting description"
+        "en": "Minutes of Meeting description",
+        "ar": "دقائق من المقابلة"
       },
       "names": {
         "de": "Minutes of Meeting",
         "ru": "Minutes of Meeting",
-        "en": "Minutes of Meeting"
+        "en": "Minutes of Meeting",
+        "ar": "دقائق من المقابلة"
       }
     }
   ]

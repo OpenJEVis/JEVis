@@ -18,6 +18,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
@@ -58,6 +59,7 @@ public class XYChartSerie {
     ValueWithDateTime maxValue = new ValueWithDateTime(-Double.MAX_VALUE);
     private double sortCriteria;
     private double avg;
+    private boolean aggregated = false;
 
     public XYChartSerie() {
     }
@@ -73,6 +75,7 @@ public class XYChartSerie {
         this.forecast = forecast;
         this.nf.setMinimumFractionDigits(chartModel.getMinFractionDigits());
         this.nf.setMaximumFractionDigits(chartModel.getMaxFractionDigits());
+        this.aggregated = singleRow.getAggregationPeriod() != AggregationPeriod.NONE;
 
         generateSeriesFromSamples();
     }
@@ -84,6 +87,17 @@ public class XYChartSerie {
         Color brighter = ColorHelper.colorToBrighter(singleRow.getColor());
 
         List<JEVisSample> samples = new ArrayList<>();
+        if (aggregated) {
+            JEVisUnit unit = singleRow.getUnit();
+
+            QuantityUnits quantityUnits = new QuantityUnits();
+            JEVisUnit sumUnit = quantityUnits.getSumUnit(unit);
+            if (sumUnit != null && !sumUnit.equals(unit)) {
+                singleRow.setUnit(sumUnit);
+                singleRow.setSomethingChanged(true);
+            }
+        }
+
         if (!forecast) {
             this.tableEntry = new TableEntry(getTableEntryName());
             this.valueDataSet.setName(getTableEntryName());
@@ -263,7 +277,7 @@ public class XYChartSerie {
             finalAvg.append("- ").append(getUnit());
             finalSum.append("- ").append(getUnit());
         } else {
-            if (!singleRow.getEnPI()) {
+            if (!singleRow.isCalculation()) {
                 finalAvg.append(nf.format(avg)).append(" ").append(getUnit());
             } else {
                 DateTime finalFirstTS1 = firstTS;
@@ -485,7 +499,11 @@ public class XYChartSerie {
         return shownInRenderer;
     }
 
+    private Renderer valueDataSetRenderer;
+    private Renderer noteDataSetRenderer;
+
     public void addValueDataSetRenderer(Renderer renderer) {
+        this.valueDataSetRenderer = renderer;
         shownInRendererProperty().addListener((observableValue, aBoolean, t1) -> {
             if (t1) {
                 renderer.getDatasets().add(this.getValueDataSet());
@@ -496,6 +514,7 @@ public class XYChartSerie {
     }
 
     public void addNoteDataSetRenderer(Renderer renderer) {
+        this.noteDataSetRenderer = renderer;
         shownInRendererProperty().addListener((observableValue, aBoolean, t1) -> {
             if (t1) {
                 renderer.getDatasets().add(this.getNoteDataSet());
@@ -515,5 +534,13 @@ public class XYChartSerie {
 
     public void setSampleMap(TreeMap<DateTime, JEVisSample> sampleMap) {
         this.sampleMap = sampleMap;
+    }
+
+    public Renderer getValueDataSetRenderer() {
+        return valueDataSetRenderer;
+    }
+
+    public Renderer getNoteDataSetRenderer() {
+        return noteDataSetRenderer;
     }
 }

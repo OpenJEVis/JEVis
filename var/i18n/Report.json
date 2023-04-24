@@ -3,7 +3,8 @@
   "names": {
     "de": "Bericht",
     "ru": "Report",
-    "en": "Report"
+    "en": "Report",
+    "ar": "تقرير"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Enabled description",
         "ru": "Enabled description",
-        "en": "Enabled description"
+        "en": "Enabled description",
+        "ar": "ممكن"
       },
       "names": {
         "de": "Aktiviert",
         "ru": "Enabled",
-        "en": "Enabled"
+        "en": "Enabled",
+        "ar": "مفعل"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Last Report description",
         "ru": "Last Report description",
-        "en": "Last Report description"
+        "en": "Last Report description",
+        "ar": "التقرير الأخير"
       },
       "names": {
         "de": "Berichtsdatei",
         "ru": "Last Report",
-        "en": "Report File"
+        "en": "Report File",
+        "ar": "ملف التقرير"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Last Report description",
         "ru": "Last Report description",
-        "en": "Last Report description"
+        "en": "Last Report description",
+        "ar": "التقرير الأخير بتنسيق PDF"
       },
       "names": {
         "de": "Berichts-PDF",
         "ru": "Last Report",
-        "en": "Report PDF"
+        "en": "Report PDF",
+        "ar": "التقرير الأخير بتنسيق PDF"
       }
     },
     {
@@ -51,12 +58,14 @@
       "descriptions": {
         "de": "PDF description",
         "ru": "PDF description",
-        "en": "PDF description"
+        "en": "PDF description",
+        "ar": "PDF"
       },
       "names": {
         "de": "PDF",
         "ru": "PDF",
-        "en": "PDF"
+        "en": "PDF",
+        "ar": "PDF"
       }
     },
     {
@@ -64,12 +73,14 @@
       "descriptions": {
         "de": "PDF Pages description",
         "ru": "PDF Pages description",
-        "en": "PDF Pages description"
+        "en": "PDF Pages description",
+        "ar": "صفحات PDF"
       },
       "names": {
         "de": "Anzahl PDF Seiten",
         "ru": "PDF Pages",
-        "en": "PDF Pages"
+        "en": "PDF Pages",
+        "ar": "صفحات PDF"
       }
     },
     {
@@ -77,12 +88,14 @@
       "descriptions": {
         "de": "Template description",
         "ru": "Template description",
-        "en": "Template description"
+        "en": "Template description",
+        "ar": "نموذج"
       },
       "names": {
         "de": "Vorlage",
         "ru": "Template",
-        "en": "Template"
+        "en": "Template",
+        "ar": "نموذج"
       }
     },
     {
@@ -90,12 +103,14 @@
       "descriptions": {
         "de": "Time Zone description",
         "ru": "Time Zone description",
-        "en": "Time Zone description"
+        "en": "Time Zone description",
+        "ar": "المنطقة الزمنية"
       },
       "names": {
         "de": "Zeitzone",
         "ru": "Time Zone",
-        "en": "Time Zone"
+        "en": "Time Zone",
+        "ar": "المنطقة الزمنية"
       }
     }
   ]

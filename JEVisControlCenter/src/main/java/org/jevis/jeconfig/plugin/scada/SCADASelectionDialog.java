@@ -21,16 +21,22 @@ package org.jevis.jeconfig.plugin.scada;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -42,28 +48,30 @@ import java.util.List;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class SCADASelectionDialog extends JFXDialog {
+public class SCADASelectionDialog extends Dialog {
 
     //    private VBox root = new VBox();
     private final JFXButton ok = new JFXButton("OK");
     private final JFXButton clear = new JFXButton("Clear");
     private final String ICON = "1404313956_evolution-tasks.png";
-    private final StackPane dialogContainer;
     private final JEVisDataSource _ds;
     private Response response = Response.CANCEL;
     private JEVisTree tree;
     private final SimpleTargetPlugin stp = new SimpleTargetPlugin();
     private MODE mode = MODE.OBJECT;
 
-    public SCADASelectionDialog(StackPane dialogContainer, JEVisDataSource ds, String title, List<UserSelection> uselection, MODE mode) {
-        this.dialogContainer = dialogContainer;
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+    public SCADASelectionDialog(JEVisDataSource ds, String title, List<UserSelection> uselection, MODE mode) {
+        setTitle(I18n.getInstance().getString("plugin.scada.selectiondialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.scada.selectiondialog.header"));
+        setResizable(true);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         _ds = ds;
         this.mode = mode;
 
-        setContent(build(ds, title, uselection));
+        getDialogPane().setContent(build(ds, title, uselection));
     }
 
     public void allowMultySelect(boolean allowMulty) {
@@ -77,7 +85,7 @@ public class SCADASelectionDialog extends JFXDialog {
         HBox buttonPanel = new HBox(8);
         VBox content = new VBox();
 
-        tree = JEVisTreeFactory.buildBasicDefault(dialogContainer, ds, false);
+        tree = JEVisTreeFactory.buildBasicDefault(ds, false);
         if (mode == MODE.ATTRIBUTE) {
 //            tree.getFilter().showAttributes(true);
         }

@@ -3,10 +3,12 @@
   "names": {
     "de": "9.3 Internes EnMS-Audit",
     "ru": "9.3 Internal EnMS Audit",
-    "en": "9.3 Internal EnMS Audit"
+    "en": "9.3 Internal EnMS Audit",
+    "ar": "9.3 التدقيق الداخلي لنظام إدارة الطاقة"
   },
   "descriptions": {
-    "de": "9.3.1\nDie Organisation muss in geplanten Abständen interne EnMS-Audits durchführen, um Informationen darüber zu erhalten, ob das EnMS:\na) die energiebezogene Leistung verbessert;\nb) die Anforderungen:\n\t— der Organisation an ihr EnMS;\n\t— an die von der Organisation festgelegte(n) Energiepolitik (siehe 5.2), Ziele und Energieziele (siehe 6.6) erfüllt;\n\t— dieses Dokuments erfüllt;\nc) wirksam verwirklicht und aufrechterhalten wird.\n\n9.3.2\nDie Organisation muss:\na) ein oder mehrere Auditprogramme planen, aufbauen, verwirklichen und aufrechterhalten, einschließlich der Häufigkeit von Audits, Methoden, Verantwortlichkeiten, Anforderungen an die Planung sowie Berichterstattung, welche die Bedeutung der betroffenen Prozesse und die Ergebnisse vorheriger Audits berücksichtigen müssen;\nb) für jedes Audit die Auditkriterien sowie den Umfang festlegen;\nc) Auditoren so auswählen und Audits so durchführen, dass die Objektivität und Unparteilichkeit des Auditprozesses sichergestellt ist;\nd) sicherstellen, dass die Ergebnisse der Audits gegenüber der zuständigen Leitung berichtet werden;\ne) geeignete Maßnahmen nach 10.1 und 10.2 ergreifen;\nf) dokumentierte Information (siehe 7.5) als Nachweis der Verwirklichung des Auditprogramms und der Ergebnisse der Audits aufbewahren."
+    "de": "9.3.1\nDie Organisation muss in geplanten Abständen interne EnMS-Audits durchführen, um Informationen darüber zu erhalten, ob das EnMS:\na) die energiebezogene Leistung verbessert;\nb) die Anforderungen:\n\t— der Organisation an ihr EnMS;\n\t— an die von der Organisation festgelegte(n) Energiepolitik (siehe 5.2), Ziele und Energieziele (siehe 6.6) erfüllt;\n\t— dieses Dokuments erfüllt;\nc) wirksam verwirklicht und aufrechterhalten wird.\n\n9.3.2\nDie Organisation muss:\na) ein oder mehrere Auditprogramme planen, aufbauen, verwirklichen und aufrechterhalten, einschließlich der Häufigkeit von Audits, Methoden, Verantwortlichkeiten, Anforderungen an die Planung sowie Berichterstattung, welche die Bedeutung der betroffenen Prozesse und die Ergebnisse vorheriger Audits berücksichtigen müssen;\nb) für jedes Audit die Auditkriterien sowie den Umfang festlegen;\nc) Auditoren so auswählen und Audits so durchführen, dass die Objektivität und Unparteilichkeit des Auditprozesses sichergestellt ist;\nd) sicherstellen, dass die Ergebnisse der Audits gegenüber der zuständigen Leitung berichtet werden;\ne) geeignete Maßnahmen nach 10.1 und 10.2 ergreifen;\nf) dokumentierte Information (siehe 7.5) als Nachweis der Verwirklichung des Auditprogramms und der Ergebnisse der Audits aufbewahren.",
+    "ar": "9.3.1\nيتعين على المنظمة إجراء عمليات تدقيق داخلية لنظام إدارة الطاقة على فترات زمنية مخططة للحصول على معلومات حول ما إذا كان نظام إدارة نظام إدارة الطاقة:\nأ) يحسن الأداء المرتبط بالطاقة ؛\nب) المتطلبات:\n- تنظيم نظام إدارة الطاقة الخاص بها ؛\n- يتوافق مع سياسة الطاقة (انظر 5.2) والأهداف وأهداف الطاقة (انظر 6.6) التي وضعتها المنظمة ؛\n- يتوافق مع هذه الوثيقة ؛\nج) نفذت بشكل فعال وصيانتها.\n\n9.3.2\nيجب على المنظمة:\nأ) تخطيط وإنشاء وتنفيذ وصيانة برنامج واحد أو أكثر من برامج التدقيق ، بما في ذلك تكرار المراجعة والأساليب والمسؤوليات ومتطلبات التخطيط وإعداد التقارير ، والتي يجب أن تأخذ في الاعتبار أهمية العمليات المعنية ونتائج عمليات التدقيق السابقة ؛\nب) تحديد معايير المراجعة ونطاق كل مراجعة ؛\nج) اختيار المراجعين وإجراء عمليات التدقيق بطريقة تضمن موضوعية وحيادية عملية المراجعة ؛\nد) التأكد من أن نتائج عمليات المراجعة يتم إبلاغها إلى الإدارة المناسبة ؛\nهـ) اتخاذ التدابير المناسبة وفقًا لـ 10.1 و 10.2 ؛\nو) الاحتفاظ بالمعلومات الموثقة (انظر 7.5) كدليل على تنفيذ برنامج المراجعة ونتائج عمليات المراجعة."
   },
   "types": [
     {
@@ -14,12 +16,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -27,12 +31,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -40,12 +46,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الانشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الانشاء"
       }
     },
     {
@@ -53,12 +61,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -66,12 +76,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -79,12 +91,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "صدر من قبل"
       }
     },
     {
@@ -92,12 +106,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -105,12 +121,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

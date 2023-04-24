@@ -90,11 +90,9 @@ public class CSVColumnHeader {
 
     private SimpleDateFormat dateFormatter = new SimpleDateFormat();
     private Meaning currentMeaning = Meaning.Ignore;
-    private final StackPane dialogContainer;
     private int columnNr = -1;
 
-    public CSVColumnHeader(StackPane dialogContainer, CSVTable table, int column) {
-        this.dialogContainer = dialogContainer;
+    public CSVColumnHeader(CSVTable table, int column) {
         columnNr = column;
         _table = table;
 
@@ -732,10 +730,10 @@ public class CSVColumnHeader {
                 allFilter.add(basicFilter);
 
 
-                SelectTargetDialog selectionDialog = new SelectTargetDialog(dialogContainer, allFilter, basicFilter, null, SelectionMode.SINGLE, _table.getDataSource(), new ArrayList<UserSelection>());
+                SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE, _table.getDataSource(), new ArrayList<UserSelection>());
                 selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
 
-                selectionDialog.setOnDialogClosed(event -> {
+                selectionDialog.setOnCloseRequest(event -> {
                     if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
                         logger.trace("Selection Done");
                         for (UserSelection us : selectionDialog.getUserSelection()) {

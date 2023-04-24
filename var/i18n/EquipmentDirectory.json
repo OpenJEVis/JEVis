@@ -3,12 +3,14 @@
   "names": {
     "de": "Ausrüstungsverzeichnis",
     "ru": "Equipment Directory",
-    "en": "Equipment Directory"
+    "en": "Equipment Directory",
+    "ar": "دليل المعدات"
   },
   "descriptions": {
     "de": "The class Equipment Directory represents a specific directory for the management of the Equipment of an organization which is important for energy concerning interests.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
     "ru": "The class Equipment Directory represents a specific directory for the management of the Equipment of an organization which is important for energy concerning interests.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
-    "en": "The class Equipment Directory represents a specific directory for the management of the Equipment of an organization which is important for energy concerning interests.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class."
+    "en": "The class Equipment Directory represents a specific directory for the management of the Equipment of an organization which is important for energy concerning interests.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+    "ar": "يمثل دليل المعدات الصنفية دليلًا محددًا لإدارة معدات مؤسسة ما وهو مهم للطاقة المتعلقة بالمصالح.\n\nالفئة فريدة ، مما يعني أنه لا يمكن إنشاء كائن من هذه الفئة بالتوازي مع كائن موجود بالفعل من نفس الفئة."
   },
   "types": []
 }

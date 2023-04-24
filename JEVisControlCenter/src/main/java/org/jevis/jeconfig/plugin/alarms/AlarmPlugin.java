@@ -25,6 +25,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,6 +35,7 @@ import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmConfiguration;
 import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
@@ -55,6 +57,7 @@ import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.object.attribute.AlarmEditor;
 import org.jevis.jeconfig.plugin.object.attribute.LimitEditor;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -88,7 +91,6 @@ public class AlarmPlugin implements Plugin {
     private final JEVisDataSource ds;
     private final String title;
     private final BorderPane borderPane = new BorderPane();
-    private final StackPane dialogContainer = new StackPane(borderPane);
     private final ToolBar toolBar = new ToolBar();
     private final int iconSize = 20;
     private final Image checkAllImage = ResourceLoader.getImage("jetxee-check-sign-and-cross-sign-3.png");
@@ -124,12 +126,9 @@ public class AlarmPlugin implements Plugin {
 
         Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
         label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        this.tableView.setPlaceholder(label);
 
-        this.tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-//        this.tableView.setStyle("-fx-background-color: white;");
-
-//        this.tableView.setItems(alarmRows);
+        //tableView.setPadding(new Insets(20, 20, 20, 20));
+        tableView.setBorder(new Border(new BorderStroke(Paint.valueOf("#b5bbb7"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN, new Insets(20, 20, 20, 20))));
 
         this.numberFormat.setMinimumFractionDigits(2);
         this.numberFormat.setMaximumFractionDigits(2);
@@ -167,22 +166,7 @@ public class AlarmPlugin implements Plugin {
             } catch (Exception e) {
             }
         }
-    }    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
-
-    private Node createPage(int pageIndex) {
-        int numOfPages = 1;
-        if (data.size() % ROWS_PER_PAGE == 0) {
-            numOfPages = data.size() / ROWS_PER_PAGE;
-        } else if (data.size() > ROWS_PER_PAGE) {
-            numOfPages = data.size() / ROWS_PER_PAGE + 1;
-        }
-        pagination.setPageCount(numOfPages);
-        int fromIndex = pageIndex * ROWS_PER_PAGE;
-        int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, data.size());
-        tableView.setItems(FXCollections.observableArrayList(data.subList(fromIndex, toIndex)));
-
-        return tableView;
-    }    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
+    }
 
     private void initToolBar() {
         ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
@@ -297,7 +281,50 @@ public class AlarmPlugin implements Plugin {
         JEVisHelp.getInstance().addHelpItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
 
-    }    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
+    }
+
+    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+
+    private Node createPage(int pageIndex) {
+        int numOfPages = 1;
+        if (data.size() % ROWS_PER_PAGE == 0) {
+            numOfPages = data.size() / ROWS_PER_PAGE;
+        } else if (data.size() > ROWS_PER_PAGE) {
+            numOfPages = data.size() / ROWS_PER_PAGE + 1;
+        }
+        pagination.setPageCount(numOfPages);
+        int fromIndex = pageIndex * ROWS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, data.size());
+        tableView.setItems(FXCollections.observableArrayList(data.subList(fromIndex, toIndex)));
+
+        return tableView;
+    }    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
+
+    private void checkForRunningTasks() throws InterruptedException {
+        AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
+        ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
+        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
+            String s = entry.getValue();
+            if (s.equals("AlarmConfigs")) {
+                hasActiveChartTasks.set(true);
+                break;
+            }
+        }
+        if (!hasActiveChartTasks.get()) {
+            JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
+            data.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+
+            Platform.runLater(() -> {
+                createPage(0);
+                autoFitTable(tableView);
+            });
+        } else {
+            Thread.sleep(500);
+            checkForRunningTasks();
+        }
+    }
+
+    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
         if (newValue != oldValue) {
             start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
             timeFrame = TimeFrame.CUSTOM;
@@ -375,29 +402,8 @@ public class AlarmPlugin implements Plugin {
         JEConfig.getStatusBar().addTask(AlarmPlugin.class.getName(), task, taskImage, true);
     }
 
-    private void checkForRunningTasks() throws InterruptedException {
-        AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
-        ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
-        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
-            String s = entry.getValue();
-            if (s.equals("AlarmConfigs")) {
-                hasActiveChartTasks.set(true);
-                break;
-            }
-        }
-        if (!hasActiveChartTasks.get()) {
-            JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
-            data.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
 
-            Platform.runLater(() -> {
-                createPage(0);
-                autoFitTable(tableView);
-            });
-        } else {
-            Thread.sleep(500);
-            checkForRunningTasks();
-        }
-    }    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
+    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
         if (newValue != oldValue) {
             end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
             timeFrame = TimeFrame.CUSTOM;
@@ -905,7 +911,7 @@ public class AlarmPlugin implements Plugin {
                                 if (item.getAlarmType().equals(AlarmType.L1) || item.getAlarmType().equals(AlarmType.L2)) {
                                     JEVisAttribute limitConfigAttribute = item.getObject().getAttribute(LIMITS_CONFIGURATION.getAttributeName());
 
-                                    LimitEditor limitEditor = new LimitEditor(dialogContainer, limitConfigAttribute);
+                                    LimitEditor limitEditor = new LimitEditor(limitConfigAttribute);
                                     HBox hbox = (HBox) limitEditor.getEditor();
                                     JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
                                     jfxButton.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
@@ -916,7 +922,7 @@ public class AlarmPlugin implements Plugin {
 
                                     JEVisAttribute alarmConfigAttribute = item.getObject().getAttribute(ALARM_CONFIG.getAttributeName());
 
-                                    AlarmEditor alarmConfiguration = new AlarmEditor(dialogContainer, alarmConfigAttribute);
+                                    AlarmEditor alarmConfiguration = new AlarmEditor(alarmConfigAttribute);
                                     HBox hbox = (HBox) alarmConfiguration.getEditor();
                                     JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
                                     jfxButton.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
@@ -968,8 +974,23 @@ public class AlarmPlugin implements Plugin {
     }
 
     private Object getAnalysisRequest(AlarmRow alarmRow, JEVisObject item) {
-        DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
-        DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
+
+        DateTime ts = alarmRow.getAlarm().getTimeStamp();
+        Period period = Period.hours(12);
+
+        Period newPeriod = CleanDataObject.getPeriodForDate(item, ts);
+
+        if (!newPeriod.equals(Period.ZERO)) {
+            period = newPeriod;
+        }
+
+        DateTime start = ts.minus(period);
+        DateTime end = ts.plus(period);
+
+        for (int i = 0; i < 10; i++) {
+            start = start.minus(period);
+            end = end.plus(period);
+        }
 
         return new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, start, end);
     }
@@ -1206,11 +1227,8 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return dialogContainer;
+        return borderPane;
     }
-
-
-
 
 
     private synchronized boolean allJobsDone(List<Future<?>> futures) {
@@ -1251,7 +1269,6 @@ public class AlarmPlugin implements Plugin {
     }
 
 
-
     @Override
     public Region getIcon() {
         return JEConfig.getSVGImage(Icon.ERROR, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
@@ -1284,7 +1301,7 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 4;
+        return 3;
     }
 
     public SimpleBooleanProperty hasAlarmsProperty() {

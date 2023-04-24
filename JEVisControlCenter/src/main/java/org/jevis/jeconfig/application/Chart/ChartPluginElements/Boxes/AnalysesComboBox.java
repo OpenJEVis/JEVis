@@ -19,6 +19,9 @@ import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +58,11 @@ public class AnalysesComboBox extends JFXComboBox<String> {
 
         this.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, t1) -> {
             this.updating = true;
-            setSelectedAnalysis(analyses.get(t1.intValue()));
+            if (t1 != null && t1.intValue() > -1) {
+                setSelectedAnalysis(analyses.get(t1.intValue()));
+            } else {
+                setSelectedAnalysis(null);
+            }
             this.updating = false;
         });
 
@@ -122,6 +129,9 @@ public class AnalysesComboBox extends JFXComboBox<String> {
     }
 
     public void updateListAnalyses() {
+        logger.debug("Updating analyses...");
+        DateTime updateStart = new DateTime();
+
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
         multiDir = null;
         multiSite = null;
@@ -133,6 +143,8 @@ public class AnalysesComboBox extends JFXComboBox<String> {
         } catch (JEVisException e) {
             logger.error("Error: could not get analyses directories", e);
         }
+
+        List<JEVisObject> analysisObjects = new ArrayList<>();
         if (listAnalysesDirectories.isEmpty()) {
             List<JEVisObject> listBuildings = new ArrayList<>();
             try {
@@ -149,18 +161,16 @@ public class AnalysesComboBox extends JFXComboBox<String> {
             }
         }
         try {
-            getAnalyses().clear();
-            getAnalyses().addAll(ds.getObjects(ds.getJEVisClass(ANALYSIS_CLASS_NAME), false));
-
+            analysisObjects.addAll(ds.getObjects(ds.getJEVisClass(ANALYSIS_CLASS_NAME), false));
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis", e);
         }
 
         AlphanumComparator ac = new AlphanumComparator();
         if (!ChartTools.isMultiDir(ds) && !ChartTools.isMultiSite(ds))
-            getAnalyses().sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+            analysisObjects.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
         else {
-            getAnalyses().sort((o1, o2) -> {
+            analysisObjects.sort((o1, o2) -> {
 
                 String prefix1 = "";
                 String prefix2 = "";
@@ -189,11 +199,18 @@ public class AnalysesComboBox extends JFXComboBox<String> {
             JEVisObject userObject = ds.getCurrentUser().getUserObject();
             JEVisAttribute analysisFileAttribute = userObject.getAttribute(ANALYSIS_FILE_ATTRIBUTE_NAME);
             if (analysisFileAttribute != null && analysisFileAttribute.hasSample()) {
-                getAnalyses().add(userObject);
+                analysisObjects.add(userObject);
             }
         } catch (Exception e) {
             logger.error("Error while checking temp analysis attribute", e);
         }
+
+        getAnalyses().clear();
+        getAnalyses().addAll(analysisObjects);
+
+        logger.debug("Updated analyses in {}", new Period(new DateTime().getMillis() - updateStart.getMillis()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
+        logger.debug("selecting old Analysis...");
+        updateStart = new DateTime();
 
         if (selectedAnalysis != null) {
             int selectedIndex = analyses.indexOf(selectedAnalysis);
@@ -202,6 +219,8 @@ public class AnalysesComboBox extends JFXComboBox<String> {
                 getSelectionModel().select(selectedIndex);
             }
         }
+
+        logger.debug("Selected old analysis in {}", new Period(new DateTime().getMillis() - updateStart.getMillis()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
     }
 
     public ObservableList<JEVisObject> getAnalyses() {

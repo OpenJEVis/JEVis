@@ -9,12 +9,11 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
@@ -24,9 +23,9 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
-import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.jevis.jeconfig.dialog.BaseLoadDialog;
 import org.jevis.jeconfig.dialog.ValuesDialog;
 import org.jevis.jeconfig.sample.DaySchedule;
@@ -42,18 +41,16 @@ import java.util.List;
 
 public class ToolBarFunctions {
     private static final Logger logger = LogManager.getLogger(ToolBarFunctions.class);
-    private final StackPane dialogContainer;
     private final JEVisDataSource ds;
     private final DataSettings dataSettings;
     private final ToolBarSettings toolBarSettings;
-    private final DataModel dataModel;
+    private final ChartPlugin chartPlugin;
 
-    public ToolBarFunctions(StackPane dialogContainer, JEVisDataSource ds, DataSettings dataSettings, ToolBarSettings toolBarSettings, DataModel dataModel) {
-        this.dialogContainer = dialogContainer;
+    public ToolBarFunctions(JEVisDataSource ds, DataSettings dataSettings, ToolBarSettings toolBarSettings, ChartPlugin chartPlugin) {
         this.ds = ds;
         this.dataSettings = dataSettings;
         this.toolBarSettings = toolBarSettings;
-        this.dataModel = dataModel;
+        this.chartPlugin = chartPlugin;
     }
 
     protected void calcRegression() {
@@ -177,8 +174,7 @@ public class ToolBarFunctions {
         });
 
         fullLoadHours.getColumns().addAll(nameColumn, valueColumn);
-        dataModel.getChartModels().forEach(chart -> chart.getChartData().forEach(chartData -> {
-            ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+        chartPlugin.getAllCharts().forEach((integer, chart) -> chart.getChartDataRows().forEach(chartDataRow -> {
             fullLoadHours.getItems().add(chartDataRow);
         }));
 
@@ -191,9 +187,15 @@ public class ToolBarFunctions {
     }
 
     protected void calcBaseLoad() {
-        JFXDialog infoBox = new JFXDialog();
-        infoBox.setDialogContainer(dialogContainer);
-        infoBox.setTransitionType(JFXDialog.DialogTransition.NONE);
+        Dialog infoBox = new Dialog();
+        infoBox.setTitle(I18n.getInstance().getString("plugin.graph.baseload.title"));
+        infoBox.setHeaderText(I18n.getInstance().getString("plugin.graph.baseload.header"));
+        infoBox.setResizable(true);
+        infoBox.initOwner(JEConfig.getStage());
+        infoBox.initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) infoBox.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         Label baseLoadTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.timeframe"));
 
@@ -305,22 +307,24 @@ public class ToolBarFunctions {
         gp.add(resultEndDate, 2, row);
         gp.add(resultEndTime, 3, row);
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        infoBox.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) infoBox.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) infoBox.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox vBox = new VBox(6, gp, separator, buttonBar);
+        VBox vBox = new VBox(6, gp, separator);
         vBox.setPadding(new Insets(12));
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             try {
                 BaseLoadSetting setting = new BaseLoadSetting();
                 setting.setBaseLoadStart(baseLoadStartDate.getValue(), baseLoadStartTime.getValue());
@@ -329,7 +333,7 @@ public class ToolBarFunctions {
                 setting.setResultStart(resultStartDate.getValue(), resultStartTime.getValue());
                 setting.setResultEnd(resultEndDate.getValue(), resultEndTime.getValue());
 
-                BaseLoadDialog dialog = new BaseLoadDialog(dialogContainer, ds, setting, dataModel);
+                BaseLoadDialog dialog = new BaseLoadDialog(ds, setting, chartPlugin.getAllCharts());
 
                 dialog.show();
 
@@ -339,16 +343,22 @@ public class ToolBarFunctions {
             infoBox.close();
         });
 
-        cancel.setOnAction(event -> infoBox.close());
+        cancelButton.setOnAction(event -> infoBox.close());
 
-        infoBox.setContent(vBox);
+        infoBox.getDialogPane().setContent(vBox);
         infoBox.show();
     }
 
     protected void calcValues() {
-        JFXDialog infoBox = new JFXDialog();
-        infoBox.setDialogContainer(dialogContainer);
-        infoBox.setTransitionType(JFXDialog.DialogTransition.NONE);
+        Dialog infoBox = new Dialog();
+        infoBox.setTitle(I18n.getInstance().getString("plugin.graph.values.title"));
+        infoBox.setHeaderText(I18n.getInstance().getString("plugin.graph.values.header"));
+        infoBox.setResizable(true);
+        infoBox.initOwner(JEConfig.getStage());
+        infoBox.initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) infoBox.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         final ValuesSetting valuesSetting = new ValuesSetting();
 
@@ -405,27 +415,29 @@ public class ToolBarFunctions {
             row++;
         }
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        infoBox.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) infoBox.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) infoBox.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox vBox = new VBox(6, gp, separator, buttonBar);
+        VBox vBox = new VBox(6, gp, separator);
         vBox.setPadding(new Insets(12));
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             try {
                 valuesSetting.setResultStart(resultStartDate.getValue(), resultStartTime.getValue());
                 valuesSetting.setResultEnd(resultEndDate.getValue(), resultEndTime.getValue());
 
-                ValuesDialog dialog = new ValuesDialog(dialogContainer, ds, valuesSetting, dataModel);
+                ValuesDialog dialog = new ValuesDialog(ds, valuesSetting, chartPlugin.getAllCharts());
 
                 dialog.show();
 
@@ -435,9 +447,9 @@ public class ToolBarFunctions {
             infoBox.close();
         });
 
-        cancel.setOnAction(event -> infoBox.close());
+        cancelButton.setOnAction(event -> infoBox.close());
 
-        infoBox.setContent(vBox);
+        infoBox.getDialogPane().setContent(vBox);
         infoBox.show();
     }
 
@@ -557,8 +569,7 @@ public class ToolBarFunctions {
                             fullLoadHours.getColumns().addAll(nameColumn, belowColumn, aboveColumn);
 
                             List<HoursAbove> hoursAbove = new ArrayList<>();
-                            dataModel.getChartModels().forEach(chart -> chart.getChartData().forEach(chartData -> {
-                                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+                            chartPlugin.getAllCharts().forEach((integer, chart) -> chart.getChartDataRows().forEach(chartDataRow -> {
                                 hoursAbove.add(new HoursAbove(chartDataRow, limit));
                             }));
 
@@ -702,8 +713,7 @@ public class ToolBarFunctions {
                             fullLoadHours.getColumns().addAll(nameColumn, belowColumn, aboveColumn);
 
                             List<SumsAbove> hoursAbove = new ArrayList<>();
-                            dataModel.getChartModels().forEach(chart -> chart.getChartData().forEach(chartData -> {
-                                ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
+                            chartPlugin.getAllCharts().forEach((integer, chart) -> chart.getChartDataRows().forEach(chartDataRow -> {
                                 hoursAbove.add(new SumsAbove(chartDataRow, limit));
                             }));
 

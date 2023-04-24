@@ -33,7 +33,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
@@ -59,7 +58,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
     public static DoubleProperty editorWidth = new SimpleDoubleProperty(350);
     private final ScrollPane _view = new ScrollPane();
-    private final StackPane dialogContainer = new StackPane(_view);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final JEVisObject _obj;
     private boolean _needSave = false;
@@ -88,7 +86,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         return _changed;
     }
 
-    public static  AttributeEditor getEditor(StackPane dialogContainer, JEVisType type, JEVisAttribute att) throws JEVisException {
+    public static AttributeEditor getEditor(JEVisType type, JEVisAttribute att) throws JEVisException {
         String guiDisplayType = type.getGUIDisplayType();
         AttributeEditor editor = null;
         switch (type.getPrimitiveType()) {
@@ -96,15 +94,15 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                 try {
 
                     if (guiDisplayType == null || guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
-                        editor = new StringEditor(dialogContainer, att);
+                        editor = new StringEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
                         editor = new StringMultiLine(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                         editor = new DateEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_OBJECT.getId())) {
-                        editor = new TargetEditor(dialogContainer, att, SelectTargetDialog.MODE.OBJECT, tree);
+                        editor = new TargetEditor(att, SelectTargetDialog.MODE.OBJECT, tree);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_ATTRIBUTE.getId())) {
-                        editor = new TargetEditor(dialogContainer, att, SelectTargetDialog.MODE.ATTRIBUTE, tree);
+                        editor = new TargetEditor(att, SelectTargetDialog.MODE.ATTRIBUTE, tree);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_PASSWORD.getId())) {
                         editor = new ReadablePasswordEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DATE_TIME.getId())) {
@@ -122,25 +120,25 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LOCALE.getId())) {
                         editor = new LanguageEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.GAP_FILLING_CONFIG.getId())) {
-                        editor = new GapFillingEditor(dialogContainer, att);
+                        editor = new GapFillingEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LIMITS_CONFIG.getId())) {
-                        editor = new LimitEditor(dialogContainer, att);
+                        editor = new LimitEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DELTA_CONFIG.getId())) {
-                        editor = new DeltaEditor(dialogContainer, att);
+                        editor = new DeltaEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.ALARM_CONFIG.getId())) {
-                        editor = new AlarmEditor(dialogContainer, att);
+                        editor = new AlarmEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.CALENDAR.getId())) {
                         editor = new CalendarEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.WEB_VIEW.getId())) {
                         editor = new WebViewEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.PERIOD.getId())) {
-                        editor = new PeriodEditor(dialogContainer, att);
+                        editor = new PeriodEditor(att);
                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.RANGING_VALUE.getId())) {
-                        editor = new RangingValueEditor(dialogContainer, att);
+                        editor = new RangingValueEditor(att);
                     }
                 } catch (Exception e) {
                     logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());
-                    editor = new StringEditor(dialogContainer, att);
+                    editor = new StringEditor(att);
                 }
 
                 break;
@@ -159,15 +157,15 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                 } else if (guiDisplayType.equals(GUIConstants.BASIC_FILER.getId())) {
                     editor = new FileEditor(att);
                 } else {
-                    editor = new StringEditor(dialogContainer, att);
+                    editor = new StringEditor(att);
                 }
                 break;
             case JEVisConstants.PrimitiveType.DOUBLE:
 
                 if (guiDisplayType == null) {
-                    editor = new DoubleEditor(dialogContainer, att);
+                    editor = new DoubleEditor(att);
                 } else {
-                    editor = new DoubleEditor(dialogContainer, att);
+                    editor = new DoubleEditor(att);
                 }
                 break;
             case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
@@ -181,15 +179,15 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
                 try {
                     //TODO
-                    editor = new LongEditor(dialogContainer, att);
+                    editor = new LongEditor(att);
                 } catch (Exception e) {
                     logger.catching(e);
-                    editor = new LongEditor(dialogContainer, att);
+                    editor = new LongEditor(att);
                 }
                 break;
 
             default:
-                editor = new StringEditor(dialogContainer, att);
+                editor = new StringEditor(att);
                 break;
 
         }
@@ -295,7 +293,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     @Override
     public Node getView() {
-        return dialogContainer;
+        return _view;
     }
 
     private void buildGui(JEVisObject obj) {
@@ -343,7 +341,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
                         try {
 
-                            editor = getEditor(dialogContainer, type, att);
+                            editor = getEditor(type, att);
 
                             editor.setReadOnly(readOnly);
 

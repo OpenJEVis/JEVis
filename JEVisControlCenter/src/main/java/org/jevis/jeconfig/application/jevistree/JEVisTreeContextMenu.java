@@ -19,19 +19,17 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -41,6 +39,7 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
@@ -63,98 +62,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class JEVisTreeContextMenu extends ContextMenu {
     private static final Logger logger = LogManager.getLogger(JEVisTreeContextMenu.class);
-    private final StackPane dialogContainer;
 
     private JEVisObject obj;
     private JEVisTree tree;
 
-    public JEVisTreeContextMenu(StackPane dialogContainer) {
+    public JEVisTreeContextMenu() {
         super();
-        this.dialogContainer = dialogContainer;
-    }
-
-    public void setTree(JEVisTree tree) {
-        this.tree = tree;
-        tree.setOnMouseClicked(event -> {
-            try {
-                obj = getObject();
-                if (obj.getDeleteTS() != null) {
-                    getItems().setAll(
-                            buildDelete(true),
-                            //buildCopy(), // need additional checks
-                            buildCut(),
-                            new SeparatorMenuItem(),
-                            buildCopyFormat(),
-                            buildParsedFormat(),
-                            new SeparatorMenuItem(),
-                            buildExport(),
-                            buildImport());
-                } else {
-                    getItems().setAll(
-                            buildNew2(),
-                            buildReload(),
-                            new SeparatorMenuItem(),
-                            buildDelete(false),
-                            //buildRename(),
-                            buildMenuLocalize(),
-                            buildCopy(),
-                            buildCut(),
-                            buildPaste(),
-                            new SeparatorMenuItem(),
-                            buildCopyFormat(),
-                            buildParsedFormat(),
-                            new SeparatorMenuItem(),
-                            buildExport(),
-                            buildImport()
-                    );
-                    System.out.println(obj.getJEVisClassName());
-
-                    if (obj.getJEVisClassName().equals("Calculation")) {
-                        getItems().add(new SeparatorMenuItem());
-                        getItems().add(buildMenuAddInput());
-                        getItems().add(buildRecalculate());
-                    } else if (obj.getJEVisClassName().equals("Loytec XML-DL Server")) {
-                        getItems().add(new SeparatorMenuItem());
-                        getItems().add(buildOCP());
-                    } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
-                        getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
-                        getItems().add(buildCreateAlarms());
-                    } else if (obj.getJEVisClassName().equals("Data") || obj.getJEVisClassName().equals("Base Data")) {
-                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
-                        getItems().add(buildReCalcClean());
-                    } else if (obj.getJEVisClassName().equals("Clean Data") || obj.getJEVisClassName().equals("Math Data")) {
-                        getItems().add(new SeparatorMenuItem());
-                        getItems().add(buildReCalcClean());
-                    } else if (obj.getJEVisClassName().equals("Periodic Report")) {
-                        getItems().add(buildReportWizzard());
-                    }
-
-                    if (obj.getAttribute("Value") != null) {
-                        getItems().add(buildManualSample());
-                    }
-                }
-
-
-            } catch (Exception ex) {
-                logger.fatal(ex);
-            }
-
-        });
-    }
-
-    private JEVisObject getObject() {
-        return ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
-    }
-
-
-    private MenuItem buildGoToSource() {
-        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.gotosrc"), JEConfig.getSVGImage(Icon.GO_TO_SOURCE, 20, 20));
-        menu.setOnAction(t -> {
-                    goToSource(tree, obj);
-                }
-
-        );
-        return menu;
     }
 
     public static void goToSource(JEVisTree tree, JEVisObject obj) {
@@ -209,7 +122,6 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
             if (!foundTarget.get()) {
 
-                JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.menu.gotosrc.close"));
                 GridPane gridPane = new GridPane();
                 gridPane.setPadding(new Insets(8));
                 gridPane.setHgap(8);
@@ -217,22 +129,119 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                 gridPane.add(new Label(I18n.getInstance().getString("jevistree.menu.gotosrc.error")), 0, 0);
                 gridPane.add(new Separator(), 0, 1);
-                gridPane.add(ok, 0, 2);
-                GridPane.setHalignment(ok, HPos.RIGHT);
-                JFXDialog jfxDialog = new JFXDialog(JEConfig.getStackPane(), gridPane, JFXDialog.DialogTransition.CENTER);
 
-                ok.setDefaultButton(true);
-                ok.setOnAction(event -> {
-                    jfxDialog.close();
+                Dialog dialog = new Dialog();
+                dialog.setResizable(true);
+                dialog.initOwner(JEConfig.getStage());
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+                TopMenu.applyActiveTheme(stage.getScene());
+                stage.setAlwaysOnTop(true);
+
+                ButtonType okType = new ButtonType(I18n.getInstance().getString("jevistree.menu.gotosrc.close"), ButtonBar.ButtonData.OK_DONE);
+
+                dialog.getDialogPane().getButtonTypes().addAll(okType);
+
+                Button okButton = (Button) dialog.getDialogPane().lookupButton(okType);
+                okButton.setDefaultButton(true);
+
+                dialog.getDialogPane().setContent(gridPane);
+
+                okButton.setOnAction(event -> {
+                    dialog.close();
                 });
 
-                jfxDialog.show();
+                dialog.show();
             }
 
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    private JEVisObject getObject() {
+        return ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
+    }
+
+
+    private MenuItem buildGoToSource() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.gotosrc"), JEConfig.getSVGImage(Icon.GO_TO_SOURCE, 20, 20));
+        menu.setOnAction(t -> {
+                    goToSource(tree, obj);
+                }
+
+        );
+        return menu;
+    }
+
+    public void setTree(JEVisTree tree) {
+        this.tree = tree;
+        tree.setOnMouseClicked(event -> {
+            try {
+                obj = getObject();
+                if (obj.getDeleteTS() != null) {
+                    getItems().setAll(
+                            buildDelete(true),
+                            //buildCopy(), // need additional checks
+                            buildCut(),
+                            new SeparatorMenuItem(),
+                            buildCopyFormat(),
+                            buildParsedFormat(),
+                            new SeparatorMenuItem(),
+                            buildExport(),
+                            buildImport());
+                } else {
+                    getItems().setAll(
+                            buildNew2(),
+                            buildReload(),
+                            new SeparatorMenuItem(),
+                            buildDelete(false),
+                            //buildRename(),
+                            buildMenuLocalize(),
+                            buildCopy(),
+                            buildCut(),
+                            buildPaste(),
+                            new SeparatorMenuItem(),
+                            buildCopyFormat(),
+                            buildParsedFormat(),
+                            new SeparatorMenuItem(),
+                            buildExport(),
+                            buildImport()
+                    );
+                    logger.debug(obj.getJEVisClassName());
+
+                    if (obj.getJEVisClassName().equals("Calculation")) {
+                        getItems().add(new SeparatorMenuItem());
+                        getItems().add(buildMenuAddInput());
+                        getItems().add(buildRecalculate());
+                    } else if (obj.getJEVisClassName().equals("Loytec XML-DL Server")) {
+                        getItems().add(new SeparatorMenuItem());
+                        getItems().add(buildOCP());
+                    } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
+                        getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
+                        getItems().add(buildCreateAlarms());
+                    } else if (obj.getJEVisClassName().equals("Data") || obj.getJEVisClassName().equals("Base Data")) {
+                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
+                        getItems().add(buildReCalcClean());
+                    } else if (obj.getJEVisClassName().equals("Clean Data") || obj.getJEVisClassName().equals("Math Data")) {
+                        getItems().add(new SeparatorMenuItem());
+                        getItems().add(buildReCalcClean());
+                    } else if (obj.getJEVisClassName().equals("Periodic Report")) {
+                        getItems().add(buildReportWizard());
+                    }
+
+                    if (obj.getAttribute("Value") != null) {
+                        getItems().add(buildManualSample());
+                    }
+                }
+
+
+            } catch (Exception ex) {
+                logger.fatal(ex);
+            }
+
+        });
     }
 
 
@@ -300,7 +309,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     private MenuItem buildKPIWizard() {
         MenuItem menu = new MenuItem("KPI Wizard", JEConfig.getSVGImage(Icon.WIZARD_WAND, 20, 20));
         menu.setOnAction(t -> {
-                    KPIWizard wizard = new KPIWizard(dialogContainer, obj);
+            KPIWizard wizard = new KPIWizard(obj);
                     wizard.show();
                 }
         );
@@ -402,7 +411,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    TreeHelper.createCalcInput(dialogContainer, obj, null, null, null);
+                    TreeHelper.createCalcInput(obj, null, null, null);
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
                 }
@@ -436,7 +445,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             public void handle(ActionEvent event) {
                 try {
                     JEVisSample lastValue = obj.getAttribute("Value").getLatestSample();
-                    EnterDataDialog enterDataDialog = new EnterDataDialog(dialogContainer, obj.getDataSource());
+                    EnterDataDialog enterDataDialog = new EnterDataDialog(obj.getDataSource());
                     enterDataDialog.setTarget(false, obj.getAttribute("Value"));
                     enterDataDialog.setSample(lastValue);
                     enterDataDialog.setShowValuePrompt(true);
@@ -460,7 +469,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
                 Platform.runLater(() -> {
                     try {
-                        TreeHelper.EventExportTree(dialogContainer, obj);
+                        TreeHelper.EventExportTree(obj);
                     } catch (JEVisException ex) {
                         logger.fatal(ex);
                     }
@@ -562,7 +571,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         return menu;
     }
 
-    private MenuItem buildReportWizzard() {
+    private MenuItem buildReportWizard() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("plugin.object.report.dialog.wizard"), JEConfig.getSVGImage(Icon.WIZARD_HAT, 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override

@@ -3,7 +3,8 @@
   "names": {
     "de": "Energieflussbilder",
     "ru": "Energy Flow Chart",
-    "en": "Energy Flow Chart"
+    "en": "Energy Flow Chart",
+    "ar": "مخطط تدفق الطاقة"
   },
   "descriptions": {},
   "types": [
@@ -12,12 +13,14 @@
       "descriptions": {
         "de": "Created On description",
         "ru": "Created On description",
-        "en": "Created On description"
+        "en": "Created On description",
+        "ar": "تم إنشاؤها على"
       },
       "names": {
         "de": "Created On",
         "ru": "Created On",
-        "en": "Created On"
+        "en": "Created On",
+        "ar": "تم إنشاؤها على"
       }
     },
     {
@@ -25,12 +28,14 @@
       "descriptions": {
         "de": "Image File description",
         "ru": "Image File description",
-        "en": "Image File description"
+        "en": "Image File description",
+        "ar": "وصف ملف الصورة"
       },
       "names": {
         "de": "Image File",
         "ru": "Image File",
-        "en": "Image File"
+        "en": "Image File",
+        "ar": "ملف الصورة"
       }
     },
     {
@@ -38,12 +43,14 @@
       "descriptions": {
         "de": "Original File description",
         "ru": "Original File description",
-        "en": "Original File description"
+        "en": "Original File description",
+        "ar": "الملف الأصلي"
       },
       "names": {
         "de": "Original File",
         "ru": "Original File",
-        "en": "Original File"
+        "en": "Original File",
+        "ar": "الملف الأصلي"
       }
     }
   ]

@@ -3,12 +3,14 @@
   "names": {
     "de": "Organisation",
     "ru": "Organization",
-    "en": "Organization"
+    "en": "Organization",
+    "ar": "منظمة"
   },
   "descriptions": {
     "de": "Eine Organisation stellt eine organisatorische Einheit, wie z.B. eine Firma oder einen Betrieb, dar.",
     "ru": "A Organization represents an organizational unit, such as a company or an operating unit.",
-    "en": "A Organization represents an organizational unit, such as a company or an operating unit."
+    "en": "A Organization represents an organizational unit, such as a company or an operating unit.",
+    "ar": "تمثل المؤسسة وحدة تنظيمية ، مثل شركة أو نشاط تجاري."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Postanschrift der Organisation",
         "ru": "Postal address of the organization",
-        "en": "Postal address of the organization"
+        "en": "Postal address of the organization",
+        "ar": "العنوان البريدي للمنظمة"
       },
       "names": {
         "de": "Adresse",
         "ru": "Address",
-        "en": "Address"
+        "en": "Address",
+        "ar": "العنوان"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Definiert die Branche in der die Organisation tätig ist",
         "ru": "Defines the branch the organization is part of",
-        "en": "Defines the branch the organization is part of"
+        "en": "Defines the branch the organization is part of",
+        "ar": "يحدد الصناعة التي تعمل فيها المنظمة"
       },
       "names": {
         "de": "Branche",
         "ru": "Branch",
-        "en": "Branch"
+        "en": "Branch",
+        "ar": "صناعة"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Logo der Organisation",
         "ru": "Logo of the organization",
-        "en": "Logo of the organization"
+        "en": "Logo of the organization",
+        "ar": "شعار الشركة"
       },
       "names": {
         "de": "Logo",
         "ru": "Logo",
-        "en": "Logo"
+        "en": "Logo",
+        "ar": "شعار"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Name der Organisation",
         "ru": "Name of the organization",
-        "en": "Name of the organization"
+        "en": "Name of the organization",
+        "ar": "اسم الشركة"
       },
       "names": {
         "de": "Name",
         "ru": "Name",
-        "en": "Name"
+        "en": "Name",
+        "ar": "اسم"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "GPS-Position der Organisation",
         "ru": "GPS position of the organization",
-        "en": "GPS position of the organization"
+        "en": "GPS position of the organization",
+        "ar": "موقع المنظمة بنظام تحديد المواقع العالمي (GPS)"
       },
       "names": {
         "de": "GPS-Position",
         "ru": "GPS Position",
-        "en": "GPS Position"
+        "en": "GPS Position",
+        "ar": "موقع GPS"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "E-Mail der Organisation",
         "ru": "E-Mail of the organization",
-        "en": "E-Mail of the organization"
+        "en": "E-Mail of the organization",
+        "ar": "البريد الإلكتروني للمؤسسة"
       },
       "names": {
         "de": "E-Mail",
         "ru": "E-Mail",
-        "en": "E-Mail"
+        "en": "E-Mail",
+        "ar": "بريد الالكتروني"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Anzahl der Mitglieder in der Organisation",
         "ru": "Number of members of the organization",
-        "en": "Number of members of the organization"
+        "en": "Number of members of the organization",
+        "ar": "عدد الأعضاء في المنظمة"
       },
       "names": {
         "de": "Mitglieder",
         "ru": "Members",
-        "en": "Members"
+        "en": "Members",
+        "ar": "الأعضاء"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Telefonnummer der Organisation",
         "ru": "Phone number of the organization",
-        "en": "Phone number of the organization"
+        "en": "Phone number of the organization",
+        "ar": "رقم هاتف المؤسسة"
       },
       "names": {
         "de": "Telefon",
         "ru": "Phone",
-        "en": "Phone"
+        "en": "Phone",
+        "ar": "هاتف"
       }
     },
     {
@@ -120,12 +138,14 @@
       "descriptions": {
         "de": "Gibt die Wochen",
         "ru": "Working or Opening Time description",
-        "en": "Working or Opening Time description"
+        "en": "Working or Opening Time description",
+        "ar": "وقت العمل أو الافتتاح"
       },
       "names": {
         "de": "Wochenarbeitszeit der Organisation",
         "ru": "Weekly working time of the organization",
-        "en": "Weekly working time of the organization"
+        "en": "Weekly working time of the organization",
+        "ar": "ساعات العمل الأسبوعية للمنظمة"
       }
     }
   ]

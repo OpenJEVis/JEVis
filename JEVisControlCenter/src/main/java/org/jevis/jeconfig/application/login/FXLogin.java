@@ -597,7 +597,7 @@ public class FXLogin extends AnchorPane {
         row++;
         this.authGrid.add(buttonBox, 0, row, columns, 1);
 
-        this.storeConfig.setId("fxlogin-form-remeberme");
+        this.storeConfig.setId("fxlogin-form-rememberme");
 
         return this.authGrid;
     }

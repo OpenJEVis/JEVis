@@ -23,7 +23,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
-import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.JEVisUnitImp;
@@ -35,7 +34,6 @@ import org.joda.time.DateTimeComparator;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -88,7 +86,7 @@ public class AggregationProcessor {
         }
 
         /**
-         * if its not a quantity the aggregated total value results from the mean value of all samples in a period, not their sum
+         * if it's not a quantity the aggregated total value results from the mean value of all samples in a period, not their sum
          */
 
         QuantityUnits qu = new QuantityUnits();
@@ -138,9 +136,7 @@ public class AggregationProcessor {
                 return result;
             }
 
-            List<Interval> intervals = aggregationTools.getIntervals(from, to, aggregation);
-
-            boolean isCustomWorkDay = workDays.isCustomWorkDay();
+            List<Interval> intervals = aggregationTools.buildIntervals(from, to);
 
             int lastPos = 0;
             List<Interval> emptyIntervals = new ArrayList<>();
@@ -155,23 +151,6 @@ public class AggregationProcessor {
                     newPeriod = new Period(intervalStart, intervalEnd);
                 } catch (Exception e) {
                     logger.error("Could not get new Period: ", e);
-                }
-
-                if (isCustomWorkDay && newPeriod != null && PeriodHelper.isGreaterThenDays(newPeriod)) {
-                    LocalTime workdayStart = workDays.getWorkdayStart(intervalStart);
-                    intervalStart = intervalStart.withHourOfDay(workdayStart.getHour())
-                            .withMinuteOfHour(workdayStart.getMinute())
-                            .withSecondOfMinute(workdayStart.getSecond());
-
-                    LocalTime workdayEnd = workDays.getWorkdayEnd(intervalStart);
-                    intervalEnd = intervalEnd.withHourOfDay(workdayEnd.getHour())
-                            .withMinuteOfHour(workdayEnd.getMinute())
-                            .withSecondOfMinute(workdayEnd.getSecond());
-
-                    if (workdayEnd.isBefore(workdayStart)) {
-                        intervalStart = intervalStart.minusDays(1);
-                        intervalEnd = intervalEnd.minusDays(1).plusSeconds(1);
-                    }
                 }
 
                 lastPos = getLastPos(result, jsonAttribute, lastPos, emptyIntervals, unit, interval, samplesInPeriod, intervalStart, intervalEnd, newPeriod, inputSamples);

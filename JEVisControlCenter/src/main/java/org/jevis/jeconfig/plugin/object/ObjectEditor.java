@@ -71,7 +71,6 @@ public class ObjectEditor {
 
 
     private final HiddenSidesPane _view = new HiddenSidesPane();
-    private final StackPane dialogContainer = new StackPane(_view);
 
     public ObjectEditor() {
         _view.setId("objecteditorpane");
@@ -139,7 +138,7 @@ public class ObjectEditor {
 //        }
 //    }
     public Node getView() {
-        return dialogContainer;
+        return _view;
     }
 
     public void setTree(JEVisTree tree) {
@@ -175,8 +174,8 @@ public class ObjectEditor {
                     List<TitledPane> tabs = new ArrayList<>();
                     installedExtensions = new ArrayList<>();
 
-                    installedExtensions.add(new CalculationExtension(dialogContainer, obj));
-                    installedExtensions.add(new CleanDataExtension(dialogContainer, obj));
+                    installedExtensions.add(new CalculationExtension(obj));
+                    installedExtensions.add(new CleanDataExtension(obj));
                     installedExtensions.add(new RoleExtention(obj));
 
                     //Generic Extensions every Class has
@@ -188,7 +187,7 @@ public class ObjectEditor {
                     }
                     installedExtensions.add(new MemberExtension(obj));
                     installedExtensions.add(new PermissionExtension(obj));
-                    installedExtensions.add(new RootExtension(dialogContainer, obj));
+                    installedExtensions.add(new RootExtension(obj));
                     installedExtensions.add(new LinkExtension(obj));
 
 

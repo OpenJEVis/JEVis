@@ -71,7 +71,6 @@ public class ResourceHidden {
                        @Context UriInfo url) {
         SQLDataSource ds = null;
         try {
-            System.out.println("manage.gc");
             System.gc();
 
             ds = new SQLDataSource(httpHeaders, request, url);

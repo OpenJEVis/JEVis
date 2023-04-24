@@ -1,13 +1,13 @@
 package org.jevis.jeconfig.application.control;
 
 import com.jfoenix.controls.JFXComboBox;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.constants.EnterDataTypes;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -60,35 +60,36 @@ public class DataTypeBox extends JFXComboBox<EnterDataTypes> {
         getSelectionModel().select(EnterDataTypes.MONTH);
     }
 
-    public void selectFromPeriod(JEVisObject selectedObject) {
+    public Period selectFromPeriod(JEVisObject selectedObject) {
+        Period p = Period.ZERO;
         if (selectedObject != null) {
             JEVisAttribute periodAttribute = null;
             try {
                 periodAttribute = selectedObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             if (periodAttribute != null) {
 
-                Period p = Period.ZERO;
                 try {
                     p = new Period(periodAttribute.getLatestSample().getValueAsString());
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
                 if (p.equals(Period.days(1))) {
-                    getSelectionModel().select(EnterDataTypes.DAY);
+                    Platform.runLater(() -> getSelectionModel().select(EnterDataTypes.DAY));
                 } else if (p.equals(Period.weeks(1))) {
-                    getSelectionModel().select(EnterDataTypes.DAY);
+                    Platform.runLater(() -> getSelectionModel().select(EnterDataTypes.DAY));
                 } else if (p.equals(Period.months(1))) {
-                    getSelectionModel().select(EnterDataTypes.MONTH);
+                    Platform.runLater(() -> getSelectionModel().select(EnterDataTypes.MONTH));
                 } else if (p.equals(Period.years(1))) {
-                    getSelectionModel().select(EnterDataTypes.YEAR);
+                    Platform.runLater(() -> getSelectionModel().select(EnterDataTypes.YEAR));
                 } else {
-                    getSelectionModel().select(EnterDataTypes.SPECIFIC_DATETIME);
+                    Platform.runLater(() -> getSelectionModel().select(EnterDataTypes.SPECIFIC_DATETIME));
                 }
             }
         }
+        return p;
     }
 }

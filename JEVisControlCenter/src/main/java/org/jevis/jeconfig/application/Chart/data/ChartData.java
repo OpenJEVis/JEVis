@@ -108,7 +108,7 @@ public class ChartData {
     public JEVisUnit getUnit() {
         JEVisUnitImp jeVisUnitImp = new JEVisUnitImp(getUnitFormula(), getUnitLabel(), getUnitPrefix());
         unit.set(jeVisUnitImp);
-        logger.debug("ChartData {} Unit from prefix {} and formula {} and label {} results in {}", getName(), getUnitPrefix(), getUnitFormula(), getUnitLabel(), unit.get());
+
         return jeVisUnitImp;
     }
 

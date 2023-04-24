@@ -3,12 +3,14 @@
   "names": {
     "de": "EMail Kanal",
     "ru": "EMail Channel",
-    "en": "EMail Channel"
+    "en": "EMail Channel",
+    "ar": "قناة البريد الإلكتروني"
   },
   "descriptions": {
     "de": "Die Klasse EMail Kanal repräsentiert die Nachricht und enthält die notwendigen Parameter, um sie aus der Mailbox auszuwählen.",
     "ru": "EMail Channel Class represents the message and contains the parameters necessary to select it from the mailbox.",
-    "en": "EMail Channel Class represents the message and contains the parameters necessary to select it from the mailbox."
+    "en": "EMail Channel Class represents the message and contains the parameters necessary to select it from the mailbox.",
+    "ar": "تمثل فئة قناة البريد الإلكتروني الرسالة وتحتوي على المعلمات الضرورية لتحديدها من صندوق البريد."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Last Readout description",
         "ru": "Last Readout description",
-        "en": "Last Readout description"
+        "en": "Last Readout description",
+        "ar": "القراءة الأخيرة"
       },
       "names": {
         "de": "Letzte Auslesung",
         "ru": "Last Readout",
-        "en": "Last Readout"
+        "en": "Last Readout",
+        "ar": "القراءة الأخيرة"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Sender description",
         "ru": "Sender description",
-        "en": "Sender description"
+        "en": "Sender description",
+        "ar": "مرسل"
       },
       "names": {
         "de": "Versender",
         "ru": "Sender",
-        "en": "Sender"
+        "en": "Sender",
+        "ar": "المرسل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Subject description",
         "ru": "Subject description",
-        "en": "Subject description"
+        "en": "Subject description",
+        "ar": "الموضوع"
       },
       "names": {
         "de": "Betreff",
         "ru": "Subject",
-        "en": "Subject"
+        "en": "Subject",
+        "ar": "الموضوع"
       }
     }
   ]

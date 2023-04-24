@@ -3,12 +3,14 @@
   "names": {
     "de": "8.3 Beschaffung",
     "ru": "8.3 Procurement",
-    "en": "8.3 Procurement"
+    "en": "8.3 Procurement",
+    "ar": "تحصيل"
   },
   "descriptions": {
     "de": "Die Organisation muss Kriterien für die Bewertung der energiebezogenen Leistung über die geplante oder erwartete Betriebslebensdauer festlegen und umsetzen, wenn sie Energie nutzende Produkte, Einrichtungen und Dienstleistungen beschafft, von denen eine wesentliche Auswirkung auf die energiebezogene Leistung der Organisation erwartet wird.\nBei der Beschaffung von Produkten, Einrichtungen oder Dienstleistungen, die eine Auswirkung auf den wesentlichen Energieeinsatz haben oder haben können, muss die Organisation die Lieferanten darüber informieren, dass die energiebezogene Leistung eines der Bewertungskriterien für die Beschaffung ist.\nDie Organisation muss Spezifikationen festlegen und kommunizieren für:\na) die Sicherstellung der energiebezogenen Leistung beschaffter Einrichtungen und Dienstleistungen, soweit zutreffend;\nb) die Energiebeschaffung, falls zutreffend.",
     "ru": "The organization shall establish and implement criteria for evaluating energy performance over the planned or expected operating lifetime when procuring energy using products, equipment and services which are expected to have a significant impact on the organization\u0027s energy performance. \n \nWhen procuring products, equipment, and services that have, or can have, an impact on SEUs, the organization shall inform suppliers that energy performance is one of the evaluation criteria for procurement. \nThe organization shall define and communicate specifications for: \na) ensuring the energy performance of procured equipment and services, where applicable;  b) the purchase of energy, if applicable. ",
-    "en": "The organization shall establish and implement criteria for evaluating energy performance over the planned or expected operating lifetime when procuring energy using products, equipment and services which are expected to have a significant impact on the organization\u0027s energy performance. \n \nWhen procuring products, equipment, and services that have, or can have, an impact on SEUs, the organization shall inform suppliers that energy performance is one of the evaluation criteria for procurement. \nThe organization shall define and communicate specifications for: \na) ensuring the energy performance of procured equipment and services, where applicable;  b) the purchase of energy, if applicable. "
+    "en": "The organization shall establish and implement criteria for evaluating energy performance over the planned or expected operating lifetime when procuring energy using products, equipment and services which are expected to have a significant impact on the organization\u0027s energy performance. \n \nWhen procuring products, equipment, and services that have, or can have, an impact on SEUs, the organization shall inform suppliers that energy performance is one of the evaluation criteria for procurement. \nThe organization shall define and communicate specifications for: \na) ensuring the energy performance of procured equipment and services, where applicable;  b) the purchase of energy, if applicable. ",
+    "ar": "يجب على المنظمة وضع وتنفيذ معايير لتقييم أداء الطاقة على مدى العمر التشغيلي المخطط له أو المتوقع عند شراء المنتجات والمعدات والخدمات التي تستخدم الطاقة والتي من المتوقع أن يكون لها تأثير كبير على أداء الطاقة في المنظمة.\nعند شراء المنتجات أو المرافق أو الخدمات التي لها أو قد يكون لها تأثير على الاستخدام الكبير للطاقة ، يجب على المنظمة إبلاغ الموردين بأن أداء الطاقة هو أحد معايير التقييم للشراء.\nيجب على المنظمة إنشاء وإبلاغ المواصفات من أجل:\nأ) ضمان الأداء المتصل بالطاقة للمرافق والخدمات المشتراة ، عند الاقتضاء ؛\nب) شراء الطاقة ، إن أمكن."
   },
   "types": [
     {
@@ -16,12 +18,14 @@
       "descriptions": {
         "de": "Beschreibung des Anwendungsbereichs des Managementsystems",
         "ru": "Content description",
-        "en": "Content description"
+        "en": "Content description",
+        "ar": "المحتوى"
       },
       "names": {
         "de": "Inhalt",
         "ru": "Content",
-        "en": "Content"
+        "en": "Content",
+        "ar": "المحتوى"
       }
     },
     {
@@ -29,12 +33,14 @@
       "descriptions": {
         "de": "Der Autor des Dokuments",
         "ru": "Created by description",
-        "en": "Created by description"
+        "en": "Created by description",
+        "ar": "انشأ من قبل"
       },
       "names": {
         "de": "Erstellt von",
         "ru": "Created by",
-        "en": "Created by"
+        "en": "Created by",
+        "ar": "انشأ من قبل"
       }
     },
     {
@@ -42,12 +48,14 @@
       "descriptions": {
         "de": "Datum an dem das Dokument erstellt wurde",
         "ru": "Date of Creation description",
-        "en": "Date of Creation description"
+        "en": "Date of Creation description",
+        "ar": "تاريخ الانشاء"
       },
       "names": {
         "de": "Erstellungsdatum",
         "ru": "Date of Creation",
-        "en": "Date of Creation"
+        "en": "Date of Creation",
+        "ar": "تاريخ الإنشاء"
       }
     },
     {
@@ -55,12 +63,14 @@
       "descriptions": {
         "de": "Die eindeutige Dokumentennummer",
         "ru": "Document Number description",
-        "en": "Document Number description"
+        "en": "Document Number description",
+        "ar": "رقم المستند"
       },
       "names": {
         "de": "Dokumentennummer",
         "ru": "Document Number",
-        "en": "Document Number"
+        "en": "Document Number",
+        "ar": "رقم المستند"
       }
     },
     {
@@ -68,12 +78,14 @@
       "descriptions": {
         "de": "Das Datum der Veröffentlichung des Dokuments",
         "ru": "Release Date description",
-        "en": "Release Date description"
+        "en": "Release Date description",
+        "ar": "تاريخ النشر"
       },
       "names": {
         "de": "Veröffentlichungsdatum",
         "ru": "Release Date",
-        "en": "Release Date"
+        "en": "Release Date",
+        "ar": "تاريخ النشر"
       }
     },
     {
@@ -81,12 +93,14 @@
       "descriptions": {
         "de": "Verantwortliche Person für die Veröffentlichung",
         "ru": "Released by description",
-        "en": "Released by description"
+        "en": "Released by description",
+        "ar": "صدر من قبل"
       },
       "names": {
         "de": "Veröffentlicht von",
         "ru": "Released by",
-        "en": "Released by"
+        "en": "Released by",
+        "ar": "نشرت من قبل"
       }
     },
     {
@@ -94,12 +108,14 @@
       "descriptions": {
         "de": "Titel des Dokuments",
         "ru": "Title description",
-        "en": "Title description"
+        "en": "Title description",
+        "ar": "عنوان"
       },
       "names": {
         "de": "Titel",
         "ru": "Title",
-        "en": "Title"
+        "en": "Title",
+        "ar": "عنوان"
       }
     },
     {
@@ -107,12 +123,14 @@
       "descriptions": {
         "de": "Die Versionsnummer des Dokuments",
         "ru": "Version description",
-        "en": "Version description"
+        "en": "Version description",
+        "ar": "الإصدار"
       },
       "names": {
         "de": "Version",
         "ru": "Version",
-        "en": "Version"
+        "en": "Version",
+        "ar": "الإصدار"
       }
     }
   ]

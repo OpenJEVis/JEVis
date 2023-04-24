@@ -4,9 +4,13 @@ import com.jfoenix.controls.*;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +18,8 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dtrc.RCTemplate;
@@ -23,18 +29,24 @@ import org.jevis.jeconfig.plugin.dtrc.TemplateOutput;
 
 import java.util.List;
 
-public class TemplateCalculationFormulaDialog extends JFXDialog {
+public class TemplateCalculationFormulaDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(TemplateCalculationFormulaDialog.class);
     private final String ICON = "1404313956_evolution-tasks.png";
     private final AlphanumComparator ac = new AlphanumComparator();
     private FilteredList<JEVisObject> filteredList;
     private Response response = Response.CANCEL;
 
-    public TemplateCalculationFormulaDialog(StackPane dialogContainer, JEVisDataSource ds, RCTemplate rcTemplate, TemplateFormula templateFormula, List<TimeFrame> allowedTimeFrames) {
+    public TemplateCalculationFormulaDialog(JEVisDataSource ds, RCTemplate rcTemplate, TemplateFormula templateFormula, List<TimeFrame> allowedTimeFrames) {
         super();
 
-        setDialogContainer(dialogContainer);
-        setTransitionType(DialogTransition.NONE);
+        setTitle(I18n.getInstance().getString("plugin.trc.formuladialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.trc.formuladialog.header"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
 
         Label nameLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.namelabel"));
         JFXTextField jfxTextField = new JFXTextField(templateFormula.getName());
@@ -188,23 +200,31 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         Separator separator6 = new Separator(Orientation.HORIZONTAL);
         separator6.setPadding(new Insets(8, 0, 8, 0));
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
-        ok.setOnAction(event -> {
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType deleteType = new ButtonType(I18n.getInstance().getString("jevistree.menu.delete"), ButtonBar.ButtonData.OTHER);
+
+        this.getDialogPane().getButtonTypes().addAll(deleteType, cancelType, okType);
+
+        Button deleteButton = (Button) this.getDialogPane().lookupButton(deleteType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+
+        okButton.setOnAction(event -> {
             response = Response.OK;
             this.close();
         });
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-        cancel.setOnAction(event -> this.close());
+        cancelButton.setOnAction(event -> this.close());
 
-        JFXButton delete = new JFXButton(I18n.getInstance().getString("jevistree.menu.delete"));
-        delete.setOnAction(event -> {
+        deleteButton.setOnAction(event -> {
             response = Response.DELETE;
             this.close();
         });
-
-        HBox buttonBar = new HBox(8, delete, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
 
         ScrollPane outputsScrollPane = new ScrollPane(outputsGridPane);
         outputsScrollPane.setMinHeight(550);
@@ -214,8 +234,7 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
                 inputsLabel, inputsFlowPane, separator3,
                 outputsLabel, outputsScrollPane, separator4,
                 timeRestrictionsLabel, timeRestrictionsBox, separator5,
-                new Label("UUID: " + templateFormula.getId()), separator6,
-                buttonBar);
+                new Label("UUID: " + templateFormula.getId()), separator6);
 
         vBox.setPadding(new Insets(12));
 
@@ -225,7 +244,7 @@ public class TemplateCalculationFormulaDialog extends JFXDialog {
         vBoxScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         vBoxScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        setContent(vBoxScrollPane);
+        getDialogPane().setContent(vBoxScrollPane);
     }
 
     public Response getResponse() {

@@ -4,12 +4,14 @@
     "de": "Gruppe",
     "ru": "Группа",
     "uk": "Група",
-    "en": "Group"
+    "en": "Group",
+    "ar": "مجموعة"
   },
   "descriptions": {
     "de": "In einer Gruppe werden die Zugriffsrechte für eine Gruppe von Benutern verwaltet.\n\nIm Bereich 'Mitglied' können Benutzer der Gruppe hinzugefügt und entfernt werden.\n\n\n\nIm Bereich 'Berechtigungen' können die Berechtigungen mit anderen Gruppen geteilt werden und für die Öffentlichkeit (Gast-Benutzer) freigegeben werden.\n\nIm Bereich 'Einstiegspunkt' wird die Ebene der Datenstruktur definiert, an welcher die Mitglieder der Gruppe das System betreten.",
     "ru": "In a Group the priveleges for a group of users is managed.\n\nIn the 'Member' section users can be added or deleted to/from the group.\n\nIn the 'Permissions' section the priveleges of the group can be shared with other groups or be shared with the public (guest users)\n\nIn the 'Entry Points' section the level where the members of the group can enter the system is defined.",
-    "en": "In a Group the priveleges for a group of users is managed.\n\nIn the 'Member' section users can be added or deleted to/from the group.\n\nIn the 'Permissions' section the priveleges of the group can be shared with other groups or be shared with the public (guest users)\n\nIn the 'Entry Points' section the level where the members of the group can enter the system is defined."
+    "en": "In a Group the priveleges for a group of users is managed.\n\nIn the 'Member' section users can be added or deleted to/from the group.\n\nIn the 'Permissions' section the priveleges of the group can be shared with other groups or be shared with the public (guest users)\n\nIn the 'Entry Points' section the level where the members of the group can enter the system is defined.",
+    "ar": "تتم إدارة حقوق الوصول لمجموعة من المستخدمين في مجموعة.\n\nيمكن إضافة المستخدمين وإزالتهم من المجموعة في منطقة \"الأعضاء\".\n\n\n\nفي منطقة \"الأذونات\" ، يمكن مشاركة الأذونات مع مجموعات أخرى وإصدارها للجمهور (المستخدمون الضيوف).\n\nيتم تحديد مستوى بنية البيانات التي يدخل من خلالها أعضاء المجموعة إلى النظام في منطقة \"نقطة الدخول\"."
   },
   "types": []
 }

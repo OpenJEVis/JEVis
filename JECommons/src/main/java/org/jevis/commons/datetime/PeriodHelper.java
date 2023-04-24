@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
@@ -277,6 +278,94 @@ public class PeriodHelper {
 
     public static boolean isGreaterThenDays(org.joda.time.Period period) {
         return IntStream.of(period.getYears(), period.getMonths(), period.getWeeks(), period.getDays()).anyMatch(i -> i > 0);
+    }
+
+    public static boolean isGreaterThenDays(AggregationPeriod aggregationPeriod) {
+        switch (aggregationPeriod) {
+            default:
+            case NONE:
+            case MINUTELY:
+            case QUARTER_HOURLY:
+            case HOURLY:
+                return false;
+            case DAILY:
+            case WEEKLY:
+            case MONTHLY:
+            case QUARTERLY:
+            case YEARLY:
+            case THREEYEARS:
+            case FIVEYEARS:
+            case TENYEARS:
+                return true;
+        }
+    }
+
+    public static org.joda.time.Period periodStringToJodaPeriod(String periodString) {
+        switch (periodString) {
+            case ("Minute"):
+            case ("MINUTE"):
+            case ("Minutely"):
+            case ("MINUTELY"):
+                return org.joda.time.Period.minutes(1);
+            case ("Quarter Hour"):
+            case ("Quarter Hourly"):
+            case ("Quarterly Hour"):
+            case ("Quarterly Hourly"):
+            case ("QUARTER_HOUR"):
+            case ("QUARTER_HOURLY"):
+            case ("QUARTERLY_HOURLY"):
+                return org.joda.time.Period.minutes(15);
+            case ("HOUR"):
+            case ("HOURLY"):
+            case ("Hour"):
+            case ("Hourly"):
+                return org.joda.time.Period.hours(1);
+            case ("DAY"):
+            case ("DAILY"):
+            case ("Day"):
+            case ("Daily"):
+                return org.joda.time.Period.days(1);
+            case ("WEEK"):
+            case ("WEEKLY"):
+            case ("Week"):
+            case ("Weekly"):
+                return org.joda.time.Period.weeks(1);
+            case ("MONTH"):
+            case ("MONTHLY"):
+            case ("Month"):
+            case ("Monthly"):
+                return org.joda.time.Period.months(1);
+            case ("QUARTER"):
+            case ("QUARTERLY"):
+            case ("Quarter"):
+            case ("Quarterly"):
+                return org.joda.time.Period.months(3);
+            case ("YEAR"):
+            case ("YEARLY"):
+            case ("Year"):
+            case ("Yearly"):
+                return org.joda.time.Period.years(1);
+            case ("THREEYEARS"):
+            case ("THREE_YEARS"):
+            case ("Threeyears"):
+            case ("Three years"):
+                return org.joda.time.Period.years(3);
+            case ("FIVEYEARS"):
+            case ("FIVE_YEARS"):
+            case ("Fiveyears"):
+            case ("Five years"):
+                return org.joda.time.Period.years(5);
+            case ("TENYEARS"):
+            case ("TEN_YEARS"):
+            case ("Tenyears"):
+            case ("Ten years"):
+                return org.joda.time.Period.years(10);
+            case ("NONE"):
+            case ("None"):
+            default:
+                return org.joda.time.Period.ZERO;
+
+        }
     }
 
     public static String getFormatString(org.joda.time.Period period, boolean isCounter) {

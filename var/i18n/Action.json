@@ -1,0 +1,36 @@
+{
+  "jevisclass": "Action",
+  "names": {
+    "de": "Maßnahme",
+    "ru": "",
+    "uk": "",
+    "th": "",
+    "en": "Action"
+  },
+  "descriptions": {
+    "de": "Maßnahme in einem Maßnahmenplan",
+    "ru": "",
+    "uk": "",
+    "th": "",
+    "en": "Action in an action plan"
+  },
+  "types": [
+    {
+      "type": "Data",
+      "descriptions": {
+        "de": "Json Datei zum speichern der Einstellungen",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Json file to save settings"
+      },
+      "names": {
+        "de": "Datenmodel",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "Data Model"
+      }
+    }
+  ]
+}

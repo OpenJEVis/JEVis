@@ -15,7 +15,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
-import jfxtras.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -51,7 +50,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private final ShapeWidget percentWidget = null;
     private final String percentText = "";
     private final AnchorPane anchorPane = new AnchorPane();
-    private final StackPane stackPane = new StackPane();
     private ShapePojo shapeConfig;
     private double blue = 1;
     private double green = 1;
