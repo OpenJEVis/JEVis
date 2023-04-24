@@ -30,7 +30,10 @@ import org.eclipse.milo.opcua.stack.core.util.CertificateUtil;
 
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -65,61 +68,23 @@ public class OPCClient {
         this.identification = identification;
     }
 
-    /**
-     * Connect to the enpoint and init the client.
-     *
-     * @throws UaException
-     * @throws ExecutionException
-     * @throws InterruptedException
-     */
-    public void connect() throws UaException, ExecutionException, InterruptedException {
-        OpcUaClientConfigBuilder cfg = new OpcUaClientConfigBuilder();
-        cfg.setEndpoint(endpointDescription);
-        cfg.setApplicationName(LocalizedText.english("JEVis DataCollector"));
-        cfg.setProductUri("JEVis");
-        if (identification != null) {
-            cfg.setIdentityProvider(identification);
-            System.out.println("setIdentityProvider: " + identification.toString());
+    public static String printEP(EndpointDescription endpointDescription) {
+
+        logger.debug("---------Endpoint----------");
+        logger.debug(endpointDescription.getEndpointUrl());
+
+        logger.debug("UserIdentityTokens:");
+        for (UserTokenPolicy userIdentityToken : endpointDescription.getUserIdentityTokens()) {
+            logger.debug(" -" + userIdentityToken.toString());
         }
 
-        SecurityPolicy securityPolicy = SecurityPolicy.fromUri(endpointDescription.getSecurityPolicyUri());
-        if (securityPolicy == SecurityPolicy.None) {
-            System.out.println("Using Security Setting: " + securityPolicy);
-        } else {
-            try {
+        logger.debug("SecurityMode: " + endpointDescription.getSecurityMode().toString());
 
-                cfg.setCertificateValidator(new ClientCertificateValidator.InsecureValidator());
-
-                /**
-                 SecurityAlgorithm signatureAlgorithm = securityPolicy.getAsymmetricEncryptionAlgorithm();
-                 ByteString serverCertificate = endpointDescription.getServerCertificate();
-                 //KeyStoreLoader loader = new KeyStoreLoader().load(securityTempDir);
-
-
-                 KeyGenerator keyGenerator = new KeyGenerator();
-                 keyGenerator.create(KeyGenerator.alias, "192.168.178.29", false);
-                 System.out.println("New PubKey: " + keyGenerator.getKeyPair().getPublic());
-                 System.out.println("New PriKey: " + keyGenerator.getKeyPair().getPrivate());
-                 System.out.println("New Cert  : " + keyGenerator.getGeneratedCert().certificate);
-                 //SecurityPolicy.Basic128Rsa15;
-
-                 cfg.setKeyPair(keyGenerator.getKeyPair());
-                 cfg.setCertificate(keyGenerator.getGeneratedCert().certificate);
-                 **/
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            // return new AnonymousProvider();
-        }
-
-        client = OpcUaClient.create(cfg.build());
-        uaStackClient = client.getStackClient();
-
-        //ClientSecureChannel clientSecureChannel = useSecureConnection(uaStackClient.getConfig());
-
-
-        uaclient = client.connect().get();
-        System.out.println("Done Connect");
+        logger.debug("SecurityPolicyUri: " + endpointDescription.getSecurityPolicyUri());
+        logger.debug("SecurityLevel: " + endpointDescription.getSecurityLevel());
+        logger.debug("TypeId: " + endpointDescription.getTypeId());
+        logger.debug("Server: " + endpointDescription.getServer().toString());
+        return "";
     }
 
     /**
@@ -276,60 +241,61 @@ public class OPCClient {
 
     }
 
-    public HistoryReadResult getHistory(OPCUAChannel channel, org.joda.time.DateTime from, org.joda.time.DateTime until) throws ExecutionException, InterruptedException {
-        System.out.println("getHistory2");
-        List<HistoryReadValueId> ids = new ArrayList<>();
-        //double interval = 900000;
-
-
-
-        DateTime fromTS = new DateTime(from.toDate());
-        DateTime untilTS = new DateTime(until.toDate());
-        System.out.println("From : "+from+"  until: "+until);
-
-        HistoryReadDetails historyReadDetails;
-
-        /** Use Aggregated request if function node is not empty **/
-        if(channel.getFunctionNode()!=null && !channel.getFunctionNode().isEmpty()){
-            AggregateConfiguration aggregateConfiguration = new AggregateConfiguration(
-                    true,
-                    false,
-                    UByte.valueOf(0),
-                    UByte.valueOf(0),
-                    false);
-
-            NodeId[] nodes = new NodeId[1];
-            NodeId readDetailNodeID = NodeId.parse(channel.getFunctionNode());//
-            nodes[0]=readDetailNodeID;
-            System.out.println("Aggregation Node: "+readDetailNodeID);
-
-            historyReadDetails  = new ReadProcessedDetails(
-                    fromTS,
-                    untilTS,
-                    channel.getFunctionInterval(),
-                    nodes,
-                    aggregateConfiguration);
-
-        }else{
-            /** use raw data request **/
-            historyReadDetails = new ReadRawModifiedDetails(false, fromTS, untilTS, uint(0), true);
+    /**
+     * Connect to the enpoint and init the client.
+     *
+     * @throws UaException
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public void connect() throws UaException, ExecutionException, InterruptedException {
+        OpcUaClientConfigBuilder cfg = new OpcUaClientConfigBuilder();
+        cfg.setEndpoint(endpointDescription);
+        cfg.setApplicationName(LocalizedText.english("JEVis DataCollector"));
+        cfg.setProductUri("JEVis");
+        if (identification != null) {
+            cfg.setIdentityProvider(identification);
+            logger.debug("setIdentityProvider: " + identification.toString());
         }
 
-        HistoryReadValueId id = new HistoryReadValueId(channel.getOPCNodeId(), null, null, null);
-        ids.add(id);
-        System.out.println("TargetNode: "+id);
+        SecurityPolicy securityPolicy = SecurityPolicy.fromUri(endpointDescription.getSecurityPolicyUri());
+        if (securityPolicy == SecurityPolicy.None) {
+            logger.debug("Using Security Setting: " + securityPolicy);
+        } else {
+            try {
 
-        CompletableFuture<HistoryReadResponse> historyRead = client.historyRead(
-                historyReadDetails,
-                TimestampsToReturn.Source, false, ids);
+                cfg.setCertificateValidator(new ClientCertificateValidator.InsecureValidator());
 
-        HistoryReadResponse response = historyRead.get();
+                /**
+                 SecurityAlgorithm signatureAlgorithm = securityPolicy.getAsymmetricEncryptionAlgorithm();
+                 ByteString serverCertificate = endpointDescription.getServerCertificate();
+                 //KeyStoreLoader loader = new KeyStoreLoader().load(securityTempDir);
 
-        logger.debug("Data Size:  {}", response.getResults().length);
 
-        if (response.getResults().length > 0) {
-            return response.getResults()[0];
-        } else return null;
+                 KeyGenerator keyGenerator = new KeyGenerator();
+                 keyGenerator.create(KeyGenerator.alias, "192.168.178.29", false);
+                 System.out.println("New PubKey: " + keyGenerator.getKeyPair().getPublic());
+                 System.out.println("New PriKey: " + keyGenerator.getKeyPair().getPrivate());
+                 System.out.println("New Cert  : " + keyGenerator.getGeneratedCert().certificate);
+                 //SecurityPolicy.Basic128Rsa15;
+
+                 cfg.setKeyPair(keyGenerator.getKeyPair());
+                 cfg.setCertificate(keyGenerator.getGeneratedCert().certificate);
+                 **/
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            // return new AnonymousProvider();
+        }
+
+        client = OpcUaClient.create(cfg.build());
+        uaStackClient = client.getStackClient();
+
+        //ClientSecureChannel clientSecureChannel = useSecureConnection(uaStackClient.getConfig());
+
+
+        uaclient = client.connect().get();
+        logger.debug("Done Connect");
     }
 
     /**
@@ -379,38 +345,60 @@ public class OPCClient {
         }
     }
 
-    /**
-     *
-     * @param list of the OPC-UA Nodes
-     * @param rootFolder of OPC-UA
-     */
-    public void browse(ObservableList<PathReferenceDescription> list, String rootFolder) {
-        NodeId nodeId = Identifiers.RootFolder;
+    public HistoryReadResult getHistory(OPCUAChannel channel, org.joda.time.DateTime from, org.joda.time.DateTime until) throws ExecutionException, InterruptedException {
+        logger.debug("getHistory2");
+        List<HistoryReadValueId> ids = new ArrayList<>();
+        //double interval = 900000;
 
-        PathReferenceDescription pathReferenceDescription = null;
 
-        for (int i = 0; i < rootFolder.split("/").length; i++) {
-           List<ReferenceDescription> referenceDescriptionList = browseToRoot (nodeId);
 
-            for (int j = 0; j < referenceDescriptionList.size(); j++) {
+        DateTime fromTS = new DateTime(from.toDate());
+        DateTime untilTS = new DateTime(until.toDate());
+        logger.debug("From : " + from + "  until: " + until);
 
-                if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[i])) {
-                    nodeId = new NodeId(referenceDescriptionList.get(j).getNodeId().getNamespaceIndex(), (UInteger) referenceDescriptionList.get(j).getNodeId().getIdentifier());
-                    System.out.println(referenceDescriptionList.get(j));
-                }
-                if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[rootFolder.split("/").length-1])) {
-                    pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(j), "", null);
-                    list.add(pathReferenceDescription);
-                    System.out.println(referenceDescriptionList.get(j));
+        HistoryReadDetails historyReadDetails;
 
-                }
-            }
+        /** Use Aggregated request if function node is not empty **/
+        if(channel.getFunctionNode()!=null && !channel.getFunctionNode().isEmpty()){
+            AggregateConfiguration aggregateConfiguration = new AggregateConfiguration(
+                    true,
+                    false,
+                    UByte.valueOf(0),
+                    UByte.valueOf(0),
+                    false);
+
+            NodeId[] nodes = new NodeId[1];
+            NodeId readDetailNodeID = NodeId.parse(channel.getFunctionNode());//
+            nodes[0] = readDetailNodeID;
+            logger.debug("Aggregation Node: " + readDetailNodeID);
+
+            historyReadDetails  = new ReadProcessedDetails(
+                    fromTS,
+                    untilTS,
+                    channel.getFunctionInterval(),
+                    nodes,
+                    aggregateConfiguration);
+
+        }else{
+            /** use raw data request **/
+            historyReadDetails = new ReadRawModifiedDetails(false, fromTS, untilTS, uint(0), true);
         }
 
+        HistoryReadValueId id = new HistoryReadValueId(channel.getOPCNodeId(), null, null, null);
+        ids.add(id);
+        logger.debug("TargetNode: " + id);
 
-        System.out.println(nodeId);
-        browseTree(list,"/"+rootFolder.split("/")[rootFolder.split("/").length-1], nodeId);
+        CompletableFuture<HistoryReadResponse> historyRead = client.historyRead(
+                historyReadDetails,
+                TimestampsToReturn.Source, false, ids);
 
+        HistoryReadResponse response = historyRead.get();
+
+        logger.debug("Data Size:  {}", response.getResults().length);
+
+        if (response.getResults().length > 0) {
+            return response.getResults()[0];
+        } else return null;
     }
 
     /**
@@ -441,6 +429,40 @@ public class OPCClient {
 
     }
 
+    /**
+     *
+     * @param list of the OPC-UA Nodes
+     * @param rootFolder of OPC-UA
+     */
+    public void browse(ObservableList<PathReferenceDescription> list, String rootFolder) {
+        NodeId nodeId = Identifiers.RootFolder;
+
+        PathReferenceDescription pathReferenceDescription = null;
+
+        for (int i = 0; i < rootFolder.split("/").length; i++) {
+           List<ReferenceDescription> referenceDescriptionList = browseToRoot (nodeId);
+
+            for (int j = 0; j < referenceDescriptionList.size(); j++) {
+
+                if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[i])) {
+                    nodeId = new NodeId(referenceDescriptionList.get(j).getNodeId().getNamespaceIndex(), (UInteger) referenceDescriptionList.get(j).getNodeId().getIdentifier());
+                    logger.debug(referenceDescriptionList.get(j));
+                }
+                if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[rootFolder.split("/").length-1])) {
+                    pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(j), "", null);
+                    list.add(pathReferenceDescription);
+                    logger.debug(referenceDescriptionList.get(j));
+
+                }
+            }
+        }
+
+
+        logger.debug(nodeId);
+        browseTree(list, "/" + rootFolder.split("/")[rootFolder.split("/").length - 1], nodeId);
+
+    }
+
     public PathReferenceDescription getRoot(String rootFolder){
 
         NodeId nodeId = Identifiers.RootFolder;
@@ -458,77 +480,19 @@ public class OPCClient {
 
 
                 if (referenceDescriptionList.get(j).getBrowseName().getName().equals(rootFolder.split("/")[rootFolder.split("/").length-1])) {
-                    pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(j), "/"+referenceDescriptionList.get(j).getBrowseName(), null);
-                    System.out.println(referenceDescriptionList.get(j));
-                    System.out.println("pathdescription");
+                    pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(j), "/" + referenceDescriptionList.get(j).getBrowseName(), null);
+                    logger.debug(referenceDescriptionList.get(j));
+                    logger.debug("pathdescription");
 
                 }
             }
         }
-        System.out.println(pathReferenceDescription);
+        logger.debug(pathReferenceDescription);
        // NodeId nodeId = getNodeId(path);
        // List<ReferenceDescription> referenceDescriptionList = getReferenceDescription(nodeId);
       //  PathReferenceDescription pathReferenceDescription = new PathReferenceDescription(referenceDescriptionList.get(0),"",null);
         return pathReferenceDescription;
 
-    }
-
-    private void browseTree(ObservableList<PathReferenceDescription> list, String xpathParent, NodeId browseRoot) {
-        BrowseDescription browse = new BrowseDescription(
-                browseRoot,
-                BrowseDirection.Forward,
-                Identifiers.References,
-                true,
-                uint(NodeClass.Object.getValue() | NodeClass.Variable.getValue()),
-                uint(BrowseResultMask.All.getValue())
-        );
-
-        try {
-            BrowseResult browseResult = client.browse(browse).get();
-
-            List<ReferenceDescription> references = toList(browseResult.getReferences());
-
-
-
-
-
-
-            for (ReferenceDescription rd : references) {
-                String xpath = xpathParent;
-                NodeId nodeId = new NodeId(rd.getNodeId().getNamespaceIndex(), (UInteger) rd.getNodeId().getIdentifier());
-                PathReferenceDescription pathReferenceDescription;
-
-
-                    if (rd.getNodeClass().getValue() == 2) {
-                        DataValue datavalue = readValue(nodeId);
-                        pathReferenceDescription = new PathReferenceDescription(rd, xpath, datavalue);
-                    }else {
-                        pathReferenceDescription = new PathReferenceDescription(rd, xpath, null);
-                    }
-
-                logger.debug("Add to Map: {}-{}", xpath, rd);
-                if (rd.getNodeClass().getValue() == 1 || (rd.getNodeClass().getValue() == 2 )) {
-                    Platform.runLater(() -> {
-                        System.out.println(pathReferenceDescription.getPath());
-                        list.add(pathReferenceDescription);
-                    });
-                }
-
-
-                browseTree(list, xpath + "/" + rd.getBrowseName().getName(), nodeId);
-            }
-        } catch (NullPointerException ex) {
-            ex.printStackTrace();
-        } catch (InterruptedException e) {
-            logger.error("InterruptedException: {}", e);
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            logger.error("ExecutionException: {}", e);
-            e.printStackTrace();
-        }
-        catch (UaException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -609,23 +573,62 @@ public class OPCClient {
         return null;
     }
 
-    public static String printEP(EndpointDescription endpointDescription) {
+    private void browseTree(ObservableList<PathReferenceDescription> list, String xpathParent, NodeId browseRoot) {
+        BrowseDescription browse = new BrowseDescription(
+                browseRoot,
+                BrowseDirection.Forward,
+                Identifiers.References,
+                true,
+                uint(NodeClass.Object.getValue() | NodeClass.Variable.getValue()),
+                uint(BrowseResultMask.All.getValue())
+        );
 
-        System.out.println("---------Endpoint----------");
-        System.out.println(endpointDescription.getEndpointUrl());
+        try {
+            BrowseResult browseResult = client.browse(browse).get();
 
-        System.out.println("UserIdentityTokens:");
-        for (UserTokenPolicy userIdentityToken : endpointDescription.getUserIdentityTokens()) {
-            System.out.println(" -" + userIdentityToken.toString());
+            List<ReferenceDescription> references = toList(browseResult.getReferences());
+
+
+
+
+
+
+            for (ReferenceDescription rd : references) {
+                String xpath = xpathParent;
+                NodeId nodeId = new NodeId(rd.getNodeId().getNamespaceIndex(), (UInteger) rd.getNodeId().getIdentifier());
+                PathReferenceDescription pathReferenceDescription;
+
+
+                    if (rd.getNodeClass().getValue() == 2) {
+                        DataValue datavalue = readValue(nodeId);
+                        pathReferenceDescription = new PathReferenceDescription(rd, xpath, datavalue);
+                    }else {
+                        pathReferenceDescription = new PathReferenceDescription(rd, xpath, null);
+                    }
+
+                logger.debug("Add to Map: {}-{}", xpath, rd);
+                if (rd.getNodeClass().getValue() == 1 || (rd.getNodeClass().getValue() == 2 )) {
+                    Platform.runLater(() -> {
+                        logger.debug(pathReferenceDescription.getPath());
+                        list.add(pathReferenceDescription);
+                    });
+                }
+
+
+                browseTree(list, xpath + "/" + rd.getBrowseName().getName(), nodeId);
+            }
+        } catch (NullPointerException ex) {
+            ex.printStackTrace();
+        } catch (InterruptedException e) {
+            logger.error("InterruptedException: {}", e);
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            logger.error("ExecutionException: {}", e);
+            e.printStackTrace();
         }
-
-        System.out.println("SecurityMode: " + endpointDescription.getSecurityMode().toString());
-
-        System.out.println("SecurityPolicyUri: " + endpointDescription.getSecurityPolicyUri());
-        System.out.println("SecurityLevel: " + endpointDescription.getSecurityLevel());
-        System.out.println("TypeId: " + endpointDescription.getTypeId());
-        System.out.println("Server: " + endpointDescription.getServer().toString());
-        return "";
+        catch (UaException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

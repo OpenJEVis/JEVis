@@ -209,7 +209,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                             buildExport(),
                             buildImport()
                     );
-                    System.out.println(obj.getJEVisClassName());
+                    logger.debug(obj.getJEVisClassName());
 
                     if (obj.getJEVisClassName().equals("Calculation")) {
                         getItems().add(new SeparatorMenuItem());
