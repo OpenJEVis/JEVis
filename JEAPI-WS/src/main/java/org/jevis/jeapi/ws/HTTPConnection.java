@@ -130,7 +130,7 @@ public class HTTPConnection {
 
 
             } else {
-                System.out.println("Check Manual proxy: " + System.getProperty("http.proxyHost"));
+                logger.info("Check Manual proxy: " + System.getProperty("http.proxyHost"));
                 if (System.getProperty("http.proxyHost") != null && !System.getProperty("http.proxyHost").isEmpty()) {
                     proxyHost = System.getProperty("http.proxyHost");
                 }
