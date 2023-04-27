@@ -18,10 +18,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
-import org.jevis.jeconfig.plugin.action.ui.ActionForm;
-import org.jevis.jeconfig.plugin.action.ui.ActionPlanForm;
-import org.jevis.jeconfig.plugin.action.ui.ActionTab;
-import org.jevis.jeconfig.plugin.action.ui.NewActionDialog;
+import org.jevis.jeconfig.plugin.action.ui.*;
 
 import java.util.List;
 import java.util.Locale;
@@ -88,6 +85,10 @@ public class ActionController {
         tabPane.getTabs().add(tab);
     }
 
+    public TabPane getTabPane() {
+        return tabPane;
+    }
+
     public ObservableList<ActionPlanData> getActionPlans() {
         return actionPlans;
     }
@@ -110,6 +111,26 @@ public class ActionController {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+        }
+
+
+    }
+
+    public void exportPDF() {
+        ObservableList<ActionPlanData> toExport = FXCollections.observableArrayList();
+        getTabPane().getTabs().forEach(tab -> {
+            toExport.add(((ActionTab) tab).getActionPlan());
+        });
+        ExportDialog exportDialog = new ExportDialog(toExport);
+        ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.APPLY);
+        ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        exportDialog.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
+
+        Optional<ButtonType> optional = exportDialog.showAndWait();
+        if (optional.get() == buttonTypeOne) {
+            ExcelExporter excelExporter = new ExcelExporter(this, exportDialog.getSelection());
+        } else {
+
         }
 
 
