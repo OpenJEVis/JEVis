@@ -50,6 +50,7 @@ public class TableSumPanel extends GridPane {
     public TableSumPanel(ActionPlanData actionPlan, ObservableList<ActionData> data) {
         this.data = data;
         this.actionPlan = actionPlan;
+        System.out.println("Create new SumTable for: " + actionPlan.getName());
         setHgap(5);
         setVgap(5);
         setPadding(new Insets(20, 10, 10, 20));
@@ -76,6 +77,7 @@ public class TableSumPanel extends GridPane {
             while (c.next()) {
                 if (c.wasAdded() || c.wasRemoved() || c.wasReplaced()) {
                     try {
+                        updateLayout();
                         updateData();
                     } catch (Exception ex) {
                     }
@@ -134,11 +136,6 @@ public class TableSumPanel extends GridPane {
 
     private void updateData() {
         //System.out.println("UpdateSumTable:" + actionPlan + " data:" + data.size());
-
-
-        Platform.runLater(() -> {
-
-        });
 
         double sumInvest = 0;
         double sumEinsparrung = 0;
