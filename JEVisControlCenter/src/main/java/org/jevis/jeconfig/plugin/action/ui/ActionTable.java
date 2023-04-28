@@ -272,6 +272,10 @@ public class ActionTable extends TableView<ActionData> {
 
     }
 
+    public ObservableList<ActionData> getFilteredList() {
+        return filteredData;
+    }
+
     public void enableSumRow(boolean enable) {
         showSumRow = enable;
         if (enable) {

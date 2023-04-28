@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.jevis.commons.i18n.I18n;
 
@@ -70,6 +71,7 @@ public class NPVData {
     }
 
     public void update() {
+        System.out.println("NVP Update");
         int amountToCreate = amoutYear.get();
         npvYears.clear();
         //System.out.println("Update NPV: " + amountToCreate);
@@ -80,14 +82,16 @@ public class NPVData {
         }
         npvYears.addAll(tmp);
 
-        if (initDone = false) {
+        if (initDone == false) {
             initDone = true;
 
+            /*
             amoutYear.addListener((observable, oldValue, newValue) -> {
                 //  System.out.println("amoutYear.listener: " + newValue);
                 update();
                 npvYears.forEach(NPVYearData::updateSums);
             });
+*/
 
             ChangeListener<Number> changeListener = new ChangeListener<Number>() {
                 @Override
@@ -103,6 +107,28 @@ public class NPVData {
             einsparung.addListener(changeListener);
             runningCost.addListener(changeListener);
             inflation.addListener(changeListener);
+            npvYears.addListener(new ListChangeListener<NPVYearData>() {
+                @Override
+                public void onChanged(Change<? extends NPVYearData> c) {
+                    npvYears.forEach(NPVYearData::updateSums);
+                }
+            });
+            System.out.println("Listener: " + npvYears + " for " + this);
+            amoutYear.addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    System.out.println("Amount Year changed: " + newValue);
+                    npvYears.clear();
+                    List<NPVYearData> tmp = new ArrayList<>();
+                    for (int i = 1; i <= newValue.intValue(); i++) {
+                        // System.out.println("Add: " + i);
+                        tmp.add(new NPVYearData(i, NPVData.this));
+                    }
+                    npvYears.addAll(tmp);
+                    npvYears.forEach(NPVYearData::updateSums);
+                }
+            });
+
         }
 
 

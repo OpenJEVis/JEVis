@@ -97,7 +97,9 @@ public class CalculationMethods extends CommonMethods {
             }
         }
 
-        deleteSamplesInList(pForm, from, to, allCleanData);
+        for (JEVisObject object: allCleanData){
+            org.jevis.commons.utils.CommonMethods.deleteAllSamples(object, from, to, false, true);
+        }
 
         for (JEVisObject concernedCalculation : calculationsToDisable) {
             setEnabled(pForm, concernedCalculation, "Calculation", true);

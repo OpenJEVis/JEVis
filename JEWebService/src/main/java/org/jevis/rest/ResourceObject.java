@@ -206,7 +206,7 @@ public class ResourceObject {
                     this.ds.deleteObject(obj);
                 } else {
                     ds.logUserAction(SQLDataSource.LOG_EVENT.MARK_AS_DELETE_OBJECT, String.format("%s:%s", id, obj.getName()));
-                    System.out.println("Mark as delete: " + id);
+                    logger.debug("Mark as delete: " + id);
                     this.ds.markAsDeletedObject(obj);
                 }
 
@@ -338,7 +338,7 @@ public class ResourceObject {
             String object) {
 
         try {
-            System.out.println("post Object: " + object);
+            logger.debug("post Object: " + object);
             this.ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject json = objectMapper.readValue(object, JsonObject.class);

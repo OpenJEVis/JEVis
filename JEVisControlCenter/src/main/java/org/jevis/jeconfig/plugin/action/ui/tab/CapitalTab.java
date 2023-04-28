@@ -77,8 +77,9 @@ public class CapitalTab extends Tab {
 
         ChoiceBox<Integer> f_period = new ChoiceBox<>();
         f_period.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); // only 15 years by lore
-        //f_period.valueProperty().bindBidirectional(data.npv.get().amoutYear.asObject());
+        f_period.valueProperty().bindBidirectional(data.npv.get().amoutYear.asObject());
         f_period.setValue(data.npv.get().amoutYear.get());
+
 
         ChoiceBox<Integer> f_amortizedDuration = new ChoiceBox<>();
         f_amortizedDuration.valueProperty().bindBidirectional(data.npv.get().overXYear.asObject());

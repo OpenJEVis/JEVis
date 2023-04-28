@@ -89,6 +89,7 @@ public class TimeFrameFactory {
         reducedList.add(threeYears());
         reducedList.add(fiveYears());
         reducedList.add(tenYears());
+        reducedList.add(custom());
 
         return reducedList;
     }
