@@ -14,11 +14,9 @@ import org.jevis.commons.database.JEVisAttributeDAO;
 import org.jevis.commons.database.JEVisObjectDataManager;
 import org.jevis.commons.database.JEVisSampleDAO;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
-import org.jevis.commons.dataprocessing.CleanDataObject;
-import org.jevis.commons.dataprocessing.FixedPeriod;
-import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.report.PeriodMode;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.attribute.*;
@@ -188,6 +186,7 @@ public class ReportLinkProperty implements ReportData {
                             case Period: {
                                 try {
                                     PeriodicIntervalCalc periodicIntervalCalc = (PeriodicIntervalCalc) intervalCalc;
+                                    org.jevis.commons.datetime.Period schedule = org.jevis.commons.datetime.Period.valueOf(periodicIntervalCalc.getSchedule());
 
                                     AttributeConfiguration periodConfiguration = attributeProperty.getAttributeConfiguration(AttributeConfigurationFactory.ReportConfigurationName.Period);
                                     JEVisObject dataObject = linkProperty.getDataObject();
@@ -233,14 +232,26 @@ public class ReportLinkProperty implements ReportData {
                                     }
                                     PeriodMode mode = PeriodMode.valueOf(modeName.toUpperCase());
 
+                                    JEVisAttribute fixedPeriodAttribute = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.FIXED_PERIOD);
+                                    String fixedPeriodName = FixedPeriod.NONE.toString();
+                                    if (fixedPeriodAttribute.hasSample()) {
+                                        fixedPeriodName = fixedPeriodAttribute.getLatestSample().getValueAsString();
+                                    } else {
+                                        logger.warn("No fixed period configuration set, selecting none");
+                                    }
+                                    FixedPeriod fixedPeriod = FixedPeriod.valueOf(fixedPeriodName.toUpperCase());
+
                                     JEVisAttribute overrideScheduleAttribute = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.OVERRIDE_SCHEDULE);
                                     String overrideSchedule = "NONE";
-                                    if (overrideScheduleAttribute.hasSample()) {
+                                    if (overrideScheduleAttribute.hasSample() || mode == PeriodMode.RELATIVE) {
                                         overrideSchedule = overrideScheduleAttribute.getLatestSample().getValueAsString();
                                         periodicIntervalCalc = new PeriodicIntervalCalc(new SampleHandler());
                                         periodicIntervalCalc.buildIntervals(intervalCalc.getReportObject());
-                                        DateTime newStart = periodicIntervalCalc.alignDateToSchedule(overrideSchedule, periodicIntervalCalc.getStart());
-                                        periodicIntervalCalc.buildIntervals(overrideSchedule, newStart);
+
+                                        if (!overrideSchedule.equals("NONE")) {
+                                            DateTime newStart = periodicIntervalCalc.alignDateToSchedule(overrideSchedule, periodicIntervalCalc.getStart());
+                                            periodicIntervalCalc.buildIntervals(overrideSchedule, newStart, true, schedule);
+                                        }
                                     }
 
                                     switch (mode) {
@@ -252,8 +263,7 @@ public class ReportLinkProperty implements ReportData {
                                         case FIXED:
                                         case FIXED_TO_REPORT_END:
                                         case RELATIVE:
-                                            String fixedPeriodName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.FIXED_PERIOD).getLatestSample().getValueAsString();
-                                            FixedPeriod fixedPeriod = FixedPeriod.valueOf(fixedPeriodName.toUpperCase());
+
                                             String name;
                                             if (mode == PeriodMode.FIXED) {
                                                 name = PeriodMode.FIXED.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
@@ -271,7 +281,31 @@ public class ReportLinkProperty implements ReportData {
                                             linkProperty.templateVariableName, interval, dataObject.getName(), dataObject.getID(), attribute.getName());
 
                                     if (!isCalculation) {
-                                        List<JEVisSample> samples = attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString(), property.getTimeZone().getID());
+                                        List<JEVisSample> samples;
+                                        if (aggregationPeriod != AggregationPeriod.NONE && mode == PeriodMode.RELATIVE) {
+                                            DateTime newStart = periodicIntervalCalc.alignDateToSchedule(aggregationPeriod.toPeriod().toString(), interval.getStart());
+                                            samples = attribute.getSamples(newStart, interval.getEnd(), true, AggregationPeriod.NONE.toString(), manipulationMode.toString(), property.getTimeZone().getID());
+                                            QuantityUnits qu = new QuantityUnits();
+                                            JEVisUnit unit = attribute.getDisplayUnit();
+                                            boolean isQuantity = qu.isQuantityUnit(attribute.getDisplayUnit());
+                                            isQuantity = qu.isQuantityIfCleanData(attribute, isQuantity);
+
+                                            double sum = 0d;
+                                            for (JEVisSample jeVisSample : samples) {
+                                                sum += jeVisSample.getValueAsDouble();
+                                            }
+
+                                            if (!isQuantity && samples.size() > 0) {
+                                                sum = sum / samples.size();
+                                            }
+
+                                            JEVisSample resultSum = new VirtualSample(interval.getStart(), sum, unit, ds, attribute);
+                                            samples.clear();
+                                            samples.add(resultSum);
+                                        } else {
+                                            samples = attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString(), property.getTimeZone().getID());
+                                        }
+
                                         linkMap.putAll(ProcessHelper.getAttributeSamples(samples, attribute, property.getTimeZone()));
                                     } else {
                                         CalcJobFactory calcJobCreator = new CalcJobFactory();

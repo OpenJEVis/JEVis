@@ -31,14 +31,13 @@ import javax.imageio.ImageIO;
 import javax.net.ssl.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -70,9 +69,14 @@ public class HTTPConnection {
     private final String password;
     private final int readTimeout = 120000;//millis
 
+    private Proxy proxy = null;
+
+    private HttpURLConnection sharedConn = null;
+
     public enum Trust {
         ALWAYS, SYSTEM
     }
+
 
     private Trust trustmode = Trust.ALWAYS;
 
@@ -81,9 +85,83 @@ public class HTTPConnection {
         this.username = username;
         this.password = password;
         this.trustmode = trustMode;
+
+        setProxy();
+
         if (trustMode == Trust.ALWAYS) {
             logger.error("Enable trust for self signed certificates");
             HTTPConnection.trustAllCertificates();
+        }
+
+    }
+
+    private void setProxy() {
+        if (System.getProperty("java.net.useSystemProxies") != null) {
+
+            String proxyHost = "";
+            int proxyPort = 3128;
+
+            if (System.getProperty("java.net.useSystemProxies").toLowerCase().equals("true")) {
+
+                List l = null;
+                try {
+                    l = ProxySelector.getDefault().select(new URI(this.baseURL));
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                if (l != null) {
+                    for (Iterator iter = l.iterator(); iter.hasNext(); ) {
+                        java.net.Proxy proxy = (java.net.Proxy) iter.next();
+                        //System.out.println("proxy hostname : " + proxy.type());
+                        InetSocketAddress addr = (InetSocketAddress) proxy.address();
+                        if (addr == null) {
+                            //logger.warn("No system http proxy found");
+                        } else {
+                            logger.info("found system http proxy: {}:{}", addr.getHostName(), addr.getPort());
+                            proxyHost = addr.getHostName();
+                            proxyPort = addr.getPort();
+                            break;
+
+                        }
+                    }
+                } else {
+                    logger.warn("No system http proxy found");
+                }
+
+
+            } else {
+                logger.info("Check Manual proxy: " + System.getProperty("http.proxyHost"));
+                if (System.getProperty("http.proxyHost") != null && !System.getProperty("http.proxyHost").isEmpty()) {
+                    proxyHost = System.getProperty("http.proxyHost");
+                }
+                if (System.getProperty("http.proxyPort") != null && !System.getProperty("http.proxyPort").isEmpty()) {
+                    try {
+                        proxyPort = Integer.parseInt(System.getProperty("http.proxyPort"));
+                    } catch (Exception ex) {
+                        logger.warn("Could not parse proxy port: {}", System.getProperty("http.proxyPort"));
+                    }
+                }
+
+                if (System.getProperty("https.proxyHost") != null && !System.getProperty("https.proxyHost").isEmpty()) {
+                    proxyHost = System.getProperty("https.proxyHost");
+                }
+                if (System.getProperty("https.proxyPort") != null && !System.getProperty("https.proxyPort").isEmpty()) {
+                    try {
+                        proxyPort = Integer.parseInt(System.getProperty("https.proxyPort"));
+                    } catch (Exception ex) {
+                        logger.warn("Could not parse proxy port: {}", System.getProperty("https.proxyPort"));
+                    }
+                }
+            }
+
+            if (!proxyHost.isEmpty()) {
+                logger.info("Using http(s) proxy: {}:{}", proxyHost, proxyPort);
+                System.setProperty("jdk.http.auth.tunneling.disabledSchemes", ""); //Workaround for certain auth problems
+                proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+            } else {
+                logger.warn("No http Proxy found");
+            }
+
         }
     }
 
@@ -103,7 +181,7 @@ public class HTTPConnection {
     }
 
     /**
-     * Its not save to trust all ssl certificats. Better use trusted keys but for now its better than simple http
+     * It's not safe to trust all ssl certificates. Better use trusted keys but for now it's better than simple http
      */
     public static void trustAllCertificates() {
         try {
@@ -144,6 +222,23 @@ public class HTTPConnection {
         conn.setRequestProperty("Authorization", "Basic " + auth);
     }
 
+    public HttpURLConnection getHTTPConnection(String resource) throws IOException {
+        resource = resource.replaceAll("\\s+", "%20");
+        URL url = new URL(this.baseURL + "/" + resource);
+
+
+        HttpURLConnection conn;
+        if (proxy == null) {
+            conn = (HttpURLConnection) url.openConnection();
+        } else {
+            conn = (HttpURLConnection) url.openConnection(proxy);
+
+        }
+        return conn;
+
+
+    }
+
     /**
      * TODO: this function need an rework. The error handling a retry function are suboptimal
      *
@@ -159,30 +254,26 @@ public class HTTPConnection {
             if (delay) {
                 Thread.sleep(RETRY_DELAY_MS);
             }
-//        Date start = new Date();
-            //replace spaces
-            resource = resource.replaceAll("\\s+", "%20");
-//        logger.trace("after replcae: {}", resource);
-            URL url = new URL(this.baseURL + "/" + resource);
-
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = getHTTPConnection(resource);
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             conn.setRequestProperty("Accept-Charset", "UTF-8");
             conn.setRequestProperty("Accept-Encoding", "gzip");
             conn.setReadTimeout(this.readTimeout);
+            //System.out.println("Using Proxy?" + conn.usingProxy());
             addAuth(conn, this.username, this.password);
 
             conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
             logger.debug("HTTP request {}", conn.getURL());
+            logger.debug("Response: {}   {}", conn.getResponseCode(), conn.getResponseMessage());
 
             switch (conn.getResponseCode()) {
                 case HttpURLConnection.HTTP_NOT_FOUND:
-                    logger.warn(url + "**not found**");
+                    logger.warn(resource + "**not found**");
                     return null;
                 case HttpURLConnection.HTTP_FORBIDDEN:
-                    logger.warn(url + "**forbidden**");
+                    logger.warn(resource + "**forbidden**");
                     return null;
                 case HttpURLConnection.HTTP_OK:
                     if ("gzip".equals(conn.getContentEncoding())) {
@@ -191,19 +282,19 @@ public class HTTPConnection {
                         return conn.getInputStream();
                     }
                 case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:
-                    logger.warn(url + " **gateway timeout**");
+                    logger.warn(resource + " **gateway timeout**");
                     break;
                 case HttpURLConnection.HTTP_CLIENT_TIMEOUT:
-                    logger.warn(url + " **client timeout**");
+                    logger.warn(resource + " **client timeout**");
                     break;
                 case HttpURLConnection.HTTP_UNAVAILABLE:
-                    logger.warn(url + "**unavailable**");
+                    logger.warn(resource + "**unavailable**");
                     break;
                 case HttpURLConnection.HTTP_INTERNAL_ERROR:
-                    logger.warn(url + "**internal server error** - " + conn.getInputStream());
+                    logger.warn(resource + "**internal server error** - " + conn.getInputStream());
                     return null;
                 default:
-                    logger.warn(url + " **{} : unknown response code**.", conn.getResponseCode());
+                    logger.warn(resource + " **{} : unknown response code**.", conn.getResponseCode());
                     return null;
             }
 
@@ -221,12 +312,7 @@ public class HTTPConnection {
 
     public BufferedImage getIconRequest(String resource) throws IOException {
         Date start = new Date();
-        //replace spaces
-        resource = resource.replaceAll("\\s+", "%20");
-//        logger.trace("after replcae: {}", resource);
-        URL url = new URL(this.baseURL + "/" + resource);
-
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = getHTTPConnection(resource);
         conn.setRequestMethod("GET");
         addAuth(conn, this.username, this.password);
 
@@ -258,12 +344,7 @@ public class HTTPConnection {
     }
 
     public byte[] getByteRequest(String resource) throws IOException {
-        //replace spaces
-        resource = resource.replaceAll("\\s+", "%20");
-//        logger.trace("after replcae: {}", resource);
-        URL url = new URL(this.baseURL + "/" + resource);
-
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = getHTTPConnection(resource);
         conn.setRequestMethod("GET");
         addAuth(conn, this.username, this.password);
 
@@ -283,6 +364,7 @@ public class HTTPConnection {
             InputStream inputStream = conn.getInputStream();
             byte[] response = IOUtils.toByteArray(inputStream);
             inputStream.close();
+            conn.disconnect();
 
             return response;
 
@@ -294,12 +376,7 @@ public class HTTPConnection {
 
     public StringBuffer postRequest(String resource, String json) throws IOException, JEVisException {
         Date start = new Date();
-        //replace spaces
-        resource = resource.replaceAll("\\s+", "%20");
-//        logger.trace("after replcae: {}", resource);
-        URL url = new URL(this.baseURL + "/" + resource);
-
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        HttpURLConnection con = getHTTPConnection(resource);
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 //        con.setRequestProperty("Content-Type", "application/json");
@@ -344,6 +421,7 @@ public class HTTPConnection {
                 response.append(inputLine);
             }
             in.close();
+            con.disconnect();
             logger.trace("response.Payload: {}", response);
 
 //            try (PrintWriter out = new PrintWriter("/tmp/" + resource.replaceAll("\\/", "") + ".json")) {
@@ -362,12 +440,7 @@ public class HTTPConnection {
 
     public StringBuffer getRequest(String resource) throws IOException {
         Date start = new Date();
-        //replace spaces
-        resource = resource.replaceAll("\\s+", "%20");
-
-
-        URL url = new URL(this.baseURL + resource);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        HttpURLConnection con = getHTTPConnection(resource);
         con.setRequestMethod("GET");
         con.setDoOutput(true);
 
@@ -387,6 +460,7 @@ public class HTTPConnection {
                 response.append(inputLine);
             }
             in.close();
+            con.connect();
             logger.trace("HTTP request closed after: " + ((new Date()).getTime() - start.getTime()) + " msec");
 
             return response;
@@ -403,12 +477,7 @@ public class HTTPConnection {
      */
     public HttpURLConnection getPostFileConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
         Date start = new Date();
-        //replace spaces
-        resource = resource.replaceAll("\\s+", "%20");
-//        logger.trace("after replcae: {}", resource);
-        URL url = new URL(this.baseURL + "/" + resource);
-
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = getHTTPConnection(resource);
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/octet-stream");
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
@@ -437,13 +506,8 @@ public class HTTPConnection {
      * @TODO this is not a generic post Connection like the name implies
      */
     public HttpURLConnection getPostIconConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
-        Date start = new Date();
-        //replace spaces
-        resource = resource.replaceAll("\\s+", "%20");
-//        logger.trace("after replcae: {}", resource);
-        URL url = new URL(this.baseURL + "/" + resource);
-
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        Date start = new Date();//replace spaces
+        HttpURLConnection conn = getHTTPConnection(resource);
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "image/png");
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
@@ -465,12 +529,7 @@ public class HTTPConnection {
 
     public HttpURLConnection getGetConnection(String resource) throws IOException {
         Date start = new Date();
-        //replace spaces
-        resource = resource.replaceAll("\\s+", "%20");
-//        logger.trace("after replcae: {}", resource);
-        URL url = new URL(this.baseURL + "/" + resource);
-
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = getHTTPConnection(resource);
         conn.setRequestMethod("GET");
         addAuth(conn, this.username, this.password);
 
@@ -488,11 +547,7 @@ public class HTTPConnection {
     public HttpURLConnection getDeleteConnection(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
-        resource = resource.replaceAll("\\s+", "%20");
-//        logger.trace("after replcae: {}", resource);
-        URL url = new URL(this.baseURL + "/" + resource);
-
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = getHTTPConnection(resource);
         conn.setRequestMethod("DELETE");
         addAuth(conn, this.username, this.password);
 

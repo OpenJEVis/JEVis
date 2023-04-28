@@ -422,6 +422,7 @@ public class JEVisClassWS implements JEVisClass {
             }
 //
             int responseCode = connection.getResponseCode();
+            connection.disconnect();
             logger.error("commit icon: {}", responseCode);
 
         } catch (Exception ex) {

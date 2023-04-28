@@ -32,6 +32,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
     private final SampleHandler samplesHandler;
     private JEVisObject reportObject = null;
     private DateTime start;
+    private String schedule;
 
     @Inject
     public PeriodicIntervalCalc(SampleHandler samplesHandler) {
@@ -48,17 +49,22 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         return reportObject;
     }
 
+    @Override
+    public String getSchedule() {
+        return schedule;
+    }
+
     private void initializeIntervalMap(JEVisObject reportObject) {
         this.reportObject = reportObject;
 
-        String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
+        schedule = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
 
-        buildIntervals(scheduleString, start);
+        buildIntervals(schedule, start, false, Period.NONE);
     }
 
-    public void buildIntervals(String scheduleString, DateTime start) {
+    public void buildIntervals(String scheduleString, DateTime start, boolean isOverride, Period originalPeriod) {
         intervalMap.clear();
 
         Period schedule = Period.valueOf(scheduleString.toUpperCase());
@@ -79,10 +85,16 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             DateTime startRecordFixed = calcStartRecord(start, schedule, PeriodMode.FIXED, fixedPeriod, dateHelper);
             DateTime startRecordFixedToReportEnd = calcStartRecord(start, schedule, PeriodMode.FIXED_TO_REPORT_END, fixedPeriod, dateHelper);
             DateTime endRecord = PeriodHelper.calcEndRecord(start, schedule, dateHelper);
+            DateTime endRecordFixedOverride = PeriodHelper.calcEndRecord(startRecordFixedToReportEnd, originalPeriod, dateHelper);
             DateTime endRecordRelative = PeriodHelper.calcEndRecord(startRecordFixedToReportEnd, schedule, dateHelper);
 
             Interval intervalFixed = new Interval(startRecordFixed, endRecord);
-            Interval intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecord);
+            Interval intervalFixedToReportEnd;
+            if (!isOverride) {
+                intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecord);
+            } else {
+                intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecordFixedOverride);
+            }
             Interval intervalRelative = new Interval(startRecordFixedToReportEnd, endRecordRelative);
 
             String nameFixed = PeriodMode.FIXED + "_" + fixedPeriod.toString().toUpperCase();
@@ -178,6 +190,12 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                 }
             case RELATIVE:
             case FIXED_TO_REPORT_END:
+                int weekOfWeekyear = startRecord.getWeekOfWeekyear();
+                int dayOfWeek = startRecord.getDayOfWeek();
+                int hourOfDay = startRecord.getHourOfDay();
+                int minuteOfHour = startRecord.getMinuteOfHour();
+                int secondOfMinute = startRecord.getSecondOfMinute();
+                int millisOfSecond = startRecord.getMillisOfSecond();
                 switch (fixedPeriod) {
                     case QUARTER_HOUR:
                         resultStartRecord = startRecord.minusMinutes(15);
@@ -189,7 +207,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                         resultStartRecord = startRecord.minusDays(1);
                         break;
                     case WEEK:
-                        resultStartRecord = startRecord.minusDays(7);
+                        resultStartRecord = startRecord.minusWeeks(1);
                         break;
                     case MONTH:
                         resultStartRecord = startRecord.minusMonths(1);
@@ -199,15 +217,47 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                         break;
                     case YEAR:
                         resultStartRecord = startRecord.minusYears(1);
+                        if (schedule == Period.WEEKLY) {
+                            resultStartRecord = resultStartRecord.withWeekOfWeekyear(weekOfWeekyear)
+                                    .withDayOfWeek(dayOfWeek)
+                                    .withHourOfDay(hourOfDay)
+                                    .withMinuteOfHour(minuteOfHour)
+                                    .withSecondOfMinute(secondOfMinute)
+                                    .withMillisOfSecond(millisOfSecond);
+                        }
                         break;
                     case THREEYEARS:
                         resultStartRecord = startRecord.minusYears(2);
+                        if (schedule == Period.WEEKLY) {
+                            resultStartRecord = resultStartRecord.withWeekOfWeekyear(weekOfWeekyear)
+                                    .withDayOfWeek(dayOfWeek)
+                                    .withHourOfDay(hourOfDay)
+                                    .withMinuteOfHour(minuteOfHour)
+                                    .withSecondOfMinute(secondOfMinute)
+                                    .withMillisOfSecond(millisOfSecond);
+                        }
                         break;
                     case FIVEYEARS:
                         resultStartRecord = startRecord.minusYears(4);
+                        if (schedule == Period.WEEKLY) {
+                            resultStartRecord = resultStartRecord.withWeekOfWeekyear(weekOfWeekyear)
+                                    .withDayOfWeek(dayOfWeek)
+                                    .withHourOfDay(hourOfDay)
+                                    .withMinuteOfHour(minuteOfHour)
+                                    .withSecondOfMinute(secondOfMinute)
+                                    .withMillisOfSecond(millisOfSecond);
+                        }
                         break;
                     case TENYEARS:
                         resultStartRecord = startRecord.minusYears(9);
+                        if (schedule == Period.WEEKLY) {
+                            resultStartRecord = resultStartRecord.withWeekOfWeekyear(weekOfWeekyear)
+                                    .withDayOfWeek(dayOfWeek)
+                                    .withHourOfDay(hourOfDay)
+                                    .withMinuteOfHour(minuteOfHour)
+                                    .withSecondOfMinute(secondOfMinute)
+                                    .withMillisOfSecond(millisOfSecond);
+                        }
                         break;
                     case NONE:
                     default:

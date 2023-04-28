@@ -9,6 +9,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
@@ -23,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class ActionPlanForm extends Alert {
-
+    private static final Logger logger = LogManager.getLogger(ActionPlanForm.class);
 
     Label nameLabel = new Label("Name");
     Label statusLabel = new Label("Status");
@@ -152,14 +154,14 @@ public class ActionPlanForm extends Alert {
                 TreeSelectionDialog treeSelectionDialog = new TreeSelectionDialog(actionPlan.getObject().getDataSource(), classes, SelectionMode.MULTIPLE, new ArrayList<>(), false);
                 Optional<ButtonType> optional = treeSelectionDialog.showAndWait();
                 if (optional.get() == treeSelectionDialog.buttonOK) {
-                    System.out.println("apply");
+                    logger.debug("apply");
                     treeSelectionDialog.getUserSelection().forEach(userSelection -> {
                         actionPlan.getEnpis().add(userSelection.getSelectedObject());
                     });
                 }
 
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error(ex);
             }
 
 

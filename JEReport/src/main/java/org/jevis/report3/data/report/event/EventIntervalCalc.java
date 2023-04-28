@@ -45,6 +45,11 @@ public class EventIntervalCalc implements IntervalCalculator {
         return reportObject;
     }
 
+    @Override
+    public String getSchedule() {
+        return null;
+    }
+
     public synchronized boolean getIsInit() {
         return isInit;
     }
