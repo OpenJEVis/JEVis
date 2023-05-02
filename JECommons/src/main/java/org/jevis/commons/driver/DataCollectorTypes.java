@@ -68,6 +68,9 @@ public interface DataCollectorTypes {
         interface JEVisChannelDirectory extends ChannelDirectory {
             String NAME = "JEVis Channel Directory";
         }
+        interface RevolutionPiChannelDirectory extends ChannelDirectory {
+            String NAME = "Revolution PI Channel Directory";
+        }
     }
 
     interface JEDataCollector {
@@ -172,6 +175,12 @@ public interface DataCollectorTypes {
                 String PASSWORD = "Password";
                 String SSL = "SSL";
             }
+            interface RevolutionPiServer extends DataServer {
+                String NAME = "JEVis Server";
+                String USER = "User";
+                String PASSWORD = "Password";
+                String SSL = "SSL";
+            }
           
             interface HTTP extends DataServer{
                 String AUTHENTICATION = "Authentication";
@@ -209,6 +218,15 @@ public interface DataCollectorTypes {
             String SOURCEID = "Source Id";
             String SOURCEATTRIBUTE = "Source Attribute";
             String TARGETID = "Target Id";
+
+
+        }
+        interface RevolutionPiChannel extends Channel {
+            String NAME = "Revolution PI Channel";
+            String SOURCEID = "Source Id";
+            String SOURCEATTRIBUTE = "Source Attribute";
+            String TARGETID = "Target Id";
+            String STATUS = "Status Log";
         }
     }
 

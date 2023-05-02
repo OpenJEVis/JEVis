@@ -1,0 +1,58 @@
+{
+  "name": "Revolution PI Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Revolution PI Channel Directory",
+      "end": "Revolution PI Server",
+      "type": 3
+    },
+    {
+      "start": "Revolution PI Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "Revolution PI Server",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Revolution PI Server"
+    },
+    {
+      "name": "SSL",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Revolution PI Server"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Revolution PI Server"
+    },
+    {
+      "name": "Connection Timeout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Revolution PI Server"
+    }
+  ]
+}
