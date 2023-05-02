@@ -122,9 +122,10 @@ public class ActionController {
             toExport.add(((ActionTab) tab).getActionPlan());
         });
         ExportDialog exportDialog = new ExportDialog(toExport);
-        ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.APPLY);
+
+        ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.OK_DONE);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-        exportDialog.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
+        exportDialog.getDialogPane().getButtonTypes().setAll(buttonTypeTwo, buttonTypeOne);
 
         Optional<ButtonType> optional = exportDialog.showAndWait();
         if (optional.get() == buttonTypeOne) {
