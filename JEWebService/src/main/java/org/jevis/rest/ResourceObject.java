@@ -40,6 +40,7 @@ import javax.xml.ws.WebServiceContext;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This Class handels all the JEVisObject related requests
@@ -104,21 +105,9 @@ public class ResourceObject {
                 this.returnList = this.ds.getUserManager().filterList(this.ds.getObjects());
             }
 
-            /*
-            if (deleteObjects) {
-                System.out.println("Deleted Objects");
-                //System.out.println(Arrays.asList(this.ds.getDeletedObjects()));
-                this.returnList = this.ds.getUserManager().filterList(this.ds.getDeletedObjects());
-            } else {
-                if (root) {
-                    this.returnList = this.ds.getRootObjects();
-                } else {
-                    this.returnList = this.ds.getUserManager().filterList(this.ds.getObjects());
-                }
+            if (!deleteObjects) {
+                this.returnList = returnList.stream().filter(jsonObject -> jsonObject.getDeleteTS() != null).collect(Collectors.toList());
             }
-
-             */
-
 
             if (!jclass.isEmpty()) {
                 this.returnList = this.ds.filterObjectByClass(this.returnList, jclass, inherit);
