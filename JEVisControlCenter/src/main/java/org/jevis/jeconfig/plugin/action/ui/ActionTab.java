@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -17,6 +18,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.ActionController;
@@ -218,9 +220,10 @@ public class ActionTab extends Tab {
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
         borderPane.setCenter(actionTable);
-
-        TableSumPanel tableSumPanel = new TableSumPanel(plan, actionTable.getItems());
-        borderPane.setBottom(tableSumPanel);
+        TableSumPanel tableSumPanel = new TableSumPanel(plan, actionTable.getFilteredList());
+        HBox hBox = new HBox(tableSumPanel);
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        borderPane.setBottom(hBox);
 
         actionTable.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override

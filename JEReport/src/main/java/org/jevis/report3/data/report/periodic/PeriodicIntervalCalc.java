@@ -61,10 +61,10 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
 
-        buildIntervals(schedule, start);
+        buildIntervals(schedule, start, false, Period.NONE);
     }
 
-    public void buildIntervals(String scheduleString, DateTime start) {
+    public void buildIntervals(String scheduleString, DateTime start, boolean isOverride, Period originalPeriod) {
         intervalMap.clear();
 
         Period schedule = Period.valueOf(scheduleString.toUpperCase());
@@ -85,10 +85,16 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             DateTime startRecordFixed = calcStartRecord(start, schedule, PeriodMode.FIXED, fixedPeriod, dateHelper);
             DateTime startRecordFixedToReportEnd = calcStartRecord(start, schedule, PeriodMode.FIXED_TO_REPORT_END, fixedPeriod, dateHelper);
             DateTime endRecord = PeriodHelper.calcEndRecord(start, schedule, dateHelper);
+            DateTime endRecordFixedOverride = PeriodHelper.calcEndRecord(startRecordFixedToReportEnd, originalPeriod, dateHelper);
             DateTime endRecordRelative = PeriodHelper.calcEndRecord(startRecordFixedToReportEnd, schedule, dateHelper);
 
             Interval intervalFixed = new Interval(startRecordFixed, endRecord);
-            Interval intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecord);
+            Interval intervalFixedToReportEnd;
+            if (!isOverride) {
+                intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecord);
+            } else {
+                intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecordFixedOverride);
+            }
             Interval intervalRelative = new Interval(startRecordFixedToReportEnd, endRecordRelative);
 
             String nameFixed = PeriodMode.FIXED + "_" + fixedPeriod.toString().toUpperCase();
