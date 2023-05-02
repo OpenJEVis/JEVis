@@ -106,7 +106,7 @@ public class ResourceObject {
             }
 
             if (!deleteObjects) {
-                this.returnList = returnList.stream().filter(jsonObject -> jsonObject.getDeleteTS() != null).collect(Collectors.toList());
+                this.returnList = returnList.stream().filter(jsonObject -> jsonObject.getDeleteTS() == null).collect(Collectors.toList());
             }
 
             if (!jclass.isEmpty()) {
