@@ -476,7 +476,7 @@ public class ToolBarView {
         testButton = new ToggleButton("X");
         testButton.setOnAction(actionEvent -> {
             try {
-                DWDBrowser dwdBrowser = new DWDBrowser(chartPlugin.getDialogContainer(), ds);
+                DWDBrowser dwdBrowser = new DWDBrowser(ds, null);
                 dwdBrowser.show();
 
 

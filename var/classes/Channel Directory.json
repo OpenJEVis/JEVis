@@ -42,6 +42,11 @@
       "start": "VIDA350 Channel Directory",
       "end": "Channel Directory",
       "type": 0
+    },
+    {
+      "start": "DWD Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
     }
   ]
 }

@@ -2,36 +2,35 @@ package org.jevis.jeconfig.tool.dwdbrowser;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
+import org.jevis.commons.datasource.Station;
+import org.jevis.commons.datasource.StationData;
 import org.jevis.commons.driver.dwd.Aggregation;
 import org.jevis.commons.driver.dwd.Attribute;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 import org.jevis.jeconfig.dialog.Response;
 import org.joda.time.DateTime;
@@ -39,11 +38,12 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class DWDBrowser extends JFXDialog {
+public class DWDBrowser extends Dialog {
     private static final Logger logger = LogManager.getLogger(DWDBrowser.class);
 
     private final String initialPath = "climate_environment/CDC/observations_germany/climate/";
@@ -60,6 +60,7 @@ public class DWDBrowser extends JFXDialog {
     private final DateTimeFormatter dayFormatter = DateTimeFormat.forPattern("yyyyMMdd").withZoneUTC();
     private final DateTimeFormatter monthFormatter = DateTimeFormat.forPattern("yyyyMM").withZoneUTC();
     private final DateTimeFormatter yearFormatter = DateTimeFormat.forPattern("yyyy").withZoneUTC();
+    private final JEVisObject targetObject;
     Callback<ListView<Station>, ListCell<Station>> cellFactory = new Callback<ListView<Station>, ListCell<Station>>() {
         @Override
         public ListCell<Station> call(ListView<Station> param) {
@@ -82,8 +83,38 @@ public class DWDBrowser extends JFXDialog {
     private DateTime firstDate = DateTime.now();
     private DateTime lastDate = new DateTime("1970-01-01T00:00:00Z");
 
-    public DWDBrowser(StackPane dialogContainer, JEVisDataSource ds) {
-        setDialogContainer(dialogContainer);
+    private final JFXDatePicker startDatePicker = new JFXDatePicker();
+    private final JFXDatePicker endDatePicker = new JFXDatePicker();
+
+    public DWDBrowser(JEVisDataSource ds, JEVisObject targetObject) {
+        this.targetObject = targetObject;
+        setTitle(I18n.getInstance().getString("DWD Browser"));
+        setHeaderText(I18n.getInstance().getString("Import data"));
+        setResizable(true);
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
+
+        startDatePicker.setPrefWidth(120d);
+        endDatePicker.setPrefWidth(120d);
+        setCellFactory();
+
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("jevistree.menu.import"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+//        ButtonType deleteType = new ButtonType(I18n.getInstance().getString("jevistree.menu.delete"), ButtonBar.ButtonData.OTHER);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+//        Button deleteButton = (Button) this.getDialogPane().lookupButton(deleteType);
+
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+        okButton.setDisable(true);
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(15));
@@ -138,16 +169,21 @@ public class DWDBrowser extends JFXDialog {
         gridPane.add(targetButton, 1, row);
         row++;
 
-        JFXTextField targetField = new JFXTextField();
-        JFXButton importDataButton = new JFXButton("Import Data");
-        importDataButton.setDisable(true);
-
-        gridPane.add(targetField, 0, row);
-        gridPane.add(importDataButton, 1, row);
-        row++;
+        if (targetObject != null) {
+            try {
+                target = targetObject.getAttribute("Value");
+                targetButton.setText(DataMethods.getObjectName(targetObject));
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
+        }
 
         JFXTextField messageField = new JFXTextField();
         gridPane.add(messageField, 0, row, 2, 1);
+        row++;
+
+        gridPane.add(startDatePicker, 0, row, 1, 1);
+        gridPane.add(endDatePicker, 1, row, 1, 1);
 
         List<String> stationFiles = new ArrayList<>();
         FTPClient ftpClient = new FTPClient();
@@ -156,7 +192,7 @@ public class DWDBrowser extends JFXDialog {
         StationData stationData = new StationData();
         List<String> allDataNames = new ArrayList<>();
 
-        loadDataButton.setOnAction(actionEvent -> loadData(stationBox, targetButton, messageField, ftpClient, stationData, allDataNames));
+        loadDataButton.setOnAction(actionEvent -> loadData(stationBox, targetButton, okButton, messageField, ftpClient, stationData, allDataNames));
 
         targetButton.setOnAction(actionEvent -> {
             try {
@@ -164,9 +200,9 @@ public class DWDBrowser extends JFXDialog {
 
                 List<UserSelection> openList = new ArrayList<>();
 
-                TreeSelectionDialog treeSelectionDialog = new TreeSelectionDialog(dialogContainer, ds, classes, SelectionMode.SINGLE, openList, true);
+                TreeSelectionDialog treeSelectionDialog = new TreeSelectionDialog(ds, classes, SelectionMode.SINGLE, openList, true);
 
-                treeSelectionDialog.setOnDialogClosed(event -> {
+                treeSelectionDialog.setOnCloseRequest(event -> {
                     try {
                         if (treeSelectionDialog.getResponse() == Response.OK) {
                             List<UserSelection> selections = treeSelectionDialog.getUserSelection();
@@ -177,8 +213,8 @@ public class DWDBrowser extends JFXDialog {
                                     target = us.getSelectedObject().getAttribute("Value");
                                 }
                                 Platform.runLater(() -> {
-                                    targetField.setText(target.getObject().getID() + ":" + target.getName());
-                                    importDataButton.setDisable(false);
+                                    targetButton.setText(DataMethods.getObjectName(target.getObject()));
+                                    okButton.setDisable(false);
                                 });
                             }
                         }
@@ -192,7 +228,7 @@ public class DWDBrowser extends JFXDialog {
             }
         });
 
-        importDataButton.setOnAction(actionEvent -> {
+        okButton.setOnAction(actionEvent -> {
             List<JEVisSample> samples = new ArrayList<>();
             String selectedData = dataBox.getSelectionModel().getSelectedItem();
 
@@ -201,12 +237,20 @@ public class DWDBrowser extends JFXDialog {
                 protected Void call() {
                     try {
                         stationData.getData().forEach((dateTime, stringStringMap) -> {
-                            String s = stringStringMap.get(selectedData);
-                            try {
-                                JEVisSample sample = target.buildSample(dateTime, s);
-                                samples.add(sample);
-                            } catch (Exception e) {
-                                logger.error("Could not create JEVisSample", e);
+
+                            if (startDatePicker.getValue() != null && endDatePicker.getValue() != null) {
+                                firstDate = toDateTime(startDatePicker.getValue());
+                                lastDate = toDateTime(endDatePicker.getValue()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
+                            }
+
+                            if (dateTime.equals(firstDate) || (dateTime.isAfter(firstDate) && dateTime.isBefore(lastDate)) || dateTime.equals(lastDate)) {
+                                String s = stringStringMap.get(selectedData);
+                                try {
+                                    JEVisSample sample = target.buildSample(dateTime, s);
+                                    samples.add(sample);
+                                } catch (Exception e) {
+                                    logger.error("Could not create JEVisSample", e);
+                                }
                             }
                         });
 
@@ -228,6 +272,8 @@ public class DWDBrowser extends JFXDialog {
 
             JEConfig.getStatusBar().addTask("DWD Import", importData, JEConfig.getImage("save.gif"), true);
         });
+
+        cancelButton.setOnAction(actionEvent -> close());
 
         stationFilter.textProperty().addListener(obs -> {
             String filter = stationFilter.getText();
@@ -253,10 +299,12 @@ public class DWDBrowser extends JFXDialog {
             }
         });
 
-        setContent(gridPane);
+        getDialogPane().setContent(gridPane);
+
+
     }
 
-    private void loadData(JFXComboBox<Station> stationBox, JFXButton targetButton, JFXTextField messageField, FTPClient ftpClient, StationData stationData, List<String> allDataNames) {
+    private void loadData(JFXComboBox<Station> stationBox, JFXButton targetButton, Button okButton, JFXTextField messageField, FTPClient ftpClient, StationData stationData, List<String> allDataNames) {
         try {
             Station selectedStation = stationBox.getSelectionModel().getSelectedItem();
             StringBuilder idString = new StringBuilder(String.valueOf(selectedStation.getId()));
@@ -269,68 +317,70 @@ public class DWDBrowser extends JFXDialog {
             stationData.setId(selectedStation.getId());
             Map<DateTime, Map<String, String>> dataMap = new HashMap<>();
 
-            for (Map.Entry<Attribute, String> stationPath : selectedStation.getIntervalPath().entrySet()) {
-                for (FTPFile ftpFile : ftpClient.listFiles(stationPath.getValue(), filter)) {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    logger.info("FTPQuery " + ftpFile.getName());
-                    boolean retrieveFile = ftpClient.retrieveFile(stationPath + ftpFile.getName(), out);
-                    logger.info("retrieved file " + ftpFile.getName());
+            for (Map.Entry<Attribute, List<String>> stationPathList : selectedStation.getIntervalPath().entrySet()) {
+                for (String stationPath : stationPathList.getValue()) {
+                    for (FTPFile ftpFile : ftpClient.listFiles(stationPath, filter)) {
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        logger.info("FTPQuery " + ftpFile.getName());
+                        boolean retrieveFile = ftpClient.retrieveFile(stationPath + ftpFile.getName(), out);
+                        logger.info("retrieved file " + ftpFile.getName());
 
-                    InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
-                    ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+                        InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
+                        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
-                    ZipEntry entry;
-                    while ((entry = zipInputStream.getNextEntry()) != null) {
-                        if (entry.getName().contains("produkt")) {
-                            Scanner sc = new Scanner(zipInputStream);
-                            int lineNo = 0;
-                            List<String> dataNames = new ArrayList<>();
+                        ZipEntry entry;
+                        while ((entry = zipInputStream.getNextEntry()) != null) {
+                            if (entry.getName().contains("produkt")) {
+                                Scanner sc = new Scanner(zipInputStream);
+                                int lineNo = 0;
+                                List<String> dataNames = new ArrayList<>();
 
-                            while (sc.hasNextLine()) {
-                                String[] split = sc.nextLine().split(";");
+                                while (sc.hasNextLine()) {
+                                    String[] split = sc.nextLine().split(";");
 
-                                Map<String, String> columnMap = new HashMap<>();
+                                    Map<String, String> columnMap = new HashMap<>();
 
-                                for (int i = 2; i < split.length; i++) {
-                                    if (lineNo == 0) {
-                                        String dataName = split[i].trim();
-                                        dataNames.add(dataName);
-                                        if (!allDataNames.contains(dataName)) {
-                                            allDataNames.add(dataName);
+                                    for (int i = 2; i < split.length; i++) {
+                                        if (lineNo == 0) {
+                                            String dataName = split[i].trim();
+                                            dataNames.add(dataName);
+                                            if (!allDataNames.contains(dataName)) {
+                                                allDataNames.add(dataName);
+                                            }
+                                        } else {
+                                            columnMap.put(dataNames.get(i - 2), split[i]);
                                         }
-                                    } else {
-                                        columnMap.put(dataNames.get(i - 2), split[i]);
                                     }
-                                }
 
-                                if (lineNo > 0) {
-                                    try {
-                                        DateTimeFormatter dtf = null;
-                                        if (split[1].length() == 12)
-                                            dtf = minuteFormatter;
-                                        else if (split[1].length() == 10)
-                                            dtf = hourFormatter;
-                                        else if (split[1].length() == 8)
-                                            dtf = dayFormatter;
-                                        else if (split[1].length() == 6)
-                                            dtf = monthFormatter;
-                                        else if (split[1].length() == 4)
-                                            dtf = yearFormatter;
+                                    if (lineNo > 0) {
+                                        try {
+                                            DateTimeFormatter dtf = null;
+                                            if (split[1].length() == 12)
+                                                dtf = minuteFormatter;
+                                            else if (split[1].length() == 10)
+                                                dtf = hourFormatter;
+                                            else if (split[1].length() == 8)
+                                                dtf = dayFormatter;
+                                            else if (split[1].length() == 6)
+                                                dtf = monthFormatter;
+                                            else if (split[1].length() == 4)
+                                                dtf = yearFormatter;
 
-                                        if (dtf != null) {
-                                            DateTime dateTime = dtf.parseDateTime(split[1]);
-                                            dataMap.put(dateTime, columnMap);
-                                            if (dateTime.isBefore(firstDate)) firstDate = dateTime;
-                                            if (dateTime.isAfter(lastDate)) lastDate = dateTime;
-                                        } else
-                                            Platform.runLater(() -> messageField.setText("Could not determine date format"));
-                                    } catch (Exception e) {
-                                        logger.error("Could not create map for {}", split[1], e);
+                                            if (dtf != null) {
+                                                DateTime dateTime = dtf.parseDateTime(split[1]);
+                                                dataMap.put(dateTime, columnMap);
+                                                if (dateTime.isBefore(firstDate)) firstDate = dateTime;
+                                                if (dateTime.isAfter(lastDate)) lastDate = dateTime;
+                                            } else
+                                                Platform.runLater(() -> messageField.setText("Could not determine date format"));
+                                        } catch (Exception e) {
+                                            logger.error("Could not create map for {}", split[1], e);
+                                        }
                                     }
+                                    lineNo++;
                                 }
-                                lineNo++;
+                                break;
                             }
-                            break;
                         }
                     }
                 }
@@ -342,7 +392,11 @@ public class DWDBrowser extends JFXDialog {
                 dataBox.getSelectionModel().selectFirst();
                 messageField.setText(firstDate.toString() + " - " + lastDate.toString());
                 targetButton.setDisable(false);
+                if (targetObject != null) {
+                    okButton.setDisable(false);
+                }
             });
+            setCellFactory();
         } catch (Exception e) {
             logger.error(e);
         }
@@ -404,7 +458,9 @@ public class DWDBrowser extends JFXDialog {
                             station.setTo(to);
                             line = line.substring(indexOfFirstSpace).trim();
 
-                            station.getIntervalPath().put(attributeBox.getSelectionModel().getSelectedItem(), stationPath);
+                            List<String> stationPathList = new ArrayList<>();
+                            stationPathList.add(stationPath);
+                            station.getIntervalPath().put(attributeBox.getSelectionModel().getSelectedItem(), stationPathList);
 
                             indexOfFirstSpace = line.indexOf(" ");
                             Long height = Long.parseLong(line.substring(0, indexOfFirstSpace));
@@ -446,7 +502,14 @@ public class DWDBrowser extends JFXDialog {
                                         oldStation.setTo(station.getTo());
                                     }
 
-                                    oldStation.getIntervalPath().put(attributeBox.getSelectionModel().getSelectedItem(), stationPath);
+                                    if (oldStation.getIntervalPath().get(attributeBox.getSelectionModel().getSelectedItem()) != null) {
+                                        oldStation.getIntervalPath().get(attributeBox.getSelectionModel().getSelectedItem()).add(stationPath);
+                                    } else {
+                                        List<String> stationPathList = new ArrayList<>();
+                                        stationPathList.add(stationPath);
+                                        oldStation.getIntervalPath().put(attributeBox.getSelectionModel().getSelectedItem(), stationPathList);
+                                    }
+
                                     break;
                                 }
                             }
@@ -506,5 +569,40 @@ public class DWDBrowser extends JFXDialog {
                 findAllStationFiles(ftpClient, stationFiles);
             }
         }
+    }
+
+    public void setCellFactory() {
+        Callback<DatePicker, DateCell> dateCellCallback = new Callback<DatePicker, DateCell>() {
+            @Override
+            public DateCell call(final DatePicker datePicker) {
+                return new DateCell() {
+                    @Override
+                    public void updateItem(LocalDate item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (firstDate != null && item.isBefore(toLocalDate(firstDate))) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;");
+                        }
+
+                        if (lastDate != null && item.isAfter(toLocalDate(lastDate))) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;");
+                        }
+                    }
+                };
+            }
+        };
+
+        startDatePicker.setDayCellFactory(dateCellCallback);
+        endDatePicker.setDayCellFactory(dateCellCallback);
+    }
+
+    private DateTime toDateTime(LocalDate localDate) {
+        return new DateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0);
+    }
+
+    public LocalDate toLocalDate(DateTime dateTime) {
+        return LocalDate.of(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth());
     }
 }

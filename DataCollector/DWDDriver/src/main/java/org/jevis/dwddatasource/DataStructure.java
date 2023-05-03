@@ -1,4 +1,4 @@
-package org.jevis.dwddriver;
+package org.jevis.dwddatasource;
 
 import org.jevis.commons.driver.dwd.Aggregation;
 import org.jevis.commons.driver.dwd.Attribute;

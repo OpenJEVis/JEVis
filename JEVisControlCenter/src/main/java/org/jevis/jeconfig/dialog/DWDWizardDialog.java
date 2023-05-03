@@ -21,14 +21,14 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.datasource.Station;
+import org.jevis.commons.datasource.StationData;
 import org.jevis.commons.driver.dwd.Aggregation;
 import org.jevis.commons.driver.dwd.Attribute;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
-import org.jevis.jeconfig.tool.dwdbrowser.Station;
-import org.jevis.jeconfig.tool.dwdbrowser.StationData;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -156,109 +156,113 @@ public class DWDWizardDialog {
 
             ftpClient.changeWorkingDirectory(initialPath);
 
-            Map<Attribute, String> stationFiles = new HashMap<>();
+            Map<Attribute, List<String>> stationFiles = new HashMap<>();
             findAllStationFiles(ftpClient, stationFiles);
 
             ftpClient.changeWorkingDirectory(initialPath);
 
-            for (Map.Entry<Attribute, String> entry : stationFiles.entrySet()) {
-                Attribute attribute = entry.getKey();
-                String s = entry.getValue();
-                String stationPath = s.substring(0, s.lastIndexOf("/") + 1);
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                logger.info("FTPQuery " + s);
-                boolean retrieveFile = ftpClient.retrieveFile(s, out);
-                logger.info("Request status: " + retrieveFile);
+            for (Map.Entry<Attribute, List<String>> stationPathList : stationFiles.entrySet()) {
+                for (String stationPath : stationPathList.getValue()) {
+                    Attribute attribute = stationPathList.getKey();
 
-                InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
+                    stationPath = stationPath.substring(0, stationPath.lastIndexOf("/") + 1);
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    logger.info("FTPQuery " + stationPath);
+                    boolean retrieveFile = ftpClient.retrieveFile(stationPath, out);
+                    logger.info("Request status: " + retrieveFile);
 
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-                    while (reader.ready()) {
-                        Station station = new Station();
+                    InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
 
-                        String line = reader.readLine();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                        while (reader.ready()) {
+                            Station station = new Station();
 
-                        if (line.startsWith("S") || line.startsWith("-")) continue;
+                            String line = reader.readLine();
 
-                        try {
-                            int indexOfFirstSpace = line.indexOf(" ");
-                            Long id = Long.parseLong(line.substring(0, indexOfFirstSpace));
-                            station.setId(id);
-                            line = line.substring(indexOfFirstSpace).trim();
+                            if (line.startsWith("S") || line.startsWith("-")) continue;
 
-                            indexOfFirstSpace = line.indexOf(" ");
+                            try {
+                                int indexOfFirstSpace = line.indexOf(" ");
+                                Long id = Long.parseLong(line.substring(0, indexOfFirstSpace));
+                                station.setId(id);
+                                line = line.substring(indexOfFirstSpace).trim();
 
-                            DateTime from = dateFormatter.parseDateTime(line.substring(0, indexOfFirstSpace));
-                            station.setFrom(from);
-                            line = line.substring(indexOfFirstSpace).trim();
+                                indexOfFirstSpace = line.indexOf(" ");
 
-                            indexOfFirstSpace = line.indexOf(" ");
-                            DateTime to = dateFormatter.parseDateTime(line.substring(0, indexOfFirstSpace));
-                            station.setTo(to);
-                            line = line.substring(indexOfFirstSpace).trim();
+                                DateTime from = dateFormatter.parseDateTime(line.substring(0, indexOfFirstSpace));
+                                station.setFrom(from);
+                                line = line.substring(indexOfFirstSpace).trim();
 
-                            station.getIntervalPath().put(attribute, stationPath);
+                                indexOfFirstSpace = line.indexOf(" ");
+                                DateTime to = dateFormatter.parseDateTime(line.substring(0, indexOfFirstSpace));
+                                station.setTo(to);
+                                line = line.substring(indexOfFirstSpace).trim();
 
-                            indexOfFirstSpace = line.indexOf(" ");
-                            Long height = Long.parseLong(line.substring(0, indexOfFirstSpace));
-                            station.setHeight(height);
-                            line = line.substring(indexOfFirstSpace).trim();
+                                List<String> stationFileList = new ArrayList<>();
+                                stationFileList.add(stationPath);
+                                station.getIntervalPath().put(attribute, stationFileList);
 
-                            indexOfFirstSpace = line.indexOf(" ");
-                            Double geoWidth = Double.parseDouble(line.substring(0, indexOfFirstSpace));
-                            station.setGeoWidth(geoWidth);
-                            line = line.substring(indexOfFirstSpace).trim();
+                                indexOfFirstSpace = line.indexOf(" ");
+                                Long height = Long.parseLong(line.substring(0, indexOfFirstSpace));
+                                station.setHeight(height);
+                                line = line.substring(indexOfFirstSpace).trim();
 
-                            indexOfFirstSpace = line.indexOf(" ");
-                            Double geoHeight = Double.parseDouble(line.substring(0, indexOfFirstSpace));
-                            station.setGeoHeight(geoHeight);
-                            line = line.substring(indexOfFirstSpace).trim();
+                                indexOfFirstSpace = line.indexOf(" ");
+                                Double geoWidth = Double.parseDouble(line.substring(0, indexOfFirstSpace));
+                                station.setGeoWidth(geoWidth);
+                                line = line.substring(indexOfFirstSpace).trim();
 
-                            indexOfFirstSpace = line.indexOf(" ");
-                            String name = line.substring(0, indexOfFirstSpace);
-                            station.setName(name);
-                            line = line.substring(indexOfFirstSpace).trim();
+                                indexOfFirstSpace = line.indexOf(" ");
+                                Double geoHeight = Double.parseDouble(line.substring(0, indexOfFirstSpace));
+                                station.setGeoHeight(geoHeight);
+                                line = line.substring(indexOfFirstSpace).trim();
 
-                            String state = line;
-                            station.setState(state);
+                                indexOfFirstSpace = line.indexOf(" ");
+                                String name = line.substring(0, indexOfFirstSpace);
+                                station.setName(name);
+                                line = line.substring(indexOfFirstSpace).trim();
 
-                        } catch (Exception e) {
-                            logger.error("Could not parse line {}", line, e);
-                        }
+                                String state = line;
+                                station.setState(state);
 
-                        if (!stations.contains(station)) {
-                            stations.add(station);
-                        } else {
-                            for (Station oldStation : stations) {
-                                if (oldStation.equals(station)) {
-                                    if (station.getFrom().isBefore(oldStation.getFrom())) {
-                                        oldStation.setFrom(station.getFrom());
+                            } catch (Exception e) {
+                                logger.error("Could not parse line {}", line, e);
+                            }
+
+                            if (!stations.contains(station)) {
+                                stations.add(station);
+                            } else {
+                                for (Station oldStation : stations) {
+                                    if (oldStation.equals(station)) {
+                                        if (station.getFrom().isBefore(oldStation.getFrom())) {
+                                            oldStation.setFrom(station.getFrom());
+                                        }
+
+                                        if (station.getTo().isAfter(oldStation.getTo())) {
+                                            oldStation.setTo(station.getTo());
+                                        }
+
+                                        //                                    oldStation.getIntervalPath().add(stationPath);
+                                        break;
                                     }
-
-                                    if (station.getTo().isAfter(oldStation.getTo())) {
-                                        oldStation.setTo(station.getTo());
-                                    }
-
-//                                    oldStation.getIntervalPath().add(stationPath);
-                                    break;
                                 }
                             }
                         }
+                    } catch (FileNotFoundException e) {
+                        logger.error("File not found", e);
+                    } catch (IOException e) {
+                        logger.error("IOException", e);
                     }
-                } catch (FileNotFoundException e) {
-                    logger.error("File not found", e);
-                } catch (IOException e) {
-                    logger.error("IOException", e);
+
+                    AlphanumComparator alphanumComparator = new AlphanumComparator();
+                    stations.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+                    filteredStations = new FilteredList<>(FXCollections.observableArrayList(stations), station -> true);
+
+                    Platform.runLater(() -> {
+                        listViewStations.setItems(filteredStations);
+                        loadDataButton.setDisable(false);
+                    });
                 }
-
-                AlphanumComparator alphanumComparator = new AlphanumComparator();
-                stations.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
-                filteredStations = new FilteredList<>(FXCollections.observableArrayList(stations), station -> true);
-
-                Platform.runLater(() -> {
-                    listViewStations.setItems(filteredStations);
-                    loadDataButton.setDisable(false);
-                });
             }
 
         } catch (Exception e) {
@@ -305,68 +309,70 @@ public class DWDWizardDialog {
                 stationData.setId(selectedStation.getId());
                 Map<DateTime, Map<String, String>> dataMap = new HashMap<>();
 
-                for (Map.Entry<Attribute, String> stationPath : selectedStation.getIntervalPath().entrySet()) {
-                    for (FTPFile ftpFile : ftpClient.listFiles(stationPath.getValue(), filter)) {
-                        ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        logger.info("FTPQuery " + ftpFile.getName());
-                        boolean retrieveFile = ftpClient.retrieveFile(stationPath + ftpFile.getName(), out);
-                        logger.info("retrieved file " + ftpFile.getName());
+                for (Map.Entry<Attribute, List<String>> stationPath : selectedStation.getIntervalPath().entrySet()) {
+                    for (String stationFile : stationPath.getValue()) {
+                        for (FTPFile ftpFile : ftpClient.listFiles(stationFile, filter)) {
+                            ByteArrayOutputStream out = new ByteArrayOutputStream();
+                            logger.info("FTPQuery " + ftpFile.getName());
+                            boolean retrieveFile = ftpClient.retrieveFile(stationPath + ftpFile.getName(), out);
+                            logger.info("retrieved file " + ftpFile.getName());
 
-                        InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
-                        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+                            InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
+                            ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
-                        ZipEntry entry;
-                        while ((entry = zipInputStream.getNextEntry()) != null) {
-                            if (entry.getName().contains("produkt")) {
-                                Scanner sc = new Scanner(zipInputStream);
-                                int lineNo = 0;
-                                List<String> dataNames = new ArrayList<>();
+                            ZipEntry entry;
+                            while ((entry = zipInputStream.getNextEntry()) != null) {
+                                if (entry.getName().contains("produkt")) {
+                                    Scanner sc = new Scanner(zipInputStream);
+                                    int lineNo = 0;
+                                    List<String> dataNames = new ArrayList<>();
 
-                                while (sc.hasNextLine()) {
-                                    String[] split = sc.nextLine().split(";");
+                                    while (sc.hasNextLine()) {
+                                        String[] split = sc.nextLine().split(";");
 
-                                    Map<String, String> columnMap = new HashMap<>();
+                                        Map<String, String> columnMap = new HashMap<>();
 
-                                    for (int i = 2; i < split.length; i++) {
-                                        if (lineNo == 0) {
-                                            String dataName = split[i].trim();
-                                            dataNames.add(dataName);
-                                            if (!allDataNames.contains(dataName)) {
-                                                allDataNames.add(dataName);
+                                        for (int i = 2; i < split.length; i++) {
+                                            if (lineNo == 0) {
+                                                String dataName = split[i].trim();
+                                                dataNames.add(dataName);
+                                                if (!allDataNames.contains(dataName)) {
+                                                    allDataNames.add(dataName);
+                                                }
+                                            } else {
+                                                columnMap.put(dataNames.get(i - 2), split[i]);
                                             }
-                                        } else {
-                                            columnMap.put(dataNames.get(i - 2), split[i]);
                                         }
-                                    }
 
-                                    if (lineNo > 0) {
-                                        try {
-                                            DateTimeFormatter dtf = null;
-                                            if (split[1].length() == 12)
-                                                dtf = minuteFormatter;
-                                            else if (split[1].length() == 10)
-                                                dtf = hourFormatter;
-                                            else if (split[1].length() == 8)
-                                                dtf = dayFormatter;
-                                            else if (split[1].length() == 6)
-                                                dtf = monthFormatter;
-                                            else if (split[1].length() == 4)
-                                                dtf = yearFormatter;
+                                        if (lineNo > 0) {
+                                            try {
+                                                DateTimeFormatter dtf = null;
+                                                if (split[1].length() == 12)
+                                                    dtf = minuteFormatter;
+                                                else if (split[1].length() == 10)
+                                                    dtf = hourFormatter;
+                                                else if (split[1].length() == 8)
+                                                    dtf = dayFormatter;
+                                                else if (split[1].length() == 6)
+                                                    dtf = monthFormatter;
+                                                else if (split[1].length() == 4)
+                                                    dtf = yearFormatter;
 
-                                            if (dtf != null) {
-                                                DateTime dateTime = dtf.parseDateTime(split[1]);
-                                                dataMap.put(dateTime, columnMap);
-                                                if (dateTime.isBefore(firstDate)) firstDate = dateTime;
-                                                if (dateTime.isAfter(lastDate)) lastDate = dateTime;
-                                            } else
-                                                logger.warn("Could not determine date format");
-                                        } catch (Exception e) {
-                                            logger.error("Could not create map for {}", split[1], e);
+                                                if (dtf != null) {
+                                                    DateTime dateTime = dtf.parseDateTime(split[1]);
+                                                    dataMap.put(dateTime, columnMap);
+                                                    if (dateTime.isBefore(firstDate)) firstDate = dateTime;
+                                                    if (dateTime.isAfter(lastDate)) lastDate = dateTime;
+                                                } else
+                                                    logger.warn("Could not determine date format");
+                                            } catch (Exception e) {
+                                                logger.error("Could not create map for {}", split[1], e);
+                                            }
                                         }
+                                        lineNo++;
                                     }
-                                    lineNo++;
+                                    break;
                                 }
-                                break;
                             }
                         }
                     }
@@ -385,7 +391,7 @@ public class DWDWizardDialog {
         }
     }
 
-    private void findAllStationFiles(FTPClient ftpClient, Map<Attribute, String> stationFiles) throws IOException {
+    private void findAllStationFiles(FTPClient ftpClient, Map<Attribute, List<String>> stationFiles) throws IOException {
 
         String workingDirectory = ftpClient.printWorkingDirectory();
         FTPFileFilter filter = ftpFile -> (ftpFile.isFile() && ftpFile.getName().contains(".txt"));
@@ -393,7 +399,13 @@ public class DWDWizardDialog {
             if (ftpFile.isFile() && ftpFile.getName().contains(".txt")) {
                 Attribute attribute = Arrays.stream(Attribute.values()).filter(att -> workingDirectory.toLowerCase().contains(att.toString().toLowerCase())).findFirst().orElse(null);
                 if (attribute != null) {
-                    stationFiles.put(attribute, ftpClient.printWorkingDirectory() + "/" + ftpFile.getName());
+                    if (stationFiles.get(attribute) != null) {
+                        stationFiles.get(attribute).add(ftpClient.printWorkingDirectory() + "/" + ftpFile.getName());
+                    } else {
+                        List<String> stationFilesList = new ArrayList<>();
+                        stationFilesList.add(ftpClient.printWorkingDirectory() + "/" + ftpFile.getName());
+                        stationFiles.put(attribute, stationFilesList);
+                    }
                 }
             }
         }
