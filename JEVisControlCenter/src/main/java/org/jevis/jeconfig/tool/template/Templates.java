@@ -13,6 +13,7 @@ public class Templates {
         templateList.add(new GasMeterCubic());
         templateList.add(new WaterCubicMetre());
         templateList.add(new Temperature());
+        templateList.add(new BuildingObject());
 
         return templateList;
     }
