@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.nonconformities.ui;
+package org.jevis.jeconfig.application.table;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -9,7 +9,7 @@ import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
-public class StringListColumnCell <T> implements Callback<TableColumn<T, String>, TableCell<T, String>> {
+public class StringListColumnCell<T> implements Callback<TableColumn<T, String>, TableCell<T, String>> {
 
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
