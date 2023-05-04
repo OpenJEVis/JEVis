@@ -46,6 +46,7 @@ import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dtrc.TRCPlugin;
 import org.jevis.jeconfig.plugin.equipment.EquipmentPlugin;
+import org.jevis.jeconfig.plugin.legal.LegalCatasdrePlugin;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesPlugin;
 import org.jevis.jeconfig.plugin.notes.NotesPlugin;
@@ -235,7 +236,7 @@ public class PluginManager {
                     }
                 }
 
-                //_plugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
+                _plugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.Legalcadastre.name")));
                 this._plugins.addAll(enabledPlugins);
 
             }
@@ -277,6 +278,7 @@ public class PluginManager {
 //        AnchorPane.setBottomAnchor(toolbar, 0.0);
 
         for (Plugin plugin : this._plugins) {
+            System.out.println(plugin);
             try {
                 DraggableTab pluginTab = new DraggableTab(plugin.getName(), plugin.getIcon(), plugin);
                 //Tab pluginTab = new Tab(plugin.getName());
