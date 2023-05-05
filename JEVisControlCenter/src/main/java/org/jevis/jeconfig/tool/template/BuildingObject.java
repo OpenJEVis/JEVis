@@ -353,11 +353,8 @@ public class BuildingObject extends Template {
     }
 
     @Override
-    public boolean supportsClass(JEVisClass jclass) throws JEVisException {
-        if (jclass.getName().equals("Building")) {
-            return true;
-        }
-        return false;
+    public boolean supportsClass(JEVisClass jClass) throws JEVisException {
+        return jClass.getName().equals("Building");
     }
 
     @Override
