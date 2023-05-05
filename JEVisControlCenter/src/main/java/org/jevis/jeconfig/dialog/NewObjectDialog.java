@@ -93,9 +93,15 @@ public class NewObjectDialog {
         dialog.getDialogPane().getButtonTypes().setAll();
         dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));
         dialog.setResizable(true);
-        VBox root = new VBox();
+        VBox vBox = new VBox();
+        vBox.setPadding(new Insets(8));
+        vBox.setSpacing(6);
+        GridPane optionsGrid = new GridPane();
+        optionsGrid.setPadding(new Insets(8));
+        optionsGrid.setVgap(6);
+        optionsGrid.setHgap(6);
 
-        dialog.getDialogPane().setContent(root);
+        dialog.getDialogPane().setContent(vBox);
 
         JEVisClass parentClass = null;
         JEVisClass dataDirectoryClass = null;
@@ -201,12 +207,21 @@ public class NewObjectDialog {
         JFXComboBox<Template> templateBox = new JFXComboBox<>();
         templateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
-            root.getChildren().remove(1, root.getChildren().size());
+            Platform.runLater(() -> optionsGrid.getChildren().clear());
             template = newValue;
+            int row = 0;
             for (Map.Entry<String, Node> entry : template.getOptions().entrySet()) {
-                String s = entry.getKey();
-                Node node = entry.getValue();
-                Platform.runLater(() -> root.getChildren().add(node));
+                String optionName = entry.getKey();
+                Label nameLabel = new Label(optionName);
+
+                Node optionNode = entry.getValue();
+                int finalRow = row;
+                Platform.runLater(() -> {
+
+                    optionsGrid.add(nameLabel, 0, finalRow);
+                    optionsGrid.add(optionNode, 1, finalRow);
+                });
+                row++;
             }
             Platform.runLater(() -> dialog.getDialogPane().autosize());
         });
@@ -296,7 +311,7 @@ public class NewObjectDialog {
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
 
-        root.getChildren().addAll(gp);
+        vBox.getChildren().addAll(gp, optionsGrid);
         VBox.setVgrow(gp, Priority.ALWAYS);
 
 
