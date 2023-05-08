@@ -34,7 +34,7 @@ public class GeneralTab extends Tab {
     private final TextArea f_description = new TextArea();
 
     private final JFXComboBox f_category = new JFXComboBox();
-    private final JFXComboBox f_validity = new JFXComboBox();
+    private final JFXComboBox f_scope = new JFXComboBox();
 
     private final JFXTextField f_Attachment = new JFXTextField();
 
@@ -54,7 +54,7 @@ public class GeneralTab extends Tab {
     private final Label l_link = new Label();
 
     private final Label l_category = new Label();
-    private final Label l_validity = new Label();
+    private final Label l_scope = new Label();
 
     LegislationData legislationData;
 
@@ -87,7 +87,7 @@ public class GeneralTab extends Tab {
         gridPane.setVgap(10);
         gridPane.setHgap(15);
 
-        f_validity.setItems(data.getLegalCadastre().getScopes());
+        f_scope.setItems(data.getLegalCadastre().getScopes());
         f_category.setItems(data.getLegalCadastre().getCategories());
         //gridPane.gridLinesVisibleProperty().set(true);
 
@@ -102,7 +102,7 @@ public class GeneralTab extends Tab {
         add(gridPane, 3, 2, 1, 1, Priority.ALWAYS, l_activeVersion);
         add(gridPane, 3, 3, 1, 1, Priority.ALWAYS, l_dateOfExamination);
         add(gridPane, 3, 4, 1, 1, Priority.ALWAYS, l_link);
-        add(gridPane, 3, 5, 1, 1, Priority.ALWAYS, l_validity);
+        add(gridPane, 3, 5, 1, 1, Priority.ALWAYS, l_scope);
 
 
         add(gridPane, 2, 1, 1, 1, Priority.ALWAYS, f_Nr);
@@ -115,7 +115,7 @@ public class GeneralTab extends Tab {
         add(gridPane, 4, 2, 1, 1, Priority.ALWAYS, f_activeVersion);
         add(gridPane, 4, 3, 1, 1, Priority.ALWAYS, f_dateOfExamination);
         add(gridPane, 4, 4, 1, 1, Priority.ALWAYS, f_link);
-        add(gridPane, 4, 5, 1, 1, Priority.ALWAYS, f_validity);
+        add(gridPane, 4, 5, 1, 1, Priority.ALWAYS, f_scope);
 
 
         add(gridPane, 1, 6, 2, 1, Priority.ALWAYS, l_description);
@@ -150,7 +150,7 @@ public class GeneralTab extends Tab {
         f_link.textProperty().bindBidirectional(data.linkToVersionProperty());
         f_relevance.selectedProperty().bindBidirectional(data.relevantProperty());
         f_category.valueProperty().bindBidirectional(data.categoryProperty());
-        f_validity.valueProperty().bindBidirectional(data.scopeProperty());
+        f_scope.valueProperty().bindBidirectional(data.scopeProperty());
 
         l_Nr.setText(fake.nrProperty().getName());
         l_title.setText(fake.titleProperty().getName());
@@ -163,7 +163,7 @@ public class GeneralTab extends Tab {
         l_link.setText(fake.linkToVersionProperty().getName());
         l_issueDate.setText(fake.issueDateProperty().getName());
         l_category.setText(fake.categoryProperty().getName());
-        l_validity.setText(fake.scopeProperty().getName());
+        l_scope.setText(fake.scopeProperty().getName());
 
         f_relevance.setMinWidth(200);
         f_relevance.setMaxWidth(200);
@@ -179,6 +179,10 @@ public class GeneralTab extends Tab {
         f_title.setMaxWidth(200);
         f_designation.setMinWidth(200);
         f_designation.setMaxWidth(200);
+        f_category.setMinWidth(200);
+        f_category.setMaxWidth(200);
+        f_scope.setMaxWidth(200);
+        f_scope.setMinWidth(200);
         //f_description.setMinWidth(200);
         //f_description.setMaxWidth(200);
         //f_importanceForTheCompany.setMinWidth(200);

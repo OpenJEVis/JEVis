@@ -70,6 +70,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
 
     private static int DATE_TIME_WIDTH = 120;
     private static int BIG_WIDTH = 200;
+    private static int VERY_BIG_WIDTH = 400;
     private static int SMALL_WIDTH = 60;
 
     public static final String ALL = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.all");
@@ -105,7 +106,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         nrCol.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().getNr())));
         nrCol.setCellFactory(new ShortColumnCell<LegislationData>());
         nrCol.setStyle("-fx-alignment: LEFT;");
-        nrCol.setMinWidth(BIG_WIDTH);
+        nrCol.setMinWidth(SMALL_WIDTH);
 
 
         TableColumn<LegislationData, String> legislationCol = new TableColumn(fakeForName.titleProperty().getName());
@@ -119,13 +120,13 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         designationCol.setCellValueFactory(param -> param.getValue().designationProperty());
         designationCol.setCellFactory(new ShortColumnCell<LegislationData>());
         designationCol.setStyle("-fx-alignment: LEFT;");
-        designationCol.setMinWidth(BIG_WIDTH);
+        designationCol.setMinWidth(VERY_BIG_WIDTH);
 
         TableColumn<LegislationData, String> descriptionCol = new TableColumn(fakeForName.descriptionProperty().getName());
         descriptionCol.setCellValueFactory(param -> param.getValue().descriptionProperty());
         descriptionCol.setCellFactory(new ShortColumnCell<LegislationData>());
         descriptionCol.setStyle("-fx-alignment: LEFT;");
-        descriptionCol.setMinWidth(BIG_WIDTH);
+        descriptionCol.setMinWidth(VERY_BIG_WIDTH);
 
 
         TableColumn<LegislationData, DateTime> issueDateCol = new TableColumn(fakeForName.issueDateProperty().getName());
@@ -144,10 +145,8 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         relevanceCol.setCellValueFactory(param -> param.getValue().relevantProperty());
         relevanceCol.setCellFactory(CheckBoxTableCell.forTableColumn(relevanceCol));
         relevanceCol.setStyle("-fx-alignment: CENTER;");
-        relevanceCol.setMinWidth(BIG_WIDTH);
+        relevanceCol.setMinWidth(SMALL_WIDTH);
 
-        relevanceCol.setStyle("-fx-alignment: CENTER;");
-        relevanceCol.setMinWidth(BIG_WIDTH);
 
         TableColumn<LegislationData, DateTime> dateOfExaminationCol = new TableColumn(fakeForName.dateOfExaminationProperty().getName());
         dateOfExaminationCol.setCellValueFactory(param -> param.getValue().dateOfExaminationProperty());
@@ -166,40 +165,40 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         linkCol.setCellValueFactory(param -> param.getValue().linkToVersionProperty());
         linkCol.setCellFactory(new HyperlinkCell<LegislationData>());
         linkCol.setStyle("-fx-alignment: CENTER;");
-        linkCol.setMinWidth(BIG_WIDTH);
+        linkCol.setMinWidth(VERY_BIG_WIDTH);
 
 
         TableColumn<LegislationData, String> categoryCol = new TableColumn<>(fakeForName.categoryProperty().getName());
         categoryCol.setCellValueFactory(param -> param.getValue().categoryProperty());
         categoryCol.setCellFactory(new ShortColumnCell<LegislationData>());
         categoryCol.setStyle("-fx-alignment: CENTER;");
-        categoryCol.setMinWidth(BIG_WIDTH);
+        categoryCol.setMinWidth(SMALL_WIDTH);
 
-        TableColumn<LegislationData, String> validityCol = new TableColumn<>(fakeForName.scopeProperty().getName());
-        validityCol.setCellValueFactory(param -> param.getValue().scopeProperty());
-        validityCol.setCellFactory(new ShortColumnCell<LegislationData>());
-        validityCol.setStyle("-fx-alignment: CENTER;");
-        validityCol.setMinWidth(BIG_WIDTH);
+        TableColumn<LegislationData, String> scopeCol = new TableColumn<>(fakeForName.scopeProperty().getName());
+        scopeCol.setCellValueFactory(param -> param.getValue().scopeProperty());
+        scopeCol.setCellFactory(new ShortColumnCell<LegislationData>());
+        scopeCol.setStyle("-fx-alignment: CENTER;");
+        scopeCol.setMinWidth(SMALL_WIDTH);
 
 
         nrCol.setVisible(true);
         legislationCol.setVisible(true);
         designationCol.setVisible(true);
-        descriptionCol.setVisible(true);
+        descriptionCol.setVisible(false);
         issueDateCol.setVisible(true);
         activeVersionCol.setVisible(true);
 
         relevanceCol.setVisible(true);
         dateOfExaminationCol.setVisible(true);
 
-        importanceForTheCompanyCol.setVisible(true);
+        importanceForTheCompanyCol.setVisible(false);
 
 
         this.tableMenuButtonVisibleProperty().set(true);
         this.getSortOrder().add(nrCol);
 
 
-        this.getColumns().addAll(nrCol, legislationCol, designationCol, descriptionCol, issueDateCol, activeVersionCol, relevanceCol, dateOfExaminationCol, importanceForTheCompanyCol, linkCol, validityCol, categoryCol
+        this.getColumns().addAll(nrCol, legislationCol, designationCol, descriptionCol, issueDateCol, activeVersionCol, relevanceCol, dateOfExaminationCol, importanceForTheCompanyCol, linkCol, scopeCol, categoryCol
         );
         this.getColumns().add(buildMoveColumn());
 
