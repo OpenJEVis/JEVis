@@ -27,7 +27,7 @@ public class LegalCatasdrePlugin implements Plugin {
     private JEVisDataSource ds;
     private boolean isInit = false;
     private LegalCatasdreToolbar toolbar;
-    public static final String PLUGIN_NAME = "Legal Catasdre Plugin";
+    public static final String PLUGIN_NAME = "Legal Cadastre Plugin";
 
     BooleanProperty inAlarm = new SimpleBooleanProperty();
 

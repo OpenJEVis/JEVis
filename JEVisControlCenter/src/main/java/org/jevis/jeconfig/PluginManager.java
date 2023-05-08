@@ -179,7 +179,8 @@ public class PluginManager {
                         new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")),
                         new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")),
                         new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")),
-                        new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.deviation.name")),
+                        new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")),
+                        new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.Legalcadastre.name")),
                         new TRCPlugin(this._ds)
                 ));
             } else {
@@ -220,6 +221,8 @@ public class PluginManager {
                                         _plugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
                                     } else if (plugObj.getJEVisClassName().equals(NonconformitiesPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")));
+                                    } else if (plugObj.getJEVisClassName().equals(LegalCatasdrePlugin.PLUGIN_NAME)) {
+                                        _plugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.Legalcadastre.name")));
                                     } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
                                         _plugins.add(new TRCPlugin(this._ds));
                                     }
@@ -236,7 +239,7 @@ public class PluginManager {
                     }
                 }
 
-                _plugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.Legalcadastre.name")));
+
                 this._plugins.addAll(enabledPlugins);
 
             }

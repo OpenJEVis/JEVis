@@ -44,18 +44,14 @@ public class LegalCatasdreToolbar extends ToolBar {
         deleteNonconformity.setOnAction(event -> legalCadastreController.deleteItem());
         deletePlan.setOnAction(event -> legalCadastreController.deletePlan());
 
-        setOverview(legalCadastreController.isOverviewTabProperty().get());
-        legalCadastreController.isOverviewTabProperty().addListener((observable, oldValue, newValue) -> {
-            logger.debug(newValue);
-            setOverview(newValue);
-        });
-
-
-       // reloadButton.setOnAction(event ->nonconformitiesController.relo );
-        //calender.setOnAction(event -> actionCalendar.showAndWait());
 
         getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
-
+        nonconformityPlanConfig.setDisable(false);
+        newNonconformity.setDisable(false);
+        deleteNonconformity.setDisable(false);
+        deletePlan.setDisable(false);
+        exportPDF.setDisable(true);//Disabled because implementation is missing
+        reloadButton.setDisable(true);
 
     }
     private void setOverview(boolean isOverview) {

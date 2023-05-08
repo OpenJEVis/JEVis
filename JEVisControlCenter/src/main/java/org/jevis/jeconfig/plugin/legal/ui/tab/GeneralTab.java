@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.legal.ui.tab;
 
 import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.skin.TextAreaSkin;
@@ -32,6 +33,9 @@ public class GeneralTab extends Tab {
     private JFXTextField f_designation = new JFXTextField();
     private TextArea f_description = new TextArea();
 
+    private JFXComboBox f_category = new JFXComboBox();
+    private JFXComboBox f_validity = new JFXComboBox();
+
     private JFXTextField f_Attachment = new JFXTextField();
 
     private TextArea f_importanceForTheCompany = new TextArea();
@@ -48,6 +52,9 @@ public class GeneralTab extends Tab {
     private Label l_dateOfExamination = new Label();
     private Label l_importanceForTheCompany = new Label();
     private Label l_link = new Label();
+
+    private Label l_category = new Label();
+    private Label l_validity = new Label();
 
     LegislationData legislationData;
 
@@ -81,17 +88,23 @@ public class GeneralTab extends Tab {
         //ScrollPane scrollPane = new ScrollPane(gridPane);
         gridPane.setVgap(10);
         gridPane.setHgap(15);
+
+        f_validity.setItems(data.getLegalCadastre().getScopes());
+        f_category.setItems(data.getLegalCadastre().getCategories());
         //gridPane.gridLinesVisibleProperty().set(true);
 
         add(gridPane,1,1,1,1,Priority.ALWAYS,l_Nr);
         add(gridPane,1,2,1,1,Priority.ALWAYS,l_title);
         add(gridPane,1,3,1,1,Priority.ALWAYS,l_designation);
         add(gridPane,1,4,1,1,Priority.ALWAYS,l_relevance);
+        add(gridPane,1,5,1,1,Priority.ALWAYS,l_category);
+
 
         add(gridPane,3,1,1,1,Priority.ALWAYS,l_issueDate);
         add(gridPane,3,2,1,1,Priority.ALWAYS,l_activeVersion);
         add(gridPane,3,3,1,1,Priority.ALWAYS,l_dateOfExamination);
         add(gridPane,3,4,1,1,Priority.ALWAYS,l_link);
+        add(gridPane,3,5,1,1,Priority.ALWAYS,l_validity);
 
 
 
@@ -99,11 +112,13 @@ public class GeneralTab extends Tab {
         add(gridPane,2,2,1,1,Priority.ALWAYS,f_title);
         add(gridPane,2,3,1,1,Priority.ALWAYS,f_designation);
         add(gridPane,2,4,1,1,Priority.ALWAYS,f_relevance);
+        add(gridPane,2,5,1,1,Priority.ALWAYS,f_category);
 
         add(gridPane,4,1,1,1,Priority.ALWAYS,f_issueDate);
         add(gridPane,4,2,1,1,Priority.ALWAYS,f_activeVersion);
         add(gridPane,4,3,1,1,Priority.ALWAYS,f_dateOfExamination);
         add(gridPane,4,4,1,1,Priority.ALWAYS,f_link);
+        add(gridPane,4,5,1,1,Priority.ALWAYS,f_validity);
 
 
         add(gridPane,1,5,2,1,Priority.ALWAYS,l_description);
@@ -151,6 +166,8 @@ public class GeneralTab extends Tab {
         f_designation.textProperty().bindBidirectional(data.designationProperty());
         f_link.textProperty().bindBidirectional(data.linkToVersionProperty());
         f_relevance.selectedProperty().bindBidirectional(data.relevantProperty());
+        f_category.valueProperty().bindBidirectional(data.categoryProperty());
+        f_validity.valueProperty().bindBidirectional(data.validityProperty());
 
         l_Nr.setText(fake.nrProperty().getName());
         l_title.setText(fake.titleProperty().getName());
@@ -162,6 +179,8 @@ public class GeneralTab extends Tab {
         l_importanceForTheCompany.setText(fake.importanceForTheCompanyProperty().getName());
         l_link.setText(fake.linkToVersionProperty().getName());
         l_issueDate.setText(fake.issueDateProperty().getName());
+        l_category.setText(fake.categoryProperty().getName());
+        l_validity.setText(fake.validityProperty().getName());
 
         f_relevance.setMinWidth(200);
         f_relevance.setMaxWidth(200);

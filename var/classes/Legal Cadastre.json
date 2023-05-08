@@ -11,7 +11,7 @@
   ],
   "types": [
     {
-      "name": "level",
+      "name": "scope",
       "primitiveType": 0,
       "guiposition": 1,
       "validity": 0,
@@ -19,7 +19,7 @@
       "jevisClass": "Legal Cadastre"
     },
     {
-      "name": "layer",
+      "name": "category",
       "primitiveType": 0,
       "guiposition": 1,
       "validity": 0,

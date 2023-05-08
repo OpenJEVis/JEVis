@@ -1,11 +1,11 @@
 package org.jevis.jeconfig.plugin.legal.ui;
 
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -17,6 +17,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -52,10 +53,15 @@ public class LegalCadastreTab extends Tab {
         fsearch.setPromptText("Suche nach...");
 
 
-//        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton mediumButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), this.legalCadastre.getMediumTags(), this.legalCadastre.getMediumTags());
-//        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton fieldButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.field"), this.legalCadastre.getFieldsTags(), this.legalCadastre.getFieldsTags());
-//        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton stausButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus"), this.legalCadastre.getStausTags(), this.legalCadastre.getStausTags());
-//        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton seuButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.seu"), this.legalCadastre.getSignificantEnergyUseTags(), this.legalCadastre.getSignificantEnergyUseTags());
+        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton categoryButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.category"), legalCadastre.getCategories(), legalCadastre.getCategories());
+        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton scopeButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.scope"), legalCadastre.getScopes(),  legalCadastre.getScopes());
+        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton relevanceButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvance"), legalCadastre.getRelevanzTags(),  legalCadastre.getRelevanzTags());
+
+
+        legalCadastreTable.setCategories(categoryButton.getSelectedTags());
+        legalCadastreTable.setScope(scopeButton.getSelectedTags());
+        legalCadastreTable.setRelevance(relevanceButton.getSelectedTags());
+
 
         ComboBox<String> datumBox = new ComboBox<>();
         datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
@@ -73,14 +79,6 @@ public class LegalCadastreTab extends Tab {
 
         TimeFilterSelector dateSelector = new TimeFilterSelector(this.legalCadastre);
 
-        JFXComboBox<String> relevantFilter = new JFXComboBox<>();
-        relevantFilter.getItems().addAll(I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.all"), I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlyrelevant"), I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant"));
-        relevantFilter.setValue(I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.all"));
-        legalCadastreTable.setRelevantFilter(relevantFilter.getValue());
-        relevantFilter.valueProperty().addListener((observableValue, oldValue, newValue) -> {
-            legalCadastreTable.setRelevantFilter(newValue);
-            legalCadastreTable.filter();
-        });
 
 
 
@@ -92,6 +90,41 @@ public class LegalCadastreTab extends Tab {
             }
         });
 
+        categoryButton.getSelectedTags().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> c) {
+                logger.debug("List Changed: {}",c);
+                while (c.next()) {
+                    legalCadastreTable.setCategories((ObservableList<String>) c.getList());
+                    legalCadastreTable.filter();
+                }
+            }
+        });
+
+        scopeButton.getSelectedTags().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> c) {
+                logger.debug("List Changed: {}",c);
+                while (c.next()) {
+                    legalCadastreTable.setScope((ObservableList<String>) c.getList());
+                    legalCadastreTable.filter();
+                }
+            }
+        });
+
+        relevanceButton.getSelectedTags().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> c) {
+                logger.debug("List Changed: {}",c);
+                while (c.next()) {
+                    System.out.println(c.getList());
+                    legalCadastreTable.setRelevance((ObservableList<String>) c.getList());
+                    legalCadastreTable.filter();
+                }
+            }
+        });
+
+
 
         Separator vSep1 = new Separator(Orientation.VERTICAL);
         Separator vSep2 = new Separator(Orientation.VERTICAL);
@@ -101,59 +134,24 @@ public class LegalCadastreTab extends Tab {
         GridPane.setRowSpan(vSep2, 2);
         gridPane.addColumn(0, lSuche, fsearch);
         gridPane.addColumn(1, vSep1);
-        gridPane.addColumn(2, new Label("Relevant"), relevantFilter);
-//        gridPane.addColumn(3, new Region(), mediumButton);
-//        gridPane.addColumn(4, new Region(), fieldButton);
-//        gridPane.addColumn(5, new Region(), seuButton);
+        //gridPane.addColumn(2, new Label("Relevant"), relevantFilter);
+        gridPane.addColumn(3, new Region(), relevanceButton);
+        gridPane.addColumn(4, new Region(), categoryButton);
+        gridPane.addColumn(5, new Region(), scopeButton);
         gridPane.addColumn(6, vSep2);
         gridPane.addColumn(7, new Label("Zeitbereich"), dateSelector);
 
 
-
-
-        //nonconformityPlanTable.setStaus(stausButton.getSelectedTags());
-//        legalCadastreTable.setSeu(seuButton.getSelectedTags());
-//        legalCadastreTable.setMedium(mediumButton.getSelectedTags());
-//        legalCadastreTable.setFields(fieldButton.getSelectedTags());
-//        legalCadastreTable.setStaus(stausButton.getSelectedTags());
         legalCadastreTable.filter();
 
 
 
 
 
-
-        //HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);
-//        EventHandler<ActionEvent> dateFilerEvent = new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                if (comparatorBox.getSelectionModel().getSelectedItem().equals(">")) {
-//                    legalCadastreTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.BIGGER_THAN);
-//                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("<")) {
-//                    legalCadastreTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.SMALLER_THAN);
-//                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("=")) {
-//                    legalCadastreTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.EQUALS);
-//                }
-//                legalCadastreTable.getTableFilter().setPlannedDateFilter(filterDatumText.getText());
-//
-//            }
-//        };
-
-//        comparatorBox.setOnAction(dateFilerEvent);
-
-
-
-
-
-        //gridPane.add(hBox, 0, 1, 3, 1);
-
-
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
         borderPane.setCenter(legalCadastreTable);
 
-//        TableSumPanel tableSumPanel = new TableSumPanel(legalCadastreTable.getItems());
-//        borderPane.setBottom(tableSumPanel);
 
         legalCadastreTable.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override

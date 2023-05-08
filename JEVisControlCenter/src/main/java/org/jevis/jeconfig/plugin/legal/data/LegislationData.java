@@ -72,6 +72,14 @@ public class LegislationData {
     @SerializedName("link")
     private final SimpleStringProperty linkToVersion = new SimpleStringProperty("link", I18n.getInstance().getString("plugin.Legalcadastre.legislation.link"), "");
 
+    @Expose
+    @SerializedName("category")
+    private final SimpleStringProperty category = new SimpleStringProperty("category", I18n.getInstance().getString("plugin.Legalcadastre.legislation.category"), "");
+
+    @Expose
+    @SerializedName("scope")
+    private final SimpleStringProperty validity = new SimpleStringProperty("scope", I18n.getInstance().getString("plugin.Legalcadastre.legislation.scope"), "");
+
 
     @Expose
     @SerializedName("Deleted")
@@ -384,5 +392,29 @@ public class LegislationData {
                 ", relevance=" + relevant +
                 ", dateOfExamination=" + dateOfExamination +
                 '}';
+    }
+
+    public String getCategory() {
+        return category.get();
+    }
+
+    public SimpleStringProperty categoryProperty() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category.set(category);
+    }
+
+    public String getValidity() {
+        return validity.get();
+    }
+
+    public SimpleStringProperty validityProperty() {
+        return validity;
+    }
+
+    public void setValidity(String validity) {
+        this.validity.set(validity);
     }
 }

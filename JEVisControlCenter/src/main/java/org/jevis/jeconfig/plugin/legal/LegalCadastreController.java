@@ -18,7 +18,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
 
-import org.jevis.jeconfig.plugin.legal.data.LegalCastreOverviewData;
+
 import org.jevis.jeconfig.plugin.legal.data.LegislationData;
 import org.jevis.jeconfig.plugin.legal.ui.*;
 
@@ -35,7 +35,7 @@ public class LegalCadastreController {
     private final AnchorPane contentPane = new AnchorPane();
     private ObservableList<LegalCadastre> legalCadastres;
     private TabPane tabPane = new TabPane();
-    private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
+//    private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
     private BooleanProperty inAlarm = new SimpleBooleanProperty();
 
@@ -60,10 +60,10 @@ public class LegalCadastreController {
 
             }
         });
-        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            isOverviewTab.set(getActiveNonconformityPlan() instanceof LegalCastreOverviewData);
-            
-        });
+//        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+//            isOverviewTab.set(getActiveNonconformityPlan() instanceof LegalCastreOverviewData);
+//
+//        });
 
 
         AnchorPane.setBottomAnchor(tabPane, 0.0);
@@ -219,10 +219,10 @@ public class LegalCadastreController {
 
             System.out.println(planObjs);
 
-            LegalCastreOverviewData overviewData = new LegalCastreOverviewData(this);
-            LegalCadastreTab overviewTab = new LegalCadastreTab(overviewData,this);
-            overviewTab.setClosable(false);
-            tabPane.getTabs().add(0, overviewTab);
+//            LegalCastreOverviewData overviewData = new LegalCastreOverviewData(this);
+//            LegalCadastreTab overviewTab = new LegalCadastreTab(overviewData,this);
+//            overviewTab.setClosable(false);
+//            tabPane.getTabs().add(0, overviewTab);
 
 
             AtomicBoolean isFirstPlan = new AtomicBoolean(true);
@@ -315,17 +315,17 @@ public class LegalCadastreController {
     }
 
 
-    public boolean isIsOverviewTab() {
-        return isOverviewTab.get();
-    }
+//    public boolean isIsOverviewTab() {
+//        return isOverviewTab.get();
+//    }
 
-    public BooleanProperty isOverviewTabProperty() {
-        return isOverviewTab;
-    }
-
-    public void setIsOverviewTab(boolean isOverviewTab) {
-        this.isOverviewTab.set(isOverviewTab);
-    }
+//    public BooleanProperty isOverviewTabProperty() {
+//        return isOverviewTab;
+//    }
+//
+//    public void setIsOverviewTab(boolean isOverviewTab) {
+//        this.isOverviewTab.set(isOverviewTab);
+//    }
 
     public ObservableList<LegalCadastre> getLegalCadastres() {
         return legalCadastres;

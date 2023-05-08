@@ -25,7 +25,6 @@ import org.jevis.jeconfig.application.table.HyperlinkCell;
 import org.jevis.jeconfig.application.table.ShortColumnCell;
 import org.jevis.jeconfig.plugin.dashboard.config2.SankeyDataRow;
 import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
-import org.jevis.jeconfig.plugin.legal.data.LegalCastreOverviewData;
 import org.jevis.jeconfig.plugin.legal.data.LegislationData;
 import org.jevis.jeconfig.plugin.legal.data.TableFilter;
 import org.joda.time.DateTime;
@@ -64,18 +63,18 @@ public class LegalCadastreTable extends TableView<LegislationData> {
     private String relevantFilter;
     private boolean showSumRow = false;
     private String containsTextFilter = "";
-    private ObservableList<String> medium = FXCollections.observableArrayList();
-    private ObservableList<String> staus = FXCollections.observableArrayList();
-    private ObservableList<String> fields = FXCollections.observableArrayList();
+    private ObservableList<String> categories = FXCollections.observableArrayList();
+    private ObservableList<String> relevance = FXCollections.observableArrayList();
+    private ObservableList<String> scope = FXCollections.observableArrayList();
     private ObservableList<String> seu = FXCollections.observableArrayList();
 
     private static int DATE_TIME_WIDTH = 120;
     private static int BIG_WIDTH = 200;
     private static int SMALL_WIDTH = 60;
 
-    public static final String ALL=I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.all");
-    public static final String ONLY_RELVANT=I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlyrelevant");
-    public static final String ONLY_NOT_RELEVANT=I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant");
+    public static final String ALL = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.all");
+    public static final String ONLY_RELVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlyrelevant");
+    public static final String ONLY_NOT_RELEVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant");
 
 
     public LegalCadastreTable(LegalCadastre legalCadastre, ObservableList<LegislationData> data) {
@@ -91,7 +90,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
             @Override
             public void onChanged(Change<? extends LegislationData> c) {
                 while (c.next()) ;
-                logger.debug("Daten in tabelle: {} + geändert: {}",legalCadastre.getName(),c.getList());
+                logger.debug("Daten in tabelle: {} + geändert: {}", legalCadastre.getName(), c.getList());
             }
         });
 
@@ -127,8 +126,6 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         descriptionCol.setCellFactory(new ShortColumnCell<LegislationData>());
         descriptionCol.setStyle("-fx-alignment: LEFT;");
         descriptionCol.setMinWidth(BIG_WIDTH);
-
-
 
 
         TableColumn<LegislationData, DateTime> issueDateCol = new TableColumn(fakeForName.issueDateProperty().getName());
@@ -177,6 +174,17 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         planName.setStyle("-fx-alignment: CENTER;");
         planName.setMinWidth(BIG_WIDTH);
 
+        TableColumn<LegislationData, String> categoryCol = new TableColumn<>("Category");
+        categoryCol.setCellValueFactory(param -> param.getValue().categoryProperty());
+        categoryCol.setCellFactory(new ShortColumnCell<LegislationData>());
+        categoryCol.setStyle("-fx-alignment: CENTER;");
+        categoryCol.setMinWidth(BIG_WIDTH);
+
+        TableColumn<LegislationData, String> validityCol = new TableColumn<>("Validity");
+        validityCol.setCellValueFactory(param -> param.getValue().validityProperty());
+        validityCol.setCellFactory(new ShortColumnCell<LegislationData>());
+        validityCol.setStyle("-fx-alignment: CENTER;");
+        validityCol.setMinWidth(BIG_WIDTH);
 
 
         nrCol.setVisible(true);
@@ -192,19 +200,13 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         importanceForTheCompanyCol.setVisible(true);
 
 
-
         this.tableMenuButtonVisibleProperty().set(true);
         this.getSortOrder().add(nrCol);
 
 
-        this.getColumns().addAll(nrCol,legislationCol,designationCol,descriptionCol,issueDateCol,activeVersionCol,relevanceCol,dateOfExaminationCol,importanceForTheCompanyCol,linkCol
+        this.getColumns().addAll(nrCol, legislationCol, designationCol, descriptionCol, issueDateCol, activeVersionCol, relevanceCol, dateOfExaminationCol, importanceForTheCompanyCol, linkCol, validityCol, categoryCol
         );
-        if (!(legalCadastre instanceof LegalCastreOverviewData)) {
             this.getColumns().add(buildMoveColumn());
-        }else {
-            this.getColumns().add(planName);
-            this.getSortOrder().add(planName);
-        }
 
 
         this.getColumns().stream().forEach(tableDataTableColumn -> tableDataTableColumn.setSortable(true));
@@ -237,8 +239,6 @@ public class LegalCadastreTable extends TableView<LegislationData> {
     }
 
 
-
-
     public TableFilter getTableFilter() {
         return tableFilter;
     }
@@ -252,7 +252,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
     }
 
     public void setFilterMedium(ObservableList<String> medium) {
-        this.medium = medium;
+        this.categories = medium;
     }
 
 
@@ -270,10 +270,56 @@ public class LegalCadastreTable extends TableView<LegislationData> {
                             if (dateFilter != null) {
                                 if (!dateFilter.show(notesRow)) return false;
                             }
-                            if (!relevantFilter.equals(ALL)) {
-                                if(relevantFilter.equals(ONLY_RELVANT) && !notesRow.getRelevant()) return false;
-                                if(relevantFilter.equals(ONLY_NOT_RELEVANT) && notesRow.getRelevant()) return false;
+                            AtomicBoolean categoryMatch = new AtomicBoolean(false);
+                            if (!categories.contains("*")) {
+                                categories.forEach(s -> {
+                                    try {
+                                        for (String s1 : notesRow.getCategory().split(";")) {
+                                            if (s1.equalsIgnoreCase(s)) {
+                                                categoryMatch.set(true);
+                                            }
+                                        }
+                                    } catch (Exception ex) {
 
+                                    }
+                                });
+                                if (!categoryMatch.get()) return false;
+                            }
+                            AtomicBoolean scopeMatch = new AtomicBoolean(false);
+                            if (!scope.contains("*")) {
+                                scope.forEach(s -> {
+                                    try {
+                                        for (String s1 : notesRow.getValidity().split(";")) {
+                                            if (s1.equalsIgnoreCase(s)) {
+                                                scopeMatch.set(true);
+                                            }
+                                        }
+                                    } catch (Exception ex) {
+
+                                    }
+                                });
+                                if (!scopeMatch.get()) return false;
+                            }
+
+                            AtomicBoolean relevanceMatch = new AtomicBoolean(false);
+
+                            if (!relevance.contains("*")) {
+                                relevance.forEach(s -> {
+                                    try {
+                                        if (s.equals(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvant"))) {
+                                            if (notesRow.getRelevant()) {
+                                                relevanceMatch.set(true);
+                                            }
+                                        } else if (s.equals(I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"))) {
+                                            if (!notesRow.getRelevant()) {
+                                                relevanceMatch.set(true);
+                                            }
+                                        }
+                                    } catch (Exception ex) {
+
+                                    }
+                                });
+                                if (!relevanceMatch.get()) return false;
                             }
 
                             AtomicBoolean fieldMatch = new AtomicBoolean(false);
@@ -300,28 +346,28 @@ public class LegalCadastreTable extends TableView<LegislationData> {
     }
 
 
-    public ObservableList<String> getMedium() {
-        return medium;
+    public ObservableList<String> getCategories() {
+        return categories;
     }
 
-    public void setMedium(ObservableList<String> medium) {
-        this.medium = medium;
+    public void setCategories(ObservableList<String> categories) {
+        this.categories = categories;
     }
 
-    public ObservableList<String> getStaus() {
-        return staus;
+    public ObservableList<String> getRelevance() {
+        return relevance;
     }
 
-    public void setStaus(ObservableList<String> staus) {
-        this.staus = staus;
+    public void setRelevance(ObservableList<String> relevance) {
+        this.relevance = relevance;
     }
 
-    public ObservableList<String> getFields() {
-        return fields;
+    public ObservableList<String> getScope() {
+        return scope;
     }
 
-    public void setFields(ObservableList<String> fields) {
-        this.fields = fields;
+    public void setScope(ObservableList<String> scope) {
+        this.scope = scope;
     }
 
     public ObservableList<String> getSeu() {
@@ -330,7 +376,9 @@ public class LegalCadastreTable extends TableView<LegislationData> {
 
     public void setSeu(ObservableList<String> seu) {
         this.seu = seu;
-    }public TableColumn<LegislationData, LegislationData> buildMoveColumn() {
+    }
+
+    public TableColumn<LegislationData, LegislationData> buildMoveColumn() {
 
         Callback treeTableColumnCallback = new Callback<TableColumn<LegislationData, LegislationData>, TableCell<LegislationData, LegislationData>>() {
             @Override
@@ -345,7 +393,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
                             setGraphic(null);
                         } else {
                             HBox hBox = new HBox();
-                            JFXButton jfxButtonMoveUp = new JFXButton("", JEConfig.getSVGImage(Icon.ARROW_UP,10,10));
+                            JFXButton jfxButtonMoveUp = new JFXButton("", JEConfig.getSVGImage(Icon.ARROW_UP, 10, 10));
                             JFXButton jfxButtonMoveDown = new JFXButton("", JEConfig.getSVGImage(Icon.ARROW_DOWN, 10, 10));
                             hBox.setSpacing(3);
                             hBox.getChildren().addAll(jfxButtonMoveUp, jfxButtonMoveDown);
@@ -357,11 +405,11 @@ public class LegalCadastreTable extends TableView<LegislationData> {
                                 int index = getItems().indexOf(item);
                                 System.out.println("index");
                                 System.out.println(index);
-                                if(getItems().get(index).getNr() >= getItems().size()) return;
-                                LegislationData swap = getItems().get(index+1);
+                                if (getItems().get(index).getNr() >= getItems().size()) return;
+                                LegislationData swap = getItems().get(index + 1);
 
-                                item.setNr(item.getNr()+1);
-                                swap.setNr(swap.getNr()-1);
+                                item.setNr(item.getNr() + 1);
+                                swap.setNr(swap.getNr() - 1);
                                 item.commit();
                                 swap.commit();
                                 this.getTableView().getSortOrder().set(0, getColumns().get(0));
@@ -374,17 +422,16 @@ public class LegalCadastreTable extends TableView<LegislationData> {
 
 
                                 int index = getItems().indexOf(item);
-                                if(getItems().get(index).getNr() < 2) return;
-                                LegislationData swap = getItems().get(index-1);
+                                if (getItems().get(index).getNr() < 2) return;
+                                LegislationData swap = getItems().get(index - 1);
 
-                                item.setNr(item.getNr()-1);
+                                item.setNr(item.getNr() - 1);
                                 item.commit();
                                 swap.commit();
-                                swap.setNr(swap.getNr()+1);
+                                swap.setNr(swap.getNr() + 1);
                                 this.getTableView().getSortOrder().set(0, getColumns().get(0));
                                 getItems().sorted();
                                 refresh();
-
 
 
                             });
@@ -418,8 +465,6 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         column.setId("Move");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
-//        column.setPrefWidth(numberColumDefaultSize);
-//        column.setMaxWidth(numberColumDefaultSize*4);
 
         return column;
     }

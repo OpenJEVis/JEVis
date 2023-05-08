@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin.legal.ui;
 import com.jfoenix.controls.JFXTextField;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.jevis.commons.i18n.I18n;
@@ -11,7 +10,6 @@ import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
-import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.tool.ScreenSize;
 
 import java.util.Optional;
@@ -25,6 +23,12 @@ public class LegalCadastreForm extends Alert {
     JFXTextField f_numberPrefix = new JFXTextField();
 
     JFXTextField nameField = new JFXTextField();
+
+    Label l_category = new Label("category");
+    Label l_level = new Label("validity");
+
+    ListView<String> categoryListView = new ListView<>();
+    ListView<String> validityListView = new ListView<>();
 
 
 
@@ -55,9 +59,19 @@ public class LegalCadastreForm extends Alert {
         gridPane.setHgap(12);
         gridPane.setVgap(8);
 
+        GridPane categoryPane = buildCustomList(categoryListView);
+        GridPane levelPane = buildCustomList(validityListView);
+
 
         gridPane.add(nameLabel, 0, 0);
         gridPane.add(nameField, 1, 0);
+
+
+        gridPane.add(l_category, 0, 4, 2, 1);
+        gridPane.add(categoryPane, 0, 5, 2, 2);
+
+        gridPane.add(l_level, 0, 2, 2, 1);
+        gridPane.add(levelPane, 0, 3, 2, 1);
 
 
         stackPane.getChildren().add(gridPane);
@@ -70,6 +84,10 @@ public class LegalCadastreForm extends Alert {
     public void updateView(LegalCadastre legalCadastre) {
 
         nameField.textProperty().bindBidirectional(legalCadastre.getName());
+
+        categoryListView.setItems(legalCadastre.getCategories());
+        validityListView.setItems(legalCadastre.getScopes());
+
 
 
 
