@@ -8,8 +8,8 @@ import javafx.scene.layout.Priority;
 import org.controlsfx.control.NotificationPane;
 import org.jevis.jeconfig.plugin.legal.data.LegislationData;
 
-public abstract class Tab extends javafx.scene.control.Tab{
-   protected NotificationPane notificationPane = new NotificationPane();
+public abstract class Tab extends javafx.scene.control.Tab {
+    protected NotificationPane notificationPane = new NotificationPane();
 
     public Tab(String s) {
         super(s);
@@ -30,8 +30,9 @@ public abstract class Tab extends javafx.scene.control.Tab{
         pane.add(node, column, row, colspan, rowspan);
         GridPane.setHgrow(node, priority);
     }
+
     public void showNotification(String text, Node icon) {
-        notificationPane.show(text,icon);
+        notificationPane.show(text, icon);
         notificationPane.setOnHiding(event -> {
             this.getTabPane().getTabs().forEach(tab -> {
                 NotificationPane content = (NotificationPane) tab.getContent();

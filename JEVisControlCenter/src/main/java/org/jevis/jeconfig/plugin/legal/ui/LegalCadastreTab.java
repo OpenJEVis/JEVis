@@ -35,7 +35,7 @@ public class LegalCadastreTab extends Tab {
         super();
         this.legalCadastre = legalCadastre;
 
-        if(legalCadastre == null) return;
+        if (legalCadastre == null) return;
         textProperty().bind(this.legalCadastre.getName());
         this.legalCadastre = legalCadastre;
         this.legalCadastreTable = new LegalCadastreTable(this.legalCadastre, this.legalCadastre.getLegislationDataList());
@@ -48,29 +48,19 @@ public class LegalCadastreTab extends Tab {
         double maxListHeight = 100;
 
 
-        Label lSuche = new Label("Suche");
+        Label lSuche = new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.search"));
         JFXTextField fsearch = new JFXTextField();
-        fsearch.setPromptText("Suche nach...");
+        fsearch.setPromptText(I18n.getInstance().getString("plugin.Legalcadastre.legislation.searchfor"));
 
 
         org.jevis.jeconfig.plugin.nonconformities.ui.TagButton categoryButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.category"), legalCadastre.getCategories(), legalCadastre.getCategories());
-        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton scopeButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.scope"), legalCadastre.getScopes(),  legalCadastre.getScopes());
-        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton relevanceButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvance"), legalCadastre.getRelevanzTags(),  legalCadastre.getRelevanzTags());
+        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton scopeButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.scope"), legalCadastre.getScopes(), legalCadastre.getScopes());
+        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton relevanceButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvance"), legalCadastre.getRelevanzTags(), legalCadastre.getRelevanzTags());
 
 
         legalCadastreTable.setCategories(categoryButton.getSelectedTags());
         legalCadastreTable.setScope(scopeButton.getSelectedTags());
         legalCadastreTable.setRelevance(relevanceButton.getSelectedTags());
-
-
-        ComboBox<String> datumBox = new ComboBox<>();
-        datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
-        datumBox.getSelectionModel().selectFirst();
-        JFXTextField filterDatumText = new JFXTextField();
-        filterDatumText.setPromptText("Datum...");
-        ComboBox<String> comparatorBox = new ComboBox<>();
-        comparatorBox.setItems(FXCollections.observableArrayList(">", "<", "="));
-        comparatorBox.getSelectionModel().selectFirst();
 
         fsearch.textProperty().addListener((observable, oldValue, newValue) -> {
             legalCadastreTable.setTextFilter(newValue);
@@ -78,8 +68,6 @@ public class LegalCadastreTab extends Tab {
         });
 
         TimeFilterSelector dateSelector = new TimeFilterSelector(this.legalCadastre);
-
-
 
 
         dateSelector.getValuePropertyProperty().addListener(new ChangeListener<DateFilter>() {
@@ -93,7 +81,7 @@ public class LegalCadastreTab extends Tab {
         categoryButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                logger.debug("List Changed: {}",c);
+                logger.debug("List Changed: {}", c);
                 while (c.next()) {
                     legalCadastreTable.setCategories((ObservableList<String>) c.getList());
                     legalCadastreTable.filter();
@@ -104,7 +92,7 @@ public class LegalCadastreTab extends Tab {
         scopeButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                logger.debug("List Changed: {}",c);
+                logger.debug("List Changed: {}", c);
                 while (c.next()) {
                     legalCadastreTable.setScope((ObservableList<String>) c.getList());
                     legalCadastreTable.filter();
@@ -115,9 +103,8 @@ public class LegalCadastreTab extends Tab {
         relevanceButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
-                logger.debug("List Changed: {}",c);
+                logger.debug("List Changed: {}", c);
                 while (c.next()) {
-                    System.out.println(c.getList());
                     legalCadastreTable.setRelevance((ObservableList<String>) c.getList());
                     legalCadastreTable.filter();
                 }
@@ -125,10 +112,9 @@ public class LegalCadastreTab extends Tab {
         });
 
 
-
         Separator vSep1 = new Separator(Orientation.VERTICAL);
         Separator vSep2 = new Separator(Orientation.VERTICAL);
-        ;
+
 
         GridPane.setRowSpan(vSep1, 2);
         GridPane.setRowSpan(vSep2, 2);
@@ -139,13 +125,10 @@ public class LegalCadastreTab extends Tab {
         gridPane.addColumn(4, new Region(), categoryButton);
         gridPane.addColumn(5, new Region(), scopeButton);
         gridPane.addColumn(6, vSep2);
-        gridPane.addColumn(7, new Label("Zeitbereich"), dateSelector);
+        gridPane.addColumn(7, new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.date")), dateSelector);
 
 
         legalCadastreTable.filter();
-
-
-
 
 
         BorderPane borderPane = new BorderPane();

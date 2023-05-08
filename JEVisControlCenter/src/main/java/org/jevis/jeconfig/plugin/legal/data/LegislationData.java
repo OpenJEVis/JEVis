@@ -78,7 +78,7 @@ public class LegislationData {
 
     @Expose
     @SerializedName("scope")
-    private final SimpleStringProperty validity = new SimpleStringProperty("scope", I18n.getInstance().getString("plugin.Legalcadastre.legislation.scope"), "");
+    private final SimpleStringProperty scope = new SimpleStringProperty("scope", I18n.getInstance().getString("plugin.Legalcadastre.legislation.scope"), "");
 
 
     @Expose
@@ -406,15 +406,15 @@ public class LegislationData {
         this.category.set(category);
     }
 
-    public String getValidity() {
-        return validity.get();
+    public String getScope() {
+        return scope.get();
     }
 
-    public SimpleStringProperty validityProperty() {
-        return validity;
+    public SimpleStringProperty scopeProperty() {
+        return scope;
     }
 
-    public void setValidity(String validity) {
-        this.validity.set(validity);
+    public void setScope(String scope) {
+        this.scope.set(scope);
     }
 }

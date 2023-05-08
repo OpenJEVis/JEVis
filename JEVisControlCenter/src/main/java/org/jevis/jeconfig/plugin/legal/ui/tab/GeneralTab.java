@@ -26,35 +26,35 @@ public class GeneralTab extends Tab {
     private final JFXDatePicker f_activeVersion = new JFXDatePicker();
     private final JFXDatePicker f_dateOfExamination = new JFXDatePicker();
 
-    private JFXCheckBox f_relevance = new JFXCheckBox();
+    private final JFXCheckBox f_relevance = new JFXCheckBox();
 
-    private JFXTextField f_Nr = new JFXTextField();
-    private JFXTextField f_title = new JFXTextField();
-    private JFXTextField f_designation = new JFXTextField();
-    private TextArea f_description = new TextArea();
+    private final JFXTextField f_Nr = new JFXTextField();
+    private final JFXTextField f_title = new JFXTextField();
+    private final JFXTextField f_designation = new JFXTextField();
+    private final TextArea f_description = new TextArea();
 
-    private JFXComboBox f_category = new JFXComboBox();
-    private JFXComboBox f_validity = new JFXComboBox();
+    private final JFXComboBox f_category = new JFXComboBox();
+    private final JFXComboBox f_validity = new JFXComboBox();
 
-    private JFXTextField f_Attachment = new JFXTextField();
+    private final JFXTextField f_Attachment = new JFXTextField();
 
-    private TextArea f_importanceForTheCompany = new TextArea();
-    private JFXTextField f_link= new JFXTextField();
+    private final TextArea f_importanceForTheCompany = new TextArea();
+    private final JFXTextField f_link = new JFXTextField();
 
 
-    private Label l_title = new Label();
-    private Label l_designation = new Label();
-    private Label l_Nr = new Label();
-    private Label l_description = new Label();
-    private Label l_issueDate = new Label();
-    private Label l_activeVersion = new Label();
-    private Label l_relevance = new Label();
-    private Label l_dateOfExamination = new Label();
-    private Label l_importanceForTheCompany = new Label();
-    private Label l_link = new Label();
+    private final Label l_title = new Label();
+    private final Label l_designation = new Label();
+    private final Label l_Nr = new Label();
+    private final Label l_description = new Label();
+    private final Label l_issueDate = new Label();
+    private final Label l_activeVersion = new Label();
+    private final Label l_relevance = new Label();
+    private final Label l_dateOfExamination = new Label();
+    private final Label l_importanceForTheCompany = new Label();
+    private final Label l_link = new Label();
 
-    private Label l_category = new Label();
-    private Label l_validity = new Label();
+    private final Label l_category = new Label();
+    private final Label l_validity = new Label();
 
     LegislationData legislationData;
 
@@ -65,8 +65,6 @@ public class GeneralTab extends Tab {
     @Override
     public void initTab(LegislationData data) {
         this.legislationData = data;
-
-
 
 
 //        addTabEvent(f_ImmediateMeasures);
@@ -93,38 +91,37 @@ public class GeneralTab extends Tab {
         f_category.setItems(data.getLegalCadastre().getCategories());
         //gridPane.gridLinesVisibleProperty().set(true);
 
-        add(gridPane,1,1,1,1,Priority.ALWAYS,l_Nr);
-        add(gridPane,1,2,1,1,Priority.ALWAYS,l_title);
-        add(gridPane,1,3,1,1,Priority.ALWAYS,l_designation);
-        add(gridPane,1,4,1,1,Priority.ALWAYS,l_relevance);
-        add(gridPane,1,5,1,1,Priority.ALWAYS,l_category);
+        add(gridPane, 1, 1, 1, 1, Priority.ALWAYS, l_Nr);
+        add(gridPane, 1, 2, 1, 1, Priority.ALWAYS, l_title);
+        add(gridPane, 1, 3, 1, 1, Priority.ALWAYS, l_designation);
+        add(gridPane, 1, 4, 1, 1, Priority.ALWAYS, l_relevance);
+        add(gridPane, 1, 5, 1, 1, Priority.ALWAYS, l_category);
 
 
-        add(gridPane,3,1,1,1,Priority.ALWAYS,l_issueDate);
-        add(gridPane,3,2,1,1,Priority.ALWAYS,l_activeVersion);
-        add(gridPane,3,3,1,1,Priority.ALWAYS,l_dateOfExamination);
-        add(gridPane,3,4,1,1,Priority.ALWAYS,l_link);
-        add(gridPane,3,5,1,1,Priority.ALWAYS,l_validity);
+        add(gridPane, 3, 1, 1, 1, Priority.ALWAYS, l_issueDate);
+        add(gridPane, 3, 2, 1, 1, Priority.ALWAYS, l_activeVersion);
+        add(gridPane, 3, 3, 1, 1, Priority.ALWAYS, l_dateOfExamination);
+        add(gridPane, 3, 4, 1, 1, Priority.ALWAYS, l_link);
+        add(gridPane, 3, 5, 1, 1, Priority.ALWAYS, l_validity);
 
 
+        add(gridPane, 2, 1, 1, 1, Priority.ALWAYS, f_Nr);
+        add(gridPane, 2, 2, 1, 1, Priority.ALWAYS, f_title);
+        add(gridPane, 2, 3, 1, 1, Priority.ALWAYS, f_designation);
+        add(gridPane, 2, 4, 1, 1, Priority.ALWAYS, f_relevance);
+        add(gridPane, 2, 5, 1, 1, Priority.ALWAYS, f_category);
 
-        add(gridPane,2,1,1,1,Priority.ALWAYS,f_Nr);
-        add(gridPane,2,2,1,1,Priority.ALWAYS,f_title);
-        add(gridPane,2,3,1,1,Priority.ALWAYS,f_designation);
-        add(gridPane,2,4,1,1,Priority.ALWAYS,f_relevance);
-        add(gridPane,2,5,1,1,Priority.ALWAYS,f_category);
-
-        add(gridPane,4,1,1,1,Priority.ALWAYS,f_issueDate);
-        add(gridPane,4,2,1,1,Priority.ALWAYS,f_activeVersion);
-        add(gridPane,4,3,1,1,Priority.ALWAYS,f_dateOfExamination);
-        add(gridPane,4,4,1,1,Priority.ALWAYS,f_link);
-        add(gridPane,4,5,1,1,Priority.ALWAYS,f_validity);
+        add(gridPane, 4, 1, 1, 1, Priority.ALWAYS, f_issueDate);
+        add(gridPane, 4, 2, 1, 1, Priority.ALWAYS, f_activeVersion);
+        add(gridPane, 4, 3, 1, 1, Priority.ALWAYS, f_dateOfExamination);
+        add(gridPane, 4, 4, 1, 1, Priority.ALWAYS, f_link);
+        add(gridPane, 4, 5, 1, 1, Priority.ALWAYS, f_validity);
 
 
-        add(gridPane,1,5,2,1,Priority.ALWAYS,l_description);
-        add(gridPane,1,6,2,1,Priority.ALWAYS,f_description);
-        add(gridPane,3,5,2,1,Priority.ALWAYS,l_importanceForTheCompany);
-        add(gridPane,3,6,2,1,Priority.ALWAYS,f_importanceForTheCompany);
+        add(gridPane, 1, 6, 2, 1, Priority.ALWAYS, l_description);
+        add(gridPane, 1, 7, 2, 1, Priority.ALWAYS, f_description);
+        add(gridPane, 3, 6, 2, 1, Priority.ALWAYS, l_importanceForTheCompany);
+        add(gridPane, 3, 7, 2, 1, Priority.ALWAYS, f_importanceForTheCompany);
 
 
         Region col3Spacer = new Region();
@@ -132,22 +129,8 @@ public class GeneralTab extends Tab {
         col3Spacer.setMinWidth(25);
 
 
-
-
-
-
-
-
-
-
-
-
         int textFieldHeight = 200;
         int textFieldWeight = 400;
-
-
-
-
 
 
         f_Nr.setEditable(false);
@@ -167,7 +150,7 @@ public class GeneralTab extends Tab {
         f_link.textProperty().bindBidirectional(data.linkToVersionProperty());
         f_relevance.selectedProperty().bindBidirectional(data.relevantProperty());
         f_category.valueProperty().bindBidirectional(data.categoryProperty());
-        f_validity.valueProperty().bindBidirectional(data.validityProperty());
+        f_validity.valueProperty().bindBidirectional(data.scopeProperty());
 
         l_Nr.setText(fake.nrProperty().getName());
         l_title.setText(fake.titleProperty().getName());
@@ -180,7 +163,7 @@ public class GeneralTab extends Tab {
         l_link.setText(fake.linkToVersionProperty().getName());
         l_issueDate.setText(fake.issueDateProperty().getName());
         l_category.setText(fake.categoryProperty().getName());
-        l_validity.setText(fake.validityProperty().getName());
+        l_validity.setText(fake.scopeProperty().getName());
 
         f_relevance.setMinWidth(200);
         f_relevance.setMaxWidth(200);
@@ -205,20 +188,20 @@ public class GeneralTab extends Tab {
 
 
         if (data.issueDateProperty().isNotNull().get()) {
-            f_issueDate.setValue(LocalDate.of(data.getIssueDate().getYear(),data.getIssueDate().getMonthOfYear(),data.getIssueDate().getDayOfMonth()));
+            f_issueDate.setValue(LocalDate.of(data.getIssueDate().getYear(), data.getIssueDate().getMonthOfYear(), data.getIssueDate().getDayOfMonth()));
         }
 
         if (data.dateOfExaminationProperty().isNotNull().get()) {
-            f_dateOfExamination.setValue(LocalDate.of(data.getDateOfExamination().getYear(),data.getDateOfExamination().getMonthOfYear(),data.getDateOfExamination().getDayOfMonth()));
+            f_dateOfExamination.setValue(LocalDate.of(data.getDateOfExamination().getYear(), data.getDateOfExamination().getMonthOfYear(), data.getDateOfExamination().getDayOfMonth()));
         }
 
         if (data.currentVersionDateProperty().isNotNull().get()) {
-            f_activeVersion.setValue(LocalDate.of(data.getCurrentVersionDate().getYear(),data.getCurrentVersionDate().getMonthOfYear(),data.getCurrentVersionDate().getDayOfMonth()));
+            f_activeVersion.setValue(LocalDate.of(data.getCurrentVersionDate().getYear(), data.getCurrentVersionDate().getMonthOfYear(), data.getCurrentVersionDate().getDayOfMonth()));
         }
 
 
         f_activeVersion.valueProperty().addListener((observableValue, localDate, newValue) -> {
-            data.currentVersionDateProperty().set(new DateTime(newValue.getYear(),newValue.getMonthValue(),newValue.getDayOfMonth(),0,0));
+            data.currentVersionDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
         });
 
 
@@ -234,9 +217,6 @@ public class GeneralTab extends Tab {
 
         f_Nr.setText(String.valueOf(data.nrProperty().get()));
     }
-
-
-
 
 
     private void addTabEvent(TextArea f_Cause) {

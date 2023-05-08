@@ -54,6 +54,7 @@ public class LegalCatasdreToolbar extends ToolBar {
         reloadButton.setDisable(true);
 
     }
+
     private void setOverview(boolean isOverview) {
 
         nonconformityPlanConfig.setDisable(isOverview);
@@ -67,8 +68,6 @@ public class LegalCatasdreToolbar extends ToolBar {
         //reloadButton.setDisable(isOverview);
 
     }
-
-
 
 
 }

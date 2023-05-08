@@ -217,13 +217,6 @@ public class LegalCadastreController {
             JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass(JC.LegalCadastre.name);
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
-            System.out.println(planObjs);
-
-//            LegalCastreOverviewData overviewData = new LegalCastreOverviewData(this);
-//            LegalCadastreTab overviewTab = new LegalCadastreTab(overviewData,this);
-//            overviewTab.setClosable(false);
-//            tabPane.getTabs().add(0, overviewTab);
-
 
             AtomicBoolean isFirstPlan = new AtomicBoolean(true);
 
@@ -310,7 +303,7 @@ public class LegalCadastreController {
         try {
             legislationData = getActiveNonconformityPlan().loadNonconformties(legislationData.getObject());
         } catch (Exception e) {
-           logger.error(e);
+            logger.error(e);
         }
     }
 

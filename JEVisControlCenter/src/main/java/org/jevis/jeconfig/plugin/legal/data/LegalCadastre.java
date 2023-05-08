@@ -26,18 +26,17 @@ public class LegalCadastre {
     protected static final Logger logger = LogManager.getLogger(LegalCadastre.class);
     private JEVisObject object;
     protected SimpleStringProperty prefix = new SimpleStringProperty();
-    protected StringProperty name = new SimpleStringProperty("name","name","");
+    protected StringProperty name = new SimpleStringProperty("name", "name", "");
 
     protected ObservableList<LegislationData> legislationDataList = FXCollections.observableArrayList();
 
     private ObservableList<String> scopes;
     private ObservableList<String> categories;
-    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvant"),I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"));
+    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvant"), I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"));
 
 
     private String initCustomCategory = "";
     private String initCustomValidity = "";
-
 
 
     private AtomicInteger biggestActionNr = new AtomicInteger(0);
@@ -47,9 +46,6 @@ public class LegalCadastre {
     }
 
 
-
-
-
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
     public LegalCadastre(JEVisObject obj) {
@@ -57,9 +53,6 @@ public class LegalCadastre {
         this.object = obj;
 
         name.set(obj.getName());
-
-
-
 
 
         legislationDataList.addAll(createTestData());
@@ -72,7 +65,6 @@ public class LegalCadastre {
                 }
             }
         });
-
 
 
         scopes = FXCollections.observableArrayList();
@@ -134,18 +126,18 @@ public class LegalCadastre {
             actionsLoaded.set(true);
             try {
 
-            JEVisClass actionDirClass = object.getDataSource().getJEVisClass(JC.LegalCadastre.LegalCadastreDirectory.name);
-            JEVisClass actionClass = object.getDataSource().getJEVisClass(JC.LegalCadastre.LegalCadastreDirectory.Legislation.name);
-            for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
-                dirObj.getChildren(actionClass, false).forEach(actionObj -> {
-                    System.out.println("new Action from JEVis: " + actionObj);
-                    try {
-                        legislationDataList.add(loadNonconformties(actionObj));
-                    } catch (Exception e) {
-                        logger.error("Could not load Action: {},{},{}", actionObj, e, e);
-                    }
-                });
-            }
+                JEVisClass actionDirClass = object.getDataSource().getJEVisClass(JC.LegalCadastre.LegalCadastreDirectory.name);
+                JEVisClass actionClass = object.getDataSource().getJEVisClass(JC.LegalCadastre.LegalCadastreDirectory.Legislation.name);
+                for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
+                    dirObj.getChildren(actionClass, false).forEach(actionObj -> {
+                        System.out.println("new Action from JEVis: " + actionObj);
+                        try {
+                            legislationDataList.add(loadNonconformties(actionObj));
+                        } catch (Exception e) {
+                            logger.error("Could not load Action: {},{},{}", actionObj, e, e);
+                        }
+                    });
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -156,12 +148,13 @@ public class LegalCadastre {
     }
 
     public LegislationData loadNonconformties(JEVisObject actionObj) throws JEVisException, NullPointerException {
-        JEVisAttribute att = actionObj.getAttribute("Data");;
+        JEVisAttribute att = actionObj.getAttribute("Data");
+        ;
         JEVisSample sample = att.getLatestSample();
         JEVisFile file = sample.getValueAsFile();
         String s = new String(file.getBytes(), StandardCharsets.UTF_8);
 
-        logger.info("Json: {}",s);
+        logger.info("Json: {}", s);
         Gson gson = GsonBuilder.createDefaultBuilder().create();
         LegislationData legislationData = gson.fromJson(s, LegislationData.class);
         legislationData.setObject(actionObj);
@@ -218,11 +211,6 @@ public class LegalCadastre {
     public StringProperty getName() {
         return name;
     }
-
-
-
-
-
 
 
     private ObservableList<LegislationData> createTestData() {

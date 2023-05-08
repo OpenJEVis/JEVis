@@ -35,7 +35,6 @@ public class LegalCatasdrePlugin implements Plugin {
     public LegalCatasdrePlugin(JEVisDataSource ds, String name) {
         this.ds = ds;
         this.nameProperty.set(name);
-        //legalCadastreController.checkforAlarm();
 
         legalCadastreController = new LegalCadastreController(this);
         rootPane.setCenter(legalCadastreController.getContent());
@@ -54,7 +53,7 @@ public class LegalCatasdrePlugin implements Plugin {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
-        jeVisClassPrinter.printClass(3,jeVisClass);
+        jeVisClassPrinter.printClass(3, jeVisClass);
         if (isInit) return;
         isInit = true;
 

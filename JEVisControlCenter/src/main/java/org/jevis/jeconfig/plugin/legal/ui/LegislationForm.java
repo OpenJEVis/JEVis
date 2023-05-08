@@ -72,7 +72,6 @@ public class LegislationForm extends Dialog {
     }
 
 
-
     public boolean isNew() {
         return isNew;
     }

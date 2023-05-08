@@ -16,23 +16,16 @@ import java.util.Optional;
 
 public class LegalCadastreForm extends Alert {
 
-    Label nameLabel = new Label("Name");
+    Label nameLabel = new Label(I18n.getInstance().getString("plugin.Legalcadastre.planname"));
 
-
-    Label numberPrefix = new Label("Nr. Prefix");
-    JFXTextField f_numberPrefix = new JFXTextField();
 
     JFXTextField nameField = new JFXTextField();
 
-    Label l_category = new Label("category");
-    Label l_level = new Label("validity");
+    Label l_category = new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.category"));
+    Label l_scope = new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.scope"));
 
     ListView<String> categoryListView = new ListView<>();
     ListView<String> validityListView = new ListView<>();
-
-
-
-
 
 
     private LegalCadastre legalCadastre;
@@ -70,7 +63,7 @@ public class LegalCadastreForm extends Alert {
         gridPane.add(l_category, 0, 4, 2, 1);
         gridPane.add(categoryPane, 0, 5, 2, 2);
 
-        gridPane.add(l_level, 0, 2, 2, 1);
+        gridPane.add(l_scope, 0, 2, 2, 1);
         gridPane.add(levelPane, 0, 3, 2, 1);
 
 
@@ -89,10 +82,7 @@ public class LegalCadastreForm extends Alert {
         validityListView.setItems(legalCadastre.getScopes());
 
 
-
-
     }
-
 
 
     private GridPane buildCustomList(ListView<String> listView) {
@@ -117,10 +107,6 @@ public class LegalCadastreForm extends Alert {
             } catch (Exception ex) {
             }
         });
-
-        //Icon.PLUS_CIRCLE
-        //Icon.MINUS_CIRCLE
-
         listView.setMaxHeight(100);
 
         GridPane gridPane = new GridPane();

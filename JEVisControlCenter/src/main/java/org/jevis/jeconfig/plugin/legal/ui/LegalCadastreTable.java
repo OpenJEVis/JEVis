@@ -168,20 +168,15 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         linkCol.setStyle("-fx-alignment: CENTER;");
         linkCol.setMinWidth(BIG_WIDTH);
 
-        TableColumn<LegislationData, String> planName = new TableColumn<>("plan Name");
-        planName.setCellValueFactory(param -> param.getValue().getLegalCadastre().getName());
-        planName.setCellFactory(new ShortColumnCell<LegislationData>());
-        planName.setStyle("-fx-alignment: CENTER;");
-        planName.setMinWidth(BIG_WIDTH);
 
-        TableColumn<LegislationData, String> categoryCol = new TableColumn<>("Category");
+        TableColumn<LegislationData, String> categoryCol = new TableColumn<>(fakeForName.categoryProperty().getName());
         categoryCol.setCellValueFactory(param -> param.getValue().categoryProperty());
         categoryCol.setCellFactory(new ShortColumnCell<LegislationData>());
         categoryCol.setStyle("-fx-alignment: CENTER;");
         categoryCol.setMinWidth(BIG_WIDTH);
 
-        TableColumn<LegislationData, String> validityCol = new TableColumn<>("Validity");
-        validityCol.setCellValueFactory(param -> param.getValue().validityProperty());
+        TableColumn<LegislationData, String> validityCol = new TableColumn<>(fakeForName.scopeProperty().getName());
+        validityCol.setCellValueFactory(param -> param.getValue().scopeProperty());
         validityCol.setCellFactory(new ShortColumnCell<LegislationData>());
         validityCol.setStyle("-fx-alignment: CENTER;");
         validityCol.setMinWidth(BIG_WIDTH);
@@ -206,7 +201,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
 
         this.getColumns().addAll(nrCol, legislationCol, designationCol, descriptionCol, issueDateCol, activeVersionCol, relevanceCol, dateOfExaminationCol, importanceForTheCompanyCol, linkCol, validityCol, categoryCol
         );
-            this.getColumns().add(buildMoveColumn());
+        this.getColumns().add(buildMoveColumn());
 
 
         this.getColumns().stream().forEach(tableDataTableColumn -> tableDataTableColumn.setSortable(true));
@@ -289,7 +284,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
                             if (!scope.contains("*")) {
                                 scope.forEach(s -> {
                                     try {
-                                        for (String s1 : notesRow.getValidity().split(";")) {
+                                        for (String s1 : notesRow.getScope().split(";")) {
                                             if (s1.equalsIgnoreCase(s)) {
                                                 scopeMatch.set(true);
                                             }
@@ -399,12 +394,9 @@ public class LegalCadastreTable extends TableView<LegislationData> {
                             hBox.getChildren().addAll(jfxButtonMoveUp, jfxButtonMoveDown);
 
                             jfxButtonMoveDown.setOnAction(actionEvent -> {
-                                System.out.println(getItems());
 
 
                                 int index = getItems().indexOf(item);
-                                System.out.println("index");
-                                System.out.println(index);
                                 if (getItems().get(index).getNr() >= getItems().size()) return;
                                 LegislationData swap = getItems().get(index + 1);
 

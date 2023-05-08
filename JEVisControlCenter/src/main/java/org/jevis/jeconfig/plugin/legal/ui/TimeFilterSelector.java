@@ -106,26 +106,20 @@ public class TimeFilterSelector extends GridPane {
         fFromYear.valueProperty().addListener(changeListener);
         fDateField.getSelectionModel().selectFirst();
 
-        //GridPane.setColumnSpan(fDateField, 3);
-        //TimeFilterSelector.this.addRow(0, lDatum);
-        TimeFilterSelector.this.addRow(0, fDateField, new Label("von"), fFromMonth, fFromYear, new Label("bis"), fToMonth, fToYear);
 
-        /*
-        this.addRow(0, lDatum, fDateField);
-        this.addRow(1, lFrom, fFromMonth, fFromYear);
-        this.addRow(2, lTo, fToMonth, fToYear);
+        TimeFilterSelector.this.addRow(0, fDateField, new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.date.from")), fFromMonth, fFromYear, new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.date.from")), fToMonth, fToYear);
 
-         */
+
     }
 
     private void initValues(LegalCadastre legalCadastre) {
 
-        logger.debug("MonthSelector.initValues: {} {}",legalCadastre, legalCadastre.getLegislationDataList().size());
+        logger.debug("MonthSelector.initValues: {} {}", legalCadastre, legalCadastre.getLegislationDataList().size());
         DateTime minDate = null;
         DateTime maxDate = null;
 
 
-       List<DateTime> dateTimes = legalCadastre.getLegislationDataList().stream().map(data -> getDate(data)).flatMap(Collection::stream).collect(Collectors.toList());
+        List<DateTime> dateTimes = legalCadastre.getLegislationDataList().stream().map(data -> getDate(data)).flatMap(Collection::stream).collect(Collectors.toList());
 
         Optional<DateTime> optionalDateTimeMax = dateTimes.stream().max(DateTime::compareTo);
         Optional<DateTime> optionalDateTimeMin = dateTimes.stream().min(DateTime::compareTo);
@@ -173,6 +167,7 @@ public class TimeFilterSelector extends GridPane {
         }
         return null;
     }
+
     private static void setVersionDate(LegislationData data, List<DateTime> dateTimes) {
         if (data.getCurrentVersionDate() != null) {
             dateTimes.add(data.getCurrentVersionDate());

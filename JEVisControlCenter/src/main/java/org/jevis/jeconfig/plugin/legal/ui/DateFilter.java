@@ -77,9 +77,9 @@ public class DateFilter {
             Optional<DateTime> optionalDateTimeMin = getDate(data).stream().min(DateTime::compareTo);
 
             if (optionalDateTimeMax.isPresent() && optionalDateTimeMin.isPresent()) {
-                if(optionalDateTimeMax.get().isBefore(getFromDate())) return false;
-                if(optionalDateTimeMin.get().isAfter(getUntilDate())) return false;
-            }else {
+                if (optionalDateTimeMax.get().isBefore(getFromDate())) return false;
+                if (optionalDateTimeMin.get().isAfter(getUntilDate())) return false;
+            } else {
                 return false;
             }
             return true;
