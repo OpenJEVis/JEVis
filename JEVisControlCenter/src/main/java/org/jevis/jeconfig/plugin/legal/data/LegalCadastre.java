@@ -11,8 +11,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jeconfig.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
@@ -31,6 +29,15 @@ public class LegalCadastre {
     protected StringProperty name = new SimpleStringProperty("name","name","");
 
     protected ObservableList<LegislationData> legislationDataList = FXCollections.observableArrayList();
+
+    private ObservableList<String> scopes;
+    private ObservableList<String> categories;
+    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvant"),I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"));
+
+
+    private String initCustomCategory = "";
+    private String initCustomValidity = "";
+
 
 
     private AtomicInteger biggestActionNr = new AtomicInteger(0);
@@ -65,6 +72,37 @@ public class LegalCadastre {
                 }
             }
         });
+
+
+
+        scopes = FXCollections.observableArrayList();
+        try {
+            JEVisAttribute attribute = this.object.getAttribute(JC.LegalCadastre.a_scope);
+            JEVisSample sample = attribute.getLatestSample();
+            if (sample != null && !sample.getValueAsString().isEmpty()) {
+                initCustomValidity = sample.getValueAsString();
+                for (String s : sample.getValueAsString().split(";")) {
+                    scopes.add(s);
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        categories = FXCollections.observableArrayList();
+        try {
+            JEVisAttribute attribute = this.object.getAttribute(JC.LegalCadastre.a_category);
+            JEVisSample sample = attribute.getLatestSample();
+            if (sample != null && !sample.getValueAsString().isEmpty()) {
+                initCustomCategory = sample.getValueAsString();
+                for (String s : sample.getValueAsString().split(";")) {
+                    categories.add(s);
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error(e);
+        }
 
 
     }
@@ -142,6 +180,25 @@ public class LegalCadastre {
                 ex.printStackTrace();
             }
         }
+        DateTime now = new DateTime();
+        if (!initCustomCategory.equals(listToString(categories))) {
+            try {
+                JEVisAttribute attribute = this.object.getAttribute(JC.LegalCadastre.a_category);
+                JEVisSample sample = attribute.buildSample(now, listToString(categories));
+                sample.commit();
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        }
+        if (!initCustomValidity.equals(listToString(scopes))) {
+            try {
+                JEVisAttribute attribute = this.object.getAttribute(JC.LegalCadastre.a_scope);
+                JEVisSample sample = attribute.buildSample(now, listToString(scopes));
+                sample.commit();
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        }
     }
 
     public void delete() throws Exception {
@@ -209,5 +266,29 @@ public class LegalCadastre {
                 ", prefix=" + prefix +
                 ", name=" + name +
                 '}';
+    }
+
+    public ObservableList<String> getScopes() {
+        return scopes;
+    }
+
+    public void setScopes(ObservableList<String> scopes) {
+        this.scopes = scopes;
+    }
+
+    public ObservableList<String> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(ObservableList<String> categories) {
+        this.categories = categories;
+    }
+
+    public ObservableList<String> getRelevanzTags() {
+        return relevanzTags;
+    }
+
+    public void setRelevanzTags(ObservableList<String> relevanzTags) {
+        this.relevanzTags = relevanzTags;
     }
 }
