@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.action.ui;
 
+
 import javafx.application.Platform;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
@@ -34,7 +35,7 @@ public class ActionToolbar extends ToolBar {
 
     public ActionToolbar(ActionController actionController) {
         this.actionController = actionController;
-
+        //hamburger.getChildren().add(new Label("Test"));
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
@@ -49,6 +50,7 @@ public class ActionToolbar extends ToolBar {
         newAction.setOnAction(event -> actionController.createNewAction());
         deleteAction.setOnAction(event -> actionController.deleteAction());
         deletePlan.setOnAction(event -> actionController.deletePlan());
+        exportPDF.setOnAction(event -> actionController.exportPDF());
         //calender.setOnAction(event -> actionCalendar.showAndWait());
 
         actionPlanConfig.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.panconfig")));
@@ -59,6 +61,7 @@ public class ActionToolbar extends ToolBar {
         deletePlan.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.deleteplan")));
         reloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.reload")));
         exportPDF.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.exportpdf")));
+
 
         setOverview(actionController.isOverviewTabProperty().get());
         actionController.isOverviewTabProperty().addListener((observable, oldValue, newValue) -> {
@@ -98,7 +101,7 @@ public class ActionToolbar extends ToolBar {
         newAction.setDisable(isOverview);
 
 
-        exportPDF.setDisable(true);//Disabled because implementation is missing
+        //exportPDF.setDisable(true);//Disabled because implementation is missing
         reloadButton.setDisable(true); //Disabled because implementation is missing
         //newPlan.setDisable(isOverview);
         //openForm.setDisable(isOverview);

@@ -90,7 +90,6 @@ public class ActionPlanOverviewData extends ActionPlanData {
                 @Override
                 public void onChanged(Change<? extends ActionData> c) {
                     while (c.next()) {
-                        System.out.println("!!!!!! Overview.actions: " + c);
                         if (c.wasAdded()) {
                             actions.addAll(c.getAddedSubList());
                         }
@@ -115,39 +114,48 @@ public class ActionPlanOverviewData extends ActionPlanData {
 
     }
 
+    @Override
     public void delete() throws Exception {
 
     }
 
 
+    @Override
     public StringProperty getName() {
         return name;
     }
 
+    @Override
     public ObservableList<String> getStatustags() {
         return statusTags;
     }
 
+    @Override
     public ObservableList<String> getMediumTags() {
         return mediumTags;
     }
 
+    @Override
     public ObservableList<String> getFieldsTags() {
         return fieldsTags;
     }
 
+    @Override
     public ObservableList<ActionData> getActionData() {
         return actions;
     }
 
+    @Override
     public ObservableList<String> significantEnergyUseTags() {
         return significantEnergyUseTags;
     }
 
+    @Override
     public String getNrPrefix() {
         return nrPrefix.get();
     }
 
+    @Override
     public StringProperty nrPrefixProperty() {
         return nrPrefix;
     }

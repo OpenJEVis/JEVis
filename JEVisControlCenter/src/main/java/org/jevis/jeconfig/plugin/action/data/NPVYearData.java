@@ -52,7 +52,7 @@ public class NPVYearData {
 
     public void updateSums() {
         try {
-            System.out.println("---- NPVYearData Update sums");
+            //System.out.println("---- NPVYearData Update sums");
             netamount.setValue(round(deposit.get() - investment.getValue(), 2));
             discountedCashFlow.setValue(round(deposit.get() - investment.getValue(), 2));
             discountedCashFlow.setValue(round(netamount.get() / Math.pow((1 + (npvData.interestRate.get() / 100)), getYear()), 2));
