@@ -106,16 +106,9 @@ public class TimeFilterSelector extends GridPane {
         fFromYear.valueProperty().addListener(changeListener);
         fDateField.getSelectionModel().selectFirst();
 
-        //GridPane.setColumnSpan(fDateField, 3);
-        //TimeFilterSelector.this.addRow(0, lDatum);
-        TimeFilterSelector.this.addRow(0, fDateField, new Label("von"), fFromMonth, fFromYear, new Label("bis"), fToMonth, fToYear);
 
-        /*
-        this.addRow(0, lDatum, fDateField);
-        this.addRow(1, lFrom, fFromMonth, fFromYear);
-        this.addRow(2, lTo, fToMonth, fToYear);
+        TimeFilterSelector.this.addRow(0, fDateField, new Label(I18n.getInstance().getString("plugin.nonconformities.date.from")), fFromMonth, fFromYear, new Label(I18n.getInstance().getString("plugin.nonconformities.date.to")), fToMonth, fToYear);
 
-         */
     }
 
     private void initValues(NonconformityPlan nonconformityPlan) {
