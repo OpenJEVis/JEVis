@@ -204,7 +204,7 @@ public class Launcher extends AbstractCliApp {
         List<JEVisObject> filteredObjects = new ArrayList<>();
 
         try {
-            ((JEVisDataSourceWS) ds).getObjectsWS();
+            ((JEVisDataSourceWS) ds).getObjectsWS(false);
             cleanDataClass = ds.getJEVisClass(CleanDataObject.CLASS_NAME);
             cleanDataObjects = ds.getObjects(cleanDataClass, false);
             logger.info("Total amount of Clean Data Objects: {}", cleanDataObjects.size());
