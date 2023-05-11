@@ -29,7 +29,7 @@ public class TestDataGenerator {
                 try {
                     newSamples.add(jeVisAttribute.buildSample(jeVisSample.getTimestamp().plusYears(toYear - fromYear), jeVisSample.getValueAsDouble()));
                 } catch (Exception ex) {
-                    System.out.print("-");
+                    ex.printStackTrace();
                 }
             });
             jeVisAttribute.addSamples(newSamples);

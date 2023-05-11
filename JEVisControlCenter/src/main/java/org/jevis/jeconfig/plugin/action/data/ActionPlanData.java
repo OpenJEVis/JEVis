@@ -268,7 +268,7 @@ public class ActionPlanData {
                 for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
                     //System.out.println("Action Dir: " + dirObj);
                     dirObj.getChildren(actionClass, false).forEach(actionObj -> {
-                        System.out.println("new Action from JEVis: " + actionObj);
+                        //System.out.println("new Action from JEVis: " + actionObj);
                         try {
                             ActionData action = loadAction(actionObj);
                             actions.add(action);

@@ -9,10 +9,8 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -309,22 +307,24 @@ public class ToolBarFunctions {
         gp.add(resultEndDate, 2, row);
         gp.add(resultEndTime, 3, row);
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        infoBox.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) infoBox.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) infoBox.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox vBox = new VBox(6, gp, separator, buttonBar);
+        VBox vBox = new VBox(6, gp, separator);
         vBox.setPadding(new Insets(12));
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             try {
                 BaseLoadSetting setting = new BaseLoadSetting();
                 setting.setBaseLoadStart(baseLoadStartDate.getValue(), baseLoadStartTime.getValue());
@@ -343,7 +343,7 @@ public class ToolBarFunctions {
             infoBox.close();
         });
 
-        cancel.setOnAction(event -> infoBox.close());
+        cancelButton.setOnAction(event -> infoBox.close());
 
         infoBox.getDialogPane().setContent(vBox);
         infoBox.show();
@@ -415,22 +415,24 @@ public class ToolBarFunctions {
             row++;
         }
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
-        ok.setDefaultButton(true);
-        final JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
-        cancel.setCancelButton(true);
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        HBox buttonBar = new HBox(6, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        buttonBar.setPadding(new Insets(12));
+        infoBox.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) infoBox.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) infoBox.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setPadding(new Insets(8, 0, 8, 0));
 
-        VBox vBox = new VBox(6, gp, separator, buttonBar);
+        VBox vBox = new VBox(6, gp, separator);
         vBox.setPadding(new Insets(12));
 
-        ok.setOnAction(event -> {
+        okButton.setOnAction(event -> {
             try {
                 valuesSetting.setResultStart(resultStartDate.getValue(), resultStartTime.getValue());
                 valuesSetting.setResultEnd(resultEndDate.getValue(), resultEndTime.getValue());
@@ -445,7 +447,7 @@ public class ToolBarFunctions {
             infoBox.close();
         });
 
-        cancel.setOnAction(event -> infoBox.close());
+        cancelButton.setOnAction(event -> infoBox.close());
 
         infoBox.getDialogPane().setContent(vBox);
         infoBox.show();

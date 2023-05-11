@@ -68,6 +68,10 @@ public interface DataCollectorTypes {
         interface JEVisChannelDirectory extends ChannelDirectory {
             String NAME = "JEVis Channel Directory";
         }
+
+        interface DWDChannelDirectory extends ChannelDirectory {
+            String NAME = "DWD Channel Directory";
+        }
     }
 
     interface JEDataCollector {
@@ -126,6 +130,9 @@ public interface DataCollectorTypes {
         String ENABLE = "Enabled";
         String OVERWRITE = "Overwrite";
         String MANUAL_TRIGGER = "Manual Trigger";
+        String MAX_THREAD_TIME = "Max thread time";
+        String LAST_RUN = "Last Run";
+        String CYCLE_TIME = "Cycle Time";
 
         interface DataServer extends DataSource {
 
@@ -172,8 +179,12 @@ public interface DataCollectorTypes {
                 String PASSWORD = "Password";
                 String SSL = "SSL";
             }
-          
-            interface HTTP extends DataServer{
+
+            interface DWDServer extends DataServer {
+                String NAME = "DWD Server";
+            }
+
+            interface HTTP extends DataServer {
                 String AUTHENTICATION = "Authentication";
             }
 
@@ -202,6 +213,16 @@ public interface DataCollectorTypes {
             String NAME = "SOAP Channel";
             String TEMPLATE = "Template";
             String PATH = "Path";
+        }
+
+        interface DWDChannel extends Channel {
+            String NAME = "DWD Channel";
+            String ID = "Id";
+            String ATTRIBUTE = "Attribute";
+            String AGGREGATION = "Aggregation";
+            String DATA_NAME = "Data Name";
+            String TARGET = "Target";
+            String LAST_READOUT = "Last Readout";
         }
 
         interface JEVisChannel extends Channel {

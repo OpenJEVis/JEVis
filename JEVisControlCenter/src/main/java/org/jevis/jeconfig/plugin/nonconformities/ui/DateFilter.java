@@ -3,6 +3,12 @@ package org.jevis.jeconfig.plugin.nonconformities.ui;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.jevis.jeconfig.plugin.nonconformities.ui.DateFilter.DateField.*;
+
 public class DateFilter {
 
     DateTime from;
@@ -27,25 +33,58 @@ public class DateFilter {
         return dateField;
     }
 
-    private DateTime getDate(NonconformityData data) {
 
-        if (dateField == DateField.ABGESCHLOSSEN) {
-            return data.getDoneDate();
-        } else if (dateField == DateField.ERSTELLT) {
-            return data.getCreateDate();
-        } else if (dateField == DateField.UMSETZUNG) {
-            return data.getDeadLine();
+    private List<DateTime> getDate(NonconformityData data) {
+        List<DateTime> dateTimes = new ArrayList<>();
+        if (dateField == COMPLETED) {
+            setDoneDate(data, dateTimes);
+        } else if (dateField == DateFilter.DateField.CREATED) {
+            setCreateDate(data, dateTimes);
+        } else if (dateField == IMPLEMENTATION) {
+            setDeadLine(data, dateTimes);
+        } else if (dateField == ALL) {
+            setDoneDate(data, dateTimes);
+            setCreateDate(data, dateTimes);
+            setDeadLine(data, dateTimes);
         }
-        return null;
+        return dateTimes;
+    }
+
+    private static void setDeadLine(NonconformityData data, List<DateTime> dateTimes) {
+        if (data.getDeadLine() != null) {
+            dateTimes.add(data.getDeadLine());
+        }
+    }
+
+    private static void setCreateDate(NonconformityData data, List<DateTime> dateTimes) {
+        if (data.getCreateDate() != null) {
+            dateTimes.add(data.getCreateDate());
+        }
+    }
+
+    private static void setDoneDate(NonconformityData data, List<DateTime> dateTimes) {
+        if (data.getDoneDate() != null) {
+            dateTimes.add(data.getDoneDate());
+        }
     }
 
     public boolean show(NonconformityData data) {
+        if (getDate(data).size() == 0) {
+            return true;
+        }
         try {
-            if (dateField == DateField.ALLES) return true;
-            if (getDate(data).isAfter(getUntilDate())) return false;
-            if (getDate(data).isBefore(getFromDate())) return false;
+            Optional<DateTime> optionalDateTimeMax = getDate(data).stream().max(DateTime::compareTo);
+            Optional<DateTime> optionalDateTimeMin = getDate(data).stream().min(DateTime::compareTo);
+
+            if (optionalDateTimeMax.isPresent() && optionalDateTimeMin.isPresent()) {
+                if(optionalDateTimeMax.get().isBefore(getFromDate())) return false;
+                if(optionalDateTimeMin.get().isAfter(getUntilDate())) return false;
+            }else {
+                return false;
+            }
             return true;
         } catch (Exception ex) {
+            ex.printStackTrace();
             return false;
         }
     }
@@ -60,6 +99,6 @@ public class DateFilter {
     }
 
     public static enum DateField {
-        ALLES, UMSETZUNG, ABGESCHLOSSEN, ERSTELLT
+        ALL, IMPLEMENTATION, COMPLETED, CREATED
     }
 }

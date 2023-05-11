@@ -17,11 +17,22 @@ public class ScheduleIntervalCalc implements IntervalCalculator {
 
     private static boolean isInit = false;
     private Interval interval;
+    private JEVisObject reportObject;
 
 
     @Override
     public Interval getInterval(String periodMode) {
         return interval;
+    }
+
+    @Override
+    public JEVisObject getReportObject() {
+        return reportObject;
+    }
+
+    @Override
+    public String getSchedule() {
+        return null;
     }
 
     public synchronized boolean getIsInit() {
@@ -35,6 +46,7 @@ public class ScheduleIntervalCalc implements IntervalCalculator {
     @Override
     public void buildIntervals(JEVisObject reportObject) {
         interval = JEVisIntervalParser.getInterval();
+        this.reportObject = reportObject;
     }
 
 }

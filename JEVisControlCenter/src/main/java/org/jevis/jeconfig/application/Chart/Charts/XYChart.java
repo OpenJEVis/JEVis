@@ -23,10 +23,8 @@ import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUnit;
+import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -234,10 +232,18 @@ public class XYChart implements Chart {
 
 
         if (chartType != ChartType.BUBBLE) {
+            List<ChartDataRow> toRemove = chartDataRows.stream().filter(chartDataRow -> chartDataRow.getName().contains(" - " + I18n.getInstance().getString("graph.processing.raw"))).collect(Collectors.toList());
+            List<XYChartSerie> toRemoveChartSeries = xyChartSerieList.stream().filter(xyChartSerie -> xyChartSerie.getTableEntryName().contains(" - " + I18n.getInstance().getString("graph.processing.raw"))).collect(Collectors.toList());
+            chartDataRows.removeAll(toRemove);
+            xyChartSerieList.removeAll(toRemoveChartSeries);
+
             for (ChartDataRow chartDataRow : chartDataRows) {
                 try {
                     if (showRawData && chartDataRow.getDataProcessor() != null) {
-                        xyChartSerieList.add(generateSerie(changedBoth, getRawDataModel(chartModel, chartDataRow)));
+                        ChartDataRow rawDataModel = getRawDataModel(chartModel, chartDataRow);
+                        if (rawDataModel != null) {
+                            xyChartSerieList.add(generateSerie(changedBoth, rawDataModel));
+                        }
                     }
 
                     xyChartSerieList.add(generateSerie(changedBoth, chartDataRow));
@@ -751,19 +757,34 @@ public class XYChart implements Chart {
     }
 
     private ChartDataRow getRawDataModel(ChartModel dataModel, ChartDataRow singleRow) {
-        ChartDataRow newModel = singleRow.clone();
-        newModel.setDataProcessor(null);
-        newModel.setAttribute(null);
-        newModel.setSamples(null);
-        newModel.setUnit("");
-        newModel.setColor(newModel.getColor().darker());
-        newModel.setName(newModel.getName() + " - " + I18n.getInstance().getString("graph.processing.raw"));
+        try {
+            ChartDataRow newModel = singleRow.clone();
+            JEVisObject newObject;
+            if (singleRow.getObject().getJEVisClassName().equals(JC.Data.name)) {
+                newObject = singleRow.getObject();
+            } else {
+                newObject = singleRow.getObject().getParent();
+            }
 
-        singleRow.setAxis(0);
-        newModel.setAxis(1);
+            newModel.setId(newObject.getID());
 
-        dataModel.getChartData().add(newModel);
-        return newModel;
+            newModel.setDataProcessor(null);
+            newModel.setAttribute(null);
+            newModel.setSamples(null);
+            newModel.setUnit("");
+            newModel.setColor(newModel.getColor().darker());
+            newModel.setName(newModel.getName() + " - " + I18n.getInstance().getString("graph.processing.raw"));
+
+            singleRow.setAxis(0);
+            newModel.setAxis(1);
+
+            dataModel.getChartData().add(newModel);
+            return newModel;
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        return null;
     }
 
     public void init() {
@@ -1650,8 +1671,12 @@ public class XYChart implements Chart {
         Double ub = upperBound * 1000;
         DateTime lower = new DateTime(lb.longValue());
         DateTime upper = new DateTime(ub.longValue());
+        Double y1Min = Double.MAX_VALUE;
+        Double y1Max = -Double.MAX_VALUE;
+        Double y2Min = Double.MAX_VALUE;
+        Double y2Max = -Double.MAX_VALUE;
 
-        xyChartSerieList.forEach(serie -> {
+        for (XYChartSerie serie : xyChartSerieList) {
             try {
 
                 ValueWithDateTime min = new ValueWithDateTime(Double.MAX_VALUE);
@@ -1677,6 +1702,14 @@ public class XYChart implements Chart {
                             min.minCheck(ts, currentValue);
                             max.maxCheck(ts, currentValue);
                             sum += currentValue;
+
+                            if (serie.getyAxis() == 0) {
+                                y1Max = Math.max(y1Max, currentValue);
+                                y1Min = Math.min(y1Min, currentValue);
+                            } else {
+                                y2Max = Math.max(y2Max, currentValue);
+                                y2Min = Math.min(y2Min, currentValue);
+                            }
                         } else {
                             zeroCount++;
                         }
@@ -1701,9 +1734,61 @@ public class XYChart implements Chart {
             } catch (Exception ex) {
             }
 
-        });
+        }
 
         Platform.runLater(() -> updateXAxisLabel(lower, upper));
+
+        if (y1SumSerie != null) {
+            try {
+                ValueWithDateTime min = new ValueWithDateTime(y1Min);
+                ValueWithDateTime max = new ValueWithDateTime(y1Max);
+
+                List<JEVisSample> samples = y1SumSerie.getSingleRow().getSamples();
+                JEVisUnit unit = y1SumSerie.getSingleRow().getUnit();
+                min.setUnit(unit);
+                max.setUnit(unit);
+
+                for (JEVisSample smp : samples) {
+                    if ((smp.getTimestamp().equals(lower) || smp.getTimestamp().isAfter(lower)) && (smp.getTimestamp().isBefore(upper) || smp.getTimestamp().equals(upper))) {
+
+                        DateTime ts = smp.getTimestamp();
+                        Double currentValue = smp.getValueAsDouble();
+
+                        min.minCheck(ts, currentValue);
+                        max.maxCheck(ts, currentValue);
+                    }
+                }
+                Platform.runLater(() -> y1Axis.setMax(max.getValue()));
+            } catch (Exception e) {
+                logger.error("Error while generating max/min values for sum y1 sum serie", e);
+            }
+        }
+
+        if (y2SumSerie != null) {
+            try {
+                ValueWithDateTime min = new ValueWithDateTime(y2Min);
+                ValueWithDateTime max = new ValueWithDateTime(y2Max);
+
+                List<JEVisSample> samples = y2SumSerie.getSingleRow().getSamples();
+                JEVisUnit unit = y2SumSerie.getSingleRow().getUnit();
+                min.setUnit(unit);
+                max.setUnit(unit);
+
+                for (JEVisSample smp : samples) {
+                    if ((smp.getTimestamp().equals(lower) || smp.getTimestamp().isAfter(lower)) && (smp.getTimestamp().isBefore(upper) || smp.getTimestamp().equals(upper))) {
+
+                        DateTime ts = smp.getTimestamp();
+                        Double currentValue = smp.getValueAsDouble();
+
+                        min.minCheck(ts, currentValue);
+                        max.maxCheck(ts, currentValue);
+                    }
+                }
+                Platform.runLater(() -> y2Axis.setMax(max.getValue()));
+            } catch (Exception e) {
+                logger.error("Error while generating max/min values for sum y2 sum serie", e);
+            }
+        }
     }
 
     @Override

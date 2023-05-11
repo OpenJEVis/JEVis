@@ -84,7 +84,7 @@ public class LoytecXmlDlParser {
             for (Document d : documents) {
                 if (logger.getLevel().equals(Level.DEBUG)) {
                     try {
-                        printDocument(d, System.out);
+                        printDocument(d, logger.getMessageFactory());
 
                     } catch (TransformerException | IOException e) {
                         e.printStackTrace();

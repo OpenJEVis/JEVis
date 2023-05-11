@@ -1,0 +1,59 @@
+{
+  "name": "DWD Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "DWD Channel Directory",
+      "end": "DWD Server",
+      "type": 3
+    },
+    {
+      "start": "DWD Server",
+      "end": "Data Source Directory",
+      "type": 3
+    },
+    {
+      "start": "DWD Server",
+      "end": "Data Source",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Read Timeout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Server"
+    },
+    {
+      "name": "Manual Trigger",
+      "primitiveType": 4,
+      "guiType": "Button",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Server"
+    },
+    {
+      "name": "Connection Timeout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Server"
+    },
+    {
+      "name": "Max thread time",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Server"
+    }
+  ]
+}

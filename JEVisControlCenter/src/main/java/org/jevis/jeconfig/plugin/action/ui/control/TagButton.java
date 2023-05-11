@@ -104,7 +104,7 @@ public class TagButton extends Button {
             if (jfxCheckBox.isSelected()) selected.add(jfxCheckBox.getText());
 
         });
-        System.out.println("## selectedBoxes" + selected);
+
 
         if (allSelected.get()) {
             selectedTags.clear();

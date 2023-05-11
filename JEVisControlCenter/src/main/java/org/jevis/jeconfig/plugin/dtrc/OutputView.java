@@ -4,6 +4,7 @@ import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -127,12 +128,23 @@ public class OutputView extends Tab {
         endTime.set24HourView(true);
         endTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
+        startDate.valueProperty().addListener(this::changedDate);
+        endDate.valueProperty().addListener(this::changedDate);
+        startTime.valueProperty().addListener(this::changedTime);
+        endTime.valueProperty().addListener(this::changedTime);
+
         intervalSelector = new IntervalSelector(ds, startDate, startTime, endDate, endTime);
         intervalSelector.getTimeFactoryBox().getItems().clear();
         TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
-        intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrameFactory.getReduced());
+
         intervalSelector.updateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                if (intervalSelector.getTimeFactoryBox().getSelectionModel().getSelectedItem().equals(timeFrameFactory.custom())) {
+                    showDatePicker(true);
+                } else {
+                    showDatePicker(false);
+                }
+
                 requestUpdate();
                 intervalSelector.setUpdate(false);
             }
@@ -234,7 +246,6 @@ public class OutputView extends Tab {
         List<TemplateOutput> templateOutputs = templateHandler.getRcTemplate().getTemplateOutputs();
         final Map<String, Boolean> intervalConfiguration = templateHandler.getRcTemplate().getIntervalSelectorConfiguration();
 
-
         if (timeframeField != null) {
             String overall = String.format("%s %s %s",
                     dtfOutLegend.print(start),
@@ -247,24 +258,18 @@ public class OutputView extends Tab {
         createOutputs(templateOutputs);
 
         TimeFrame lastSelectedTimeFrame = intervalSelector.getTimeFactoryBox().getSelectionModel().getSelectedItem();
-        List<TimeFrame> inactiveTimeFrames = new ArrayList<>();
-        for (TimeFrame item : intervalSelector.getTimeFactoryBox().getItems()) {
-            Boolean aBoolean = intervalConfiguration.get(item.getID());
-            if (aBoolean == null || !aBoolean) {
-                inactiveTimeFrames.add(item);
-            }
-        }
+        List<TimeFrame> timeFrames = new ArrayList<>();
         TimeFrameFactory timeFrameFactory = new TimeFrameFactory(ds);
-        List<TimeFrame> missingTimeFrames = new ArrayList<>();
-        for (TimeFrame timeFrame : timeFrameFactory.getReduced()) {
-            if (!intervalSelector.getTimeFactoryBox().getItems().contains(timeFrame)) {
-                missingTimeFrames.add(timeFrame);
+        for (TimeFrame item : timeFrameFactory.getReduced()) {
+            Boolean aBoolean = intervalConfiguration.get(item.getID());
+            if (aBoolean) {
+                timeFrames.add(item);
             }
         }
 
         Platform.runLater(() -> {
-            intervalSelector.getTimeFactoryBox().getItems().addAll(missingTimeFrames);
-            intervalSelector.getTimeFactoryBox().getItems().removeAll(inactiveTimeFrames);
+            intervalSelector.getTimeFactoryBox().getItems().clear();
+            intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrames);
 
             if (intervalSelector.getTimeFactoryBox().getItems().contains(lastSelectedTimeFrame)) {
                 intervalSelector.getTimeFactoryBox().getSelectionModel().select(lastSelectedTimeFrame);
@@ -622,7 +627,7 @@ public class OutputView extends Tab {
                 if (formula.getInputIds().size() == 1 && templateOutput.getShowAnalysisLink()) {
                     TemplateInput correspondingInput = templateHandler.getRcTemplate().getTemplateInputs().stream().filter(templateInput -> templateInput.getId().equals(formula.getInputIds().get(0))).findFirst().orElse(null);
 
-                    if (!correspondingInput.getAttributeName().equals("name")) {
+                    if (correspondingInput != null && !correspondingInput.getAttributeName().equals("name")) {
                         JEVisAttribute attribute = ds.getObject(correspondingInput.getObjectID()).getAttribute(correspondingInput.getAttributeName());
                         AnalysisLinkButton analysisLinkButton = new AnalysisLinkButton(attribute);
                         analysisLinkButton.getAnalysisRequest().setStartDate(start);
@@ -1451,5 +1456,15 @@ public class OutputView extends Tab {
 
     public void setFontSize(double fontSize) {
         this.fontSize = fontSize;
+    }
+
+    private void changedDate(ObservableValue<? extends LocalDate> observableValue, LocalDate localDate, LocalDate t1) {
+        changedTime(null, null, null);
+    }
+
+    private void changedTime(ObservableValue<? extends LocalTime> observableValue, LocalTime localTime, LocalTime t1) {
+        if (showDatePicker.get()) {
+            requestUpdate();
+        }
     }
 }

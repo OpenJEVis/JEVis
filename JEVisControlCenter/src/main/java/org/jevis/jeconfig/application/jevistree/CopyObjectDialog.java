@@ -20,20 +20,13 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -49,12 +42,13 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.NumberSpinner;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -62,7 +56,7 @@ import java.util.List;
  *
  * @author fs
  */
-public class CopyObjectDialog {
+public class CopyObjectDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(CopyObjectDialog.class);
 
     public static String ICON = "1403555565_stock_folder-move.png";
@@ -71,8 +65,6 @@ public class CopyObjectDialog {
     private boolean recursionAllowed = false;
     private final boolean includeDataAllowed = true;
     private final JFXCheckBox includeValues = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.copy.addvalues"));
-    private final JFXButton ok = new JFXButton(I18n.getInstance().getString("jevistree.dialog.copy.ok"));
-
     private final JFXRadioButton move = new JFXRadioButton(I18n.getInstance().getString("jevistree.dialog.copy.move"));
     private final JFXRadioButton link = new JFXRadioButton(I18n.getInstance().getString("jevistree.dialog.copy.link"));
     private final JFXRadioButton copy = new JFXRadioButton(I18n.getInstance().getString("jevistree.dialog.copy.copy"));
@@ -81,22 +73,17 @@ public class CopyObjectDialog {
     private final boolean includeValuesAllowed = true;
     private final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
-
-    public Response show(Stage owner, final JEVisObject object, final JEVisObject newParent, DefaultAction defaultAction) {
-        List<JEVisObject> objects = new ArrayList<>();
-        objects.add(object);
-        return show(owner, objects, newParent, defaultAction);
+    public CopyObjectDialog(final JEVisObject object, final JEVisObject newParent, DefaultAction defaultAction) {
+        this(Collections.singletonList(object), newParent, defaultAction);
     }
 
     /**
-     * @param owner
      * @param objects
      * @param newParent
-     * @return
      */
-    public Response show(Stage owner, final List<JEVisObject> objects, final JEVisObject newParent, DefaultAction defaultAction) {
+    public CopyObjectDialog(final List<JEVisObject> objects, final JEVisObject newParent, DefaultAction defaultAction) {
+        super();
 
-//        boolean linkOK = false;
         try {
 
             boolean recursionForAll = true;
@@ -104,14 +91,14 @@ public class CopyObjectDialog {
             for (JEVisObject object : objects) {
                 if (!object.getDataSource().getCurrentUser().canCreate(object.getID())) {
                     showError(I18n.getInstance().getString("jevistree.dialog.copy.permission.denied"), I18n.getInstance().getString("jevistree.dialog.copy.permission.denied.message"));
-                    return Response.CANCEL;
+                    this.response = Response.CANCEL;
                 }
 
                 if (!object.getJEVisClassName().equals("Link") && !object.isAllowedUnder(newParent)) {
                     showError(I18n.getInstance().getString("jevistree.dialog.copy.rules.error"),
                             String.format(I18n.getInstance().getString("jevistree.dialog.copy.rules.error.message"), object.getJEVisClass().getName(),
                                     newParent.getJEVisClass().getName()));
-                    return Response.CANCEL;
+                    this.response = Response.CANCEL;
                 }
                 //Don't allow recursion if the process failed the recursion check
                 this.recursionAllowed = !TreeHelper.isOwnChildCheck(object, newParent);
@@ -134,28 +121,27 @@ public class CopyObjectDialog {
             this.move.setDisable(!recursionForAll);
 
 
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.fatal(ex);
             showError(ex.getMessage(), ex.getCause().getMessage());
-            return Response.CANCEL;
+            this.response = Response.CANCEL;
         }
 
-        final Stage stage = new Stage();
 
-        stage.setTitle(I18n.getInstance().getString("jevistree.dialog.copy.title"));
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initOwner(owner);
+        setTitle(I18n.getInstance().getString("jevistree.dialog.copy.title"));
+        initOwner(JEConfig.getStage());
+        initModality(Modality.APPLICATION_MODAL);
 
         VBox root = new VBox();
 
-        Scene scene = new Scene(root);
-        TopMenu.applyActiveTheme(scene);
-        stage.setScene(scene);
-        stage.setWidth(450);
-        stage.setHeight(400);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(true);
-        scene.setCursor(Cursor.DEFAULT);
+        Stage stage = (Stage) getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
+
+        getDialogPane().setMinWidth(450);
+        getDialogPane().setMinHeight(400);
+        initStyle(StageStyle.UTILITY);
+        setResizable(true);
 
         BorderPane header = new BorderPane();
         header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
@@ -180,19 +166,16 @@ public class CopyObjectDialog {
 
         header.setRight(vboxRight);
 
-        HBox buttonPanel = new HBox();
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("jevistree.dialog.copy.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("jevistree.dialog.copy.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        this.ok.setDefaultButton(true);
-        this.ok.setDisable(true);
+        this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("jevistree.dialog.copy.cancel"));
-        cancel.setCancelButton(true);
+        Button okButton = (Button) this.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
 
-        buttonPanel.getChildren().addAll(this.ok, cancel);
-        buttonPanel.setAlignment(Pos.CENTER_RIGHT);
-        buttonPanel.setPadding(new Insets(10, 10, 10, 10));
-        buttonPanel.setSpacing(10);
-        buttonPanel.setMaxHeight(25);
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
 
         GridPane gp = new GridPane();
         gp.setPadding(new Insets(10));
@@ -216,81 +199,71 @@ public class CopyObjectDialog {
         final Label nameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.copy.name"));
         final Label countLabel = new Label(I18n.getInstance().getString("jevistree.dialog.copy.amount"));
 
+        group.selectedToggleProperty().addListener((ov, t, t1) -> {
 
-        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            if (t1 != null) {
+                if (t1.equals(this.move)) {
+                    okButton.setDisable(false);
+                    this.nameField.setDisable(true);
+                    nameLabel.setDisable(true);
+                    countLabel.setDisable(true);
+                    this.count.setDisable(true);
 
-            @Override
-            public void changed(ObservableValue<? extends Toggle> ov, Toggle t, Toggle t1) {
+                    this.includeSamples.setDisable(true);
+                    this.includeSamples.setSelected(true);
+                    this.includeValues.setDisable(true);
+                    this.includeValues.setSelected(true);
+                    this.recursion.setDisable(true);
+                    this.recursion.setSelected(true);
 
-                if (t1 != null) {
-                    if (t1.equals(CopyObjectDialog.this.move)) {
-                        CopyObjectDialog.this.ok.setDisable(false);
-                        CopyObjectDialog.this.nameField.setDisable(true);
-                        nameLabel.setDisable(true);
-                        countLabel.setDisable(true);
-                        CopyObjectDialog.this.count.setDisable(true);
+                } else if (t1.equals(this.link)) {
+                    this.nameField.setDisable(false);
+                    this.count.setDisable(true);
+                    nameLabel.setDisable(false);
+                    countLabel.setDisable(true);
+                    this.includeSamples.setDisable(true);
+                    this.includeSamples.setSelected(false);
+                    this.includeValues.setDisable(true);
+                    this.includeValues.setSelected(false);
+                    this.recursion.setDisable(true);
+                    this.recursion.setSelected(false);
 
-                        CopyObjectDialog.this.includeSamples.setDisable(true);
-                        CopyObjectDialog.this.includeSamples.setSelected(true);
-                        CopyObjectDialog.this.includeValues.setDisable(true);
-                        CopyObjectDialog.this.includeValues.setSelected(true);
-                        CopyObjectDialog.this.recursion.setDisable(true);
-                        CopyObjectDialog.this.recursion.setSelected(true);
+                    checkName(okButton);
 
-                    } else if (t1.equals(CopyObjectDialog.this.link)) {
-                        CopyObjectDialog.this.nameField.setDisable(false);
-                        CopyObjectDialog.this.count.setDisable(true);
-                        nameLabel.setDisable(false);
-                        countLabel.setDisable(true);
-                        CopyObjectDialog.this.includeSamples.setDisable(true);
-                        CopyObjectDialog.this.includeSamples.setSelected(false);
-                        CopyObjectDialog.this.includeValues.setDisable(true);
-                        CopyObjectDialog.this.includeValues.setSelected(false);
-                        CopyObjectDialog.this.recursion.setDisable(true);
-                        CopyObjectDialog.this.recursion.setSelected(false);
+                } else if (t1.equals(this.copy)) {
+                    this.nameField.setDisable(false);
+                    this.count.setDisable(false);
+                    nameLabel.setDisable(false);
+                    countLabel.setDisable(false);
+                    //CopyObjectDialog.this.nameField.setText(objects.getName());
 
-                        checkName();
+                    this.includeSamples.setDisable(!this.includeDataAllowed);
+                    this.includeSamples.setSelected(true);
+                    this.includeValues.setDisable(!this.includeValuesAllowed);
+                    this.includeValues.setSelected(true);
+                    this.recursion.setDisable(!this.recursionAllowed);
+                    this.recursion.setSelected(true);
 
-                    } else if (t1.equals(CopyObjectDialog.this.copy)) {
-                        CopyObjectDialog.this.nameField.setDisable(false);
-                        CopyObjectDialog.this.count.setDisable(false);
-                        nameLabel.setDisable(false);
-                        countLabel.setDisable(false);
-                        //CopyObjectDialog.this.nameField.setText(objects.getName());
-
-                        CopyObjectDialog.this.includeSamples.setDisable(!CopyObjectDialog.this.includeDataAllowed);
-                        CopyObjectDialog.this.includeSamples.setSelected(true);
-                        CopyObjectDialog.this.includeValues.setDisable(!CopyObjectDialog.this.includeValuesAllowed);
-                        CopyObjectDialog.this.includeValues.setSelected(true);
-                        CopyObjectDialog.this.recursion.setDisable(!CopyObjectDialog.this.recursionAllowed);
-                        CopyObjectDialog.this.recursion.setSelected(true);
-
-                        checkName();
-                    }
-
-                    if (objects.size() != 1) {
-                        nameLabel.setDisable(true);
-                        nameField.setDisable(true);
-                    }
-
+                    checkName(okButton);
                 }
 
-                if (!recursionAllowed) {
-                    CopyObjectDialog.this.recursion.setSelected(false);
+                if (objects.size() != 1) {
+                    nameLabel.setDisable(true);
+                    nameField.setDisable(true);
                 }
+            }
 
+            if (!recursionAllowed) {
+                this.recursion.setSelected(false);
             }
         });
 
         try {
-
-
             if (objects.size() == 1) {
                 this.nameField.setText(objects.get(0).getName());
             } else {
                 this.nameField.setText("*");
             }
-
 
             boolean isAllowedForAll = true;
             for (JEVisObject obj : objects) {
@@ -298,7 +271,6 @@ public class CopyObjectDialog {
                     isAllowedForAll = false;
                 }
             }
-
 
             if (isAllowedForAll) {
                 if (recursionAllowed) {
@@ -313,14 +285,14 @@ public class CopyObjectDialog {
             if (!this.link.isDisable()) {
                 group.selectToggle(this.link);
                 //this.nameField.setText(objects.getName());
-                this.ok.setDisable(false);
+                okButton.setDisable(false);
             } else if (!this.move.isDisable()) {
                 group.selectToggle(this.move);
             } else if (!this.copy.isDisable()) {
                 group.selectToggle(this.copy);
             }
 
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.fatal(ex);
         }
 
@@ -354,46 +326,34 @@ public class CopyObjectDialog {
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
 
-        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), gp, buttonPanel);
+        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), gp);
         VBox.setVgrow(gp, Priority.ALWAYS);
-        VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 
-        this.ok.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                stage.close();
+        getDialogPane().setContent(root);
 
-                if (group.getSelectedToggle().equals(CopyObjectDialog.this.move)) {
-                    CopyObjectDialog.this.response = Response.MOVE;
-                } else if (group.getSelectedToggle().equals(CopyObjectDialog.this.link)) {
-                    CopyObjectDialog.this.response = Response.LINK;
-                } else if (group.getSelectedToggle().equals(CopyObjectDialog.this.copy)) {
-                    CopyObjectDialog.this.response = Response.COPY;
-                }
+        okButton.setOnAction(t -> {
+            if (group.getSelectedToggle().equals(this.move)) {
+                this.response = Response.MOVE;
+            } else if (group.getSelectedToggle().equals(this.link)) {
+                this.response = Response.LINK;
+            } else if (group.getSelectedToggle().equals(this.copy)) {
+                this.response = Response.COPY;
+            }
 //                else if (group.getSelectedToggle().equals(clone)) {
 //                    response = Response.CLONE;
 //                }
-
-            }
+            close();
         });
 
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                stage.close();
-                CopyObjectDialog.this.response = Response.CANCEL;
-
-            }
+        cancelButton.setOnAction(t -> {
+            this.response = Response.CANCEL;
+            close();
         });
 
-        this.nameField.setOnKeyPressed(new EventHandler<KeyEvent>() {
-
-            @Override
-            public void handle(KeyEvent t) {
-                if (CopyObjectDialog.this.nameField.getText() != null && !CopyObjectDialog.this.nameField.getText().equals("")) {
-                    CopyObjectDialog.this.ok.setDisable(false);
-                }
+        this.nameField.setOnKeyPressed(t -> {
+            if (this.nameField.getText() != null && !this.nameField.getText().equals("")) {
+                okButton.setDisable(false);
             }
         });
 
@@ -419,20 +379,14 @@ public class CopyObjectDialog {
         stage.addEventHandler(KeyEvent.KEY_PRESSED, ev -> {
             if (ev.getCode() == KeyCode.ENTER) {
                 if (this.move.isSelected()) {
-                    this.ok.fire();
+                    okButton.fire();
                     ev.consume();
                 }
             }
         });
 
-        stage.sizeToScene();
-        stage.setAlwaysOnTop(true);
         Platform.runLater(stage::requestFocus);
         Platform.runLater(stage::toFront);
-
-        stage.showAndWait();
-
-        return this.response;
     }
 
     public enum Response {
@@ -442,6 +396,9 @@ public class CopyObjectDialog {
 
     private Response response = Response.CANCEL;
 
+    public Response getResponse() {
+        return response;
+    }
 
     public String getCreateName() {
         return this.nameField.getText();
@@ -473,8 +430,8 @@ public class CopyObjectDialog {
         return this.includeValues.isSelected();
     }
 
-    private void checkName() {
-        this.ok.setDisable(this.nameField.getText() == null || this.nameField.getText().isEmpty());
+    private void checkName(Button okButton) {
+        okButton.setDisable(this.nameField.getText() == null || this.nameField.getText().isEmpty());
     }
 
     private void showError(String titleLong, String message) {

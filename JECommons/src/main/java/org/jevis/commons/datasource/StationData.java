@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.tool.dwdbrowser;
+package org.jevis.commons.datasource;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;

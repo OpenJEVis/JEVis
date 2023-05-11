@@ -127,22 +127,26 @@ public class ReportExecutor {
             logger.info("Uploaded report file to JEVis System");
 
             JEVisFile fileForNotification = jeVisFileImp;
-            File pdfFile = null;
-            try {
-                logger.info("Creating pdf file.");
-                File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
-                wholePdfFile.deleteOnExit();
-                PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
-                pdfFileSplitter.splitPDF();
-                pdfFile = pdfFileSplitter.getOutputFile();
-                pdfFile.deleteOnExit();
-                JEVisFile jeVisFilePDFImp = new JEVisFileImp(reportName + ".pdf", pdfFile);
-                lastReportPDFAttribute.buildSample(new DateTime(), jeVisFilePDFImp).commit();
-            } catch (Exception e) {
-                logger.error("Could not initialize pdf converter. ", e);
-            }
-            if (property.getToPdf() && pdfFile != null) {
-                fileForNotification = new JEVisFileImp(reportName + ".pdf", pdfFile);
+            if (property.getToPdf()) {
+                File pdfFile = null;
+                try {
+                    logger.info("Creating pdf file.");
+                    File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
+                    wholePdfFile.deleteOnExit();
+                    PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
+                    pdfFileSplitter.splitPDF();
+                    pdfFile = pdfFileSplitter.getOutputFile();
+                    pdfFile.deleteOnExit();
+                    JEVisFile jeVisFilePDFImp = new JEVisFileImp(reportName + ".pdf", pdfFile);
+                    lastReportPDFAttribute.buildSample(new DateTime(), jeVisFilePDFImp).commit();
+
+                    if (pdfFile != null) {
+                        fileForNotification = new JEVisFileImp(reportName + ".pdf", pdfFile);
+                    }
+
+                } catch (Exception e) {
+                    logger.error("Could not initialize pdf converter. ", e);
+                }
             }
 
             JEVisObject notificationObject = property.getNotificationObject();

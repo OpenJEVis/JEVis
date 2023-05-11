@@ -1,0 +1,69 @@
+{
+  "name": "DWD Channel",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "DWD Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "DWD Channel",
+      "end": "DWD Channel Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Id",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Channel"
+    },
+    {
+      "name": "Attribute",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Channel"
+    },
+    {
+      "name": "Aggregation",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Channel"
+    },
+    {
+      "name": "Data Name",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Channel"
+    },
+    {
+      "name": "Target",
+      "primitiveType": 0,
+      "guiType": "Attribute Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Channel"
+    },
+    {
+      "name": "Last Readout",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD Channel"
+    }
+  ]
+}

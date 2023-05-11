@@ -379,7 +379,7 @@ public class ToolBarView {
         autoResize = new ToggleButton("", JEConfig.getSVGImage(Icon.MAXIMIZE, iconSize, iconSize));
         Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
         autoResize.setTooltip(autoResizeTip);
-        autoResize.setSelected(toolBarSettings.isAutoResize());
+        autoResize.selectedProperty().bindBidirectional(toolBarSettings.autoResizeProperty());
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(autoResize);
         autoResize.styleProperty().bind(
                 Bindings
@@ -401,7 +401,7 @@ public class ToolBarView {
         Tooltip showRawDataTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showrawdata"));
         showRawData.setTooltip(showRawDataTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(showRawData);
-        showRawData.setSelected(toolBarSettings.isShowRawData());
+        showRawData.selectedProperty().bindBidirectional(toolBarSettings.showRawDataProperty());
         showRawData.styleProperty().bind(
                 Bindings
                         .when(showRawData.hoverProperty())
@@ -418,13 +418,13 @@ public class ToolBarView {
         mathOperation.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.mathoperation")));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(mathOperation);
         showSum = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
-        showSum.setSelected(toolBarSettings.isShowSum());
+        showSum.selectedProperty().bindBidirectional(toolBarSettings.showSumProperty());
 
         showL1L2 = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
-        showL1L2.setSelected(toolBarSettings.isShowL1L2());
+        showL1L2.selectedProperty().bindBidirectional(toolBarSettings.showL1L2Property());
 
         calcRegression = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
-        calcRegression.setSelected(toolBarSettings.isCalculateRegression());
+        calcRegression.selectedProperty().bindBidirectional(toolBarSettings.calculateRegressionProperty());
 
         calcFullLoadHours = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcfullloadhours"));
 
@@ -439,7 +439,7 @@ public class ToolBarView {
         customWorkDay = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, iconSize, iconSize));
         Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
         customWorkDay.setTooltip(customWorkDayTooltip);
-        customWorkDay.setSelected(toolBarSettings.isCustomWorkday());
+        customWorkDay.selectedProperty().bindBidirectional(toolBarSettings.customWorkdayProperty());
         customWorkDay.styleProperty().bind(
                 Bindings
                         .when(customWorkDay.hoverProperty())
@@ -454,7 +454,7 @@ public class ToolBarView {
         disableIcons = new ToggleButton("", JEConfig.getSVGImage(Icon.Warning, iconSize, iconSize));
         Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
         disableIcons.setTooltip(disableIconsTooltip);
-        disableIcons.setSelected(toolBarSettings.isShowIcons());
+        disableIcons.selectedProperty().bindBidirectional(toolBarSettings.showIconsProperty());
         disableIcons.styleProperty().bind(
                 Bindings
                         .when(disableIcons.hoverProperty())
@@ -476,7 +476,7 @@ public class ToolBarView {
         testButton = new ToggleButton("X");
         testButton.setOnAction(actionEvent -> {
             try {
-                DWDBrowser dwdBrowser = new DWDBrowser(chartPlugin.getDialogContainer(), ds);
+                DWDBrowser dwdBrowser = new DWDBrowser(ds, null);
                 dwdBrowser.show();
 
 
@@ -636,37 +636,21 @@ public class ToolBarView {
 
         save.setOnAction(action -> chartPlugin.handleRequest(Constants.Plugin.Command.SAVE));
 
-        loadNew.setOnAction(event -> {
-            loadNewDialog();
-        });
+        loadNew.setOnAction(event -> loadNewDialog());
 
         zoomOut.setOnAction(event -> resetZoom());
 
-        select2.setOnAction(event -> {
-            changeSettings2();
-        });
+        select2.setOnAction(event -> changeSettings2());
 
         delete.setOnAction(event -> getChartPluginView().handleRequest(Constants.Plugin.Command.DELETE));
 
-        showRawData.setOnAction(event -> {
-            toolBarSettings.setShowRawData(!toolBarSettings.isShowRawData());
-            chartPlugin.update();
-        });
+        showRawData.setOnAction(event -> chartPlugin.update());
 
-        showSum.setOnAction(event -> {
-            toolBarSettings.setShowSum(!toolBarSettings.isShowSum());
-            chartPlugin.update();
-        });
+        showSum.setOnAction(event -> chartPlugin.update());
 
-        showL1L2.setOnAction(event -> {
-            toolBarSettings.setShowL1L2(!toolBarSettings.isShowL1L2());
-            chartPlugin.update();
-        });
+        showL1L2.setOnAction(event -> chartPlugin.update());
 
-        calcRegression.setOnAction(event -> {
-            toolBarFunctions.calcRegression();
-            chartPlugin.update();
-        });
+        calcRegression.setOnAction(event -> chartPlugin.update());
 
         calcFullLoadHours.setOnAction(event -> toolBarFunctions.calcFullLoadHours());
 
@@ -678,20 +662,11 @@ public class ToolBarView {
 
         calcSumAboveBelow.setOnAction(event -> toolBarFunctions.calcSumAboveBelow());
 
-        customWorkDay.setOnAction(event -> {
-            toolBarSettings.setCustomWorkday(!toolBarSettings.isCustomWorkday());
-            chartPlugin.update();
-        });
+        customWorkDay.setOnAction(event -> chartPlugin.update());
 
-        disableIcons.setOnAction(event -> {
-            toolBarSettings.setShowIcons(!toolBarSettings.isShowIcons());
-            chartPlugin.update();
-        });
+        disableIcons.setOnAction(event -> chartPlugin.update());
 
-        autoResize.setOnAction(event -> {
-            toolBarSettings.setAutoResize(!toolBarSettings.isAutoResize());
-            chartPlugin.update();
-        });
+        autoResize.setOnAction(event -> chartPlugin.update());
 
     }
 

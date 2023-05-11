@@ -620,7 +620,7 @@ public class AlarmProcess {
 
     private void getCleanDataChildrenRecursive(List<JEVisObject> listObjects, JEVisObject obj) throws JEVisException {
         if (obj.getJEVisClass().equals(cleanDataClass)) listObjects.add(obj);
-        else if (obj.getJEVisClass().equals(dataDirectoryClass) || obj.getJEVisClass().equals(rawDataClass)) {
+        else if (obj.getJEVisClass().equals(dataDirectoryClass) || obj.getJEVisClass().equals(rawDataClass) || obj.getJEVisClass().equals(cleanDataClass)) {
             for (JEVisObject child : obj.getChildren()) {
                 try {
                     getCleanDataChildrenRecursive(listObjects, child);

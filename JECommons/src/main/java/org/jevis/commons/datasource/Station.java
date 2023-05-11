@@ -1,10 +1,12 @@
-package org.jevis.jeconfig.tool.dwdbrowser;
+package org.jevis.commons.datasource;
 
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import org.jevis.commons.driver.dwd.Attribute;
 import org.joda.time.DateTime;
+
+import java.util.List;
 
 public class Station {
 
@@ -16,7 +18,7 @@ public class Station {
     private final SimpleDoubleProperty geoWidth = new SimpleDoubleProperty(this, "geoWidth");
     private final SimpleDoubleProperty geoHeight = new SimpleDoubleProperty(this, "geoHeight");
     private final SimpleStringProperty state = new SimpleStringProperty(this, "state", "");
-    private final SimpleMapProperty<Attribute, String> intervalPath = new SimpleMapProperty<>(this, "intervalPath", FXCollections.observableHashMap());
+    private final SimpleMapProperty<Attribute, List<String>> intervalPath = new SimpleMapProperty<>(this, "intervalPath", FXCollections.observableHashMap());
     private final SimpleMapProperty<Attribute, StationData> stationData = new SimpleMapProperty<>(this, "stationData", FXCollections.observableHashMap());
 
     public long getId() {
@@ -115,15 +117,15 @@ public class Station {
         return state;
     }
 
-    public ObservableMap<Attribute, String> getIntervalPath() {
+    public ObservableMap<Attribute, List<String>> getIntervalPath() {
         return intervalPath.get();
     }
 
-    public void setIntervalPath(SimpleMapProperty<Attribute, String> intervalPath) {
+    public void setIntervalPath(SimpleMapProperty<Attribute, List<String>> intervalPath) {
         this.intervalPath.set(intervalPath);
     }
 
-    public SimpleMapProperty<Attribute, String> intervalPathProperty() {
+    public SimpleMapProperty<Attribute, List<String>> intervalPathProperty() {
         return intervalPath;
     }
 

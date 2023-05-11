@@ -17,8 +17,8 @@ import javafx.scene.text.TextAlignment;
 import javafx.util.converter.NumberStringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
-import org.jevis.jeconfig.plugin.action.ui.DoubleConverter;
 import org.jevis.jeconfig.plugin.action.ui.NPVTableView;
+import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 
 import java.text.DecimalFormat;
 
@@ -114,8 +114,8 @@ public class CapitalTab extends Tab {
         });
 
 
-        NumberStringConverter nsc = DoubleConverter.getInstance().getCurrencyConverter();
-        NumberStringConverter nscNoUnit = DoubleConverter.getInstance().getDoubleConverter();
+        NumberStringConverter nsc = NumerFormating.getInstance().getCurrencyConverter();
+        NumberStringConverter nscNoUnit = NumerFormating.getInstance().getDoubleConverter();
 
         //l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.get() + " Jahre");
         data.npv.get().overXYear.addListener(observable -> l_periodOverX.setText("Amortisation über " + observable.toString() + " Year"));
@@ -143,7 +143,6 @@ public class CapitalTab extends Tab {
         Bindings.bindBidirectional(f_kapitalrateOverX.textProperty(), data.npv.get().piResultOverX, decimalFormat);
         Bindings.bindBidirectional(f_infation.textProperty(), data.npv.get().inflation, nscNoUnit);
         Bindings.bindBidirectional(f_runningCost.textProperty(), data.npv.get().runningCost, nscNoUnit);
-        System.out.println("f_einsparrung: " + f_einsparrung.textProperty());
 
         f_zinssatz.setAlignment(Pos.CENTER_RIGHT);
         f_kapitalwert.setAlignment(Pos.CENTER_RIGHT);

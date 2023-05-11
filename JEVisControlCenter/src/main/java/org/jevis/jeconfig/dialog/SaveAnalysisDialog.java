@@ -1,18 +1,12 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXAlert;
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -196,27 +190,32 @@ public class SaveAnalysisDialog extends Dialog {
                     response = Response.OK;
                 }
             } else {
-                JFXAlert dialogOverwrite = new JFXAlert(this.getDialogPane().getScene().getWindow());
+                Alert dialogOverwrite = new Alert(Alert.AlertType.CONFIRMATION);
                 dialogOverwrite.setResizable(true);
                 dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
+                dialogOverwrite.initOwner(JEConfig.getStage());
+                dialogOverwrite.initModality(Modality.APPLICATION_MODAL);
+                Stage stageOverwrite = (Stage) dialogOverwrite.getDialogPane().getScene().getWindow();
+                TopMenu.applyActiveTheme(stageOverwrite.getScene());
+                stageOverwrite.setAlwaysOnTop(true);
+
                 Label message = new Label(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
-                final JFXButton overwrite_ok = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"));
-                overwrite_ok.setDefaultButton(true);
-                final JFXButton overwrite_cancel = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"));
-                overwrite_cancel.setOnAction(event1 -> dialogOverwrite.close());
 
-                HBox buttonBox = new HBox(6, overwrite_cancel, overwrite_ok);
-                buttonBox.setAlignment(Pos.CENTER_RIGHT);
+                ButtonType okOverwriteType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
+                ButtonType cancelOverwriteType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-                Separator separator2 = new Separator(Orientation.HORIZONTAL);
-                separator2.setPadding(new Insets(8, 0, 8, 0));
+                dialogOverwrite.getDialogPane().getButtonTypes().setAll(cancelOverwriteType, okOverwriteType);
 
-                VBox vBox1 = new VBox(6, message, separator2, buttonBox);
-                vBox1.setPadding(new Insets(12));
+                Button okOverwriteButton = (Button) dialogOverwrite.getDialogPane().lookupButton(okOverwriteType);
+                okOverwriteButton.setDefaultButton(true);
 
-                dialogOverwrite.setContent(vBox1);
+                Button cancelOverwriteButton = (Button) dialogOverwrite.getDialogPane().lookupButton(cancelOverwriteType);
+                cancelOverwriteButton.setCancelButton(true);
+                cancelOverwriteButton.setOnAction(event2 -> dialogOverwrite.close());
 
-                overwrite_ok.setOnAction(event1 -> {
+                dialogOverwrite.getDialogPane().setContent(message);
+
+                okOverwriteButton.setOnAction(event1 -> {
                     if (currentAnalysis.get() != null) {
                         chartPlugin.getAnalysisHandler().saveDataModel(currentAnalysis.get(), chartPlugin.getDataModel(), toolBarView.getToolBarSettings(), dataSettings);
                         toolBarView.setChanged(false);
