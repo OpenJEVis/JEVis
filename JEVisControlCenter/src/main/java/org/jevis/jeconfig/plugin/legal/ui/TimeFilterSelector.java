@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.nonconformities.ui;
+package org.jevis.jeconfig.plugin.legal.ui;
 
 import com.jfoenix.controls.JFXComboBox;
 import javafx.beans.property.SimpleObjectProperty;
@@ -15,8 +15,8 @@ import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
-import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
+import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
+import org.jevis.jeconfig.plugin.legal.data.LegislationData;
 import org.joda.time.DateTime;
 
 import java.time.Month;
@@ -24,7 +24,7 @@ import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.jevis.jeconfig.plugin.nonconformities.ui.DateFilter.DateField.*;
+import static org.jevis.jeconfig.plugin.legal.ui.DateFilter.DateField.*;
 
 
 public class TimeFilterSelector extends GridPane {
@@ -33,15 +33,15 @@ public class TimeFilterSelector extends GridPane {
 
 
     //TODo locale name from Column
-    JFXComboBox<DateFilter.DateField> fDateField = new JFXComboBox<>(FXCollections.observableArrayList(ALL, IMPLEMENTATION, COMPLETED, CREATED));
+    JFXComboBox<DateFilter.DateField> fDateField = new JFXComboBox<>(FXCollections.observableArrayList(ALL, ISSUE_DATE, Date_Of_Examination, VERSION));
     JFXComboBox<Month> fFromMonth = generateMonthBox();
     JFXComboBox<Month> fToMonth = generateMonthBox();
     JFXComboBox<Integer> fFromYear = generateYearBox();
     JFXComboBox<Integer> fToYear = generateYearBox();
-    private SimpleObjectProperty<org.jevis.jeconfig.plugin.nonconformities.ui.DateFilter> valueProperty = new SimpleObjectProperty<>(null);
+    private SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
 
 
-    public TimeFilterSelector(NonconformityPlan nonconformityPlan) {
+    public TimeFilterSelector(LegalCadastre legalCadastre) {
         super();
 
         setHgap(8);
@@ -52,8 +52,8 @@ public class TimeFilterSelector extends GridPane {
         Label lDatum = new Label("Zeitbereich");
 
 
-        initValues(nonconformityPlan);
-        NonconformityData fakeNames = new NonconformityData();
+        initValues(legalCadastre);
+        LegislationData fakeNames = new LegislationData();
 
         Callback<ListView<DateFilter.DateField>, ListCell<DateFilter.DateField>> cellFactory = new Callback<ListView<DateFilter.DateField>, ListCell<DateFilter.DateField>>() {
             @Override
@@ -67,14 +67,14 @@ public class TimeFilterSelector extends GridPane {
                                 case ALL:
                                     setText(I18n.getInstance().getString("plugin.action.tfiler.all"));
                                     break;
-                                case COMPLETED:
-                                    setText(fakeNames.doneDateProperty().getName());
+                                case VERSION:
+                                    setText(fakeNames.currentVersionDateProperty().getName());
                                     break;
-                                case IMPLEMENTATION:
-                                    setText(fakeNames.deadLineProperty().getName());
+                                case ISSUE_DATE:
+                                    setText(fakeNames.issueDateProperty().getName());
                                     break;
-                                case CREATED:
-                                    setText(fakeNames.createDateProperty().getName());
+                                case Date_Of_Examination:
+                                    setText(fakeNames.dateOfExaminationProperty().getName());
                                     break;
                                 default:
                                     setText("");
@@ -107,18 +107,19 @@ public class TimeFilterSelector extends GridPane {
         fDateField.getSelectionModel().selectFirst();
 
 
-        TimeFilterSelector.this.addRow(0, fDateField, new Label(I18n.getInstance().getString("plugin.nonconformities.date.from")), fFromMonth, fFromYear, new Label(I18n.getInstance().getString("plugin.nonconformities.date.to")), fToMonth, fToYear);
+        TimeFilterSelector.this.addRow(0, fDateField, new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.date.from")), fFromMonth, fFromYear, new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.date.from")), fToMonth, fToYear);
+
 
     }
 
-    private void initValues(NonconformityPlan nonconformityPlan) {
+    private void initValues(LegalCadastre legalCadastre) {
 
-        logger.debug("MonthSelector.initValues: {} {}",nonconformityPlan, nonconformityPlan.getActionData().size());
+        logger.debug("MonthSelector.initValues: {} {}", legalCadastre, legalCadastre.getLegislationDataList().size());
         DateTime minDate = null;
         DateTime maxDate = null;
-        
 
-       List<DateTime> dateTimes = nonconformityPlan.getNonconformityList().stream().map(data -> getDate(data)).flatMap(Collection::stream).collect(Collectors.toList());
+
+        List<DateTime> dateTimes = legalCadastre.getLegislationDataList().stream().map(data -> getDate(data)).flatMap(Collection::stream).collect(Collectors.toList());
 
         Optional<DateTime> optionalDateTimeMax = dateTimes.stream().max(DateTime::compareTo);
         Optional<DateTime> optionalDateTimeMin = dateTimes.stream().min(DateTime::compareTo);
@@ -150,37 +151,38 @@ public class TimeFilterSelector extends GridPane {
 
     }
 
-    private List<DateTime> getDate(NonconformityData data) {
+    private List<DateTime> getDate(LegislationData data) {
         List<DateTime> dateTimes = new ArrayList<>();
         DateFilter.DateField dateField = fDateField.getValue();
-        if (dateField == COMPLETED) {
-            setDoneDate(data, dateTimes);
-        } else if (dateField == DateFilter.DateField.CREATED) {
-            setCreateDate(data, dateTimes);
-        } else if (dateField == IMPLEMENTATION) {
-            setDeadLine(data, dateTimes);
+        if (dateField == Date_Of_Examination) {
+            setDateOfExaminationDate(data, dateTimes);
+        } else if (dateField == ISSUE_DATE) {
+            setIssueDate(data, dateTimes);
+        } else if (dateField == VERSION) {
+            setVersionDate(data, dateTimes);
         } else if (dateField == ALL) {
-            setDoneDate(data, dateTimes);
-            setCreateDate(data, dateTimes);
-            setDeadLine(data, dateTimes);
+            setDateOfExaminationDate(data, dateTimes);
+            setIssueDate(data, dateTimes);
+            setVersionDate(data, dateTimes);
         }
         return null;
     }
-    private static void setDeadLine(NonconformityData data, List<DateTime> dateTimes) {
-        if (data.getDeadLine() != null) {
-            dateTimes.add(data.getDeadLine());
+
+    private static void setVersionDate(LegislationData data, List<DateTime> dateTimes) {
+        if (data.getCurrentVersionDate() != null) {
+            dateTimes.add(data.getCurrentVersionDate());
         }
     }
 
-    private static void setCreateDate(NonconformityData data, List<DateTime> dateTimes) {
-        if (data.getCreateDate() != null) {
-            dateTimes.add(data.getCreateDate());
+    private static void setIssueDate(LegislationData data, List<DateTime> dateTimes) {
+        if (data.getIssueDate() != null) {
+            dateTimes.add(data.getIssueDate());
         }
     }
 
-    private static void setDoneDate(NonconformityData data, List<DateTime> dateTimes) {
-        if (data.getDoneDate() != null) {
-            dateTimes.add(data.getDoneDate());
+    private static void setDateOfExaminationDate(LegislationData data, List<DateTime> dateTimes) {
+        if (data.getDateOfExamination() != null) {
+            dateTimes.add(data.getDateOfExamination());
         }
     }
 
@@ -233,7 +235,7 @@ public class TimeFilterSelector extends GridPane {
         }
     }
 
-    public SimpleObjectProperty<org.jevis.jeconfig.plugin.nonconformities.ui.DateFilter> getValuePropertyProperty() {
+    public SimpleObjectProperty<DateFilter> getValuePropertyProperty() {
         return valueProperty;
     }
 

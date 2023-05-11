@@ -1,0 +1,33 @@
+{
+  "name": "Legal Cadastre",
+  "description": "Legal Cadastre",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Legal Cadastre",
+      "end": "Legal Cadastre Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "scope",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Legal Cadastre"
+    },
+    {
+      "name": "category",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Legal Cadastre"
+    }
+  ]
+}
+
+
+

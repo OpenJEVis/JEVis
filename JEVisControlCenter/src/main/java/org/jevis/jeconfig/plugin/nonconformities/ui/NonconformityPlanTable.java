@@ -7,14 +7,14 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.scene.control.OverrunStyle;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.table.DateTimeColumnCell;
+import org.jevis.jeconfig.application.table.ShortColumnCell;
+import org.jevis.jeconfig.application.table.StringListColumnCell;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformtiesOverviewData;
@@ -90,7 +90,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         TableColumn<NonconformityData, String> fromUserCol = new TableColumn(fakeForName.creatorProperty().getName());
         fromUserCol.setCellValueFactory(param -> param.getValue().creatorProperty());
-        fromUserCol.setCellFactory(buildShotTextFactory());
+        fromUserCol.setCellFactory(new ShortColumnCell<NonconformityData>());
         fromUserCol.setStyle("-fx-alignment: LEFT;");
         fromUserCol.setMinWidth(BIG_WIDTH);
 
@@ -111,23 +111,23 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         TableColumn<NonconformityData, String> desciptionPropertyCol = new TableColumn(fakeForName.descriptionProperty().getName());
         desciptionPropertyCol.setCellValueFactory(param -> param.getValue().descriptionProperty());
         desciptionPropertyCol.setStyle("-fx-alignment: LEFT;");
-        desciptionPropertyCol.setCellFactory(buildShotTextFactory());
+        desciptionPropertyCol.setCellFactory(new ShortColumnCell<NonconformityData>());
 
 
         TableColumn<NonconformityData, String> causePropertyCol = new TableColumn(fakeForName.causeProperty().getName());
         causePropertyCol.setCellValueFactory(param -> param.getValue().causeProperty());
         causePropertyCol.setStyle("-fx-alignment: LEFT;");
-        causePropertyCol.setCellFactory(buildShotTextFactory());
+        causePropertyCol.setCellFactory(new ShortColumnCell<NonconformityData>());
 
         TableColumn<NonconformityData, String> immediateMeasuresPropertyCol = new TableColumn(fakeForName.immediateMeasuresProperty().getName());
         immediateMeasuresPropertyCol.setCellValueFactory(param -> param.getValue().immediateMeasuresProperty());
         immediateMeasuresPropertyCol.setStyle("-fx-alignment: LEFT;");
-        immediateMeasuresPropertyCol.setCellFactory(buildShotTextFactory());
+        immediateMeasuresPropertyCol.setCellFactory(new ShortColumnCell<NonconformityData>());
 
         TableColumn<NonconformityData, String> correctiveActionsCol = new TableColumn(fakeForName.correctiveActionsProperty().getName());
         correctiveActionsCol.setCellValueFactory(param -> param.getValue().correctiveActionsProperty());
         correctiveActionsCol.setStyle("-fx-alignment: LEFT;");
-        correctiveActionsCol.setCellFactory(buildShotTextFactory());
+        correctiveActionsCol.setCellFactory(new ShortColumnCell<NonconformityData>());
 
         TableColumn<NonconformityData, String> mediaTagsPropertyCol = new TableColumn(fakeForName.mediumProperty().getName());
         mediaTagsPropertyCol.setCellValueFactory(param -> param.getValue().mediumProperty());
@@ -139,7 +139,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         TableColumn<NonconformityData, String> fieldTagsPropertyCol = new TableColumn(fakeForName.fieldTagsProperty().getName());
         fieldTagsPropertyCol.setCellValueFactory(param -> param.getValue().getfieldAsString());
-        fieldTagsPropertyCol.setCellFactory(buildShotTextFactory());
+        fieldTagsPropertyCol.setCellFactory(new ShortColumnCell<NonconformityData>());
         fieldTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
         fieldTagsPropertyCol.setMinWidth(BIG_WIDTH);
 
@@ -152,32 +152,32 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
         TableColumn<NonconformityData, String> actionsCol = new TableColumn(fakeForName.actionProperty().getName());
         actionsCol.setCellValueFactory(param -> param.getValue().actionProperty());
-        actionsCol.setCellFactory(buildShotTextFactory());
+        actionsCol.setCellFactory(new ShortColumnCell<NonconformityData>());
         actionsCol.setStyle("-fx-alignment: CENTER;");
         actionsCol.setMinWidth(BIG_WIDTH);
 
         TableColumn<NonconformityData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.nonconformities.location"));
         planNameCol.setCellValueFactory(param -> param.getValue().getNonconformityPlan().getName());
-        planNameCol.setCellFactory(buildShotTextFactory());
+        planNameCol.setCellFactory(new ShortColumnCell<NonconformityData>());
         planNameCol.setStyle("-fx-alignment: LEFT;");
         planNameCol.setMinWidth(BIG_WIDTH);
 
 
         TableColumn<NonconformityData, DateTime> doneDatePropertyCol = new TableColumn(fakeForName.doneDateProperty().getName());
         doneDatePropertyCol.setCellValueFactory(param -> param.getValue().doneDateProperty());
-        doneDatePropertyCol.setCellFactory(buildDateTimeFactory());
+        doneDatePropertyCol.setCellFactory(new DateTimeColumnCell<NonconformityData>());
         doneDatePropertyCol.setStyle("-fx-alignment: LEFT;");
         doneDatePropertyCol.setMinWidth(DATE_TIME_WIDTH);
 
         TableColumn<NonconformityData, DateTime> createDatePropertyCol = new TableColumn(fakeForName.createDateProperty().getName());
         createDatePropertyCol.setCellValueFactory(param -> param.getValue().createDateProperty());
-        createDatePropertyCol.setCellFactory(buildDateTimeFactory());
+        createDatePropertyCol.setCellFactory(new DateTimeColumnCell<NonconformityData>());
         createDatePropertyCol.setStyle("-fx-alignment: LEFT;");
         createDatePropertyCol.setMinWidth(DATE_TIME_WIDTH);
 
         TableColumn<NonconformityData, DateTime> plannedDatePropertyCol = new TableColumn(fakeForName.deadLineProperty().getName());
         plannedDatePropertyCol.setCellValueFactory(param -> param.getValue().deadLineProperty());
-        plannedDatePropertyCol.setCellFactory(buildDateTimeFactory());
+        plannedDatePropertyCol.setCellFactory(new DateTimeColumnCell<NonconformityData>());
         plannedDatePropertyCol.setStyle("-fx-alignment: LEFT;");
         plannedDatePropertyCol.setMinWidth(DATE_TIME_WIDTH);
 
@@ -185,7 +185,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
         TableColumn<NonconformityData, String> titlePropertyCol = new TableColumn(fakeForName.titleProperty().getName());
         titlePropertyCol.setCellValueFactory(param -> param.getValue().titleProperty());
         titlePropertyCol.setStyle("-fx-alignment: LEFT;");
-        titlePropertyCol.setCellFactory(buildShotTextFactory());
+        titlePropertyCol.setCellFactory(new ShortColumnCell<NonconformityData>());
         titlePropertyCol.setMinWidth(BIG_WIDTH);
 
         this.getSortOrder().addAll(planNameCol,actionNrPropertyCol);
@@ -242,61 +242,6 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
             } catch (Exception e) {
             }
         }
-    }
-
-    private Callback<TableColumn<NonconformityData, String>, TableCell<NonconformityData, String>> buildShotTextFactory() {
-
-
-        return new Callback<TableColumn<NonconformityData, String>, TableCell<NonconformityData, String>>() {
-            @Override
-            public TableCell<NonconformityData, String> call(TableColumn<NonconformityData, String> param) {
-                return new TableCell<NonconformityData, String>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setTextOverrun(OverrunStyle.ELLIPSIS);
-                        setWrapText(false);
-                        setGraphic(null);
-                        if (item != null) {
-                            if (!empty) {
-                                if (item.contains("\n")) {
-                                    setText(item.substring(0, item.indexOf("\n")));
-                                } else {
-                                    setText(item);
-                                }
-                            }
-                        }
-                         else {
-                            setText(null);
-                        }
-
-                    }
-                };
-            }
-        };
-
-    }
-
-
-    private Callback<TableColumn<NonconformityData, DateTime>, TableCell<NonconformityData, DateTime>> buildDateTimeFactory() {
-        return new Callback<TableColumn<NonconformityData, DateTime>, TableCell<NonconformityData, DateTime>>() {
-            @Override
-            public TableCell<NonconformityData, DateTime> call(TableColumn<NonconformityData, DateTime> param) {
-                return new TableCell<NonconformityData, DateTime>() {
-                    @Override
-                    protected void updateItem(DateTime item, boolean empty) {
-                        super.updateItem(item, empty);
-
-                        if (item == null || empty) {
-                            setText(null);
-                        } else {
-                            setText(fmt.print(item));
-                        }
-                    }
-                };
-            }
-        };
-
     }
 
     public TableFilter getTableFilter() {

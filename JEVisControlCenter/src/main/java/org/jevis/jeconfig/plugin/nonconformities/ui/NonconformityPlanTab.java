@@ -48,9 +48,9 @@ public class NonconformityPlanTab extends Tab {
         double maxListHeight = 100;
 
 
-        Label lSuche = new Label("Suche");
+        Label lSuche = new Label(I18n.getInstance().getString("plugin.nonconformities.serach"));
         JFXTextField fsearch = new JFXTextField();
-        fsearch.setPromptText("Suche nach...");
+        fsearch.setPromptText(I18n.getInstance().getString("plugin.nonconformities.serachfor"));
 
 
         TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), plan.getMediumTags(), plan.getMediumTags());
@@ -58,14 +58,7 @@ public class NonconformityPlanTab extends Tab {
         TagButton stausButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus"),plan.getStausTags(),plan.getStausTags());
         TagButton seuButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.seu"),plan.getSignificantEnergyUseTags(),plan.getSignificantEnergyUseTags());
 
-        ComboBox<String> datumBox = new ComboBox<>();
-        datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
-        datumBox.getSelectionModel().selectFirst();
-        JFXTextField filterDatumText = new JFXTextField();
-        filterDatumText.setPromptText("Datum...");
-        ComboBox<String> comparatorBox = new ComboBox<>();
-        comparatorBox.setItems(FXCollections.observableArrayList(">", "<", "="));
-        comparatorBox.getSelectionModel().selectFirst();
+
 
         fsearch.textProperty().addListener((observable, oldValue, newValue) -> {
             nonconformityPlanTable.setTextFilter(newValue);
@@ -91,12 +84,12 @@ public class NonconformityPlanTab extends Tab {
         GridPane.setRowSpan(vSep2, 2);
         gridPane.addColumn(0, lSuche, fsearch);
         gridPane.addColumn(1, vSep1);
-        gridPane.addColumn(2, new Label("Filter"), stausButton);
+        gridPane.addColumn(2, new Label(I18n.getInstance().getString("plugin.nonconformities.filter")), stausButton);
         gridPane.addColumn(3, new Region(), mediumButton);
         gridPane.addColumn(4, new Region(), fieldButton);
         gridPane.addColumn(5, new Region(), seuButton);
         gridPane.addColumn(6, vSep2);
-        gridPane.addColumn(7, new Label("Zeitbereich"), dateSelector);
+        gridPane.addColumn(7, new Label(I18n.getInstance().getString("plugin.nonconformities.date")), dateSelector);
 
 
         mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
@@ -149,27 +142,6 @@ public class NonconformityPlanTab extends Tab {
         nonconformityPlanTable.filter();
 
 
-
-
-
-
-        //HBox hBox = new HBox(filterDatumText, comparatorBox, datumBox);
-        EventHandler<ActionEvent> dateFilerEvent = new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (comparatorBox.getSelectionModel().getSelectedItem().equals(">")) {
-                    nonconformityPlanTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.BIGGER_THAN);
-                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("<")) {
-                    nonconformityPlanTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.SMALLER_THAN);
-                } else if (comparatorBox.getSelectionModel().getSelectedItem().equals("=")) {
-                    nonconformityPlanTable.getTableFilter().setPlannedDateComp(TableFilter.DATE_COMPARE.EQUALS);
-                }
-                nonconformityPlanTable.getTableFilter().setPlannedDateFilter(filterDatumText.getText());
-
-            }
-        };
-
-        comparatorBox.setOnAction(dateFilerEvent);
 
 
 

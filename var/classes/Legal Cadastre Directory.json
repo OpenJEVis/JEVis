@@ -1,0 +1,22 @@
+﻿{
+  "name": "Legal Cadastre Directory",
+  "description": "Legal Cadastre Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Legal Cadastre Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Legal Cadastre Directory",
+      "end": "Legal Cadastre",
+      "type": 3
+    },
+    {
+      "start": "Legal Cadastre Directory",
+      "end": "Building",
+      "type": 3
+    }
+  ]
+}

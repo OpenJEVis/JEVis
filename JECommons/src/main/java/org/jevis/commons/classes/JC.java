@@ -3856,4 +3856,20 @@ public interface JC {
             }
         }
     }
+    public interface LegalCadastre {
+        public static String name = "Legal Cadastre";
+
+        public static String a_CustomMedium = "Custom Medium";
+        public static String a_category = "category";
+        public static String a_scope = "scope";
+        public interface LegalCadastreDirectory {
+            public static String name = "Legal Cadastre Directory";
+            public interface Legislation {
+                public static String name = "Legislation";
+
+                public static String a_Data = "Data";
+            }
+
+        }
+    }
 }
