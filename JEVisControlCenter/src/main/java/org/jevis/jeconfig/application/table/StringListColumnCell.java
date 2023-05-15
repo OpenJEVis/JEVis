@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.nonconformities.ui;
+package org.jevis.jeconfig.application.table;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -9,7 +9,7 @@ import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
-public class StringListColumnCell implements Callback<TableColumn<NonconformityData, String>, TableCell<NonconformityData, String>> {
+public class StringListColumnCell<T> implements Callback<TableColumn<T, String>, TableCell<T, String>> {
 
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
@@ -20,8 +20,8 @@ public class StringListColumnCell implements Callback<TableColumn<NonconformityD
     ;
 
     @Override
-    public TableCell<NonconformityData, String> call(TableColumn<NonconformityData, String> param) {
-        return new TableCell<NonconformityData, String>() {
+    public TableCell<T, String> call(TableColumn<T, String> param) {
+        return new TableCell<T, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);

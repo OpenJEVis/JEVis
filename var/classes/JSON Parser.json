@@ -1,0 +1,59 @@
+{
+  "name": "JSON Parser",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JSON Data Point Directory",
+      "end": "CSV Parser",
+      "type": 3
+    },
+    {
+      "start": "JSON Parser",
+      "end": "EMail Channel",
+      "type": 3
+    },
+    {
+      "start": "JSON Parser",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
+      "start": "JSON Parser",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "JSON Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
+      "start": "JSON Parser",
+      "end": "sFTP Channel",
+      "type": 3
+    },
+    {
+      "start": "CSV Parser",
+      "end": "SOAP Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Date Time Path",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JSON Parser"
+    },
+    {
+      "name": "Date Time Format",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JSON Parser"
+    }
+  ]
+}
