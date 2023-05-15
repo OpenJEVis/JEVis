@@ -131,11 +131,34 @@ public class PluginManager {
      * @param user
      */
     public void addPluginsByUserSetting(JEVisUser user) {
+        List<Plugin> enabledPlugins = new ArrayList<>();
+        //debug
+
+        /**
+         * Workaround, Config is always enabled.
+         */
+//        this._plugins.add(new ObjectPlugin(this._ds, I18n.getInstance().getString("plugin.object.title")));
 
         try {
+            JEVisClass servicesClass = this._ds.getJEVisClass("Service Directory");
+            JEVisClass jevisccClass = this._ds.getJEVisClass("Control Center");
             JEVisClass pluginClass = this._ds.getJEVisClass("Control Center Plugin");
 
-            List<JEVisObject> pluginObjs = _ds.getObjects(pluginClass, true);
+            List<JEVisObject> servicesDir = this._ds.getObjects(servicesClass, false);
+            if (servicesDir == null || servicesDir.isEmpty()) {
+                logger.info("Warning missing ServicesDirectory");
+                this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
+                return;
+            }
+
+            List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass, true);
+            if (controlCenterObj == null || controlCenterObj.isEmpty()) {
+                logger.info("Warning missing ControlCenter");
+                this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
+                return;
+            }
+
+            List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass, true);
             if (pluginObjs == null || pluginObjs.isEmpty()) {
                 logger.info("Warning No Plugins installed");
                 this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
