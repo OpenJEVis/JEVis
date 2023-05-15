@@ -131,34 +131,11 @@ public class PluginManager {
      * @param user
      */
     public void addPluginsByUserSetting(JEVisUser user) {
-        List<Plugin> enabledPlugins = new ArrayList<>();
-        //debug
-
-        /**
-         * Workaround, Config is always enabled.
-         */
-//        this._plugins.add(new ObjectPlugin(this._ds, I18n.getInstance().getString("plugin.object.title")));
 
         try {
-            JEVisClass servicesClass = this._ds.getJEVisClass("Service Directory");
-            JEVisClass jevisccClass = this._ds.getJEVisClass("Control Center");
             JEVisClass pluginClass = this._ds.getJEVisClass("Control Center Plugin");
 
-            List<JEVisObject> servicesDir = this._ds.getObjects(servicesClass, false);
-            if (servicesDir == null || servicesDir.isEmpty()) {
-                logger.info("Warning missing ServicesDirectory");
-                this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-                return;
-            }
-
-            List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass, true);
-            if (controlCenterObj == null || controlCenterObj.isEmpty()) {
-                logger.info("Warning missing ControlCenter");
-                this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-                return;
-            }
-
-            List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass, true);
+            List<JEVisObject> pluginObjs = _ds.getObjects(pluginClass, true);
             if (pluginObjs == null || pluginObjs.isEmpty()) {
                 logger.info("Warning No Plugins installed");
                 this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
@@ -240,7 +217,9 @@ public class PluginManager {
                 }
 
 
+
                 this._plugins.addAll(enabledPlugins);
+
 
             }
 
@@ -272,7 +251,7 @@ public class PluginManager {
 
 //        this.toolbar.setStyle("-fx-background-color: #CCFF99;");
         this.toolbar.getStyleClass().add("tool-bar");
-        /* magic number based on the biggest toolbar, so its not changing size wile switching plugin*/
+        /* magic number based on the biggest toolbar, so it is not changing size wile switching plugin*/
         this.toolbar.setMinHeight(55);
         this.toolbar.setMaxHeight(55);
 //        AnchorPane.setTopAnchor(toolbar, 0.0);
@@ -318,7 +297,7 @@ public class PluginManager {
                             }
                         });
                     });
-                    /** Start Loading Alarms in the background after an delay **/
+                    /** Start Loading Alarms in the background after a delay **/
                     Timer updateTimer = new Timer(true);
                     updateTimer.schedule(new TimerTask() {
                         @Override
@@ -356,7 +335,7 @@ public class PluginManager {
                     PluginManager.this.menu.setPlugin(newValue);
                     newValue.setHasFocus();
                     /**
-                     * for now we have to disable the function to keep the status over multiple plugins
+                     * for now, we have to disable the function to keep the status over multiple plugins
                      *  because the TaskMonitor will make trouble with the tooltips.
                      */
                     JEVisHelp.getInstance().showHelpTooltips(false);
