@@ -16,7 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
-import org.jevis.jeconfig.plugin.legal.data.LegislationData;
+import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 import org.joda.time.DateTime;
 
 import java.time.Month;
@@ -53,7 +53,7 @@ public class TimeFilterSelector extends GridPane {
 
 
         initValues(indexOfLegalProvisions);
-        LegislationData fakeNames = new LegislationData();
+        ObligationData fakeNames = new ObligationData();
 
         Callback<ListView<DateFilter.DateField>, ListCell<DateFilter.DateField>> cellFactory = new Callback<ListView<DateFilter.DateField>, ListCell<DateFilter.DateField>>() {
             @Override
@@ -107,7 +107,7 @@ public class TimeFilterSelector extends GridPane {
         fDateField.getSelectionModel().selectFirst();
 
 
-        TimeFilterSelector.this.addRow(0, fDateField, new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.date.from")), fFromMonth, fFromYear, new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.date.from")), fToMonth, fToYear);
+        TimeFilterSelector.this.addRow(0, fDateField, new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.date.from")), fFromMonth, fFromYear, new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.date.from")), fToMonth, fToYear);
 
 
     }
@@ -151,7 +151,7 @@ public class TimeFilterSelector extends GridPane {
 
     }
 
-    private List<DateTime> getDate(LegislationData data) {
+    private List<DateTime> getDate(ObligationData data) {
         List<DateTime> dateTimes = new ArrayList<>();
         DateFilter.DateField dateField = fDateField.getValue();
         if (dateField == Date_Of_Examination) {
@@ -168,19 +168,19 @@ public class TimeFilterSelector extends GridPane {
         return null;
     }
 
-    private static void setVersionDate(LegislationData data, List<DateTime> dateTimes) {
+    private static void setVersionDate(ObligationData data, List<DateTime> dateTimes) {
         if (data.getCurrentVersionDate() != null) {
             dateTimes.add(data.getCurrentVersionDate());
         }
     }
 
-    private static void setIssueDate(LegislationData data, List<DateTime> dateTimes) {
+    private static void setIssueDate(ObligationData data, List<DateTime> dateTimes) {
         if (data.getIssueDate() != null) {
             dateTimes.add(data.getIssueDate());
         }
     }
 
-    private static void setDateOfExaminationDate(LegislationData data, List<DateTime> dateTimes) {
+    private static void setDateOfExaminationDate(ObligationData data, List<DateTime> dateTimes) {
         if (data.getDateOfExamination() != null) {
             dateTimes.add(data.getDateOfExamination());
         }

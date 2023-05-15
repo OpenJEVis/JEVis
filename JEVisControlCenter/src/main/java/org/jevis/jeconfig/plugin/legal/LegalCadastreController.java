@@ -19,7 +19,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 
 
-import org.jevis.jeconfig.plugin.legal.data.LegislationData;
+import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 import org.jevis.jeconfig.plugin.legal.ui.*;
 
 import java.util.List;
@@ -60,11 +60,6 @@ public class LegalCadastreController {
 
             }
         });
-//        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//            isOverviewTab.set(getActiveNonconformityPlan() instanceof LegalCastreOverviewData);
-//
-//        });
-
 
         AnchorPane.setBottomAnchor(tabPane, 0.0);
         AnchorPane.setTopAnchor(tabPane, 0.0);
@@ -177,7 +172,7 @@ public class LegalCadastreController {
         LegalCadastreTab tab = getActiveTab();
         try {
             JEVisClass nonconformityPlanDirClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.name);
-            JEVisClass nonconformityClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.Legislation.name);
+            JEVisClass nonconformityClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.Obligation.name);
             JEVisObject nonconformityPlanDirObj = null;
             if (getActiveNonconformityPlan().getObject().getChildren(nonconformityPlanDirClass, false).isEmpty()) {
                 nonconformityPlanDirObj = getActiveNonconformityPlan().getObject().buildObject(nonconformityPlanDirClass.getName(), nonconformityPlanDirClass);
@@ -191,12 +186,12 @@ public class LegalCadastreController {
 
             JEVisObject nonconformityObject = nonconformityPlanDirObj.buildObject(String.valueOf(nextNonconformityNr), nonconformityClass);
             nonconformityObject.commit();
-            LegislationData legislationData = new LegislationData(nonconformityObject, tab.getLegalCadastre());
-            legislationData.commit();
-            legislationData.nrProperty().set(nextNonconformityNr);
-            tab.getLegalCadastre().addLegislation(legislationData);
+            ObligationData obligationData = new ObligationData(nonconformityObject, tab.getLegalCadastre());
+            obligationData.commit();
+            obligationData.nrProperty().set(nextNonconformityNr);
+            tab.getLegalCadastre().addLegislation(obligationData);
 
-            tab.getLegalCadastreTable().getSelectionModel().select(legislationData);
+            tab.getLegalCadastreTable().getSelectionModel().select(obligationData);
             openDataForm(true);//tab.getActionTable().getSelectionModel().getSelectedItem()
         } catch (Exception ex) {
             logger.error(ex);
@@ -245,7 +240,7 @@ public class LegalCadastreController {
         return getActiveTab().getLegalCadastre();
     }
 
-    public LegislationData getSelectedData() {
+    public ObligationData getSelectedData() {
         LegalCadastreTab tab = getActiveTab();
         if (getActiveTab().getLegalCadastreTable().getSelectionModel().getSelectedItem() != null) {
             return getActiveTab().getLegalCadastreTable().getSelectionModel().getSelectedItem();
@@ -261,19 +256,19 @@ public class LegalCadastreController {
     }
 
     public void openDataForm(boolean isNew) {
-        LegislationForm legislationForm = new LegislationForm(getActiveNonconformityPlan());
-        LegislationData data = getSelectedData();
-        legislationForm.setData(data);
-        legislationForm.setNew(isNew);
-        legislationForm.setTitle(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.dialog.title"));
-        legislationForm.setHeaderText(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.dialog.header"));
+        ObligationForm obligationForm = new ObligationForm(getActiveNonconformityPlan());
+        ObligationData data = getSelectedData();
+        obligationForm.setData(data);
+        obligationForm.setNew(isNew);
+        obligationForm.setTitle(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.dialog.title"));
+        obligationForm.setHeaderText(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.dialog.header"));
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
 
-        legislationForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
-        final Button btOk = (Button) legislationForm.getDialogPane().lookupButton(buttonTypeOne);
-        final Button btCancel = (Button) legislationForm.getDialogPane().lookupButton(buttonTypeTwo);
+        obligationForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
+        final Button btOk = (Button) obligationForm.getDialogPane().lookupButton(buttonTypeOne);
+        final Button btCancel = (Button) obligationForm.getDialogPane().lookupButton(buttonTypeTwo);
         btOk.setOnAction(actionEvent -> {
             try {
                 data.commit();
@@ -282,7 +277,7 @@ public class LegalCadastreController {
             }
         });
         btCancel.addEventFilter(ActionEvent.ACTION, event -> {
-            if (legislationForm.isNew()) {
+            if (obligationForm.isNew()) {
                 try {
                     data.getObject().delete();
                     getActiveTab().getLegalCadastre().getLegislationDataList().remove(data);
@@ -294,31 +289,19 @@ public class LegalCadastreController {
                 reload(data);
             }
         });
-        legislationForm.show();
+        obligationForm.show();
 
 
     }
 
-    private void reload(LegislationData legislationData) {
+    private void reload(ObligationData obligationData) {
         try {
-            legislationData = getActiveNonconformityPlan().loadNonconformties(legislationData.getObject());
+            obligationData = getActiveNonconformityPlan().loadNonconformties(obligationData.getObject());
         } catch (Exception e) {
             logger.error(e);
         }
     }
 
-
-//    public boolean isIsOverviewTab() {
-//        return isOverviewTab.get();
-//    }
-
-//    public BooleanProperty isOverviewTabProperty() {
-//        return isOverviewTab;
-//    }
-//
-//    public void setIsOverviewTab(boolean isOverviewTab) {
-//        this.isOverviewTab.set(isOverviewTab);
-//    }
 
     public ObservableList<IndexOfLegalProvisions> getLegalCadastres() {
         return indexOfLegalProvisions;

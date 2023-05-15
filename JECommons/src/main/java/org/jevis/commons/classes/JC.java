@@ -3864,8 +3864,8 @@ public interface JC {
         public static String a_scope = "scope";
         public interface LegalCadastreDirectory {
             public static String name = "Index of Legal Provisions Directory";
-            public interface Legislation {
-                public static String name = "Legislation";
+            public interface Obligation {
+                public static String name = "Obligation";
 
                 public static String a_Data = "Data";
             }

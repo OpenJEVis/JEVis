@@ -1,12 +1,9 @@
 package org.jevis.jeconfig.application.table;
 
-import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
-import org.jevis.jeconfig.plugin.legal.data.LegislationData;
-import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 
 public class ShortColumnCell<T> implements Callback<TableColumn<T, String>, TableCell<T, String>> {
 

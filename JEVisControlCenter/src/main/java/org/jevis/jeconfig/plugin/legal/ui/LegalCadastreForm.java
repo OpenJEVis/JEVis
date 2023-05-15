@@ -21,8 +21,8 @@ public class LegalCadastreForm extends Alert {
 
     JFXTextField nameField = new JFXTextField();
 
-    Label l_category = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.category"));
-    Label l_scope = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.scope"));
+    Label l_category = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.category"));
+    Label l_scope = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.scope"));
 
     ListView<String> categoryListView = new ListView<>();
     ListView<String> validityListView = new ListView<>();

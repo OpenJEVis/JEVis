@@ -6,7 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.controlsfx.control.NotificationPane;
-import org.jevis.jeconfig.plugin.legal.data.LegislationData;
+import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 
 public abstract class Tab extends javafx.scene.control.Tab {
     protected NotificationPane notificationPane = new NotificationPane();
@@ -22,9 +22,9 @@ public abstract class Tab extends javafx.scene.control.Tab {
         super(s, node);
     }
 
-    public abstract void initTab(LegislationData data);
+    public abstract void initTab(ObligationData data);
 
-    public abstract void updateView(LegislationData data);
+    public abstract void updateView(ObligationData data);
 
     void add(GridPane pane, int column, int row, int colspan, int rowspan, Priority priority, Node node) {
         pane.add(node, column, row, colspan, rowspan);

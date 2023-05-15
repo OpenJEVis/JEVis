@@ -19,7 +19,7 @@ import org.jevis.commons.classes.JC;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.legal.data.FileData;
-import org.jevis.jeconfig.plugin.legal.data.LegislationData;
+import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 import org.jevis.jeconfig.plugin.legal.ui.FileTableView;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -47,12 +47,12 @@ public class AttachmentTab extends Tab {
 
 
     @Override
-    public void updateView(LegislationData data) {
+    public void updateView(ObligationData data) {
 
     }
 
     @Override
-    public void initTab(LegislationData data) {
+    public void initTab(ObligationData data) {
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(8));
