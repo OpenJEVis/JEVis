@@ -132,33 +132,11 @@ public class PluginManager {
      */
     public void addPluginsByUserSetting(JEVisUser user) {
         List<Plugin> enabledPlugins = new ArrayList<>();
-        //debug
-
-        /**
-         * Workaround, Config is always enabled.
-         */
-//        this._plugins.add(new ObjectPlugin(this._ds, I18n.getInstance().getString("plugin.object.title")));
 
         try {
-            JEVisClass servicesClass = this._ds.getJEVisClass("Service Directory");
-            JEVisClass jevisccClass = this._ds.getJEVisClass("Control Center");
             JEVisClass pluginClass = this._ds.getJEVisClass("Control Center Plugin");
 
-            List<JEVisObject> servicesDir = this._ds.getObjects(servicesClass, false);
-            if (servicesDir == null || servicesDir.isEmpty()) {
-                logger.info("Warning missing ServicesDirectory");
-                this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-                return;
-            }
-
-            List<JEVisObject> controlCenterObj = servicesDir.get(0).getChildren(jevisccClass, true);
-            if (controlCenterObj == null || controlCenterObj.isEmpty()) {
-                logger.info("Warning missing ControlCenter");
-                this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-                return;
-            }
-
-            List<JEVisObject> pluginObjs = controlCenterObj.get(0).getChildren(pluginClass, true);
+            List<JEVisObject> pluginObjs = _ds.getObjects(pluginClass, true);
             if (pluginObjs == null || pluginObjs.isEmpty()) {
                 logger.info("Warning No Plugins installed");
                 this._plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
@@ -183,11 +161,10 @@ public class PluginManager {
                         new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.Legalcadastre.name")),
                         new TRCPlugin(this._ds)
                 ));
+                return;
             } else {
                 for (JEVisObject plugObj : pluginObjs) {
                     try {
-                        try {
-
                             JEVisAttribute enabled = plugObj.getAttribute("Enable");
                             if (enabled == null) {
                                 continue;
@@ -196,54 +173,44 @@ public class PluginManager {
                             if (value != null) {
                                 if (value.getValueAsBoolean() || (plugObj.getJEVisClassName().equals(ObjectPlugin.PLUGIN_NAME) && user.isSysAdmin())) {
                                     if (plugObj.getJEVisClassName().equals(ObjectPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
+                                        enabledPlugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
                                     } else if (plugObj.getJEVisClassName().equals(ChartPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new ChartPlugin(this._ds, I18n.getInstance().getString("plugin.graph.title")));
+                                        enabledPlugins.add(new ChartPlugin(this._ds, I18n.getInstance().getString("plugin.graph.title")));
                                     } else if (plugObj.getJEVisClassName().equals(DashBordPlugIn.PLUGIN_NAME)) {
-                                        _plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
+                                        enabledPlugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
                                     } else if (plugObj.getJEVisClassName().equals(ReportPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
+                                        enabledPlugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
                                     } else if (plugObj.getJEVisClassName().equals(AlarmPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
+                                        enabledPlugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
                                     } else if (plugObj.getJEVisClassName().equals(NotesPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new NotesPlugin(this._ds, I18n.getInstance().getString("plugin.notes.title")));
+                                        enabledPlugins.add(new NotesPlugin(this._ds, I18n.getInstance().getString("plugin.notes.title")));
                                     } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
+                                        enabledPlugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
                                     } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
+                                        enabledPlugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
                                     } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
+                                        enabledPlugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
                                     } else if (plugObj.getJEVisClassName().equals(ISO50001Plugin.PLUGIN_NAME)) {
-                                        _plugins.add(new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")));
+                                        enabledPlugins.add(new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")));
                                     } else if (plugObj.getJEVisClassName().equals(AccountingPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
+                                        enabledPlugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
                                     } else if (plugObj.getJEVisClassName().equals(ActionPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
+                                        enabledPlugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
                                     } else if (plugObj.getJEVisClassName().equals(NonconformitiesPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")));
+                                        enabledPlugins.add(new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")));
                                     } else if (plugObj.getJEVisClassName().equals(LegalCatasdrePlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.indexoflegalprovisions.name")));
+                                        enabledPlugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.indexoflegalprovisions.name")));
                                     } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
-                                        _plugins.add(new TRCPlugin(this._ds));
+                                        enabledPlugins.add(new TRCPlugin(this._ds));
                                     }
                                 }
-
-
                             }
-
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 }
 
-
-
                 this._plugins.addAll(enabledPlugins);
-
-
             }
 
             if (this._plugins.isEmpty()) {
@@ -253,12 +220,8 @@ public class PluginManager {
             try {
                 Comparator<Plugin> pluginComparator = Comparator.comparingInt(Plugin::getPrefTapPos);
                 this._plugins.sort(pluginComparator);
-
-//                        Collections.swap(_plugins, 0, 1);
-            } catch (Exception e) {
-                //workaround to get graph plugin to first position
+            } catch (Exception ignored) {
             }
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -345,7 +308,7 @@ public class PluginManager {
 
         }
 
-        this.selectedPluginProperty.addListener((ChangeListener<Plugin>) (observable, oldValue, newValue) -> Platform.runLater(() -> {
+        this.selectedPluginProperty.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> {
 //                        toolbar.getChildren().removeAll();
             if (newValue != null) {
                 try {
