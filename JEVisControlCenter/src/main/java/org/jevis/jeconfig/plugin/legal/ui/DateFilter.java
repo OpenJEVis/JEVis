@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.legal.ui;
 
-import org.jevis.jeconfig.plugin.legal.data.LegislationData;
+import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class DateFilter {
         return dateField;
     }
 
-    private List<DateTime> getDate(LegislationData data) {
+    private List<DateTime> getDate(ObligationData data) {
         List<DateTime> dateTimes = new ArrayList<>();
         if (dateField == DateField.Date_Of_Examination) {
             setDateOfExaminationDate(data, dateTimes);
@@ -50,25 +50,25 @@ public class DateFilter {
         return dateTimes;
     }
 
-    private static void setVersionDate(LegislationData data, List<DateTime> dateTimes) {
+    private static void setVersionDate(ObligationData data, List<DateTime> dateTimes) {
         if (data.getCurrentVersionDate() != null) {
             dateTimes.add(data.getCurrentVersionDate());
         }
     }
 
-    private static void setIssueDate(LegislationData data, List<DateTime> dateTimes) {
+    private static void setIssueDate(ObligationData data, List<DateTime> dateTimes) {
         if (data.getIssueDate() != null) {
             dateTimes.add(data.getIssueDate());
         }
     }
 
-    private static void setDateOfExaminationDate(LegislationData data, List<DateTime> dateTimes) {
+    private static void setDateOfExaminationDate(ObligationData data, List<DateTime> dateTimes) {
         if (data.getDateOfExamination() != null) {
             dateTimes.add(data.getDateOfExamination());
         }
     }
 
-    public boolean show(LegislationData data) {
+    public boolean show(ObligationData data) {
         if (getDate(data).size() == 0) {
             return true;
         }

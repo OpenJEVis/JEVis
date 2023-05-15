@@ -21,18 +21,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class LegalCadastre {
+public class IndexOfLegalProvisions {
 
-    protected static final Logger logger = LogManager.getLogger(LegalCadastre.class);
+    protected static final Logger logger = LogManager.getLogger(IndexOfLegalProvisions.class);
     private JEVisObject object;
     protected SimpleStringProperty prefix = new SimpleStringProperty();
     protected StringProperty name = new SimpleStringProperty("name", "name", "");
 
-    protected ObservableList<LegislationData> legislationDataList = FXCollections.observableArrayList();
+    protected ObservableList<ObligationData> obligationDataList = FXCollections.observableArrayList();
 
     private ObservableList<String> scopes;
     private ObservableList<String> categories;
-    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvant"), I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"));
+    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.relvant"), I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"));
 
 
     private String initCustomCategory = "";
@@ -41,26 +41,26 @@ public class LegalCadastre {
 
     private AtomicInteger biggestActionNr = new AtomicInteger(0);
 
-    public void removeLegislation(LegislationData nonconformityData) {
-        this.legislationDataList.remove(nonconformityData);
+    public void removeLegislation(ObligationData nonconformityData) {
+        this.obligationDataList.remove(nonconformityData);
     }
 
 
     private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
-    public LegalCadastre(JEVisObject obj) {
+    public IndexOfLegalProvisions(JEVisObject obj) {
 
         this.object = obj;
 
         name.set(obj.getName());
 
 
-        legislationDataList.addAll(createTestData());
-        legislationDataList.addListener(new ListChangeListener<LegislationData>() {
+        obligationDataList.addAll(createTestData());
+        obligationDataList.addListener(new ListChangeListener<ObligationData>() {
             @Override
-            public void onChanged(Change<? extends LegislationData> c) {
+            public void onChanged(Change<? extends ObligationData> c) {
                 while (c.next()) {
-                    Optional<LegislationData> maxNr = legislationDataList.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
+                    Optional<ObligationData> maxNr = obligationDataList.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
                     biggestActionNr.set(maxNr.get().getNr());
                 }
             }
@@ -69,7 +69,7 @@ public class LegalCadastre {
 
         scopes = FXCollections.observableArrayList();
         try {
-            JEVisAttribute attribute = this.object.getAttribute(JC.LegalCadastre.a_scope);
+            JEVisAttribute attribute = this.object.getAttribute(JC.IndexofLegalProvisions.a_scope);
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomValidity = sample.getValueAsString();
@@ -83,7 +83,7 @@ public class LegalCadastre {
         }
         categories = FXCollections.observableArrayList();
         try {
-            JEVisAttribute attribute = this.object.getAttribute(JC.LegalCadastre.a_category);
+            JEVisAttribute attribute = this.object.getAttribute(JC.IndexofLegalProvisions.a_category);
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomCategory = sample.getValueAsString();
@@ -99,7 +99,7 @@ public class LegalCadastre {
 
     }
 
-    public LegalCadastre() {
+    public IndexOfLegalProvisions() {
     }
 
     public static String listToString(ObservableList<String> list) {
@@ -126,13 +126,13 @@ public class LegalCadastre {
             actionsLoaded.set(true);
             try {
 
-                JEVisClass actionDirClass = object.getDataSource().getJEVisClass(JC.LegalCadastre.LegalCadastreDirectory.name);
-                JEVisClass actionClass = object.getDataSource().getJEVisClass(JC.LegalCadastre.LegalCadastreDirectory.Legislation.name);
+                JEVisClass actionDirClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.name);
+                JEVisClass actionClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.Obligation.name);
                 for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
                     dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                         System.out.println("new Action from JEVis: " + actionObj);
                         try {
-                            legislationDataList.add(loadNonconformties(actionObj));
+                            obligationDataList.add(loadNonconformties(actionObj));
                         } catch (Exception e) {
                             logger.error("Could not load Action: {},{},{}", actionObj, e, e);
                         }
@@ -141,13 +141,13 @@ public class LegalCadastre {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            legislationDataList.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
+            obligationDataList.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
         }
 
 
     }
 
-    public LegislationData loadNonconformties(JEVisObject actionObj) throws JEVisException, NullPointerException {
+    public ObligationData loadNonconformties(JEVisObject actionObj) throws JEVisException, NullPointerException {
         JEVisAttribute att = actionObj.getAttribute("Data");
         ;
         JEVisSample sample = att.getLatestSample();
@@ -156,10 +156,10 @@ public class LegalCadastre {
 
         logger.info("Json: {}", s);
         Gson gson = GsonBuilder.createDefaultBuilder().create();
-        LegislationData legislationData = gson.fromJson(s, LegislationData.class);
-        legislationData.setObject(actionObj);
-        legislationData.setLegalCadastre(this);
-        return legislationData;
+        ObligationData obligationData = gson.fromJson(s, ObligationData.class);
+        obligationData.setObject(actionObj);
+        obligationData.setLegalCadastre(this);
+        return obligationData;
     }
 
 
@@ -176,7 +176,7 @@ public class LegalCadastre {
         DateTime now = new DateTime();
         if (!initCustomCategory.equals(listToString(categories))) {
             try {
-                JEVisAttribute attribute = this.object.getAttribute(JC.LegalCadastre.a_category);
+                JEVisAttribute attribute = this.object.getAttribute(JC.IndexofLegalProvisions.a_category);
                 JEVisSample sample = attribute.buildSample(now, listToString(categories));
                 sample.commit();
             } catch (Exception e) {
@@ -185,7 +185,7 @@ public class LegalCadastre {
         }
         if (!initCustomValidity.equals(listToString(scopes))) {
             try {
-                JEVisAttribute attribute = this.object.getAttribute(JC.LegalCadastre.a_scope);
+                JEVisAttribute attribute = this.object.getAttribute(JC.IndexofLegalProvisions.a_scope);
                 JEVisSample sample = attribute.buildSample(now, listToString(scopes));
                 sample.commit();
             } catch (Exception e) {
@@ -213,8 +213,8 @@ public class LegalCadastre {
     }
 
 
-    private ObservableList<LegislationData> createTestData() {
-        ObservableList<LegislationData> data = FXCollections.observableArrayList();
+    private ObservableList<ObligationData> createTestData() {
+        ObservableList<ObligationData> data = FXCollections.observableArrayList();
 
         return data;
     }
@@ -235,16 +235,16 @@ public class LegalCadastre {
         this.prefix.set(prefix);
     }
 
-    public ObservableList<LegislationData> getLegislationDataList() {
-        return legislationDataList;
+    public ObservableList<ObligationData> getLegislationDataList() {
+        return obligationDataList;
     }
 
-    public void setLegislationDataList(ObservableList<LegislationData> legislationDataList) {
-        this.legislationDataList = legislationDataList;
+    public void setLegislationDataList(ObservableList<ObligationData> obligationDataList) {
+        this.obligationDataList = obligationDataList;
     }
 
-    public void addLegislation(LegislationData legislationData) {
-        this.legislationDataList.add(legislationData);
+    public void addLegislation(ObligationData obligationData) {
+        this.obligationDataList.add(obligationData);
     }
 
     @Override

@@ -28,69 +28,69 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class LegislationData {
+public class ObligationData {
 
     //private final ObjectMapper mapper = new ObjectMapper();
-    private static final Logger logger = LogManager.getLogger(LegislationData.class);
+    private static final Logger logger = LogManager.getLogger(ObligationData.class);
     private static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     @Expose
     @SerializedName("title")
-    public final SimpleStringProperty title = new SimpleStringProperty("title", I18n.getInstance().getString("plugin.Legalcadastre.legislation.title"), "");
+    public final SimpleStringProperty title = new SimpleStringProperty("title", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.title"), "");
     @Expose
     @SerializedName("Designation")
-    public final SimpleStringProperty designation = new SimpleStringProperty("Designation", I18n.getInstance().getString("plugin.Legalcadastre.legislation.designation"), "");
+    public final SimpleStringProperty designation = new SimpleStringProperty("Designation", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.designation"), "");
 
 
     @Expose
     @SerializedName("Nr")
-    private final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr", I18n.getInstance().getString("plugin.Legalcadastre.legislation.nr"), 0);
+    private final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.nr"), 0);
     @Expose
     @SerializedName("Description")
-    private final SimpleStringProperty description = new SimpleStringProperty("Description", I18n.getInstance().getString("plugin.Legalcadastre.legislation.description"), "");
+    private final SimpleStringProperty description = new SimpleStringProperty("Description", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.description"), "");
     @Expose
     @SerializedName("issue date")
-    private final SimpleObjectProperty<DateTime> issueDate = new SimpleObjectProperty<>("issue date", I18n.getInstance().getString("plugin.Legalcadastre.legislation.issuedate"), null);
+    private final SimpleObjectProperty<DateTime> issueDate = new SimpleObjectProperty<>("issue date", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.issuedate"), null);
 
     @Expose
     @SerializedName("current version date")
-    private final SimpleObjectProperty<DateTime> currentVersionDate = new SimpleObjectProperty<>("current version date", I18n.getInstance().getString("plugin.Legalcadastre.legislation.currentversiondate"), null);
+    private final SimpleObjectProperty<DateTime> currentVersionDate = new SimpleObjectProperty<>("current version date", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.currentversiondate"), null);
 
     @Expose
     @SerializedName("Relevance 50001")
-    private final BooleanProperty relevant = new SimpleBooleanProperty("Relevance 50001", I18n.getInstance().getString("plugin.Legalcadastre.legislation.relevance"), false);
+    private final BooleanProperty relevant = new SimpleBooleanProperty("Relevance 50001", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.relevance"), false);
 
     @Expose
     @SerializedName("Date of Examination")
-    private final SimpleObjectProperty<DateTime> dateOfExamination = new SimpleObjectProperty<>("Date of Examination", I18n.getInstance().getString("plugin.Legalcadastre.legislation.dateofexamination"), null);
+    private final SimpleObjectProperty<DateTime> dateOfExamination = new SimpleObjectProperty<>("Date of Examination", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.dateofexamination"), null);
 
 
     @Expose
     @SerializedName("importance for the company")
-    private final SimpleStringProperty importanceForTheCompany = new SimpleStringProperty("importance for the company", I18n.getInstance().getString("plugin.Legalcadastre.legislation.importanceforthecompany"), "");
+    private final SimpleStringProperty importanceForTheCompany = new SimpleStringProperty("importance for the company", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.importanceforthecompany"), "");
 
     @Expose
     @SerializedName("link")
-    private final SimpleStringProperty linkToVersion = new SimpleStringProperty("link", I18n.getInstance().getString("plugin.Legalcadastre.legislation.link"), "");
+    private final SimpleStringProperty linkToVersion = new SimpleStringProperty("link", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.link"), "");
 
     @Expose
     @SerializedName("category")
-    private final SimpleStringProperty category = new SimpleStringProperty("category", I18n.getInstance().getString("plugin.Legalcadastre.legislation.category"), "");
+    private final SimpleStringProperty category = new SimpleStringProperty("category", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.category"), "");
 
     @Expose
     @SerializedName("scope")
-    private final SimpleStringProperty scope = new SimpleStringProperty("scope", I18n.getInstance().getString("plugin.Legalcadastre.legislation.scope"), "");
+    private final SimpleStringProperty scope = new SimpleStringProperty("scope", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.scope"), "");
 
 
     @Expose
     @SerializedName("Deleted")
-    private final SimpleBooleanProperty deleted = new SimpleBooleanProperty("Deleted", I18n.getInstance().getString("plugin.Legalcadastre.legislation.deleted"), false);
+    private final SimpleBooleanProperty deleted = new SimpleBooleanProperty("Deleted", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.deleted"), false);
 
 
     @Expose
     @SerializedName("Attachment")
-    private final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", I18n.getInstance().getString("plugin.Legalcadastre.legislation.attachment"), "");
+    private final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.attachment"), "");
 
-    private LegalCadastre legalCadastre;
+    private IndexOfLegalProvisions indexOfLegalProvisions;
 
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     private ChangeListener changeListener;
@@ -99,18 +99,14 @@ public class LegislationData {
     private List<ReadOnlyProperty> propertyList = new ArrayList<>();
 
 
-    public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.immediatemeasures");
-    public static final String DONE_DATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.donedate");
-    public static final String DONE_DATE_AFTER_NOW = I18n.getInstance().getString("plugin.nonconformities.error.donedateafter");
-    public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.ok");
 
-    public LegislationData(JEVisObject obj, LegalCadastre legalCadastre) {
-        this.legalCadastre = legalCadastre;
+    public ObligationData(JEVisObject obj, IndexOfLegalProvisions indexOfLegalProvisions) {
+        this.indexOfLegalProvisions = indexOfLegalProvisions;
         this.object = obj;
         reload();
     }
 
-    public LegislationData() {
+    public ObligationData() {
         reload();
     }
 
@@ -191,14 +187,14 @@ public class LegislationData {
                     try {
                         try {
                             Gson gson = GsonBuilder.createDefaultBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create();
-                            logger.info("Json: {}", gson.toJson(LegislationData.this));
+                            logger.info("Json: {}", gson.toJson(ObligationData.this));
 
 
                             if (object != null) {
                                 JEVisAttribute dataModel = object.getAttribute("Data");
                                 JEVisFileImp jsonFile = new JEVisFileImp(
                                         "DataModel_v2" + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
-                                        , gson.toJson(LegislationData.this).getBytes(StandardCharsets.UTF_8));
+                                        , gson.toJson(ObligationData.this).getBytes(StandardCharsets.UTF_8));
                                 JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
                                 newSample.commit();
                             }
@@ -350,12 +346,12 @@ public class LegislationData {
         this.attachment.set(attachment);
     }
 
-    public LegalCadastre getLegalCadastre() {
-        return legalCadastre;
+    public IndexOfLegalProvisions getLegalCadastre() {
+        return indexOfLegalProvisions;
     }
 
-    public void setLegalCadastre(LegalCadastre legalCadastre) {
-        this.legalCadastre = legalCadastre;
+    public void setLegalCadastre(IndexOfLegalProvisions indexOfLegalProvisions) {
+        this.indexOfLegalProvisions = indexOfLegalProvisions;
     }
 
     public String getImportanceForTheCompany() {
@@ -384,7 +380,7 @@ public class LegislationData {
 
     @Override
     public String toString() {
-        return "LegislationData{" +
+        return "obligationData{" +
                 "nr=" + nr +
                 ", description=" + description +
                 ", issueDate=" + issueDate +

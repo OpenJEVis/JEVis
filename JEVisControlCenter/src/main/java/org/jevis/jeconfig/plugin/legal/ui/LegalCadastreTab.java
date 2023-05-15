@@ -3,14 +3,12 @@ package org.jevis.jeconfig.plugin.legal.ui;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
@@ -22,23 +20,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.legal.LegalCadastreController;
-import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
+import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 
 public class LegalCadastreTab extends Tab {
 
     private static final Logger logger = LogManager.getLogger(LegalCadastreTab.class);
 
-    private LegalCadastre legalCadastre;
-    private LegalCadastreTable legalCadastreTable;
+    private IndexOfLegalProvisions indexOfLegalProvisions;
+    private IndexOfLegalProvisionsTable indexOfLegalProvisionsTable;
 
-    public LegalCadastreTab(LegalCadastre legalCadastre, LegalCadastreController controller) {
+    public LegalCadastreTab(IndexOfLegalProvisions indexOfLegalProvisions, LegalCadastreController controller) {
         super();
-        this.legalCadastre = legalCadastre;
+        this.indexOfLegalProvisions = indexOfLegalProvisions;
 
-        if (legalCadastre == null) return;
-        textProperty().bind(this.legalCadastre.getName());
-        this.legalCadastre = legalCadastre;
-        this.legalCadastreTable = new LegalCadastreTable(this.legalCadastre, this.legalCadastre.getLegislationDataList());
+        if (indexOfLegalProvisions == null) return;
+        textProperty().bind(this.indexOfLegalProvisions.getName());
+        this.indexOfLegalProvisions = indexOfLegalProvisions;
+        this.indexOfLegalProvisionsTable = new IndexOfLegalProvisionsTable(this.indexOfLegalProvisions, this.indexOfLegalProvisions.getLegislationDataList());
 
 
         GridPane gridPane = new GridPane();
@@ -48,33 +46,33 @@ public class LegalCadastreTab extends Tab {
         double maxListHeight = 100;
 
 
-        Label lSuche = new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.search"));
+        Label lSuche = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.search"));
         JFXTextField fsearch = new JFXTextField();
-        fsearch.setPromptText(I18n.getInstance().getString("plugin.Legalcadastre.legislation.searchfor"));
+        fsearch.setPromptText(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.searchfor"));
 
 
-        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton categoryButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.category"), legalCadastre.getCategories(), legalCadastre.getCategories());
-        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton scopeButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.scope"), legalCadastre.getScopes(), legalCadastre.getScopes());
-        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton relevanceButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvance"), legalCadastre.getRelevanzTags(), legalCadastre.getRelevanzTags());
+        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton categoryButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.category"), indexOfLegalProvisions.getCategories(), indexOfLegalProvisions.getCategories());
+        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton scopeButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.scope"), indexOfLegalProvisions.getScopes(), indexOfLegalProvisions.getScopes());
+        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton relevanceButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.relvance"), indexOfLegalProvisions.getRelevanzTags(), indexOfLegalProvisions.getRelevanzTags());
 
 
-        legalCadastreTable.setCategories(categoryButton.getSelectedTags());
-        legalCadastreTable.setScope(scopeButton.getSelectedTags());
-        legalCadastreTable.setRelevance(relevanceButton.getSelectedTags());
+        indexOfLegalProvisionsTable.setCategories(categoryButton.getSelectedTags());
+        indexOfLegalProvisionsTable.setScope(scopeButton.getSelectedTags());
+        indexOfLegalProvisionsTable.setRelevance(relevanceButton.getSelectedTags());
 
         fsearch.textProperty().addListener((observable, oldValue, newValue) -> {
-            legalCadastreTable.setTextFilter(newValue);
-            legalCadastreTable.filter();
+            indexOfLegalProvisionsTable.setTextFilter(newValue);
+            indexOfLegalProvisionsTable.filter();
         });
 
-        TimeFilterSelector dateSelector = new TimeFilterSelector(this.legalCadastre);
+        TimeFilterSelector dateSelector = new TimeFilterSelector(this.indexOfLegalProvisions);
 
 
         dateSelector.getValuePropertyProperty().addListener(new ChangeListener<DateFilter>() {
             @Override
             public void changed(ObservableValue<? extends DateFilter> observableValue, DateFilter dateFilter, DateFilter t1) {
-                legalCadastreTable.setDateFilter(t1);
-                legalCadastreTable.filter();
+                indexOfLegalProvisionsTable.setDateFilter(t1);
+                indexOfLegalProvisionsTable.filter();
             }
         });
 
@@ -83,8 +81,8 @@ public class LegalCadastreTab extends Tab {
             public void onChanged(Change<? extends String> c) {
                 logger.debug("List Changed: {}", c);
                 while (c.next()) {
-                    legalCadastreTable.setCategories((ObservableList<String>) c.getList());
-                    legalCadastreTable.filter();
+                    indexOfLegalProvisionsTable.setCategories((ObservableList<String>) c.getList());
+                    indexOfLegalProvisionsTable.filter();
                 }
             }
         });
@@ -94,8 +92,8 @@ public class LegalCadastreTab extends Tab {
             public void onChanged(Change<? extends String> c) {
                 logger.debug("List Changed: {}", c);
                 while (c.next()) {
-                    legalCadastreTable.setScope((ObservableList<String>) c.getList());
-                    legalCadastreTable.filter();
+                    indexOfLegalProvisionsTable.setScope((ObservableList<String>) c.getList());
+                    indexOfLegalProvisionsTable.filter();
                 }
             }
         });
@@ -105,8 +103,8 @@ public class LegalCadastreTab extends Tab {
             public void onChanged(Change<? extends String> c) {
                 logger.debug("List Changed: {}", c);
                 while (c.next()) {
-                    legalCadastreTable.setRelevance((ObservableList<String>) c.getList());
-                    legalCadastreTable.filter();
+                    indexOfLegalProvisionsTable.setRelevance((ObservableList<String>) c.getList());
+                    indexOfLegalProvisionsTable.filter();
                 }
             }
         });
@@ -125,18 +123,18 @@ public class LegalCadastreTab extends Tab {
         gridPane.addColumn(4, new Region(), categoryButton);
         gridPane.addColumn(5, new Region(), scopeButton);
         gridPane.addColumn(6, vSep2);
-        gridPane.addColumn(7, new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.date")), dateSelector);
+        gridPane.addColumn(7, new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.date")), dateSelector);
 
 
-        legalCadastreTable.filter();
+        indexOfLegalProvisionsTable.filter();
 
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
-        borderPane.setCenter(legalCadastreTable);
+        borderPane.setCenter(indexOfLegalProvisionsTable);
 
 
-        legalCadastreTable.setOnMousePressed(new EventHandler<MouseEvent>() {
+        indexOfLegalProvisionsTable.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
@@ -149,24 +147,24 @@ public class LegalCadastreTab extends Tab {
 
     }
 
-    public LegalCadastreTab(String text, Node content, LegalCadastre legalCadastre) {
+    public LegalCadastreTab(String text, Node content, IndexOfLegalProvisions indexOfLegalProvisions) {
         super(text, content);
-        this.legalCadastre = legalCadastre;
+        this.indexOfLegalProvisions = indexOfLegalProvisions;
     }
 
-    public LegalCadastre getLegalCadastre() {
-        return legalCadastre;
+    public IndexOfLegalProvisions getLegalCadastre() {
+        return indexOfLegalProvisions;
     }
 
-    public void setLegalCadastre(LegalCadastre legalCadastre) {
-        this.legalCadastre = legalCadastre;
+    public void setLegalCadastre(IndexOfLegalProvisions indexOfLegalProvisions) {
+        this.indexOfLegalProvisions = indexOfLegalProvisions;
     }
 
-    public LegalCadastreTable getLegalCadastreTable() {
-        return legalCadastreTable;
+    public IndexOfLegalProvisionsTable getLegalCadastreTable() {
+        return indexOfLegalProvisionsTable;
     }
 
-    public void setLegalCadastreTable(LegalCadastreTable legalCadastreTable) {
-        this.legalCadastreTable = legalCadastreTable;
+    public void setLegalCadastreTable(IndexOfLegalProvisionsTable indexOfLegalProvisionsTable) {
+        this.indexOfLegalProvisionsTable = indexOfLegalProvisionsTable;
     }
 }

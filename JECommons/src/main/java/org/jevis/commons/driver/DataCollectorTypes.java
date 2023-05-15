@@ -50,6 +50,8 @@ public interface DataCollectorTypes {
 
         String NAME = "Channel Directory";
 
+        String DATE_TIME_Path = "Date Time Path";
+
         interface SOAPChannelDirectory extends ChannelDirectory {
 
             String NAME = "SOAP Channel Directory";
@@ -71,6 +73,12 @@ public interface DataCollectorTypes {
         interface RevolutionPiChannelDirectory extends ChannelDirectory {
             String NAME = "Revolution PI Channel Directory";
         }
+
+        interface JSONChannelDirectory extends ChannelDirectory {
+            String NAME = "JSON Data Point Directory";
+        }
+
+
     }
 
     interface JEDataCollector {
@@ -228,6 +236,20 @@ public interface DataCollectorTypes {
             String TARGETID = "Target Id";
             String STATUS = "Status Log";
         }
+
+        interface JSONChannel extends Channel {
+            String NAME = "JSON Data Point";
+            String VALUE_FORMAT = "Value Format";
+            String DATA_POINT_PATH = "Data Point Path";
+            String TARGETID = "Target";
+            String STATUS = "Status Log";
+
+            String REGEX = "regex";
+            String STATUS_PATH = "Status Path";
+            String STAUS_VALUE_OK = "Status Value OK";
+        }
+
+
     }
 
     interface Importer {

@@ -24,8 +24,8 @@ import org.jevis.jeconfig.application.table.DateTimeColumnCell;
 import org.jevis.jeconfig.application.table.HyperlinkCell;
 import org.jevis.jeconfig.application.table.ShortColumnCell;
 import org.jevis.jeconfig.plugin.dashboard.config2.SankeyDataRow;
-import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
-import org.jevis.jeconfig.plugin.legal.data.LegislationData;
+import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
+import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 import org.jevis.jeconfig.plugin.legal.data.TableFilter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -36,9 +36,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 
-public class LegalCadastreTable extends TableView<LegislationData> {
+public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
 
-    private static final Logger logger = LogManager.getLogger(LegalCadastreTable.class);
+    private static final Logger logger = LogManager.getLogger(IndexOfLegalProvisionsTable.class);
 
 
     private static Method columnToFitMethod;
@@ -52,13 +52,13 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         }
     }
 
-    ObservableList<LegislationData> data = FXCollections.observableArrayList();
-    FilteredList<LegislationData> filteredData;
+    ObservableList<ObligationData> data = FXCollections.observableArrayList();
+    FilteredList<ObligationData> filteredData;
 
-    SortedList<LegislationData> sortedData;
+    SortedList<ObligationData> sortedData;
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private TableFilter tableFilter = new TableFilter();
-    private LegislationData sumRow = new LegislationData();
+    private ObligationData sumRow = new ObligationData();
     private DateFilter dateFilter;
     private String relevantFilter;
     private boolean showSumRow = false;
@@ -78,7 +78,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
     public static final String ONLY_NOT_RELEVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant");
 
 
-    public LegalCadastreTable(LegalCadastre legalCadastre, ObservableList<LegislationData> data) {
+    public IndexOfLegalProvisionsTable(IndexOfLegalProvisions indexOfLegalProvisions, ObservableList<ObligationData> data) {
         this.data = data;
         this.filteredData = new FilteredList<>(data);
         sortedData = new SortedList<>(filteredData);
@@ -87,96 +87,96 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         setItems(sortedData);
         setId("Action Table");
 
-        data.addListener(new ListChangeListener<LegislationData>() {
+        data.addListener(new ListChangeListener<ObligationData>() {
             @Override
-            public void onChanged(Change<? extends LegislationData> c) {
+            public void onChanged(Change<? extends ObligationData> c) {
                 while (c.next()) ;
-                logger.debug("Daten in tabelle: {} + geändert: {}", legalCadastre.getName(), c.getList());
+                logger.debug("Daten in tabelle: {} + geändert: {}", indexOfLegalProvisions.getName(), c.getList());
             }
         });
 
-        legalCadastre.prefixProperty().addListener((observable, oldValue, newValue) -> {
+        indexOfLegalProvisions.prefixProperty().addListener((observable, oldValue, newValue) -> {
             filter();
         });
 
 
-        LegislationData fakeForName = new LegislationData();
+        ObligationData fakeForName = new ObligationData();
 
-        TableColumn<LegislationData, String> nrCol = new TableColumn(fakeForName.nrProperty().getName());
+        TableColumn<ObligationData, String> nrCol = new TableColumn(fakeForName.nrProperty().getName());
         nrCol.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().getNr())));
-        nrCol.setCellFactory(new ShortColumnCell<LegislationData>());
+        nrCol.setCellFactory(new ShortColumnCell<ObligationData>());
         nrCol.setStyle("-fx-alignment: LEFT;");
         nrCol.setMinWidth(SMALL_WIDTH);
 
 
-        TableColumn<LegislationData, String> legislationCol = new TableColumn(fakeForName.titleProperty().getName());
+        TableColumn<ObligationData, String> legislationCol = new TableColumn(fakeForName.titleProperty().getName());
         legislationCol.setCellValueFactory(param -> param.getValue().titleProperty());
-        legislationCol.setCellFactory(new ShortColumnCell<LegislationData>());
+        legislationCol.setCellFactory(new ShortColumnCell<ObligationData>());
         legislationCol.setStyle("-fx-alignment: LEFT;");
         legislationCol.setMinWidth(BIG_WIDTH);
 
 
-        TableColumn<LegislationData, String> designationCol = new TableColumn(fakeForName.designationProperty().getName());
+        TableColumn<ObligationData, String> designationCol = new TableColumn(fakeForName.designationProperty().getName());
         designationCol.setCellValueFactory(param -> param.getValue().designationProperty());
-        designationCol.setCellFactory(new ShortColumnCell<LegislationData>());
+        designationCol.setCellFactory(new ShortColumnCell<ObligationData>());
         designationCol.setStyle("-fx-alignment: LEFT;");
         designationCol.setMinWidth(VERY_BIG_WIDTH);
 
-        TableColumn<LegislationData, String> descriptionCol = new TableColumn(fakeForName.descriptionProperty().getName());
+        TableColumn<ObligationData, String> descriptionCol = new TableColumn(fakeForName.descriptionProperty().getName());
         descriptionCol.setCellValueFactory(param -> param.getValue().descriptionProperty());
-        descriptionCol.setCellFactory(new ShortColumnCell<LegislationData>());
+        descriptionCol.setCellFactory(new ShortColumnCell<ObligationData>());
         descriptionCol.setStyle("-fx-alignment: LEFT;");
         descriptionCol.setMinWidth(VERY_BIG_WIDTH);
 
 
-        TableColumn<LegislationData, DateTime> issueDateCol = new TableColumn(fakeForName.issueDateProperty().getName());
+        TableColumn<ObligationData, DateTime> issueDateCol = new TableColumn(fakeForName.issueDateProperty().getName());
         issueDateCol.setCellValueFactory(param -> param.getValue().issueDateProperty());
-        issueDateCol.setCellFactory(new DateTimeColumnCell<LegislationData>());
-        issueDateCol.setStyle("-fx-alignment: LEFT;");
+        issueDateCol.setCellFactory(new DateTimeColumnCell<ObligationData>());
+        issueDateCol.setStyle("-fx-alignment: CENTER;");
         issueDateCol.setMinWidth(DATE_TIME_WIDTH);
 
-        TableColumn<LegislationData, DateTime> activeVersionCol = new TableColumn(fakeForName.currentVersionDateProperty().getName());
+        TableColumn<ObligationData, DateTime> activeVersionCol = new TableColumn(fakeForName.currentVersionDateProperty().getName());
         activeVersionCol.setCellValueFactory(param -> param.getValue().currentVersionDateProperty());
-        activeVersionCol.setCellFactory(new DateTimeColumnCell<LegislationData>());
-        activeVersionCol.setStyle("-fx-alignment: LEFT;");
+        activeVersionCol.setCellFactory(new DateTimeColumnCell<ObligationData>());
+        activeVersionCol.setStyle("-fx-alignment: CENTER;");
         activeVersionCol.setMinWidth(DATE_TIME_WIDTH);
 
-        TableColumn<LegislationData, Boolean> relevanceCol = new TableColumn(fakeForName.relevantProperty().getName());
+        TableColumn<ObligationData, Boolean> relevanceCol = new TableColumn(fakeForName.relevantProperty().getName());
         relevanceCol.setCellValueFactory(param -> param.getValue().relevantProperty());
         relevanceCol.setCellFactory(CheckBoxTableCell.forTableColumn(relevanceCol));
         relevanceCol.setStyle("-fx-alignment: CENTER;");
         relevanceCol.setMinWidth(SMALL_WIDTH);
 
 
-        TableColumn<LegislationData, DateTime> dateOfExaminationCol = new TableColumn(fakeForName.dateOfExaminationProperty().getName());
+        TableColumn<ObligationData, DateTime> dateOfExaminationCol = new TableColumn(fakeForName.dateOfExaminationProperty().getName());
         dateOfExaminationCol.setCellValueFactory(param -> param.getValue().dateOfExaminationProperty());
-        dateOfExaminationCol.setCellFactory(new DateTimeColumnCell<LegislationData>());
-        dateOfExaminationCol.setStyle("-fx-alignment: LEFT;");
+        dateOfExaminationCol.setCellFactory(new DateTimeColumnCell<ObligationData>());
+        dateOfExaminationCol.setStyle("-fx-alignment: CENTER;");
         dateOfExaminationCol.setMinWidth(DATE_TIME_WIDTH);
 
-        TableColumn<LegislationData, String> importanceForTheCompanyCol = new TableColumn(fakeForName.importanceForTheCompanyProperty().getName());
+        TableColumn<ObligationData, String> importanceForTheCompanyCol = new TableColumn(fakeForName.importanceForTheCompanyProperty().getName());
         importanceForTheCompanyCol.setCellValueFactory(param -> param.getValue().importanceForTheCompanyProperty());
-        importanceForTheCompanyCol.setCellFactory(new ShortColumnCell<LegislationData>());
+        importanceForTheCompanyCol.setCellFactory(new ShortColumnCell<ObligationData>());
         importanceForTheCompanyCol.setStyle("-fx-alignment: LEFT;");
         importanceForTheCompanyCol.setMinWidth(BIG_WIDTH);
 
 
-        TableColumn<LegislationData, String> linkCol = new TableColumn(fakeForName.linkToVersionProperty().getName());
+        TableColumn<ObligationData, String> linkCol = new TableColumn(fakeForName.linkToVersionProperty().getName());
         linkCol.setCellValueFactory(param -> param.getValue().linkToVersionProperty());
-        linkCol.setCellFactory(new HyperlinkCell<LegislationData>());
+        linkCol.setCellFactory(new HyperlinkCell<ObligationData>());
         linkCol.setStyle("-fx-alignment: CENTER;");
         linkCol.setMinWidth(VERY_BIG_WIDTH);
 
 
-        TableColumn<LegislationData, String> categoryCol = new TableColumn<>(fakeForName.categoryProperty().getName());
+        TableColumn<ObligationData, String> categoryCol = new TableColumn<>(fakeForName.categoryProperty().getName());
         categoryCol.setCellValueFactory(param -> param.getValue().categoryProperty());
-        categoryCol.setCellFactory(new ShortColumnCell<LegislationData>());
+        categoryCol.setCellFactory(new ShortColumnCell<ObligationData>());
         categoryCol.setStyle("-fx-alignment: CENTER;");
         categoryCol.setMinWidth(SMALL_WIDTH);
 
-        TableColumn<LegislationData, String> scopeCol = new TableColumn<>(fakeForName.scopeProperty().getName());
+        TableColumn<ObligationData, String> scopeCol = new TableColumn<>(fakeForName.scopeProperty().getName());
         scopeCol.setCellValueFactory(param -> param.getValue().scopeProperty());
-        scopeCol.setCellFactory(new ShortColumnCell<LegislationData>());
+        scopeCol.setCellFactory(new ShortColumnCell<ObligationData>());
         scopeCol.setStyle("-fx-alignment: CENTER;");
         scopeCol.setMinWidth(SMALL_WIDTH);
 
@@ -204,7 +204,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
 
 
         this.getColumns().stream().forEach(tableDataTableColumn -> tableDataTableColumn.setSortable(true));
-        this.getVisibleLeafColumns().addListener((ListChangeListener<TableColumn<LegislationData, ?>>) c -> {
+        this.getVisibleLeafColumns().addListener((ListChangeListener<TableColumn<ObligationData, ?>>) c -> {
             while (c.next()) autoFitTable();
         });
 
@@ -222,7 +222,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
     }
 
     public void autoFitTable() {
-        for (TableColumn<LegislationData, ?> column : this.getColumns()) {
+        for (TableColumn<ObligationData, ?> column : this.getColumns()) {
             try {
                 if (getSkin() != null) {
                     columnToFitMethod.invoke(getSkin(), column, -1);
@@ -252,9 +252,9 @@ public class LegalCadastreTable extends TableView<LegislationData> {
 
     public void filter() {
         filteredData.setPredicate(
-                new Predicate<LegislationData>() {
+                new Predicate<ObligationData>() {
                     @Override
-                    public boolean test(LegislationData notesRow) {
+                    public boolean test(ObligationData notesRow) {
                         try {
                             if (notesRow.isDeleted()) {
                                 return false;
@@ -372,14 +372,14 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         this.seu = seu;
     }
 
-    public TableColumn<LegislationData, LegislationData> buildMoveColumn() {
+    public TableColumn<ObligationData, ObligationData> buildMoveColumn() {
 
-        Callback treeTableColumnCallback = new Callback<TableColumn<LegislationData, LegislationData>, TableCell<LegislationData, LegislationData>>() {
+        Callback treeTableColumnCallback = new Callback<TableColumn<ObligationData, ObligationData>, TableCell<ObligationData, ObligationData>>() {
             @Override
-            public TableCell<LegislationData, LegislationData> call(TableColumn<LegislationData, LegislationData> param) {
-                TableCell<LegislationData, LegislationData> cell = new TableCell<LegislationData, LegislationData>() {
+            public TableCell<ObligationData, ObligationData> call(TableColumn<ObligationData, ObligationData> param) {
+                TableCell<ObligationData, ObligationData> cell = new TableCell<ObligationData, ObligationData>() {
                     @Override
-                    protected void updateItem(LegislationData item, boolean empty) {
+                    protected void updateItem(ObligationData item, boolean empty) {
 
 
                         if (empty || item == null) {
@@ -397,7 +397,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
 
                                 int index = getItems().indexOf(item);
                                 if (getItems().get(index).getNr() >= getItems().size()) return;
-                                LegislationData swap = getItems().get(index + 1);
+                                ObligationData swap = getItems().get(index + 1);
 
                                 item.setNr(item.getNr() + 1);
                                 swap.setNr(swap.getNr() - 1);
@@ -414,7 +414,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
 
                                 int index = getItems().indexOf(item);
                                 if (getItems().get(index).getNr() < 2) return;
-                                LegislationData swap = getItems().get(index - 1);
+                                ObligationData swap = getItems().get(index - 1);
 
                                 item.setNr(item.getNr() - 1);
                                 item.commit();
@@ -452,7 +452,7 @@ public class LegalCadastreTable extends TableView<LegislationData> {
         };
 
 
-        TableColumn<LegislationData, LegislationData> column = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.sankey.move"));
+        TableColumn<ObligationData, ObligationData> column = new TableColumn<>(I18n.getInstance().getString("plugin.indexoflegalprovisions.position"));
         column.setId("Move");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);

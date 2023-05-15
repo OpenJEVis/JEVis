@@ -6,7 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.controlsfx.control.NotificationPane;
-import org.jevis.jeconfig.plugin.legal.data.LegislationData;
+import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 
 public abstract class Tab extends javafx.scene.control.Tab {
     protected NotificationPane notificationPane = new NotificationPane();
@@ -22,36 +22,12 @@ public abstract class Tab extends javafx.scene.control.Tab {
         super(s, node);
     }
 
-    public abstract void initTab(LegislationData data);
+    public abstract void initTab(ObligationData data);
 
-    public abstract void updateView(LegislationData data);
+    public abstract void updateView(ObligationData data);
 
     void add(GridPane pane, int column, int row, int colspan, int rowspan, Priority priority, Node node) {
         pane.add(node, column, row, colspan, rowspan);
         GridPane.setHgrow(node, priority);
-    }
-
-    public void showNotification(String text, Node icon) {
-        notificationPane.show(text, icon);
-        notificationPane.setOnHiding(event -> {
-            this.getTabPane().getTabs().forEach(tab -> {
-                NotificationPane content = (NotificationPane) tab.getContent();
-//                GridPane gridPane = (GridPane) content.getContent();
-//                gridPane.getChildren().forEach(node -> {
-//                    if (node instanceof JFXTextField) {
-//                        JFXTextField textField = (JFXTextField) node;
-//                        textField.getStyleClass().set(0, "nonconformityOK");
-//                    } else if (node instanceof TextArea) {
-//                        TextArea textArea = (TextArea) node;
-//                        textArea.getStyleClass().set(0, "nonconformityOK");
-//                    } else if (node instanceof JFXDatePicker) {
-//                        JFXDatePicker jfxDatePicker = (JFXDatePicker) node;
-//                        jfxDatePicker.getStyleClass().set(0, "nonconformityOK");
-//                    }
-//                });
-                content.hide();
-            });
-
-        });
     }
 }

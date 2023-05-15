@@ -4,39 +4,39 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.TabPane;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
-import org.jevis.jeconfig.plugin.legal.data.LegislationData;
+import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
+import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 
 import org.jevis.jeconfig.plugin.legal.ui.tab.AttachmentTab;
 import org.jevis.jeconfig.plugin.legal.ui.tab.GeneralTab;
 import org.jevis.jeconfig.tool.ScreenSize;
 
-public class LegislationForm extends Dialog {
+public class ObligationForm extends Dialog {
 
     private boolean isNew;
 
-    public LegislationForm() {
+    public ObligationForm() {
     }
 
 
     public TabPane tabPane = new TabPane();
 
 
-    private GeneralTab basicTab = new GeneralTab(I18n.getInstance().getString("plugin.nonconformities.form.tab.general"));
+    private GeneralTab basicTab = new GeneralTab(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.general"));
 
-    private AttachmentTab attachmentTab = new AttachmentTab(I18n.getInstance().getString("plugin.nonconformities.form.tab.attachment"));
+    private AttachmentTab attachmentTab = new AttachmentTab(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.attachment"));
 
-    private LegalCadastre legalCadastre;
+    private IndexOfLegalProvisions indexOfLegalProvisions;
 
 
-    public LegislationForm(LegalCadastre legalCadastre) {
+    public ObligationForm(IndexOfLegalProvisions indexOfLegalProvisions) {
 
         super();
         this.initOwner(JEConfig.getStage());
-        this.legalCadastre = legalCadastre;
+        this.indexOfLegalProvisions = indexOfLegalProvisions;
 
 
-        setTitle(I18n.getInstance().getString("plugin.Legalcadastre.legislation.dialog.title"));
+        setTitle(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.dialog.title"));
         setHeaderText(null);
         setResizable(true);
         this.getDialogPane().setPrefWidth(ScreenSize.fitScreenWidth(1000));
@@ -57,14 +57,14 @@ public class LegislationForm extends Dialog {
         getDialogPane().setContent(tabPane);
     }
 
-    public void setData(LegislationData data) {
+    public void setData(ObligationData data) {
         updateView(data);
         basicTab.initTab(data);
         attachmentTab.initTab(data);
     }
 
 
-    private void updateView(LegislationData data) {
+    private void updateView(ObligationData data) {
 
         basicTab.updateView(data);
         attachmentTab.updateView(data);

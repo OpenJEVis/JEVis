@@ -70,7 +70,7 @@ public class NewlegalCadastreDialog {
      * @return
      */
     public Response show(Stage owner, JEVisDataSource ds) throws JEVisException {
-        JEVisClass actionPlanDirClass = ds.getJEVisClass(JC.LegalCadastre.LegalCadastreDirectory.name);
+        JEVisClass actionPlanDirClass = ds.getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.name);
         List<JEVisObject> anaylsisDirs = ds.getObjects(actionPlanDirClass, true);
         boolean canWrite = true;
 
@@ -80,8 +80,8 @@ public class NewlegalCadastreDialog {
 
 
         Dialog<ButtonType> dialog = new Dialog();
-        dialog.setTitle(I18n.getInstance().getString("dialog.analyses.title"));
-        dialog.setHeaderText(I18n.getInstance().getString("dialog.analyses.header"));
+        dialog.setTitle(I18n.getInstance().getString("dialog.indexoflegalprovisions.dialog.new.title"));
+        dialog.setHeaderText(I18n.getInstance().getString("dialog.indexoflegalprovisions.dialog.new.header"));
         dialog.getDialogPane().getButtonTypes().setAll();
         dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));
         VBox root = new VBox();

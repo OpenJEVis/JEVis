@@ -7,10 +7,6 @@ import org.joda.time.DateTime;
 
 public class TableFilter {
 
-
-    private ObservableList<String> status = FXCollections.observableArrayList();
-    private ObservableList<String> medium = FXCollections.observableArrayList();
-    private ObservableList<String> field = FXCollections.observableArrayList();
     private DATE_COMPARE plannedDateComp = DATE_COMPARE.EQUALS;
     private String plannedDateFilter = "";
 

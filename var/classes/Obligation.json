@@ -1,11 +1,11 @@
 ﻿{
-  "name": "Legislation",
+  "name": "Obligation",
   "description": "Legislation",
   "unique": false,
   "relationships": [
     {
-      "start": "Legislation",
-      "end": "Legal Cadastre Directory",
+      "start": "Obligation",
+      "end": "Index of Legal Provisions Directory",
       "type": 3
     }
   ],

@@ -15,8 +15,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
-import org.jevis.jeconfig.plugin.legal.data.LegislationData;
+import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
+import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -56,15 +56,15 @@ public class GeneralTab extends Tab {
     private final Label l_category = new Label();
     private final Label l_scope = new Label();
 
-    LegislationData legislationData;
+    ObligationData obligationData;
 
     public GeneralTab(String s) {
         super(s);
     }
 
     @Override
-    public void initTab(LegislationData data) {
-        this.legislationData = data;
+    public void initTab(ObligationData data) {
+        this.obligationData = data;
 
 
 //        addTabEvent(f_ImmediateMeasures);
@@ -80,7 +80,7 @@ public class GeneralTab extends Tab {
         notificationPane.setContent(gridPane);
         gridPane.setPadding(new Insets(20));
 
-        LegalCadastre nonconformityPlan = legislationData.getLegalCadastre();
+        IndexOfLegalProvisions nonconformityPlan = obligationData.getLegalCadastre();
 
 
         //ScrollPane scrollPane = new ScrollPane(gridPane);
@@ -141,8 +141,8 @@ public class GeneralTab extends Tab {
     }
 
     @Override
-    public void updateView(LegislationData data) {
-        LegislationData fake = new LegislationData();
+    public void updateView(ObligationData data) {
+        ObligationData fake = new ObligationData();
         f_description.textProperty().bindBidirectional(data.descriptionProperty());
         f_title.textProperty().bindBidirectional(data.titleProperty());
         f_importanceForTheCompany.textProperty().bindBidirectional(data.importanceForTheCompanyProperty());

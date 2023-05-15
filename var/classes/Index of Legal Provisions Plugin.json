@@ -1,14 +1,14 @@
 ﻿{
-  "name": "Legal Cadastre Plugin",
+  "name": "Index of Legal Provisions Plugin",
   "unique": false,
   "relationships": [
     {
-      "start": "Legal Cadastre Plugin",
+      "start": "Index of Legal Provisions Plugin",
       "end": "Control Center Plugin",
       "type": 0
     },
     {
-      "start": "Legal Cadastre Plugin",
+      "start": "Index of Legal Provisions Plugin",
       "end": "Control Center",
       "type": 3
     }
@@ -21,7 +21,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Legal Cadastre Plugin"
+      "jevisClass": "Index of Legal Provisions Plugin"
     }
   ]
 }
