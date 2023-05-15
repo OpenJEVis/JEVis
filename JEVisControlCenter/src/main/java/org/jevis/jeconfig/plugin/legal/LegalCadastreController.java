@@ -16,7 +16,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
+import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 
 
 import org.jevis.jeconfig.plugin.legal.data.LegislationData;
@@ -33,7 +33,7 @@ public class LegalCadastreController {
 
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
-    private ObservableList<LegalCadastre> legalCadastres;
+    private ObservableList<IndexOfLegalProvisions> indexOfLegalProvisions;
     private TabPane tabPane = new TabPane();
 //    private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
@@ -44,10 +44,10 @@ public class LegalCadastreController {
     }
 
     public void loadActionView() {
-        legalCadastres = FXCollections.observableArrayList();
-        legalCadastres.addListener(new ListChangeListener<LegalCadastre>() {
+        indexOfLegalProvisions = FXCollections.observableArrayList();
+        indexOfLegalProvisions.addListener(new ListChangeListener<IndexOfLegalProvisions>() {
             @Override
-            public void onChanged(Change<? extends LegalCadastre> c) {
+            public void onChanged(Change<? extends IndexOfLegalProvisions> c) {
                 while (c.next()) {
                     if (c.wasAdded()) {
                         c.getAddedSubList().forEach(actionPlan -> {
@@ -76,25 +76,25 @@ public class LegalCadastreController {
     }
 
 
-    private void buildTabPane(LegalCadastre legalCadastre) {
+    private void buildTabPane(IndexOfLegalProvisions indexOfLegalProvisions) {
 
-        LegalCadastreTable legalCadastreTable = new LegalCadastreTable(legalCadastre, legalCadastre.getLegislationDataList());
+        IndexOfLegalProvisionsTable indexOfLegalProvisionsTable = new IndexOfLegalProvisionsTable(indexOfLegalProvisions, indexOfLegalProvisions.getLegislationDataList());
 
         //actionTable.enableSumRow(true);
-        LegalCadastreTab tab = new LegalCadastreTab(legalCadastre, this);
+        LegalCadastreTab tab = new LegalCadastreTab(indexOfLegalProvisions, this);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             logger.info("new tab selected: {}", newValue);
 
             if (newValue instanceof LegalCadastreTab) {
-                LegalCadastre nonconformityPlan = ((LegalCadastreTab) newValue).getLegalCadastre();
+                IndexOfLegalProvisions nonconformityPlan = ((LegalCadastreTab) newValue).getLegalCadastre();
                 //actionPlan.loadActionList();
             }
 
         });
 
-        legalCadastreTable.sort();
+        indexOfLegalProvisionsTable.sort();
 
         //actionTable.setItems(createTestData());
 
@@ -113,7 +113,7 @@ public class LegalCadastreController {
         if (result.get() == ButtonType.OK) {
             try {
                 getActiveNonconformityPlan().delete();
-                legalCadastres.remove(tab.getLegalCadastre());
+                indexOfLegalProvisions.remove(tab.getLegalCadastre());
                 tabPane.getTabs().remove(tab);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -129,13 +129,13 @@ public class LegalCadastreController {
             NewlegalCadastreDialog.Response response = newlegalCadastreDialog.show(JEConfig.getStage(), plugin.getDataSource());
             if (response == NewlegalCadastreDialog.Response.YES) {
 
-                JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass(JC.LegalCadastre.name);
+                JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.name);
                 JEVisObject parentDir = newlegalCadastreDialog.getParent();
 
                 JEVisObject newObject = parentDir.buildObject(newlegalCadastreDialog.getCreateName(), actionPlanClass);
                 newObject.commit();
-                LegalCadastre nonconformityPlan = new LegalCadastre(newObject);
-                this.legalCadastres.add(nonconformityPlan);
+                IndexOfLegalProvisions nonconformityPlan = new IndexOfLegalProvisions(newObject);
+                this.indexOfLegalProvisions.add(nonconformityPlan);
                 tabPane.getSelectionModel().selectLast();
 
 //                DateTime now = new DateTime();
@@ -176,8 +176,8 @@ public class LegalCadastreController {
     public void createItem() {
         LegalCadastreTab tab = getActiveTab();
         try {
-            JEVisClass nonconformityPlanDirClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.LegalCadastre.LegalCadastreDirectory.name);
-            JEVisClass nonconformityClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.LegalCadastre.LegalCadastreDirectory.Legislation.name);
+            JEVisClass nonconformityPlanDirClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.name);
+            JEVisClass nonconformityClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.Legislation.name);
             JEVisObject nonconformityPlanDirObj = null;
             if (getActiveNonconformityPlan().getObject().getChildren(nonconformityPlanDirClass, false).isEmpty()) {
                 nonconformityPlanDirObj = getActiveNonconformityPlan().getObject().buildObject(nonconformityPlanDirClass.getName(), nonconformityPlanDirClass);
@@ -214,15 +214,15 @@ public class LegalCadastreController {
 
     public void loadNonconformityPlans() {
         try {
-            JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass(JC.LegalCadastre.name);
+            JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.name);
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
 
             AtomicBoolean isFirstPlan = new AtomicBoolean(true);
 
             planObjs.forEach(jeVisObject -> {
-                LegalCadastre plan = new LegalCadastre(jeVisObject);
-                legalCadastres.add(plan);
+                IndexOfLegalProvisions plan = new IndexOfLegalProvisions(jeVisObject);
+                indexOfLegalProvisions.add(plan);
                 if (isFirstPlan.get()) plan.loadNonconformityList();
                 isFirstPlan.set(false);
             });
@@ -241,7 +241,7 @@ public class LegalCadastreController {
         return tab;
     }
 
-    public LegalCadastre getActiveNonconformityPlan() {
+    public IndexOfLegalProvisions getActiveNonconformityPlan() {
         return getActiveTab().getLegalCadastre();
     }
 
@@ -265,10 +265,10 @@ public class LegalCadastreController {
         LegislationData data = getSelectedData();
         legislationForm.setData(data);
         legislationForm.setNew(isNew);
-        legislationForm.setTitle(I18n.getInstance().getString("plugin.nonconformities.nonconformity.dialog.title"));
-        legislationForm.setHeaderText(I18n.getInstance().getString("plugin.nonconformities.nonconformity.dialog.header"));
-        ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.nonconformities.form.save"), ButtonBar.ButtonData.APPLY);
-        ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.nonconformities.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        legislationForm.setTitle(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.dialog.title"));
+        legislationForm.setHeaderText(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.dialog.header"));
+        ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.save"), ButtonBar.ButtonData.APPLY);
+        ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
 
         legislationForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
@@ -320,11 +320,11 @@ public class LegalCadastreController {
 //        this.isOverviewTab.set(isOverviewTab);
 //    }
 
-    public ObservableList<LegalCadastre> getLegalCadastres() {
-        return legalCadastres;
+    public ObservableList<IndexOfLegalProvisions> getLegalCadastres() {
+        return indexOfLegalProvisions;
     }
 
-    public void setLegalCadastres(ObservableList<LegalCadastre> legalCadastres) {
-        this.legalCadastres = legalCadastres;
+    public void setLegalCadastres(ObservableList<IndexOfLegalProvisions> indexOfLegalProvisions) {
+        this.indexOfLegalProvisions = indexOfLegalProvisions;
     }
 }

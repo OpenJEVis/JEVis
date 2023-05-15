@@ -15,7 +15,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
+import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 import org.jevis.jeconfig.plugin.legal.data.LegislationData;
 import org.joda.time.DateTime;
 
@@ -80,7 +80,7 @@ public class GeneralTab extends Tab {
         notificationPane.setContent(gridPane);
         gridPane.setPadding(new Insets(20));
 
-        LegalCadastre nonconformityPlan = legislationData.getLegalCadastre();
+        IndexOfLegalProvisions nonconformityPlan = legislationData.getLegalCadastre();
 
 
         //ScrollPane scrollPane = new ScrollPane(gridPane);

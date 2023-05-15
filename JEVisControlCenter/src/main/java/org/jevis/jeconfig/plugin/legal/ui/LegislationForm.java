@@ -4,7 +4,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.TabPane;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
+import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 import org.jevis.jeconfig.plugin.legal.data.LegislationData;
 
 import org.jevis.jeconfig.plugin.legal.ui.tab.AttachmentTab;
@@ -22,21 +22,21 @@ public class LegislationForm extends Dialog {
     public TabPane tabPane = new TabPane();
 
 
-    private GeneralTab basicTab = new GeneralTab(I18n.getInstance().getString("plugin.nonconformities.form.tab.general"));
+    private GeneralTab basicTab = new GeneralTab(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.general"));
 
-    private AttachmentTab attachmentTab = new AttachmentTab(I18n.getInstance().getString("plugin.nonconformities.form.tab.attachment"));
+    private AttachmentTab attachmentTab = new AttachmentTab(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.attachment"));
 
-    private LegalCadastre legalCadastre;
+    private IndexOfLegalProvisions indexOfLegalProvisions;
 
 
-    public LegislationForm(LegalCadastre legalCadastre) {
+    public LegislationForm(IndexOfLegalProvisions indexOfLegalProvisions) {
 
         super();
         this.initOwner(JEConfig.getStage());
-        this.legalCadastre = legalCadastre;
+        this.indexOfLegalProvisions = indexOfLegalProvisions;
 
 
-        setTitle(I18n.getInstance().getString("plugin.Legalcadastre.legislation.dialog.title"));
+        setTitle(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.dialog.title"));
         setHeaderText(null);
         setResizable(true);
         this.getDialogPane().setPrefWidth(ScreenSize.fitScreenWidth(1000));

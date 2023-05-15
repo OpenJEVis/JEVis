@@ -15,7 +15,7 @@ import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
+import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 import org.jevis.jeconfig.plugin.legal.data.LegislationData;
 import org.joda.time.DateTime;
 
@@ -41,7 +41,7 @@ public class TimeFilterSelector extends GridPane {
     private SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
 
 
-    public TimeFilterSelector(LegalCadastre legalCadastre) {
+    public TimeFilterSelector(IndexOfLegalProvisions indexOfLegalProvisions) {
         super();
 
         setHgap(8);
@@ -52,7 +52,7 @@ public class TimeFilterSelector extends GridPane {
         Label lDatum = new Label("Zeitbereich");
 
 
-        initValues(legalCadastre);
+        initValues(indexOfLegalProvisions);
         LegislationData fakeNames = new LegislationData();
 
         Callback<ListView<DateFilter.DateField>, ListCell<DateFilter.DateField>> cellFactory = new Callback<ListView<DateFilter.DateField>, ListCell<DateFilter.DateField>>() {
@@ -107,19 +107,19 @@ public class TimeFilterSelector extends GridPane {
         fDateField.getSelectionModel().selectFirst();
 
 
-        TimeFilterSelector.this.addRow(0, fDateField, new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.date.from")), fFromMonth, fFromYear, new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.date.from")), fToMonth, fToYear);
+        TimeFilterSelector.this.addRow(0, fDateField, new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.date.from")), fFromMonth, fFromYear, new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.date.from")), fToMonth, fToYear);
 
 
     }
 
-    private void initValues(LegalCadastre legalCadastre) {
+    private void initValues(IndexOfLegalProvisions indexOfLegalProvisions) {
 
-        logger.debug("MonthSelector.initValues: {} {}", legalCadastre, legalCadastre.getLegislationDataList().size());
+        logger.debug("MonthSelector.initValues: {} {}", indexOfLegalProvisions, indexOfLegalProvisions.getLegislationDataList().size());
         DateTime minDate = null;
         DateTime maxDate = null;
 
 
-        List<DateTime> dateTimes = legalCadastre.getLegislationDataList().stream().map(data -> getDate(data)).flatMap(Collection::stream).collect(Collectors.toList());
+        List<DateTime> dateTimes = indexOfLegalProvisions.getLegislationDataList().stream().map(data -> getDate(data)).flatMap(Collection::stream).collect(Collectors.toList());
 
         Optional<DateTime> optionalDateTimeMax = dateTimes.stream().max(DateTime::compareTo);
         Optional<DateTime> optionalDateTimeMin = dateTimes.stream().min(DateTime::compareTo);

@@ -9,36 +9,36 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
-import org.jevis.jeconfig.plugin.legal.data.LegalCadastre;
+import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 import org.jevis.jeconfig.tool.ScreenSize;
 
 import java.util.Optional;
 
 public class LegalCadastreForm extends Alert {
 
-    Label nameLabel = new Label(I18n.getInstance().getString("plugin.Legalcadastre.planname"));
+    Label nameLabel = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.planname"));
 
 
     JFXTextField nameField = new JFXTextField();
 
-    Label l_category = new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.category"));
-    Label l_scope = new Label(I18n.getInstance().getString("plugin.Legalcadastre.legislation.scope"));
+    Label l_category = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.category"));
+    Label l_scope = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.scope"));
 
     ListView<String> categoryListView = new ListView<>();
     ListView<String> validityListView = new ListView<>();
 
 
-    private LegalCadastre legalCadastre;
+    private IndexOfLegalProvisions indexOfLegalProvisions;
     StackPane stackPane = new StackPane();
     private double iconSize = 12;
 
-    public LegalCadastreForm(LegalCadastre legalCadastre) {
+    public LegalCadastreForm(IndexOfLegalProvisions indexOfLegalProvisions) {
         super(AlertType.INFORMATION);
-        this.legalCadastre = legalCadastre;
+        this.indexOfLegalProvisions = indexOfLegalProvisions;
         this.initOwner(JEConfig.getStage());
 
-        setTitle(I18n.getInstance().getString("plugin.Legalcadastre.Legalcadastre.dialog.title"));
-        setHeaderText(I18n.getInstance().getString("plugin.Legalcadastre.Legalcadastre.dialog.header"));
+        setTitle(I18n.getInstance().getString("plugin.indexoflegalprovisions.indexoflegalprovisions.dialog.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.indexoflegalprovisions.indexoflegalprovisions.dialog.header"));
         setResizable(true);
         setWidth(ScreenSize.fitScreenWidth(800));
         setHeight(ScreenSize.fitScreenHeight(400));
@@ -70,16 +70,16 @@ public class LegalCadastreForm extends Alert {
         stackPane.getChildren().add(gridPane);
         getDialogPane().setContent(stackPane);
 
-        updateView(legalCadastre);
+        updateView(indexOfLegalProvisions);
     }
 
 
-    public void updateView(LegalCadastre legalCadastre) {
+    public void updateView(IndexOfLegalProvisions indexOfLegalProvisions) {
 
-        nameField.textProperty().bindBidirectional(legalCadastre.getName());
+        nameField.textProperty().bindBidirectional(indexOfLegalProvisions.getName());
 
-        categoryListView.setItems(legalCadastre.getCategories());
-        validityListView.setItems(legalCadastre.getScopes());
+        categoryListView.setItems(indexOfLegalProvisions.getCategories());
+        validityListView.setItems(indexOfLegalProvisions.getScopes());
 
 
     }
@@ -91,9 +91,9 @@ public class LegalCadastreForm extends Alert {
 
         addButton.setOnAction(event -> {
             TextInputDialog dialog = new TextInputDialog("");
-            dialog.setTitle("Neuer Eintrag");
-            dialog.setHeaderText("Neuen Eintrag hinzufügen");
-            dialog.setContentText("Name:");
+            dialog.setTitle(I18n.getInstance().getString("plugin.indexoflegalprovisions.newentry.title"));
+            dialog.setHeaderText(I18n.getInstance().getString("plugin.indexoflegalprovisions.newentry.header"));
+            dialog.setContentText(I18n.getInstance().getString("plugin.indexoflegalprovisions.newentry.content"));
 
             Optional<String> result = dialog.showAndWait();
             if (result.isPresent() && !result.get().isEmpty()) {
