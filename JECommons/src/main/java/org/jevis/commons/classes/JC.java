@@ -3856,14 +3856,14 @@ public interface JC {
             }
         }
     }
-    public interface LegalCadastre {
-        public static String name = "Legal Cadastre";
+    public interface IndexofLegalProvisions {
+        public static String name = "Index of Legal Provisions";
 
         public static String a_CustomMedium = "Custom Medium";
         public static String a_category = "category";
         public static String a_scope = "scope";
         public interface LegalCadastreDirectory {
-            public static String name = "Legal Cadastre Directory";
+            public static String name = "Index of Legal Provisions Directory";
             public interface Legislation {
                 public static String name = "Legislation";
 
