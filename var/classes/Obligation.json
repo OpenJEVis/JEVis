@@ -1,10 +1,10 @@
 ﻿{
-  "name": "Legislation",
+  "name": "Obligation",
   "description": "Legislation",
   "unique": false,
   "relationships": [
     {
-      "start": "Legislation",
+      "start": "Obligation",
       "end": "Index of Legal Provisions Directory",
       "type": 3
     }
