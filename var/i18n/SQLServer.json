@@ -12,9 +12,9 @@
       "type": "Connection String",
       "descriptions": {
         "de": "JDBC/ODBC verbindings String. Für mehr informationen siehe https://en.wikipedia.org/wiki/Java_Database_Connectivity\nMySQ example: jdbc:mysql://localhost/dbname\nMsSQL: jdbc:sqlserver://localhost:60936;databaseName=dbname",
-        "ru": "",
+        "ru": "JDBC/ODBC connection String",
         "en": "JDBC/ODBC connection String. Für mehr informationen siehe https://en.wikipedia.org/wiki/Java_Database_Connectivity\nMySQ example: jdbc:mysql://localhost/dbname\nMsSQL: jdbc:sqlserver://localhost:60936;databaseName=dbname",
-        "ar": ""
+        "ar": "JDBC/ODBC connection String"
       },
       "names": {
         "de": "JDBC Connection String",
@@ -33,9 +33,9 @@
       },
       "names": {
         "de": "JDBC Treiber Klasse",
-        "ru": "",
+        "ru": "JDBC Driver Class",
         "en": "JDBC Driver Class",
-        "ar": ""
+        "ar": "JDBC Driver Class"
       }
     },
     {
