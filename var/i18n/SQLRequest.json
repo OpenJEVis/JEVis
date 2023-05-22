@@ -77,7 +77,7 @@
         "ar": ""
       },
       "names": {
-        "de": "Spaltename Messwerte",
+        "de": "Spaltenname Messwerte",
         "ru": "",
         "en": "Value Column",
         "ar": ""
@@ -86,7 +86,7 @@
     {
       "type": "Value Formate",
       "descriptions": {
-        "de": "Format der Messwerte. Mögliche werte sind 'DOUBLE', 'INTEGER', 'FLOAT', 'LONG', 'STRING'",
+        "de": "Format der Messwerte. Mögliche Werte sind 'DOUBLE', 'INTEGER', 'FLOAT', 'LONG', 'STRING'",
         "ru": "",
         "en": "Column name of the value.",
         "ar": ""
