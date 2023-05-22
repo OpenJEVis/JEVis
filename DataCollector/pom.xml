@@ -63,6 +63,7 @@
         <module>DWDWDParser</module>
         <module>JEVisDataServer</module>
         <module>RevolutionPiServer</module>
+        <module>SQL-Driver</module>
     </modules>
-   
+
 </project>
