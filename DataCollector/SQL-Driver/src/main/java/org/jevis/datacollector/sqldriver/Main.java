@@ -14,7 +14,9 @@ public class Main {
         JEVisDataSource dataSource = new JEVisDataSourceWS("https://fue.jevis.de:443");
         dataSource.connect(args[0], args[1]);
         JEVisObject serverOBJ = dataSource.getObject(Long.parseLong(args[2]));
-        SQLDriver driver = new SQLDriver(serverOBJ);
+        SQLDriver driver = new SQLDriver();
+        driver.initialize(serverOBJ);
+        driver.run();
     }
 
 }

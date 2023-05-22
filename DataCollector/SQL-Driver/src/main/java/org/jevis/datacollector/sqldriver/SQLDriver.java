@@ -28,32 +28,7 @@ public class SQLDriver implements DataSource {
 
     private DateTime lastLog = new DateTime();
 
-    public SQLDriver(JEVisObject sqlServerObj) throws Exception {
-
-        try {
-            this.sqlServerObj = sqlServerObj;
-            if (sqlServerObj == null) {
-                logger.error("Error Server Object is null");
-                return;
-            }
-            lastReadoutAttribute = sqlServerObj.getAttribute("Last Readout");
-            statusAttribute = sqlServerObj.getAttribute("Status Log");
-
-            logStatus(0, new DateTime(), "Start Readout");
-
-
-            parameters = new Parameters(sqlServerObj);
-            loadDriver(parameters.driver());
-            startReadout();
-
-            logStatus(0, new DateTime(), "End Readout - Imported: " + totalSamples);
-
-            //6) import
-        } catch (Exception ex) {
-            logger.error("Error while fetching data from Server: {}:{}", sqlServerObj.getID(), sqlServerObj.getName(), ex);
-            logStatus(1, new DateTime(), "Unexpected error: " + ex.toString());
-        }
-
+    public SQLDriver() {
     }
 
 
@@ -156,12 +131,40 @@ public class SQLDriver implements DataSource {
 
     @Override
     public void run() {
-
+        try {
+            startReadout();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (JEVisException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void initialize(JEVisObject dataSourceJEVis) {
+        try {
+            this.sqlServerObj = dataSourceJEVis;
+            if (sqlServerObj == null) {
+                logger.error("Error Server Object is null");
+                return;
+            }
+            lastReadoutAttribute = sqlServerObj.getAttribute("Last Readout");
+            statusAttribute = sqlServerObj.getAttribute("Status Log");
 
+            logStatus(0, new DateTime(), "Start Readout");
+
+
+            parameters = new Parameters(sqlServerObj);
+            loadDriver(parameters.driver());
+
+
+            logStatus(0, new DateTime(), "End Readout - Imported: " + totalSamples);
+
+            //6) import
+        } catch (Exception ex) {
+            logger.error("Error while fetching data from Server: {}:{}", sqlServerObj.getID(), sqlServerObj.getName(), ex);
+            logStatus(1, new DateTime(), "Unexpected error: " + ex.toString());
+        }
     }
 
     @Override
