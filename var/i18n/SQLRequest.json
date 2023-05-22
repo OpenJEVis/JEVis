@@ -1,0 +1,132 @@
+{
+  "jevisclass": "SQL Request",
+  "names": {
+    "de": "SQL Anfrage",
+    "ru": "SQL-запрос",
+    "en": "SQl Request",
+    "ar": ""
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Query",
+      "descriptions": {
+        "de": "SQl Anfrage",
+        "ru": "",
+        "en": "Query",
+        "ar": ""
+      },
+      "names": {
+        "de": "SQL Anfrage",
+        "ru": "",
+        "en": "Query",
+        "ar": ""
+      }
+    },
+    {
+      "type": "Target",
+      "descriptions": {
+        "de": "JEVis Datenziel des Imports",
+        "ru": "",
+        "en": "JEVis data import target",
+        "ar": ""
+      },
+      "names": {
+        "de": "Ziel ID",
+        "ru": "",
+        "en": "Target ID",
+        "ar": ""
+      }
+    },
+    {
+      "type": "Timestamp Column",
+      "descriptions": {
+        "de": "Spaltenname in dem der Zeitstempel zu finden ist.",
+        "ru": "",
+        "en": "Column where the timestamp is found",
+        "ar": ""
+      },
+      "names": {
+        "de": "Spaltenname Zeitstempel",
+        "ru": "",
+        "en": "Timestamp Column",
+        "ar": ""
+      }
+    },
+    {
+      "type": "Timestamp Formate",
+      "descriptions": {
+        "de": "Format des Zeitstempels. Mögliche werte 'TIMESTAMP' and 'STRING format' (z.B. yyyy-MM-dd HH:mm:ss) ",
+        "ru": "",
+        "en": "Column where the timestamp is found",
+        "ar": ""
+      },
+      "names": {
+        "de": "Zeitstempel Format",
+        "ru": "",
+        "en": "Timestamp Formate",
+        "ar": ""
+      }
+    },
+    {
+      "type": "Value Column",
+      "descriptions": {
+        "de": "Spaltenname des Wertes.",
+        "ru": "",
+        "en": "Column name of the value.",
+        "ar": ""
+      },
+      "names": {
+        "de": "Spaltename Messwerte",
+        "ru": "",
+        "en": "Value Column",
+        "ar": ""
+      }
+    },
+    {
+      "type": "Value Formate",
+      "descriptions": {
+        "de": "Format der Messwerte. Mögliche werte sind 'DOUBLE', 'INTEGER', 'FLOAT', 'LONG', 'STRING'",
+        "ru": "",
+        "en": "Column name of the value.",
+        "ar": ""
+      },
+      "names": {
+        "de": "Format der Messwerte",
+        "ru": "",
+        "en": "Value Formate",
+        "ar": ""
+      }
+    },
+    {
+      "type": "Note Column",
+      "descriptions": {
+        "de": "Spaltenname der Notiz. Diese kann Leer bleiben wenn nicht genutzt.",
+        "ru": "",
+        "en": "Column name of the note. Can ne empty.",
+        "ar": ""
+      },
+      "names": {
+        "de": "Spaltenname Notiz",
+        "ru": "",
+        "en": "Note Column",
+        "ar": ""
+      }
+    },
+    {
+      "type": "Status Log",
+      "descriptions": {
+        "de": "Status Log",
+        "ru": "",
+        "en": "Status Log",
+        "ar": ""
+      },
+      "names": {
+        "de": "Status Log",
+        "ru": "",
+        "en": "Status Log",
+        "ar": ""
+      }
+    }
+  ]
+}

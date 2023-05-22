@@ -16,14 +16,23 @@
     {
       "type": "Location",
       "descriptions": {
-        "de": "Der Ort gibt die räumliche Lage des Messgeräts an.",
-        "en": "The location indicates the spatial position of the measuring device.",
-        "ar": "يشير الموقع إلى الموقع المكاني لجهاز القياس."
+        "de": "Der Ort gibt die Lage des Messgeräts an.",
+        "en": "The location indicates the position of the measuring device."
       },
       "names": {
         "de": "Ort",
-        "en": "Location",
-        "ar": "موقع"
+        "en": "Location"
+      }
+    },
+    {
+      "type": "Installation Location",
+      "descriptions": {
+        "de": "Der Ort gibt die räumliche Lage des Messgeräts an.",
+        "en": "The location indicates the spatial position of the measuring device."
+      },
+      "names": {
+        "de": "Installationsort",
+        "en": "Installation Location"
       }
     },
     {

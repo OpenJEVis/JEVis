@@ -422,9 +422,9 @@ public class JEVisObjectWS implements JEVisObject {
         List<JEVisRelationship> filter = new ArrayList<>();
         for (JEVisRelationship rel : getRelationships()) {
             if (rel.isType(type)) {
-                if (rel.getStartObject().equals(this) && direction == JEVisConstants.Direction.FORWARD) {
+                if (rel.getStartID() == getID() && direction == JEVisConstants.Direction.FORWARD) {
                     filter.add(rel);
-                } else if (rel.getEndObject().equals(this) && direction == JEVisConstants.Direction.BACKWARD) {
+                } else if (rel.getEndID() == getID() && direction == JEVisConstants.Direction.BACKWARD) {
                     filter.add(rel);
                 }
             }

@@ -1,0 +1,177 @@
+{
+  "jevisclass": "SQL Server",
+  "names": {
+    "de": "SQL Server",
+    "ru": "",
+    "en": "SQL Server",
+    "ar": ""
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Connection Timeout",
+      "descriptions": {
+        "de": "Connection Timeout description",
+        "ru": "Connection Timeout description",
+        "en": "Connection Timeout description",
+        "ar": "انتهى وقت محاولة الاتصال"
+      },
+      "names": {
+        "de": "Verbindungs-Timeout",
+        "ru": "Connection Timeout",
+        "en": "Connection Timeout",
+        "ar": "انتهى وقت محاولة الاتصال"
+      }
+    },
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Enabled description",
+        "ru": "Enabled description",
+        "en": "Enabled description",
+        "ar": "وصف ممكّن"
+      },
+      "names": {
+        "de": "Aktiviert",
+        "ru": "Enabled",
+        "en": "Enabled",
+        "ar": "مفعل"
+      }
+    },
+    {
+      "type": "Host",
+      "descriptions": {
+        "de": "Nicht supported.",
+        "ru": "Host description",
+        "en": "NOT Used. Use the Connection String instead.",
+        "ar": "مضيف"
+      },
+      "names": {
+        "de": "Host",
+        "ru": "Host",
+        "en": "Host",
+        "ar": "مضيف"
+      }
+    },
+    {
+      "type": "Password",
+      "descriptions": {
+        "de": "Password description",
+        "ru": "Password description",
+        "en": "Password description",
+        "ar": "كلمه السر"
+      },
+      "names": {
+        "de": "Passwort",
+        "ru": "Password",
+        "en": "Password",
+        "ar": "كلمه السر"
+      }
+    },
+    {
+      "type": "Port",
+      "descriptions": {
+        "de": "Not used.",
+        "ru": "",
+        "en": "Not used.",
+        "ar": ""
+      },
+      "names": {
+        "de": "Port",
+        "ru": "Port",
+        "en": "Port",
+        "ar": "المنفذ"
+      }
+    },
+    {
+      "type": "Read Timeout",
+      "descriptions": {
+        "de": "Read Timeout description",
+        "ru": "Read Timeout description",
+        "en": "Read Timeout description",
+        "ar": "قراءة وصف المهلة"
+      },
+      "names": {
+        "de": "Lese-Timeout",
+        "ru": "Read Timeout",
+        "en": "Read Timeout",
+        "ar": "إنتهى وقت القراءة"
+      }
+    },
+    {
+      "type": "Timezone",
+      "descriptions": {
+        "de": "Timezone description",
+        "ru": "Timezone description",
+        "en": "Timezone description",
+        "ar": "المنطقة الزمنية"
+      },
+      "names": {
+        "de": "Zeitzone",
+        "ru": "Timezone",
+        "en": "Timezone",
+        "ar": "المنطقة الزمنية"
+      }
+    },
+    {
+      "type": "User",
+      "descriptions": {
+        "de": "User description",
+        "ru": "User description",
+        "en": "User description",
+        "ar": "مستخدم"
+      },
+      "names": {
+        "de": "Benutzer",
+        "ru": "User",
+        "en": "User",
+        "ar": "Benutzer"
+      }
+    },
+    {
+      "type": "Connection String",
+      "descriptions": {
+        "de": "JDBC/ODBC verbindings String. Für mehr informationen siehe https://en.wikipedia.org/wiki/Java_Database_Connectivity\nMySQ example: jdbc:mysql://localhost/dbname\nMsSQL: jdbc:sqlserver://localhost:60936;databaseName=dbname",
+        "ru": "",
+        "en": "JDBC/ODBC connection String. Für mehr informationen siehe https://en.wikipedia.org/wiki/Java_Database_Connectivity\nMySQ example: jdbc:mysql://localhost/dbname\nMsSQL: jdbc:sqlserver://localhost:60936;databaseName=dbname",
+        "ar": ""
+      },
+      "names": {
+        "de": "JDBC Connection String",
+        "ru": "",
+        "en": "JDBC Connection String",
+        "ar": ""
+      }
+    },
+    {
+      "type": "Driver Class",
+      "descriptions": {
+        "de": "JDBC/ODBC verbindings String. Für mehr informationen siehe https://en.wikipedia.org/wiki/Java_Database_Connectivity\nMySQ example: jdbc:mysql://localhost/dbname\nMsSQL: jdbc:sqlserver://localhost:60936;databaseName=dbname",
+        "ru": "",
+        "en": "JDBC/ODBC connection String. Fpr more information https://en.wikipedia.org/wiki/Java_Database_Connectivity\nMySQ example: jdbc:mysql://localhost/dbname\nMsSQL: jdbc:sqlserver://localhost:60936;databaseName=dbname",
+        "ar": ""
+      },
+      "names": {
+        "de": "JDBC Treiber Klasse",
+        "ru": "",
+        "en": "JDBC Driver Class",
+        "ar": ""
+      }
+    },
+    {
+      "type": "Status Log",
+      "descriptions": {
+        "de": "Status Log",
+        "ru": "",
+        "en": "Status Log",
+        "ar": ""
+      },
+      "names": {
+        "de": "Status Log",
+        "ru": "",
+        "en": "Status Log",
+        "ar": ""
+      }
+    }
+  ]
+}
