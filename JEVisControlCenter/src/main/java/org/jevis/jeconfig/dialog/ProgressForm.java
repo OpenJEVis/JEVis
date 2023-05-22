@@ -37,6 +37,7 @@ public class ProgressForm {
         dialogStage.initOwner(JEConfig.getStage());
         dialogStage.setResizable(false);
         dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.setMinHeight(450);
 
         // PROGRESS BAR
         pb.setMinWidth(450);
@@ -94,7 +95,6 @@ public class ProgressForm {
             Platform.runLater(() -> {
                 textArea.setVisible(true);
                 textArea.setMinHeight(250);
-                textArea.setPrefHeight(250);
             });
         }
         if (stringBuilder.toString().length() > 0) {

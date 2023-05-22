@@ -3856,4 +3856,20 @@ public interface JC {
             }
         }
     }
+    public interface IndexofLegalProvisions {
+        public static String name = "Index of Legal Provisions";
+
+        public static String a_CustomMedium = "Custom Medium";
+        public static String a_category = "category";
+        public static String a_scope = "scope";
+        public interface LegalCadastreDirectory {
+            public static String name = "Index of Legal Provisions Directory";
+            public interface Obligation {
+                public static String name = "Obligation";
+
+                public static String a_Data = "Data";
+            }
+
+        }
+    }
 }

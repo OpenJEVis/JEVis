@@ -38,7 +38,7 @@ public class NonconformityForm extends Dialog {
         this.nonconformityPlan = nonconformityPlan;
 
 
-        setTitle(I18n.getInstance().getString("actionform.editor.title"));
+        setTitle(I18n.getInstance().getString("plugin.nonconformities.nonconfromityform.editor.title"));
         setHeaderText(null);
         setResizable(true);
         this.getDialogPane().setPrefWidth(ScreenSize.fitScreenWidth(1000));

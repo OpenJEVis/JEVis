@@ -64,6 +64,7 @@
         <module>JEVisDataServer</module>
         <module>RevolutionPiServer</module>
         <module>SQL-Driver</module>
+        <module>JSONParser</module>
     </modules>
-
+   
 </project>
