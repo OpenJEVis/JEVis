@@ -1,0 +1,57 @@
+{
+  "jevisclass": "SQL Server",
+  "names": {
+    "de": "SQL Server",
+    "ru": "SQL Server",
+    "en": "SQL Server",
+    "ar": "SQL Server"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Connection String",
+      "descriptions": {
+        "de": "JDBC/ODBC verbindings String. Für mehr informationen siehe https://en.wikipedia.org/wiki/Java_Database_Connectivity\nMySQ example: jdbc:mysql://localhost/dbname\nMsSQL: jdbc:sqlserver://localhost:60936;databaseName=dbname",
+        "ru": "",
+        "en": "JDBC/ODBC connection String. Für mehr informationen siehe https://en.wikipedia.org/wiki/Java_Database_Connectivity\nMySQ example: jdbc:mysql://localhost/dbname\nMsSQL: jdbc:sqlserver://localhost:60936;databaseName=dbname",
+        "ar": ""
+      },
+      "names": {
+        "de": "JDBC Connection String",
+        "ru": "JDBC Connection String",
+        "en": "JDBC Connection String",
+        "ar": "JDBC Connection String"
+      }
+    },
+    {
+      "type": "Driver Class",
+      "descriptions": {
+        "de": "JDBC/ODBC verbindings String. Für mehr informationen siehe https://en.wikipedia.org/wiki/Java_Database_Connectivity\nMySQ example: jdbc:mysql://localhost/dbname\nMsSQL: jdbc:sqlserver://localhost:60936;databaseName=dbname",
+        "ru": "JDBC/ODBC connection String",
+        "en": "JDBC/ODBC connection String. Fpr more information https://en.wikipedia.org/wiki/Java_Database_Connectivity\nMySQ example: jdbc:mysql://localhost/dbname\nMsSQL: jdbc:sqlserver://localhost:60936;databaseName=dbname",
+        "ar": "JDBC/ODBC connection String"
+      },
+      "names": {
+        "de": "JDBC Treiber Klasse",
+        "ru": "",
+        "en": "JDBC Driver Class",
+        "ar": ""
+      }
+    },
+    {
+      "type": "Status Log",
+      "descriptions": {
+        "de": "Status Log",
+        "ru": "Status Log",
+        "en": "Status Log",
+        "ar": "Status Log"
+      },
+      "names": {
+        "de": "Status Log",
+        "ru": "Status Log",
+        "en": "Status Log",
+        "ar": "Status Log"
+      }
+    }
+  ]
+}
