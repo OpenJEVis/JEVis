@@ -1,0 +1,12 @@
+{
+  "name": "SQL Request Directory",
+  "description": "",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "SQL Request",
+      "end": "SQL Request Directory",
+      "type": 3
+    }
+  ]
+}
