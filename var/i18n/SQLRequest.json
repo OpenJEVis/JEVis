@@ -103,7 +103,7 @@
       "descriptions": {
         "de": "Spaltenname der Notiz. Diese kann Leer bleiben wenn nicht genutzt.",
         "ru": "",
-        "en": "Column name of the note. Dan ne empty.",
+        "en": "Column name of the note. Can ne empty.",
         "ar": ""
       },
       "names": {
