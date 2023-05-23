@@ -133,10 +133,9 @@ public class SQLDriver implements DataSource {
     public void run() {
         try {
             startReadout();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (JEVisException e) {
-            throw new RuntimeException(e);
+            logStatus(0, new DateTime(), "End Readout - Imported: " + totalSamples);
+        } catch (Exception e) {
+            logger.error("Error while Run SQL Driver: {}:{}",sqlServerObj.getID(),sqlServerObj.getName(),e);
         }
     }
 
@@ -156,11 +155,6 @@ public class SQLDriver implements DataSource {
 
             parameters = new Parameters(sqlServerObj);
             loadDriver(parameters.driver());
-
-
-            logStatus(0, new DateTime(), "End Readout - Imported: " + totalSamples);
-
-            //6) import
         } catch (Exception ex) {
             logger.error("Error while fetching data from Server: {}:{}", sqlServerObj.getID(), sqlServerObj.getName(), ex);
             logStatus(1, new DateTime(), "Unexpected error: " + ex.toString());
@@ -169,7 +163,7 @@ public class SQLDriver implements DataSource {
 
     @Override
     public List<InputStream> sendSampleRequest(JEVisObject channel) throws Exception {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
