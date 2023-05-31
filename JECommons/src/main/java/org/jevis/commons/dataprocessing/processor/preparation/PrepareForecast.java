@@ -85,7 +85,7 @@ public class PrepareForecast implements ProcessStep {
                     endOfInterval = endOfInterval.minusMillis(1);
 
                     if (!start.isBefore(endOfInterval)) {
-                        continue;
+                        break;
                     }
                     
                     Interval interval = new Interval(start, endOfInterval);
