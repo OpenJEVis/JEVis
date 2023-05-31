@@ -445,10 +445,13 @@ public class ForecastDataObject {
     public void finishCurrentRun(JEVisObject object) {
         Long cycleTime = getCycleTime(object);
         DateTime lastRun = getLastRun(object);
+        DateTimeZone timeZone = getTimeZone();
+        int offset = timeZone.getOffset(lastRun);
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
             if (lastRunAttribute != null) {
                 DateTime dateTime = lastRun.plusMillis(cycleTime.intValue());
+                dateTime = fixTimeZoneOffset(timeZone, dateTime, offset);
                 JEVisSample newSample = lastRunAttribute.buildSample(DateTime.now(), dateTime);
                 newSample.commit();
             }
@@ -456,6 +459,17 @@ public class ForecastDataObject {
         } catch (JEVisException e) {
             logger.error("Could not get data source last run time: ", e);
         }
+    }
+    
+    private static DateTime fixTimeZoneOffset(DateTimeZone tz, DateTime start, int offset) {
+        int newOffset = tz.getOffset(start);
+
+        if (newOffset > offset) {
+            start = start.minus(newOffset - offset);
+        } else if (newOffset < offset) {
+            start = start.plus(offset - newOffset);
+        }
+        return start;
     }
 
     public JsonGapFillingConfig getJsonGapFillingConfig() throws JEVisException {
