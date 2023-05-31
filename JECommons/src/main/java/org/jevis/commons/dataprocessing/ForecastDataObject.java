@@ -352,19 +352,20 @@ public class ForecastDataObject {
                 forecastDurationCount = getForecastDurationCountAttribute().getLatestSample().getValueAsLong().intValue();
             }
 
+            DateTime startDate = getStartDate().withZone(getTimeZone());
             switch (forecastDuration) {
                 case "MINUTES":
-                    return getStartDate().plusMinutes(forecastDurationCount);
+                    return startDate.plusMinutes(forecastDurationCount).withZone(DateTimeZone.UTC);
                 case "HOURS":
-                    return getStartDate().plusHours(forecastDurationCount);
+                    return startDate.plusHours(forecastDurationCount).withZone(DateTimeZone.UTC);
                 case "DAYS":
-                    return getStartDate().plusDays(forecastDurationCount);
+                    return startDate.plusDays(forecastDurationCount).withZone(DateTimeZone.UTC);
                 case "WEEKS":
-                    return getStartDate().plusWeeks(forecastDurationCount);
+                    return startDate.plusWeeks(forecastDurationCount).withZone(DateTimeZone.UTC);
                 case "MONTHS":
-                    return getStartDate().plusMonths(forecastDurationCount);
+                    return startDate.plusMonths(forecastDurationCount).withZone(DateTimeZone.UTC);
                 case "YEARS":
-                    return getStartDate().plusYears(forecastDurationCount);
+                    return startDate.plusYears(forecastDurationCount).withZone(DateTimeZone.UTC);
             }
         }
         return null;
