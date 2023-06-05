@@ -402,7 +402,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
             JEVisAttribute value = null;
             try {
                 value = selectedObject.getAttribute("Value");
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             if (value != null) {

@@ -1,0 +1,22 @@
+{
+  "name": "JSON Data Point Directory",
+  "description": "The class CSV Data Point Directory represents a specific directory for the management of CSV data points.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JSON Data Point",
+      "end": "JSON Data Point Directory",
+      "type": 3
+    },
+    {
+      "start": "JSON Data Point Directory",
+      "end": "JSON Parser",
+      "type": 3
+    },
+    {
+      "start": "JSON Data Point Directory",
+      "end": "Data Point Directory",
+      "type": 0
+    }
+  ]
+}

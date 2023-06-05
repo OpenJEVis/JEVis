@@ -47,6 +47,7 @@ import org.jevis.jeconfig.dialog.KPIWizard;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.dialog.ReportWizardDialog;
 import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
+import org.jevis.jeconfig.plugin.object.extension.revpi.RevPiAssistant;
 import org.jevis.jeconfig.tool.AttributeCopy;
 import org.jevis.jeconfig.tool.Calculations;
 import org.jevis.jeconfig.tool.CleanDatas;
@@ -233,6 +234,9 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     } else if (obj.getJEVisClassName().equals("Loytec XML-DL Server")) {
                         getItems().add(new SeparatorMenuItem());
                         getItems().add(buildOCP());
+                    } else if (obj.getJEVisClassName().equals("Revolution PI Server")) {
+                        getItems().add(new SeparatorMenuItem());
+                        getItems().add(buildRevPi());
                     } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
                         getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
                         getItems().add(buildCreateAlarms());
@@ -293,6 +297,16 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
         menu.setOnAction(t -> {
                     OPCBrowser opcEditor = new OPCBrowser(obj);
+                }
+        );
+        return menu;
+    }
+
+    private MenuItem buildRevPi() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.revpi.assistant"), JEConfig.getSVGImage(Icon.WIZARD_HAT, 20, 20));
+
+        menu.setOnAction(t -> {
+                    RevPiAssistant revPiAssistant = new RevPiAssistant(obj);
                 }
         );
         return menu;

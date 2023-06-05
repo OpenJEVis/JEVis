@@ -50,6 +50,7 @@ public class ActionToolbar extends ToolBar {
         newAction.setOnAction(event -> actionController.createNewAction());
         deleteAction.setOnAction(event -> actionController.deleteAction());
         deletePlan.setOnAction(event -> actionController.deletePlan());
+        exportPDF.setOnAction(event -> actionController.exportPDF());
         //calender.setOnAction(event -> actionCalendar.showAndWait());
 
         actionPlanConfig.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.panconfig")));
@@ -100,7 +101,7 @@ public class ActionToolbar extends ToolBar {
         newAction.setDisable(isOverview);
 
 
-        exportPDF.setDisable(true);//Disabled because implementation is missing
+        //exportPDF.setDisable(true);//Disabled because implementation is missing
         reloadButton.setDisable(true); //Disabled because implementation is missing
         //newPlan.setDisable(isOverview);
         //openForm.setDisable(isOverview);

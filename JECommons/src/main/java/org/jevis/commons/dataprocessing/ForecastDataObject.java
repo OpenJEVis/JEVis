@@ -344,15 +344,31 @@ public class ForecastDataObject {
         return alignedDate.withZone(DateTimeZone.UTC);
     }
 
-    private static DateTime fixTimeZoneOffset(DateTimeZone tz, DateTime start, int offset) {
-        int newOffset = tz.getOffset(start);
+    public DateTime getEndDate() throws JEVisException {
+        if (getForecastDurationAttribute().hasSample()) {
+            String forecastDuration = getForecastDurationAttribute().getLatestSample().getValueAsString();
+            int forecastDurationCount = 1;
+            if (getForecastDurationCountAttribute().hasSample()) {
+                forecastDurationCount = getForecastDurationCountAttribute().getLatestSample().getValueAsLong().intValue();
+            }
 
-        if (newOffset > offset) {
-            start = start.minus(newOffset - offset);
-        } else if (newOffset < offset) {
-            start = start.plus(offset - newOffset);
+            DateTime startDate = getStartDate().withZone(getTimeZone());
+            switch (forecastDuration) {
+                case "MINUTES":
+                    return startDate.plusMinutes(forecastDurationCount).withZone(DateTimeZone.UTC);
+                case "HOURS":
+                    return startDate.plusHours(forecastDurationCount).withZone(DateTimeZone.UTC);
+                case "DAYS":
+                    return startDate.plusDays(forecastDurationCount).withZone(DateTimeZone.UTC);
+                case "WEEKS":
+                    return startDate.plusWeeks(forecastDurationCount).withZone(DateTimeZone.UTC);
+                case "MONTHS":
+                    return startDate.plusMonths(forecastDurationCount).withZone(DateTimeZone.UTC);
+                case "YEARS":
+                    return startDate.plusYears(forecastDurationCount).withZone(DateTimeZone.UTC);
+            }
         }
-        return start;
+        return null;
     }
 
     public boolean isReady(JEVisObject object) {
@@ -427,33 +443,6 @@ public class ForecastDataObject {
         return aLong;
     }
 
-    public DateTime getEndDate() throws JEVisException {
-        if (getForecastDurationAttribute().hasSample()) {
-            String forecastDuration = getForecastDurationAttribute().getLatestSample().getValueAsString();
-            int forecastDurationCount = 1;
-            if (getForecastDurationCountAttribute().hasSample()) {
-                forecastDurationCount = getForecastDurationCountAttribute().getLatestSample().getValueAsLong().intValue();
-            }
-
-            DateTime startDate = getStartDate().withZone(getTimeZone());
-            switch (forecastDuration) {
-                case "MINUTES":
-                    return startDate.plusMinutes(forecastDurationCount).withZone(DateTimeZone.UTC);
-                case "HOURS":
-                    return startDate.plusHours(forecastDurationCount).withZone(DateTimeZone.UTC);
-                case "DAYS":
-                    return startDate.plusDays(forecastDurationCount).withZone(DateTimeZone.UTC);
-                case "WEEKS":
-                    return startDate.plusWeeks(forecastDurationCount).withZone(DateTimeZone.UTC);
-                case "MONTHS":
-                    return startDate.plusMonths(forecastDurationCount).withZone(DateTimeZone.UTC);
-                case "YEARS":
-                    return startDate.plusYears(forecastDurationCount).withZone(DateTimeZone.UTC);
-            }
-        }
-        return null;
-    }
-
     public void finishCurrentRun(JEVisObject object) {
         Long cycleTime = getCycleTime(object);
         DateTime lastRun = getLastRun(object);
@@ -471,6 +460,17 @@ public class ForecastDataObject {
         } catch (JEVisException e) {
             logger.error("Could not get data source last run time: ", e);
         }
+    }
+
+    private static DateTime fixTimeZoneOffset(DateTimeZone tz, DateTime start, int offset) {
+        int newOffset = tz.getOffset(start);
+
+        if (newOffset > offset) {
+            start = start.minus(newOffset - offset);
+        } else if (newOffset < offset) {
+            start = start.plus(offset - newOffset);
+        }
+        return start;
     }
 
     public JsonGapFillingConfig getJsonGapFillingConfig() throws JEVisException {

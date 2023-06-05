@@ -87,6 +87,7 @@ public class PrepareForecast implements ProcessStep {
                     if (!start.isBefore(endOfInterval)) {
                         break;
                     }
+
                     Interval interval = new Interval(start, endOfInterval);
                     CleanInterval cleanInterval = new CleanInterval(interval, start);
                     cleanInterval.getResult().setTimeStamp(start);

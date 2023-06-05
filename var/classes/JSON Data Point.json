@@ -1,0 +1,67 @@
+{
+  "name": "JSON Data Point",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "JSON Data Point",
+      "end": "JSON Data Point Directory",
+      "type": 3
+    },
+    {
+      "start": "JSON Data Point",
+      "end": "Data Point",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Data Point Path",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JSON Data Point"
+    },
+    {
+      "name": "Value Format",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JSON Data Point"
+    },
+    {
+      "name": "Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JSON Data Point"
+    },
+    {
+      "name": "Regex Value",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JSON Data Point"
+    },
+    {
+      "name": "Status Path",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JSON Data Point"
+    },
+    {
+      "name": "Status Value OK",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JSON Data Point"
+    }
+  ]
+}

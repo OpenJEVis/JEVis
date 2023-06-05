@@ -125,6 +125,11 @@
             <groupId>org.jevis</groupId>
             <artifactId>JEAPI-WS</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>8.2.2.jre8</version>
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>org.jevis.jeconfig.application</groupId>-->
         <!--<artifactId>jeapplication</artifactId>-->

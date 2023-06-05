@@ -8,8 +8,10 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -24,6 +26,7 @@ import java.util.Currency;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class TableSumPanel extends GridPane {
@@ -68,8 +71,11 @@ public class TableSumPanel extends GridPane {
 
         actionPlan.getMediumTags().addListener((ListChangeListener<String>) c -> {
             while (c.next()) {
-                updateLayout();
-                updateData();
+                if (c.wasAdded() || c.wasRemoved() || c.wasReplaced()) {
+                    update();
+                }
+                // updateLayout();
+                // updateData();
             }
 
         });
@@ -77,13 +83,93 @@ public class TableSumPanel extends GridPane {
             while (c.next()) {
                 if (c.wasAdded() || c.wasRemoved() || c.wasReplaced()) {
                     try {
-                        updateLayout();
-                        updateData();
+                        update();
+                        // updateLayout();
+                        // updateData();
                     } catch (Exception ex) {
                     }
                 }
             }
         });
+
+
+    }
+
+    private void update() {
+        getChildren().clear();
+        getColumnConstraints().clear();
+
+        add(new Region(), 0, 0);
+        add(l_sumLabel, 0, 1);
+        Separator sep2 = new Separator(Orientation.VERTICAL);
+        add(sep2, 1, 0, 1, 2);
+
+        double sumInvest = 0;
+        double sumEinsparrung = 0;
+        for (ActionData actionData : data) {
+            sumInvest += actionData.npv.get().getInvestment();
+            sumEinsparrung += actionData.npv.get().einsparung.get();
+
+        }
+
+        Label headerInvest = new Label(fakeNames.npv.get().investment.getName());
+        Label valueInvest = new Label(nsc.toString(sumInvest));
+        add(headerInvest, 2, 0);
+        add(valueInvest, 2, 1);
+        Separator sep3 = new Separator(Orientation.VERTICAL);
+        add(sep3, 3, 0, 1, 2);
+
+        Label headerSaving = new Label(fakeNames.npv.get().investment.getName());
+        Label valueSaving = new Label(nsc.toString(sumEinsparrung));
+        add(headerSaving, 4, 0);
+        add(valueSaving, 4, 1);
+        Separator sep4 = new Separator(Orientation.VERTICAL);
+        add(sep4, 5, 0, 1, 2);
+
+
+        int col = 5;
+        for (String medium : actionPlan.getMediumTags()) {
+            col++;
+            //double sum = data.stream().filter(actionData -> actionData.mediaTagsProperty().get().equals(medium)).reduce(0,Double::sum);
+            double sum = data.stream().map(actionData -> actionData.enpi.get().diff.get()).reduce(0.0, Double::sum);
+            Label header = new Label(medium);
+            Label value = new Label();
+            value.setPrefWidth(45);
+            value.setText(sum + " kWh");
+            value.setAlignment(Pos.CENTER);
+            add(header, col, 0);
+            add(value, col, 1);
+            GridPane.setFillWidth(header, false);
+            GridPane.setFillWidth(value, false);
+            GridPane.setHalignment(header, HPos.CENTER);
+            GridPane.setHalignment(value, HPos.CENTER);
+
+            Separator sep = new Separator(Orientation.VERTICAL);
+            col++;
+            add(sep, col, 0, 1, 2);
+            header.widthProperty().addListener((observable, oldValue, newValue) -> System.out.println("W: " + newValue));
+
+        }
+
+        for (String status : actionPlan.getStatustags()) {
+            col++;
+            int sum = data.stream().filter(actionData -> actionData.statusTags.get().equals(status)).collect(Collectors.toList()).size();
+            Label header = new Label(status);
+            Label value = new Label(sum + "");
+            value.setPrefWidth(45);
+            add(header, col, 0);
+            add(value, col, 1);
+            GridPane.setFillWidth(header, false);
+            GridPane.setFillWidth(value, false);
+            GridPane.setHalignment(header, HPos.CENTER);
+            GridPane.setHalignment(value, HPos.CENTER);
+
+            Separator sep = new Separator(Orientation.VERTICAL);
+            col++;
+            add(sep, col, 0, 1, 2);
+        }
+
+
     }
 
     private void updateLayout() {
