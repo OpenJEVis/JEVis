@@ -119,6 +119,7 @@ public class AlarmPlugin implements Plugin {
     private DateTime start;
     private DateTime end;
     private TimeFrame timeFrame = TimeFrame.TODAY;
+    private MFXComboBox<TimeFrame> timeFrameComboBox;
 
     public AlarmPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -252,6 +253,8 @@ public class AlarmPlugin implements Plugin {
 
         ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
         ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+
+        timeFrameComboBox = getTimeFrameComboBox();
 
         timeFrameComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
         startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));

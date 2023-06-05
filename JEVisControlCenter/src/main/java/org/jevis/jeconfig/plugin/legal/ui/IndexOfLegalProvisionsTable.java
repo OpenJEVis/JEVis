@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.legal.ui;
 
 import com.jfoenix.controls.JFXButton;
-import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -11,8 +10,11 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.scene.control.*;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;

@@ -13,7 +13,6 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,29 +20,23 @@ import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.Importer;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeapi.ws.HTTPConnection;
-import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.dialog.Response;
-import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.tool.ImageConverter;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class RevPiAssistant {

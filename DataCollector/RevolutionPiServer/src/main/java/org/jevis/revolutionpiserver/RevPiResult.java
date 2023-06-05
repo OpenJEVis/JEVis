@@ -3,7 +3,7 @@ package org.jevis.revolutionpiserver;
 
 import com.fasterxml.jackson.annotation.*;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

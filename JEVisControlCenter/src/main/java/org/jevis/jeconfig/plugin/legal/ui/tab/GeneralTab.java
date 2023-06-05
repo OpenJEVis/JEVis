@@ -4,14 +4,9 @@ import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
-import com.sun.javafx.scene.control.skin.TextAreaSkin;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -220,21 +215,5 @@ public class GeneralTab extends Tab {
         });
 
         f_Nr.setText(String.valueOf(data.nrProperty().get()));
-    }
-
-
-    private void addTabEvent(TextArea f_Cause) {
-        f_Cause.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                if (keyEvent.getCode() == KeyCode.TAB) {
-                    Node node = (Node) keyEvent.getSource();
-                    if (node instanceof TextArea) {
-                        TextAreaSkin skin = (TextAreaSkin) ((TextArea) node).getSkin();
-                        skin.getBehavior().traverseNext();
-                    }
-                }
-            }
-        });
     }
 }

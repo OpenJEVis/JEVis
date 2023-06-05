@@ -406,8 +406,9 @@ public class FXLogin extends AnchorPane {
             return new Cell<Locale>() {
                 Image img = new Image("/icons/flags2/" + locale.getLanguage() + ".png");
                 ImageView iv = new ImageView(img);
-                HBox box = new HBox(5, iv, name);
+
                 Label name = new Label(locale.getDisplayLanguage());
+                HBox box = new HBox(5, iv, name);
 
                 @Override
                 public Node getNode() {
