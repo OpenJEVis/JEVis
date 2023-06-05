@@ -35,42 +35,42 @@ public class GeneralTab extends Tab {
     private final JFXDatePicker f_plannedDate = new JFXDatePicker();
     private final JFXDatePicker f_doneDate = new JFXDatePicker();
     //private ActionData names = new ActionData();
-    private Label l_Note = new Label();
-    private Label l_Description = new Label();
-    private Label l_ActionNr = new Label();
-    private Label l_Investment = new Label(I18n.getInstance().getString("actionform.editor.tab.general.investment"));
-    private Label l_changeKost = new Label(I18n.getInstance().getString("actionform.editor.tab.general.yearsaving"));
-    private Label l_Responsible = new Label();
-    private Label l_NoteBewertet = new Label();
-    private Label l_Attachment = new Label();
-    private Label l_Title = new Label();
-    private Label l_NoteEnergiefluss = new Label();
-    private Label l_doneDate = new Label();
-    private Label l_plannedDate = new Label();
-    private Label l_statusTags = new Label();
-    private Label l_fieldTags = new Label();
-    private Region col3Spacer = new Region();
-    private JFXTextField f_savingYear = new JFXTextField();
-    private JFXTextField f_Investment = new JFXTextField();
-    private JFXTextField f_ActionNr = new JFXTextField();
-    private JFXTextField f_Title = new JFXTextField();
-    private JFXTextField f_Responsible = new JFXTextField();
-    private TextArea f_Description = new TextArea();
-    private TextArea f_NoteBewertet = new TextArea();
-    private JFXComboBox<String> f_statusTags;
-    private CheckComboBox<String> f_fieldTags;
+    private final Label l_Note = new Label();
+    private final Label l_Description = new Label();
+    private final Label l_ActionNr = new Label();
+    private final Label l_Investment = new Label(I18n.getInstance().getString("actionform.editor.tab.general.investment"));
+    private final Label l_changeKost = new Label(I18n.getInstance().getString("actionform.editor.tab.general.yearsaving"));
+    private final Label l_Responsible = new Label();
+    private final Label l_NoteBewertet = new Label();
+    private final Label l_Attachment = new Label();
+    private final Label l_Title = new Label();
+    private final Label l_NoteEnergiefluss = new Label();
+    private final Label l_doneDate = new Label();
+    private final Label l_plannedDate = new Label();
+    private final Label l_statusTags = new Label();
+    private final Label l_fieldTags = new Label();
+    private final Region col3Spacer = new Region();
+    private final JFXTextField f_savingYear = new JFXTextField();
+    private final JFXTextField f_Investment = new JFXTextField();
+    private final JFXTextField f_ActionNr = new JFXTextField();
+    private final JFXTextField f_Title = new JFXTextField();
+    private final JFXTextField f_Responsible = new JFXTextField();
+    private final TextArea f_Description = new TextArea();
+    private final TextArea f_NoteBewertet = new TextArea();
+    private final JFXComboBox<String> f_statusTags;
+    private final CheckComboBox<String> f_fieldTags;
     //private JFXCheckComboBox f_fieldTags2;
-    private JFXTextField f_Attachment = new JFXTextField();
-    private TextArea f_Note = new TextArea();
-    private TextArea f_NoteEnergiefluss = new TextArea();
-    private Label l_seu = new Label(I18n.getInstance().getString("actionform.editor.tab.general.seu"));
+    private final JFXTextField f_Attachment = new JFXTextField();
+    private final TextArea f_Note = new TextArea();
+    private final TextArea f_NoteEnergiefluss = new TextArea();
+    private final Label l_seu = new Label(I18n.getInstance().getString("actionform.editor.tab.general.seu"));
     private JFXComboBox<String> f_sueTags = new JFXComboBox<>();
-    private Label l_FromUser = new Label(I18n.getInstance().getString("plugin.action.fromuser"));
-    private JFXTextField f_FromUser = new JFXTextField();
-    private Label l_CreateDate = new Label("Erstellt");
-    private JFXDatePicker f_CreateDate = new JFXDatePicker();
-    private Label l_distributor = new Label(I18n.getInstance().getString("plugin.action.distributor"));
-    private JFXTextField f_distributor = new JFXTextField();
+    private final Label l_FromUser = new Label(I18n.getInstance().getString("plugin.action.fromuser"));
+    private final JFXTextField f_FromUser = new JFXTextField();
+    private final Label l_CreateDate = new Label("Erstellt");
+    private final JFXDatePicker f_CreateDate = new JFXDatePicker();
+    private final Label l_distributor = new Label(I18n.getInstance().getString("plugin.action.distributor"));
+    private final JFXTextField f_distributor = new JFXTextField();
 
 
     {
@@ -140,7 +140,6 @@ public class GeneralTab extends Tab {
                 while (c.next()) {
                     //do something with changes here
                     if (c.wasAdded() || c.wasRemoved()) {
-                        System.out.println(f_fieldTags.getCheckModel().getCheckedItems());
                         data.fieldTagsProperty().set(ActionPlanData.listToString(f_fieldTags.getCheckModel().getCheckedItems()));
                     }
                 }
