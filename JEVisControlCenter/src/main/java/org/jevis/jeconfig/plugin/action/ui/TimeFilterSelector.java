@@ -9,6 +9,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
@@ -21,7 +23,7 @@ import static org.jevis.jeconfig.plugin.action.ui.DateFilter.DateField.*;
 
 public class TimeFilterSelector extends GridPane {
 
-
+    private static final Logger logger = LogManager.getLogger(TimeFilterSelector.class);
     //TODo locale name from Column
     MFXComboBox<DateFilter.DateField> fDateField = new MFXComboBox<>(FXCollections.observableArrayList(ALL, UMSETZUNG, ABGESCHLOSSEN, ERSTELLT));
     MFXComboBox<Month> fFromMonth = generateMonthBox();
@@ -208,7 +210,7 @@ public class TimeFilterSelector extends GridPane {
             DateFilter dateRange = new DateFilter(fDateField.getValue(), from, until);
             valueProperty.set(dateRange);
         } catch (Exception ex) {
-            System.out.println("Unfinished Filter");
+            logger.error("Unfinished Filter", ex);
         }
     }
 

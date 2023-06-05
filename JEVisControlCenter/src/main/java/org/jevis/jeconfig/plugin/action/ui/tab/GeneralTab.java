@@ -140,7 +140,6 @@ public class GeneralTab extends Tab {
                 while (c.next()) {
                     //do something with changes here
                     if (c.wasAdded() || c.wasRemoved()) {
-                        System.out.println(f_fieldTags.getCheckModel().getCheckedItems());
                         data.fieldTagsProperty().set(ActionPlanData.listToString(f_fieldTags.getCheckModel().getCheckedItems()));
                     }
                 }

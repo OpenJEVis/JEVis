@@ -134,8 +134,6 @@ public class ExcelExporter {
     }
 
     private Sheet addActionTab(XSSFWorkbook workbook, ActionData actionData) {
-        System.out.println("addActionTab: " + actionData.getNrText());
-
         CellStyle currencyStyle = getCurrencyStyle(workbook);
         CellStyle dateStyle = getDateStyle(workbook);
         CellStyle stringStyle = getStringTableStyle(workbook);
@@ -298,11 +296,11 @@ public class ExcelExporter {
 
 
         int detailStart = 15;
-        Cell l_enpi = getOrCreateCell(sheet, detailStart + 0, c_a1);
+        Cell l_enpi = getOrCreateCell(sheet, detailStart, c_a1);
         l_enpi.setCellValue("EnPI");
         l_enpi.setCellStyle(stringStyle);
 
-        Cell f_enpi = getOrCreateCell(sheet, detailStart + 0, c_a2);
+        Cell f_enpi = getOrCreateCell(sheet, detailStart, c_a2);
         f_enpi.setCellStyle(stringStyle);
         try {
             f_enpi.setCellValue(actionData.enpi.get().dataObject.getValue());
@@ -327,11 +325,11 @@ public class ExcelExporter {
 
         CellStyle stringBox = getStringTableStyle(workbook);
 
-        Cell l_investment = getOrCreateCell(sheet, capitalStart + 0, c_a1);
+        Cell l_investment = getOrCreateCell(sheet, capitalStart, c_a1);
         l_investment.setCellValue("Investment");
         l_investment.setCellStyle(stringBox);
 
-        Cell f_investment = getOrCreateCell(sheet, capitalStart + 0, c_a2);
+        Cell f_investment = getOrCreateCell(sheet, capitalStart, c_a2);
         try {
             f_investment.setCellValue(actionData.npv.get().getInvestment());
             f_investment.setCellStyle(getCurrencyStyle(workbook));
@@ -563,14 +561,6 @@ public class ExcelExporter {
                             valueCell.setCellValue(data.npv.get().einsparung.get());
                         }
 
-                        /*
-                        valueCell.getCellStyle().setBorderBottom(BorderStyle.THIN);
-                        valueCell.getCellStyle().setBorderLeft(BorderStyle.THIN);
-                        valueCell.getCellStyle().setBorderRight(BorderStyle.THIN);
-                        valueCell.getCellStyle().setBorderTop(BorderStyle.THIN);
-
-                         */
-
 
                         sheet.autoSizeColumn(colldx);
                         if (sheet.getColumnWidth(colldx) > 8000) {
@@ -578,9 +568,6 @@ public class ExcelExporter {
                             sheet.setColumnWidth(colldx, 8000);
                         }
 
-                        System.out.println("Done colum: " + actionDataTableColumn.getText());
-                        // logger.error("Cell: {}:{}={}", colldx, row, actionDataTableColumn.getCellObservableValue(row));
-                        // valueCell.setCellValue(actionDataTableColumn.getCellObservableValue(row).getValue().toString());
                     } catch (Exception ex) {
                         logger.error("Error in cell: {}:{}", colldx, row, ex);
                     }

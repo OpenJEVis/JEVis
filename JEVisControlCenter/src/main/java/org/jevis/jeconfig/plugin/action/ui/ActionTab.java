@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -18,7 +17,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.ActionController;
@@ -30,13 +28,13 @@ import java.util.stream.Collectors;
 
 public class ActionTab extends Tab {
 
+    private final SimpleBooleanProperty isOverview = new SimpleBooleanProperty(false);
+    ObservableList<String> allPlans = FXCollections.observableArrayList();
+    ObservableList<String> selectedPlans = FXCollections.observableArrayList();
     private ActionPlanData plan;
     private ActionTable actionTable;
 
-
-    ObservableList<String> allPlans = FXCollections.observableArrayList();
-    ObservableList<String> selectedPlans = FXCollections.observableArrayList();
-    private SimpleBooleanProperty isOverview = new SimpleBooleanProperty(false);
+    private Statistics statistics;
 
 
     public ActionTab(ActionController controller, ActionPlanData plan) {
@@ -45,8 +43,10 @@ public class ActionTab extends Tab {
         textProperty().bind(plan.getName());
         this.plan = plan;
 
-
-        actionTable = new ActionTable(plan, plan.getActionData());
+        TimeFilterSelector dateSelector = new TimeFilterSelector(plan);
+        statistics = new Statistics(plan, dateSelector.getValuePropertyProperty());
+        actionTable = new ActionTable(plan, plan.getActionData(), statistics);
+        statistics.setData(actionTable.getItems());
 
         setClosable(false);
 
@@ -59,7 +59,7 @@ public class ActionTab extends Tab {
         Label lSuche = new Label("Suche");
         MFXTextField fsearch = new MFXTextField();
         fsearch.setPromptText("Suche nach...");
-        TimeFilterSelector dateSelector = new TimeFilterSelector(plan);
+
 
         ObservableList<String> allPlans = FXCollections.observableArrayList();
         ObservableList<String> selectedPlans = FXCollections.observableArrayList();
@@ -219,11 +219,13 @@ public class ActionTab extends Tab {
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
+
+
+        SummeryTable summeryTable = new SummeryTable(actionTable);
+        summeryTable.setItems(actionTable.getSummeryData());
+
         borderPane.setCenter(actionTable);
-        TableSumPanel tableSumPanel = new TableSumPanel(plan, actionTable.getFilteredList());
-        HBox hBox = new HBox(tableSumPanel);
-        hBox.setAlignment(Pos.CENTER_LEFT);
-        borderPane.setBottom(hBox);
+        borderPane.setBottom(summeryTable);
 
         actionTable.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
@@ -256,6 +258,12 @@ public class ActionTab extends Tab {
 
     public ActionTable getActionTable() {
         return actionTable;
+    }
+
+    public void updateStatistics() {
+        if (statistics != null) {
+            statistics.update();
+        }
     }
 
 }

@@ -75,7 +75,6 @@ public class AttachmentTab extends Tab {
                 FileChooser fileChooser = new FileChooser();
                 File file = fileChooser.showOpenDialog(JEConfig.getStage());
                 if (file != null) {
-                    System.out.println("Create file under: " + data.getObject().toString());
                     JEVisClass fileClass = data.getObject().getDataSource().getJEVisClass(JC.File.name);
 
                     BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);

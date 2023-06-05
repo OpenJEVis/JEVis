@@ -31,7 +31,7 @@ public class ActionToolbar extends ToolBar {
     private final ToggleButton calender = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, this.iconSize, this.iconSize));
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
-    private ActionController actionController;
+    private final ActionController actionController;
 
     public ActionToolbar(ActionController actionController) {
         this.actionController = actionController;
@@ -51,6 +51,7 @@ public class ActionToolbar extends ToolBar {
         deleteAction.setOnAction(event -> actionController.deleteAction());
         deletePlan.setOnAction(event -> actionController.deletePlan());
         exportPDF.setOnAction(event -> actionController.exportPDF());
+        reloadButton.setOnAction(event -> actionController.reload());
         //calender.setOnAction(event -> actionCalendar.showAndWait());
 
         actionPlanConfig.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.action.toolbar.tip.panconfig")));
@@ -102,7 +103,7 @@ public class ActionToolbar extends ToolBar {
 
 
         //exportPDF.setDisable(true);//Disabled because implementation is missing
-        reloadButton.setDisable(true); //Disabled because implementation is missing
+        //reloadButton.setDisable(true); //Disabled because implementation is missing
         //newPlan.setDisable(isOverview);
         //openForm.setDisable(isOverview);
         //reloadButton.setDisable(isOverview);
