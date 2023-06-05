@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
@@ -66,11 +66,11 @@ public class KPIWizard extends Dialog {
 
         List<JEVisObject> objects = getAllChildren(object);
 
-        JFXTextField name = new JFXTextField();
+        MFXTextField name = new MFXTextField();
         name.setPromptText("Enter Name for created Folder Structure");
         JFXTextArea formula = new JFXTextArea();
         formula.setPromptText("Enter formula (Var1, Var2, ... VarX)");
-        JFXButton add = new JFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
+        MFXButton add = new MFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
         FlowPane variablePane = new FlowPane();
         variablePane.setHgap(6);
         variablePane.setVgap(6);

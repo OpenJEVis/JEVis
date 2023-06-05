@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -56,7 +56,7 @@ public class NetGraphTableFactory {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
-                            JFXTextField textField = buildTextField(item.toString());
+                            MFXTextField textField = buildTextField(item.toString());
                             textField.setDisable(disable.getValue());
                             disable.addListener((observable, oldValue, newValue) -> {
                                 textField.setDisable(newValue);
@@ -143,7 +143,7 @@ public class NetGraphTableFactory {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
-                            JFXTextField textField = buildTextField(item.toString());
+                            MFXTextField textField = buildTextField(item.toString());
                             textField.setDisable(disable.getValue());
                             disable.addListener((observable, oldValue, newValue) -> {
                                 textField.setDisable(newValue);
@@ -204,8 +204,8 @@ public class NetGraphTableFactory {
     }
 
 
-    private JFXTextField buildTextField(String text) {
-        JFXTextField textField = new JFXTextField(text);
+    private MFXTextField buildTextField(String text) {
+        MFXTextField textField = new MFXTextField(text);
         textField.focusedProperty().addListener(NetGraphTableFactory.this.focusListener);
         //textField.setMaxWidth(this.numberColumDefaultSize);
         return textField;

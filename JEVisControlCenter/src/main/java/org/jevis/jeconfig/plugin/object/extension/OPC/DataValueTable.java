@@ -2,8 +2,8 @@ package org.jevis.jeconfig.plugin.object.extension.OPC;
 
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -41,13 +41,13 @@ public class DataValueTable {
     private final ObservableList<DataValueRow> list = FXCollections.observableArrayList();
     private final ObservableList<DataValueRow> filteredList = FXCollections.observableArrayList();
     private final JFXCheckBox filterTrends = new JFXCheckBox();
-    private final JFXTextField filterFieldGroup = new JFXTextField();
+    private final MFXTextField filterFieldGroup = new MFXTextField();
     private final ObservableList<DataValueRow> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = JEConfig.getImage("if_dashboard_46791.png");
     private final Label fromLabel = new Label("From:");
     private final Label untilLabel = new Label("Until:");
-    private final JFXDatePicker fromDatePicker = new JFXDatePicker();
-    private final JFXDatePicker untilDatePicker = new JFXDatePicker();
+    private final MFXDatePicker fromDatePicker = new MFXDatePicker();
+    private final MFXDatePicker untilDatePicker = new MFXDatePicker();
     private NodeId selectedtNodeId = null;
     private Task runningTask = null;
 

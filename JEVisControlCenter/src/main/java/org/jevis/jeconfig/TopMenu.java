@@ -19,7 +19,7 @@
  */
 package org.jevis.jeconfig;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -179,7 +179,7 @@ public class TopMenu extends MenuBar {
                     }
 
                     String suggestedName = favoriteAnalysis.createName(JEConfig.getDataSource());
-                    JFXTextField favoriteName = new JFXTextField();
+                    MFXTextField favoriteName = new MFXTextField();
                     favoriteName.setMinWidth(450);
                     favoriteName.textProperty().bindBidirectional(favoriteAnalysis.nameProperty());
                     favoriteName.setText(suggestedName);

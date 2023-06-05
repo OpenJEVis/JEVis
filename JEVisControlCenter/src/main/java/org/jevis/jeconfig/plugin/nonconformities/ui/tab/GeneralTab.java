@@ -1,16 +1,15 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui.tab;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTextField;
-import com.sun.javafx.scene.control.skin.TextAreaSkin;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.SkinBase;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.skin.TextAreaSkin;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -24,25 +23,25 @@ import org.joda.time.DateTime;
 import java.time.LocalDate;
 
 public class GeneralTab extends Tab {
-    private final JFXDatePicker f_deadlineDate = new JFXDatePicker();
-    private final JFXDatePicker f_doneDate = new JFXDatePicker();
+    private final MFXDatePicker f_deadlineDate = new MFXDatePicker();
+    private final MFXDatePicker f_doneDate = new MFXDatePicker();
 
-    private final JFXDatePicker f_createDate = new JFXDatePicker();
+    private final MFXDatePicker f_createDate = new MFXDatePicker();
 
-    private JFXComboBox<String> f_mediaTags;
-    private JFXComboBox<String> f_SEU;
+    private MFXComboBox<String> f_mediaTags;
+    private MFXComboBox<String> f_SEU;
 
     private TextArea f_Description = new TextArea();
     private TextArea f_Cause = new TextArea();
-    private JFXDatePicker f_CreateDate = new JFXDatePicker();
-    private JFXTextField f_Nr = new JFXTextField();
-    private JFXTextField f_Title = new JFXTextField();
-    private JFXTextField f_action = new JFXTextField();
-    private JFXTextField f_Creator = new JFXTextField();
+    private MFXDatePicker f_CreateDate = new MFXDatePicker();
+    private MFXTextField f_Nr = new MFXTextField();
+    private MFXTextField f_Title = new MFXTextField();
+    private MFXTextField f_action = new MFXTextField();
+    private MFXTextField f_Creator = new MFXTextField();
 
-    private JFXTextField f_Attachment = new JFXTextField();
+    private MFXTextField f_Attachment = new MFXTextField();
 
-    private JFXTextField f_Responsible = new JFXTextField();
+    private MFXTextField f_Responsible = new MFXTextField();
 
     private TextArea f_ImmediateMeasures = new TextArea();
 
@@ -204,7 +203,8 @@ public class GeneralTab extends Tab {
                     Node node = (Node) keyEvent.getSource();
                     if (node instanceof TextArea) {
                         TextAreaSkin skin = (TextAreaSkin) ((TextArea) node).getSkin();
-                        skin.getBehavior().traverseNext();
+
+                        // TODO JFX17 skin.getBehavior().traverseNext();
                     }
                 }
             }
@@ -222,10 +222,10 @@ public class GeneralTab extends Tab {
         f_CorrectiveActions.textProperty().bindBidirectional(data.correctiveActionsProperty());
         f_ImmediateMeasures.textProperty().bindBidirectional(data.immediateMeasuresProperty());
         f_Creator.textProperty().bindBidirectional(data.creatorProperty());
-        f_mediaTags = new JFXComboBox<>(data.getNonconformityPlan().getMediumTags());
+        f_mediaTags = new MFXComboBox<>(data.getNonconformityPlan().getMediumTags());
         f_fieldTags = new CheckComboBox<>(data.getNonconformityPlan().getFieldsTags());
         f_action.textProperty().bindBidirectional(data.actionProperty());
-        f_SEU = new JFXComboBox<>(data.getNonconformityPlan().getSignificantEnergyUseTags());
+        f_SEU = new MFXComboBox<>(data.getNonconformityPlan().getSignificantEnergyUseTags());
         f_SEU.valueProperty().bindBidirectional(data.seuProperty());
 
         f_mediaTags.valueProperty().bindBidirectional(data.mediumProperty());
@@ -319,7 +319,7 @@ public class GeneralTab extends Tab {
     }
 
 
-    public JFXTextField getF_action() {
+    public MFXTextField getF_action() {
         return f_action;
     }
 
@@ -328,7 +328,7 @@ public class GeneralTab extends Tab {
     }
 
 
-    public JFXDatePicker getF_doneDate() {
+    public MFXDatePicker getF_doneDate() {
         return f_doneDate;
     }
 }

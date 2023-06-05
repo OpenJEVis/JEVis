@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.wizard;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.property.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -26,10 +26,10 @@ public class Wizard {
 
     private final JEVisDataSource jeVisDataSource;
     public ObjectProperty<Widget> selectedWidget = new SimpleObjectProperty<>();
-    private final JFXButton nextButton = new JFXButton("Next");
-    private final JFXButton previousButton = new JFXButton("Previous");
-    private final JFXButton finishButton = new JFXButton("Finish");
-    private final JFXButton cancelButton = new JFXButton("Cancel");
+    private final MFXButton nextButton = new MFXButton("Next");
+    private final MFXButton previousButton = new MFXButton("Previous");
+    private final MFXButton finishButton = new MFXButton("Finish");
+    private final MFXButton cancelButton = new MFXButton("Cancel");
     private final BorderPane rootPane = new BorderPane();
     private final AnchorPane contentPane = new AnchorPane();
     private final VBox bottomContent = new VBox(10);

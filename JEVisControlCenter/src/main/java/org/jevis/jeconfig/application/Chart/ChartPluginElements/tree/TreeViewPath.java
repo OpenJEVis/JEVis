@@ -1,12 +1,12 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.tree;
 
 import com.jfoenix.assets.JFoenixResources;
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXScrollPane;
 import com.jfoenix.svg.SVGGlyph;
 import com.jfoenix.utils.JFXNodeUtils;
-import com.sun.javafx.css.converters.SizeConverter;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.css.*;
+import javafx.css.converter.SizeConverter;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -132,13 +132,13 @@ public class TreeViewPath extends ScrollPane {
         return super.computePrefHeight(width);
     }
 
-    private JFXButton createNextButton(TreeItem<JEVisTreeViewItem> temp) {
+    private MFXButton createNextButton(TreeItem<JEVisTreeViewItem> temp) {
         String name = temp.getValue().toString();
         if (temp instanceof FilterableTreeItem) {
             FilterableTreeItem filterableTreeItem = (FilterableTreeItem) temp;
             name = filterableTreeItem.getValue().getObject().getName();
         }
-        return new JFXButton(name) {
+        return new MFXButton(name) {
             {
                 setPadding(new Insets(getOffset(), 1.5 * getOffset(), getOffset(), 2 * getOffset()));
                 setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -162,13 +162,13 @@ public class TreeViewPath extends ScrollPane {
         };
     }
 
-    public JFXButton createFirstButton(TreeItem<JEVisTreeViewItem> temp) {
+    public MFXButton createFirstButton(TreeItem<JEVisTreeViewItem> temp) {
         String name = temp.getValue().toString();
         if (temp instanceof FilterableTreeItem) {
             FilterableTreeItem filterableTreeItem = (FilterableTreeItem) temp;
             name = filterableTreeItem.getValue().getObject().getName();
         }
-        return new JFXButton(name) {
+        return new MFXButton(name) {
             {
                 setPadding(new Insets(getOffset(), 1.5 * getOffset(), getOffset(), getOffset()));
                 setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -190,13 +190,13 @@ public class TreeViewPath extends ScrollPane {
         };
     }
 
-    private JFXButton createLastButton(TreeItem<JEVisTreeViewItem> temp, TreeItem<JEVisTreeViewItem> parent) {
+    private MFXButton createLastButton(TreeItem<JEVisTreeViewItem> temp, TreeItem<JEVisTreeViewItem> parent) {
         String name = temp.getValue().toString();
         if (temp instanceof FilterableTreeItem) {
             FilterableTreeItem filterableTreeItem = (FilterableTreeItem) temp;
             name = filterableTreeItem.getValue().getObject().getName();
         }
-        return new JFXButton(name) {
+        return new MFXButton(name) {
             private final boolean noParent = parent == null;
 
             {

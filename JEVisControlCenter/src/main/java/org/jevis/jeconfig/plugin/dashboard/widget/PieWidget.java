@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.AtomicDouble;
-import com.sun.javafx.charts.Legend;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -20,7 +19,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
@@ -44,7 +42,8 @@ public class PieWidget extends Widget implements DataModelWidget {
     public static String WIDGET_ID = "Pie";
     private final PieChart chart = new PieChart();
     private final NumberFormat nf = NumberFormat.getInstance();
-    private final WidgetLegend legend = new WidgetLegend();
+    //TODO JFX17 Legend
+//    private final WidgetLegend legend = new WidgetLegend();
     private final ObjectMapper mapper = new ObjectMapper();
     private final BorderPane borderPane = new BorderPane();
     private final VBox legendPane = new VBox();
@@ -89,7 +88,7 @@ public class PieWidget extends Widget implements DataModelWidget {
         showAlertOverview(false, "");
 
         List<PieChart.Data> series = new ArrayList<>();
-        List<Legend.LegendItem> legendItemList = new ArrayList<>();
+        //   List<Legend.LegendItem> legendItemList = new ArrayList<>();
         List<Color> colors = new ArrayList<>();
 
         /** data Update **/
@@ -139,9 +138,9 @@ public class PieWidget extends Widget implements DataModelWidget {
                 }
 
 
-                legendItemList.add(this.legend.buildVerticalLegendItem(
-                        chartDataRow.getName(), chartDataRow.getColor(), this.config.getFontColor(), this.config.getFontSize(),
-                        chartDataRow.getObject(), hasNoData, I18n.getInstance().getString("plugin.dashboard.alert.nodata"), true));
+                //      legendItemList.add(this.legend.buildVerticalLegendItem(
+                //            chartDataRow.getName(), chartDataRow.getColor(), this.config.getFontColor(), this.config.getFontSize(),
+                //          chartDataRow.getObject(), hasNoData, I18n.getInstance().getString("plugin.dashboard.alert.nodata"), true));
 
                 if (!hasNoData) {
                     PieChart.Data pieData = new PieChart.Data(textValue, value);
@@ -166,8 +165,8 @@ public class PieWidget extends Widget implements DataModelWidget {
         Platform.runLater(() -> {
             try {
                 this.chart.getData().clear();
-                this.legend.getItems().clear();
-                this.legend.getItems().setAll(legendItemList);
+                //          this.legend.getItems().clear();
+                //          this.legend.getItems().setAll(legendItemList);
                 this.chart.getData().setAll(series);
                 this.chart.setStartAngle(180);
                 this.chart.setLabelLineLength(15d);
@@ -203,7 +202,7 @@ public class PieWidget extends Widget implements DataModelWidget {
 //            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
                 this.setBackground(bgColorTrans);
 //            this.chart.setBackground(bgColorTrans);
-                this.legend.setBackground(bgColorTrans);
+                //           this.legend.setBackground(bgColorTrans);
                 this.borderPane.setBackground(bgColor);
                 this.borderPane.setMaxWidth(this.config.getSize().getWidth());
                 this.nf.setMinimumFractionDigits(this.config.getDecimals());
@@ -250,14 +249,14 @@ public class PieWidget extends Widget implements DataModelWidget {
 
         this.legendPane.setPadding(new Insets(10, 5, 5, 0));
 
-        this.legend.setMaxWidth(100);
-        this.legend.setPrefWidth(100);
-        this.legend.setPrefHeight(10);
+        //       this.legend.setMaxWidth(100);
+        //       this.legend.setPrefWidth(100);
+        //       this.legend.setPrefHeight(10);
 
 
         Platform.runLater(() -> {
             try {
-                this.legendPane.getChildren().setAll(this.legend);
+                //            this.legendPane.getChildren().setAll(this.legend);
                 this.borderPane.setCenter(this.chart);
                 this.borderPane.setRight(this.legendPane);
                 setGraphic(this.borderPane);

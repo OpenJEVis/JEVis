@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -17,6 +17,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
@@ -119,10 +120,10 @@ public class WidgetNavigator {
         Region spacer = new Region();
         spacer.setPrefWidth(20d);
 
-        JFXTextField nameField = new JFXTextField();
-        JFXTextField widthField = new JFXTextField();
-        JFXTextField heightField = new JFXTextField();
-        JFXComboBox<Double> listZoomLevel = DashBoardToolbar.buildZoomLevelListView();
+        MFXTextField nameField = new MFXTextField();
+        MFXTextField widthField = new MFXTextField();
+        MFXTextField heightField = new MFXTextField();
+        MFXComboBox<Double> listZoomLevel = DashBoardToolbar.buildZoomLevelListView();
 
 
         TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
@@ -131,13 +132,13 @@ public class WidgetNavigator {
         timeFactoryBox.selectValue(control.getActiveDashboard().getTimeFrame());
         //timeFactoryBox.selectValue(control.getActiveTimeFrame());
 
-        JFXButton backgroundButton = new JFXButton("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
-        JFXButton removeBGIcon = new JFXButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+        MFXButton backgroundButton = new MFXButton("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
+        MFXButton removeBGIcon = new MFXButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
         ColorPickerAdv pickerAdv = new ColorPickerAdv();
         pickerAdv.setValue(control.getActiveDashboard().getBackgroundColor());
         pickerAdv.setMinHeight(backgroundButton.getHeight());
 
-        JFXComboBox<String> bhModeBox = buildBGMOdeBox();
+        MFXComboBox<String> bhModeBox = buildBGMOdeBox();
 
         HBox imageBox = new HBox();
         imageBox.setSpacing(5);
@@ -234,10 +235,10 @@ public class WidgetNavigator {
     }
 
 
-    private JFXComboBox<String> buildBGMOdeBox() {
+    private MFXComboBox<String> buildBGMOdeBox() {
         ObservableList<String> modeList = FXCollections.observableArrayList();
         modeList.addAll(BackgroundMode.defaultMode, BackgroundMode.repeat, BackgroundMode.stretch);
-        JFXComboBox<String> comboBox = new JFXComboBox<>(modeList);
+        MFXComboBox<String> comboBox = new MFXComboBox<>(modeList);
         comboBox.setValue(control.getActiveDashboard().backgroundMode);
 
 
@@ -264,8 +265,29 @@ public class WidgetNavigator {
                 };
             }
         };
-        comboBox.setCellFactory(factory);
-        comboBox.setButtonCell(factory.call(null));
+
+        //TODO JFX17
+        comboBox.setConverter(new StringConverter<String>() {
+            @Override
+            public String toString(String object) {
+                String text = object;
+
+                if (object.equals(BackgroundMode.defaultMode)) {
+                    text = I18n.getInstance().getString("dashboard.navigator.bgmode.default");
+                } else if (object.equals(BackgroundMode.repeat)) {
+                    text = I18n.getInstance().getString("dashboard.navigator.bgmode.repeat");
+                } else if (object.equals(BackgroundMode.stretch)) {
+                    text = I18n.getInstance().getString("dashboard.navigator.bgmode.stretch");
+                }
+
+                return (text);
+            }
+
+            @Override
+            public String fromString(String string) {
+                return comboBox.getItems().get(comboBox.getSelectedIndex());
+            }
+        });
 
         return comboBox;
 

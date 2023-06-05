@@ -19,7 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -41,7 +41,7 @@ import org.joda.time.DateTime;
 public class IPAdressEditor implements AttributeEditor {
 
     private static final Logger logger = LogManager.getLogger(IPAdressEditor.class);
-    private final JFXTextField ipAdressField = new JFXTextField();
+    private final MFXTextField ipAdressField = new MFXTextField();
     private final HBox editor = new HBox();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisDataSource ds;

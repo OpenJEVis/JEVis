@@ -19,8 +19,8 @@
  */
 package org.jevis.jeconfig.tool;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -33,8 +33,8 @@ import javafx.scene.layout.Region;
  */
 public class SearchBox extends Region {
 
-    private final JFXTextField textBox;
-    private final JFXButton clearButton;
+    private final MFXTextField textBox;
+    private final MFXButton clearButton;
 
     public SearchBox() {
         setId("SearchBox");
@@ -43,9 +43,9 @@ public class SearchBox extends Region {
         setMinHeight(24);
         setPrefSize(200, 24);
         setMaxSize(Control.USE_PREF_SIZE, Control.USE_PREF_SIZE);
-        textBox = new JFXTextField();
+        textBox = new MFXTextField();
         textBox.setPromptText("Search");
-        clearButton = new JFXButton();
+        clearButton = new MFXButton();
         clearButton.setVisible(false);
         getChildren().addAll(textBox, clearButton);
         clearButton.setOnAction(new EventHandler<ActionEvent>() {

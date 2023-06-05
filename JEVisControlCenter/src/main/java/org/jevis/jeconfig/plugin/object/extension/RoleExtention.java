@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -23,7 +23,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -56,10 +56,10 @@ public class RoleExtention implements ObjectEditorExtension {
     private TableView groupTableView;
     private TableView userTableView;
     private boolean needLoad = true;
-    private JFXTextField filterFieldGroup;
-    private JFXTextField filterFieldUser;
+    private MFXTextField filterFieldGroup;
+    private MFXTextField filterFieldUser;
     private RoleManager roleManager;
-    private JFXComboBox<JEVisObject> dashboadList;
+    private MFXComboBox<JEVisObject> dashboadList;
     private JFXCheckBox overwriteDashboad;
     private Long orgaID = 0l;
 
@@ -213,30 +213,23 @@ public class RoleExtention implements ObjectEditorExtension {
         return prefix;
     }
 
-    private JFXComboBox<JEVisObject> buildDashboardListView() {
-        JFXComboBox<JEVisObject> view = new JFXComboBox<>();
+    private MFXComboBox<JEVisObject> buildDashboardListView() {
+        MFXComboBox<JEVisObject> view = new MFXComboBox<>();
         List<JEVisObject> allDashboard = new ArrayList<>();
         try {
-            Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<javafx.scene.control.ListView<JEVisObject>, ListCell<JEVisObject>>() {
-                @Override
-                public ListCell<JEVisObject> call(javafx.scene.control.ListView<JEVisObject> param) {
-                    return new ListCell<JEVisObject>() {
-                        @Override
-                        protected void updateItem(JEVisObject object, boolean empty) {
-                            super.updateItem(object, empty);
-                            if (empty || object == null) {
-                                setText("");
-                            } else {
 
-                                String text = getDashboardPrefix(object) + object.getName();
-                                setText(text);
-                            }
-                        }
-                    };
+            //TODO JFX17
+            view.setConverter(new StringConverter<JEVisObject>() {
+                @Override
+                public String toString(JEVisObject object) {
+                    return getDashboardPrefix(object) + object.getName();
                 }
-            };
-            view.setCellFactory(cellFactory);
-            view.setButtonCell(cellFactory.call(null));
+
+                @Override
+                public JEVisObject fromString(String string) {
+                    return view.getItems().get(view.getSelectedIndex());
+                }
+            });
 
 
             allDashboard.addAll(_obj.getDataSource().getObjects(_obj.getDataSource().getJEVisClass("Dashboard Analysis"), true));
@@ -248,7 +241,7 @@ public class RoleExtention implements ObjectEditorExtension {
                 if (dashboard != null) {
                     JEVisObject dashboardObject = _obj.getDataSource().getObject(dashboard.getValueAsLong());
                     if (dashboardObject != null) {
-                        view.getSelectionModel().select(dashboardObject);
+                        view.selectItem(dashboardObject);
                     }
                 }
             } catch (Exception ex) {
@@ -278,8 +271,8 @@ public class RoleExtention implements ObjectEditorExtension {
         Label dashboardLabel = new Label(I18n.getInstance().getString("plugin.object.role.dashboard"));
         Label filterGroupTable = new Label(I18n.getInstance().getString("plugin.object.role.filter"));
         Label filterUserTable = new Label(I18n.getInstance().getString("plugin.object.role.filter"));
-        filterFieldGroup = new JFXTextField();
-        filterFieldUser = new JFXTextField();
+        filterFieldGroup = new MFXTextField();
+        filterFieldUser = new MFXTextField();
         overwriteDashboad = new JFXCheckBox(I18n.getInstance().getString("plugin.object.role.overwritedashboard"));
         filterFieldGroup.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         filterFieldUser.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));

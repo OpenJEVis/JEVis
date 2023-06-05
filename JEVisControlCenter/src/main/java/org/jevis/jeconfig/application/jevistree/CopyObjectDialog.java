@@ -22,7 +22,7 @@ package org.jevis.jeconfig.application.jevistree;
 
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXRadioButton;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -61,7 +61,7 @@ public class CopyObjectDialog extends Dialog {
 
     public static String ICON = "1403555565_stock_folder-move.png";
 
-    private final JFXTextField nameField = new JFXTextField();
+    private final MFXTextField nameField = new MFXTextField();
     private boolean recursionAllowed = false;
     private final boolean includeDataAllowed = true;
     private final JFXCheckBox includeValues = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.copy.addvalues"));

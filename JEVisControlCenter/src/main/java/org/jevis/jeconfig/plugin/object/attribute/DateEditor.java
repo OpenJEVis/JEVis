@@ -19,7 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -45,7 +45,7 @@ import java.time.ZoneId;
 public class DateEditor implements AttributeEditor {
 
     private static final Logger logger = LogManager.getLogger(DateTimeEditor2.class);
-    private final JFXDatePicker pickerDate = new JFXDatePicker();
+    private final MFXDatePicker pickerDate = new MFXDatePicker();
     private final HBox editor = new HBox();
     private final JEVisAttribute att;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);

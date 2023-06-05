@@ -20,7 +20,7 @@
 package org.jevis.jeconfig.plugin.unit;
 
 import com.jfoenix.controls.JFXTextArea;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -58,9 +58,9 @@ public class UnitEditor {
 //                Label orderLabel = new Label("Dimension: ");
             Label formel = new Label("Formel Editor:");
 
-            JFXTextField nameT = new JFXTextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
-            JFXTextField symboleT = new JFXTextField(unit.getUnit().toString());
-//                JFXTextField orderT = new JFXTextField(unit.getUnit().getDimension().toString());
+            MFXTextField nameT = new MFXTextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
+            MFXTextField symboleT = new MFXTextField(unit.getUnit().toString());
+//                MFXTextField orderT = new MFXTextField(unit.getUnit().getDimension().toString());
             JFXTextArea formelField = new JFXTextArea();
             formelField.setPrefSize(260, 100);
             formelField.setWrapText(true);
@@ -86,7 +86,8 @@ public class UnitEditor {
     public void hideImageNodesMatching(Node node, Pattern imageNamePattern, int depth) {
         if (node instanceof ImageView) {
             ImageView imageView = (ImageView) node;
-            String url = imageView.getImage().impl_getUrl();
+            //TODO JFX17 Testen
+            String url = imageView.getImage().getUrl();
             if (url != null && imageNamePattern.matcher(url).matches()) {
                 Node button = imageView.getParent().getParent();
                 button.setVisible(false);

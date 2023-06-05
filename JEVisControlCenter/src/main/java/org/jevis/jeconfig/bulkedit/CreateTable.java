@@ -1,23 +1,24 @@
 package org.jevis.jeconfig.bulkedit;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 import javafx.util.Pair;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.spreadsheet.*;
@@ -27,7 +28,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisUnit;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
-import org.jevis.jeconfig.tool.ImageConverter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,51 +72,35 @@ public class CreateTable {
         } catch (JEVisException ex) {
             logger.fatal(ex);
         }
-        //cellFactory for the JFXComboBox
-        Callback<ListView<JEVisClass>, ListCell<JEVisClass>> cellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
+
+        MFXComboBox<JEVisClass> classComboBox = new MFXComboBox<JEVisClass>(options);
+
+        //TODO JFX17
+        classComboBox.setConverter(new StringConverter<JEVisClass>() {
             @Override
-            public ListCell<JEVisClass> call(ListView<JEVisClass> param) {
-                final ListCell<JEVisClass> cell = new ListCell<JEVisClass>() {
-                    {
-                        super.setPrefWidth(260);
-                    }
+            public String toString(JEVisClass object) {
+                String text = "";
+                try {
+                    text = object.getName();
+                } catch (JEVisException ignored) {
 
-                    @Override
-                    public void updateItem(JEVisClass item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            HBox box = new HBox(5);
-                            box.setAlignment(Pos.CENTER_LEFT);
-                            try {
-                                ImageView icon = ImageConverter.convertToImageView(item.getIcon(), 15, 15);
-                                Label cName = new Label(item.getName());
-                                cName.setTextFill(Color.BLACK);
-                                box.getChildren().setAll(icon, cName);
-
-                            } catch (JEVisException ex) {
-                                logger.fatal(ex);
-                            }
-
-                            setGraphic(box);
-
-                        }
-                    }
-                };
-                return cell;
+                }
+                return text;
             }
-        };
 
-        //ComboBox ist fuer die Kinder vom ausgewaehlten Parent zu zeigen.
-        JFXComboBox<JEVisClass> classComboBox = new JFXComboBox<JEVisClass>(options);
-        classComboBox.setCellFactory(cellFactory);
-        classComboBox.setButtonCell(cellFactory.call(null));
+            @Override
+            public JEVisClass fromString(String string) {
+                return classComboBox.getItems().get(classComboBox.getSelectedIndex());
+            }
+        });
+
         classComboBox.setMinWidth(250);
         classComboBox.getSelectionModel().selectFirst();
         //Wähle das erste Item aus und initialisiere createClass.
         createClass = classComboBox.getSelectionModel().getSelectedItem();
 
-        JFXButton createBtn = new JFXButton("Create Structure");
-        JFXButton cancelBtn = new JFXButton("Cancel");
+        MFXButton createBtn = new MFXButton("Create Structure");
+        MFXButton cancelBtn = new MFXButton("Cancel");
 
         //Wenn createclass ein JEconfig "Data" object ist,wird CreateNewDataTable aufgerufen.
         //Wenn nicht wird CreateNewTable aufgerufen.
@@ -137,8 +121,8 @@ public class CreateTable {
         hBoxTop.setSpacing(10);
         //hBoxTop.setPadding(new Insets(3, 3, 3, 3));
         Label lClass = new Label("Class:");
-        //Help JFXButton ist fuer den WebBrowser in den WebBrowser wird die batch_mode_help.html Datei aufgerufen.
-        JFXButton help = new JFXButton("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
+        //Help MFXButton ist fuer den WebBrowser in den WebBrowser wird die batch_mode_help.html Datei aufgerufen.
+        MFXButton help = new MFXButton("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
         Separator sep1 = new Separator();
         hBoxTop.getChildren().addAll(lClass, classComboBox, sep1, help);
 
@@ -190,7 +174,7 @@ public class CreateTable {
 
             }
         });
-        //Wenn man vom JFXComboBox ein neues Objekt auswählt,wird die Tabelle neue Strukturiert.
+        //Wenn man vom MFXComboBox ein neues Objekt auswählt,wird die Tabelle neue Strukturiert.
         classComboBox.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -215,7 +199,7 @@ public class CreateTable {
             }
         });
 
-        //Help JFXButton für die help Datei.
+        //Help MFXButton für die help Datei.
         help.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {

@@ -1,14 +1,13 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.skins.JFXComboBoxListViewSkin;
-import javafx.application.Platform;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -29,7 +28,7 @@ import java.util.List;
 
 import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END;
 
-public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
+public class PresetDateBox extends MFXComboBox<AnalysisTimeFrame> {
     private static final Logger logger = LogManager.getLogger(PresetDateBox.class);
     private final DateHelper dateHelper = new DateHelper();
     private final JEVisDataSource ds;
@@ -42,17 +41,18 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
         this.ds = ds;
         this.chartPlugin = chartPlugin;
 
-        this.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) this.getSkin();
-                if (skin != null) {
-                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-                    if (popupContent != null) {
-                        popupContent.scrollTo(this.getSelectionModel().getSelectedIndex());
-                    }
-                }
-            });
-        });
+        //TODO: JFX17
+//        this.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+//            Platform.runLater(() -> {
+//                MFXComboBoxListViewSkin<?> skin = (MFXComboBoxListViewSkin<?>) this.getSkin();
+//                if (skin != null) {
+//                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+//                    if (popupContent != null) {
+//                        popupContent.scrollTo(this.getSelectionModel().getSelectedIndex());
+//                    }
+//                }
+//            });
+//        });
 
         setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.presetdate")));
 
@@ -178,11 +178,21 @@ public class PresetDateBox extends JFXComboBox<AnalysisTimeFrame> {
                 };
             }
         };
-        setCellFactory(cellFactory);
-        setButtonCell(cellFactory.call(null));
+//TODO: JFX17
+        setConverter(new StringConverter<AnalysisTimeFrame>() {
+            @Override
+            public String toString(AnalysisTimeFrame object) {
+                return TimeFrame.getTranslationName(object.getTimeFrame());
+            }
+
+            @Override
+            public AnalysisTimeFrame fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
 
         if (chartPlugin != null && chartPlugin.getDataSettings() != null && chartPlugin.getDataSettings().getAnalysisTimeFrame() != null) {
-            getSelectionModel().select(chartPlugin.getDataSettings().getAnalysisTimeFrame());
+            selectItem(chartPlugin.getDataSettings().getAnalysisTimeFrame());
         }
     }
 

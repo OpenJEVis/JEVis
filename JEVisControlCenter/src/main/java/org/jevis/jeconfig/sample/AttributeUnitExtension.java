@@ -5,7 +5,7 @@
  */
 package org.jevis.jeconfig.sample;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -91,8 +91,8 @@ public class AttributeUnitExtension implements SampleEditorExtension {
             SamplingRateUI iuRate = new SamplingRateUI(att.getInputSampleRate());
             SamplingRateUI ouRate = new SamplingRateUI(att.getDisplaySampleRate());
 
-            JFXButton applyToRight = new JFXButton("", JEConfig.getImage("right.png", 12, 12));
-            JFXButton applyToLeft = new JFXButton("", JEConfig.getImage("left.png", 12, 12));
+            MFXButton applyToRight = new MFXButton("", JEConfig.getImage("right.png", 12, 12));
+            MFXButton applyToLeft = new MFXButton("", JEConfig.getImage("left.png", 12, 12));
 
             applyToRight.setOnAction(event -> {
                 try {
@@ -102,12 +102,12 @@ public class AttributeUnitExtension implements SampleEditorExtension {
 
                     ouUnit.setUnit(unit);
                     ouUnit.getUnitButton().setText(unit.getFormula());
-                    ouUnit.getPrefixBox().getSelectionModel().select(
+                    ouUnit.getPrefixBox().selectItem(
                             UnitManager.getInstance().getPrefix(unit.getPrefix()));
                     ouUnit.getSymbolField().setText(iuUnit.getSymbolField().getText());
 
                     ouRate.samplingRateProperty().setValue(att.getInputSampleRate());
-                    ouRate.getSelectionModel().select(att.getInputSampleRate());
+                    ouRate.selectItem(att.getInputSampleRate());
 
 
                 } catch (JEVisException e) {
@@ -123,12 +123,12 @@ public class AttributeUnitExtension implements SampleEditorExtension {
 
                     iuUnit.setUnit(unit);
                     iuUnit.getUnitButton().setText(unit.getFormula());
-                    iuUnit.getPrefixBox().getSelectionModel().select(
+                    iuUnit.getPrefixBox().selectItem(
                             UnitManager.getInstance().getPrefix(unit.getPrefix()));
                     iuUnit.getSymbolField().setText(ouUnit.getSymbolField().getText());
 
                     iuRate.samplingRateProperty().setValue(att.getDisplaySampleRate());
-                    iuRate.getSelectionModel().select(att.getDisplaySampleRate());
+                    iuRate.selectItem(att.getDisplaySampleRate());
 
                 } catch (JEVisException e) {
                     e.printStackTrace();

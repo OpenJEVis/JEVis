@@ -19,8 +19,8 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -111,67 +111,6 @@ public class GapFillingEditor implements AttributeEditor {
     }
 
     /**
-     * Build main UI
-     */
-    private void init() {
-        JFXButton openConfig = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
-        openConfig.setOnAction(action -> {
-            try {
-                show();
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-        });
-
-        box.getChildren().setAll(openConfig);
-
-        initialized = true;
-    }
-
-    @Override
-    public void update() {
-        Platform.runLater(() -> {
-            box.getChildren().clear();
-            getEditor();
-        });
-    }
-
-    @Override
-    public boolean hasChanged() {
-        _changed.setValue(true);
-
-        return _changed.getValue();
-    }
-
-    @Override
-    public Node getEditor() {
-        try {
-            if (!initialized) {
-                init();
-            }
-        } catch (Exception ex) {
-            logger.catching(ex);
-        }
-
-        return box;
-    }
-
-    @Override
-    public BooleanProperty getValueChangedProperty() {
-        return _changed;
-    }
-
-    @Override
-    public void setReadOnly(boolean canRead) {
-        _readOnly.setValue(canRead);
-    }
-
-    @Override
-    public JEVisAttribute getAttribute() {
-        return _attribute;
-    }
-
-    /**
      * Fills the given tab content with an gui for the given gap configuration
      *
      * @param tab
@@ -203,8 +142,8 @@ public class GapFillingEditor implements AttributeEditor {
         NumberSpinner referencePeriodCountText = new NumberSpinner(new BigDecimal(1), new BigDecimal(1));
         referencePeriodCountText.setMin(new BigDecimal(1));
         referencePeriodCountText.setMax(new BigDecimal(99));
-        JFXTextField boundaryText = new JFXTextField();
-        JFXTextField defaultValueText = new JFXTextField();
+        MFXTextField boundaryText = new MFXTextField();
+        MFXTextField defaultValueText = new MFXTextField();
 
         /**
          * Text layout
@@ -217,7 +156,7 @@ public class GapFillingEditor implements AttributeEditor {
         /**
          * Fill configuration values into gui elements
          */
-        typeBox.getSelectionModel().select(GapFillingType.parse(config.getType()));
+        typeBox.selectItem(GapFillingType.parse(config.getType()));
         boundaryText.setText((Long.parseLong(config.getBoundary()) / 1000) + ""); //msec -> sec
         try{
             NumberFormat numberFormat = NumberFormat.getInstance(I18n.getInstance().getLocale());
@@ -225,15 +164,14 @@ public class GapFillingEditor implements AttributeEditor {
                 Double defaultValue = Double.parseDouble(config.getDefaultvalue());
                 defaultValueText.setText(numberFormat.format(defaultValue));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("Could not parse default value", e);
         }
 
 
-
-        typeBox.getSelectionModel().select(GapFillingType.parse(config.getType()));
-        referencePeriodBox.getSelectionModel().select(GapFillingReferencePeriod.parse(config.getReferenceperiod()));
-        boundSpecificBox.getSelectionModel().select(GapFillingBoundToSpecific.parse(config.getBindtospecific()));
+        typeBox.selectItem(GapFillingType.parse(config.getType()));
+        referencePeriodBox.selectItem(GapFillingReferencePeriod.parse(config.getReferenceperiod()));
+        boundSpecificBox.selectItem(GapFillingBoundToSpecific.parse(config.getBindtospecific()));
 
         BigDecimal parsedValue = new BigDecimal(145);
         try {
@@ -315,6 +253,67 @@ public class GapFillingEditor implements AttributeEditor {
 
 
         tab.setContent(gridPane);
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            box.getChildren().clear();
+            getEditor();
+        });
+    }
+
+    @Override
+    public boolean hasChanged() {
+        _changed.setValue(true);
+
+        return _changed.getValue();
+    }
+
+    @Override
+    public Node getEditor() {
+        try {
+            if (!initialized) {
+                init();
+            }
+        } catch (Exception ex) {
+            logger.catching(ex);
+        }
+
+        return box;
+    }
+
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _readOnly.setValue(canRead);
+    }
+
+    @Override
+    public JEVisAttribute getAttribute() {
+        return _attribute;
+    }
+
+    /**
+     * Build main UI
+     */
+    private void init() {
+        MFXButton openConfig = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
+        openConfig.setOnAction(action -> {
+            try {
+                show();
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        });
+
+        box.getChildren().setAll(openConfig);
+
+        initialized = true;
     }
 
     /**

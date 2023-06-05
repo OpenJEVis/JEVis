@@ -20,7 +20,7 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -103,7 +103,7 @@ public class AboutDialog {
 
         HBox buttonPanel = new HBox();
 
-        JFXButton cancel = new JFXButton("Close");
+        MFXButton cancel = new MFXButton("Close");
         cancel.setDefaultButton(true);
 
         buttonPanel.getChildren().addAll(cancel);

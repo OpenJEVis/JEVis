@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Label;
@@ -11,6 +11,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
@@ -26,11 +27,11 @@ import java.util.stream.Collectors;
 public class NewWidgetSelector extends GridPane {
 
 
-    final JFXComboBox<WidgetSelection> widgetComboBox = new JFXComboBox<>();
+    final MFXComboBox<WidgetSelection> widgetComboBox = new MFXComboBox<>();
     final ObjectProperty<Widget> selectedWidgetProperty = new SimpleObjectProperty<>();
     final DashboardControl control;
 
-    private final JFXButton newB = new JFXButton("", JEConfig.getSVGImage(Icon.PLUS, 20, 20));
+    private final MFXButton newB = new MFXButton("", JEConfig.getSVGImage(Icon.PLUS, 20, 20));
 
 
     public NewWidgetSelector(DashboardControl dashboardControl) {
@@ -39,8 +40,19 @@ public class NewWidgetSelector extends GridPane {
         widgetComboBox.getItems().addAll(widgets);
 
         Callback<ListView<WidgetSelection>, ListCell<WidgetSelection>> cellFactory = buildCellFactory();
-        widgetComboBox.setCellFactory(cellFactory);
-        widgetComboBox.setButtonCell(cellFactory.call(null));
+        //TODO JFX17
+
+        widgetComboBox.setConverter(new StringConverter<WidgetSelection>() {
+            @Override
+            public String toString(WidgetSelection object) {
+                return object.getDisplayname();
+            }
+
+            @Override
+            public WidgetSelection fromString(String string) {
+                return widgetComboBox.getItems().get(widgetComboBox.getSelectedIndex());
+            }
+        });
         widgetComboBox.getSelectionModel().selectFirst();
 
         Label labelType = new Label(I18n.getInstance().getString("plugin.dashboard.toolbar.new.type"));
@@ -69,7 +81,7 @@ public class NewWidgetSelector extends GridPane {
     /*
     @TODO
      */
-    public JFXButton getNewB() {
+    public MFXButton getNewB() {
         this.getChildren().remove(newB);
         return newB;
     }

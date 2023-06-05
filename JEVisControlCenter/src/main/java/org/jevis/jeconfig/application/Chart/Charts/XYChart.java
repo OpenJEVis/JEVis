@@ -860,18 +860,22 @@ public class XYChart implements Chart {
         ErrorDataSetRenderer rendererColumnX2Y2 = new ErrorDataSetRenderer();
         rendererColumnY1.setPolyLineStyle(LineStyle.NONE);
         rendererColumnY1.setDrawBars(true);
+        rendererColumnY1.setMarkerSize(0);
         rendererColumnY1.setDrawMarker(false);
         rendererColumnY1.getAxes().add(y1Axis);
         rendererColumnX2Y1.setPolyLineStyle(LineStyle.NONE);
         rendererColumnX2Y1.setDrawBars(true);
+        rendererColumnX2Y1.setMarkerSize(0);
         rendererColumnX2Y1.setDrawMarker(false);
         rendererColumnX2Y1.getAxes().addAll(secondaryDateAxis, y1Axis);
         rendererColumnY2.setPolyLineStyle(LineStyle.NONE);
         rendererColumnY2.setDrawBars(true);
+        rendererColumnY2.setMarkerSize(0);
         rendererColumnY2.setDrawMarker(false);
         rendererColumnY2.getAxes().add(y2Axis);
         rendererColumnX2Y2.setPolyLineStyle(LineStyle.NONE);
         rendererColumnX2Y2.setDrawBars(true);
+        rendererColumnX2Y2.setMarkerSize(0);
         rendererColumnX2Y2.setDrawMarker(false);
         rendererColumnX2Y2.getAxes().addAll(secondaryDateAxis, y2Axis);
         if (chartModel.getChartType() == ChartType.STACKED_AREA || chartModel.getChartType() == ChartType.STACKED_COLUMN

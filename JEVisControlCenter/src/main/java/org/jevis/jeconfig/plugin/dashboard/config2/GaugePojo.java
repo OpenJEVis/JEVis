@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -37,8 +37,8 @@ public class GaugePojo {
 
     private final double iconSize = 20;
 
-    private final JFXButton jfxButtonDelete = new JFXButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
-    private final JFXButton jfxButtonAdd = new JFXButton("", JEConfig.getImage("list-add.png", this.iconSize, this.iconSize));
+    private final MFXButton MFXButtonDelete = new MFXButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+    private final MFXButton MFXButtonAdd = new MFXButton("", JEConfig.getImage("list-add.png", this.iconSize, this.iconSize));
 
     int gaugeWidgetID = -1;
 
@@ -72,9 +72,9 @@ public class GaugePojo {
 
     private JFXCheckBox jfxCheckBoxInPercent;
 
-    private JFXTextField minTextField;
+    private MFXTextField minTextField;
 
-    private JFXTextField maxTextField;
+    private MFXTextField maxTextField;
 
     private TableView tableViewSections;
 
@@ -225,18 +225,18 @@ public class GaugePojo {
         tableViewSections.getItems().addAll(sections);
 
 
-        jfxButtonAdd.setOnAction(event -> {
+        MFXButtonAdd.setOnAction(event -> {
             tableViewSections.getItems().add(new GaugeSectionPojo());
         });
 
-        jfxButtonDelete.setOnAction(event -> {
+        MFXButtonDelete.setOnAction(event -> {
             tableViewSections.getItems().remove(tableViewSections.getSelectionModel().getSelectedItem());
         });
 
         HBox hBox = new HBox();
         hBox.setPadding(new Insets(5, 8, 5, 8));
         hBox.setSpacing(10);
-        hBox.getChildren().addAll(jfxButtonAdd, jfxButtonDelete);
+        hBox.getChildren().addAll(MFXButtonAdd, MFXButtonDelete);
         gridPane.add(hBox, 0, 7, 3, 1);
 
 
@@ -262,9 +262,9 @@ public class GaugePojo {
         jfxCheckBoxInPercent.setSelected(inPercent);
 
 
-        minTextField = new JFXTextField(String.valueOf(minimum));
+        minTextField = new MFXTextField(String.valueOf(minimum));
 
-        maxTextField = new JFXTextField(String.valueOf(maximum));
+        maxTextField = new MFXTextField(String.valueOf(maximum));
 
         gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showTitle")), jfxCheckBoxShowTitle);
         gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showUnit")), jfxCheckBoxShowUnit);

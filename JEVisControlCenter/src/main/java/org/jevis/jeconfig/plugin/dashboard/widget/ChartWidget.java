@@ -12,7 +12,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.CustomNumericAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
@@ -26,7 +25,6 @@ import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.DataSettings;
 import org.jevis.jeconfig.plugin.charts.ToolBarSettings;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
@@ -48,7 +46,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
     private XYChart xyChart;
     private HeatMapChart heatMapChart;
-    private final WidgetLegend legend = new WidgetLegend();
+   // private final WidgetLegend legend = new WidgetLegend();
     private final BorderPane borderPane = new BorderPane();
     private Interval lastInterval = null;
     private final BorderPane bottomBorderPane = new BorderPane();
@@ -97,15 +95,15 @@ public class ChartWidget extends Widget implements DataModelWidget {
                 this.borderPane.setCenter(null);
                 this.xyChart = null;
                 this.heatMapChart = null;
-                this.legend.getItems().clear();
+                //         this.legend.getItems().clear();
             });
 
             this.sampleHandler.getDataModel().forEach(chartDataModel -> {
                 try {
-                    Platform.runLater(() -> this.legend.getItems().add(
-                            this.legend.buildHorizontalLegendItem(chartDataModel.getName(), chartDataModel.getColor(),
-                                    this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
-                                    chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata"), false)));
+                    //            Platform.runLater(() -> this.legend.getItems().add(
+                    //                  this.legend.buildHorizontalLegendItem(chartDataModel.getName(), chartDataModel.getColor(),
+                    //                        this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
+                    //                      chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata"), false)));
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
@@ -157,7 +155,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     VBox.setVgrow(hBox, Priority.NEVER);
                     VBox.setVgrow(tableHeaderTable, Priority.ALWAYS);
                     this.borderPane.setCenter(vBox);
-                    this.legend.getItems().clear();
+                    //           this.legend.getItems().clear();
                 });
             } else {
                 boolean isHeatMap = this.sampleHandler.getDataModel().stream().anyMatch(chartDataRow -> chartDataRow.getChartType() == ChartType.HEAT_MAP);
@@ -167,7 +165,8 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     chartModel.setColorMapping(ColorMapping.BLUE_CYAN_GREEN_YELLOW_RED);
 
                     Platform.runLater(() -> {
-                        this.legend.getItems().clear();
+                        // TODO JFX17 legend
+                        //  this.legend.getItems().clear();
                         this.heatMapChart = new HeatMapChart(getDataSource(), chartModel, sampleHandler.getDataModel(), getConfig().getBackgroundColor(), getConfig().getFontColor());
                         this.heatMapChart.getRegion().setPrefSize(getConfig().getSize().getWidth() - 20, getConfig().getSize().getHeight());
                         this.borderPane.setCenter(this.heatMapChart.getRegion());
@@ -216,10 +215,10 @@ public class ChartWidget extends Widget implements DataModelWidget {
             try {
 
                 this.setBackground(bgColorTrans);
-                if (this.legend != null) {
-                    this.legend.setBackground(bgColorTrans);
-                    this.legend.setStyle("-fx-background-color: transparent; -fx-text-color: " + fontColor + ";");
-                }
+                //          if (this.legend != null) {
+                //            this.legend.setBackground(bgColorTrans);
+                //          this.legend.setStyle("-fx-background-color: transparent; -fx-text-color: " + fontColor + ";");
+                //          }
                 this.borderPane.setBackground(bgColor);
 
                 try {
@@ -286,14 +285,14 @@ public class ChartWidget extends Widget implements DataModelWidget {
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
         this.sampleHandler.setMultiSelect(true);
 
-        this.legend.setAlignment(Pos.CENTER);
+        //      this.legend.setAlignment(Pos.CENTER);
 
 
 //        bottomBorderPane.heightProperty().addListener((observable, oldValue, newValue) -> {
 //            System.out.println("bottomBorderPane: " + newValue);
 //        });
         this.borderPane.setBottom(bottomBorderPane);
-        this.borderPane.setBottom(this.legend);
+        //  this.borderPane.setBottom(this.legend);
         setGraphic(this.borderPane);
 
 

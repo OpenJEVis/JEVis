@@ -20,7 +20,7 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -86,7 +86,7 @@ public class InfoDialog {
 
         HBox buttonPanel = new HBox();
 
-        JFXButton ok = new JFXButton("OK");
+        MFXButton ok = new MFXButton("OK");
         ok.setDefaultButton(true);
 
         buttonPanel.getChildren().addAll(ok);

@@ -2,7 +2,7 @@ package org.jevis.jeconfig.application.Chart.Charts;
 
 import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -239,7 +239,7 @@ public class TableChartV extends XYChart {
                 columnNameLabel.setAlignment(Pos.CENTER);
                 HBox nameLabelBox = new HBox(columnNameLabel);
                 nameLabelBox.setAlignment(Pos.CENTER);
-                JFXTextField filterBox = new JFXTextField();
+                MFXTextField filterBox = new MFXTextField();
                 filterBox.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
                 filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {

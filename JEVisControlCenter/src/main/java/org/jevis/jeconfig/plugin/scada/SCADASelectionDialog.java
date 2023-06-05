@@ -19,8 +19,8 @@
  */
 package org.jevis.jeconfig.plugin.scada;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -51,8 +51,8 @@ import java.util.List;
 public class SCADASelectionDialog extends Dialog {
 
     //    private VBox root = new VBox();
-    private final JFXButton ok = new JFXButton("OK");
-    private final JFXButton clear = new JFXButton("Clear");
+    private final MFXButton ok = new MFXButton("OK");
+    private final MFXButton clear = new MFXButton("Clear");
     private final String ICON = "1404313956_evolution-tasks.png";
     private final JEVisDataSource _ds;
     private Response response = Response.CANCEL;
@@ -159,7 +159,7 @@ public class SCADASelectionDialog extends Dialog {
         ok.setDefaultButton(true);
 //        ok.setDisable(true);
 
-        JFXButton cancel = new JFXButton("Cancel");
+        MFXButton cancel = new MFXButton("Cancel");
         cancel.setCancelButton(true);
         cancel.setOnAction(event -> close());
 

@@ -5,26 +5,19 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXComboBox;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-
 /**
  * @param <T>
  * @author br
  */
-public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
+//public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
 
-    private final JFXComboBox comboBox;
+   /* private final MFXComboBox comboBox;
     private final StringBuilder sb;
     private final ObservableList<T> data;
     private boolean moveCaretToPos = false;
     private int caretPos;
 
-    public AutoCompleteComboBoxListener(final JFXComboBox comboBox) {
+    public AutoCompleteComboBoxListener(final MFXComboBox comboBox) {
         this.comboBox = comboBox;
         sb = new StringBuilder();
         data = comboBox.getItems();
@@ -93,6 +86,6 @@ public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
             comboBox.getEditor().positionCaret(caretPos);
         }
         moveCaretToPos = false;
-    }
+    }*/
 
-}
+//}

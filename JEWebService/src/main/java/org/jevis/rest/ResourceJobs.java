@@ -31,7 +31,6 @@ import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.xml.ws.WebServiceContext;
 import java.util.List;
 
 /**
@@ -67,7 +66,6 @@ public class ResourceJobs {
             @Context HttpHeaders httpHeaders,
             @Context Request request,
             @Context UriInfo url,
-            @Context WebServiceContext serviceContext,
             @DefaultValue("false") @QueryParam("detail") boolean detailed
     ) {
 

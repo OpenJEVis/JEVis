@@ -5,8 +5,8 @@
  */
 package org.jevis.jeconfig.application.unit;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -14,12 +14,10 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
@@ -39,14 +37,14 @@ public class UnitChooserPanel {
     private static final Logger logger = LogManager.getLogger(UnitChooserPanel.class);
 
     private JEVisUnit _unit = null;
-    private final JFXTextField altSymbolField = new JFXTextField("");
+    private final MFXTextField altSymbolField = new MFXTextField("");
     private String _altSymbol = "";
-    private final JFXComboBox<?> boxMeaning = new JFXComboBox<Object>();
-    private final JFXComboBox<MetricPrefix> boxPrefix = new JFXComboBox<MetricPrefix>();
-    private final JFXComboBox<JEVisUnit> boxQuantity = new JFXComboBox<JEVisUnit>();
-    private final JFXComboBox<JEVisUnit> boxUnit = new JFXComboBox<JEVisUnit>();
+    private final MFXComboBox<?> boxMeaning = new MFXComboBox<Object>();
+    private final MFXComboBox<MetricPrefix> boxPrefix = new MFXComboBox<MetricPrefix>();
+    private final MFXComboBox<JEVisUnit> boxQuantity = new MFXComboBox<JEVisUnit>();
+    private final MFXComboBox<JEVisUnit> boxUnit = new MFXComboBox<JEVisUnit>();
     private final Label example = new Label("1234.56");
-    private final JFXTextField searchField = new JFXTextField();
+    private final MFXTextField searchField = new MFXTextField();
     private final GridPane root = new GridPane();
     private final Label lQuantity = new Label("Quantity:");
     private final Label lUnit = new Label("Unit:");
@@ -188,11 +186,30 @@ public class UnitChooserPanel {
 
     private void fillUnits(JEVisUnit unit) {
         logger.info("fill units");
-        boxUnit.setButtonCell(new UnitListCell());
-        boxUnit.setCellFactory(new Callback<ListView<JEVisUnit>, ListCell<JEVisUnit>>() {
+        //TODO JFX17
+        boxUnit.setConverter(new StringConverter<JEVisUnit>() {
             @Override
-            public ListCell<JEVisUnit> call(ListView<JEVisUnit> p) {
-                return new UnitListCell();
+            public String toString(JEVisUnit object) {
+                String text = "";
+                if (object instanceof Unit) {
+                    text = String.format("%s [%s]", object.toString(), UnitManager.getInstance().getUnitName((Unit) object, Locale.ENGLISH));
+//                setText(UnitManager.getInstance().getQuantitiesName((Unit) item, Locale.getDefault()));
+                }
+
+                return text;
+            }
+
+            @Override
+            public JEVisUnit fromString(String string) {
+                JEVisUnit returnUnit = null;
+                for (JEVisUnit visUnit : boxUnit.getItems()) {
+                    String text = String.format("%s [%s]", visUnit.toString(), UnitManager.getInstance().getUnitName((Unit) visUnit, Locale.ENGLISH));
+                    if (text != null && text.equals(string)) {
+                        returnUnit = visUnit;
+                        break;
+                    }
+                }
+                return returnUnit;
             }
         });
 
@@ -236,11 +253,17 @@ public class UnitChooserPanel {
 
     private void fillQuantitys() {
         logger.info("fill quantitys");
-        boxQuantity.setButtonCell(new QuantitiesListCell());
-        boxQuantity.setCellFactory(new Callback<ListView<JEVisUnit>, ListCell<JEVisUnit>>() {
+
+        //TODO JFX17
+        boxQuantity.setConverter(new StringConverter<JEVisUnit>() {
             @Override
-            public ListCell<JEVisUnit> call(ListView<JEVisUnit> p) {
-                return new QuantitiesListCell();
+            public String toString(JEVisUnit object) {
+                return object.getLabel();
+            }
+
+            @Override
+            public JEVisUnit fromString(String string) {
+                return boxQuantity.getItems().stream().filter(jeVisUnit -> jeVisUnit.getLabel().equals(string)).findFirst().orElse(null);
             }
         });
 
@@ -356,35 +379,5 @@ public class UnitChooserPanel {
 
         }
 
-    }
-
-    class UnitListCell extends ListCell<JEVisUnit> {
-
-        @Override
-        protected void updateItem(JEVisUnit item, boolean empty) {
-            super.updateItem(item, empty);
-
-            if (item instanceof Unit) {
-                String label = String.format("%s [%s]", item.toString(), UnitManager.getInstance().getUnitName((Unit) item, Locale.ENGLISH));
-                setText(label);
-//                setText(UnitManager.getInstance().getQuantitiesName((Unit) item, Locale.getDefault()));
-            }
-
-        }
-    }
-
-    class QuantitiesListCell extends ListCell<JEVisUnit> {
-
-        @Override
-        protected void updateItem(JEVisUnit item, boolean empty) {
-            super.updateItem(item, empty);
-
-            if (item instanceof JEVisUnit) {
-                String label = item.getLabel();
-//                String label = String.format("%s", UnitManager.getInstance().getQuantitiesName((JEVisUnit) item, Locale.ENGLISH));
-                setText(label);
-            }
-
-        }
     }
 }

@@ -344,30 +344,15 @@ public class ForecastDataObject {
         return alignedDate.withZone(DateTimeZone.UTC);
     }
 
-    public DateTime getEndDate() throws JEVisException {
-        if (getForecastDurationAttribute().hasSample()) {
-            String forecastDuration = getForecastDurationAttribute().getLatestSample().getValueAsString();
-            int forecastDurationCount = 1;
-            if (getForecastDurationCountAttribute().hasSample()) {
-                forecastDurationCount = getForecastDurationCountAttribute().getLatestSample().getValueAsLong().intValue();
-            }
+    private static DateTime fixTimeZoneOffset(DateTimeZone tz, DateTime start, int offset) {
+        int newOffset = tz.getOffset(start);
 
-            switch (forecastDuration) {
-                case "MINUTES":
-                    return getStartDate().plusMinutes(forecastDurationCount);
-                case "HOURS":
-                    return getStartDate().plusHours(forecastDurationCount);
-                case "DAYS":
-                    return getStartDate().plusDays(forecastDurationCount);
-                case "WEEKS":
-                    return getStartDate().plusWeeks(forecastDurationCount);
-                case "MONTHS":
-                    return getStartDate().plusMonths(forecastDurationCount);
-                case "YEARS":
-                    return getStartDate().plusYears(forecastDurationCount);
-            }
+        if (newOffset > offset) {
+            start = start.minus(newOffset - offset);
+        } else if (newOffset < offset) {
+            start = start.plus(offset - newOffset);
         }
-        return null;
+        return start;
     }
 
     public boolean isReady(JEVisObject object) {
@@ -442,13 +427,43 @@ public class ForecastDataObject {
         return aLong;
     }
 
+    public DateTime getEndDate() throws JEVisException {
+        if (getForecastDurationAttribute().hasSample()) {
+            String forecastDuration = getForecastDurationAttribute().getLatestSample().getValueAsString();
+            int forecastDurationCount = 1;
+            if (getForecastDurationCountAttribute().hasSample()) {
+                forecastDurationCount = getForecastDurationCountAttribute().getLatestSample().getValueAsLong().intValue();
+            }
+
+            DateTime startDate = getStartDate().withZone(getTimeZone());
+            switch (forecastDuration) {
+                case "MINUTES":
+                    return startDate.plusMinutes(forecastDurationCount).withZone(DateTimeZone.UTC);
+                case "HOURS":
+                    return startDate.plusHours(forecastDurationCount).withZone(DateTimeZone.UTC);
+                case "DAYS":
+                    return startDate.plusDays(forecastDurationCount).withZone(DateTimeZone.UTC);
+                case "WEEKS":
+                    return startDate.plusWeeks(forecastDurationCount).withZone(DateTimeZone.UTC);
+                case "MONTHS":
+                    return startDate.plusMonths(forecastDurationCount).withZone(DateTimeZone.UTC);
+                case "YEARS":
+                    return startDate.plusYears(forecastDurationCount).withZone(DateTimeZone.UTC);
+            }
+        }
+        return null;
+    }
+
     public void finishCurrentRun(JEVisObject object) {
         Long cycleTime = getCycleTime(object);
         DateTime lastRun = getLastRun(object);
+        DateTimeZone timeZone = getTimeZone();
+        int offset = timeZone.getOffset(lastRun);
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
             if (lastRunAttribute != null) {
                 DateTime dateTime = lastRun.plusMillis(cycleTime.intValue());
+                dateTime = fixTimeZoneOffset(timeZone, dateTime, offset);
                 JEVisSample newSample = lastRunAttribute.buildSample(DateTime.now(), dateTime);
                 newSample.commit();
             }

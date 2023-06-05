@@ -1,15 +1,16 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.report.PeriodMode;
 
-public class ReportPeriodBox extends JFXComboBox<PeriodMode> {
+public class ReportPeriodBox extends MFXComboBox<PeriodMode> {
 
     public ReportPeriodBox(ObservableList<PeriodMode> items) {
         super(items);
@@ -29,39 +30,48 @@ public class ReportPeriodBox extends JFXComboBox<PeriodMode> {
                     @Override
                     protected void updateItem(PeriodMode aggregationPeriod, boolean empty) {
                         super.updateItem(aggregationPeriod, empty);
-                        if (empty || aggregationPeriod == null) {
-                            setText("");
-                        } else {
-                            String text = "";
-                            switch (aggregationPeriod) {
-                                case CURRENT:
-                                    text = keyCurrent;
-                                    break;
-                                case LAST:
-                                    text = keyLast;
-                                    break;
-                                case ALL:
-                                    text = keyAll;
-                                    break;
-                                case FIXED:
-                                    text = keyFixed;
-                                    break;
-                                case FIXED_TO_REPORT_END:
-                                    text = keyFixedReportStart;
-                                    break;
-                                case RELATIVE:
-                                    text = keyFixedRelativeStart;
-                                    break;
-                            }
 
-                            setText(text);
-                        }
                     }
                 };
             }
         };
-        setCellFactory(cellFactory);
-        setButtonCell(cellFactory.call(null));
+
+        //TODO JFX17
+        setConverter(new StringConverter<PeriodMode>() {
+            @Override
+            public String toString(PeriodMode object) {
+                String text = "";
+                if (object != null) {
+                    switch (object) {
+                        case CURRENT:
+                            text = keyCurrent;
+                            break;
+                        case LAST:
+                            text = keyLast;
+                            break;
+                        case ALL:
+                            text = keyAll;
+                            break;
+                        case FIXED:
+                            text = keyFixed;
+                            break;
+                        case FIXED_TO_REPORT_END:
+                            text = keyFixedReportStart;
+                            break;
+                        case RELATIVE:
+                            text = keyFixedRelativeStart;
+                            break;
+                    }
+                }
+
+                return text;
+            }
+
+            @Override
+            public PeriodMode fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
 
         getSelectionModel().selectFirst();
     }

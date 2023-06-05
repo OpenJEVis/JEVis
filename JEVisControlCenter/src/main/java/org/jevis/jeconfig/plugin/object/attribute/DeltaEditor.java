@@ -20,8 +20,8 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -111,7 +111,7 @@ public class DeltaEditor implements AttributeEditor {
      * Build main UI
      */
     private void init() {
-        JFXButton openConfig = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.limitseditor.openconfig"));
+        MFXButton openConfig = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.limitseditor.openconfig"));
         openConfig.setOnAction(action -> {
             try {
                 show();
@@ -266,8 +266,8 @@ public class DeltaEditor implements AttributeEditor {
         Label minLabel = new Label(I18n.getInstance().getString("newobject.title1"));
         Label maxLabel = new Label(I18n.getInstance().getString("newobject.title2"));
 
-        JFXTextField minField = new JFXTextField();
-        JFXTextField maxField = new JFXTextField();
+        MFXTextField minField = new MFXTextField();
+        MFXTextField maxField = new MFXTextField();
 
         /**
          * Fill configuration values into gui elements

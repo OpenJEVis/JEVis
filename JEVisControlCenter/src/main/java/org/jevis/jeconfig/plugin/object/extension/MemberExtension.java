@@ -19,10 +19,10 @@
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -34,13 +34,16 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -263,7 +266,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
             HBox control = new HBox(0.5);
 
-            JFXButton remove = new JFXButton();
+            MFXButton remove = new MFXButton();
             remove.setGraphic(JEConfig.getImage("list-remove.png", 17, 17));
 
             //if the currentUser has a group which has delete right on the userObj he can delete it
@@ -316,44 +319,30 @@ public class MemberExtension implements ObjectEditorExtension {
         gridPane.add(addNewBox, 0, yAxis, 7, 1);
         GridPane.setFillWidth(addNewBox, true);
 
-        JFXButton newB = new JFXButton();
+        MFXButton newB = new MFXButton();
         //ToDo
-        final JFXComboBox<JEVisObject> users = new JFXComboBox<>();
+        final MFXComboBox<JEVisObject> users = new MFXComboBox<>();
         users.setMinWidth(500);
-        users.setButtonCell(new ListCell<JEVisObject>() {
 
+        users.setConverter(new StringConverter<JEVisObject>() {
             @Override
-            protected void updateItem(JEVisObject t, boolean bln) {
-                super.updateItem(t, bln); //To change body of generated methods, choose Tools | Templates.
-                if (!bln && t != null) {
-
-                    setText(getDisplayName(t));
+            public String toString(JEVisObject object) {
+                String text = "";
+                if (object != null) {
+                    text = getDisplayName(object);
+                } else {
+                    text = I18n.getInstance().getString("plugin.object.member.user_not_available");
                 }
-            }
 
-        });
-        users.setCellFactory(new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+                return text;
+            }
 
             @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> p) {
-                return new ListCell<JEVisObject>() {
-//                    {
-//                        super.setPrefWidth(100);
-//                    }
-
-                    @Override
-                    public void updateItem(JEVisObject item,
-                                           boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            setText(getDisplayName(item));
-                        } else {
-                            setText(I18n.getInstance().getString("plugin.object.member.user_not_available"));
-                        }
-                    }
-                };
+            public JEVisObject fromString(String string) {
+                return users.getItems().get(users.getSelectedIndex());
             }
         });
+
 
         ObservableList<JEVisObject> possibleUsers = FXCollections.observableArrayList();
 
@@ -369,7 +358,7 @@ public class MemberExtension implements ObjectEditorExtension {
         }
 
         FilteredList<JEVisObject> filteredData = new FilteredList<>(possibleUsers, s -> true);
-        JFXTextField filterInput = new JFXTextField();
+        MFXTextField filterInput = new MFXTextField();
         filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         filterInput.textProperty().addListener(obs -> {

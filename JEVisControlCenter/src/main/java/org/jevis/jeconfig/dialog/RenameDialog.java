@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -32,7 +32,7 @@ public class RenameDialog extends Dialog {
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name.prompt"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        JFXTextField nameField = new JFXTextField(selectedItem.getName());
+        MFXTextField nameField = new MFXTextField(selectedItem.getName());
         nameField.setMinWidth(250);
 
         ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);

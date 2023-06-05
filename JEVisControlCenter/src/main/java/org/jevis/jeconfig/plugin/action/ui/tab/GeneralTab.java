@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.plugin.action.ui.tab;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -32,8 +32,8 @@ import java.time.LocalDate;
 
 public class GeneralTab extends Tab {
 
-    private final JFXDatePicker f_plannedDate = new JFXDatePicker();
-    private final JFXDatePicker f_doneDate = new JFXDatePicker();
+    private final MFXDatePicker f_plannedDate = new MFXDatePicker();
+    private final MFXDatePicker f_doneDate = new MFXDatePicker();
     //private ActionData names = new ActionData();
     private Label l_Note = new Label();
     private Label l_Description = new Label();
@@ -50,27 +50,27 @@ public class GeneralTab extends Tab {
     private Label l_statusTags = new Label();
     private Label l_fieldTags = new Label();
     private Region col3Spacer = new Region();
-    private JFXTextField f_savingYear = new JFXTextField();
-    private JFXTextField f_Investment = new JFXTextField();
-    private JFXTextField f_ActionNr = new JFXTextField();
-    private JFXTextField f_Title = new JFXTextField();
-    private JFXTextField f_Responsible = new JFXTextField();
+    private MFXTextField f_savingYear = new MFXTextField();
+    private MFXTextField f_Investment = new MFXTextField();
+    private MFXTextField f_ActionNr = new MFXTextField();
+    private MFXTextField f_Title = new MFXTextField();
+    private MFXTextField f_Responsible = new MFXTextField();
     private TextArea f_Description = new TextArea();
     private TextArea f_NoteBewertet = new TextArea();
-    private JFXComboBox<String> f_statusTags;
+    private MFXComboBox<String> f_statusTags;
     private CheckComboBox<String> f_fieldTags;
     //private JFXCheckComboBox f_fieldTags2;
-    private JFXTextField f_Attachment = new JFXTextField();
+    private MFXTextField f_Attachment = new MFXTextField();
     private TextArea f_Note = new TextArea();
     private TextArea f_NoteEnergiefluss = new TextArea();
     private Label l_seu = new Label(I18n.getInstance().getString("actionform.editor.tab.general.seu"));
-    private JFXComboBox<String> f_sueTags = new JFXComboBox<>();
+    private MFXComboBox<String> f_sueTags = new MFXComboBox<>();
     private Label l_FromUser = new Label(I18n.getInstance().getString("plugin.action.fromuser"));
-    private JFXTextField f_FromUser = new JFXTextField();
+    private MFXTextField f_FromUser = new MFXTextField();
     private Label l_CreateDate = new Label("Erstellt");
-    private JFXDatePicker f_CreateDate = new JFXDatePicker();
+    private MFXDatePicker f_CreateDate = new MFXDatePicker();
     private Label l_distributor = new Label(I18n.getInstance().getString("plugin.action.distributor"));
-    private JFXTextField f_distributor = new JFXTextField();
+    private MFXTextField f_distributor = new MFXTextField();
 
 
     {
@@ -94,9 +94,9 @@ public class GeneralTab extends Tab {
         f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
 
 
-        f_statusTags = new JFXComboBox<>(actionPlan.getStatustags());
+        f_statusTags = new MFXComboBox<>(actionPlan.getStatustags());
         f_fieldTags = new CheckComboBox<>(actionPlan.getFieldsTags());
-        f_sueTags = new JFXComboBox<>(actionPlan.significantEnergyUseTags());
+        f_sueTags = new MFXComboBox<>(actionPlan.significantEnergyUseTags());
         //f_mediaTags.setCellFactory();
 
         ObservableList<CheckBoxData> f_fieldTags2Data = FXCollections.observableArrayList();
@@ -119,7 +119,7 @@ public class GeneralTab extends Tab {
         f_NoteEnergiefluss.textProperty().bindBidirectional(data.noteEnergieflussProperty());
         f_NoteBewertet.textProperty().bindBidirectional(data.noteBewertetProperty());
         f_Responsible.textProperty().bindBidirectional(data.responsibleProperty());
-        f_statusTags.getSelectionModel().select(data.statusTagsProperty().getValue());
+        f_statusTags.selectItem(data.statusTagsProperty().getValue());
         f_statusTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -200,7 +200,7 @@ public class GeneralTab extends Tab {
 
 
         // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
-        JFXTextField l_savingsUnitLabel = new JFXTextField("€");
+        MFXTextField l_savingsUnitLabel = new MFXTextField("€");
         l_savingsUnitLabel.setEditable(false);
         l_savingsUnitLabel.setPrefWidth(25);
         HBox savingsBox = new HBox(f_savingYear, l_savingsUnitLabel);
@@ -208,7 +208,7 @@ public class GeneralTab extends Tab {
         f_savingYear.setAlignment(Pos.BASELINE_RIGHT);
 
 
-        JFXTextField l_investmentUnitLabel = new JFXTextField("€");
+        MFXTextField l_investmentUnitLabel = new MFXTextField("€");
         l_investmentUnitLabel.setEditable(false);
         l_investmentUnitLabel.setPrefWidth(25);
         HBox investBox = new HBox(f_Investment, l_investmentUnitLabel);

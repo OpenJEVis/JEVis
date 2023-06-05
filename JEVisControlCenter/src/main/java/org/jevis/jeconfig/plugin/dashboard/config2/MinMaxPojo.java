@@ -3,7 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -42,9 +42,9 @@ public class MinMaxPojo {
     private final ActionEvent actionEvent = new ActionEvent();
 
 
-    private JFXTextField minTextField;
+    private MFXTextField minTextField;
 
-    private JFXTextField maxTextField;
+    private MFXTextField maxTextField;
 
 
 
@@ -117,12 +117,11 @@ public class MinMaxPojo {
         gridPane.setHgap(8);
 
         gridPane.setPadding(new Insets(8, 5, 8, 5));
-        minTextField = new JFXTextField(String.valueOf(minimum));
-        maxTextField = new JFXTextField(String.valueOf(maximum));
+        minTextField = new MFXTextField(String.valueOf(minimum));
+        maxTextField = new MFXTextField(String.valueOf(maximum));
 
-        gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.dashboard.min")),minTextField);
-        gridPane.addRow(1,new Label(I18n.getInstance().getString("plugin.dashboard.max")),maxTextField);
-
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.min")), minTextField);
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.max")), maxTextField);
 
 
         tab.setContent(gridPane);

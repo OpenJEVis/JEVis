@@ -14,7 +14,7 @@ public class ChartTypeComboBox extends DisabledItemsComboBox<String> {
     public ChartTypeComboBox(ChartSetting currentChartSetting) {
         super(ChartType.getListNamesChartTypes());
 
-        this.getSelectionModel().select(ChartType.parseChartIndex(currentChartSetting.getChartType()));
+        this.getSelectionModel().selectIndex(ChartType.parseChartIndex(currentChartSetting.getChartType()));
 
         this.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
@@ -27,7 +27,7 @@ public class ChartTypeComboBox extends DisabledItemsComboBox<String> {
     public ChartTypeComboBox(ChartType chartType) {
         super(ChartType.getListNamesChartTypes());
 
-        this.getSelectionModel().select(ChartType.parseChartIndex(chartType));
+        this.getSelectionModel().selectIndex(ChartType.parseChartIndex(chartType));
 
     }
 
@@ -65,7 +65,7 @@ public class ChartTypeComboBox extends DisabledItemsComboBox<String> {
                                  final Node graphic,
                                  final ChartTypeComboBox comboBox) {
         if (comboBox != null) {
-            comboBox.getSelectionModel().select(ChartType.parseChartIndex(cell.getItem()));
+            comboBox.getSelectionModel().selectIndex(ChartType.parseChartIndex(cell.getItem()));
         }
         cell.setText(null);
 
@@ -96,7 +96,7 @@ public class ChartTypeComboBox extends DisabledItemsComboBox<String> {
         } else {
             if (cell.isEditing()) {
                 if (comboBox != null) {
-                    comboBox.getSelectionModel().select(ChartType.parseChartIndex(cell.getItem()));
+                    comboBox.getSelectionModel().selectIndex(ChartType.parseChartIndex(cell.getItem()));
                 }
                 cell.setText(null);
 

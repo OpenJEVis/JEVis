@@ -19,7 +19,7 @@
  */
 package org.jevis.jeconfig.sample;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -136,7 +136,7 @@ public class SampleEditor {
         /** ------------------------------------------- Processor -------------------------------------------------**/
 
 
-        JFXButton config = new JFXButton();
+        MFXButton config = new MFXButton();
         config.setGraphic(JEConfig.getImage("Service Manager.png", 16, 16));
 
 

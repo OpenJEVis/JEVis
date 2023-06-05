@@ -19,9 +19,9 @@
  */
 package org.jevis.jeconfig.plugin.object.extension;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -33,13 +33,16 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
@@ -178,7 +181,7 @@ public class PermissionExtension implements ObjectEditorExtension {
 
                 groupBox.getChildren().addAll(usericon, nameLabel);
 
-                JFXButton remove = new JFXButton();
+                MFXButton remove = new MFXButton();
                 remove.setGraphic(JEConfig.getImage("list-remove.png", 17, 17));
                 remove.setOnAction(t -> {
 
@@ -209,7 +212,7 @@ public class PermissionExtension implements ObjectEditorExtension {
                     });
                 });
 
-                JFXButton forAllChildren = new JFXButton();
+                MFXButton forAllChildren = new MFXButton();
                 forAllChildren.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.permissions.include_children")));
                 forAllChildren.setGraphic(JEConfig.getImage("1417642712_sitemap.png", 17, 17));
                 forAllChildren.setOnAction(t -> {
@@ -402,32 +405,32 @@ public class PermissionExtension implements ObjectEditorExtension {
         addNewBox.setHgap(10);
         addNewBox.setVgap(4);
 
-        JFXButton newB = new JFXButton();
+        MFXButton newB = new MFXButton();
         //ToDo
-        final JFXComboBox<JEVisObject> groupsCBox = new JFXComboBox<>();
+        final MFXComboBox<JEVisObject> groupsCBox = new MFXComboBox<>();
         groupsCBox.setMinWidth(300);
 
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+        //TODO JFX17
+
+        groupsCBox.setConverter(new StringConverter<JEVisObject>() {
             @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (empty || obj == null || obj.getName() == null) {
-                            setText("");
-                        } else {
-                            String prefix = objectRelations.getObjectPath(obj);
+            public String toString(JEVisObject object) {
+                String text = "";
+                if (object != null && object.getName() != null) {
+                    String prefix = objectRelations.getObjectPath(object);
 
-                            setText(prefix + obj.getName());
-                        }
-                    }
-                };
+                    text = prefix + object.getName();
+                }
+
+                return text;
             }
-        };
 
-        groupsCBox.setCellFactory(cellFactory);
-        groupsCBox.setButtonCell(cellFactory.call(null));
+            @Override
+            public JEVisObject fromString(String string) {
+                return groupsCBox.getItems().get(groupsCBox.getSelectedIndex());
+            }
+        });
+
         ObservableList<JEVisObject> possibleOwners = FXCollections.observableArrayList();
 
         try {
@@ -444,7 +447,7 @@ public class PermissionExtension implements ObjectEditorExtension {
         }
 
         FilteredList<JEVisObject> filteredData = new FilteredList<>(possibleOwners, s -> true);
-        JFXTextField filterInput = new JFXTextField();
+        MFXTextField filterInput = new MFXTextField();
         filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         filterInput.textProperty().addListener(obs -> {

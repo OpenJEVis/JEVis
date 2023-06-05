@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
-import com.jfoenix.controls.JFXButton;
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
@@ -11,6 +10,7 @@ import de.gsi.chart.plugins.Zoomer;
 import de.gsi.chart.ui.ObservableDeque;
 import de.gsi.chart.ui.geometry.Side;
 import de.gsi.dataset.DataSet;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -543,16 +543,16 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         separator.setOrientation(Orientation.VERTICAL);
         final HBox buttonBar = new HBox();
         buttonBar.setPadding(new Insets(1, 1, 1, 1));
-        final JFXButton zoomOut = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf0b2").size(FONT_SIZE));
+        final MFXButton zoomOut = new MFXButton(null, new Glyph(FONT_AWESOME, "\uf0b2").size(FONT_SIZE));
         zoomOut.setPadding(new Insets(3, 3, 3, 3));
         zoomOut.setTooltip(new Tooltip("zooms to origin and enables auto-ranging"));
-        final JFXButton zoomModeXY = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf047").size(FONT_SIZE));
+        final MFXButton zoomModeXY = new MFXButton(null, new Glyph(FONT_AWESOME, "\uf047").size(FONT_SIZE));
         zoomModeXY.setPadding(new Insets(3, 3, 3, 3));
         zoomModeXY.setTooltip(new Tooltip("set zoom-mode to X & Y range (N.B. disables auto-ranging)"));
-        final JFXButton zoomModeX = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf07e").size(FONT_SIZE));
+        final MFXButton zoomModeX = new MFXButton(null, new Glyph(FONT_AWESOME, "\uf07e").size(FONT_SIZE));
         zoomModeX.setPadding(new Insets(3, 3, 3, 3));
         zoomModeX.setTooltip(new Tooltip("set zoom-mode to X range (N.B. disables auto-ranging)"));
-        final JFXButton zoomModeY = new JFXButton(null, new Glyph(FONT_AWESOME, "\uf07d").size(FONT_SIZE));
+        final MFXButton zoomModeY = new MFXButton(null, new Glyph(FONT_AWESOME, "\uf07d").size(FONT_SIZE));
         zoomModeY.setPadding(new Insets(3, 3, 3, 3));
         zoomModeY.setTooltip(new Tooltip("set zoom-mode to Y range (N.B. disables auto-ranging)"));
 
@@ -959,7 +959,8 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         }
     }
 
-    private boolean isMouseEventWithinCanvas(final MouseEvent mouseEvent) {
+    @Override
+    public boolean isMouseEventWithinCanvas(final MouseEvent mouseEvent) {
         final Canvas canvas = getChart().getCanvas();
         // listen to only events within the canvas
         final Point2D mouseLoc = new Point2D(mouseEvent.getScreenX(), mouseEvent.getScreenY());
@@ -967,7 +968,8 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         return screenBounds.contains(mouseLoc);
     }
 
-    private boolean isMouseEventWithinCanvas(final ScrollEvent mouseEvent) {
+    @Override
+    public boolean isMouseEventWithinCanvas(final ScrollEvent mouseEvent) {
         final Canvas canvas = getChart().getCanvas();
         // listen to only events within the canvas
         final Point2D mouseLoc = new Point2D(mouseEvent.getScreenX(), mouseEvent.getScreenY());
@@ -1257,9 +1259,9 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
 
         org.jevis.jeconfig.application.Chart.Charts.XYChart xyChart = (org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart;
         double min = xyChart.getPrimaryDateAxis().getMin();
-        DateTime minDateTime = new DateTime(new Double(min * 1000).longValue());
+        DateTime minDateTime = new DateTime(Double.valueOf(min * 1000).longValue());
         double max = xyChart.getPrimaryDateAxis().getMax();
-        DateTime maxDateTime = new DateTime(new Double(max * 1000).longValue());
+        DateTime maxDateTime = new DateTime(Double.valueOf(max * 1000).longValue());
         Period periodForZoom = new Period(minDateTime, maxDateTime);
 
         boolean isValidZoomDistance = false;
@@ -1267,8 +1269,8 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
 
         for (XYChartSerie xyChartSerie : xyChart.getXyChartSerieList()) {
             if (xyChartSerie.getValueDataSet().getValues(DataSet.DIM_X).length >= 2) {
-                DateTime dateTime0 = new DateTime(new Double(xyChartSerie.getValueDataSet().getValues(DataSet.DIM_X)[0] * 1000).longValue());
-                DateTime dateTime1 = new DateTime(new Double(xyChartSerie.getValueDataSet().getValues(DataSet.DIM_X)[1] * 1000).longValue());
+                DateTime dateTime0 = new DateTime(Double.valueOf(xyChartSerie.getValueDataSet().getValues(DataSet.DIM_X)[0] * 1000).longValue());
+                DateTime dateTime1 = new DateTime(Double.valueOf(xyChartSerie.getValueDataSet().getValues(DataSet.DIM_X)[1] * 1000).longValue());
                 Period periodForSerie = new Period(dateTime0, dateTime1);
                 if (periodComparator.compare(periodForZoom, periodForSerie) > -1) {
                     isValidZoomDistance = true;

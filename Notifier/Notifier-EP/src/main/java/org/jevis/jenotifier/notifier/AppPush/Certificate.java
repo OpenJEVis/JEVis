@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.*;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.security.cert.X509Certificate;
 
 /**
@@ -22,7 +21,8 @@ public class Certificate {
      * @throws Exception
      */
     static public void doTrustToCertificates() throws Exception {
-        Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+        //TODO JFX17
+        // Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
         TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
                     public X509Certificate[] getAcceptedIssuers() {

@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.plugin.notes;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Side;
 import javafx.scene.control.Button;
@@ -32,7 +32,7 @@ public class TagTableCellField {
             cm.getItems().add(cmi);
         });
 
-        JFXButton tagButton = new JFXButton("Tags");
+        MFXButton tagButton = new MFXButton("Tags");
         tagButton.setContextMenu(cm);
         tagButton.setOnAction(event -> {
             cm.show(tagButton, Side.BOTTOM, 0, 0);

@@ -5,9 +5,8 @@
  */
 package org.jevis.jeconfig.plugin.charts;
 
-import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import com.jfoenix.skins.JFXComboBoxListViewSkin;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -81,9 +80,9 @@ public class ToolBarView {
     private ToggleButton testButton;
     private final PickerCombo pickerCombo;
     private final PresetDateBox presetDateBox;
-    private final JFXDatePicker pickerDateStart;
+    private final MFXDatePicker pickerDateStart;
     private final JFXTimePicker pickerTimeStart;
-    private final JFXDatePicker pickerDateEnd;
+    private final MFXDatePicker pickerDateEnd;
     private final JFXTimePicker pickerTimeEnd;
 
     private final DateHelper dateHelper = new DateHelper();
@@ -123,17 +122,18 @@ public class ToolBarView {
         analysesComboBox = new AnalysesComboBox(ds, dataModel);
         analysesComboBox.setPrefWidth(300);
 
-        analysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) analysesComboBox.getSkin();
-                if (skin != null) {
-                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-                    if (popupContent != null) {
-                        popupContent.scrollTo(analysesComboBox.getObservableListAnalyses().indexOf(chartPlugin.getDataSettings().getCurrentAnalysis()));
-                    }
-                }
-            });
-        });
+        //TODO: JFX17
+//        analysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+//            Platform.runLater(() -> {
+//                MFXComboBoxListViewSkin<?> skin = (MFXComboBoxListViewSkin<?>) analysesComboBox.getSkin();
+//                if (skin != null) {
+//                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+//                    if (popupContent != null) {
+//                        popupContent.scrollTo(analysesComboBox.getObservableListAnalyses().indexOf(chartPlugin.getDataSettings().getCurrentAnalysis()));
+//                    }
+//                }
+//            });
+//        });
 
         pickerCombo = new PickerCombo(ds, chartPlugin, true);
         presetDateBox = pickerCombo.getPresetDateBox();

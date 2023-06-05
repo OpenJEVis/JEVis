@@ -3,7 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -40,7 +40,7 @@ public class TimeFramePojo {
     final Region lockIcon = JEConfig.getSVGImage(Icon.VISIBILITY_ON, this.iconSize, this.iconSize);
     final Region unlockIcon = JEConfig.getSVGImage(Icon.VISIBILITY_OFF, this.iconSize, this.iconSize);
 
-    private JFXTextField jfxTextFieldParser;
+    private MFXTextField MFXTextFieldParser;
 
     private Integer selectedWidgetId;
     private Widget selectedWidget;
@@ -109,32 +109,11 @@ public class TimeFramePojo {
                 ", dashboardControl=" + dashboardControl +
                 ", lockIcon=" + lockIcon +
                 ", unlockIcon=" + unlockIcon +
-                ", jfxTextFieldParser=" + jfxTextFieldParser +
+                ", MFXTextFieldParser=" + MFXTextFieldParser +
                 ", selectedWidgetId=" + selectedWidgetId +
                 ", selectedWidget=" + selectedWidget +
                 ", parser='" + parser + '\'' +
                 '}';
-    }
-
-
-    private class GaugeDesignTab extends Tab implements ConfigTab {
-        TimeFramePojo timeFrameDesign;
-
-        public GaugeDesignTab(String text, TimeFramePojo timeFramePojo) {
-            super(text);
-            this.timeFrameDesign = timeFramePojo;
-        }
-
-
-        @Override
-        public void commitChanges() {
-
-            logger.debug("Selected Widget:",timeFrameColumnFactory.getSelectedWidget());
-            setSelectedWidget(timeFrameColumnFactory.getSelectedWidget());
-            parser = jfxTextFieldParser.getText();
-
-
-        }
     }
 
     public Tab getConfigTab() {
@@ -174,15 +153,15 @@ public class TimeFramePojo {
             }
         });
 
-        jfxTextFieldParser = new JFXTextField(parser);
-        jfxTextFieldParser.setPrefWidth(160d);
+        MFXTextFieldParser = new MFXTextField(parser);
+        MFXTextFieldParser.setPrefWidth(160d);
 
-        gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.dashboard.timeframe.format")),jfxTextFieldParser);
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.timeframe.format")), MFXTextFieldParser);
 
         gridPane.addRow(1, highlightButton);
 
         timeFrameColumnFactory = new TimeFrameColumnFactory(dashboardControl);
-        gridPane.add(timeFrameColumnFactory.buildTable(dashboardControl.getWidgetList()),0,2,3,1);
+        gridPane.add(timeFrameColumnFactory.buildTable(dashboardControl.getWidgetList()), 0, 2, 3, 1);
         Platform.runLater(() -> {
             timeFrameColumnFactory.setSelectedWidget(selectedWidget);
         });
@@ -190,6 +169,26 @@ public class TimeFramePojo {
 
 
         return tab;
+    }
+
+    private class GaugeDesignTab extends Tab implements ConfigTab {
+        TimeFramePojo timeFrameDesign;
+
+        public GaugeDesignTab(String text, TimeFramePojo timeFramePojo) {
+            super(text);
+            this.timeFrameDesign = timeFramePojo;
+        }
+
+
+        @Override
+        public void commitChanges() {
+
+            logger.debug("Selected Widget:",timeFrameColumnFactory.getSelectedWidget());
+            setSelectedWidget(timeFrameColumnFactory.getSelectedWidget());
+            parser = MFXTextFieldParser.getText();
+
+
+        }
     }
 
 

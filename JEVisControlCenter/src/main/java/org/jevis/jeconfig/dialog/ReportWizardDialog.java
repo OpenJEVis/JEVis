@@ -5,8 +5,8 @@ package org.jevis.jeconfig.dialog;
  */
 
 import com.google.common.collect.Lists;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -19,7 +19,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
@@ -446,9 +446,9 @@ public class ReportWizardDialog {
         VBox vBox = new VBox(6);
         vBox.setFillWidth(true);
 
-        JFXButton addMultiple = new JFXButton("", JEConfig.getSVGImage(Icon.PLUS, 16, 16));
+        MFXButton addMultiple = new MFXButton("", JEConfig.getSVGImage(Icon.PLUS, 16, 16));
 
-        JFXComboBox<ReportType> reportTypeComboBox = getReportTypeComboBox();
+        MFXComboBox<ReportType> reportTypeComboBox = getReportTypeComboBox();
         reportTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue) {
                 reportType = newValue;
@@ -522,43 +522,39 @@ public class ReportWizardDialog {
         }
     }
 
-    private JFXComboBox<ReportType> getReportTypeComboBox() {
-        JFXComboBox<ReportType> box = new JFXComboBox<>();
+    private MFXComboBox<ReportType> getReportTypeComboBox() {
+        MFXComboBox<ReportType> box = new MFXComboBox<>();
 
         box.setItems(FXCollections.observableArrayList(ReportType.values()));
 
-        box.getSelectionModel().select(ReportType.STANDARD);
+        box.selectItem(ReportType.STANDARD);
 
         final String keyStandard = I18n.getInstance().getString("plugin.object.report.dialog.typ.standard");
         final String keyAllAttributes = I18n.getInstance().getString("plugin.object.report.dialog.typ.allattributes");
 
-        Callback<ListView<ReportType>, ListCell<ReportType>> cellFactory = new Callback<javafx.scene.control.ListView<ReportType>, ListCell<ReportType>>() {
+        //TODO JFX17
+
+        box.setConverter(new StringConverter<ReportType>() {
             @Override
-            public ListCell<ReportType> call(javafx.scene.control.ListView<ReportType> param) {
-                return new ListCell<ReportType>() {
-                    @Override
-                    protected void updateItem(ReportType reportType, boolean empty) {
-                        super.updateItem(reportType, empty);
-                        if (empty || reportType == null) {
-                            setText("");
-                        } else {
-                            String text = "";
-                            switch (reportType) {
-                                case STANDARD:
-                                    text = keyStandard;
-                                    break;
-                                case ALL_ATTRIBUTES:
-                                    text = keyAllAttributes;
-                                    break;
-                            }
-                            setText(text);
-                        }
-                    }
-                };
+            public String toString(ReportType object) {
+                String text = "";
+                switch (object) {
+                    case STANDARD:
+                        text = keyStandard;
+                        break;
+                    case ALL_ATTRIBUTES:
+                        text = keyAllAttributes;
+                        break;
+                }
+
+                return text;
             }
-        };
-        box.setCellFactory(cellFactory);
-        box.setButtonCell(cellFactory.call(null));
+
+            @Override
+            public ReportType fromString(String string) {
+                return box.getItems().get(box.getSelectedIndex());
+            }
+        });
 
         return box;
     }

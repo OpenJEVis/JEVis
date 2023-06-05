@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.plugin.action.ui.tab;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -13,7 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import javafx.util.converter.NumberStringConverter;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
@@ -46,13 +46,13 @@ public class DetailsTab extends Tab {
     private Button beforeDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
     private Button afterDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
     private Button diffDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
-    private JFXButton buttonOpenAnalysisBefore = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+    private MFXButton buttonOpenAnalysisBefore = new MFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
     private Button buttonOpenAnalysisafter = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
     private Button buttonOpenAnalysisaDiff = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
-    private JFXComboBox<JEVisObject> f_EnpiSelection;
+    private MFXComboBox<JEVisObject> f_EnpiSelection;
     private Label l_EnpiSelection = new Label("EnPI");
     private Label l_mediaTags = new Label();
-    private JFXComboBox<String> f_mediaTags;
+    private MFXComboBox<String> f_mediaTags;
     private TextArea f_correctionIfNeeded = new TextArea("");
     private TextFieldWithUnit f_enpiAfter = new TextFieldWithUnit();
     private TextFieldWithUnit f_enpiBefore = new TextFieldWithUnit();
@@ -63,7 +63,7 @@ public class DetailsTab extends Tab {
     private TextFieldWithUnit f_consumptionAfter = new TextFieldWithUnit();
     private TextFieldWithUnit f_consumptionDiff = new TextFieldWithUnit();
 
-    private JFXTextField f_toUser = new JFXTextField();
+    private MFXTextField f_toUser = new MFXTextField();
 
 
     public DetailsTab(ActionData data) {
@@ -87,39 +87,35 @@ public class DetailsTab extends Tab {
             f_enpiAfter.setEditable(newValue.equals(FreeObject.getInstance().getID().toString()));
         });
 
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> enpiCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-            @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            setText(item.getName());
-                        } else {
-                            setText(null);
-                        }
+        f_EnpiSelection = new MFXComboBox(data.getActionPlan().getEnpis());
 
-                    }
-                };
+        //TODO JFX17
+
+        f_EnpiSelection.setConverter(new StringConverter<JEVisObject>() {
+            @Override
+            public String toString(JEVisObject object) {
+                return object.getName();
             }
-        };
-        f_EnpiSelection = new JFXComboBox(data.getActionPlan().getEnpis());
-        f_EnpiSelection.setCellFactory(enpiCellFactory);
-        f_EnpiSelection.setButtonCell(enpiCellFactory.call(null));
+
+            @Override
+            public JEVisObject fromString(String string) {
+                return f_EnpiSelection.getItems().get(f_EnpiSelection.getSelectedIndex());
+            }
+        });
+
         try {
             JEVisObject obj = FreeObject.getInstance();
             if (!data.enpiProperty().get().jevisLinkProperty().get().isEmpty()
                     && !data.enpiProperty().get().jevisLinkProperty().get().equals(FreeObject.getInstance().getID())) {
                 try {
-                    obj = data.getObject().getDataSource().getObject(new Long(data.enpiProperty().get().jevisLinkProperty().get()));
+                    obj = data.getObject().getDataSource().getObject(Long.valueOf(data.enpiProperty().get().jevisLinkProperty().get()));
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
             }
             //System.out.println("Select Object; " + obj);
             // f_Enpi.valueProperty().set(obj);
-            f_EnpiSelection.getSelectionModel().select(obj);
+            f_EnpiSelection.selectItem(obj);
             f_EnpiSelection.getSelectionModel().selectLast();
 
 
@@ -146,8 +142,8 @@ public class DetailsTab extends Tab {
         }
 
         l_mediaTags.setText("Medium");
-        f_mediaTags = new JFXComboBox<>(data.getActionPlan().getMediumTags());
-        f_mediaTags.getSelectionModel().select(data.mediaTagsProperty().getValue());
+        f_mediaTags = new MFXComboBox<>(data.getActionPlan().getMediumTags());
+        f_mediaTags.selectItem(data.mediaTagsProperty().getValue());
         f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {

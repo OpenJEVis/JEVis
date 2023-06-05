@@ -1,6 +1,10 @@
 package org.jevis.jeconfig.plugin.notes;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXTimePicker;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -43,10 +47,10 @@ public class NotePane extends StackPane {
     Label timeLabel = new Label(I18n.getInstance().getString("plugin.note.pane.time"));
 
 
-    JFXTextField userField = new JFXTextField();
+    private final MFXDatePicker pickerDate = new MFXDatePicker();
     TextArea noteTextArea = new TextArea();
-    private final JFXDatePicker pickerDate = new JFXDatePicker();
-    JFXButton targetTreeButton = new JFXButton(I18n.getInstance().getString("plugin.note.pane.opentree"));
+    MFXTextField userField = new MFXTextField();
+    MFXButton targetTreeButton = new MFXButton(I18n.getInstance().getString("plugin.note.pane.opentree"));
     private final JFXTimePicker pickerTime = new JFXTimePicker();
     JFXListView<String> tagList = new JFXListView<>();
     HBox hBox = new HBox(pickerDate, pickerTime);

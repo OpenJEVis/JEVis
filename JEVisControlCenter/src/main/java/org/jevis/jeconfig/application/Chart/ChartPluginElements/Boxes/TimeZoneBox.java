@@ -1,10 +1,8 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTimeZone;
 
@@ -12,33 +10,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TimeZoneBox extends JFXComboBox<DateTimeZone> {
+public class TimeZoneBox extends MFXComboBox<DateTimeZone> {
 
     public TimeZoneBox() {
 
-        Callback<ListView<DateTimeZone>, ListCell<DateTimeZone>> cellFactory = new Callback<javafx.scene.control.ListView<DateTimeZone>, ListCell<DateTimeZone>>() {
+        //TODO JFX17
+        setConverter(new StringConverter<DateTimeZone>() {
             @Override
-            public ListCell<DateTimeZone> call(javafx.scene.control.ListView<DateTimeZone> param) {
-                return new ListCell<DateTimeZone>() {
-                    @Override
-                    protected void updateItem(DateTimeZone dateTimeZone, boolean empty) {
-                        super.updateItem(dateTimeZone, empty);
-                        if (empty || dateTimeZone == null) {
-                            setText("");
-                        } else {
+            public String toString(DateTimeZone object) {
+                String text = "";
 
-                            String text = dateTimeZone.getID() + " | " +
-                                    DateTimeZone.getNameProvider().getShortName(I18n.getInstance().getLocale(), dateTimeZone.getID(), dateTimeZone.getNameKey(0));
+                if (object != null) {
+                    text = object.getID() + " | " +
+                            DateTimeZone.getNameProvider().getShortName(I18n.getInstance().getLocale(), object.getID(), object.getNameKey(0));
 //                                    + " | " + DateTimeZone.getNameProvider().getName(I18n.getInstance().getLocale(), dateTimeZone.getID(), dateTimeZone.getNameKey(0));
+                }
 
-                            setText(text);
-                        }
-                    }
-                };
+                return text;
             }
-        };
-        setCellFactory(cellFactory);
-        setButtonCell(cellFactory.call(null));
+
+            @Override
+            public DateTimeZone fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
 
         List<String> allTimeZoneStrings = new ArrayList<>(DateTimeZone.getAvailableIDs());
         allTimeZoneStrings.add(0, "Europe/Berlin");
@@ -47,7 +42,7 @@ public class TimeZoneBox extends JFXComboBox<DateTimeZone> {
 
         setItems(FXCollections.observableArrayList(allTimeZones));
 
-        getSelectionModel().select(DateTimeZone.getDefault());
+        selectItem(DateTimeZone.getDefault());
 
     }
 }

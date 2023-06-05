@@ -4,8 +4,8 @@ package org.jevis.jeconfig.dialog;
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -22,6 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
@@ -247,9 +248,9 @@ public class AlarmWizardDialog {
         VBox vBox = new VBox(6);
         HBox hbox = new HBox(6);
 
-        JFXButton addMultiple = new JFXButton("", JEConfig.getImage("list-add.png", 16, 16));
+        MFXButton addMultiple = new MFXButton("", JEConfig.getImage("list-add.png", 16, 16));
 
-        JFXComboBox<ReportType> reportTypeComboBox = getReportTypeComboBox();
+        MFXComboBox<ReportType> reportTypeComboBox = getReportTypeComboBox();
         reportTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue) {
                 reportType = newValue;
@@ -309,12 +310,12 @@ public class AlarmWizardDialog {
         vBox.setFillWidth(true);
     }
 
-    private JFXComboBox<ReportType> getReportTypeComboBox() {
-        JFXComboBox<ReportType> box = new JFXComboBox<>();
+    private MFXComboBox<ReportType> getReportTypeComboBox() {
+        MFXComboBox<ReportType> box = new MFXComboBox<>();
 
         box.setItems(FXCollections.observableArrayList(ReportType.values()));
 
-        box.getSelectionModel().select(ReportType.STANDARD);
+        box.selectItem(ReportType.STANDARD);
 
         final String keyStandard = I18n.getInstance().getString("plugin.object.report.dialog.typ.standard");
         final String keyAllAttributes = I18n.getInstance().getString("plugin.object.report.dialog.typ.allattributes");
@@ -329,23 +330,35 @@ public class AlarmWizardDialog {
                         if (empty || reportType == null) {
                             setText("");
                         } else {
-                            String text = "";
-                            switch (reportType) {
-                                case STANDARD:
-                                    text = keyStandard;
-                                    break;
-                                case ALL_ATTRIBUTES:
-                                    text = keyAllAttributes;
-                                    break;
-                            }
-                            setText(text);
+
                         }
                     }
                 };
             }
         };
-        box.setCellFactory(cellFactory);
-        box.setButtonCell(cellFactory.call(null));
+
+        //TODO JFX17
+        box.setConverter(new StringConverter<ReportType>() {
+            @Override
+            public String toString(ReportType object) {
+                String text = "";
+                switch (object) {
+                    case STANDARD:
+                        text = keyStandard;
+                        break;
+                    case ALL_ATTRIBUTES:
+                        text = keyAllAttributes;
+                        break;
+                }
+
+                return text;
+            }
+
+            @Override
+            public ReportType fromString(String string) {
+                return null;
+            }
+        });
 
         return box;
     }
@@ -467,33 +480,33 @@ public class AlarmWizardDialog {
 
     private void createBox(ReportLink reportLink) {
         int currentRow = row;
-        JFXButton targetsButton = new JFXButton("Select Target");
+        MFXButton targetsButton = new MFXButton("Select Target");
         ReportAggregationBox aggregationPeriodComboBox = new ReportAggregationBox();
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation() != null) {
-            aggregationPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+            aggregationPeriodComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
         }
 
         ReportManipulationBox manipulationComboBox = new ReportManipulationBox();
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation() != null) {
-            manipulationComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
+            manipulationComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
         }
 
         ImageView imageMarkAllAggregation = new ImageView(imgMarkAll);
         imageMarkAllAggregation.fitHeightProperty().set(13);
         imageMarkAllAggregation.fitWidthProperty().set(13);
 
-        JFXButton tbAggregation = new JFXButton("", imageMarkAllAggregation);
+        MFXButton tbAggregation = new MFXButton("", imageMarkAllAggregation);
         tbAggregation.setTooltip(tooltipMarkAll);
         tbAggregation.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
                 if (GridPane.getColumnIndex(node) == 1) {
                     if (node instanceof ReportAggregationBox) {
                         ReportAggregationBox reportAggregationBox = (ReportAggregationBox) node;
-                        Platform.runLater(() -> reportAggregationBox.getSelectionModel().select(aggregationPeriodComboBox.getSelectionModel().getSelectedItem()));
+                        Platform.runLater(() -> reportAggregationBox.selectItem(aggregationPeriodComboBox.getSelectionModel().getSelectedItem()));
                     }
                 }
             });
@@ -503,14 +516,14 @@ public class AlarmWizardDialog {
         imageMarkAllManipulation.fitHeightProperty().set(13);
         imageMarkAllManipulation.fitWidthProperty().set(13);
 
-        JFXButton tbManipulation = new JFXButton("", imageMarkAllManipulation);
+        MFXButton tbManipulation = new MFXButton("", imageMarkAllManipulation);
         tbManipulation.setTooltip(tooltipMarkAll);
         tbManipulation.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
                 if (GridPane.getColumnIndex(node) == 2) {
                     if (node instanceof ReportManipulationBox) {
                         ReportManipulationBox reportManipulationBox = (ReportManipulationBox) node;
-                        Platform.runLater(() -> reportManipulationBox.getSelectionModel().select(manipulationComboBox.getSelectionModel().getSelectedItem()));
+                        Platform.runLater(() -> reportManipulationBox.selectItem(manipulationComboBox.getSelectionModel().getSelectedItem()));
                     }
                 }
             });
@@ -520,28 +533,28 @@ public class AlarmWizardDialog {
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
-            periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
+            periodModeComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
         }
 
         ReportFixedPeriodBox fixedPeriodComboBox = new ReportFixedPeriodBox();
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod() != null) {
-            fixedPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod());
+            fixedPeriodComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod());
         }
 
         ImageView imageMarkAllPeriod = new ImageView(imgMarkAll);
         imageMarkAllPeriod.fitHeightProperty().set(13);
         imageMarkAllPeriod.fitWidthProperty().set(13);
 
-        JFXButton tbPeriod = new JFXButton("", imageMarkAllPeriod);
+        MFXButton tbPeriod = new MFXButton("", imageMarkAllPeriod);
         tbPeriod.setTooltip(tooltipMarkAll);
         tbPeriod.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
                 if (GridPane.getColumnIndex(node) == 4) {
                     if (node instanceof ReportPeriodBox) {
                         ReportPeriodBox reportPeriodBox = (ReportPeriodBox) node;
-                        Platform.runLater(() -> reportPeriodBox.getSelectionModel().select(periodModeComboBox.getSelectionModel().getSelectedItem()));
+                        Platform.runLater(() -> reportPeriodBox.selectItem(periodModeComboBox.getSelectionModel().getSelectedItem()));
                     }
                 }
             });
@@ -555,9 +568,9 @@ public class AlarmWizardDialog {
             }
         });
 
-        JFXButton copyButton = new JFXButton("", JEConfig.getImage("copy_172587.png", 16, 16));
+        MFXButton copyButton = new MFXButton("", JEConfig.getImage("copy_172587.png", 16, 16));
 
-        JFXButton removeButton = new JFXButton("", JEConfig.getImage("list-remove.png", 16, 16));
+        MFXButton removeButton = new MFXButton("", JEConfig.getImage("list-remove.png", 16, 16));
         removeButton.setOnAction(event -> {
             if (row > 1) {
                 reportLinkList.remove(reportLink);
@@ -746,7 +759,7 @@ public class AlarmWizardDialog {
     }
 
 
-    private void setButtonText(String targetString, JFXButton targetsButton) {
+    private void setButtonText(String targetString, MFXButton targetsButton) {
         TargetHelper th;
         try {
             if (targetString != null) {

@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
@@ -9,6 +9,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AxisBox extends JFXComboBox<Integer> {
+public class AxisBox extends MFXComboBox<Integer> {
 
     private static final String y1 = I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1");
     private static final String y2 = I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y2");
@@ -63,8 +64,27 @@ public class AxisBox extends JFXComboBox<Integer> {
             }
         };
 
-        setButtonCell(cellFactory.call(null));
-        setCellFactory(cellFactory);
+        setConverter(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                if (object == 0) {
+                    return (y1);
+                } else if (object == 1) {
+                    return (y2);
+                }
+                return null;
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                if (string.equals(y1)) {
+                    return 0;
+                } else if (string.equals(y2)) {
+                    return 1;
+                } else return 0;
+            }
+        });
+
 
         this.setMinWidth(40);
 
@@ -74,7 +94,7 @@ public class AxisBox extends JFXComboBox<Integer> {
                 this.getSelectionModel().selectFirst();
                 break;
             case 1:
-                this.getSelectionModel().select(1);
+                this.getSelectionModel().selectIndex(1);
                 break;
         }
     }
@@ -114,7 +134,7 @@ public class AxisBox extends JFXComboBox<Integer> {
                                  final Node graphic,
                                  final AxisBox comboBox) {
         if (comboBox != null) {
-            comboBox.getSelectionModel().select(cell.getItem());
+            comboBox.selectItem(cell.getItem());
         }
         cell.setText(null);
 
@@ -145,7 +165,7 @@ public class AxisBox extends JFXComboBox<Integer> {
         } else {
             if (cell.isEditing()) {
                 if (comboBox != null) {
-                    comboBox.getSelectionModel().select(cell.getItem());
+                    comboBox.selectItem(cell.getItem());
                 }
                 cell.setText(null);
 

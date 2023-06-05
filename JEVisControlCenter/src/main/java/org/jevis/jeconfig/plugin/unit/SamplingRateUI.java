@@ -20,10 +20,10 @@
  */
 package org.jevis.jeconfig.plugin.unit;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -35,8 +35,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -44,7 +42,7 @@ import javafx.scene.layout.Region;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
@@ -53,7 +51,7 @@ import org.joda.time.Period;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class SamplingRateUI extends JFXComboBox<Period> {
+public class SamplingRateUI extends MFXComboBox<Period> {
 
     private final Period FREE_SELECTION = Period.years(999);//Workaround, value to show the selection
     private final Period CANCELD_SELECTION = Period.years(998);//workaround, value if the new persio was cancled
@@ -76,34 +74,25 @@ public class SamplingRateUI extends JFXComboBox<Period> {
         this.getItems().add(Period.ZERO);
         this.getItems().add(FREE_SELECTION);//free Section workaround
 
-        Callback<ListView<Period>, ListCell<Period>> cellFactory = new Callback<ListView<Period>, ListCell<Period>>() {
-            @Override
-            public ListCell<Period> call(ListView<Period> param) {
-                return new ListCell<Period>() {
-                    @Override
-                    protected void updateItem(Period item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setGraphic(null);
-                            setText(getLocalString(item));
-                        }
-                    }
+        //TODO JFX17
 
-                };
+        setConverter(new StringConverter<Period>() {
+            @Override
+            public String toString(Period object) {
+                return getLocalString(object);
             }
 
-        };
-        this.setCellFactory(cellFactory);
-        this.setButtonCell(cellFactory.call(null));
+            @Override
+            public Period fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
 
         if (!this.getItems().contains(period)) {
             this.getItems().add(period);
         }
 
-        this.getSelectionModel().select(period);
+        this.selectItem(period);
 
 //        this.valueProperty().bindBidirectional(periodProperty);
         this.valueProperty().addListener(new ChangeListener<Period>() {
@@ -118,7 +107,7 @@ public class SamplingRateUI extends JFXComboBox<Period> {
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
-                                SamplingRateUI.this.getSelectionModel().select(periodProperty.getValue());
+                                SamplingRateUI.this.selectItem(periodProperty.getValue());
                             }
                         });
 
@@ -127,7 +116,7 @@ public class SamplingRateUI extends JFXComboBox<Period> {
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
-                                SamplingRateUI.this.getSelectionModel().select(oldValue);
+                                SamplingRateUI.this.selectItem(oldValue);
                             }
                         });
 
@@ -274,7 +263,7 @@ public class SamplingRateUI extends JFXComboBox<Period> {
         final JFXSlider sliderHours = new JFXSlider();
         final JFXSlider sliderMinutes = new JFXSlider();
         final JFXSlider sliderSeconds = new JFXSlider();
-        final JFXTextField fieldISOString = new JFXTextField("");
+        final MFXTextField fieldISOString = new MFXTextField("");
         final ObjectProperty<Period> newPeriod = new SimpleObjectProperty<>(Period.minutes(15));
 
         sliderMonth.setMin(0);
@@ -315,11 +304,11 @@ public class SamplingRateUI extends JFXComboBox<Period> {
         HBox buttonBar = new HBox();
         Region spaceBetween = new Region();
         Stage dia = new Stage();
-        JFXButton okButton = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok").toUpperCase());
-        JFXButton calcelButton = new JFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel").toUpperCase());
+        MFXButton okButton = new MFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok").toUpperCase());
+        MFXButton calcelButton = new MFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel").toUpperCase());
         okButton.setDefaultButton(true);
         okButton.setAlignment(Pos.BASELINE_RIGHT);
-//        okButton.setButtonType(JFXButton.ButtonType.FLAT);
+//        okButton.setButtonType(MFXButton.ButtonType.FLAT);
         okButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {

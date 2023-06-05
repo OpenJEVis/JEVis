@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -49,7 +49,7 @@ public class NonconformityPlanTab extends Tab {
 
 
         Label lSuche = new Label("Suche");
-        JFXTextField fsearch = new JFXTextField();
+        MFXTextField fsearch = new MFXTextField();
         fsearch.setPromptText("Suche nach...");
 
 
@@ -61,7 +61,7 @@ public class NonconformityPlanTab extends Tab {
         ComboBox<String> datumBox = new ComboBox<>();
         datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
         datumBox.getSelectionModel().selectFirst();
-        JFXTextField filterDatumText = new JFXTextField();
+        MFXTextField filterDatumText = new MFXTextField();
         filterDatumText.setPromptText("Datum...");
         ComboBox<String> comparatorBox = new ComboBox<>();
         comparatorBox.setItems(FXCollections.observableArrayList(">", "<", "="));

@@ -1,13 +1,14 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXComboBox;
 import de.jollyday.CalendarHierarchy;
 import de.jollyday.HolidayManager;
 import de.jollyday.ManagerParameters;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class CalendarBox extends JFXComboBox<CalendarRow> {
+public class CalendarBox extends MFXComboBox<CalendarRow> {
 
     public CalendarBox() {
         List<CalendarRow> list = new ArrayList<>();
@@ -59,8 +60,18 @@ public class CalendarBox extends JFXComboBox<CalendarRow> {
             }
         };
 
-        setCellFactory(cellFactory);
-        setButtonCell(cellFactory.call(null));
+        //TODO JFX17
+        setConverter(new StringConverter<CalendarRow>() {
+            @Override
+            public String toString(CalendarRow object) {
+                return object.getCountryName() + " " + object.getStateName();
+            }
+
+            @Override
+            public CalendarRow fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
 
         setItems(FXCollections.observableArrayList(list));
     }

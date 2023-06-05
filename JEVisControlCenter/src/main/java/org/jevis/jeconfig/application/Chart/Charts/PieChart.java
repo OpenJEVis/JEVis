@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
 import com.ibm.icu.text.NumberFormat;
-import com.sun.javafx.charts.Legend;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,7 +11,6 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -25,7 +23,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
@@ -388,18 +385,19 @@ public class PieChart implements Chart {
     }
 
     public void makeCustomLegend() {
-        ObservableList<Legend.LegendItem> items = pieChart.getPieLegend().getItems();
-        for (int j = 0; j < items.size(); j++) {
-            Legend.LegendItem legendItem = items.get(j);
-            int finalI = j;
-            Platform.runLater(() -> {
-                legendItem.setSymbol(new Rectangle(8, 8, hexColors.get(finalI)));
-                legendItem.setText(seriesNames.get(finalI));
-            });
-        }
-
-        AlphanumComparator ac = new AlphanumComparator();
-        Platform.runLater(() -> items.sort((o1, o2) -> ac.compare(o1.getText(), o2.getText())));
+        //TODO JFX17
+//        ObservableList<Legend.LegendItem> items = pieChart.getPieLegend().getItems();
+//        for (int j = 0; j < items.size(); j++) {
+//            Legend.LegendItem legendItem = items.get(j);
+//            int finalI = j;
+//            Platform.runLater(() -> {
+//                legendItem.setSymbol(new Rectangle(8, 8, hexColors.get(finalI)));
+//                legendItem.setText(seriesNames.get(finalI));
+//            });
+//        }
+//
+//        AlphanumComparator ac = new AlphanumComparator();
+//        Platform.runLater(() -> items.sort((o1, o2) -> ac.compare(o1.getText(), o2.getText())));
     }
 
 

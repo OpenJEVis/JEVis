@@ -1,13 +1,10 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.skins.JFXComboBoxListViewSkin;
-import javafx.application.Platform;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +25,7 @@ import java.util.List;
 
 import static org.jevis.jeconfig.application.Chart.data.AnalysisHandler.ANALYSIS_FILE_ATTRIBUTE_NAME;
 
-public class AnalysesComboBox extends JFXComboBox<String> {
+public class AnalysesComboBox extends MFXComboBox<String> {
     public static final String ORGANIZATION_CLASS_NAME = "Organization";
     public static final String ANALYSES_DIRECTORY_CLASS_NAME = "Analyses Directory";
     public static final String BUILDING_CLASS_NAME = "Building";
@@ -71,16 +68,17 @@ public class AnalysesComboBox extends JFXComboBox<String> {
 
             if (selectedIndex > -1 && analyses.size() > selectedIndex) {
                 if (!updating) {
-                    getSelectionModel().select(selectedIndex);
+                    getSelectionModel().selectIndex(selectedIndex);
                 }
 
-                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) getSkin();
-                if (skin != null) {
-                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-                    if (popupContent != null) {
-                        Platform.runLater(() -> popupContent.scrollTo(selectedIndex));
-                    }
-                }
+                //TODO: JFX17
+//                MFXComboBoxListViewSkin<?> skin = (MFXComboBoxListViewSkin<?>) getSkin();
+//                if (skin != null) {
+//                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+//                    if (popupContent != null) {
+//                        Platform.runLater(() -> popupContent.scrollTo(selectedIndex));
+//                    }
+//                }
             }
         });
     }
@@ -216,7 +214,7 @@ public class AnalysesComboBox extends JFXComboBox<String> {
             int selectedIndex = analyses.indexOf(selectedAnalysis);
 
             if (selectedIndex > -1 && analyses.size() > selectedIndex) {
-                getSelectionModel().select(selectedIndex);
+                getSelectionModel().selectIndex(selectedIndex);
             }
         }
 

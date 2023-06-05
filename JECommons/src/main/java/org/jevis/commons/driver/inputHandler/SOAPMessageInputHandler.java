@@ -6,9 +6,9 @@ package org.jevis.commons.driver.inputHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.impl.soap.SOAPException;
+import org.apache.xmlbeans.impl.soap.SOAPMessage;
 
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -28,7 +28,7 @@ public class SOAPMessageInputHandler extends InputHandler {
         List<SOAPMessage> input = (List<SOAPMessage>) _rawInput;
         for (SOAPMessage m : input) {
             try {
-                _document.add(m.getSOAPBody().extractContentAsDocument());
+                _document.add(m.getSOAPBody().getOwnerDocument());
             } catch (SOAPException ex) {
                 logger.fatal(ex);
             }

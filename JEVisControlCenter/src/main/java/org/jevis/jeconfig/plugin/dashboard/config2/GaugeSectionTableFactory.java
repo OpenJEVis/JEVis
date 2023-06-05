@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -103,7 +103,7 @@ public class GaugeSectionTableFactory {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
-                            JFXTextField textField = buildDoubleTextField(item.toString());
+                            MFXTextField textField = buildDoubleTextField(item.toString());
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
@@ -166,7 +166,7 @@ public class GaugeSectionTableFactory {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
-                            JFXTextField textField = buildDoubleTextField(item.toString());
+                            MFXTextField textField = buildDoubleTextField(item.toString());
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     GaugeSectionPojo gaugeSectionPojo = (GaugeSectionPojo) getTableRow().getItem();
@@ -224,8 +224,8 @@ public class GaugeSectionTableFactory {
     }
 
 
-    private JFXTextField buildDoubleTextField(String text) {
-        JFXTextField textField = new JFXTextField(text);
+    private MFXTextField buildDoubleTextField(String text) {
+        MFXTextField textField = new MFXTextField(text);
         textField.focusedProperty().addListener(GaugeSectionTableFactory.this.focusListener);
         //textField.setMaxWidth(this.numberColumDefaultSize);
         return textField;

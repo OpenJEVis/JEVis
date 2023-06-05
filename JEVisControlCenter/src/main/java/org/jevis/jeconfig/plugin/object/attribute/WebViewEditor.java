@@ -19,7 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -76,14 +76,14 @@ public class WebViewEditor implements AttributeEditor {
                     logger.error("Could not add date to dat list.");
                 }
             }
-            JFXComboBox<DateTime> dateTimeComboBox = new JFXComboBox<>(FXCollections.observableList(dateTimeList));
+            MFXComboBox<DateTime> dateTimeComboBox = new MFXComboBox<>(FXCollections.observableList(dateTimeList));
             try {
                 if (_lastSample != null) {
-                    dateTimeComboBox.getSelectionModel().select(_lastSample.getTimestamp());
+                    dateTimeComboBox.selectItem(_lastSample.getTimestamp());
                 }
             } catch (Exception e) {
                 logger.error("Could not get Time Stamp of last sample.");
-                dateTimeComboBox.getSelectionModel().select(dateTimeList.size() - 1);
+                dateTimeComboBox.selectIndex(dateTimeList.size() - 1);
             }
 
             String lastSampleString = "";

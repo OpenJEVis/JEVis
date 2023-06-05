@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.sample;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -42,12 +42,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ControlPane extends GridPane {
 
     private static final Logger logger = LogManager.getLogger(ControlPane.class);
-    private final JFXButton ok = new JFXButton(I18n.getInstance().getString("attribute.editor.save"));
-    private final JFXDatePicker startDate = new JFXDatePicker();
-    private final JFXDatePicker endDate = new JFXDatePicker();
-    private final JFXButton cancel = new JFXButton(I18n.getInstance().getString("attribute.editor.cancel"));
+    private final MFXButton ok = new MFXButton(I18n.getInstance().getString("attribute.editor.save"));
+    private final MFXDatePicker startDate = new MFXDatePicker();
+    private final MFXDatePicker endDate = new MFXDatePicker();
+    private final MFXButton cancel = new MFXButton(I18n.getInstance().getString("attribute.editor.cancel"));
 
-    private final JFXButton reloadButton = new JFXButton("", JEConfig.getImage("1403018303_Refresh.png", 12, 12));
+    private final MFXButton reloadButton = new MFXButton("", JEConfig.getImage("1403018303_Refresh.png", 12, 12));
     private final Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
     private final Label timeHeader = new Label(I18n.getInstance().getString("attribute.editor.timerange"));
     private final Label processorHeader = new Label(I18n.getInstance().getString("attribute.editor.dataprocessing"));

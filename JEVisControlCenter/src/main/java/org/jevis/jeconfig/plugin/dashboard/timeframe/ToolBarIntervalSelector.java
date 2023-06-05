@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.timeframe;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -26,7 +26,7 @@ public class ToolBarIntervalSelector extends HBox {
     protected final ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
     protected final TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
     protected TimeFrameEditor timeFrameEditor;
-    private final JFXButton dateButton = new JFXButton("");
+    private final MFXButton dateButton = new MFXButton("");
     protected boolean disableEventListener = false;
     private DashboardControl controller;
     protected ObservableList<TimeFrame> timeFrames;
@@ -120,7 +120,7 @@ public class ToolBarIntervalSelector extends HBox {
         return timeFactoryBox;
     }
 
-    public JFXButton getDateButton() {
+    public MFXButton getDateButton() {
         return dateButton;
     }
 

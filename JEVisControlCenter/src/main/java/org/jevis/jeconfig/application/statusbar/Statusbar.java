@@ -20,9 +20,9 @@
  */
 package org.jevis.jeconfig.application.statusbar;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXPopup;
-import com.jfoenix.controls.JFXProgressBar;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXPopup;
+import io.github.palexdev.materialfx.controls.MFXProgressBar;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -86,12 +86,12 @@ public class Statusbar extends ToolBar {
     private JEVisDataSource _ds;
     private final Tooltip tt = new Tooltip(I18n.getInstance().getString("statusbar.connection.lost"));
     private int retryCount = 0;
-    private final JFXProgressBar progressBar = new JFXProgressBar();
+    private final MFXProgressBar progressBar = new MFXProgressBar();
     private final HBox progressbox = new HBox();
     private final Label messageBox = new Label();
     private final TaskProgressView taskProgressView = new TaskProgressView<>();
-    private final JFXPopup popup = new JFXPopup();
-    private final JFXButton showTaskViewButton = new JFXButton("", JEConfig.getImage("TaskList.png", 15, 15));
+    private final MFXPopup popup = new MFXPopup();
+    private final MFXButton showTaskViewButton = new MFXButton("", JEConfig.getImage("TaskList.png", 15, 15));
     private final Map<String, Image> imageList = new HashMap<>();
     private boolean hideTaskList = false;
     private final Label titleLabel = new Label(I18n.getInstance().getString("statusbar.taskmon.title"));
@@ -134,7 +134,7 @@ public class Statusbar extends ToolBar {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         anchorPane.setTop(hBox);
 
-        popup.setPopupContent(anchorPane);
+        popup.setContent(anchorPane);
         popup.setAutoHide(true);
         popup.setAutoFix(true);
         popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
@@ -551,7 +551,7 @@ public class Statusbar extends ToolBar {
         return taskList;
     }
 
-    public JFXPopup getPopup() {
+    public MFXPopup getPopup() {
         return popup;
     }
 

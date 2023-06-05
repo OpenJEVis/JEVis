@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.object.extension.role;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -13,7 +13,7 @@ import org.jevis.commons.i18n.I18n;
 import java.util.Comparator;
 import java.util.List;
 
-public class GroupSelector extends JFXTextField {
+public class GroupSelector extends MFXTextField {
 
     private static final Logger logger = LogManager.getLogger(GroupSelector.class);
 

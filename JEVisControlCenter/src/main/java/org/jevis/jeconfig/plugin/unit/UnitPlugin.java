@@ -22,7 +22,6 @@ package org.jevis.jeconfig.plugin.unit;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
-import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -138,11 +137,11 @@ public class UnitPlugin implements Plugin {
             left.getChildren().addAll(tree);
             VBox.setVgrow(tree, Priority.ALWAYS);
 
-            SplitPane sp = SplitPaneBuilder.create()
-                    .items(left, _editor.getView())
-                    .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
-                    .orientation(Orientation.HORIZONTAL)
-                    .build();
+            //TODO JFX17 Testen
+            SplitPane sp = new SplitPane(left, _editor.getView());
+            sp.getDividers().add(new SplitPane.Divider());
+            sp.getDividers().get(0).setPosition(.2d);
+
             sp.setId("mainsplitpane");
             sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
             border = new BorderPane();

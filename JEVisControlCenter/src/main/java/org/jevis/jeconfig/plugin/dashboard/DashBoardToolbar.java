@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
 import com.google.common.collect.Iterables;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,6 +13,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.transform.Rotate;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.commons.math3.util.Precision;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,7 +44,7 @@ public class DashBoardToolbar extends ToolBar {
     private final DashboardControl dashboardControl;
     private ToolBarIntervalSelector toolBarIntervalSelector;
     private final ToggleButton backgroundButton = new ToggleButton("", JEConfig.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
-    private JFXComboBox<Double> listZoomLevel;
+    private MFXComboBox<Double> listZoomLevel;
     private final ObjectRelations objectRelations;
     private Boolean multiSite = null;
     private Boolean multiDir = null;
@@ -81,7 +82,7 @@ public class DashBoardToolbar extends ToolBar {
     //private final ToggleButton moveButton = new ToggleButton("", JEConfig.getImage("move.png", this.iconSize, this.iconSize));
     private final Menu newWidgetMenuItem = new Menu("New");
 
-    private JFXButton newWidget;
+    private MFXButton newWidget;
     private NewWidgetSelector widgetSelector;
     private final Button copyButton = new Button("", JEConfig.getSVGImage(Icon.COPY, this.iconSize, this.iconSize));
 
@@ -91,7 +92,7 @@ public class DashBoardToolbar extends ToolBar {
     private Separator separatorEditMode = new Separator();
 
     private boolean disableEventListener = false;
-    private JFXComboBox<JEVisObject> listAnalysesComboBox;
+    private MFXComboBox<JEVisObject> listAnalysesComboBox;
 
 
     public DashBoardToolbar(DashboardControl dashboardControl) {
@@ -102,7 +103,7 @@ public class DashBoardToolbar extends ToolBar {
     }
 
 
-    public static JFXComboBox<Double> buildZoomLevelListView() {
+    public static MFXComboBox<Double> buildZoomLevelListView() {
         ObservableList<Double> zoomLevel = FXCollections.observableArrayList();
 
         List<Double> zoomLevels = new ArrayList<>();
@@ -110,7 +111,7 @@ public class DashBoardToolbar extends ToolBar {
         zoomLevel.add(DashboardControl.fitToWidth);
         zoomLevel.add(DashboardControl.fitToHeight);
 
-        /** JFXComboBox need all posible values or the buttonCell will not work work in java 1.8 **/
+        /** MFXComboBox need all posible values or the buttonCell will not work work in java 1.8 **/
         double zs = 0;
         for (double d = 0; d <= DashboardControl.MAX_ZOOM; d += DashboardControl.zoomSteps) {
             zs = Precision.round((zs + 0.05d), 2);
@@ -119,7 +120,7 @@ public class DashBoardToolbar extends ToolBar {
         zoomLevel.addAll(zoomLevels);
 
 
-        JFXComboBox<Double> doubleComboBox = new JFXComboBox<>(zoomLevel);
+        MFXComboBox<Double> doubleComboBox = new MFXComboBox<>(zoomLevel);
         DecimalFormat df = new DecimalFormat("##0");
         df.setMaximumFractionDigits(2);
         Callback<ListView<Double>, ListCell<Double>> cellFactory = new Callback<ListView<Double>, ListCell<Double>>() {
@@ -153,8 +154,26 @@ public class DashBoardToolbar extends ToolBar {
 
         };
 
-        doubleComboBox.setCellFactory(cellFactory);
-        doubleComboBox.setButtonCell(cellFactory.call(null));
+        //TODO JFX17
+        doubleComboBox.setConverter(new StringConverter<Double>() {
+            @Override
+            public String toString(Double object) {
+                if (object == DashboardControl.fitToScreen) {
+                    return (I18n.getInstance().getString("plugin.dashboard.zoom.fitscreen"));
+                } else if (object == DashboardControl.fitToWidth) {
+                    return (I18n.getInstance().getString("plugin.dashboard.zoom.fitwidth"));
+                } else if (object == DashboardControl.fitToHeight) {
+                    return (I18n.getInstance().getString("plugin.dashboard.zoom.fitheight"));
+                } else {
+                    return (df.format(Precision.round(object * 100, 2)) + "%");
+                }
+            }
+
+            @Override
+            public Double fromString(String string) {
+                return doubleComboBox.getItems().get(doubleComboBox.getSelectedIndex());
+            }
+        });
         doubleComboBox.setValue(1.0d);
         doubleComboBox.setPrefWidth(150d);
 
@@ -178,7 +197,7 @@ public class DashBoardToolbar extends ToolBar {
     public void initLayout() {
         logger.debug("InitLayout");
         ObservableList<JEVisObject> observableList = this.dashboardControl.getAllDashboards();
-        this.listAnalysesComboBox = new JFXComboBox<>(observableList);
+        this.listAnalysesComboBox = new MFXComboBox<>(observableList);
         setCellFactoryForComboBox();
         this.listAnalysesComboBox.setPrefWidth(350);
         this.listAnalysesComboBox.setMinWidth(350);
@@ -481,7 +500,7 @@ public class DashBoardToolbar extends ToolBar {
         listAnalysesComboBox.setItems(dashboardList);
 
         if (dashboardSettings.getDashboardObject() != null) {
-            this.listAnalysesComboBox.getSelectionModel().select(dashboardSettings.getDashboardObject());
+            this.listAnalysesComboBox.selectItem(dashboardSettings.getDashboardObject());
         }
         disableEventListener = false;
     }
@@ -564,8 +583,30 @@ public class DashBoardToolbar extends ToolBar {
                 }
             };
 
-            this.listAnalysesComboBox.setCellFactory(cellFactory);
-            this.listAnalysesComboBox.setButtonCell(cellFactory.call(null));
+            //TODO JFX17
+
+            listAnalysesComboBox.setConverter(new StringConverter<JEVisObject>() {
+                @Override
+                public String toString(JEVisObject object) {
+                    if (!isMultiSite() && !isMultiDir()) {
+                        return (object.getName());
+                    } else {
+                        String prefix = "";
+                        if (isMultiSite()) {
+                            prefix += objectRelations.getObjectPath(object);
+                        }
+                        if (isMultiDir()) {
+                            prefix += objectRelations.getRelativePath(object);
+                        }
+                        return (prefix + object.getName());
+                    }
+                }
+
+                @Override
+                public JEVisObject fromString(String string) {
+                    return listAnalysesComboBox.getItems().get(listAnalysesComboBox.getSelectedIndex());
+                }
+            });
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -615,7 +656,7 @@ public class DashBoardToolbar extends ToolBar {
         return multiDir;
     }
 
-    public JFXComboBox<JEVisObject> getListAnalysesComboBox() {
+    public MFXComboBox<JEVisObject> getListAnalysesComboBox() {
         return this.listAnalysesComboBox;
     }
 

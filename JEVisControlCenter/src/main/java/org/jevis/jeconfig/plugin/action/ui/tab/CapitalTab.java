@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.action.ui.tab;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -24,31 +24,31 @@ import java.text.DecimalFormat;
 
 public class CapitalTab extends Tab {
     Label l_investition = new Label("Investition");
-    JFXTextField f_investition = new JFXTextField();
+    MFXTextField f_investition = new MFXTextField();
     Label l_investitionUnit = new Label("€");
     Label l_einsparrung = new Label("Jährliche Einsparung");
-    JFXTextField f_einsparrung = new JFXTextField();
+    MFXTextField f_einsparrung = new MFXTextField();
     Label l_einsparrungUnit = new Label("€");
     Label l_zinssatz = new Label("Zinssatz");
-    JFXTextField f_zinssatz = new JFXTextField("");
+    MFXTextField f_zinssatz = new MFXTextField("");
     Label l_proZent = new Label("%");
     Label l_years = new Label("Jahr(e)");
     Label l_kapitalwert = new Label("Kapitalwert");
-    JFXTextField f_kapitalwert = new JFXTextField("");
+    MFXTextField f_kapitalwert = new MFXTextField("");
     Label l_kapitalwertrate = new Label("Kapitalwertrate");
-    JFXTextField f_kapitalwertrate = new JFXTextField("");
+    MFXTextField f_kapitalwertrate = new MFXTextField("");
     Label l_period = new Label("Laufzeit");
     Label l_periodOverX = new Label("Laufzeit über X");
     Label l_overRuntime = new Label("Amortisation über die Laufzeit");
     Label l_over = new Label("Amortisation über");
     Label l_infation = new Label("Jährliche Preissteigerung");
     Label l_infationUnit = new Label("%");
-    JFXTextField f_infation = new JFXTextField();
+    MFXTextField f_infation = new MFXTextField();
     Label l_yearCost = new Label("Jährliche Betriebskosten");
     Label l_yearCostUnit = new Label("€");
-    JFXTextField f_runningCost = new JFXTextField();
-    JFXTextField f_kapitalwertOverX = new JFXTextField();
-    JFXTextField f_kapitalrateOverX = new JFXTextField();
+    MFXTextField f_runningCost = new MFXTextField();
+    MFXTextField f_kapitalwertOverX = new MFXTextField();
+    MFXTextField f_kapitalrateOverX = new MFXTextField();
 
     Label l_yearsOverX = new Label("Jahr(e)");
 
@@ -64,15 +64,15 @@ public class CapitalTab extends Tab {
 
         Label l_einzahlungGesamt = new Label("Einsparung");
         l_einzahlungGesamt.setAlignment(Pos.CENTER);
-        JFXTextField f_einzahlungGesamt = new JFXTextField();
+        MFXTextField f_einzahlungGesamt = new MFXTextField();
 
 
         Label l_auszahlungGesamt = new Label("Investition");
         l_auszahlungGesamt.setAlignment(Pos.CENTER);
-        JFXTextField f_auszahlungGesamt = new JFXTextField();
+        MFXTextField f_auszahlungGesamt = new MFXTextField();
         Label l_nettoGesamt = new Label("Netto");
         l_nettoGesamt.setAlignment(Pos.CENTER);
-        JFXTextField f_nettoGesamt = new JFXTextField();
+        MFXTextField f_nettoGesamt = new MFXTextField();
         Label l_gesamt = new Label("Gesamt");
 
         ChoiceBox<Integer> f_period = new ChoiceBox<>();

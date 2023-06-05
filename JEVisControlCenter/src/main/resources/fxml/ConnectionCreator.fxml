@@ -37,7 +37,7 @@
                             GridPane.rowIndex="3"/>
               <JFXPasswordField fx:id="passwd" onKeyTyped="#onChanged" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
               <JFXTextField fx:id="result" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
-              <JFXButton fx:id="CopyCon" mnemonicParsing="false" onAction="#onCopy" text="Copy to clipboard"
+              <MFXButton fx:id="CopyCon" mnemonicParsing="false" onAction="#onCopy" text="Copy to clipboard"
                          GridPane.columnIndex="1" GridPane.rowIndex="6"/>
           </children>
          <opaqueInsets>

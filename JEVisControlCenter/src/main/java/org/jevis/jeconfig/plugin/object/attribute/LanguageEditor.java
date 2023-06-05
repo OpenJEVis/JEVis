@@ -5,18 +5,16 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -109,38 +107,23 @@ public class LanguageEditor implements AttributeEditor {
         ObservableList<Locale> enumList = FXCollections.observableArrayList();
         enumList.addAll(getEnumList());
 
-//        JFXComboBox picker = new JFXComboBox(enumList);
-        JFXComboBox picker = new JFXComboBox(enumList);
+//        MFXComboBox picker = new MFXComboBox(enumList);
+        MFXComboBox<Locale> picker = new MFXComboBox<>(enumList);
 
-        Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
+        //TODO JFX17
+        picker.setConverter(new StringConverter<Locale>() {
             @Override
-            public ListCell<Locale> call(ListView<Locale> param) {
-                return new ListCell<Locale>() {
-                    @Override
-                    protected void updateItem(Locale item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-//                            logger.info("CodeL: " + item.getISO3Language());
-//                            try {
-//                                setGraphic(JEConfig.getImage("flags/" + item.getCountry().toLowerCase() + ".gif", 16, 16));
-//                            } catch (Exception ex) {
-//                                ex.printStackTrace();
-//                            }
-                            setText(item.getDisplayName());
-                        }
-                    }
-
-                };
+            public String toString(Locale object) {
+                return object.getDisplayName();
             }
 
-        };
-        picker.setCellFactory(cellFactory);
-        picker.setButtonCell(cellFactory.call(null));
+            @Override
+            public Locale fromString(String string) {
+                return picker.getItems().get(picker.getSelectedIndex());
+            }
+        });
 
-        picker.getSelectionModel().select(orgLoca);
+        picker.selectItem(orgLoca);
 
         picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 

@@ -20,13 +20,13 @@
 package org.jevis.jeconfig.plugin.charts;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextArea;
 import de.gsi.chart.axes.AxisMode;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
 import eu.hansolo.fx.charts.tools.Helper;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -238,11 +238,11 @@ public class ChartPlugin implements Plugin {
                             "    -fx-text-alignment: left;\n";
 //                    "    -fx-text-fill: #0076a3;\n";
 
-            JFXButton newAnalysis = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.new"), JEConfig.getSVGImage(Icon.ADD_CHART, 32, 32));
+            MFXButton newAnalysis = new MFXButton(I18n.getInstance().getString("plugin.graph.analysis.new"), JEConfig.getSVGImage(Icon.ADD_CHART, 32, 32));
             newAnalysis.setStyle(style);
             newAnalysis.setAlignment(Pos.CENTER);
 
-            JFXButton loadAnalysis = new JFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"), JEConfig.getSVGImage(Icon.FOLDER_OPEN, 32, 32));
+            MFXButton loadAnalysis = new MFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"), JEConfig.getSVGImage(Icon.FOLDER_OPEN, 32, 32));
             loadAnalysis.setStyle(style);
             loadAnalysis.setAlignment(Pos.CENTER);
 
@@ -1247,7 +1247,7 @@ public class ChartPlugin implements Plugin {
                 case TABLE:
                     TableChart chart = (TableChart) cv;
                     TableTopDatePicker tableTopDatePicker = chart.getTableTopDatePicker();
-                    JFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                    MFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
                     ChartDataRow singleRow = chart.getSingleRow();
                     datePicker.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                         if (datePicker.getSelectionModel().selectedIndexProperty().get() < singleRow.getSamples().size()
@@ -1269,14 +1269,14 @@ public class ChartPlugin implements Plugin {
                     tableTopDatePicker.getLeftImage().setOnMouseClicked(event -> {
                         int i = datePicker.getSelectionModel().getSelectedIndex() - 1;
                         if (i > -1) {
-                            Platform.runLater(() -> datePicker.getSelectionModel().select(i));
+                            Platform.runLater(() -> datePicker.getSelectionModel().selectIndex(i));
                         }
                     });
 
                     tableTopDatePicker.getRightImage().setOnMouseClicked(event -> {
                         int i = datePicker.getSelectionModel().getSelectedIndex() - 1;
                         if (i < singleRow.getSamples().size()) {
-                            Platform.runLater(() -> datePicker.getSelectionModel().select(i));
+                            Platform.runLater(() -> datePicker.getSelectionModel().selectIndex(i));
                         }
                     });
                     break;

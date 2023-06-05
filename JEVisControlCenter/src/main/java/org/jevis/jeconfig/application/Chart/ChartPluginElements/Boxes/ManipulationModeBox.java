@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.input.KeyCode;
@@ -7,13 +8,13 @@ import javafx.scene.layout.HBox;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 
-public class ManipulationModeBox extends DisabledItemsComboBox<String> {
+public class ManipulationModeBox extends DisabledItemsComboBox<ManipulationMode> {
 
 
     public ManipulationModeBox(ManipulationMode manipulationMode) {
-        super(ManipulationMode.getListNamesManipulationModes());
+        super(FXCollections.observableArrayList(ManipulationMode.values()));
 
-        getSelectionModel().select(ManipulationMode.parseManipulationIndex(manipulationMode));
+        selectItem(manipulationMode);
     }
 
     private static String getItemText(Cell<ManipulationMode> cell) {
@@ -45,7 +46,7 @@ public class ManipulationModeBox extends DisabledItemsComboBox<String> {
                                  final Node graphic,
                                  final ManipulationModeBox comboBox) {
         if (comboBox != null) {
-            comboBox.getSelectionModel().select(ManipulationMode.parseManipulationIndex(cell.getItem()));
+            comboBox.selectItem(cell.getItem());
         }
         cell.setText(null);
 
@@ -76,7 +77,7 @@ public class ManipulationModeBox extends DisabledItemsComboBox<String> {
         } else {
             if (cell.isEditing()) {
                 if (comboBox != null) {
-                    comboBox.getSelectionModel().select(ManipulationMode.parseManipulationIndex(cell.getItem()));
+                    comboBox.selectItem(cell.getItem());
                 }
                 cell.setText(null);
 

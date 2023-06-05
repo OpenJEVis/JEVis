@@ -1,7 +1,12 @@
 package org.jevis.jeconfig.plugin.notes;
 
-import com.jfoenix.controls.*;
-import com.sun.javafx.scene.control.skin.TableViewSkin;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXTextArea;
+import com.jfoenix.controls.JFXToggleButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -16,12 +21,14 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
@@ -73,8 +80,8 @@ public class NotesPlugin implements Plugin {
 
     private final TableView<NotesRow> tableView = new TableView<>();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-    private final JFXDatePicker startDatePicker = new JFXDatePicker();
-    private final JFXDatePicker endDatePicker = new JFXDatePicker();
+    private final MFXDatePicker startDatePicker = new MFXDatePicker();
+    private final MFXDatePicker endDatePicker = new MFXDatePicker();
     private final boolean init = false;
     private DateTime start;
     private DateTime end;
@@ -124,7 +131,7 @@ public class NotesPlugin implements Plugin {
         gridPane.setPadding(new Insets(12));
         gridPane.setHgap(12);
 
-        JFXTextField searchbar = new JFXTextField();
+        MFXTextField searchbar = new MFXTextField();
         searchbar.setPromptText(I18n.getInstance().getString("plugin.notes.search.prompt"));
         searchbar.setMinWidth(250);
 
@@ -239,7 +246,7 @@ public class NotesPlugin implements Plugin {
             cm.getItems().add(cmi);
         });
 
-        JFXButton tagButton = new JFXButton(I18n.getInstance().getString("plugin.notes.contextmenu.tags"));
+        MFXButton tagButton = new MFXButton(I18n.getInstance().getString("plugin.notes.contextmenu.tags"));
         tagButton.setContextMenu(cm);
         tagButton.setOnAction(event -> {
             cm.show(tagButton, Side.BOTTOM, 0, 0);
@@ -391,7 +398,167 @@ public class NotesPlugin implements Plugin {
 
     }
 
-    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+    private void initToolBar() {
+        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
+        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
+        reload.setTooltip(reloadTooltip);
+
+        ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 18, 18));
+        newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.add")));
+        ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.save")));
+        ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.delete")));
+
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
+
+        reload.setOnAction(event -> {
+
+            final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
+            Service<Void> service = new Service<Void>() {
+                @Override
+                protected Task<Void> createTask() {
+                    return new Task<Void>() {
+                        @Override
+                        protected Void call() {
+                            updateMessage(loading);
+                            try {
+                                ds.clearCache();
+                                ds.preload();
+
+                                updateList();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        }
+                    };
+                }
+            };
+            ProgressDialog pd = new ProgressDialog(service);
+            pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
+            pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
+            pd.getDialogPane().setContent(null);
+
+            service.start();
+
+        });
+
+        newB.setOnAction(event -> {
+            NotePane notePane = new NotePane(allTags, ds);
+
+            MFXButton okButton = new MFXButton(I18n.getInstance().getString("plugin.note.pane.ok"));
+            MFXButton cancelButton = new MFXButton(I18n.getInstance().getString("plugin.note.pane.cancel"));
+            HBox buttonBox = new HBox(cancelButton, okButton);
+            buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
+            buttonBox.setSpacing(12);
+            Separator separator = new Separator();
+            separator.setOrientation(Orientation.HORIZONTAL);
+            okButton.setDefaultButton(true);
+
+
+            VBox vBox = new VBox(notePane, buttonBox);
+            vBox.setSpacing(12);
+            vBox.setAlignment(Pos.BOTTOM_RIGHT);
+            vBox.setPadding(new Insets(12));
+
+
+            Dialog Dialog = new Dialog();
+            Dialog.setResizable(true);
+            Stage stage = (Stage) Dialog.getDialogPane().getScene().getWindow();
+            TopMenu.applyActiveTheme(stage.getScene());
+            stage.setAlwaysOnTop(true);
+
+            Dialog.getDialogPane().setContent(vBox);
+
+            okButton.setOnAction(event1 -> {
+                JEVisObject jeVisObject = notePane.commit();
+                if (jeVisObject != null) {
+                    //data
+                    NotesRow notesRow = new NotesRow(notePane.getDate(), jeVisObject);
+                    Platform.runLater(() -> {
+                        data.add(notesRow);
+                        updateList();
+                        //tableView.refresh();
+                        filter();
+                    });
+                }
+                Dialog.close();
+            });
+            cancelButton.setOnAction(event1 -> {
+                Dialog.close();
+            });
+
+            Dialog.show();
+        });
+
+        delete.setOnAction(event -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(I18n.getInstance().getString("plugin.note.delete.title"));
+            alert.setHeaderText(I18n.getInstance().getString("plugin.note.delete.message"));
+            //alert.setContentText("Before : ");
+
+            ButtonType buttonYes = new ButtonType(I18n.getInstance().getString("plugin.note.delete.delete"));
+            alert.getButtonTypes().clear();
+            alert.getButtonTypes().addAll(buttonYes, ButtonType.CANCEL);
+
+            Button noButton = (Button) alert.getDialogPane().lookupButton(ButtonType.CANCEL);
+            noButton.setDefaultButton(true);
+
+            final Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonYes) {
+                tableView.getSelectionModel().getSelectedItems().forEach(notesRow -> {
+                    notesRow.delete();
+                    data.remove(notesRow);
+                });
+                filter();
+            }
+
+        });
+
+        save.setOnAction(event -> {
+            this.data.forEach(notesRow -> {
+                if (notesRow.hasChanged()) {
+                    logger.debug("Note Has changed commit:");
+                    notesRow.commit();
+                }
+            });
+        });
+
+        Separator sep1 = new Separator(Orientation.VERTICAL);
+        Separator sep2 = new Separator(Orientation.VERTICAL);
+
+        if (start != null) {
+            startDatePicker.valueProperty().removeListener(startDateChangeListener);
+            startDatePicker.setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        }
+
+
+        if (end != null) {
+            endDatePicker.valueProperty().removeListener(endDateChangeListener);
+            endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+        }
+
+
+        startDatePicker.valueProperty().addListener(startDateChangeListener);
+        endDatePicker.valueProperty().addListener(endDateChangeListener);
+
+        ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+        ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+
+        timeFrameComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
+        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
+        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
+
+        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, newB, save, delete);
+        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+
+        JEVisHelp.getInstance().addHelpItems(NotesPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
+
+    }    private final MFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
 
     public static void autoFitTable(TableView<NotesRow> tableView) {
         for (TableColumn<NotesRow, ?> column : tableView.getColumns()) {
@@ -771,170 +938,8 @@ public class NotesPlugin implements Plugin {
         return new AnalysisRequest(parallelItem, AggregationPeriod.NONE, ManipulationMode.NONE, start, end);
     }
 
-    private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, iconSize, iconSize));
-        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
-        reload.setTooltip(reloadTooltip);
-
-        ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 18, 18));
-        newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.add")));
-        ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
-        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.save")));
-        ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
-        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.delete")));
-
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
-
-        reload.setOnAction(event -> {
-
-            final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
-            Service<Void> service = new Service<Void>() {
-                @Override
-                protected Task<Void> createTask() {
-                    return new Task<Void>() {
-                        @Override
-                        protected Void call() {
-                            updateMessage(loading);
-                            try {
-                                ds.clearCache();
-                                ds.preload();
-
-                                updateList();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            return null;
-                        }
-                    };
-                }
-            };
-            ProgressDialog pd = new ProgressDialog(service);
-            pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
-            pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
-            pd.getDialogPane().setContent(null);
-
-            service.start();
-
-        });
-
-        newB.setOnAction(event -> {
-            NotePane notePane = new NotePane(allTags, ds);
-
-            JFXButton okButton = new JFXButton(I18n.getInstance().getString("plugin.note.pane.ok"));
-            JFXButton cancelButton = new JFXButton(I18n.getInstance().getString("plugin.note.pane.cancel"));
-            HBox buttonBox = new HBox(cancelButton, okButton);
-            buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
-            buttonBox.setSpacing(12);
-            Separator separator = new Separator();
-            separator.setOrientation(Orientation.HORIZONTAL);
-            okButton.setDefaultButton(true);
-
-
-            VBox vBox = new VBox(notePane, buttonBox);
-            vBox.setSpacing(12);
-            vBox.setAlignment(Pos.BOTTOM_RIGHT);
-            vBox.setPadding(new Insets(12));
-
-
-            Dialog Dialog = new Dialog();
-            Dialog.setResizable(true);
-            Stage stage = (Stage) Dialog.getDialogPane().getScene().getWindow();
-            TopMenu.applyActiveTheme(stage.getScene());
-            stage.setAlwaysOnTop(true);
-
-            Dialog.getDialogPane().setContent(vBox);
-
-            okButton.setOnAction(event1 -> {
-                JEVisObject jeVisObject = notePane.commit();
-                if (jeVisObject != null) {
-                    //data
-                    NotesRow notesRow = new NotesRow(notePane.getDate(), jeVisObject);
-                    Platform.runLater(() -> {
-                        data.add(notesRow);
-                        updateList();
-                        //tableView.refresh();
-                        filter();
-                    });
-                }
-                Dialog.close();
-            });
-            cancelButton.setOnAction(event1 -> {
-                Dialog.close();
-            });
-
-            Dialog.show();
-        });
-
-        delete.setOnAction(event -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle(I18n.getInstance().getString("plugin.note.delete.title"));
-            alert.setHeaderText(I18n.getInstance().getString("plugin.note.delete.message"));
-            //alert.setContentText("Before : ");
-
-            ButtonType buttonYes = new ButtonType(I18n.getInstance().getString("plugin.note.delete.delete"));
-            alert.getButtonTypes().clear();
-            alert.getButtonTypes().addAll(buttonYes, ButtonType.CANCEL);
-
-            Button noButton = (Button) alert.getDialogPane().lookupButton(ButtonType.CANCEL);
-            noButton.setDefaultButton(true);
-
-            final Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == buttonYes) {
-                tableView.getSelectionModel().getSelectedItems().forEach(notesRow -> {
-                    notesRow.delete();
-                    data.remove(notesRow);
-                });
-                filter();
-            }
-
-        });
-
-        save.setOnAction(event -> {
-            this.data.forEach(notesRow -> {
-                if (notesRow.hasChanged()) {
-                    logger.debug("Note Has changed commit:");
-                    notesRow.commit();
-                }
-            });
-        });
-
-        Separator sep1 = new Separator(Orientation.VERTICAL);
-        Separator sep2 = new Separator(Orientation.VERTICAL);
-
-        if (start != null) {
-            startDatePicker.valueProperty().removeListener(startDateChangeListener);
-            startDatePicker.setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
-        }
-
-
-        if (end != null) {
-            endDatePicker.valueProperty().removeListener(endDateChangeListener);
-            endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
-        }
-
-
-        startDatePicker.valueProperty().addListener(startDateChangeListener);
-        endDatePicker.valueProperty().addListener(endDateChangeListener);
-
-        ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
-        ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
-
-        timeFrameComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
-        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
-        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
-
-        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, newB, save, delete);
-        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
-
-        JEVisHelp.getInstance().addHelpItems(NotesPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
-
-    }
-
-    private JFXComboBox<TimeFrame> getTimeFrameComboBox() {
-        JFXComboBox<TimeFrame> box = new JFXComboBox<>();
+    private MFXComboBox<TimeFrame> getTimeFrameComboBox() {
+        MFXComboBox<TimeFrame> box = new MFXComboBox<>();
 
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
         final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
@@ -1010,9 +1015,20 @@ public class NotesPlugin implements Plugin {
                 };
             }
         };
-        box.setCellFactory(cellFactory);
-        box.setButtonCell(cellFactory.call(null));
-        box.getSelectionModel().select(timeFrame);
+        //TODO: JFX17
+        box.setConverter(new StringConverter<TimeFrame>() {
+            @Override
+            public String toString(TimeFrame object) {
+                return TimeFrame.getTranslationName(object);
+            }
+
+            @Override
+            public TimeFrame fromString(String string) {
+                return box.getItems().get(box.getSelectedIndex());
+            }
+        });
+
+        box.selectItem(timeFrame);
 
         box.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
@@ -1062,6 +1078,14 @@ public class NotesPlugin implements Plugin {
         });
 
         return box;
+    }
+
+    @Override
+    public void setHasFocus() {
+
+
+        this.timeFrameComboBox.selectItem(TimeFrame.LAST_30_DAYS);
+        Platform.runLater(() -> autoFitTable(tableView));
     }
 
     @Override
@@ -1206,13 +1230,7 @@ public class NotesPlugin implements Plugin {
 
     }
 
-    @Override
-    public void setHasFocus() {
 
-
-        this.timeFrameComboBox.getSelectionModel().select(TimeFrame.LAST_30_DAYS);
-        Platform.runLater(() -> autoFitTable(tableView));
-    }
 
     @Override
     public void lostFocus() {

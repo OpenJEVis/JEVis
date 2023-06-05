@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.timeframe;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 import org.joda.time.DateTime;
@@ -44,8 +45,18 @@ public class TimeFactoryBox extends DisabledItemsComboBox<TimeFrame> {
             }
         };
 
-        setCellFactory(cellFactory);
-        setButtonCell(cellFactory.call(null));
+        //TODO JFX17
+        setConverter(new StringConverter<TimeFrame>() {
+            @Override
+            public String toString(TimeFrame object) {
+                return object.getListName();
+            }
+
+            @Override
+            public TimeFrame fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
 
         getSelectionModel().selectFirst();
     }
@@ -56,14 +67,14 @@ public class TimeFactoryBox extends DisabledItemsComboBox<TimeFrame> {
 
         for (TimeFrame timeFrame : getItems()) {
             if (timeFrame.getID().equals(factory.getID())) {
-                getSelectionModel().select(timeFrame);
+                selectItem(timeFrame);
                 return;
             }
         }
 
         /** factory does not exist, create a new one **/
         getItems().add(factory);
-        getSelectionModel().select(factory);
+        selectItem(factory);
 
     }
 

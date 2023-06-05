@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.tools;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -11,7 +11,7 @@ import javafx.util.Callback;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DisabledItemsComboBox<T> extends JFXComboBox<T> {
+public class DisabledItemsComboBox<T> extends MFXComboBox<T> {
 
     private ArrayList<T> disabledItems = new ArrayList<T>();
 
@@ -94,8 +94,9 @@ public class DisabledItemsComboBox<T> extends JFXComboBox<T> {
 
         };
 
-        setSelectionModel(model);
-        setCellFactory(callback);
+        //TODO JFX17
+//        setSelectionModel(model);
+//        setCellFactory(callback);
 
     }
 

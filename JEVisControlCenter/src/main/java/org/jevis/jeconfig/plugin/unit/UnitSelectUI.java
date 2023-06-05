@@ -20,15 +20,14 @@
  */
 package org.jevis.jeconfig.plugin.unit;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
-import javafx.scene.control.ListCell;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -49,10 +48,10 @@ import java.util.List;
  */
 public class UnitSelectUI {
 
-    private final JFXTextField symbolField = new JFXTextField();
+    private final MFXTextField symbolField = new MFXTextField();
     private static final Logger logger = LogManager.getLogger(UnitSelectUI.class);
-    private final JFXComboBox<Prefix> prefixBox;
-    private final JFXButton changeBaseUnit = new JFXButton();//new JFXButton("Basic Unit");
+    private final MFXComboBox<Prefix> prefixBox;
+    private final MFXButton changeBaseUnit = new MFXButton();//new MFXButton("Basic Unit");
     private JEVisUnit jeVisUnit;
     //workaround
     private final BooleanProperty valueChangedProperty = new SimpleBooleanProperty(false);
@@ -63,21 +62,32 @@ public class UnitSelectUI {
         List<Prefix> list = new ArrayList<>();
         list.add(null);
         Collections.addAll(list, MetricPrefix.values());
-        prefixBox = new JFXComboBox<>(FXCollections.observableArrayList(MetricPrefix.values()));
+        prefixBox = new MFXComboBox<>(FXCollections.observableArrayList(MetricPrefix.values()));
 
-
-        prefixBox.setButtonCell(new ListCell<Prefix>() {
+        //TODO JFX17
+//        prefixBox.setButtonCell(new ListCell<Prefix>() {
+//            @Override
+//            protected void updateItem(Prefix prefix, boolean bln) {
+//                super.updateItem(prefix, bln);
+//                setGraphic(null);
+//                if (!bln) {
+//                    setAlignment(Pos.CENTER);
+//                    setText(prefix.getName());
+//                }
+//            }
+//        });
+        prefixBox.setConverter(new StringConverter<Prefix>() {
             @Override
-            protected void updateItem(Prefix prefix, boolean bln) {
-                super.updateItem(prefix, bln);
-                setGraphic(null);
-                if (!bln) {
-                    setAlignment(Pos.CENTER);
-                    setText(prefix.getName());
-                }
+            public String toString(Prefix object) {
+                return object.getName();
+            }
+
+            @Override
+            public Prefix fromString(String string) {
+                return prefixBox.getItems().get(prefixBox.getSelectedIndex());
             }
         });
-        prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefix(prefix));
+        prefixBox.selectItem(UnitManager.getInstance().getPrefix(prefix));
         if (unit.getUnit().toString().length() > 1) {
             String sub = unit.toString().substring(0, 0);
             if (UnitManager.getInstance().getPrefixFromShort(sub) != null) {
@@ -128,7 +138,7 @@ public class UnitSelectUI {
             if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {
                 logger.info("Unit selected: {}", stc.getUnit().getFormula());
                 jeVisUnit = stc.getUnit();
-                prefixBox.getSelectionModel().select(null);
+                prefixBox.selectItem(null);
                 changeBaseUnit.setText(jeVisUnit.getFormula());
                 symbolField.setText(jeVisUnit.getLabel());
             }
@@ -161,15 +171,15 @@ public class UnitSelectUI {
         this.jeVisUnit = unit;
     }
 
-    public JFXTextField getSymbolField() {
+    public MFXTextField getSymbolField() {
         return symbolField;
     }
 
-    public JFXButton getUnitButton() {
+    public MFXButton getUnitButton() {
         return changeBaseUnit;
     }
 
-    public JFXComboBox<Prefix> getPrefixBox() {
+    public MFXComboBox<Prefix> getPrefixBox() {
         return prefixBox;
     }
 //

@@ -3,17 +3,19 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -115,38 +117,41 @@ public class Limit {
 
 
         Label limitTypeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.type"));
-        JFXComboBox<MODE> limitTypeBox = new JFXComboBox<>(types);
-        Callback<ListView<MODE>, ListCell<MODE>> cellFactory = new Callback<ListView<MODE>, ListCell<MODE>>() {
+        MFXComboBox<MODE> limitTypeBox = new MFXComboBox<>(types);
+
+        //TODO JFX17
+
+        limitTypeBox.setConverter(new StringConverter<MODE>() {
             @Override
-            public ListCell<MODE> call(ListView<MODE> param) {
-                return new ListCell<MODE>() {
-                    @Override
-                    protected void updateItem(MODE item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            switch (item) {
-                                case STATIC:
-                                    setText(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.type.static"));
-                                    break;
-                                case DYNAMIC:
-                                    setText(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.type.dynamic"));
-                                    break;
-                            }
-
-                        }
+            public String toString(MODE object) {
+                String text = "";
+                if (object != null) {
+                    switch (object) {
+                        case STATIC:
+                            text = I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.type.static");
+                            break;
+                        case DYNAMIC:
+                            text = I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.type.dynamic");
+                            break;
                     }
-                };
+
+                }
+
+                return text;
             }
-        };
 
+            @Override
+            public MODE fromString(String string) {
+                return limitTypeBox.getItems().get(limitTypeBox.getSelectedIndex());
+            }
+        });
 
-        limitTypeBox.getSelectionModel().select(mode);
+        limitTypeBox.selectItem(mode);
         if (mode == MODE.DYNAMIC) {
             editorPane.getChildren().add(limitDynamicPane);
         } else if (mode == MODE.STATIC) {
             editorPane.getChildren().add(limitStaticPane);
         }
-
 
         limitTypeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             mode = newValue;
@@ -161,7 +166,6 @@ public class Limit {
         gridPane.addRow(0, limitTypeLabel, limitTypeBox);
         gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 1, 2, 1);
         gridPane.add(editorPane, 0, 2, 2, 1);
-
 
         tab.setContent(gridPane);
         return tab;

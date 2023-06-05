@@ -420,7 +420,7 @@ public class ConfigManager {
          newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
          Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
          Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
-         JFXTextField name = new JFXTextField();
+         MFXTextField name = new MFXTextField();
 
          JEVisClass analysesDirectory = null;
          List<JEVisObject> listAnalysesDirectories = null;
@@ -435,7 +435,7 @@ public class ConfigManager {
          }
 
          ObjectProperty<JEVisObject> currentAnalysisDirectory = new SimpleObjectProperty<>(null);
-         JFXComboBox<JEVisObject> parentsDirectories = new JFXComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
+         MFXComboBox<JEVisObject> parentsDirectories = new MFXComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
 
          Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
         @Override public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -489,8 +489,8 @@ public class ConfigManager {
          }
          }));
 
-         final JFXButtonType ok = new JFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), JFXButtonBar.ButtonData.OK_DONE);
-         final JFXButtonType cancel = new JFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), JFXButtonBar.ButtonData.CANCEL_CLOSE);
+         final MFXButtonType ok = new MFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), MFXButtonBar.ButtonData.OK_DONE);
+         final MFXButtonType cancel = new MFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), MFXButtonBar.ButtonData.CANCEL_CLOSE);
 
          GridPane gridLayout = new GridPane();
          gridLayout.setPadding(new Insets(10, 10, 10, 10));
@@ -517,7 +517,7 @@ public class ConfigManager {
         /**
          newAnalysis.showAndWait()
          .ifPresent(response -> {
-         if (response.getButtonData().getTypeCode() == JFXButtonType.OK.getButtonData().getTypeCode()) {
+         if (response.getButtonData().getTypeCode() == MFXButtonType.OK.getButtonData().getTypeCode()) {
          List<String> check = new ArrayList<>();
          AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
          try {
@@ -538,13 +538,13 @@ public class ConfigManager {
          Dialog<ButtonType> dialogOverwrite = new Dialog<>();
          dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
          dialogOverwrite.getDialogPane().setContentText(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
-         final JFXButtonType overwrite_ok = new JFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), JFXButtonBar.ButtonData.OK_DONE);
-         final JFXButtonType overwrite_cancel = new JFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), JFXButtonBar.ButtonData.CANCEL_CLOSE);
+         final MFXButtonType overwrite_ok = new MFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), MFXButtonBar.ButtonData.OK_DONE);
+         final MFXButtonType overwrite_cancel = new MFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), MFXButtonBar.ButtonData.CANCEL_CLOSE);
 
          dialogOverwrite.getDialogPane().getButtonTypes().addAll(overwrite_ok, overwrite_cancel);
 
          dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
-         if (overwrite_response.getButtonData().getTypeCode() != JFXButtonType.OK.getButtonData().getTypeCode()) {
+         if (overwrite_response.getButtonData().getTypeCode() != MFXButtonType.OK.getButtonData().getTypeCode()) {
          return;
          }
          });

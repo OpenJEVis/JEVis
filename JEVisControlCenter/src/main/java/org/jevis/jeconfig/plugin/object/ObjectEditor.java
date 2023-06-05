@@ -19,7 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -269,7 +269,7 @@ public class ObjectEditor {
                         _lastOpenEditor = installedExtensions.get(0).getTitle();
                     }
 
-                    JFXButton helpButton = new JFXButton("", JEConfig.getImage("1400874302_question_blue.png", 34, 34));
+                    MFXButton helpButton = new MFXButton("", JEConfig.getImage("1400874302_question_blue.png", 34, 34));
                     helpButton.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
 
                     //Header

@@ -3,7 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -13,6 +13,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -85,7 +86,7 @@ public class ArrowConfig {
 
         Label limitTypeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.orientation"));
 
-        JFXComboBox<ARROW_ORIENTATION> orientationTypeBox = new JFXComboBox<>(FXCollections.observableArrayList(ARROW_ORIENTATION.values()));
+        MFXComboBox<ARROW_ORIENTATION> orientationTypeBox = new MFXComboBox<>(FXCollections.observableArrayList(ARROW_ORIENTATION.values()));
         Callback<ListView<ARROW_ORIENTATION>, ListCell<ARROW_ORIENTATION>> cellFactory = new Callback<ListView<ARROW_ORIENTATION>, ListCell<ARROW_ORIENTATION>>() {
             @Override
             public ListCell<ARROW_ORIENTATION> call(ListView<ARROW_ORIENTATION> param) {
@@ -114,10 +115,30 @@ public class ArrowConfig {
                 };
             }
         };
-        orientationTypeBox.setCellFactory(cellFactory);
-        orientationTypeBox.setButtonCell(cellFactory.call(null));
+        //TODO JFX17
+        orientationTypeBox.setConverter(new StringConverter<ARROW_ORIENTATION>() {
+            @Override
+            public String toString(ARROW_ORIENTATION object) {
+                switch (object) {
+                    default:
+                    case BOTTOM_TOP:
+                        return (I18n.getInstance().getString("plugin.dashboard.arrowwidget.orientation.bottomTop"));
+                    case TOP_BOTTOM:
+                        return (I18n.getInstance().getString("plugin.dashboard.arrowwidget.orientation.topBottom"));
+                    case RIGHT_LEFT:
+                        return (I18n.getInstance().getString("plugin.dashboard.arrowwidget.orientation.rightLeft"));
+                    case LEFT_RIGHT:
+                        return (I18n.getInstance().getString("plugin.dashboard.arrowwidget.orientation.leftRight"));
+                }
+            }
 
-        orientationTypeBox.getSelectionModel().select(orientation);
+            @Override
+            public ARROW_ORIENTATION fromString(String string) {
+                return orientationTypeBox.getItems().get(orientationTypeBox.getSelectedIndex());
+            }
+        });
+
+        orientationTypeBox.selectItem(orientation);
 
         orientationTypeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             orientation = newValue;
@@ -127,7 +148,7 @@ public class ArrowConfig {
 
         Label shapeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.shape"));
 
-        JFXComboBox<SHAPE> shapeBox = new JFXComboBox<>(FXCollections.observableArrayList(SHAPE.values()));
+        MFXComboBox<SHAPE> shapeBox = new MFXComboBox<>(FXCollections.observableArrayList(SHAPE.values()));
         Callback<ListView<SHAPE>, ListCell<SHAPE>> shapeCellFactory = new Callback<ListView<SHAPE>, ListCell<SHAPE>>() {
             @Override
             public ListCell<SHAPE> call(ListView<SHAPE> param) {
@@ -150,10 +171,27 @@ public class ArrowConfig {
                 };
             }
         };
-        shapeBox.setCellFactory(shapeCellFactory);
-        shapeBox.setButtonCell(shapeCellFactory.call(null));
 
-        shapeBox.getSelectionModel().select(shape);
+        //TODO JFX17
+        shapeBox.setConverter(new StringConverter<SHAPE>() {
+            @Override
+            public String toString(SHAPE object) {
+                switch (object) {
+                    default:
+                    case ARROW:
+                        return (I18n.getInstance().getString("plugin.dashboard.arrowwidget.shape.arrow"));
+                    case LINE:
+                        return (I18n.getInstance().getString("plugin.dashboard.arrowwidget.shape.line"));
+                }
+            }
+
+            @Override
+            public SHAPE fromString(String string) {
+                return shapeBox.getItems().get(shapeBox.getSelectedIndex());
+            }
+        });
+
+        shapeBox.selectItem(shape);
 
         shapeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             shape = newValue;

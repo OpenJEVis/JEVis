@@ -5,7 +5,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -69,9 +69,9 @@ public class OPCProtocolEditor implements AttributeEditor {
         enumList.add("opc.tcp");
         enumList.add("http");
 
-        JFXComboBox picker = new JFXComboBox(enumList);
+        MFXComboBox picker = new MFXComboBox(enumList);
 
-        picker.getSelectionModel().select(initinitialProtocol);
+        picker.selectItem(initinitialProtocol);
 
         picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 

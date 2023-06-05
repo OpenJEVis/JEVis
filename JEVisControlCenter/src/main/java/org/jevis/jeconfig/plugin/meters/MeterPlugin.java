@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.meters;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -58,7 +58,7 @@ public class MeterPlugin extends TablePlugin {
     private boolean initialized = false;
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getSVGImage(Icon.SWAP, toolBarIconSize, toolBarIconSize));
     private int selectedIndex = 0;
-    private final JFXButton renameButton = new JFXButton("", JEConfig.getSVGImage(Icon.EDIT, toolBarIconSize, toolBarIconSize));
+    private final MFXButton renameButton = new MFXButton("", JEConfig.getSVGImage(Icon.EDIT, toolBarIconSize, toolBarIconSize));
 
     public MeterPlugin(JEVisDataSource ds, String title) {
         super(ds, title);

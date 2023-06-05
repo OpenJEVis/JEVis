@@ -1,9 +1,9 @@
 package org.jevis.jeconfig.tool.dwdbrowser;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
@@ -14,6 +14,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileFilter;
@@ -61,30 +62,13 @@ public class DWDBrowser extends Dialog {
     private final DateTimeFormatter monthFormatter = DateTimeFormat.forPattern("yyyyMM").withZoneUTC();
     private final DateTimeFormatter yearFormatter = DateTimeFormat.forPattern("yyyy").withZoneUTC();
     private final JEVisObject targetObject;
-    Callback<ListView<Station>, ListCell<Station>> cellFactory = new Callback<ListView<Station>, ListCell<Station>>() {
-        @Override
-        public ListCell<Station> call(ListView<Station> param) {
-            return new ListCell<Station>() {
-                @Override
-                protected void updateItem(Station obj, boolean empty) {
-                    super.updateItem(obj, empty);
-                    if (obj == null || empty) {
-                        setGraphic(null);
-                        setText(null);
-                    } else {
-                        setText(obj.getName());
-                    }
-                }
-            };
-        }
-    };
     private FilteredList<Station> filteredStations;
     private JEVisAttribute target;
     private DateTime firstDate = DateTime.now();
     private DateTime lastDate = new DateTime("1970-01-01T00:00:00Z");
 
-    private final JFXDatePicker startDatePicker = new JFXDatePicker();
-    private final JFXDatePicker endDatePicker = new JFXDatePicker();
+    private final MFXDatePicker startDatePicker = new MFXDatePicker();
+    private final MFXDatePicker endDatePicker = new MFXDatePicker();
 
     public DWDBrowser(JEVisDataSource ds, JEVisObject targetObject) {
         this.targetObject = targetObject;
@@ -135,21 +119,31 @@ public class DWDBrowser extends Dialog {
         gridPane.add(attributeBox, 1, row);
         row++;
 
-        JFXButton loadStationsButton = new JFXButton("Load Stations");
+        MFXButton loadStationsButton = new MFXButton("Load Stations");
 
         gridPane.add(loadStationsButton, 0, row);
         row++;
 
-        JFXTextField stationFilter = new JFXTextField();
-        JFXComboBox<Station> stationBox = new JFXComboBox<>();
-        stationBox.setCellFactory(cellFactory);
-        stationBox.setButtonCell(cellFactory.call(null));
+        MFXTextField stationFilter = new MFXTextField();
+        MFXComboBox<Station> stationBox = new MFXComboBox<>();
+
+        stationBox.setConverter(new StringConverter<Station>() {
+            @Override
+            public String toString(Station object) {
+                return object.getName();
+            }
+
+            @Override
+            public Station fromString(String string) {
+                return stationBox.getItems().stream().filter(station -> station.getName().equals(string)).findFirst().orElse(null);
+            }
+        });
 
         gridPane.add(stationFilter, 0, row);
         gridPane.add(stationBox, 1, row);
         row++;
 
-        JFXButton loadDataButton = new JFXButton("Load Data for station");
+        MFXButton loadDataButton = new MFXButton("Load Data for station");
         loadDataButton.setDisable(true);
 
         gridPane.add(loadDataButton, 1, row);
@@ -159,7 +153,7 @@ public class DWDBrowser extends Dialog {
         gridPane.add(dataBox, 1, row);
         row++;
 
-        JFXButton targetButton = new JFXButton(I18n
+        MFXButton targetButton = new MFXButton(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
         targetButton.wrapTextProperty().setValue(true);
@@ -178,7 +172,7 @@ public class DWDBrowser extends Dialog {
             }
         }
 
-        JFXTextField messageField = new JFXTextField();
+        MFXTextField messageField = new MFXTextField();
         gridPane.add(messageField, 0, row, 2, 1);
         row++;
 
@@ -304,7 +298,7 @@ public class DWDBrowser extends Dialog {
 
     }
 
-    private void loadData(JFXComboBox<Station> stationBox, JFXButton targetButton, Button okButton, JFXTextField messageField, FTPClient ftpClient, StationData stationData, List<String> allDataNames) {
+    private void loadData(MFXComboBox<Station> stationBox, MFXButton targetButton, Button okButton, MFXTextField messageField, FTPClient ftpClient, StationData stationData, List<String> allDataNames) {
         try {
             Station selectedStation = stationBox.getSelectionModel().getSelectedItem();
             StringBuilder idString = new StringBuilder(String.valueOf(selectedStation.getId()));
@@ -402,7 +396,7 @@ public class DWDBrowser extends Dialog {
         }
     }
 
-    private void loadStations(JFXComboBox<Station> stationBox, JFXButton loadDataButton, List<String> stationFiles, FTPClient ftpClient) {
+    private void loadStations(MFXComboBox<Station> stationBox, MFXButton loadDataButton, List<String> stationFiles, FTPClient ftpClient) {
         try {
             ftpClient.connect("opendata.dwd.de");
 
@@ -593,9 +587,9 @@ public class DWDBrowser extends Dialog {
                 };
             }
         };
-
-        startDatePicker.setDayCellFactory(dateCellCallback);
-        endDatePicker.setDayCellFactory(dateCellCallback);
+//TODO JFX17
+        // startDatePicker.setDayCellFactory(dateCellCallback);
+        // endDatePicker.setDayCellFactory(dateCellCallback);
     }
 
     private DateTime toDateTime(LocalDate localDate) {

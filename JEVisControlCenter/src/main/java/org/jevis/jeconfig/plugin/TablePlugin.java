@@ -1,9 +1,8 @@
 package org.jevis.jeconfig.plugin;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTextField;
-import com.sun.javafx.scene.control.skin.TableViewSkin;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
@@ -12,11 +11,11 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.apache.commons.io.FilenameUtils;
@@ -97,7 +96,7 @@ public class TablePlugin implements Plugin {
     protected final ObjectRelations objectRelations;
     protected final String title;
     protected final AlphanumComparator alphanumComparator = new AlphanumComparator();
-    protected final JFXTextField filterInput = new JFXTextField("");
+    protected final MFXTextField filterInput = new MFXTextField("");
     protected final BorderPane borderPane = new BorderPane();
 
     public TablePlugin(JEVisDataSource ds, String title) {
@@ -218,7 +217,7 @@ public class TablePlugin implements Plugin {
                             setGraphic(null);
                         } else {
 
-                            JFXDatePicker pickerDate = new JFXDatePicker();
+                            MFXDatePicker pickerDate = new MFXDatePicker();
 
                             if (getTableRow().getIndex() % 2 == 0) {
                                 pickerDate.setStyle("-fx-text-fill: white;");
@@ -237,7 +236,8 @@ public class TablePlugin implements Plugin {
 
                                     if (item.getName().equals("Verification Date")) {
                                         if (date.isBefore(new DateTime())) {
-                                            pickerDate.setDefaultColor(Color.RED);
+                                            //TODO JFX17 Testen
+                                            pickerDate.setStyle("-fx-text-color: red;");
                                         }
                                     }
                                 } catch (Exception ex) {
@@ -259,7 +259,7 @@ public class TablePlugin implements Plugin {
                         }
                     }
 
-                    private DateTime getCurrentDate(JFXDatePicker pickerDate) {
+                    private DateTime getCurrentDate(MFXDatePicker pickerDate) {
                         return new DateTime(
                                 pickerDate.valueProperty().get().getYear(), pickerDate.valueProperty().get().getMonthValue(), pickerDate.valueProperty().get().getDayOfMonth(),
                                 0, 0, 0,
@@ -294,14 +294,14 @@ public class TablePlugin implements Plugin {
                         } else {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
-                            JFXButton manSampleButton = new JFXButton("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
+                            MFXButton manSampleButton = new MFXButton("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
                             manSampleButton.setDisable(true);
                             manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
-                            JFXButton treeButton = new JFXButton("",
+                            MFXButton treeButton = new MFXButton("",
                                     JEConfig.getImage("folders_explorer.png", tableIconSize, tableIconSize));
                             treeButton.wrapTextProperty().setValue(true);
 
-                            JFXButton gotoButton = new JFXButton("",
+                            MFXButton gotoButton = new MFXButton("",
                                     JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", tableIconSize, tableIconSize));//icon
                             gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
@@ -440,7 +440,7 @@ public class TablePlugin implements Plugin {
         };
     }
 
-    protected void addEventManSampleAction(JEVisSample targetSample, JFXButton buttonToAddEvent, String headerText) {
+    protected void addEventManSampleAction(JEVisSample targetSample, MFXButton buttonToAddEvent, String headerText) {
 
         buttonToAddEvent.setOnAction(event -> {
             if (targetSample != null) {
@@ -478,7 +478,7 @@ public class TablePlugin implements Plugin {
         });
     }
 
-    private boolean setToolTipText(JFXButton treeButton, JEVisAttribute att) {
+    private boolean setToolTipText(MFXButton treeButton, JEVisAttribute att) {
         boolean foundTarget = false;
         try {
             TargetHelper th = new TargetHelper(ds, att);
@@ -544,7 +544,7 @@ public class TablePlugin implements Plugin {
                         } else {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
-                            JFXTextField textField = new JFXTextField();
+                            MFXTextField textField = new MFXTextField();
                             textField.setStyle("-fx-text-fill: black;");
 
                             try {
@@ -602,9 +602,9 @@ public class TablePlugin implements Plugin {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            JFXButton downloadButton = new JFXButton("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
-                            JFXButton previewButton = new JFXButton("", JEConfig.getImage("eye_visible.png", tableIconSize, tableIconSize));
-                            JFXButton uploadButton = new JFXButton("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
+                            MFXButton downloadButton = new MFXButton("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
+                            MFXButton previewButton = new MFXButton("", JEConfig.getImage("eye_visible.png", tableIconSize, tableIconSize));
+                            MFXButton uploadButton = new MFXButton("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
                             downloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.download")));
                             previewButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
@@ -705,7 +705,7 @@ public class TablePlugin implements Plugin {
         };
     }
 
-    private void setPreviewButton(JFXButton button, AttributeValueChange valueChange) {
+    private void setPreviewButton(MFXButton button, AttributeValueChange valueChange) {
 
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -780,7 +780,7 @@ public class TablePlugin implements Plugin {
                         } else {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
-                            JFXTextField textField = new JFXTextField();
+                            MFXTextField textField = new MFXTextField();
 
                             /**
                              if (getTableRow().getIndex() % 2 == 0) {
@@ -863,7 +863,7 @@ public class TablePlugin implements Plugin {
                         } else {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
-                            JFXTextField textField = new JFXTextField();
+                            MFXTextField textField = new MFXTextField();
 
                             /**
                              if (getTableRow().getIndex() % 2 == 0) {

@@ -36,7 +36,6 @@ import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.xml.ws.WebServiceContext;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -81,7 +80,6 @@ public class ResourceObject {
             @Context HttpHeaders httpHeaders,
             @Context Request request,
             @Context UriInfo url,
-            @Context WebServiceContext serviceContext,
             @DefaultValue("false") @QueryParam("root") boolean root,
             @DefaultValue("") @QueryParam("class") String jclass,
             @DefaultValue("true") @QueryParam("inherit") boolean inherit,

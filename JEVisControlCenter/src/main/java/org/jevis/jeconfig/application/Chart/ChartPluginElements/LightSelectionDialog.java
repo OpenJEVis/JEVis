@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -125,7 +125,7 @@ public class LightSelectionDialog extends Dialog {
 
         treeView.setShowRoot(false);
 
-        TextField filterField = new JFXTextField();
+        TextField filterField = new MFXTextField();
 
         rootNode.predicateProperty().bind(Bindings.createObjectBinding(() -> {
             if (filterField.getText() == null || filterField.getText().isEmpty())

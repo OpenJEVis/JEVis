@@ -7,6 +7,7 @@ package org.jevis.soapdatasource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.impl.soap.*;
 import org.jevis.commons.driver.DataSourceHelper;
 import org.jevis.commons.driver.Importer;
 import org.jevis.commons.driver.Parser;
@@ -19,7 +20,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.*;
 import javax.xml.transform.dom.DOMSource;
 import java.io.*;
 import java.net.URL;
@@ -55,7 +55,7 @@ public class SOAPDataSource {
     public List<InputStream> sendSampleRequest(Channel channel) throws Exception {
         String uri = "";
         List<InputStream> answer = new ArrayList<InputStream>();
-        javax.xml.soap.SOAPConnection conn = null;
+        SOAPConnection conn = null;
         try {
             String path = channel.getPath();
             DateTime lastReadout = channel.getLastReadout();

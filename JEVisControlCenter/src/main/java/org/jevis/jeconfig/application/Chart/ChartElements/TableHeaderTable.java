@@ -1,9 +1,9 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
-import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.skin.TableViewSkin;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 

@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.tool.datepicker;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -25,14 +25,14 @@ final class MainNavigationPane extends HBox {
     private static final String CSS_CALENDAR_HEADER = "calendar-header";
 
     private final CalendarView calendarView;
-    JFXButton titleButton;
+    MFXButton titleButton;
 
     public MainNavigationPane(final CalendarView calendarView) {
 
         this.calendarView = calendarView;
 
 
-        titleButton = new JFXButton();
+        titleButton = new MFXButton();
         titleButton.getStyleClass().add(CSS_CALENDAR_NAVIGATION_TITLE);
         titleButton.textProperty().bind(calendarView.title);
 
@@ -77,9 +77,9 @@ final class MainNavigationPane extends HBox {
      * @param direction Either -1 (for left) or 1 (for right).
      * @return The button.
      */
-    private JFXButton getNavigationButton(final int direction) {
+    private MFXButton getNavigationButton(final int direction) {
 
-        JFXButton button = new JFXButton();
+        MFXButton button = new MFXButton();
 
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override

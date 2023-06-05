@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -11,7 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -50,7 +50,7 @@ public class SaveUnderDialog extends Dialog {
 
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
-        JFXTextField name = new JFXTextField();
+        MFXTextField name = new MFXTextField();
         name.setMinWidth(350);
         ObjectRelations objectRelations = new ObjectRelations(jeVisDataSource);
 
@@ -67,32 +67,29 @@ public class SaveUnderDialog extends Dialog {
         }
 
         ObjectProperty<JEVisObject> currentSaveDirectory = new SimpleObjectProperty<>(null);
-        JFXComboBox<JEVisObject> parentsDirectories = new JFXComboBox<>(FXCollections.observableArrayList(listSaveDirectories));
+        MFXComboBox<JEVisObject> parentsDirectories = new MFXComboBox<>(FXCollections.observableArrayList(listSaveDirectories));
 
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+        //TODO JFX17
+
+        parentsDirectories.setConverter(new StringConverter<JEVisObject>() {
             @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (empty || obj == null || obj.getName() == null) {
-                            setText("");
-                        } else {
-                            if (!hasMultiDirs.get())
-                                setText(obj.getName());
-                            else {
-                                String prefix = objectRelations.getObjectPath(obj);
-                                setText(prefix + obj.getName());
-                            }
-                        }
+            public String toString(JEVisObject object) {
+                String text = "";
+                if (!hasMultiDirs.get())
+                    text = object.getName();
+                else {
+                    String prefix = objectRelations.getObjectPath(object);
+                    text = prefix + object.getName();
+                }
 
-                    }
-                };
+                return text;
             }
-        };
-        parentsDirectories.setCellFactory(cellFactory);
-        parentsDirectories.setButtonCell(cellFactory.call(null));
+
+            @Override
+            public JEVisObject fromString(String string) {
+                return parentsDirectories.getItems().get(parentsDirectories.getSelectedIndex());
+            }
+        });
 
         parentsDirectories.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
@@ -106,7 +103,7 @@ public class SaveUnderDialog extends Dialog {
             try {
                 if (selectedObj.getParents() != null) {
                     JEVisObject parenObj = selectedObj.getParents().get(0);
-                    parentsDirectories.getSelectionModel().select(parenObj);
+                    parentsDirectories.selectItem(parenObj);
                 }
             } catch (Exception e) {
                 logger.error("Couldn't select current Analysis Directory: " + e);

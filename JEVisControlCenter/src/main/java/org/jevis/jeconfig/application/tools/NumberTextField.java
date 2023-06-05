@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.tools;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -19,7 +19,7 @@ import java.text.ParseException;
  *
  * @author Thomas Bolz
  */
-public class NumberTextField extends JFXTextField {
+public class NumberTextField extends MFXTextField {
 
     private final NumberFormat nf;
     private final ObjectProperty<BigDecimal> number = new SimpleObjectProperty<>();

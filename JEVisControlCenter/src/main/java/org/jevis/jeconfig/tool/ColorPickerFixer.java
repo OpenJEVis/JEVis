@@ -1,10 +1,8 @@
 package org.jevis.jeconfig.tool;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.sun.javafx.scene.control.skin.CustomColorDialog;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.scene.control.ColorPicker;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 
 import java.lang.reflect.Field;
@@ -53,13 +51,14 @@ public class ColorPickerFixer {
 //            }
 
 
-            JFXButton buttonShowColorPicker = new JFXButton("Show custom color dialog!");
+            //TODO JFX17 Testen
+            MFXButton buttonShowColorPicker = new MFXButton("Show custom color dialog!");
             buttonShowColorPicker.setOnAction(actionEvent -> {
-                CustomColorDialog customColorDialog = new CustomColorDialog(JEConfig.getStage());
+                ColorPicker customColorDialog = new ColorPicker();
                 customColorDialog.show();
             });
 
-            CustomColorDialog customColorDialog = new CustomColorDialog(JEConfig.getStage());
+            ColorPicker customColorDialog = new ColorPicker();
             customColorDialog.sceneProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != null) {
                     TopMenu.applyActiveTheme(customColorDialog.getScene());

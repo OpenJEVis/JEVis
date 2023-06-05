@@ -3,7 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -39,11 +39,11 @@ public class IncrementPojo {
     private final ActionEvent actionEvent = new ActionEvent();
 
 
-    private JFXTextField minTextField;
+    private MFXTextField minTextField;
 
-    private JFXTextField maxTextField;
+    private MFXTextField maxTextField;
 
-    private JFXTextField incrementTextField;
+    private MFXTextField incrementTextField;
 
 
     private GridPane gridPane;
@@ -95,7 +95,7 @@ public class IncrementPojo {
         gridPane.setHgap(8);
 
         gridPane.setPadding(new Insets(8, 5, 8, 5));
-        incrementTextField = new JFXTextField(String.valueOf(increment));
+        incrementTextField = new MFXTextField(String.valueOf(increment));
 
 
         gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.dashboard.increment")),incrementTextField);

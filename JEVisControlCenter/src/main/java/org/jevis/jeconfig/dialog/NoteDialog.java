@@ -4,9 +4,9 @@ package org.jevis.jeconfig.dialog;
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -129,7 +129,7 @@ public class NoteDialog extends Dialog<ButtonType> {
 
                             JFXTextArea textArea = new JFXTextArea(rowNote.getUserNote());
 
-                            JFXButton expand = new JFXButton(null);
+                            MFXButton expand = new MFXButton(null);
                             expand.setBackground(new Background(new BackgroundImage(
                                     imgExpand,
                                     BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
@@ -211,7 +211,7 @@ public class NoteDialog extends Dialog<ButtonType> {
                         } else {
                             RowNote rowNote = (RowNote) getTableRow().getItem();
 
-                            JFXTextField textField = new JFXTextField();
+                            MFXTextField textField = new MFXTextField();
                             if (!rowNote.getUserValue().equals("")) {
                                 double userValue = Double.parseDouble(rowNote.getUserValue()) * rowNote.getScaleFactor();
                                 textField.setText(String.valueOf(userValue));

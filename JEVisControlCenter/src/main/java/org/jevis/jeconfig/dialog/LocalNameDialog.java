@@ -1,8 +1,7 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
-import com.sun.javafx.scene.control.skin.TableViewSkin;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -12,6 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -20,6 +20,7 @@ import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
@@ -78,7 +79,7 @@ public class LocalNameDialog {
 
 
         Label objLocalNameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        JFXTextField objectLocalNameTest = new JFXTextField();
+        MFXTextField objectLocalNameTest = new MFXTextField();
         Image img = new Image("/icons/flags2/" + I18n.getInstance().getLocale().getLanguage() + ".png");
         ImageView imageViewFlag = new ImageView(img);
         imageViewFlag.fitHeightProperty().setValue(20);
@@ -127,7 +128,7 @@ public class LocalNameDialog {
                     try {
                         if (item == null) {
                             TranslationRow rowItem = (TranslationRow) getTableRow().getItem();
-                            JFXComboBox<Locale> langBox = buildLangBox(null);
+                            MFXComboBox<Locale> langBox = buildLangBox(null);
                             langBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     rowItem.setLanguage(newValue.getLanguage());
@@ -140,7 +141,7 @@ public class LocalNameDialog {
                             setGraphic(langBox);
                         } else {
                             TranslationRow rowItem = (TranslationRow) getTableRow().getItem();
-                            JFXComboBox<Locale> langBox = buildLangBox(new Locale(item));
+                            MFXComboBox<Locale> langBox = buildLangBox(new Locale(item));
                             langBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     rowItem.setLanguage(newValue.getLanguage());
@@ -240,9 +241,9 @@ public class LocalNameDialog {
         NO, YES, CANCEL
     }
 
-    private JFXComboBox<Locale> buildLangBox(Locale selected) {
+    private MFXComboBox<Locale> buildLangBox(Locale selected) {
         ObservableList<Locale> langList = FXCollections.observableArrayList(I18n.getInstance().getAvailableLang());
-        JFXComboBox picker = new JFXComboBox(langList);
+        MFXComboBox<Locale> picker = new MFXComboBox<>(langList);
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
@@ -274,12 +275,24 @@ public class LocalNameDialog {
             }
 
         };
-        picker.setCellFactory(cellFactory);
-        picker.setButtonCell(cellFactory.call(null));
+
+        //TODO JFX17
+
+        picker.setConverter(new StringConverter<Locale>() {
+            @Override
+            public String toString(Locale object) {
+                return object.getDisplayName();
+            }
+
+            @Override
+            public Locale fromString(String string) {
+                return picker.getItems().get(picker.getSelectedIndex());
+            }
+        });
 
         if (selected != null && !selected.equals("empty")) {
             int index = langList.indexOf(langList.stream().filter(locale -> locale.getLanguage().equals(selected.getLanguage())).findAny().get());
-            picker.getSelectionModel().select(index);
+            picker.selectIndex(index);
         }
 
         return picker;

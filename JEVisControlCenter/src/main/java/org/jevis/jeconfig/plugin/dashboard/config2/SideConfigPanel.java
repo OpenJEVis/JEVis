@@ -1,9 +1,9 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -17,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -40,7 +41,7 @@ public class SideConfigPanel extends GridPane {
     private boolean isUpdating = false;
     private final double iconSize = 16;
 
-    private final JFXComboBox<Integer> layerComboBox = new JFXComboBox<>();
+    private final MFXComboBox<Integer> layerComboBox = new MFXComboBox<>();
     private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
     private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
     private final JFXCheckBox showShadowField = new JFXCheckBox();
@@ -64,25 +65,25 @@ public class SideConfigPanel extends GridPane {
     private final Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
     private final Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
     private final Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
-    private final JFXTextField widthText = new JFXTextField();
-    private final JFXTextField heightText = new JFXTextField();
-    private final JFXTextField xPosText = new JFXTextField();
-    private final JFXTextField yPosText = new JFXTextField();
-    //-----------
-    //ObservableList<String> dataItems = FXCollections.observableArrayList("One", "Two", "Three", "Four", "Five", "Six","Seven", "Eight", "Nine", "Ten");
-    JFXComboBox<JEVisObject> objectSelectionBox = new JFXComboBox<>();
-    private final JFXButton leftButton = new JFXButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
-    private final JFXButton rightButton = new JFXButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
-    private final JFXButton downButton = new JFXButton("", JEConfig.getImage("arrow_down.png", iconSize, iconSize));
-    private final JFXButton upButton = new JFXButton("", JEConfig.getImage("arrow_up.png", iconSize, iconSize));
-    private final JFXButton switchSide = new JFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
-    private final JFXButton equalizeDataModelButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
+    private final MFXTextField widthText = new MFXTextField();
+    private final MFXTextField heightText = new MFXTextField();
+    private final MFXTextField xPosText = new MFXTextField();
+    private final MFXTextField yPosText = new MFXTextField();
+    private final MFXButton leftButton = new MFXButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
+    private final MFXButton rightButton = new MFXButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
+    private final MFXButton downButton = new MFXButton("", JEConfig.getImage("arrow_down.png", iconSize, iconSize));
+    private final MFXButton upButton = new MFXButton("", JEConfig.getImage("arrow_up.png", iconSize, iconSize));
+    private final MFXButton switchSide = new MFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
+    private final MFXButton equalizeDataModelButton = new MFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
+    private final MFXComboBox<Pos> alignmentBox = new MFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
     ListView<JEVisObject> selectedObjectsListView = new ListView();
-    private final JFXComboBox<Pos> alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+    private final MFXTextField titleText = new MFXTextField();
     ObservableList<JEVisObject> dataItems = FXCollections.observableArrayList();
     FilteredList<JEVisObject> filteredItems = new FilteredList<>(dataItems, p -> true);
     FlowPane dataEditor = new FlowPane();
-    private final JFXTextField titleText = new JFXTextField();
+    //-----------
+    //ObservableList<String> dataItems = FXCollections.observableArrayList("One", "Two", "Three", "Four", "Five", "Six","Seven", "Eight", "Nine", "Ten");
+    MFXComboBox<JEVisObject> objectSelectionBox = new MFXComboBox<>();
     private final TextField pixels = new TextField("25");
     private Widget selectedWidget = null;
     private final GridPane dataPointConfigPane = new GridPane();
@@ -136,7 +137,6 @@ public class SideConfigPanel extends GridPane {
 **/
     }
 
-
     public void setLastSelectedWidget(Widget widget) {
         isUpdating = true;
         this.selectedWidget = widget;
@@ -149,15 +149,15 @@ public class SideConfigPanel extends GridPane {
             showShadowField.setSelected(widget.getConfig().getShowShadow());
             showValueField.setSelected(widget.getConfig().getShowValue());
             fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
-            fontWeightBox.getSelectionModel().select(widget.getConfig().getFontWeight());
-            fontPostureBox.getSelectionModel().select(widget.getConfig().getFontPosture());
+            fontWeightBox.selectItem(widget.getConfig().getFontWeight());
+            fontPostureBox.selectItem(widget.getConfig().getFontPosture());
             fontUnderlined.setSelected(widget.getConfig().getFontUnderlined());
             widthText.setText(widget.getConfig().getSize().getWidth() + "");
             xPosText.setText(widget.getConfig().getxPosition() + "");
             yPosText.setText(widget.getConfig().getyPosition() + "");
             heightText.setText(widget.getConfig().getSize().getHeight() + "");
             pixels.setText(control.getActiveDashboard().getxGridInterval().intValue() + "");
-            alignmentBox.getSelectionModel().select(widget.getConfig().getTitlePosition());
+            alignmentBox.selectItem(widget.getConfig().getTitlePosition());
             titleText.setText(widget.getConfig().getTitle());
 
             selectedObjectsListView.getItems().clear();
@@ -438,8 +438,47 @@ public class SideConfigPanel extends GridPane {
             }
         };
 
-        alignmentBox.setCellFactory(cellFactory);
-        alignmentBox.setButtonCell(cellFactory.call(null));
+        //TODO JFX17
+        alignmentBox.setConverter(new StringConverter<Pos>() {
+            @Override
+            public String toString(Pos object) {
+                switch (object) {
+                    case CENTER:
+                        return (I18n.getInstance().getString("javafx.pos.center"));
+                    case CENTER_LEFT:
+                        return (I18n.getInstance().getString("javafx.pos.centerleft"));
+                    case CENTER_RIGHT:
+                        return (I18n.getInstance().getString("javafx.pos.centerright"));
+                    case BOTTOM_RIGHT:
+                        return (I18n.getInstance().getString("javafx.pos.bottomright"));
+                    case BOTTOM_LEFT:
+                        return (I18n.getInstance().getString("javafx.pos.bottomleft"));
+                    case BOTTOM_CENTER:
+                        return (I18n.getInstance().getString("javafx.pos.bottomcenter"));
+                    /**
+                     case BASELINE_LEFT:
+                     return(I18n.getInstance().getString("javafx.pos.center"));
+                     case BASELINE_RIGHT:
+                     return(I18n.getInstance().getString("javafx.pos.center"));
+                     case BASELINE_CENTER:
+                     return(I18n.getInstance().getString("javafx.pos.center"));
+                     **/
+                    case TOP_LEFT:
+                        return (I18n.getInstance().getString("javafx.pos.topleft"));
+                    case TOP_RIGHT:
+                        return (I18n.getInstance().getString("javafx.pos.topright"));
+                    case TOP_CENTER:
+                        return (I18n.getInstance().getString("javafx.pos.topcenter"));
+                    default:
+                        return (object.toString());
+                }
+            }
+
+            @Override
+            public Pos fromString(String string) {
+                return null;
+            }
+        });
         alignmentBox.setOnAction(event -> {
             if (!isUpdating) {
                 control.alignSelected(alignmentBox.getSelectionModel().getSelectedItem());
@@ -558,7 +597,7 @@ public class SideConfigPanel extends GridPane {
 
         JEVisDataSource ds = control.getDataSource();
         ObjectRelations objectRelations = new ObjectRelations(ds);
-        JFXTextField filterTextField = new JFXTextField();
+        MFXTextField filterTextField = new MFXTextField();
         filterTextField.setPromptText("Type to filter...");
         filterTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             //System.out.println("newValue: " + newValue);
@@ -626,9 +665,32 @@ public class SideConfigPanel extends GridPane {
             }
         };
         //objectSelectionBox.
+//TODO JFX17
+        objectSelectionBox.setConverter(new StringConverter<JEVisObject>() {
+            @Override
+            public String toString(JEVisObject object) {
 
-        objectSelectionBox.setCellFactory(cellFactory);
-        objectSelectionBox.setButtonCell(cellFactory.call(null));
+
+                //objectSelectionBox.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
+                //setText(jeVisObject.getName());
+                try {
+                    objectSelectionBox.setTooltip(new Tooltip(
+                            objectRelations.getObjectPath(object)
+                                    + objectRelations.getRelativePath(object)
+                                    + object.getName()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return (objectRelations.getObjectPath(object) + objectRelations.getRelativePath(object) + object.getName());
+            }
+
+            @Override
+            public JEVisObject fromString(String string) {
+                return objectSelectionBox.getItems().get(objectSelectionBox.getSelectedIndex());
+            }
+        });
+
         objectSelectionBox.setItems(filteredItems);
 
 
@@ -663,8 +725,8 @@ public class SideConfigPanel extends GridPane {
             Platform.runLater(() -> {
                 Object test = objectSelectionBox.getSelectionModel().getSelectedItem();
                 logger.debug("test.class: " + test.getClass());
-                logger.debug("intencof: " + (objectSelectionBox.getSelectionModel().getSelectedItem() instanceof JEVisObject));
-                if (!objectSelectionBox.getSelectionModel().isEmpty() && objectSelectionBox.getSelectionModel().getSelectedItem() instanceof JEVisObject) {
+                logger.debug("intencof: " + (objectSelectionBox.getSelectionModel().getSelectedItem() != null));
+                if (!objectSelectionBox.getItems().isEmpty() && objectSelectionBox.getSelectionModel().getSelectedItem() != null) {
                     logger.debug("add: " + objectSelectionBox.getSelectionModel().getSelectedItem());
                     selectedObjectsListView.getItems().add(objectSelectionBox.getSelectionModel().getSelectedItem());
                     logger.debug("Done");

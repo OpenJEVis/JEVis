@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.plugin.object.extension.OPC;
 
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -68,8 +68,8 @@ public class NodeTreeTable {
     private TreeItem<Node> currentTreeItem;
     private boolean bacnet = false;
     private boolean rootSet = false;
-    private final JFXButton importDataStructureJFXButton;
-    private final JFXButton selectTargetJFXButton;
+    private final MFXButton importDataStructureMFXButton;
+    private final MFXButton selectTargetMFXButton;
     private Dialog setValueDialog;
 
     private int jevisObjectcount;
@@ -104,8 +104,8 @@ public class NodeTreeTable {
         this.trendRoot = trendRoot;
         this.backNetRootFolder = backNetRootFolder;
         this.opcUARootFolder = opcUaRootFolder;
-        selectTargetJFXButton = buildTargetButton();
-        importDataStructureJFXButton = buildImportDataStructureButton();
+        selectTargetMFXButton = buildTargetButton();
+        importDataStructureMFXButton = buildImportDataStructureButton();
         try {
             ds = trendRoot.getDataSource();
         } catch (JEVisException e) {
@@ -119,7 +119,7 @@ public class NodeTreeTable {
 
         if (mode.equals(SETUP_MODE)) {
             HBox hBox = new HBox(10);
-            hBox.getChildren().addAll(selectTargetJFXButton, importDataStructureJFXButton);
+            hBox.getChildren().addAll(selectTargetMFXButton, importDataStructureMFXButton);
             hBox.setPadding(new Insets(10, 10, 10, 10));
 
             view.getChildren().add(hBox);
@@ -345,9 +345,9 @@ public class NodeTreeTable {
             Label valueLabel = new Label(I18n.getInstance().getString("plugin.graph.table.value"));
 
             HBox hbox = new HBox(6);
-            JFXTextField valueField = new JFXTextField();
+            MFXTextField valueField = new MFXTextField();
 
-            JFXComboBox<Boolean> valueComboBox = new JFXComboBox();
+            MFXComboBox<Boolean> valueComboBox = new MFXComboBox();
             valueComboBox.getItems().addAll(true, false);
 
 
@@ -697,8 +697,8 @@ public class NodeTreeTable {
     }
 
 
-    private JFXButton buildTargetButton() {
-        final JFXButton button = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.target.button"), JEConfig.getImage("folders_explorer.png", 18, 18));
+    private MFXButton buildTargetButton() {
+        final MFXButton button = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.target.button"), JEConfig.getImage("folders_explorer.png", 18, 18));
         button.wrapTextProperty().setValue(true);
         button.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -745,10 +745,10 @@ public class NodeTreeTable {
         return button;
     }
 
-    private JFXButton buildImportDataStructureButton() {
-        JFXButton jfxButton = new JFXButton();
-        jfxButton.setText(I18n.getInstance().getString("plugin.object.opcua.button.import"));
-        jfxButton.setOnAction(event -> {
+    private MFXButton buildImportDataStructureButton() {
+        MFXButton MFXButton = new MFXButton();
+        MFXButton.setText(I18n.getInstance().getString("plugin.object.opcua.button.import"));
+        MFXButton.setOnAction(event -> {
 
 
             Task<Void> task = new Task<Void>() {
@@ -801,7 +801,7 @@ public class NodeTreeTable {
 
 
         });
-        return jfxButton;
+        return MFXButton;
     }
 
 

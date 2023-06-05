@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -11,7 +11,7 @@ import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
 
-public class AnalysisLinkButton extends JFXButton {
+public class AnalysisLinkButton extends MFXButton {
 
     private static final Logger logger = LogManager.getLogger(AnalysisLinkButton.class);
     private AnalysisRequest analysisRequest;

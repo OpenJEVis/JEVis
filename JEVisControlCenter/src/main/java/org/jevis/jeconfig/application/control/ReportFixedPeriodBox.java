@@ -1,14 +1,12 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.i18n.I18n;
 
-public class ReportFixedPeriodBox extends JFXComboBox<FixedPeriod> {
+public class ReportFixedPeriodBox extends MFXComboBox<FixedPeriod> {
 
     public ReportFixedPeriodBox() {
         super();
@@ -26,61 +24,55 @@ public class ReportFixedPeriodBox extends JFXComboBox<FixedPeriod> {
 
         setItems(FXCollections.observableArrayList(FixedPeriod.values()));
 
-        Callback<ListView<FixedPeriod>, ListCell<FixedPeriod>> cellFactory = new Callback<ListView<FixedPeriod>, ListCell<FixedPeriod>>() {
+        //TODO JFX17
+        setConverter(new StringConverter<FixedPeriod>() {
             @Override
-            public ListCell<FixedPeriod> call(ListView<FixedPeriod> param) {
-                return new ListCell<FixedPeriod>() {
-                    @Override
-                    protected void updateItem(FixedPeriod fixedPeriod, boolean empty) {
-                        super.updateItem(fixedPeriod, empty);
-                        if (empty || fixedPeriod == null) {
-                            setText("");
-                        } else {
-                            String text = "";
-                            switch (fixedPeriod) {
-                                case NONE:
-                                    text = keyNone;
-                                    break;
-                                case QUARTER_HOUR:
-                                    text = keyQuarterHour;
-                                    break;
-                                case HOUR:
-                                    text = keyHour;
-                                    break;
-                                case DAY:
-                                    text = keyDay;
-                                    break;
-                                case WEEK:
-                                    text = keyWeek;
-                                    break;
-                                case MONTH:
-                                    text = keyMonth;
-                                    break;
-                                case QUARTER:
-                                    text = keyQuarter;
-                                    break;
-                                case YEAR:
-                                    text = keyYear;
-                                    break;
-                                case THREEYEARS:
-                                    text = keyThreeYears;
-                                    break;
-                                case FIVEYEARS:
-                                    text = keyFiveYears;
-                                    break;
-                                case TENYEARS:
-                                    text = keyTenYears;
-                                    break;
-                            }
+            public String toString(FixedPeriod object) {
+                String text = "";
+                switch (object) {
+                    case NONE:
+                        text = keyNone;
+                        break;
+                    case QUARTER_HOUR:
+                        text = keyQuarterHour;
+                        break;
+                    case HOUR:
+                        text = keyHour;
+                        break;
+                    case DAY:
+                        text = keyDay;
+                        break;
+                    case WEEK:
+                        text = keyWeek;
+                        break;
+                    case MONTH:
+                        text = keyMonth;
+                        break;
+                    case QUARTER:
+                        text = keyQuarter;
+                        break;
+                    case YEAR:
+                        text = keyYear;
+                        break;
+                    case THREEYEARS:
+                        text = keyThreeYears;
+                        break;
+                    case FIVEYEARS:
+                        text = keyFiveYears;
+                        break;
+                    case TENYEARS:
+                        text = keyTenYears;
+                        break;
+                }
 
-                            setText(text);
-                        }
-                    }
-                };
+                return (text);
             }
-        };
-        setCellFactory(cellFactory);
-        setButtonCell(cellFactory.call(null));
+
+            @Override
+            public FixedPeriod fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
 
         getSelectionModel().selectFirst();
     }

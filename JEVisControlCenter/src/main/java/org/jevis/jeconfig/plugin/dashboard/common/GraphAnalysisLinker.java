@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.common;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Tooltip;
 import org.jevis.api.JEVisDataSource;
@@ -23,7 +23,7 @@ public class GraphAnalysisLinker {
     private ManipulationMode manipulationMode;
     private Interval interval;
     boolean targetIsreachable = false;
-    JFXButton button = new JFXButton("", JEConfig.getImage("1415314386_Graph.png", 20, 20));
+    MFXButton button = new MFXButton("", JEConfig.getImage("1415314386_Graph.png", 20, 20));
 
     public GraphAnalysisLinker(JEVisDataSource dataSource) {
         button.setStyle("-fx-background-color: transparent;");
@@ -36,7 +36,7 @@ public class GraphAnalysisLinker {
 
     }
 
-    public JFXButton getLinkerButton() {
+    public MFXButton getLinkerButton() {
         return button;
     }
 
@@ -86,7 +86,7 @@ public class GraphAnalysisLinker {
 
     }
 
-//    public void applyConfig(JFXButton button, List<ChartDataModel> dataModels, Interval interval) {
+//    public void applyConfig(MFXButton button, List<ChartDataModel> dataModels, Interval interval) {
 //        button.setOnAction(event -> {
 //            try {
 //                AggregationPeriod aggregationPeriod = AggregationPeriod.HOURLY;

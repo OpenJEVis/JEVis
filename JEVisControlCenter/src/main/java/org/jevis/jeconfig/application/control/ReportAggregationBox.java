@@ -1,14 +1,12 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.i18n.I18n;
 
-public class ReportAggregationBox extends JFXComboBox<AggregationPeriod> {
+public class ReportAggregationBox extends MFXComboBox<AggregationPeriod> {
 
     public ReportAggregationBox() {
         super();
@@ -23,53 +21,47 @@ public class ReportAggregationBox extends JFXComboBox<AggregationPeriod> {
 
         setItems(FXCollections.observableArrayList(AggregationPeriod.values()));
 
-        Callback<ListView<AggregationPeriod>, ListCell<AggregationPeriod>> cellFactory = new Callback<javafx.scene.control.ListView<AggregationPeriod>, ListCell<AggregationPeriod>>() {
+        //TODO JFX17
+
+        setConverter(new StringConverter<AggregationPeriod>() {
             @Override
-            public ListCell<AggregationPeriod> call(javafx.scene.control.ListView<AggregationPeriod> param) {
-                return new ListCell<AggregationPeriod>() {
-                    @Override
-                    protected void updateItem(AggregationPeriod aggregationPeriod, boolean empty) {
-                        super.updateItem(aggregationPeriod, empty);
-                        if (empty || aggregationPeriod == null) {
-                            setText("");
-                        } else {
-                            String text = "";
-                            switch (aggregationPeriod) {
+            public String toString(AggregationPeriod object) {
+                String text = "";
+                switch (object) {
+                    case NONE:
+                        text = keyNone;
+                        break;
+                    case QUARTER_HOURLY:
+                        text = keyQuarterHourly;
+                        break;
+                    case HOURLY:
+                        text = keyHourly;
+                        break;
+                    case DAILY:
+                        text = keyDaily;
+                        break;
+                    case WEEKLY:
+                        text = keyWeekly;
+                        break;
+                    case MONTHLY:
+                        text = keyMonthly;
+                        break;
+                    case QUARTERLY:
+                        text = keyQuarterly;
+                        break;
+                    case YEARLY:
+                        text = keyYearly;
+                        break;
+                }
 
-                                case NONE:
-                                    text = keyNone;
-                                    break;
-                                case QUARTER_HOURLY:
-                                    text = keyQuarterHourly;
-                                    break;
-                                case HOURLY:
-                                    text = keyHourly;
-                                    break;
-                                case DAILY:
-                                    text = keyDaily;
-                                    break;
-                                case WEEKLY:
-                                    text = keyWeekly;
-                                    break;
-                                case MONTHLY:
-                                    text = keyMonthly;
-                                    break;
-                                case QUARTERLY:
-                                    text = keyQuarterly;
-                                    break;
-                                case YEARLY:
-                                    text = keyYearly;
-                                    break;
-                            }
-
-                            setText(text);
-                        }
-                    }
-                };
+                return text;
             }
-        };
-        setCellFactory(cellFactory);
-        setButtonCell(cellFactory.call(null));
+
+            @Override
+            public AggregationPeriod fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
 
         getSelectionModel().selectFirst();
     }

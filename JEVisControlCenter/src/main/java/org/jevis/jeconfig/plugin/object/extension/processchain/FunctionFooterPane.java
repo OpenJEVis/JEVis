@@ -5,7 +5,7 @@
  */
 package org.jevis.jeconfig.plugin.object.extension.processchain;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -54,7 +54,7 @@ public class FunctionFooterPane extends Region {
         gc.lineTo(10, 28);
         gc.stroke();
 
-        JFXButton newB = new JFXButton("", JEConfig.getImage("list-add.png", 12, 12));
+        MFXButton newB = new MFXButton("", JEConfig.getImage("list-add.png", 12, 12));
 
         final ChoiceBox functionBox = new ChoiceBox();
         functionBox.setMaxWidth(500);

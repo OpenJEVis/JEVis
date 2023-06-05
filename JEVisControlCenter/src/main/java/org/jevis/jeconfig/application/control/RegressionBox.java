@@ -1,15 +1,16 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 
-public class RegressionBox extends JFXComboBox<RegressionType> {
+public class RegressionBox extends MFXComboBox<RegressionType> {
 
     public RegressionBox() {
         super();
@@ -53,10 +54,32 @@ public class RegressionBox extends JFXComboBox<RegressionType> {
             }
         };
 
-        setCellFactory(cellFactory);
-        setButtonCell(cellFactory.call(null));
+        //TODO JFX17
+        setConverter(new StringConverter<RegressionType>() {
+            @Override
+            public String toString(RegressionType object) {
+                switch (object) {
+                    default:
+                    case NONE:
+                        return (I18n.getInstance().getString("dialog.regression.type.none"));
+                    case POLY:
+                        return (I18n.getInstance().getString("dialog.regression.type.poly"));
+                    case EXP:
+                        return (I18n.getInstance().getString("dialog.regression.type.exp"));
+                    case LOG:
+                        return (I18n.getInstance().getString("dialog.regression.type.log"));
+                    case POW:
+                        return (I18n.getInstance().getString("dialog.regression.type.pow"));
+                }
+            }
 
-        getSelectionModel().select(RegressionType.POLY);
+            @Override
+            public RegressionType fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
+
+        selectItem(RegressionType.POLY);
         setDisable(true);
     }
 }

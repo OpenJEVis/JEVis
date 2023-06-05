@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -60,10 +60,10 @@ public class LinearGaugePojo {
 
     private JFXCheckBox jfxCheckBoxShowMinorTick;
 
-    private JFXTextField jfxTextFieldMaxValue;
+    private MFXTextField MFXTextFieldMaxValue;
 
-    private JFXTextField jfxTextFieldMinValue;
-    private JFXTextField jfxTextFieldMajorTickStep;
+    private MFXTextField MFXTextFieldMinValue;
+    private MFXTextField MFXTextFieldMajorTickStep;
 
     private ColorPickerAdv colorPickerAdvBoarderColor;
 
@@ -283,21 +283,21 @@ public class LinearGaugePojo {
 
         gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent")), jfxCheckBoxInPercent);
         i++;
-        jfxTextFieldMinValue = new JFXTextField();
-        jfxTextFieldMinValue.setText(String.valueOf(minimum));
+        MFXTextFieldMinValue = new MFXTextField();
+        MFXTextFieldMinValue.setText(String.valueOf(minimum));
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.min")), jfxTextFieldMinValue);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.min")), MFXTextFieldMinValue);
         i++;
-        jfxTextFieldMaxValue = new JFXTextField();
-        jfxTextFieldMaxValue.setText(String.valueOf(maximum));
+        MFXTextFieldMaxValue = new MFXTextField();
+        MFXTextFieldMaxValue.setText(String.valueOf(maximum));
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.max")), jfxTextFieldMaxValue);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.max")), MFXTextFieldMaxValue);
         i++;
 
-        jfxTextFieldMajorTickStep = new JFXTextField();
-        jfxTextFieldMajorTickStep.setText(String.valueOf(majorTickStep));
+        MFXTextFieldMajorTickStep = new MFXTextField();
+        MFXTextFieldMajorTickStep.setText(String.valueOf(majorTickStep));
         if (showMajorTick) {
-            gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.majortickstep")), jfxTextFieldMajorTickStep);
+            gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.majortickstep")), MFXTextFieldMajorTickStep);
             i++;
         }
 
@@ -312,12 +312,12 @@ public class LinearGaugePojo {
 
         jfxCheckBoxShowMajorTick.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
             if (t1) {
-                moveplusNodesGridpane(6,gridPane);
-                gridPane.addRow(6, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.majortickstep")), jfxTextFieldMajorTickStep);
+                moveplusNodesGridpane(6, gridPane);
+                gridPane.addRow(6, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.majortickstep")), MFXTextFieldMajorTickStep);
 
             }else {
-                gridPane.getChildren().removeIf(node -> GridPane.getRowIndex(node) == GridPane.getRowIndex(jfxTextFieldMajorTickStep));
-                moveminusNodesGridpane(6,gridPane);
+                gridPane.getChildren().removeIf(node -> GridPane.getRowIndex(node) == GridPane.getRowIndex(MFXTextFieldMajorTickStep));
+                moveminusNodesGridpane(6, gridPane);
             }
         });
 
@@ -411,10 +411,10 @@ public class LinearGaugePojo {
                 showValue = jfxCheckBoxShowValue.isSelected();
                 inPercent = jfxCheckBoxInPercent.isSelected();
 
-                minimum = Double.valueOf(jfxTextFieldMinValue.getText());
-                maximum = Double.valueOf(jfxTextFieldMaxValue.getText());
+                minimum = Double.valueOf(MFXTextFieldMinValue.getText());
+                maximum = Double.valueOf(MFXTextFieldMaxValue.getText());
 
-                majorTickStep = Double.valueOf(jfxTextFieldMajorTickStep.getText());
+                majorTickStep = Double.valueOf(MFXTextFieldMajorTickStep.getText());
 
                 showMajorTick = jfxCheckBoxShowMajorTick.isSelected();
                 showMediumTick = jfxCheckBoxShowMediumTick.isSelected();

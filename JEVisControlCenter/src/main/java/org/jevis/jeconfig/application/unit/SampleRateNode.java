@@ -22,7 +22,7 @@ package org.jevis.jeconfig.application.unit;
 
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXSlider;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -105,7 +105,7 @@ public class SampleRateNode extends GridPane {
         final Label minuteslabel = new Label("Minutes:");
         final Label secoundslabel = new Label("Secounds:");
         final Label periodLabel = new Label("Sample Rate:");
-        final JFXTextField sampleRate = new JFXTextField();
+        final MFXTextField sampleRate = new MFXTextField();
 
 //        Label enableLabel = new Label("Has fix sample rate:");
         final JFXCheckBox enable = new JFXCheckBox("Set fixed sample rate");

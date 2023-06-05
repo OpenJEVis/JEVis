@@ -19,8 +19,8 @@
  */
 package org.jevis.jeconfig.tool;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -58,7 +58,7 @@ public class PasswordDialog {
 
     private Response response = Response.CANCEL;
     private final Label confirmL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.confirmpassword"));
-    private final JFXButton ok = new JFXButton(I18n.getInstance().getString("tool.dialog.passworddialog.button.ok"));
+    private final MFXButton ok = new MFXButton(I18n.getInstance().getString("tool.dialog.passworddialog.button.ok"));
     private final JFXPasswordField newPass = new JFXPasswordField();
     private final JFXPasswordField oldPass = new JFXPasswordField();
     private final JFXPasswordField confirmNew = new JFXPasswordField();
@@ -91,7 +91,7 @@ public class PasswordDialog {
 
         ok.setDefaultButton(true);
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("tool.dialog.passworddialog.button.cancel"));
+        MFXButton cancel = new MFXButton(I18n.getInstance().getString("tool.dialog.passworddialog.button.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

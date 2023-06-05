@@ -1,6 +1,10 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXTimePicker;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -31,8 +35,8 @@ import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,13 +55,13 @@ public class MeterDialog extends Dialog {
     private final YearBox yearBox = new YearBox(null);
     private final DayBox dayBox = new DayBox();
     private final MonthBox monthBox = new MonthBox();
-    private final JFXDatePicker datePicker = new JFXDatePicker(LocalDate.now());
+    private final MFXDatePicker datePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
     private final JFXTimePicker timePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
     private final Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
     private final Label oldCounterValueLabel = new Label(I18n.getInstance().getString("plugin.meters.meterdialog.oldcountervalue"));
     private final Label newCounterValueLabel = new Label(I18n.getInstance().getString("plugin.meters.meterdialog.newcountervalue"));
-    private final JFXTextField oldCounterValue = new JFXTextField();
-    private final JFXTextField newCounterValue = new JFXTextField();
+    private final MFXTextField oldCounterValue = new MFXTextField();
+    private final MFXTextField newCounterValue = new MFXTextField();
     private final JFXCheckBox enterCounterValues = new JFXCheckBox(I18n.getInstance().getString("plugin.meters.meterdialog.entercountervalues"));
     private final GridPane innerGridPane = new GridPane();
     private int row;
@@ -78,7 +82,7 @@ public class MeterDialog extends Dialog {
         TopMenu.applyActiveTheme(stage.getScene());
         stage.setAlwaysOnTop(true);
 
-        dataTypeBox.getSelectionModel().select(EnterDataTypes.DAY);
+        dataTypeBox.selectItem(EnterDataTypes.DAY);
         monthBox.setRelations(yearBox, dayBox, null);
         yearBox.setRelations(monthBox, dayBox);
 
@@ -140,14 +144,14 @@ public class MeterDialog extends Dialog {
         VBox parentVBox = new VBox(parentLabel);
         parentVBox.setAlignment(Pos.CENTER);
 
-        JFXButton treeButton = new JFXButton(I18n
+        MFXButton treeButton = new MFXButton(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
 
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        JFXTextField nameField = new JFXTextField();
+        MFXTextField nameField = new MFXTextField();
 
         Region targetSpace = new Region();
         targetSpace.setPrefWidth(20);
@@ -264,7 +268,7 @@ public class MeterDialog extends Dialog {
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        JFXTextField nameField = new JFXTextField(selectedMeter.getName());
+        MFXTextField nameField = new MFXTextField(selectedMeter.getName());
 
         HBox targetBox = new HBox(nameVBox, nameField);
         targetBox.setSpacing(4);

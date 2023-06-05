@@ -1,6 +1,10 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXListCell;
+import com.jfoenix.controls.JFXListView;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXCheckbox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.ListCell;
@@ -15,12 +19,12 @@ import org.jevis.commons.relationship.ObjectRelations;
 import java.util.List;
 
 public class KPIVariable extends GridPane {
-    private final JFXTextField field = new JFXTextField();
+    private final MFXTextField field = new MFXTextField();
     private final JFXListView<JEVisObject> listView = new JFXListView<>();
     private final FilteredList<JEVisObject> filteredData;
-    private final JFXButton variableButton = new JFXButton("Get Variable for Formula");
-    private final JFXCheckBox useForName = new JFXCheckBox("Use for name");
-    private final JFXCheckBox useOneForAll = new JFXCheckBox("Use one for all");
+    private final MFXButton variableButton = new MFXButton("Get Variable for Formula");
+    private final MFXCheckbox useForName = new MFXCheckbox("Use for name");
+    private final MFXCheckbox useOneForAll = new MFXCheckbox("Use one for all");
     private final int index;
 
     public KPIVariable(List<JEVisObject> objects, ObjectRelations objectRelations, int number) {
@@ -100,15 +104,15 @@ public class KPIVariable extends GridPane {
         return index;
     }
 
-    public JFXButton getVariableButton() {
+    public MFXButton getVariableButton() {
         return variableButton;
     }
 
-    public JFXCheckBox getUseOneForAll() {
+    public MFXCheckbox getUseOneForAll() {
         return useOneForAll;
     }
 
-    public JFXCheckBox getUseForName() {
+    public MFXCheckbox getUseForName() {
         return useForName;
     }
 }

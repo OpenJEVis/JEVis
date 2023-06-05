@@ -1,6 +1,11 @@
 package org.jevis.jeconfig.plugin.charts;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXTextArea;
+import com.jfoenix.controls.JFXTimePicker;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -15,6 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
@@ -33,8 +39,8 @@ import org.jevis.jeconfig.tool.NumberSpinner;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
@@ -199,7 +205,7 @@ public class ToolBarFunctions {
 
         Label baseLoadTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.timeframe"));
 
-        JFXDatePicker baseLoadStartDate = new JFXDatePicker(LocalDate.now());
+        MFXDatePicker baseLoadStartDate = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
         baseLoadStartDate.setPrefWidth(120d);
 
         JFXTimePicker baseLoadStartTime = new JFXTimePicker(LocalTime.now());
@@ -208,7 +214,7 @@ public class ToolBarFunctions {
         baseLoadStartTime.set24HourView(true);
         baseLoadStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        JFXDatePicker baseLoadEndDate = new JFXDatePicker(LocalDate.now());
+        MFXDatePicker baseLoadEndDate = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
         baseLoadEndDate.setPrefWidth(120d);
 
         JFXTimePicker baseLoadEndTime = new JFXTimePicker(LocalTime.now());
@@ -219,7 +225,7 @@ public class ToolBarFunctions {
 
         Label baseLoadBinding = new Label(I18n.getInstance().getString("dialog.baseload.repeatingtimeframe"));
         ObservableList<Integer> list = FXCollections.observableArrayList(0, 1, 2, 3, 4);
-        JFXComboBox<Integer> boundSpecificBox = new JFXComboBox<>(list);
+        MFXComboBox<Integer> boundSpecificBox = new MFXComboBox<>(list);
 
         Callback<ListView<Integer>, ListCell<Integer>> cellFactoryBoundToSpecificBox = new Callback<javafx.scene.control.ListView<Integer>, ListCell<Integer>>() {
             @Override
@@ -255,13 +261,44 @@ public class ToolBarFunctions {
                 };
             }
         };
-        boundSpecificBox.setCellFactory(cellFactoryBoundToSpecificBox);
-        boundSpecificBox.setButtonCell(cellFactoryBoundToSpecificBox.call(null));
-        boundSpecificBox.getSelectionModel().select(0);
+
+        //TODO JFX17
+        boundSpecificBox.setConverter(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                String text = "";
+                switch (object) {
+                    case 0:
+                        text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.boundtospecific.none");
+                        break;
+                    case 1:
+                        text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.day");
+                        break;
+                    case 2:
+                        text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.week");
+                        break;
+                    case 3:
+                        text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.month");
+                        break;
+                    case 4:
+                        text = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.year");
+                        break;
+                }
+                return (text);
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                return boundSpecificBox.getItems().get(boundSpecificBox.getSelectedIndex());
+            }
+        });
+
+        boundSpecificBox.getSelectionModel().selectFirst();
 
         Label resultTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.resulttimeframe"));
 
-        JFXDatePicker resultStartDate = new JFXDatePicker(dataSettings.getAnalysisTimeFrame().getLocalStartDate());
+        MFXDatePicker resultStartDate = new MFXDatePicker();
+        resultStartDate.setValue(dataSettings.getAnalysisTimeFrame().getLocalStartDate());
         resultStartDate.setPrefWidth(120d);
 
         JFXTimePicker resultStartTime = new JFXTimePicker(dataSettings.getAnalysisTimeFrame().getLocalStartTime());
@@ -270,7 +307,8 @@ public class ToolBarFunctions {
         resultStartTime.set24HourView(true);
         resultStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        JFXDatePicker resultEndDate = new JFXDatePicker(dataSettings.getAnalysisTimeFrame().getLocalEndDate());
+        MFXDatePicker resultEndDate = new MFXDatePicker();
+        resultEndDate.setValue(dataSettings.getAnalysisTimeFrame().getLocalEndDate());
         resultEndDate.setPrefWidth(120d);
 
         JFXTimePicker resultEndTime = new JFXTimePicker(dataSettings.getAnalysisTimeFrame().getLocalEndTime());
@@ -364,7 +402,8 @@ public class ToolBarFunctions {
 
         Label resultTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.resulttimeframe"));
 
-        JFXDatePicker resultStartDate = new JFXDatePicker(dataSettings.getAnalysisTimeFrame().getLocalStartDate());
+        MFXDatePicker resultStartDate = new MFXDatePicker();
+        resultStartDate.setValue(dataSettings.getAnalysisTimeFrame().getLocalStartDate());
         resultStartDate.setPrefWidth(120d);
 
         JFXTimePicker resultStartTime = new JFXTimePicker(dataSettings.getAnalysisTimeFrame().getLocalStartTime());
@@ -373,7 +412,8 @@ public class ToolBarFunctions {
         resultStartTime.set24HourView(true);
         resultStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        JFXDatePicker resultEndDate = new JFXDatePicker(dataSettings.getAnalysisTimeFrame().getLocalEndDate());
+        MFXDatePicker resultEndDate = new MFXDatePicker();
+        resultEndDate.setValue(dataSettings.getAnalysisTimeFrame().getLocalEndDate());
         resultEndDate.setPrefWidth(120d);
 
         JFXTimePicker resultEndTime = new JFXTimePicker(dataSettings.getAnalysisTimeFrame().getLocalEndTime());
@@ -458,7 +498,7 @@ public class ToolBarFunctions {
         alert.setHeaderText(I18n.getInstance().getString("dialog.calchoursabovebelow.entervalue"));
 
         Label limitLabel = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"));
-        JFXTextField limitField = new JFXTextField();
+        MFXTextField limitField = new MFXTextField();
 
         DoubleValidator validator = DoubleValidator.getInstance();
         limitField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -607,7 +647,7 @@ public class ToolBarFunctions {
         alert.setHeaderText(I18n.getInstance().getString("dialog.calchoursabovebelow.entervalue"));
 
         Label limitLabel = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"));
-        JFXTextField limitField = new JFXTextField();
+        MFXTextField limitField = new MFXTextField();
         DoubleValidator validator = DoubleValidator.getInstance();
         limitField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {

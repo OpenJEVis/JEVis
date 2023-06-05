@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
@@ -14,7 +14,7 @@ import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChartUnitBox extends JFXComboBox<JEVisUnit> {
+public class ChartUnitBox extends MFXComboBox<JEVisUnit> {
 
     public ChartUnitBox(ChartDataRow chartDataRow) {
         this(chartDataRow.getUnit());
@@ -79,7 +79,7 @@ public class ChartUnitBox extends JFXComboBox<JEVisUnit> {
         setMinWidth(70);
 
         if (currentUnit != null) {
-            getSelectionModel().select(currentUnit);
+            selectItem(currentUnit);
         }
 
     }
@@ -117,7 +117,7 @@ public class ChartUnitBox extends JFXComboBox<JEVisUnit> {
                                  final Node graphic,
                                  final ChartUnitBox chartUnitBox) {
         if (chartUnitBox != null) {
-            chartUnitBox.getSelectionModel().select(cell.getItem());
+            chartUnitBox.selectItem(cell.getItem());
         }
         cell.setText(null);
 
@@ -148,7 +148,7 @@ public class ChartUnitBox extends JFXComboBox<JEVisUnit> {
         } else {
             if (cell.isEditing()) {
                 if (chartUnitBox != null) {
-                    chartUnitBox.getSelectionModel().select(cell.getItem());
+                    chartUnitBox.selectItem(cell.getItem());
                 }
                 cell.setText(null);
 

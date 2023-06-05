@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.tool;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -42,8 +42,8 @@ public class NumberSpinner extends HBox {
     private final NumberTextField numberField;
     private final ObjectProperty<BigDecimal> stepWidthProperty = new SimpleObjectProperty<>();
     private final double ARROW_SIZE = 4;
-    private final JFXButton incrementButton;
-    private final JFXButton decrementButton;
+    private final MFXButton incrementButton;
+    private final MFXButton decrementButton;
     private final NumberBinding buttonHeight;
     private final NumberBinding spacing;
     private BigDecimal min;
@@ -62,7 +62,7 @@ public class NumberSpinner extends HBox {
         this.setId(NUMBER_SPINNER);
         this.stepWidthProperty.set(stepWidth);
 
-        // JFXTextField
+        // MFXTextField
         numberField = new NumberTextField(value, nf);
         numberField.setId(NUMBER_FIELD);
         numberField.setPrefWidth(40);
@@ -107,7 +107,7 @@ public class NumberSpinner extends HBox {
         // inc/dec buttons
         VBox buttons = new VBox();
         buttons.setId(BUTTONS_BOX);
-        incrementButton = new JFXButton();
+        incrementButton = new MFXButton();
         incrementButton.setId(SPINNER_BUTTON_UP);
         incrementButton.prefWidthProperty().bind(numberField.heightProperty());
         incrementButton.minWidthProperty().bind(numberField.heightProperty());
@@ -121,7 +121,7 @@ public class NumberSpinner extends HBox {
         incPane.getChildren().addAll(incrementButton, arrowUp);
         incPane.setAlignment(Pos.CENTER);
 
-        decrementButton = new JFXButton();
+        decrementButton = new MFXButton();
         decrementButton.setId(SPINNER_BUTTON_DOWN);
         decrementButton.prefWidthProperty().bind(numberField.heightProperty());
         decrementButton.minWidthProperty().bind(numberField.heightProperty());

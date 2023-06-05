@@ -19,7 +19,11 @@
  */
 package org.jevis.jeconfig.sample.tableview;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXPasswordField;
+import com.jfoenix.controls.JFXTextArea;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -445,7 +449,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
-                            JFXTextField textField = new JFXTextField(dateViewFormat.print(tableSample.getTimeStamp()));
+                            MFXTextField textField = new MFXTextField(dateViewFormat.print(tableSample.getTimeStamp()));
                             setDefaultFieldStyle(this, textField);
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -624,7 +628,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
-                            JFXTextField textField = new JFXTextField();
+                            MFXTextField textField = new MFXTextField();
                             setDefaultFieldStyle(this, textField);
 
                             try {
@@ -742,7 +746,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
-                            JFXButton downloadButton = new JFXButton(fileName, JEConfig.getImage("save.gif", 14, 14));
+                            MFXButton downloadButton = new MFXButton(fileName, JEConfig.getImage("save.gif", 14, 14));
 
                             downloadButton.setOnAction(event -> {
 
@@ -768,7 +772,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
                             HBox hBox = new HBox(downloadButton);
                             if (isPDF) {
-                                JFXButton pdfButton = new JFXButton("", JEConfig.getImage("pdf_24_2133056.png", 14, 14));
+                                MFXButton pdfButton = new MFXButton("", JEConfig.getImage("pdf_24_2133056.png", 14, 14));
                                 hBox.getChildren().add(pdfButton);
                                 pdfButton.setOnAction(event -> {
                                     PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
@@ -781,7 +785,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             }
 
                             if (isImage) {
-                                JFXButton imageButton = new JFXButton("", JEConfig.getImage("export-image.png", 18, 18));
+                                MFXButton imageButton = new MFXButton("", JEConfig.getImage("export-image.png", 18, 18));
                                 hBox.getChildren().add(imageButton);
                                 imageButton.setOnAction(event -> {
                                     ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
@@ -869,7 +873,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
                             JFXTextArea textField = new JFXTextArea(tableSample.getValue().toString());
 
-                            JFXButton expand = new JFXButton(null);
+                            MFXButton expand = new MFXButton(null);
                             expand.setBackground(new Background(new BackgroundImage(
                                     JEConfig.getImage("if_ExpandMore.png"),
                                     BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
@@ -1036,7 +1040,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
-                            JFXTextField textField = new JFXTextField(tableSample.getValue().toString());
+                            MFXTextField textField = new MFXTextField(tableSample.getValue().toString());
                             setDefaultFieldStyle(this, textField);
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
@@ -1156,7 +1160,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setDefaultCellStyle(this);
                             TableSample tableSample = (TableSample) getTableRow().getItem();
 
-                            JFXTextField textField = new JFXTextField(tableSample.getNote());
+                            MFXTextField textField = new MFXTextField(tableSample.getNote());
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
 

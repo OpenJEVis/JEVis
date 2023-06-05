@@ -5,7 +5,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -89,14 +89,14 @@ public class EnumEditor implements AttributeEditor {
         AlphanumComparator ac = new AlphanumComparator();
         enumList.sort(ac);
 
-        JFXComboBox picker = new JFXComboBox(enumList);
+        MFXComboBox<String> picker = new MFXComboBox<>(enumList);
         picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 
         if (sample != null) {
             try {
                 String value = sample.getValueAsString();
                 if (enumList.contains(value)) {
-                    picker.getSelectionModel().select(sample.getValueAsString());
+                    picker.selectItem(sample.getValueAsString());
                 }
 
             } catch (JEVisException ex) {

@@ -21,8 +21,8 @@
 package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -42,6 +42,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -121,7 +122,7 @@ public class NewObjectDialog {
         int x = 0;
 
         Label lName = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        final JFXTextField fName = new JFXTextField();
+        final MFXTextField fName = new MFXTextField();
         fName.setPromptText(I18n.getInstance().getString("jevistree.dialog.new.name.prompt"));
 
         if (objName != null) {
@@ -183,28 +184,8 @@ public class NewObjectDialog {
             }
         };
 
-        Callback<ListView<Template>, ListCell<Template>> templateCellFactory = new Callback<ListView<Template>, ListCell<Template>>() {
-            @Override
-            public ListCell<Template> call(ListView<Template> param) {
-                final ListCell<Template> cell = new ListCell<Template>() {
-                    {
-                        super.setPrefWidth(260);
-                    }
-
-                    @Override
-                    public void updateItem(Template item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            setText(item.getName());
-                        }
-                    }
-                };
-                return cell;
-            }
-        };
-
         Label templateLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.template"));
-        JFXComboBox<Template> templateBox = new JFXComboBox<>();
+        MFXComboBox<Template> templateBox = new MFXComboBox<>();
         templateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
             Platform.runLater(() -> optionsGrid.getChildren().clear());
@@ -225,15 +206,40 @@ public class NewObjectDialog {
             }
             Platform.runLater(() -> dialog.getDialogPane().autosize());
         });
-        templateBox.setCellFactory(templateCellFactory);
-        templateBox.setButtonCell(templateCellFactory.call(null));
 
-        final JFXComboBox<JEVisClass> jeVisClassComboBox = new JFXComboBox<>(options);
+        //TODO JFX17
+        templateBox.setConverter(new StringConverter<Template>() {
+            @Override
+            public String toString(Template object) {
+                return object.getName();
+            }
+
+            @Override
+            public Template fromString(String string) {
+                return templateBox.getItems().get(templateBox.getSelectedIndex());
+            }
+        });
+
+        final MFXComboBox<JEVisClass> jeVisClassComboBox = new MFXComboBox<>(options);
         JFXCheckBox createCleanData = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));
         createCleanData.setVisible(true);
 
-        jeVisClassComboBox.setCellFactory(cellFactory);
-        jeVisClassComboBox.setButtonCell(cellFactory.call(null));
+        jeVisClassComboBox.setConverter(new StringConverter<JEVisClass>() {
+            @Override
+            public String toString(JEVisClass object) {
+                try {
+                    return object.getName();
+                } catch (JEVisException ignored) {
+
+                }
+                return "";
+            }
+
+            @Override
+            public JEVisClass fromString(String string) {
+                return jeVisClassComboBox.getItems().get(jeVisClassComboBox.getSelectedIndex());
+            }
+        });
 
         JEVisClass finalDataClass = dataClass;
         jeVisClassComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -271,7 +277,7 @@ public class NewObjectDialog {
         });
 
         if (jclass != null) {
-            jeVisClassComboBox.getSelectionModel().select(jclass);
+            jeVisClassComboBox.selectItem(jclass);
         }
 
         jeVisClassComboBox.setMinWidth(250);
@@ -351,7 +357,7 @@ public class NewObjectDialog {
             });
 
             count.setDisable(true);
-            jeVisClassComboBox.getSelectionModel().select(jclass);
+            jeVisClassComboBox.selectItem(jclass);
             jeVisClassComboBox.setDisable(true);
             templateBox.setDisable(true);
         }

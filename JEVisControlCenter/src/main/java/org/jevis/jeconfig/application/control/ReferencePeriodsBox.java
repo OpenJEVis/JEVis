@@ -1,60 +1,56 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.constants.GapFillingReferencePeriod;
 import org.jevis.commons.i18n.I18n;
 
-public class ReferencePeriodsBox extends JFXComboBox<GapFillingReferencePeriod> {
+public class ReferencePeriodsBox extends MFXComboBox<GapFillingReferencePeriod> {
     private final ObservableList<GapFillingReferencePeriod> options = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,
             GapFillingReferencePeriod.WEEK, GapFillingReferencePeriod.MONTH, GapFillingReferencePeriod.YEAR, GapFillingReferencePeriod.ALL);
 
     public ReferencePeriodsBox() {
         super();
 
-        Callback<ListView<GapFillingReferencePeriod>, ListCell<GapFillingReferencePeriod>> cellFactoryReferencePeriodBox = new Callback<javafx.scene.control.ListView<GapFillingReferencePeriod>, ListCell<GapFillingReferencePeriod>>() {
+        //TODO JFX17
+        setConverter(new StringConverter<GapFillingReferencePeriod>() {
             @Override
-            public ListCell<GapFillingReferencePeriod> call(javafx.scene.control.ListView<GapFillingReferencePeriod> param) {
-                return new ListCell<GapFillingReferencePeriod>() {
-                    @Override
-                    protected void updateItem(GapFillingReferencePeriod referencePeriod, boolean empty) {
-                        super.updateItem(referencePeriod, empty);
-                        if (empty || referencePeriod == null) {
-                            setText("");
-                        } else {
-                            String text = "";
-                            switch (referencePeriod) {
-                                case DAY:
-                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.day");
-                                    break;
-                                case WEEK:
-                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.week");
-                                    break;
-                                case MONTH:
-                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.month");
-                                    break;
-                                case YEAR:
-                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.year");
-                                    break;
-                                case ALL:
-                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.all");
-                                    break;
-                                case NONE:
-                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.none");
-                                    break;
-                            }
-                            setText(text);
-                        }
+            public String toString(GapFillingReferencePeriod object) {
+                String text = "";
+                if (object != null) {
+                    switch (object) {
+                        case DAY:
+                            text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.day");
+                            break;
+                        case WEEK:
+                            text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.week");
+                            break;
+                        case MONTH:
+                            text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.month");
+                            break;
+                        case YEAR:
+                            text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.year");
+                            break;
+                        case ALL:
+                            text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.all");
+                            break;
+                        case NONE:
+                            text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.none");
+                            break;
                     }
-                };
+                }
+
+                return text;
             }
-        };
-        setCellFactory(cellFactoryReferencePeriodBox);
-        setButtonCell(cellFactoryReferencePeriodBox.call(null));
+
+            @Override
+            public GapFillingReferencePeriod fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
+
         setItems(options);
     }
 

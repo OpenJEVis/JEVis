@@ -1,13 +1,13 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.geometry.Pos;
 import org.apache.commons.validator.routines.AbstractFormatValidator;
 import org.jevis.commons.i18n.I18n;
 
 import java.util.regex.Pattern;
 
-public class ValidatedTextField extends JFXTextField {
+public class ValidatedTextField extends MFXTextField {
 
     public static Pattern integerPattern = Pattern.compile("[0-9]*");
 

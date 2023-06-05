@@ -20,25 +20,20 @@
  */
 package org.jevis.jeconfig.application.unit;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
@@ -64,15 +59,15 @@ public class UnitChooser {
         units.add(SI.HERTZ);
 
         VBox spinner = new VBox();
-        final JFXButton prefixUp = new JFXButton("+");
-        JFXButton prefixDown = new JFXButton("-");
+        final MFXButton prefixUp = new MFXButton("+");
+        MFXButton prefixDown = new MFXButton("-");
         prefixDown.setId("prefixdown");
         prefixUp.setId("prefixup");
 
         Label prefix = new Label(" k ");
         prefix.setId("prefix");
 
-        JFXComboBox unitBox = buildUnitBox(units);
+        MFXComboBox unitBox = buildUnitBox(units);
         unitBox.setStyle("-fx-background-radius: 0 10 10 0;");
 
         prefixDown.getStylesheets().add("/styles/unitchooser.css");
@@ -125,13 +120,13 @@ public class UnitChooser {
         Label prefix = new Label(" k ");
         prefix.setId("prefix");
 
-        JFXComboBox unitBox = buildUnitBox(units);
+        MFXComboBox unitBox = buildUnitBox(units);
         unitBox.setStyle("-fx-background-radius: 0 10 10 0;");
 
         List<String> prefixList = new ArrayList<>();
         prefixList.add("k");
 //        ObservableList<String> options2 = FXCollections.observableArrayList(prefixList);
-        JFXComboBox uprefixBox = buildPrefixBox(prefixList);
+        MFXComboBox uprefixBox = buildPrefixBox(prefixList);
         uprefixBox.setId("prefixBox");
         uprefixBox.setStyle("-fx-background-radius: 10 0 0 10;");
 
@@ -158,41 +153,25 @@ public class UnitChooser {
      * @param units
      * @return
      */
-    private JFXComboBox buildUnitBox(List<Unit> units) {
-        Callback<ListView<Unit>, ListCell<Unit>> cellFactory = new Callback<ListView<Unit>, ListCell<Unit>>() {
-            @Override
-            public ListCell<Unit> call(ListView<Unit> param) {
-                final ListCell<Unit> cell = new ListCell<Unit>() {
-                    {
-                        super.setPrefWidth(60);
-                    }
-
-                    @Override
-                    public void updateItem(Unit item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null) {
-
-                            HBox box = new HBox(5);
-                            box.setAlignment(Pos.CENTER_LEFT);
-
-                            Label name = new Label(item.toString());
-                            name.setTextFill(Color.BLACK);
-
-                            box.getChildren().setAll(name);
-                            setGraphic(box);
-
-                        }
-                    }
-                };
-                return cell;
-            }
-        };
+    private MFXComboBox buildUnitBox(List<Unit> units) {
 
         ObservableList<Unit> options = FXCollections.observableArrayList(units);
 
-        final JFXComboBox<Unit> comboBox = new JFXComboBox<Unit>(options);
-        comboBox.setCellFactory(cellFactory);
-        comboBox.setButtonCell(cellFactory.call(null));
+        final MFXComboBox<Unit> comboBox = new MFXComboBox<Unit>(options);
+
+        //TODO JFX17
+
+        comboBox.setConverter(new StringConverter<Unit>() {
+            @Override
+            public String toString(Unit object) {
+                return object.toString();
+            }
+
+            @Override
+            public Unit fromString(String string) {
+                return comboBox.getItems().get(comboBox.getSelectedIndex());
+            }
+        });
 
         //TODO: load default language from config file or so
         comboBox.getSelectionModel().selectFirst();
@@ -203,43 +182,15 @@ public class UnitChooser {
 
     }
 
-    private JFXComboBox buildPrefixBox(List<String> units) {
-        Callback<ListView<String>, ListCell<String>> cellFactory = new Callback<ListView<String>, ListCell<String>>() {
-            @Override
-            public ListCell<String> call(ListView<String> param) {
-                final ListCell<String> cell = new ListCell<String>() {
-                    {
-                        super.setPrefWidth(30);
-                    }
-
-                    @Override
-                    public void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null) {
-
-                            HBox box = new HBox(5);
-                            box.setPadding(new Insets(0, 8, 0, 0));
-                            box.setAlignment(Pos.CENTER_RIGHT);
-
-                            Label name = new Label(item);
-                            name.setTextFill(Color.BLACK);
-//                            name.setStyle("-fx-background-color: #4B6A8B;");
-//                            box.setStyle("-fx-background-color: #4B6A8B;");
-                            box.getChildren().setAll(name);
-                            setGraphic(box);
-
-                        }
-                    }
-                };
-                return cell;
-            }
-        };
+    private MFXComboBox buildPrefixBox(List<String> units) {
 
         ObservableList<String> options = FXCollections.observableArrayList(units);
 
-        final JFXComboBox<String> comboBox = new JFXComboBox<String>(options);
-        comboBox.setCellFactory(cellFactory);
-        comboBox.setButtonCell(cellFactory.call(null));
+        final MFXComboBox<String> comboBox = new MFXComboBox<String>(options);
+
+        //TODO JFX17
+
+        //no converter needed??
 
         //TODO: load default language from config file or so
         comboBox.getSelectionModel().selectFirst();

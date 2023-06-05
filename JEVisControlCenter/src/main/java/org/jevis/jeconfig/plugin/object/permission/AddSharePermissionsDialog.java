@@ -20,8 +20,8 @@
  */
 package org.jevis.jeconfig.plugin.object.permission;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
@@ -94,18 +94,18 @@ public class AddSharePermissionsDialog {
 
         HBox buttonPanel = new HBox();
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("plugin.object.permission.add"));
+        MFXButton ok = new MFXButton(I18n.getInstance().getString("plugin.object.permission.add"));
         ok.setDefaultButton(true);
 
         final JFXCheckBox includeChildren = new JFXCheckBox(I18n.getInstance().getString("plugin.object.permission.includechildren"));
         includeChildren.setSelected(true);
-//        JFXButton okAll = new JFXButton("Delte also for all Children");
+//        MFXButton okAll = new MFXButton("Delte also for all Children");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setHgrow(includeChildren, Priority.NEVER);
         HBox.setHgrow(ok, Priority.NEVER);
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("plugin.object.permission.cancel"));
+        MFXButton cancel = new MFXButton(I18n.getInstance().getString("plugin.object.permission.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(includeChildren, spacer, ok, cancel);

@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.input.KeyCode;
@@ -7,12 +8,12 @@ import javafx.scene.layout.HBox;
 import org.jevis.commons.chart.BubbleType;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 
-public class BubbleTypeComboBox extends DisabledItemsComboBox<String> {
+public class BubbleTypeComboBox extends DisabledItemsComboBox<BubbleType> {
 
     public BubbleTypeComboBox(BubbleType bubbleType) {
-        super(BubbleType.getListNamesBubbleTypes());
+        super(FXCollections.observableArrayList(BubbleType.values()));
 
-        this.getSelectionModel().select(BubbleType.parseBubbleIndex(bubbleType));
+        this.selectItem(bubbleType);
 
     }
 
@@ -45,7 +46,7 @@ public class BubbleTypeComboBox extends DisabledItemsComboBox<String> {
                                  final Node graphic,
                                  final BubbleTypeComboBox comboBox) {
         if (comboBox != null) {
-            comboBox.getSelectionModel().select(BubbleType.parseBubbleIndex(cell.getItem()));
+            comboBox.selectItem(cell.getItem());
         }
         cell.setText(null);
 
@@ -76,7 +77,7 @@ public class BubbleTypeComboBox extends DisabledItemsComboBox<String> {
         } else {
             if (cell.isEditing()) {
                 if (comboBox != null) {
-                    comboBox.getSelectionModel().select(BubbleType.parseBubbleIndex(cell.getItem()));
+                    comboBox.selectItem(cell.getItem());
                 }
                 cell.setText(null);
 

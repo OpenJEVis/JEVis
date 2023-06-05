@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -19,7 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Window;
 import javafx.stage.*;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,7 +51,7 @@ public class ImageViewerDialog {
     private final int iconSize = 32;
     private Stage stage;
     private final ImageView imageView = new ImageView();
-    private final JFXComboBox<JEVisFileWithSample> fileComboBox = new JFXComboBox<>(FXCollections.observableArrayList());
+    private final MFXComboBox<JEVisFileWithSample> fileComboBox = new MFXComboBox<>(FXCollections.observableArrayList());
     private final Map<JEVisFile, JEVisSample> sampleMap = new HashMap<>();
     private final ImageView imageIcon = JEConfig.getImage("1390344346_3d_objects.png", iconSize, iconSize);
     private final ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
@@ -208,38 +208,30 @@ public class ImageViewerDialog {
         fileName.setTextFill(Color.web("#0076a3"));
         fileName.setFont(new Font("Cambria", iconSize));
 
-        Callback<ListView<JEVisFileWithSample>, ListCell<JEVisFileWithSample>> cellFactory = new Callback<ListView<JEVisFileWithSample>, ListCell<JEVisFileWithSample>>() {
+        //TODO JFX17
+        fileComboBox.setConverter(new StringConverter<JEVisFileWithSample>() {
             @Override
-            public ListCell<JEVisFileWithSample> call(ListView<JEVisFileWithSample> param) {
-                return new ListCell<JEVisFileWithSample>() {
-                    @Override
-                    protected void updateItem(JEVisFileWithSample obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(obj.getPdfFile().getFilename());
-                        }
-                    }
-                };
+            public String toString(JEVisFileWithSample object) {
+                return object.getPdfFile().getFilename();
             }
-        };
 
-        fileComboBox.setCellFactory(cellFactory);
-        fileComboBox.setButtonCell(cellFactory.call(null));
+            @Override
+            public JEVisFileWithSample fromString(String string) {
+                return fileComboBox.getItems().get(fileComboBox.getSelectedIndex());
+            }
+        });
 
         leftImage.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i > 0) {
-                fileComboBox.getSelectionModel().select(i - 1);
+                fileComboBox.selectIndex(i - 1);
             }
         });
 
         rightImage.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i < sampleMap.size()) {
-                fileComboBox.getSelectionModel().select(i + 1);
+                fileComboBox.selectIndex(i + 1);
             }
         });
 

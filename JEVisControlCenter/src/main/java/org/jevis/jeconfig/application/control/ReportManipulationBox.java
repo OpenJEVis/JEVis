@@ -1,14 +1,12 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 
-public class ReportManipulationBox extends JFXComboBox<ManipulationMode> {
+public class ReportManipulationBox extends MFXComboBox<ManipulationMode> {
 
     public ReportManipulationBox() {
         super();
@@ -25,57 +23,53 @@ public class ReportManipulationBox extends JFXComboBox<ManipulationMode> {
 
         setItems(FXCollections.observableArrayList(ManipulationMode.values()));
 
-        Callback<ListView<ManipulationMode>, ListCell<ManipulationMode>> cellFactory = new Callback<ListView<ManipulationMode>, ListCell<ManipulationMode>>() {
+        //TODO JFX17
+        setConverter(new StringConverter<ManipulationMode>() {
             @Override
-            public ListCell<ManipulationMode> call(ListView<ManipulationMode> param) {
-                return new ListCell<ManipulationMode>() {
-                    @Override
-                    protected void updateItem(ManipulationMode manipulationMode, boolean empty) {
-                        super.updateItem(manipulationMode, empty);
-                        if (empty || manipulationMode == null) {
-                            setText("");
-                        } else {
-                            String text = "";
-                            switch (manipulationMode) {
-                                case AVERAGE:
-                                    text += keyAverage;
-                                    break;
-                                case MIN:
-                                    text += keyMin;
-                                    break;
-                                case MAX:
-                                    text += keyMax;
-                                    break;
-                                case MEDIAN:
-                                    text += keyMedian;
-                                    break;
-                                case RUNNING_MEAN:
-                                    text += keyRunningMean;
-                                    break;
-                                case CENTRIC_RUNNING_MEAN:
-                                    text += keyCentricRunningMean;
-                                    break;
-                                case SORTED_MIN:
-                                    text += keySortedMin;
-                                    break;
-                                case SORTED_MAX:
-                                    text += keySortedMax;
-                                    break;
-                                case CUMULATE:
-                                    break;
-                                case NONE:
-                                    text = keyNone;
-                                    break;
-                            }
+            public String toString(ManipulationMode object) {
 
-                            setText(text);
-                        }
-                    }
-                };
+                String text = "";
+                switch (object) {
+                    case AVERAGE:
+                        text += keyAverage;
+                        break;
+                    case MIN:
+                        text += keyMin;
+                        break;
+                    case MAX:
+                        text += keyMax;
+                        break;
+                    case MEDIAN:
+                        text += keyMedian;
+                        break;
+                    case RUNNING_MEAN:
+                        text += keyRunningMean;
+                        break;
+                    case CENTRIC_RUNNING_MEAN:
+                        text += keyCentricRunningMean;
+                        break;
+                    case SORTED_MIN:
+                        text += keySortedMin;
+                        break;
+                    case SORTED_MAX:
+                        text += keySortedMax;
+                        break;
+                    case CUMULATE:
+                        break;
+                    default:
+                    case NONE:
+                        text = keyNone;
+                        break;
+                }
+
+                return text;
             }
-        };
-        setCellFactory(cellFactory);
-        setButtonCell(cellFactory.call(null));
+
+            @Override
+            public ManipulationMode fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
 
         getSelectionModel().selectFirst();
     }

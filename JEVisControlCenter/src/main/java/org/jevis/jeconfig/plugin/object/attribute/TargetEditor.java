@@ -5,7 +5,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -49,7 +49,7 @@ public class TargetEditor implements AttributeEditor {
     private final JEVisTree tree;
     private boolean _readOnly = true;
     JEVisSample newSample;
-    private JFXButton _treeButton;
+    private MFXButton _treeButton;
     private boolean initialized = false;
 
     public TargetEditor(JEVisAttribute att, MODE mode, JEVisTree tree) {
@@ -104,12 +104,12 @@ public class TargetEditor implements AttributeEditor {
     }
 
     private void init() {
-        _treeButton = new JFXButton(I18n
+        _treeButton = new MFXButton(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
         _treeButton.wrapTextProperty().setValue(true);
 
-        JFXButton gotoButton = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
+        MFXButton gotoButton = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
                 JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
         gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 

@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -11,10 +11,12 @@ import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +26,12 @@ public class TableTopDatePicker extends HBox {
 
     private final ImageView leftImage;
     private final ImageView rightImage;
-    private final JFXComboBox<DateTime> selectionBox;
+    private final MFXComboBox<DateTime> selectionBox;
 
     public TableTopDatePicker() {
         super();
         setAlignment(Pos.CENTER);
-        selectionBox = new JFXComboBox<>();
+        selectionBox = new MFXComboBox<>();
         Callback<ListView<DateTime>, ListCell<DateTime>> cellFactory = new Callback<ListView<DateTime>, ListCell<DateTime>>() {
             @Override
             public ListCell<DateTime> call(ListView<DateTime> param) {
@@ -48,8 +50,18 @@ public class TableTopDatePicker extends HBox {
             }
         };
 
-        selectionBox.setCellFactory(cellFactory);
-        selectionBox.setButtonCell(cellFactory.call(null));
+        //TODO JFX17
+        selectionBox.setConverter(new StringConverter<DateTime>() {
+            @Override
+            public String toString(DateTime object) {
+                return object.toString("yyyy-MM-dd HH:mm");
+            }
+
+            @Override
+            public DateTime fromString(String string) {
+                return DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(string);
+            }
+        });
 
         leftImage = JEConfig.getImage("left.png", 20, 20);
         rightImage = JEConfig.getImage("right.png", 20, 20);
@@ -83,18 +95,18 @@ public class TableTopDatePicker extends HBox {
                         }
                     }
                     if (correctTimestamp != null) {
-                        selectionBox.getSelectionModel().select(correctTimestamp);
+                        selectionBox.selectItem(correctTimestamp);
                     } else if (dates.size() > 0) {
-                        selectionBox.getSelectionModel().select(dates.get(dates.size() - 1));
+                        selectionBox.selectItem(dates.get(dates.size() - 1));
                     }
                 }
             }
         });
 
-        Platform.runLater(() -> selectionBox.getSelectionModel().select(date));
+        Platform.runLater(() -> selectionBox.selectItem(date));
     }
 
-    public JFXComboBox<DateTime> getDatePicker() {
+    public MFXComboBox<DateTime> getDatePicker() {
         return selectionBox;
     }
 

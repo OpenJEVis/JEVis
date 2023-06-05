@@ -19,9 +19,9 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -35,6 +35,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -89,7 +90,7 @@ public class AlarmEditor implements AttributeEditor {
      * Build main UI
      */
     private void init() {
-        JFXButton openConfig = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.openconfig"));
+        MFXButton openConfig = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.openconfig"));
         openConfig.setOnAction(action -> {
             try {
                 show();
@@ -306,14 +307,14 @@ public class AlarmEditor implements AttributeEditor {
         Label standbyLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.label.standbyTime"));
         Label toleranceLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.label.tolerance"));
 
-        JFXTextField nameField = new JFXTextField();
+        MFXTextField nameField = new MFXTextField();
 
         HBox limitDataBox = new HBox();
-        JFXButton treeButton = new JFXButton(I18n
+        MFXButton treeButton = new MFXButton(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
 
-        JFXButton gotoButton = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
+        MFXButton gotoButton = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
                 JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
         gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
@@ -415,9 +416,9 @@ public class AlarmEditor implements AttributeEditor {
             }
         });
 
-        JFXTextField limitField = new JFXTextField();
+        MFXTextField limitField = new MFXTextField();
 
-        JFXComboBox<AlarmConstants.Operator> operator = new JFXComboBox<>(this.operator);
+        MFXComboBox<AlarmConstants.Operator> operator = new MFXComboBox<>(this.operator);
         Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>> cellFactory = new Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>>() {
             @Override
             public ListCell<AlarmConstants.Operator> call(ListView<AlarmConstants.Operator> param) {
@@ -435,10 +436,20 @@ public class AlarmEditor implements AttributeEditor {
             }
         };
 
-        operator.setCellFactory(cellFactory);
-        operator.setButtonCell(cellFactory.call(null));
+        //TODO JFX17
+        operator.setConverter(new StringConverter<AlarmConstants.Operator>() {
+            @Override
+            public String toString(AlarmConstants.Operator object) {
+                return AlarmConstants.Operator.getValue(object);
+            }
 
-        JFXTextField toleranceField = new JFXTextField();
+            @Override
+            public AlarmConstants.Operator fromString(String string) {
+                return operator.getItems().get(operator.getSelectedIndex());
+            }
+        });
+
+        MFXTextField toleranceField = new MFXTextField();
 
         ScheduleEditor silentTime;
 
@@ -488,7 +499,7 @@ public class AlarmEditor implements AttributeEditor {
         }
 
         if (config.getOperator() != null) {
-            operator.getSelectionModel().select(AlarmConstants.Operator.parse(config.getOperator()));
+            operator.selectItem(AlarmConstants.Operator.parse(config.getOperator()));
         } else operator.getSelectionModel().selectFirst();
 
 

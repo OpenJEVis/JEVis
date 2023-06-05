@@ -20,20 +20,19 @@
  */
 package org.jevis.jeconfig.application.unit;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -72,25 +71,27 @@ public class UnitPanel extends GridPane {
         List<Prefix> list = new ArrayList<>();
         list.add(CustomPrefix.NONE);
         Collections.addAll(list, MetricPrefix.values());
-        JFXComboBox<Prefix> prefixBox = new JFXComboBox(FXCollections.observableArrayList(list));
+        MFXComboBox<Prefix> prefixBox = new MFXComboBox(FXCollections.observableArrayList(list));
         prefixBox.setMaxWidth(520);
 //        prefixBox.getSelectionModel().select("");//toto get elsewhere?!
 
-        prefixBox.setButtonCell(new ListCell<Prefix>() {
+        //TODO JFX17
+        prefixBox.setConverter(new StringConverter<Prefix>() {
             @Override
-            protected void updateItem(Prefix t, boolean bln) {
-                super.updateItem(t, bln); //To change body of generated methods, choose Tools | Templates.
-                if (!bln) {
-                    setAlignment(Pos.CENTER);
-                    setText(t.getName());//TODo: replace this dirty workaround to center the text in line with he buttonbelow
-                }
+            public String toString(Prefix object) {
+                return object.getName();
+            }
+
+            @Override
+            public Prefix fromString(String string) {
+                return prefixBox.getItems().get(prefixBox.getSelectedIndex());
             }
         });
-        prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefix(prefix));
+        prefixBox.selectItem(UnitManager.getInstance().getPrefix(prefix));
 
-        final JFXTextField labelField = new JFXTextField();
+        final MFXTextField labelField = new MFXTextField();
         labelField.setEditable(false);
-        final JFXButton changeBaseUnit = new JFXButton();//new JFXButton("Basic Unit");
+        final MFXButton changeBaseUnit = new MFXButton();//new MFXButton("Basic Unit");
         changeBaseUnit.setText(unit.toString());
 //
         HBox unitBox = new HBox(5);
@@ -155,7 +156,7 @@ public class UnitPanel extends GridPane {
         printExample(labelField, _returnUnit);
     }
 
-    private void printExample(final JFXTextField tf, final JEVisUnit unit) {
+    private void printExample(final MFXTextField tf, final JEVisUnit unit) {
         logger.debug("UpdateLabel: '{}' '{}' '{}'", unit.getLabel(), unit.getFormula(), unit.getPrefix());
         Platform.runLater(new Runnable() {
             @Override

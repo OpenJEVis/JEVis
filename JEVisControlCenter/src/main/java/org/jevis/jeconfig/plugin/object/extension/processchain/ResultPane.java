@@ -5,7 +5,7 @@
  */
 package org.jevis.jeconfig.plugin.object.extension.processchain;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -32,7 +32,7 @@ import java.util.List;
 public class ResultPane extends Region {
     private static final Logger logger = LogManager.getLogger(ResultPane.class);
 
-    JFXButton newB = new JFXButton("", JEConfig.getImage("list-add.png", 12, 12));
+    MFXButton newB = new MFXButton("", JEConfig.getImage("list-add.png", 12, 12));
     final ChoiceBox functionBox = new ChoiceBox();
 
     public ResultPane(Process task) {
@@ -56,7 +56,7 @@ public class ResultPane extends Region {
         bar.getChildren().add(fName);
         bar.setAlignment(Pos.CENTER);
 
-//        JFXButton close = new JFXButton("X");
+//        MFXButton close = new MFXButton("X");
         HBox.setHgrow(bar, Priority.ALWAYS);
 //        HBox.setHgrow(close, Priority.NEVER);
         header.getChildren().addAll(bar);

@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.plugin.object.extension.calculation;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
@@ -39,7 +39,7 @@ public class FormulaBox extends HBox {
     //    JFXTextArea textArea = new TextArea();
     JFXTextArea textArea = new JFXTextArea();
     private JEVisObject calcObj;
-    private JFXButton outputButton;
+    private MFXButton outputButton;
 
     public FormulaBox() {
         super();
@@ -340,7 +340,7 @@ public class FormulaBox extends HBox {
         }
     }
 
-    public void setOutputButton(JFXButton buttonOutput) {
+    public void setOutputButton(MFXButton buttonOutput) {
         outputButton = buttonOutput;
         try {
             JEVisClass outputClass = this.calcObj.getDataSource().getJEVisClass("Output");

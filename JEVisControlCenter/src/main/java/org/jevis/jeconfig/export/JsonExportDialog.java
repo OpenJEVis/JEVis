@@ -20,9 +20,9 @@
  */
 package org.jevis.jeconfig.export;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -78,8 +78,8 @@ public class JsonExportDialog {
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
         Label destinationL = new Label(I18n.getInstance().getString("export.file"));
-        final JFXTextField destinationF = new JFXTextField();
-        final JFXButton fileSelect = new JFXButton(I18n.getInstance().getString("export.select"));
+        final MFXTextField destinationF = new MFXTextField();
+        final MFXButton fileSelect = new MFXButton(I18n.getInstance().getString("export.select"));
         final JFXCheckBox allChildren = new JFXCheckBox(I18n.getInstance().getString("export.include_objects"));
         final JFXCheckBox allSamples = new JFXCheckBox(I18n.getInstance().getString("export.include_samples"));
         final JFXCheckBox attributes = new JFXCheckBox(I18n.getInstance().getString("export.include_attributes"));
@@ -153,11 +153,11 @@ public class JsonExportDialog {
 
         HBox buttonPanel = new HBox();
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("export.button.export"));
+        final MFXButton ok = new MFXButton(I18n.getInstance().getString("export.button.export"));
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("export.button.cancel"));
+        MFXButton cancel = new MFXButton(I18n.getInstance().getString("export.button.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

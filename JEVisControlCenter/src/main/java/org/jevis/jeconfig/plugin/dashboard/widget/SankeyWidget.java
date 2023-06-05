@@ -6,7 +6,6 @@ import eu.hansolo.fx.charts.data.PlotItem;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -21,7 +20,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
@@ -43,7 +41,6 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     public static String Sankey_DESIGN_NODE_NAME = "Sankey";
     private final NumberFormat nf = NumberFormat.getInstance();
     private SankeyPlot sankeyPlot;
-    private final WidgetLegend legend = new WidgetLegend();
     private final Pane borderPane = new Pane();
     private Interval lastInterval = null;
     private final BorderPane bottomBorderPane = new BorderPane();
@@ -150,7 +147,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
                 this.setBackground(bgColorTrans);
-                this.legend.setBackground(bgColorTrans);
+
                 this.borderPane.setBackground(bgColor);
 
 
@@ -526,8 +523,8 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     public void init() {
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
         this.sampleHandler.setMultiSelect(true);
-
-        this.legend.setAlignment(Pos.CENTER);
+//TODO JFX17 Testen
+        //   this.legend.setAlignment(Pos.CENTER);
 
         try {
 

@@ -19,8 +19,8 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -52,8 +52,8 @@ import java.util.List;
 public class NewObjectUnderDialog extends Dialog {
 
     //    private VBox root = new VBox();
-    private final JFXButton okButton = new JFXButton("OK");
-    private final JFXButton clear = new JFXButton("Clear");
+    private final MFXButton okButton = new MFXButton("OK");
+    private final MFXButton clear = new MFXButton("Clear");
     private final String ICON = "1404313956_evolution-tasks.png";
     private final JEVisDataSource _ds;
     private Response response = Response.CANCEL;
@@ -76,7 +76,7 @@ public class NewObjectUnderDialog extends Dialog {
         okButton.setDefaultButton(true);
 //        ok.setDisable(true);
 
-        JFXButton cancelButton = new JFXButton("Cancel");
+        MFXButton cancelButton = new MFXButton("Cancel");
         cancelButton.setCancelButton(true);
         cancelButton.setOnAction(event -> close());
 

@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.tool.datepicker;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.layout.GridPane;
@@ -35,7 +35,7 @@ final class DecadesView extends DatePane {
 
         for (int i = 0; i < NUMBER_OF_DECADES * 10; i++) {
 
-            final JFXButton button = new JFXButton();
+            final MFXButton button = new MFXButton();
             button.setMaxWidth(Double.MAX_VALUE);
             button.setMaxHeight(Double.MAX_VALUE);
             GridPane.setVgrow(button, Priority.ALWAYS);
@@ -76,7 +76,7 @@ final class DecadesView extends DatePane {
         int startYear = year - a;
         for (int i = 0; i < 10 * NUMBER_OF_DECADES; i++) {
             final int y = i + startYear;
-            JFXButton button = (JFXButton) getChildren().get(i);
+            MFXButton button = (MFXButton) getChildren().get(i);
             button.setText(Integer.toString(y));
             button.setUserData(y);
         }

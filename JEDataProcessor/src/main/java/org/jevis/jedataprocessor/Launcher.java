@@ -128,7 +128,7 @@ public class Launcher extends AbstractCliApp {
                     logger.error("Error in process of object {}", l, e);
                 }
             }
-            runSingle(ids);
+            //runSingle(ids);
         }
     }
 

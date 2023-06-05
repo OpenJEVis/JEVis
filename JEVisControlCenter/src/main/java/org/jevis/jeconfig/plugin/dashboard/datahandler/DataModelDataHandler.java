@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.datahandler;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -69,6 +70,8 @@ public class DataModelDataHandler {
         this.jeVisDataSource = jeVisDataSource;
         this.dashboardControl = dashboardControl;
         this.widgetType = id;
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
 
         try {
             if (configNode != null) {

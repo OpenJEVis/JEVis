@@ -8,10 +8,10 @@ package org.jevis.commons.driver.inputHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.impl.soap.SOAPMessage;
 import org.jevis.commons.driver.Converter;
 import org.w3c.dom.Document;
 
-import javax.xml.soap.SOAPMessage;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;

@@ -5,12 +5,12 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
 import com.ibm.icu.text.NumberFormat;
-import com.jfoenix.controls.JFXComboBox;
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.plugins.AbstractDataFormattingPlugin;
 import de.gsi.dataset.DataSet;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -134,7 +134,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         double prevX = Double.MIN_VALUE;
         double nextX = Double.MAX_VALUE;
 
-        final int nDataCount = dataSet.getDataCount(DataSet.DIM_X);
+        final int nDataCount = dataSet.getDataCount();
         for (int i = 0; i < nDataCount; i++) {
             final double currentX = dataSet.get(DataSet.DIM_X, i);
 
@@ -234,9 +234,9 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                             tableChart.updateTable(null, nearest);
                             tableChart.setBlockDatePickerEvent(true);
                             TableTopDatePicker tableTopDatePicker = tableChart.getTableTopDatePicker();
-                            JFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                            MFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
                             Platform.runLater(() -> {
-                                datePicker.getSelectionModel().select(nearest);
+                                datePicker.selectItem(nearest);
                                 tableChart.setBlockDatePickerEvent(false);
                             });
                         }

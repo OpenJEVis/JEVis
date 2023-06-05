@@ -5,8 +5,8 @@
  */
 package org.jevis.jeconfig.plugin.object.extension.processchain;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -36,9 +36,9 @@ import java.util.List;
 public class FunctionPane extends Region {
     private static final Logger logger = LogManager.getLogger(FunctionPane.class);
 
-    JFXButton close = new JFXButton("X");
+    MFXButton close = new MFXButton("X");
     final ChoiceBox functionBox = new ChoiceBox();
-    JFXButton newB = new JFXButton("", JEConfig.getImage("list-add.png", 12, 12));
+    MFXButton newB = new MFXButton("", JEConfig.getImage("list-add.png", 12, 12));
 
     public FunctionPane(Process thisTask) {
         logger.info("FunctionPane: {}", thisTask.getFunction().getName());
@@ -67,7 +67,7 @@ public class FunctionPane extends Region {
 
         //---------------------- body ------------------------
         Label functionName = new Label("ID:");
-        JFXTextField nameField = new JFXTextField();
+        MFXTextField nameField = new MFXTextField();
 //        Separator sep = new Separator(Orientation.HORIZONTAL_TOP_LEFT);
 
         AnchorPane bodySpcer = new AnchorPane();
@@ -87,7 +87,7 @@ public class FunctionPane extends Region {
 
             rowNr++;
             Label optionName = new Label(key);
-            JFXTextField optionValue = new JFXTextField(value);
+            MFXTextField optionValue = new MFXTextField(value);
             body.add(optionName, 0, rowNr);
             body.add(optionValue, 1, rowNr);
         }

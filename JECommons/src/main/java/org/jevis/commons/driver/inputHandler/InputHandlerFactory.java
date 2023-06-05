@@ -5,11 +5,12 @@ package org.jevis.commons.driver.inputHandler;
  * and open the template in the editor.
  */
 
+import org.apache.xmlbeans.impl.soap.SOAPMessage;
+
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
-import javax.xml.soap.SOAPMessage;
 
 /**
  *

@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -27,9 +27,9 @@ public class NonconfomityPlanForm extends Alert {
 
 
     Label numberPrefix = new Label("Nr. Prefix");
-    JFXTextField f_numberPrefix = new JFXTextField();
+    MFXTextField f_numberPrefix = new MFXTextField();
 
-    JFXTextField nameField = new JFXTextField();
+    MFXTextField nameField = new MFXTextField();
 
 
 

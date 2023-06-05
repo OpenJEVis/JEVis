@@ -19,8 +19,8 @@
  */
 package org.jevis.jeconfig.application.jevistree.plugin;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -107,10 +107,10 @@ public class AttributeSettingsDialog {
 
         final JFXCheckBox setDefault = new JFXCheckBox("Set as default");
 
-        JFXButton ok = new JFXButton("OK");
+        MFXButton ok = new MFXButton("OK");
         ok.setDefaultButton(true);
 
-        JFXButton cancel = new JFXButton("Cancel");
+        MFXButton cancel = new MFXButton("Cancel");
         cancel.setCancelButton(true);
 
         if (att.getDisplayUnit() != null) {

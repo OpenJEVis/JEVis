@@ -1,12 +1,12 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
 import com.jfoenix.assets.JFoenixResources;
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXScrollPane;
 import com.jfoenix.svg.SVGGlyph;
 import com.jfoenix.utils.JFXNodeUtils;
-import com.sun.javafx.css.converters.SizeConverter;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.css.*;
+import javafx.css.converter.SizeConverter;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -132,8 +132,8 @@ public class TreeTableViewPath extends ScrollPane {
         return super.computePrefHeight(width);
     }
 
-    private JFXButton createNextButton(TreeItem temp) {
-        return new JFXButton(temp.getValue().toString()) {
+    private MFXButton createNextButton(TreeItem temp) {
+        return new MFXButton(temp.getValue().toString()) {
             {
                 setPadding(new Insets(getOffset(), 1.5 * getOffset(), getOffset(), 2 * getOffset()));
                 setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -157,8 +157,8 @@ public class TreeTableViewPath extends ScrollPane {
         };
     }
 
-    public JFXButton createFirstButton(TreeItem temp) {
-        return new JFXButton(temp.getValue().toString()) {
+    public MFXButton createFirstButton(TreeItem temp) {
+        return new MFXButton(temp.getValue().toString()) {
             {
                 setPadding(new Insets(getOffset(), 1.5 * getOffset(), getOffset(), getOffset()));
                 setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -180,8 +180,8 @@ public class TreeTableViewPath extends ScrollPane {
         };
     }
 
-    private JFXButton createLastButton(TreeItem temp, TreeItem parent) {
-        return new JFXButton(temp.getValue().toString()) {
+    private MFXButton createLastButton(TreeItem temp, TreeItem parent) {
+        return new MFXButton(temp.getValue().toString()) {
             private final boolean noParent = parent == null;
 
             {

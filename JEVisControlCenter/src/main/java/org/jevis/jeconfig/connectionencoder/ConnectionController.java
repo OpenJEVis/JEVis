@@ -5,9 +5,9 @@
  */
 package org.jevis.jeconfig.connectionencoder;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -35,25 +35,25 @@ public class ConnectionController implements Initializable {
     }
 
     @FXML
-    private JFXTextField host;
+    private MFXTextField host;
 
     @FXML
-    private JFXTextField port;
+    private MFXTextField port;
 
     @FXML
-    private JFXTextField result;
+    private MFXTextField result;
 
     @FXML
-    private JFXTextField schema;
+    private MFXTextField schema;
 
     @FXML
-    private JFXTextField user;
+    private MFXTextField user;
 
     @FXML
     private JFXPasswordField passwd;
 
     @FXML
-    private JFXButton CopyCon;
+    private MFXButton CopyCon;
 
     @FXML
     void onChanged(KeyEvent event) {

@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.plugin.dtrc.dialogs;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -73,10 +73,10 @@ public class TemplateCalculationOutputDialog extends Dialog {
         Label tooltipLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.tooltip"));
         GridPane.setHgrow(tooltipLabel, Priority.ALWAYS);
 
-        JFXTextField nameField = new JFXTextField(templateOutput.getName());
-        JFXTextField variableNameField = new JFXTextField(templateOutput.getVariableName());
-        JFXTextField unitField = new JFXTextField(templateOutput.getUnit());
-        JFXTextField tooltipField = new JFXTextField(templateOutput.getTooltip());
+        MFXTextField nameField = new MFXTextField(templateOutput.getName());
+        MFXTextField variableNameField = new MFXTextField(templateOutput.getVariableName());
+        MFXTextField unitField = new MFXTextField(templateOutput.getUnit());
+        MFXTextField tooltipField = new MFXTextField(templateOutput.getTooltip());
 
         JFXCheckBox isLinkToggle = new JFXCheckBox(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
         isLinkToggle.setSelected(templateOutput.getLink());

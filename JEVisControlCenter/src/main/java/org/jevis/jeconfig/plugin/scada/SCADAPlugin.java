@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.plugin.scada;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -21,7 +21,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -222,7 +222,7 @@ public class SCADAPlugin implements Plugin {
     private void updateToolbar(ToolBar toolBar, final SCADAAnalysis analyses) {
         logger.info("==Update Toolbar==");
         Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
-        JFXComboBox<JEVisObject> listAnalysesComboBox = new JFXComboBox();
+        MFXComboBox<JEVisObject> listAnalysesComboBox = new MFXComboBox();
         listAnalysesComboBox.setPrefWidth(300);
 
         try {
@@ -232,76 +232,52 @@ public class SCADAPlugin implements Plugin {
             ex.printStackTrace();
         }
 
-
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+        //TODO JFX17
+        listAnalysesComboBox.setConverter(new StringConverter<JEVisObject>() {
             @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                final ListCell<JEVisObject> cell = new ListCell<JEVisObject>() {
-
-//                    {
-//                        super.setPrefWidth(300);
-//                    }
-
-                    @Override
-                    protected void updateItem(JEVisObject item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            setText(item.getName());
-                            setGraphic(null);
-                            Tooltip tt = new Tooltip();
-                            tt.setText("ID: " + item.getID());
-                            setTooltip(tt);
-                        }
-
-
-                    }
-                };
-
-                return cell;
+            public String toString(JEVisObject object) {
+                return object.getName();
             }
-        };
 
-        listAnalysesComboBox.setCellFactory(cellFactory);
-        listAnalysesComboBox.setButtonCell(cellFactory.call(null));
+            @Override
+            public JEVisObject fromString(String string) {
+                return listAnalysesComboBox.getItems().get(listAnalysesComboBox.getSelectedIndex());
+            }
+        });
 
-        JFXComboBox<SCADAAnalysis.BGMode> listBGType = new JFXComboBox();
+        MFXComboBox<SCADAAnalysis.BGMode> listBGType = new MFXComboBox<>();
         listBGType.setItems(FXCollections.observableArrayList(SCADAAnalysis.BGMode.values()));
 
-        Callback<ListView<SCADAAnalysis.BGMode>, ListCell<SCADAAnalysis.BGMode>> bgFactory = new Callback<ListView<SCADAAnalysis.BGMode>, ListCell<SCADAAnalysis.BGMode>>() {
+        //TODO JFX17
+        listBGType.setConverter(new StringConverter<SCADAAnalysis.BGMode>() {
             @Override
-            public ListCell<SCADAAnalysis.BGMode> call(ListView<SCADAAnalysis.BGMode> param) {
-                final ListCell<SCADAAnalysis.BGMode> cell = new ListCell<SCADAAnalysis.BGMode>() {
-
-                    @Override
-                    protected void updateItem(SCADAAnalysis.BGMode item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            String localname = "";
-                            switch (item) {
-                                case STRETCH_HEIGHT:
-                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_height");
-                                    break;
-                                case STRETCH_WIDTH:
-                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_width");
-                                    break;
-                                case STRETCH_BOTH:
-                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_both");
-                                    break;
-                                case ABSOLUTE:
-                                    localname = I18n.getInstance().getString("plugin.scada.background.stretch_none");
-                                    break;
-                            }
-                            setText(localname);
-                            setGraphic(null);
-                        }
+            public String toString(SCADAAnalysis.BGMode object) {
+                String localname = "";
+                if (object != null) {
+                    switch (object) {
+                        case STRETCH_HEIGHT:
+                            localname = I18n.getInstance().getString("plugin.scada.background.stretch_height");
+                            break;
+                        case STRETCH_WIDTH:
+                            localname = I18n.getInstance().getString("plugin.scada.background.stretch_width");
+                            break;
+                        case STRETCH_BOTH:
+                            localname = I18n.getInstance().getString("plugin.scada.background.stretch_both");
+                            break;
+                        case ABSOLUTE:
+                            localname = I18n.getInstance().getString("plugin.scada.background.stretch_none");
+                            break;
                     }
-                };
+                }
 
-                return cell;
+                return localname;
             }
-        };
-        listBGType.setCellFactory(bgFactory);
-        listBGType.setButtonCell(bgFactory.call(null));
+
+            @Override
+            public SCADAAnalysis.BGMode fromString(String string) {
+                return listBGType.getItems().get(listBGType.getSelectedIndex());
+            }
+        });
 
         double iconSize = 20;
 
@@ -342,8 +318,8 @@ public class SCADAPlugin implements Plugin {
          * ---------------------------------------------------------------------------------------------------
          */
         if (analyses != null) {
-            listAnalysesComboBox.getSelectionModel().select(analyses.getObject());
-            listBGType.getSelectionModel().select(analyses.getBackgroundMode());
+            listAnalysesComboBox.selectItem(analyses.getObject());
+            listBGType.selectItem(analyses.getBackgroundMode());
         } else {
             listBGType.getSelectionModel().selectFirst();
         }
@@ -541,11 +517,11 @@ public class SCADAPlugin implements Plugin {
 
         /** New analyses **/
         if (analyses.getObject() == null) {
-            NewAnalyseDialog saveDialog = new NewAnalyseDialog();
+            NewAnalysisDialog saveDialog = new NewAnalysisDialog();
 
             try {
-                NewAnalyseDialog.Response re = saveDialog.show(null, ds);
-                if (re == NewAnalyseDialog.Response.YES) {
+                NewAnalysisDialog.Response re = saveDialog.show(null, ds);
+                if (re == NewAnalysisDialog.Response.YES) {
                     JEVisClass aClass = ds.getJEVisClass(CLASS_SCADA_ANALYSIS);
                     JEVisObject newObject = saveDialog.getParent().buildObject(saveDialog.getCreateName(), aClass);
                     newObject.commit();

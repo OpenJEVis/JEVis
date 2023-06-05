@@ -13,7 +13,7 @@ public class AggregationPeriodBox extends DisabledItemsComboBox<String> {
     public AggregationPeriodBox(AggregationPeriod aggregationPeriod) {
         super(AggregationPeriod.getListNamesAggregationPeriods());
 
-        getSelectionModel().select(AggregationPeriod.parseAggregationIndex(aggregationPeriod));
+        getSelectionModel().selectIndex(AggregationPeriod.parseAggregationIndex(aggregationPeriod));
     }
 
     private static String getItemText(Cell<AggregationPeriod> cell) {
@@ -45,7 +45,7 @@ public class AggregationPeriodBox extends DisabledItemsComboBox<String> {
                                  final Node graphic,
                                  final AggregationPeriodBox comboBox) {
         if (comboBox != null) {
-            comboBox.getSelectionModel().select(AggregationPeriod.parseAggregationIndex(cell.getItem()));
+            comboBox.getSelectionModel().selectIndex(AggregationPeriod.parseAggregationIndex(cell.getItem()));
         }
         cell.setText(null);
 
@@ -76,7 +76,7 @@ public class AggregationPeriodBox extends DisabledItemsComboBox<String> {
         } else {
             if (cell.isEditing()) {
                 if (comboBox != null) {
-                    comboBox.getSelectionModel().select(AggregationPeriod.parseAggregationIndex(cell.getItem()));
+                    comboBox.getSelectionModel().selectIndex(AggregationPeriod.parseAggregationIndex(cell.getItem()));
                 }
                 cell.setText(null);
 

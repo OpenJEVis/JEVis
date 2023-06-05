@@ -19,10 +19,10 @@
  */
 package org.jevis.jeconfig.sample;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXTextArea;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -71,30 +71,30 @@ public class SampleExportExtension implements SampleEditorExtension {
     private static final Logger logger = LogManager.getLogger(SampleExportExtension.class);
     private final static String TITLE = "Export";
     public static String ICON = "1415654364_stock_export.png";
-    final JFXButton ok = new JFXButton("OK");
+    final MFXButton ok = new MFXButton("OK");
     private final BorderPane _view = new BorderPane();
     Label lLineSep = new Label("Field Seperator:");
-    JFXTextField fLineSep = new JFXTextField(";");
+    MFXTextField fLineSep = new MFXTextField(";");
     Label lEnclosedBy = new Label("Enclosed by:");
-    JFXTextField fEnclosedBy = new JFXTextField("");
+    MFXTextField fEnclosedBy = new MFXTextField("");
     Label lDateTimeFormat = new Label("Date Formate:");
-    JFXTextField fDateTimeFormat = new JFXTextField("yyyy-MM-dd HH:mm:ss");
+    MFXTextField fDateTimeFormat = new MFXTextField("yyyy-MM-dd HH:mm:ss");
     Label lTimeFormate = new Label("Time Formate:");
     Label lDateFormat = new Label("Date Formate:");
-    JFXTextField fTimeFormate = new JFXTextField("HH:mm:ss");
-    JFXTextField fDateFormat = new JFXTextField("yyyy-MM-dd");
+    MFXTextField fTimeFormate = new MFXTextField("HH:mm:ss");
+    MFXTextField fDateFormat = new MFXTextField("yyyy-MM-dd");
     JFXRadioButton bDateTime = new JFXRadioButton("Date and time in one field:");
     JFXRadioButton bDateTime2 = new JFXRadioButton("Date and time seperated:");
     Label lValueFormate = new Label("Value Formate:");
-    JFXTextField fValueFormat = new JFXTextField("###.###");
+    MFXTextField fValueFormat = new MFXTextField("###.###");
     Label lHeader = new Label("Custom CSV Header");
-    JFXTextField fHeader = new JFXTextField("Example header mit Attribute namen");
+    MFXTextField fHeader = new MFXTextField("Example header mit Attribute namen");
     Label lExample = new Label("Preview:");
     JFXTextArea fTextArea = new JFXTextArea("Example");
     Label lPFilePath = new Label("File:");
-    JFXTextField fFile = new JFXTextField();
-    JFXButton bFile = new JFXButton("Change");
-    JFXButton export = new JFXButton("Export");
+    MFXTextField fFile = new MFXTextField();
+    MFXButton bFile = new MFXButton("Change");
+    MFXButton export = new MFXButton("Export");
     File destinationFile;
     List<JEVisSample> _samples = new ArrayList<>();
     TableView tablel = new TableView();
@@ -182,7 +182,7 @@ public class SampleExportExtension implements SampleEditorExtension {
         fTimeFormate.setDisable(true);
         fDateFormat.setDisable(true);
 
-        JFXButton bValueFaormateHelp = new JFXButton("?");
+        MFXButton bValueFaormateHelp = new MFXButton("?");
 
         HBox fielBox = new HBox(5d);
         HBox.setHgrow(fFile, Priority.ALWAYS);

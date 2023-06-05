@@ -3,7 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -49,7 +49,7 @@ public class DashboadLinkWidget extends Widget {
     private DataModelDataHandler sampleHandler;
     public static ObjectMapper objectMapper = new ObjectMapper();
 
-    JFXButton linkButton = new JFXButton("", JEConfig.getImage("if_dashboard_46791.png", 20, 20));
+    MFXButton linkButton = new MFXButton("", JEConfig.getImage("if_dashboard_46791.png", 20, 20));
     private TimeFrame selectedTimeFrame;
     private Interval lastInterval = null;
     private JEVisObject linkedDashboardObj;

@@ -5,8 +5,8 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXProgressBar;
 import com.jfoenix.controls.JFXTextArea;
+import io.github.palexdev.materialfx.controls.MFXProgressBar;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
@@ -27,7 +27,7 @@ import org.jevis.jeconfig.TopMenu;
 public class ProgressForm {
 
     private final Stage dialogStage;
-    private final JFXProgressBar pb = new JFXProgressBar();
+    private final MFXProgressBar pb = new MFXProgressBar();
     private final JFXTextArea textArea = new JFXTextArea();
     private final StringBuilder stringBuilder = new StringBuilder();
 

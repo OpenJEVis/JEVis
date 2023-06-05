@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.action.ui;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -55,7 +55,7 @@ public class ActionTab extends Tab {
 
 
         Label lSuche = new Label("Suche");
-        JFXTextField fsearch = new JFXTextField();
+        MFXTextField fsearch = new MFXTextField();
         fsearch.setPromptText("Suche nach...");
         TimeFilterSelector dateSelector = new TimeFilterSelector(plan);
 

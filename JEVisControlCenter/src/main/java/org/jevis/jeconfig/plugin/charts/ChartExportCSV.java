@@ -1,14 +1,17 @@
 package org.jevis.jeconfig.plugin.charts;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.*;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.logging.log4j.LogManager;
@@ -99,31 +102,22 @@ public class ChartExportCSV {
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);
 
-        JFXComboBox decimalSeparatorChoiceBox = new JFXComboBox(choices);
+        MFXComboBox<Locale> decimalSeparatorChoiceBox = new MFXComboBox<>(choices);
 
-        Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
+        //TODO JFX17
+        decimalSeparatorChoiceBox.setConverter(new StringConverter<Locale>() {
             @Override
-            public ListCell<Locale> call(ListView<Locale> param) {
-                return new ListCell<Locale>() {
-                    @Override
-                    protected void updateItem(Locale item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(item.getDisplayName());
-                        }
-                    }
-
-                };
+            public String toString(Locale object) {
+                return object.getDisplayName();
             }
 
-        };
-        decimalSeparatorChoiceBox.setCellFactory(cellFactory);
-        decimalSeparatorChoiceBox.setButtonCell(cellFactory.call(null));
+            @Override
+            public Locale fromString(String string) {
+                return decimalSeparatorChoiceBox.getItems().get(decimalSeparatorChoiceBox.getSelectedIndex());
+            }
+        });
 
-        decimalSeparatorChoiceBox.getSelectionModel().select(Locale.getDefault());
+        decimalSeparatorChoiceBox.selectItem(Locale.getDefault());
 
         decimalSeparatorChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {

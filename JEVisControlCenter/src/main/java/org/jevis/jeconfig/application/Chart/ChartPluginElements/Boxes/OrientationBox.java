@@ -1,56 +1,45 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.geometry.Orientation;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 
-public class OrientationBox extends JFXComboBox<Orientation> {
+public class OrientationBox extends MFXComboBox<Orientation> {
 
     public OrientationBox() {
         super(FXCollections.observableArrayList(Orientation.values()));
+        //TODO JFX17
 
-
-        Callback<ListView<Orientation>, ListCell<Orientation>> callback = new Callback<ListView<Orientation>, ListCell<Orientation>>() {
+        setConverter(new StringConverter<Orientation>() {
             @Override
-            public ListCell<Orientation> call(ListView<Orientation> param) {
-
-                return new ListCell<Orientation>() {
-                    @Override
-                    protected void updateItem(Orientation item, boolean empty) {
-                        super.updateItem(item, empty);
-
-                        setText(null);
-                        setGraphic(null);
-
-                        if (item != null && !empty) {
-                            switch (item) {
-                                case HORIZONTAL:
-                                    setText(I18n.getInstance().getString("plugin.graph.orientation.horizontal"));
-                                    break;
-                                case VERTICAL:
-                                    setText(I18n.getInstance().getString("plugin.graph.orientation.vertical"));
-                                    break;
-                            }
-                        }
-                    }
-                };
+            public String toString(Orientation object) {
+                String text = "";
+                switch (object) {
+                    case HORIZONTAL:
+                        setText(I18n.getInstance().getString("plugin.graph.orientation.horizontal"));
+                        break;
+                    case VERTICAL:
+                        setText(I18n.getInstance().getString("plugin.graph.orientation.vertical"));
+                        break;
+                }
+                return text;
             }
-        };
 
-        setCellFactory(callback);
-        setButtonCell(callback.call(null));
+            @Override
+            public Orientation fromString(String string) {
+                return getItems().get(getSelectedIndex());
+            }
+        });
     }
 
     public OrientationBox(ChartSetting chartSetting) {
         this();
 
-        this.getSelectionModel().select(chartSetting.getOrientation());
+        this.selectItem(chartSetting.getOrientation());
 
         this.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
@@ -62,7 +51,7 @@ public class OrientationBox extends JFXComboBox<Orientation> {
     public OrientationBox(ChartModel chartModel) {
         this();
 
-        this.getSelectionModel().select(chartModel.getOrientation());
+        this.selectItem(chartModel.getOrientation());
 
         this.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {

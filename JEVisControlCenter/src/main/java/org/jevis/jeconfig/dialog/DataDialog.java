@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -40,6 +40,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,8 +57,8 @@ public class DataDialog extends Dialog {
     private final Pagination pagination = new Pagination();
     private final List<DataSample> deleteList = new ArrayList<>();
     private final List<DataSample> data = new ArrayList<>();
-    private final JFXDatePicker startDatePicker = new JFXDatePicker(LocalDate.now().minusDays(1));
-    private final JFXDatePicker endDatePicker = new JFXDatePicker(LocalDate.now());
+    private final MFXDatePicker startDatePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+    private final MFXDatePicker endDatePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
     private final WorkDays workDays;
     private final DoubleValidator doubleValidator = DoubleValidator.getInstance();
     private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
@@ -69,6 +70,8 @@ public class DataDialog extends Dialog {
 
     public DataDialog(JEVisAttribute attribute) {
         super();
+
+        startDatePicker.setValue(startDatePicker.getValue().minusDays(1));
         setTitle(I18n.getInstance().getString("plugin.enterdata.history.title"));
         setHeaderText(I18n.getInstance().getString("plugin.enterdata.history.header"));
         setResizable(true);
@@ -175,7 +178,7 @@ public class DataDialog extends Dialog {
             }
         });
 
-        JFXComboBox<String> dateConfig = new JFXComboBox<>();
+        MFXComboBox<String> dateConfig = new MFXComboBox<>();
         dateConfig.getItems().addAll("Auto", "Man");
 
         Label fromLabel = new Label(I18n.getInstance().getString("plugin.graph.dialog.export.from"));
@@ -213,7 +216,7 @@ public class DataDialog extends Dialog {
             }
         });
 
-        JFXButton addButton = new JFXButton("", JEConfig.getImage("list-add.png", ICON_SIZE, ICON_SIZE));
+        MFXButton addButton = new MFXButton("", JEConfig.getImage("list-add.png", ICON_SIZE, ICON_SIZE));
         addButton.setOnAction(actionEvent -> {
             int currentPageIndex = pagination.getCurrentPageIndex();
             List<DataSample> selectedItems = tableView.getSelectionModel().getSelectedItems();
@@ -235,7 +238,7 @@ public class DataDialog extends Dialog {
             createPage(currentPageIndex);
         });
 
-        JFXButton removeButton = new JFXButton("", JEConfig.getImage("list-remove.png", ICON_SIZE, ICON_SIZE));
+        MFXButton removeButton = new MFXButton("", JEConfig.getImage("list-remove.png", ICON_SIZE, ICON_SIZE));
         removeButton.prefWidthProperty().bind(addButton.widthProperty());
         removeButton.setOnAction(actionEvent -> {
             int currentPageIndex = pagination.getCurrentPageIndex();
@@ -316,7 +319,7 @@ public class DataDialog extends Dialog {
 
         Label headerText = new Label(I18n.getInstance().getString("dialog.data.confirm.message"));
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
+        MFXButton ok = new MFXButton(I18n.getInstance().getString("graph.dialog.ok"));
         ok.setOnAction(event -> {
             try {
                 List<JEVisSample> newSamples = new ArrayList<>();
@@ -353,7 +356,7 @@ public class DataDialog extends Dialog {
             }
         });
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
+        MFXButton cancel = new MFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
         cancel.setOnAction(event -> confirmationDialog.close());
 
         Region spacer = new Region();

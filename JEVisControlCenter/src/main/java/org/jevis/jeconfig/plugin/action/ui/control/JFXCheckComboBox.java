@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.plugin.action.ui.control;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class JFXCheckComboBox extends JFXTextField {
+public class JFXCheckComboBox extends MFXTextField {
 
     private List<JFXCheckBox> boxes = new ArrayList<>();
     private SimpleStringProperty text = new SimpleStringProperty("");

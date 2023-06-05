@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,7 +10,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class YearBox extends JFXComboBox<Integer> {
+public class YearBox extends MFXComboBox<Integer> {
 
     private MonthBox monthBox;
     private DayBox dayBox;
@@ -30,9 +30,9 @@ public class YearBox extends JFXComboBox<Integer> {
         Integer year = DateTime.now().getYear();
 
         if (nextTS != null) {
-            getSelectionModel().select(Integer.valueOf(nextTS.getYear()));
+            selectItem(nextTS.getYear());
         } else {
-            getSelectionModel().select(year);
+            selectItem(year);
         }
     }
 
@@ -56,7 +56,7 @@ public class YearBox extends JFXComboBox<Integer> {
 
     public void setTS(DateTime nextTS) {
         if (nextTS != null) {
-            Platform.runLater(() -> getSelectionModel().select(Integer.valueOf(nextTS.getYear())));
+            Platform.runLater(() -> selectItem(Integer.valueOf(nextTS.getYear())));
         }
     }
 }

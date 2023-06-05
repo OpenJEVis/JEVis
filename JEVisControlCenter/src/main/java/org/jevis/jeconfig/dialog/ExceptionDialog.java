@@ -20,8 +20,8 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -115,17 +115,17 @@ public class ExceptionDialog {
 
         HBox buttonPanel = new HBox();
 
-        JFXButton ok = new JFXButton("OK");
+        MFXButton ok = new MFXButton("OK");
         ok.setDefaultButton(true);
 
-        JFXButton cancel = new JFXButton("Cancel");
+        MFXButton cancel = new MFXButton("Cancel");
         cancel.setCancelButton(true);
 
-//        JFXButton exit = new JFXButton("Exit");
-        JFXButton send = new JFXButton("Report");
+//        MFXButton exit = new MFXButton("Exit");
+        MFXButton send = new MFXButton("Report");
 
-        JFXButton details = new JFXButton("Details");
-        JFXButton copyAll = new JFXButton("Copy all");
+        MFXButton details = new MFXButton("Details");
+        MFXButton copyAll = new MFXButton("Copy all");
 
         buttonPanel.getChildren().addAll(details, copyAll, send, ok, cancel);
         buttonPanel.setAlignment(Pos.CENTER_RIGHT);
@@ -274,15 +274,15 @@ public class ExceptionDialog {
 
         HBox buttonPanel = new HBox();
 
-        JFXButton ok = new JFXButton("Close");
+        MFXButton ok = new MFXButton("Close");
         ok.setCancelButton(true);
 
-        JFXButton exit = new JFXButton("Exit");
-        JFXButton send = new JFXButton("Report");
+        MFXButton exit = new MFXButton("Exit");
+        MFXButton send = new MFXButton("Report");
 
         send.setDefaultButton(true);
 
-        JFXButton copyAll = new JFXButton("Copy All");
+        MFXButton copyAll = new MFXButton("Copy All");
 
         buttonPanel.getChildren().addAll(copyAll, send, ok, exit);
         buttonPanel.setAlignment(Pos.CENTER_RIGHT);

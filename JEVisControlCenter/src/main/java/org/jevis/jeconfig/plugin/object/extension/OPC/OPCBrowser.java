@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.plugin.object.extension.OPC;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -43,10 +43,10 @@ public class OPCBrowser {
     public static final String ROOT_FOLDER_TREND = "/Objects/Loytec ROOT/Trend";
     public static final String ROOT_FOLDER_TREND_BACNET = "/Objects/Loytec ROOT/BACnet Port";
 
-    JFXTextField port = new JFXTextField();
-    JFXButton connect = new JFXButton();
-    JFXComboBox<String> comboRootFolder = new JFXComboBox();
-    JFXComboBox<String> comboMode = new JFXComboBox<>();
+    MFXTextField port = new MFXTextField();
+    MFXButton connect = new MFXButton();
+    MFXComboBox<String> comboRootFolder = new MFXComboBox();
+    MFXComboBox<String> comboMode = new MFXComboBox<>();
 
 
     private JEVisDataSource ds;

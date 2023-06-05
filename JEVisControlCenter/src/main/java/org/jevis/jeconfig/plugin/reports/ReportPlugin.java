@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.plugin.reports;
 
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
@@ -64,10 +64,10 @@ public class ReportPlugin implements Plugin {
     private final ToolBar toolBar = new ToolBar();
     private boolean initialized = false;
     private final Pagination pagination = new Pagination();
-    private final JFXComboBox<String> fileComboBox = new JFXComboBox<>();
+    private final MFXComboBox<String> fileComboBox = new MFXComboBox<>();
     private final Map<String, JEVisFileWithSample> sampleMap = new HashMap<>();
     private final List<JEVisObject> disabledItemList = new ArrayList<>();
-    private final JFXTextField filterInput = new JFXTextField();
+    private final MFXTextField filterInput = new MFXTextField();
     private final int iconSize = 20;
     private boolean multipleDirectories;
     private final PDFModel model = new PDFModel();
@@ -295,14 +295,14 @@ public class ReportPlugin implements Plugin {
         prevButton.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i > 0) {
-                fileComboBox.getSelectionModel().select(i - 1);
+                fileComboBox.selectIndex(i - 1);
             }
         });
 
         nextButton.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i < sampleMap.size()) {
-                fileComboBox.getSelectionModel().select(i + 1);
+                fileComboBox.selectIndex(i + 1);
             }
         });
 

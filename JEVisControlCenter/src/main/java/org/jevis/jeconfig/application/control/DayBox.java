@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.control;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,7 +9,7 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DayBox extends JFXComboBox<Integer> {
+public class DayBox extends MFXComboBox<Integer> {
 
     public DayBox() {
         super();
@@ -22,7 +22,7 @@ public class DayBox extends JFXComboBox<Integer> {
         ObservableList<Integer> enterDataTypes = FXCollections.observableArrayList(list);
         setItems(enterDataTypes);
 
-        getSelectionModel().select(DateTime.now().getDayOfMonth() - 1);
+        selectItem(DateTime.now().getDayOfMonth() - 1);
     }
 
     public void setDays(int days) {

@@ -21,10 +21,8 @@ package org.jevis.jeconfig.sample;
 
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.AxisLabelOverlapPolicy;
-import de.gsi.chart.axes.AxisMode;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
-import de.gsi.chart.plugins.Zoomer;
 import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
 import de.gsi.dataset.spi.DoubleDataSet;
@@ -111,7 +109,8 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
                 final XYChart chart = new XYChart(xAxis, yAxis);
                 chart.legendVisibleProperty().set(false);
-                chart.getPlugins().add(new Zoomer(AxisMode.X));
+                //TODO JFX17
+                //chart.getPlugins().add(new Zoomer(AxisMode.X));
 
                 chart.setStyle("-fx-font-size: " + 12 + "px;");
 

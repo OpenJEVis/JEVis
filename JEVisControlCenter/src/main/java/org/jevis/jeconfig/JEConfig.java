@@ -19,9 +19,8 @@
  */
 package org.jevis.jeconfig;
 
-import com.sun.javafx.css.StyleManager;
+
 import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameters;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -59,7 +58,6 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
 import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
-import org.jevis.jeconfig.application.tools.Holidays;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.Exceptions;
@@ -430,8 +428,8 @@ public class JEConfig extends Application {
                 try {
                     preload(login);
                     logger.error("done preloading");
-
-                    Holidays.setDataSource(_mainDS);
+//TODO JFX17 Holidays
+                    //    Holidays.setDataSource(_mainDS);
                 } catch (Exception ex) {
                     logger.error("Error while preloading datasource", ex);
                     ex.printStackTrace();
@@ -545,7 +543,7 @@ public class JEConfig extends Application {
                             try {
                                 this.updateTitle(I18n.getInstance().getString("preload.holidays"));
                                 for (String countryCode : HolidayManager.getSupportedCalendarCodes()) {
-                                    HolidayManager instance = HolidayManager.getInstance(ManagerParameters.create(countryCode));
+                                    //  HolidayManager instance = HolidayManager.getInstance(ManagerParameters.create(countryCode));
                                 }
 
                                 succeeded();
@@ -601,7 +599,7 @@ public class JEConfig extends Application {
         primaryStage.setMaximized(true);
         primaryStage.show();
 
-        StyleManager.getInstance().addUserAgentStylesheet("/styles/ToolTip.css");
+        // Todo : JFX17 StyleManager.getInstance().addUserAgentStylesheet("/styles/ToolTip.css");
 
         jeconfigRoot.getChildren().setAll(login);
 

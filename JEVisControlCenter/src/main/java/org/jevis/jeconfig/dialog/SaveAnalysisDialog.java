@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -9,7 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -54,7 +54,7 @@ public class SaveAnalysisDialog extends Dialog {
 
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
-        JFXTextField name = new JFXTextField();
+        MFXTextField name = new MFXTextField();
 
         JEVisClass analysesDirectory = null;
         List<JEVisObject> listAnalysesDirectories = null;
@@ -65,39 +65,35 @@ public class SaveAnalysisDialog extends Dialog {
             e.printStackTrace();
         }
 
-        JFXComboBox<JEVisObject> parentsDirectories = new JFXComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
+        MFXComboBox<JEVisObject> parentsDirectories = new MFXComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
 
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+        //TODO JFX17
+        parentsDirectories.setConverter(new StringConverter<JEVisObject>() {
             @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (empty || obj == null || obj.getName() == null) {
-                            setText("");
-                        } else {
-                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
-                                setText(obj.getName());
-                            else {
-                                String prefix = "";
-                                if (ChartTools.isMultiSite(ds)) {
-                                    prefix += objectRelations.getObjectPath(obj);
-                                }
-                                if (ChartTools.isMultiDir(ds, obj)) {
-                                    prefix += objectRelations.getRelativePath(obj);
-                                }
-
-                                setText(prefix + obj.getName());
-                            }
-                        }
-
+            public String toString(JEVisObject object) {
+                String text = "";
+                if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, object))
+                    text = object.getName();
+                else {
+                    String prefix = "";
+                    if (ChartTools.isMultiSite(ds)) {
+                        prefix += objectRelations.getObjectPath(object);
                     }
-                };
+                    if (ChartTools.isMultiDir(ds, object)) {
+                        prefix += objectRelations.getRelativePath(object);
+                    }
+
+                    text = prefix + object.getName();
+                }
+
+                return text;
             }
-        };
-        parentsDirectories.setCellFactory(cellFactory);
-        parentsDirectories.setButtonCell(cellFactory.call(null));
+
+            @Override
+            public JEVisObject fromString(String string) {
+                return parentsDirectories.getItems().get(parentsDirectories.getSelectedIndex());
+            }
+        });
 
         parentsDirectories.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
@@ -109,7 +105,7 @@ public class SaveAnalysisDialog extends Dialog {
         if (dataSettings.getCurrentAnalysis() != null) {
             try {
                 if (dataSettings.getCurrentAnalysis().getParents() != null && !dataSettings.getCurrentAnalysis().getParents().isEmpty()) {
-                    parentsDirectories.getSelectionModel().select(dataSettings.getCurrentAnalysis().getParents().get(0));
+                    parentsDirectories.selectItem(dataSettings.getCurrentAnalysis().getParents().get(0));
                 }
             } catch (JEVisException e) {
                 logger.error("Couldn't select current Analysis Directory: " + e);

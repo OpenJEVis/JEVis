@@ -19,10 +19,10 @@
  */
 package org.jevis.jeconfig.csv;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXRadioButton;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -41,7 +41,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -73,13 +73,13 @@ public class CSVColumnHeader {
     private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
     private static final double FIELD_WIDTH = 210;
     private static final double ROW_HIGHT = 25;
-    final JFXButton unitButton = new JFXButton(I18n.getInstance().getString("csv.table.unit"));
+    final MFXButton unitButton = new MFXButton(I18n.getInstance().getString("csv.table.unit"));
     private final VBox root = new VBox(5);
     private final Label typeL = new Label(I18n.getInstance().getString("csv.table.meaning"));
     private final Label formatL = new Label(I18n.getInstance().getString("csv.table.format"));
     private final DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
     private JEVisAttribute _target = null;
-    private JFXComboBox<Meaning> meaning;
+    private MFXComboBox<Meaning> meaning;
     private final HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
     private final HashMap<Integer, SimpleObjectProperty<Node>> _valueProperty = new HashMap<Integer, SimpleObjectProperty<Node>>();
     private final HashMap<Integer, CSVCellGraphic> _valueGraphic = new HashMap<Integer, CSVCellGraphic>();
@@ -360,48 +360,47 @@ public class CSVColumnHeader {
     private void buildMeaningButton() {
         ObservableList<Meaning> options = FXCollections.observableArrayList(Meaning.values());
 
-        Callback<ListView<Meaning>, ListCell<Meaning>> meaningFactory = new Callback<ListView<Meaning>, ListCell<Meaning>>() {
-            @Override
-            public ListCell<Meaning> call(ListView<Meaning> param) {
-                return new ListCell<Meaning>(){
-                    @Override
-                    protected void updateItem(Meaning item, boolean empty) {
-                        super.updateItem(item, empty);
-                        String text= "";
-                        if(item!=null){
-                            switch (item){
-                                case Date:
-                                    text =I18n.getInstance().getString("csv.table.meaning.date");
-                                    break;
-                                case Text:
-                                    text =I18n.getInstance().getString("csv.table.meaning.text");
-                                    break;
-                                case Time:
-                                    text =I18n.getInstance().getString("csv.table.meaning.time");
-                                    break;
-                                case Index:
-                                    text =I18n.getInstance().getString("csv.table.meaning.index");
-                                    break;
-                                case Value:
-                                    text =I18n.getInstance().getString("csv.table.meaning.value");
-                                    break;
-                                case Ignore:
-                                    text =I18n.getInstance().getString("csv.table.meaning.ignore");
-                                    break;
-                                case DateTime:
-                                    text =I18n.getInstance().getString("csv.table.meaning.datetime");
-                                    break;
-                            }
-                        }
+        meaning = new MFXComboBox<Meaning>(options);
 
-                        setText(text);
+        meaning.setConverter(new StringConverter<Meaning>() {
+            @Override
+            public String toString(Meaning object) {
+                String text = "";
+                if (object != null) {
+                    switch (object) {
+                        case Date:
+                            text = I18n.getInstance().getString("csv.table.meaning.date");
+                            break;
+                        case Text:
+                            text = I18n.getInstance().getString("csv.table.meaning.text");
+                            break;
+                        case Time:
+                            text = I18n.getInstance().getString("csv.table.meaning.time");
+                            break;
+                        case Index:
+                            text = I18n.getInstance().getString("csv.table.meaning.index");
+                            break;
+                        case Value:
+                            text = I18n.getInstance().getString("csv.table.meaning.value");
+                            break;
+                        case Ignore:
+                            text = I18n.getInstance().getString("csv.table.meaning.ignore");
+                            break;
+                        case DateTime:
+                            text = I18n.getInstance().getString("csv.table.meaning.datetime");
+                            break;
                     }
-                };
+                }
+
+                return text;
             }
-        };
-        meaning = new JFXComboBox<Meaning>(options);
-        meaning.setCellFactory(meaningFactory);
-        meaning.setButtonCell(meaningFactory.call(null));
+
+            @Override
+            public Meaning fromString(String string) {
+                return meaning.getItems().get(meaning.getSelectedIndex());
+            }
+        });
+
         meaning.getSelectionModel().selectFirst();
         meaning.setOnAction(event -> setMeaning(meaning.getValue()));
 
@@ -413,7 +412,7 @@ public class CSVColumnHeader {
         root.setPadding(new Insets(8, 8, 8, 8));
 
         Label targetL = new Label("Target:");
-        JFXButton targetB = buildTargetButton();
+        MFXButton targetB = buildTargetButton();
 
         Region spacer = new Region();
 
@@ -451,7 +450,7 @@ public class CSVColumnHeader {
         dot.setId("dotRadio");
         Label targetL = new Label(I18n.getInstance().getString("csv.target"));
         Label unitLabel = new Label(I18n.getInstance().getString("csv.unit"));
-        final JFXButton unitButton = new JFXButton(I18n.getInstance().getString("csv.table.unit"));
+        final MFXButton unitButton = new MFXButton(I18n.getInstance().getString("csv.table.unit"));
 //        unitButton.setDisable(true);
         unitButton.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -508,7 +507,7 @@ public class CSVColumnHeader {
 
         spebox.getChildren().setAll(deciSeperator, dot, comma);
 
-        JFXButton targetB = buildTargetButton();
+        MFXButton targetB = buildTargetButton();
 
         GridPane gp = new GridPane();
         gp.setHgap(5);
@@ -544,9 +543,9 @@ public class CSVColumnHeader {
     private void buildDateTime(Meaning mode) {
         root.setPadding(new Insets(8, 8, 8, 8));
 
-        final JFXComboBox<String> timeZone;
-        JFXComboBox<String> timeLocale;
-        final JFXTextField format = new JFXTextField();
+        final MFXComboBox<String> timeZone;
+        MFXComboBox<String> timeLocale;
+        final MFXTextField format = new MFXTextField();
         Label timeZoneL = new Label(I18n.getInstance().getString("csv.timezone"));
         Label targetL = new Label(I18n.getInstance().getString("csv.target"));
         Label vaueLocaleL = new Label(I18n.getInstance().getString("csv.locale"));
@@ -557,9 +556,9 @@ public class CSVColumnHeader {
         Set<String> allTimeZones = DateTimeZone.getAvailableIDs();
 
         timeZoneOpt = FXCollections.observableArrayList(allTimeZones);
-        timeZone = new JFXComboBox<>(timeZoneOpt);
+        timeZone = new MFXComboBox<>(timeZoneOpt);
 //        timeZone.getSelectionModel().select("UTC");
-        timeZone.getSelectionModel().select(TimeZone.getDefault().getID());
+        timeZone.selectItem(TimeZone.getDefault().getID());
         timeZone.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -682,7 +681,7 @@ public class CSVColumnHeader {
                     } else if (workaround > 3) {
                         break;
                     }
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     logger.error(ex);
                 }
 
@@ -718,8 +717,8 @@ public class CSVColumnHeader {
         return "yyyy-MM-dd HH:mm:ss";
     }
 
-    private JFXButton buildTargetButton() {
-        final JFXButton button = new JFXButton(I18n.getInstance().getString("csv.import_target"));//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
+    private MFXButton buildTargetButton() {
+        final MFXButton button = new MFXButton(I18n.getInstance().getString("csv.import_target"));//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
         button.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -745,16 +744,16 @@ public class CSVColumnHeader {
                                 }
                                 if (us.getSelectedAttribute() != null) {
                                     logger.trace("att: {}", us.getSelectedAttribute().getName());
-                                _target = us.getSelectedAttribute();
-                                buttonText += "." + _target.getName();
-                            }
+                                    _target = us.getSelectedAttribute();
+                                    buttonText += "." + _target.getName();
+                                }
 
-                            button.setText(buttonText);
+                                button.setText(buttonText);
 
-                            if (us.getSelectedAttribute() != null && us.getSelectedAttribute().getInputUnit() != null) {
-                                unitButton.setText(us.getSelectedAttribute().getInputUnit().getLabel());
-                            }
-                            formatAllRows();
+                                if (us.getSelectedAttribute() != null && us.getSelectedAttribute().getInputUnit() != null) {
+                                    unitButton.setText(us.getSelectedAttribute().getInputUnit().getLabel());
+                                }
+                                formatAllRows();
 
                             } catch (Exception ex) {
                                 logger.catching(ex);

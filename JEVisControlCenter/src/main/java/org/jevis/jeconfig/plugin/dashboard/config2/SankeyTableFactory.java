@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -176,12 +176,12 @@ public class SankeyTableFactory {
                             setGraphic(null);
                         } else {
                             HBox hBox = new HBox();
-                            JFXButton jfxButtonMoveUp = new JFXButton("",JEConfig.getSVGImage(Icon.ARROW_UP,10,10));
-                            JFXButton jfxButtonMoveDown = new JFXButton("", JEConfig.getSVGImage(Icon.ARROW_DOWN, 10, 10));
+                            MFXButton MFXButtonMoveUp = new MFXButton("", JEConfig.getSVGImage(Icon.ARROW_UP, 10, 10));
+                            MFXButton MFXButtonMoveDown = new MFXButton("", JEConfig.getSVGImage(Icon.ARROW_DOWN, 10, 10));
                             hBox.setSpacing(3);
-                            hBox.getChildren().addAll(jfxButtonMoveUp, jfxButtonMoveDown);
+                            hBox.getChildren().addAll(MFXButtonMoveUp, MFXButtonMoveDown);
 
-                            jfxButtonMoveDown.setOnAction(actionEvent -> {
+                            MFXButtonMoveDown.setOnAction(actionEvent -> {
 
 
                                 int index = observableList.indexOf(item);
@@ -198,7 +198,7 @@ public class SankeyTableFactory {
 
                             });
 
-                            jfxButtonMoveUp.setOnAction(actionEvent -> {
+                            MFXButtonMoveUp.setOnAction(actionEvent -> {
                                 int index = observableList.indexOf(item);
 
 
@@ -242,14 +242,14 @@ public class SankeyTableFactory {
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
         column.setPrefWidth(numberColumDefaultSize);
-        column.setMaxWidth(numberColumDefaultSize*4);
+        column.setMaxWidth(numberColumDefaultSize * 4);
 
         return column;
     }
 
 
-    private JFXTextField buildTextField(String text) {
-        JFXTextField textField = new JFXTextField(text);
+    private MFXTextField buildTextField(String text) {
+        MFXTextField textField = new MFXTextField(text);
         textField.focusedProperty().addListener(SankeyTableFactory.this.focusListener);
         //textField.setMaxWidth(this.numberColumDefaultSize);
         return textField;

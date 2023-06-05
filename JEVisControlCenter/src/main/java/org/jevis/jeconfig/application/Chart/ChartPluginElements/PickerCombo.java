@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Tooltip;
@@ -31,8 +31,8 @@ public class PickerCombo {
     private static final Logger logger = LogManager.getLogger(PickerCombo.class);
     private final JEVisDataSource ds;
     private final PresetDateBox presetDateBox;
-    private final JFXDatePicker startDatePicker = new JFXDatePicker();
-    private final JFXDatePicker endDatePicker = new JFXDatePicker();
+    private final MFXDatePicker startDatePicker = new MFXDatePicker();
+    private final MFXDatePicker endDatePicker = new MFXDatePicker();
     private final JFXTimePicker startTimePicker = new JFXTimePicker();
     private final JFXTimePicker endTimePicker = new JFXTimePicker();
     private final DataSettings dataSettings;
@@ -80,7 +80,7 @@ public class PickerCombo {
 
         if (dataModel != null && !dataModel.getChartModels().isEmpty()) {
 
-            presetDateBox.getItems().stream().filter(timeFrame -> timeFrame.getTimeFrame() == dataSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == dataSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
+            presetDateBox.getItems().stream().filter(timeFrame -> timeFrame.getTimeFrame() == dataSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == dataSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.selectItem(timeFrame));
 
             DateTime start = dataSettings.getAnalysisTimeFrame().getStart();
             DateTime end = dataSettings.getAnalysisTimeFrame().getEnd();
@@ -201,8 +201,9 @@ public class PickerCombo {
             }
         };
 
-        startDatePicker.setDayCellFactory(dateCellCallback);
-        endDatePicker.setDayCellFactory(dateCellCallback);
+        //TODO JFX17
+        // startDatePicker.setDayCellFactory(dateCellCallback);
+        // endDatePicker.setDayCellFactory(dateCellCallback);
     }
 
 
@@ -210,11 +211,11 @@ public class PickerCombo {
         return dataModel;
     }
 
-    public JFXDatePicker getStartDatePicker() {
+    public MFXDatePicker getStartDatePicker() {
         return startDatePicker;
     }
 
-    public JFXDatePicker getEndDatePicker() {
+    public MFXDatePicker getEndDatePicker() {
         return endDatePicker;
     }
 

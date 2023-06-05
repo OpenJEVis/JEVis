@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -22,8 +22,8 @@ public class LimitStaticPane extends GridPane {
     private final Label lowerColorlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.color.lower"));
     private final JFXCheckBox enableUpperBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.upper"));
     private final JFXCheckBox enableLowerBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.lower"));
-    private final JFXTextField upperValueField = new JFXTextField();
-    private final JFXTextField lowerValueField = new JFXTextField();
+    private final MFXTextField upperValueField = new MFXTextField();
+    private final MFXTextField lowerValueField = new MFXTextField();
     private final ColorPickerAdv upperColorPicker = new ColorPickerAdv();
     private final ColorPickerAdv lowerColorPicker = new ColorPickerAdv();
 

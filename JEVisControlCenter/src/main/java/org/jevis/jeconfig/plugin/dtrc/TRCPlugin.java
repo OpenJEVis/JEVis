@@ -3,7 +3,11 @@ package org.jevis.jeconfig.plugin.dtrc;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXListCell;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
@@ -18,6 +22,7 @@ import javafx.scene.layout.*;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -59,7 +64,7 @@ public class TRCPlugin implements Plugin {
     protected final ObjectRelations objectRelations;
     protected final String title;
     protected final AlphanumComparator alphanumComparator = new AlphanumComparator();
-    protected final JFXTextField filterInput = new JFXTextField();
+    protected final MFXTextField filterInput = new MFXTextField();
     private final Image taskImage = JEConfig.getImage("measurement_instrument.png");
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.TRCPlugin");
     private final BorderPane borderPane = new BorderPane();
@@ -75,7 +80,7 @@ public class TRCPlugin implements Plugin {
     private final TemplateHandler templateHandler = new TemplateHandler();
     private OutputView viewTab;
     private boolean initialized = false;
-    private JFXComboBox<JEVisObject> trcs;
+    private MFXComboBox<JEVisObject> trcs;
     private final Map<String, JFXCheckBox> intervalSelectorMap = new HashMap<>();
 
     public TRCPlugin(JEVisDataSource ds) {
@@ -212,7 +217,7 @@ public class TRCPlugin implements Plugin {
 
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
 
-        trcs = new JFXComboBox<>();
+        trcs = new MFXComboBox<>();
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -231,8 +236,18 @@ public class TRCPlugin implements Plugin {
             }
         };
 
-        trcs.setCellFactory(attributeCellFactory);
-        trcs.setButtonCell(attributeCellFactory.call(null));
+        //TODO JFX17
+        trcs.setConverter(new StringConverter<JEVisObject>() {
+            @Override
+            public String toString(JEVisObject object) {
+                return object.getName();
+            }
+
+            @Override
+            public JEVisObject fromString(String string) {
+                return trcs.getItems().get(trcs.getSelectedIndex());
+            }
+        });
 
         trcs.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
@@ -405,8 +420,8 @@ public class TRCPlugin implements Plugin {
 //
 //                Dialog<ButtonType> reallyDelete = new Dialog<>();
 //                reallyDelete.setTitle(I18n.getInstance().getString("plugin.graph.dialog.delete.title"));
-//                final JFXButtonType ok = new JFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.delete.ok"), JFXButtonBar.ButtonData.YES);
-//                final JFXButtonType cancel = new JFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.delete.cancel"), JFXButtonBar.ButtonData.CANCEL_CLOSE);
+//                final MFXButtonType ok = new MFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.delete.ok"), MFXButtonBar.ButtonData.YES);
+//                final MFXButtonType cancel = new MFXButtonType(I18n.getInstance().getString("plugin.graph.dialog.delete.cancel"), MFXButtonBar.ButtonData.CANCEL_CLOSE);
 //
 //                reallyDelete.setContentText(I18n.getInstance().getString("plugin.meters.dialog.delete.message"));
 //                reallyDelete.getDialogPane().getButtonTypes().addAll(ok, cancel);
@@ -447,7 +462,7 @@ public class TRCPlugin implements Plugin {
                         trcs.getItems().addAll(allTemplateCalculations);
 
                         if (trcs.getItems().contains(selectedItem)) {
-                            trcs.getSelectionModel().select(selectedItem);
+                            trcs.selectItem(selectedItem);
                         } else {
                             trcs.getSelectionModel().selectFirst();
                         }
@@ -613,8 +628,8 @@ public class TRCPlugin implements Plugin {
 
     }
 
-    private JFXButton buildAddFormulaButton() {
-        JFXButton addFormulaButton = new JFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
+    private MFXButton buildAddFormulaButton() {
+        MFXButton addFormulaButton = new MFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
 
         addFormulaButton.setOnAction(event -> {
             TemplateFormula templateFormula = new TemplateFormula();
@@ -653,8 +668,8 @@ public class TRCPlugin implements Plugin {
         templateHandler.getRcTemplate().getTemplateInputs().removeAll(templateInputsToRemove);
     }
 
-    private JFXButton buildAddInputButton() {
-        JFXButton addInputButton = new JFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
+    private MFXButton buildAddInputButton() {
+        MFXButton addInputButton = new MFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
 
         addInputButton.setOnAction(event -> {
             TemplateInput templateInput = new TemplateInput();
@@ -673,8 +688,8 @@ public class TRCPlugin implements Plugin {
         return addInputButton;
     }
 
-    private JFXButton buildAddOutputButton() {
-        JFXButton addOutputButton = new JFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
+    private MFXButton buildAddOutputButton() {
+        MFXButton addOutputButton = new MFXButton("", ResourceLoader.getImage("list-add.png", 15, 15));
 
         addOutputButton.setOnAction(event -> {
             TemplateOutput templateOutput = new TemplateOutput();
@@ -768,8 +783,8 @@ public class TRCPlugin implements Plugin {
         }
     }
 
-    private JFXButton createFormulaButton(TemplateFormula templateFormula, int index) {
-        JFXButton formulaButton = new JFXButton(templateFormula.getName());
+    private MFXButton createFormulaButton(TemplateFormula templateFormula, int index) {
+        MFXButton formulaButton = new MFXButton(templateFormula.getName());
         formulaButton.setMnemonicParsing(false);
 
         if (templateFormula.getName() == null || templateFormula.getName().equals("")) {
@@ -795,9 +810,9 @@ public class TRCPlugin implements Plugin {
         return formulaButton;
     }
 
-    private JFXButton createFormulaInputButton(TemplateFormula templateFormula, int index) {
+    private MFXButton createFormulaInputButton(TemplateFormula templateFormula, int index) {
 
-        JFXButton formulaInputButton = new JFXButton(templateFormula.getName());
+        MFXButton formulaInputButton = new MFXButton(templateFormula.getName());
         formulaInputButton.setMnemonicParsing(false);
         formulaInputButton.setStyle("-fx-background-color: derive(-fx-base, 120%);");
 
@@ -808,8 +823,8 @@ public class TRCPlugin implements Plugin {
         return formulaInputButton;
     }
 
-    private JFXButton createInputButton(TemplateInput templateInput) {
-        JFXButton inputButton = new JFXButton(templateInput.getVariableName());
+    private MFXButton createInputButton(TemplateInput templateInput) {
+        MFXButton inputButton = new MFXButton(templateInput.getVariableName());
         inputButton.setMnemonicParsing(false);
 
         inputButton.setOnAction(event -> {
@@ -829,8 +844,8 @@ public class TRCPlugin implements Plugin {
         return inputButton;
     }
 
-    private JFXButton createOutputButton(TemplateOutput templateOutput) {
-        JFXButton outputButton = new JFXButton(templateOutput.getName());
+    private MFXButton createOutputButton(TemplateOutput templateOutput) {
+        MFXButton outputButton = new MFXButton(templateOutput.getName());
         outputButton.setMnemonicParsing(false);
 
         outputButton.setOnAction(event -> {

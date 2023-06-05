@@ -20,9 +20,9 @@
  */
 package org.jevis.jeconfig.tool;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -93,10 +93,10 @@ public class NewClassDialog {
 
         HBox buttonPanel = new HBox();
 
-        final JFXButton ok = new JFXButton("OK");
+        final MFXButton ok = new MFXButton("OK");
         ok.setDefaultButton(true);
 
-        JFXButton cancel = new JFXButton("Cancel");
+        MFXButton cancel = new MFXButton("Cancel");
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -106,13 +106,13 @@ public class NewClassDialog {
         buttonPanel.setMaxHeight(25);
 
         Label nameL = new Label("Name:");
-        final JFXTextField nameF = new JFXTextField();
+        final MFXTextField nameF = new MFXTextField();
         nameF.setPromptText("Enter new name here");
 
         final Label warning = new Label("Exists!");
         warning.setTextFill(Color.web("#CB5959"));
 
-        final JFXTextField heritB = new JFXTextField();
+        final MFXTextField heritB = new MFXTextField();
         heritB.setPromptText("Iherit class name");
         heritB.setDisable(true);
 

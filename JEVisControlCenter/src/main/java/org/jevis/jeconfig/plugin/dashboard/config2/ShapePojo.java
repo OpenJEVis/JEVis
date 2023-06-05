@@ -3,8 +3,8 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -25,7 +25,7 @@ public class ShapePojo {
     private final String JSON_SHAPE = "shape";
     int gaugeWidgetID = -1;
     private SHAPE shape = SHAPE.RECTANGLE;
-    private JFXComboBox<SHAPE> jfxComboBox;
+    private MFXComboBox<SHAPE> MFXComboBox;
 
     private Color minColor = Color.GREEN;
 
@@ -38,11 +38,11 @@ public class ShapePojo {
     private double increment = 0;
 
 
-    private JFXTextField jfxTextFieldMinValue;
+    private MFXTextField MFXTextFieldMinValue;
 
-    private JFXTextField jfxTextFieldMaxValue;
+    private MFXTextField MFXTextFieldMaxValue;
 
-    private JFXTextField jfxTextFieldStepDistance;
+    private MFXTextField MFXTextFieldStepDistance;
 
     private ColorPickerAdv colorPickerAdvMax;
 
@@ -131,7 +131,7 @@ public class ShapePojo {
                 "dashboardControl=" + dashboardControl +
                 ", shape=" + shape +
                 ", JSON_SHAPE='" + JSON_SHAPE + '\'' +
-                ", jfxComboBox=" + jfxComboBox +
+                ", MFXComboBox=" + MFXComboBox +
                 ", minColor=" + minColor +
                 ", maxColor=" + maxColor +
                 ", minValue=" + minValue +
@@ -150,15 +150,15 @@ public class ShapePojo {
         gridPane.setVgap(8);
         gridPane.setPadding(new Insets(5, 8, 5, 8));
 
-        jfxComboBox = new JFXComboBox<>();
+        MFXComboBox = new MFXComboBox<>();
 
         for (SHAPE s : SHAPE.values()) {
-            jfxComboBox.getItems().add(s);
+            MFXComboBox.getItems().add(s);
         }
-        jfxComboBox.setValue(shape);
+        MFXComboBox.setValue(shape);
 
-        jfxTextFieldMaxValue = new JFXTextField();
-        jfxTextFieldMaxValue.setText(String.valueOf(maxValue));
+        MFXTextFieldMaxValue = new MFXTextField();
+        MFXTextFieldMaxValue.setText(String.valueOf(maxValue));
 
         colorPickerAdvMin = new ColorPickerAdv();
         colorPickerAdvMin.setValue(minColor);
@@ -166,18 +166,18 @@ public class ShapePojo {
         colorPickerAdvMax = new ColorPickerAdv();
         colorPickerAdvMax.setValue(maxColor);
 
-        jfxTextFieldMinValue = new JFXTextField();
-        jfxTextFieldMinValue.setText(String.valueOf(minValue));
+        MFXTextFieldMinValue = new MFXTextField();
+        MFXTextFieldMinValue.setText(String.valueOf(minValue));
 
-        jfxTextFieldStepDistance = new JFXTextField();
-        jfxTextFieldStepDistance.setText(String.valueOf(increment));
+        MFXTextFieldStepDistance = new MFXTextField();
+        MFXTextFieldStepDistance.setText(String.valueOf(increment));
 
 
-        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.shape")), jfxComboBox);
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.shape")), MFXComboBox);
 
-        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.min")), jfxTextFieldMinValue, colorPickerAdvMin);
-        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.max")), jfxTextFieldMaxValue, colorPickerAdvMax);
-        gridPane.addRow(3,new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.stepdistance")),jfxTextFieldStepDistance);
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.min")), MFXTextFieldMinValue, colorPickerAdvMin);
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.max")), MFXTextFieldMaxValue, colorPickerAdvMax);
+        gridPane.addRow(3, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.stepdistance")), MFXTextFieldStepDistance);
 
 
         tab.setContent(gridPane);
@@ -220,15 +220,15 @@ public class ShapePojo {
         @Override
         public void commitChanges() {
             try {
-                shape = jfxComboBox.getValue();
+                shape = MFXComboBox.getValue();
 
-                minValue = Double.parseDouble(jfxTextFieldMinValue.getText());
-                maxValue = Double.parseDouble(jfxTextFieldMaxValue.getText());
+                minValue = Double.parseDouble(MFXTextFieldMinValue.getText());
+                maxValue = Double.parseDouble(MFXTextFieldMaxValue.getText());
 
                 maxColor = (colorPickerAdvMax.getValue());
                 minColor = (colorPickerAdvMin.getValue());
 
-                increment = Double.parseDouble(jfxTextFieldStepDistance.getText());
+                increment = Double.parseDouble(MFXTextFieldStepDistance.getText());
 
             } catch (Exception e) {
                 e.printStackTrace();

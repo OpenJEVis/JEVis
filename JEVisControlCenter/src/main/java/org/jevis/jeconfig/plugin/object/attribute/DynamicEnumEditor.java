@@ -19,17 +19,15 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -139,29 +137,28 @@ public class DynamicEnumEditor implements AttributeEditor {
     private void buildGUI() {
         try {
             try {
-                Callback<ListView<String>, ListCell<String>> cellFactory = new Callback<ListView<String>, ListCell<String>>() {
-                    @Override
-                    public ListCell<String> call(ListView<String> param) {
-                        return new ListCell<String>() {
-                            @Override
-                            protected void updateItem(String item, boolean empty) {
-                                super.updateItem(item, empty);
-                                if (item != null) {
-                                    setText(getLocalEnumName(item));
-                                }
-                            }
-                        };
-                    }
-                };
-                JFXComboBox<String> picker = new JFXComboBox(observableList);
+                MFXComboBox<String> picker = new MFXComboBox<>(observableList);
                 picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
-                picker.setCellFactory(cellFactory);
-                picker.setButtonCell(cellFactory.call(null));
+
+                //TODO JFX17
+
+                picker.setConverter(new StringConverter<String>() {
+                    @Override
+                    public String toString(String object) {
+                        return getLocalEnumName(object);
+                    }
+
+                    @Override
+                    public String fromString(String string) {
+                        return picker.getItems().get(picker.getSelectedIndex());
+                    }
+                });
+
                 editor.getChildren().setAll(picker);
                 JEVisSample lastSample = att.getLatestSample();
                 if (lastSample != null) {
                     String value = lastSample.getValueAsString();
-                    picker.getSelectionModel().select(value);
+                    picker.selectItem(value);
                 }
 
                 picker.valueProperty().addListener((observable, oldValue, newValue) -> {

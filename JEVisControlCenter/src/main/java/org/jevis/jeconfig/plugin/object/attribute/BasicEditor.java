@@ -5,8 +5,8 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.validation.base.ValidatorBase;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -76,9 +76,10 @@ public abstract class BasicEditor implements AttributeEditor {
 
     private Node buildGui(JEVisAttribute att) {
         HBox hbox = new HBox(6);
-        JFXTextField valueField = new JFXTextField();
+        MFXTextField valueField = new MFXTextField();
 
-        valueField.getValidators().add(getValidator());
+        //TODO JFX17
+        // valueField.getValidators().add(getValidator());
 
         valueField.setPrefWidth(this.maxWidth);
         valueField.setAlignment(Pos.CENTER_RIGHT);
@@ -122,13 +123,14 @@ public abstract class BasicEditor implements AttributeEditor {
                     if ((valueField.getText().isEmpty() && validateEmptyValue())
                             || (!valueField.getText().isEmpty())) {
 
-                        if (valueField.validate()) {
-                            this.isValid.setValue(true);
-                            this.finalNewValue = parseValue(valueField.getText());
-                            this.changedProperty.setValue(true);
-                        } else {
-                            this.isValid.setValue(false);
-                        }
+                        //TODO JFX17
+                        //if (valueField.validate()) {
+                        //      this.isValid.setValue(true);
+                        //      this.finalNewValue = parseValue(valueField.getText());
+                        //      this.changedProperty.setValue(true);
+                        //  } else {
+                        this.isValid.setValue(false);
+                        // }
                     } else {
                         this.isValid.setValue(true);
                     }

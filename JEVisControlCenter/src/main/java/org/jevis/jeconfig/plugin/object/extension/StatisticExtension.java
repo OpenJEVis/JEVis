@@ -1,20 +1,17 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXListCell;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -99,27 +96,19 @@ public class StatisticExtension implements ObjectEditorExtension {
                     imageView.setFitHeight(24);
 
 
-                    JFXComboBox<JEVisObject> box = new JFXComboBox<>();
-                    Callback<ListView<JEVisObject>, ListCell<JEVisObject>> objectNameCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+                    MFXComboBox<JEVisObject> box = new MFXComboBox<>();
+                    //TODO JFX17
+                    box.setConverter(new StringConverter<JEVisObject>() {
                         @Override
-                        public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                            return new JFXListCell<JEVisObject>() {
-                                @Override
-                                protected void updateItem(JEVisObject obj, boolean empty) {
-                                    super.updateItem(obj, empty);
-                                    if (obj == null || empty) {
-                                        setGraphic(null);
-                                        setText(null);
-                                    } else {
-                                        setText(obj.getName());
-                                    }
-                                }
-                            };
+                        public String toString(JEVisObject object) {
+                            return object.getName();
                         }
-                    };
 
-                    box.setCellFactory(objectNameCellFactory);
-                    box.setButtonCell(objectNameCellFactory.call(null));
+                        @Override
+                        public JEVisObject fromString(String string) {
+                            return box.getItems().get(box.getSelectedIndex());
+                        }
+                    });
 
                     box.getItems().addAll(entry.getValue());
                     if (!entry.getValue().isEmpty()) {

@@ -19,7 +19,7 @@
  */
 package org.jevis.jeconfig.tool;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -46,7 +46,7 @@ import javafx.beans.value.ObservableValue;
  *
  * @author Christian Schudt
  */
-public class RestrictiveTextField extends JFXTextField {
+public class RestrictiveTextField extends MFXTextField {
 
     private final IntegerProperty maxLength = new SimpleIntegerProperty(this, "maxLength", -1);
     private final StringProperty restrict = new SimpleStringProperty(this, "restrict");

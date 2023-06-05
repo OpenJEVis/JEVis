@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -8,6 +8,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -26,7 +27,7 @@ public class PercentPane extends GridPane {
     private final Label sourceLabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.source"));
     private final Percent percent;
     private final ObservableList<Widget> widgetList;
-    private JFXComboBox<Widget> widgetBox;
+    private MFXComboBox<Widget> widgetBox;
     private DashboardControl dashboardControl;
 
 
@@ -74,7 +75,7 @@ public class PercentPane extends GridPane {
             widgetList.add(0, Widgets.emptyValueWidget(dashboardControl));
         }
 
-        widgetBox = new JFXComboBox<>(widgetList.filtered(widget -> widget.typeID() == Widgets.emptyValueWidget(dashboardControl).TYPE_ID || widget.typeID().equals(ValueWidget.WIDGET_ID)));
+        widgetBox = new MFXComboBox<>(widgetList.filtered(widget -> widget.typeID() == Widgets.emptyValueWidget(dashboardControl).TYPE_ID || widget.typeID().equals(ValueWidget.WIDGET_ID)));
 
 
         Callback<ListView<Widget>, ListCell<Widget>> cellFactory = new Callback<ListView<Widget>, ListCell<Widget>>() {
@@ -110,14 +111,44 @@ public class PercentPane extends GridPane {
                 };
             }
         };
-        widgetBox.setButtonCell(cellFactory.call(null));
-        widgetBox.setCellFactory(cellFactory);
+        //TODO JFX17
+        widgetBox.setConverter(new StringConverter<Widget>() {
+            @Override
+            public String toString(Widget object) {
+                try {
+                    if (object instanceof EmptyValueWidget) {
+                        return (I18n.getInstance().getString("plugin.dashboard.valuewidget.nolink"));
+                    } else {
+                        ValueWidget widget = ((ValueWidget) object);
+                        String title = object.getConfig().getTitle().isEmpty()
+                                ? I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.list.nottitle")
+                                : object.getConfig().getTitle();
+
+                        return (String.format("[%d] '%s' | %.2f",
+                                object.getConfig().getUuid(),
+                                title,
+                                widget.getDisplayedSampleProperty().getValue()));
+                    }
+
+
+                } catch (Exception ex) {
+                    logger.error(ex);
+                    return (object.toString());
+                }
+            }
+
+            @Override
+            public Widget fromString(String string) {
+                return null;
+            }
+        });
+
         if (percent.percentWidget > 0) {
             Optional<Widget> widget = widgetList.stream()
                     .filter(widget1 -> widget1.getConfig().getUuid() == percent.percentWidget)
                     .findFirst();
             if (widget.isPresent()) {
-                widgetBox.getSelectionModel().select(widget.get());
+                widgetBox.selectItem(widget.get());
             }
         }
 

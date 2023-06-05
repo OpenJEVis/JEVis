@@ -19,9 +19,9 @@
  */
 package org.jevis.jeconfig.plugin.classes.relationship;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -99,7 +99,7 @@ public class ValidParentEditor {
                                               classBox.getChildren().setAll(icon, otherClass);
 
                                               gb.add(classBox, 0, ++x);
-                                              JFXButton remove = new JFXButton();
+                                              MFXButton remove = new MFXButton();
                                               remove.setDisable(!JEConfig.getDataSource().getCurrentUser().isSysAdmin());
                                               remove.setGraphic(JEConfig.getImage("list-remove.png", 20, 20));
                                               gb.add(remove, 1, x);
@@ -127,13 +127,13 @@ public class ValidParentEditor {
                                       logger.fatal(ex);
                                   }
 
-                                  final JFXButton newB = new JFXButton();
+                                  final MFXButton newB = new MFXButton();
 
                                   newB.setGraphic(JEConfig.getImage("list-add.png", 20, 20));
                                   newB.setDisable(true);
 
                                   //TODO: replace with Tree selection dialog
-                                  final JFXTextField newTF = new JFXTextField();
+                                  final MFXTextField newTF = new MFXTextField();
 
                                   newTF.setPromptText(I18n.getInstance().getString("plugin.classes.relationship.name.prompt"));
                                   gb.add(new Separator(Orientation.HORIZONTAL), 0, ++x, 2, 1);
@@ -217,25 +217,25 @@ public class ValidParentEditor {
 
     }
 
-    public JFXComboBox<String> buildTypeBox(JEVisClassRelationship rel) throws JEVisException {
-        JFXComboBox<String> box = new JFXComboBox<>();
+    public MFXComboBox<String> buildTypeBox(JEVisClassRelationship rel) throws JEVisException {
+        MFXComboBox<String> box = new MFXComboBox<>();
         box.getItems().add(INHERIT);
         box.getItems().add(NESTED);
         box.getItems().add(OK_PARENT);
 
         switch (rel.getType()) {
             case JEVisConstants.ClassRelationship.INHERIT:
-                box.getSelectionModel().select(INHERIT);
+                box.selectItem(INHERIT);
                 break;
             case JEVisConstants.ClassRelationship.NESTED:
-                box.getSelectionModel().select(NESTED);
+                box.selectItem(NESTED);
                 break;
             case JEVisConstants.ClassRelationship.OK_PARENT:
-                box.getSelectionModel().select(OK_PARENT);
+                box.selectItem(OK_PARENT);
                 break;
             default:
                 box.getItems().add(rel.getType() + "");
-                box.getSelectionModel().select(rel.getType() + "");
+                box.selectItem(rel.getType() + "");
                 break;
         }
 
@@ -248,15 +248,15 @@ public class ValidParentEditor {
         return box;
     }
 
-    public JFXComboBox<String> buildDirectionBox(JEVisClassRelationship rel, JEVisClass jclass) throws JEVisException {
-        JFXComboBox<String> box = new JFXComboBox<>();
+    public MFXComboBox<String> buildDirectionBox(JEVisClassRelationship rel, JEVisClass jclass) throws JEVisException {
+        MFXComboBox<String> box = new MFXComboBox<>();
         box.getItems().add("Forward");
         box.getItems().add("Backward");
 
         if (rel.getOtherClass(jclass).equals(rel.getStart())) {
-            box.getSelectionModel().select(I18n.getInstance().getString("plugin.classes.relationship.direction.forward"));
+            box.selectItem(I18n.getInstance().getString("plugin.classes.relationship.direction.forward"));
         } else {
-            box.getSelectionModel().select(I18n.getInstance().getString("plugin.classes.relationship.direction.backward"));
+            box.selectItem(I18n.getInstance().getString("plugin.classes.relationship.direction.backward"));
         }
 
         try {

@@ -19,7 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.unit;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
@@ -82,11 +82,11 @@ public class NewUnitDialog {
 
         HBox buttonPanel = new HBox();
 
-        final JFXButton ok = new JFXButton("OK");
+        final MFXButton ok = new MFXButton("OK");
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        JFXButton cancel = new JFXButton("Cancel");
+        MFXButton cancel = new MFXButton("Cancel");
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

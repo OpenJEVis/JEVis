@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.control.Tooltip;
@@ -18,7 +18,7 @@ public class ValueWithDateTimeBox extends HBox {
     public ValueWithDateTimeBox(ValueWithDateTime value) {
         this.setSpacing(6);
 
-        JFXTextField valueField = new JFXTextField();
+        MFXTextField valueField = new MFXTextField();
 
         if (value != null) {
             try {

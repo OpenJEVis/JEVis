@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -23,9 +23,9 @@ import java.util.Locale;
 
 public class TableSumPanel extends GridPane {
 
-    JFXTextField f_SumTotal = new JFXTextField();
-    JFXTextField f_SumNotCompleted = new JFXTextField();
-    JFXTextField f_SumCompleted = new JFXTextField();
+    MFXTextField f_SumTotal = new MFXTextField();
+    MFXTextField f_SumNotCompleted = new MFXTextField();
+    MFXTextField f_SumCompleted = new MFXTextField();
 
     ObservableList<NonconformityData> data;
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();

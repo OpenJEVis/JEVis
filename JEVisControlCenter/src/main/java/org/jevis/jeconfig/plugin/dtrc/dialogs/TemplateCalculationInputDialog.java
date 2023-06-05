@@ -1,6 +1,10 @@
 package org.jevis.jeconfig.plugin.dtrc.dialogs;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXListCell;
+import com.jfoenix.controls.JFXListView;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,6 +19,7 @@ import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -75,7 +80,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         boolean oldNameFound = templateInput.getVariableName() != null;
         String oldName = templateInput.getVariableName();
         AtomicBoolean changedName = new AtomicBoolean(false);
-        JFXTextField variableNameField = new JFXTextField(templateInput.getVariableName());
+        MFXTextField variableNameField = new MFXTextField(templateInput.getVariableName());
         GridPane.setHgrow(variableNameField, Priority.ALWAYS);
 
         variableNameField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -85,59 +90,57 @@ public class TemplateCalculationInputDialog extends Dialog {
             }
         });
 
-        JFXComboBox<InputVariableType> inputVariableTypeJFXComboBox = new JFXComboBox<>(FXCollections.observableArrayList(InputVariableType.values()));
-        Callback<ListView<InputVariableType>, ListCell<InputVariableType>> inputVariableTypeJFXComboBoxCellFactory = new Callback<ListView<InputVariableType>, ListCell<InputVariableType>>() {
-            @Override
-            public ListCell<InputVariableType> call(ListView<InputVariableType> param) {
-                return new JFXListCell<InputVariableType>() {
-                    @Override
-                    protected void updateItem(InputVariableType obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            switch (obj) {
-                                case SUM:
-                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.sum"));
-                                    break;
-                                case AVG:
-                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.avg"));
-                                    break;
-                                case MIN:
-                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.min"));
-                                    break;
-                                case MAX:
-                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.max"));
-                                    break;
-                                case YEARLY_VALUE:
-                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.yearlyvalue"));
-                                    break;
-                                case LAST:
-                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.last"));
-                                    break;
-                                case NON_PERIODIC:
-                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.nonperiodic"));
-                                    break;
-                                case STRING:
-                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.type.string"));
-                                    break;
-                                case FORMULA:
-                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel"));
-                                    break;
-                                case RANGING_VALUE:
-                                    setText(I18n.getInstance().getString("plugin.dtrc.dialog.rangingvalue"));
-                                    break;
-                            }
-                        }
-                    }
-                };
-            }
-        };
+        MFXComboBox<InputVariableType> inputVariableTypeMFXComboBox = new MFXComboBox<>(FXCollections.observableArrayList(InputVariableType.values()));
 
-        inputVariableTypeJFXComboBox.setCellFactory(inputVariableTypeJFXComboBoxCellFactory);
-        inputVariableTypeJFXComboBox.setButtonCell(inputVariableTypeJFXComboBoxCellFactory.call(null));
-        GridPane.setHgrow(inputVariableTypeJFXComboBox, Priority.ALWAYS);
+        //TODO JFX17
+        inputVariableTypeMFXComboBox.setConverter(new StringConverter<InputVariableType>() {
+            @Override
+            public String toString(InputVariableType object) {
+                String text = "";
+                if (object != null) {
+                    switch (object) {
+                        case SUM:
+                            text = I18n.getInstance().getString("plugin.dtrc.dialog.type.sum");
+                            break;
+                        case AVG:
+                            text = I18n.getInstance().getString("plugin.dtrc.dialog.type.avg");
+                            break;
+                        case MIN:
+                            text = I18n.getInstance().getString("plugin.dtrc.dialog.type.min");
+                            break;
+                        case MAX:
+                            text = I18n.getInstance().getString("plugin.dtrc.dialog.type.max");
+                            break;
+                        case YEARLY_VALUE:
+                            text = I18n.getInstance().getString("plugin.dtrc.dialog.type.yearlyvalue");
+                            break;
+                        case LAST:
+                            text = I18n.getInstance().getString("plugin.dtrc.dialog.type.last");
+                            break;
+                        case NON_PERIODIC:
+                            text = I18n.getInstance().getString("plugin.dtrc.dialog.type.nonperiodic");
+                            break;
+                        case STRING:
+                            text = I18n.getInstance().getString("plugin.dtrc.dialog.type.string");
+                            break;
+                        case FORMULA:
+                            text = I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel");
+                            break;
+                        case RANGING_VALUE:
+                            text = I18n.getInstance().getString("plugin.dtrc.dialog.rangingvalue");
+                            break;
+                    }
+                }
+                return text;
+            }
+
+            @Override
+            public InputVariableType fromString(String string) {
+                return inputVariableTypeMFXComboBox.getItems().get(inputVariableTypeMFXComboBox.getSelectedIndex());
+            }
+        });
+
+        GridPane.setHgrow(inputVariableTypeMFXComboBox, Priority.ALWAYS);
 
         Label isQuantitylabel = new Label("Quantity");
         JFXCheckBox isQuantityCheckBox = new JFXCheckBox();
@@ -147,7 +150,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         Label limiterLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
         GridPane.setHgrow(limiterLabel, Priority.ALWAYS);
 
-        JFXTextField filterField = new JFXTextField();
+        MFXTextField filterField = new MFXTextField();
         filterField.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
         GridPane.setHgrow(filterField, Priority.ALWAYS);
 
@@ -164,8 +167,8 @@ public class TemplateCalculationInputDialog extends Dialog {
 
         groupCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> templateInput.setGroup(newValue));
 
-        JFXComboBox<JEVisClass> classSelector = new JFXComboBox<>();
-        JFXComboBox<JEVisType> attributeSelector = new JFXComboBox<>();
+        MFXComboBox<JEVisClass> classSelector = new MFXComboBox<>();
+        MFXComboBox<JEVisType> attributeSelector = new MFXComboBox<>();
 
         JFXListView<JEVisObject> listView = new JFXListView<>();
         listView.setMinSize(450, 550);
@@ -225,34 +228,28 @@ public class TemplateCalculationInputDialog extends Dialog {
 
             classSelector.setItems(jeVisClasses);
 
-            Callback<ListView<JEVisClass>, ListCell<JEVisClass>> classCellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
+            //TODO JFX17
+            classSelector.setConverter(new StringConverter<JEVisClass>() {
                 @Override
-                public ListCell<JEVisClass> call(ListView<JEVisClass> param) {
-                    return new JFXListCell<JEVisClass>() {
-                        @Override
-                        protected void updateItem(JEVisClass obj, boolean empty) {
-                            super.updateItem(obj, empty);
-                            if (obj == null || empty) {
-                                setGraphic(null);
-                                setText(null);
-                            } else {
-                                try {
-                                    setText(I18nWS.getInstance().getClassName(obj.getName()));
-                                } catch (JEVisException e) {
-                                    logger.error("Could not get class name", e);
-                                }
-                            }
-                        }
-                    };
-                }
-            };
+                public String toString(JEVisClass object) {
+                    String text = "";
+                    try {
+                        text = I18nWS.getInstance().getClassName(object.getName());
+                    } catch (JEVisException ignored) {
 
-            classSelector.setCellFactory(classCellFactory);
-            classSelector.setButtonCell(classCellFactory.call(null));
+                    }
+                    return text;
+                }
+
+                @Override
+                public JEVisClass fromString(String string) {
+                    return classSelector.getItems().get(classSelector.getSelectedIndex());
+                }
+            });
 
             if (templateInput.getObjectClass() != null) {
                 JEVisClass selectedClass = ds.getJEVisClass(templateInput.getObjectClass());
-                classSelector.getSelectionModel().select(selectedClass);
+                classSelector.selectItem(selectedClass);
             } else {
                 classSelector.getSelectionModel().selectFirst();
             }
@@ -276,38 +273,36 @@ public class TemplateCalculationInputDialog extends Dialog {
             types.add(new JEVisNameType(ds, firstClass));
 
             attributeSelector.getItems().setAll(types);
-            Callback<ListView<JEVisType>, ListCell<JEVisType>> attributeCellFactory = new Callback<ListView<JEVisType>, ListCell<JEVisType>>() {
-                @Override
-                public ListCell<JEVisType> call(ListView<JEVisType> param) {
-                    return new JFXListCell<JEVisType>() {
-                        @Override
-                        protected void updateItem(JEVisType obj, boolean empty) {
-                            super.updateItem(obj, empty);
-                            if (obj == null || empty) {
-                                setGraphic(null);
-                                setText(null);
-                            } else {
-                                try {
-                                    if (!obj.getName().equals("name")) {
-                                        setText(I18nWS.getInstance().getTypeName(classSelector.getSelectionModel().getSelectedItem().getName(), obj.getName()));
-                                    } else {
-                                        setText(I18n.getInstance().getString("plugin.graph.table.name"));
-                                    }
-                                } catch (JEVisException e) {
-                                    logger.error("Could not get type name", e);
-                                }
-                            }
-                        }
-                    };
-                }
-            };
 
-            attributeSelector.setCellFactory(attributeCellFactory);
-            attributeSelector.setButtonCell(attributeCellFactory.call(null));
+            //TODO JFX17
+            attributeSelector.setConverter(new StringConverter<JEVisType>() {
+                @Override
+                public String toString(JEVisType object) {
+                    String text = "";
+                    if (object != null) {
+                        try {
+                            if (!object.getName().equals("name")) {
+                                text = I18nWS.getInstance().getTypeName(classSelector.getSelectionModel().getSelectedItem().getName(), object.getName());
+                            } else {
+                                text = I18n.getInstance().getString("plugin.graph.table.name");
+                            }
+                        } catch (JEVisException e) {
+                            logger.error("Could not get type name", e);
+                        }
+                    }
+
+                    return text;
+                }
+
+                @Override
+                public JEVisType fromString(String string) {
+                    return null;
+                }
+            });
 
             if (templateInput.getAttributeName() != null) {
                 JEVisType selectedType = firstClass.getType(templateInput.getAttributeName());
-                attributeSelector.getSelectionModel().select(selectedType);
+                attributeSelector.selectItem(selectedType);
             } else {
                 attributeSelector.getSelectionModel().selectFirst();
             }
@@ -375,145 +370,117 @@ public class TemplateCalculationInputDialog extends Dialog {
         }
 
         Label formulaLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel"));
-        JFXComboBox<TemplateFormula> formulaBox = new JFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateFormulas()));
+        MFXComboBox<TemplateFormula> formulaBox = new MFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateFormulas()));
         TemplateFormula none = new TemplateFormula();
         none.setName(I18n.getInstance().getString("dialog.regression.type.none"));
         formulaBox.getItems().add(0, none);
-        Callback<ListView<TemplateFormula>, ListCell<TemplateFormula>> formulaCellFactory = new Callback<ListView<TemplateFormula>, ListCell<TemplateFormula>>() {
-            @Override
-            public ListCell<TemplateFormula> call(ListView<TemplateFormula> param) {
-                return new JFXListCell<TemplateFormula>() {
-                    @Override
-                    protected void updateItem(TemplateFormula obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(obj.getName());
-                        }
-                    }
-                };
-            }
-        };
 
-        formulaBox.setCellFactory(formulaCellFactory);
-        formulaBox.setButtonCell(formulaCellFactory.call(null));
+        //TODO JFX17
+        formulaBox.setConverter(new StringConverter<TemplateFormula>() {
+            @Override
+            public String toString(TemplateFormula object) {
+                return object.getName();
+            }
+
+            @Override
+            public TemplateFormula fromString(String string) {
+                return formulaBox.getItems().get(formulaBox.getSelectedIndex());
+            }
+        });
 
         Label dependencyLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.dependencylabel"));
-        JFXComboBox<TemplateInput> dependencyBox = new JFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateInputs()));
+        MFXComboBox<TemplateInput> dependencyBox = new MFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateInputs()));
         TemplateInput noneInput = new TemplateInput();
         noneInput.setVariableName(I18n.getInstance().getString("dialog.regression.type.none"));
         dependencyBox.getItems().add(0, noneInput);
-        Callback<ListView<TemplateInput>, ListCell<TemplateInput>> dependencyCellFactory = new Callback<ListView<TemplateInput>, ListCell<TemplateInput>>() {
-            @Override
-            public ListCell<TemplateInput> call(ListView<TemplateInput> param) {
-                return new JFXListCell<TemplateInput>() {
-                    @Override
-                    protected void updateItem(TemplateInput obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(obj.getVariableName());
-                        }
-                    }
-                };
-            }
-        };
 
-        dependencyBox.setCellFactory(dependencyCellFactory);
-        dependencyBox.setButtonCell(dependencyCellFactory.call(null));
+        //TODO JFX17
+        dependencyBox.setConverter(new StringConverter<TemplateInput>() {
+            @Override
+            public String toString(TemplateInput object) {
+                return object.getVariableName();
+            }
+
+            @Override
+            public TemplateInput fromString(String string) {
+                return dependencyBox.getItems().get(dependencyBox.getSelectedIndex());
+            }
+        });
 
         Label timeRestrictionsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.timerestictions"));
         JFXCheckBox timeRestrictionEnabledCheckBox = new JFXCheckBox(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
         timeRestrictionEnabledCheckBox.setSelected(templateInput.getTimeRestrictionEnabled());
         timeRestrictionEnabledCheckBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateInput.setTimeRestrictionEnabled(t1));
 
-        JFXComboBox<TimeFrame> fixedTimeFrameBox = new JFXComboBox<>();
-        Callback<ListView<TimeFrame>, ListCell<TimeFrame>> fixedTimeFrameJFXComboBoxCellFactory = new Callback<ListView<TimeFrame>, ListCell<TimeFrame>>() {
-            @Override
-            public ListCell<TimeFrame> call(ListView<TimeFrame> param) {
-                return new JFXListCell<TimeFrame>() {
-                    @Override
-                    protected void updateItem(TimeFrame obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(obj.getListName());
-                        }
-                    }
-                };
-            }
-        };
+        MFXComboBox<TimeFrame> fixedTimeFrameBox = new MFXComboBox<>();
 
-        fixedTimeFrameBox.setCellFactory(fixedTimeFrameJFXComboBoxCellFactory);
-        fixedTimeFrameBox.setButtonCell(fixedTimeFrameJFXComboBoxCellFactory.call(null));
+        //TODO JFX17
+        fixedTimeFrameBox.setConverter(new StringConverter<TimeFrame>() {
+            @Override
+            public String toString(TimeFrame object) {
+                return object.getListName();
+            }
+
+            @Override
+            public TimeFrame fromString(String string) {
+                return fixedTimeFrameBox.getItems().get(fixedTimeFrameBox.getSelectedIndex());
+            }
+        });
 
         fixedTimeFrameBox.getItems().setAll(allowedTimeFrames);
         if (templateInput.getFixedTimeFrame() != null) {
             TimeFrame selectedTimeFrame = allowedTimeFrames.stream().filter(timeFrame -> templateInput.getFixedTimeFrame().equals(timeFrame.getID())).findFirst().orElse(null);
-            fixedTimeFrameBox.getSelectionModel().select(selectedTimeFrame);
+            fixedTimeFrameBox.selectItem(selectedTimeFrame);
         }
         fixedTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateInput.setFixedTimeFrame(t1.getID()));
 
-        JFXComboBox<TimeFrame> reducingTimeFrameBox = new JFXComboBox<>();
-        Callback<ListView<TimeFrame>, ListCell<TimeFrame>> reducingTimeFrameJFXComboBoxCellFactory = new Callback<ListView<TimeFrame>, ListCell<TimeFrame>>() {
-            @Override
-            public ListCell<TimeFrame> call(ListView<TimeFrame> param) {
-                return new JFXListCell<TimeFrame>() {
-                    @Override
-                    protected void updateItem(TimeFrame obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(obj.getListName());
-                        }
-                    }
-                };
-            }
-        };
+        MFXComboBox<TimeFrame> reducingTimeFrameBox = new MFXComboBox<>();
 
-        reducingTimeFrameBox.setCellFactory(reducingTimeFrameJFXComboBoxCellFactory);
-        reducingTimeFrameBox.setButtonCell(reducingTimeFrameJFXComboBoxCellFactory.call(null));
+        //TODO JFX17
+        reducingTimeFrameBox.setConverter(new StringConverter<TimeFrame>() {
+            @Override
+            public String toString(TimeFrame object) {
+                return object.getListName();
+            }
+
+            @Override
+            public TimeFrame fromString(String string) {
+                return reducingTimeFrameBox.getItems().get(reducingTimeFrameBox.getSelectedIndex());
+            }
+        });
 
         reducingTimeFrameBox.getItems().setAll(allowedTimeFrames);
         if (templateInput.getReducingTimeFrame() != null) {
             TimeFrame selectedTimeFrame = allowedTimeFrames.stream().filter(timeFrame -> templateInput.getReducingTimeFrame().equals(timeFrame.getID())).findFirst().orElse(null);
-            reducingTimeFrameBox.getSelectionModel().select(selectedTimeFrame);
+            reducingTimeFrameBox.selectItem(selectedTimeFrame);
         }
         reducingTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateInput.setReducingTimeFrame(t1.getID()));
 
         HBox timeRestrictionsBox = new HBox(6, timeRestrictionEnabledCheckBox, fixedTimeFrameBox, reducingTimeFrameBox);
 
         if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-            inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
+            inputVariableTypeMFXComboBox.selectItem(InputVariableType.valueOf(templateInput.getVariableType()));
             dependencyLabel.setVisible(false);
             dependencyBox.setVisible(false);
             formulaLabel.setVisible(true);
             formulaBox.setVisible(true);
         } else if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.RANGING_VALUE.toString())) {
-            inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
+            inputVariableTypeMFXComboBox.selectItem(InputVariableType.valueOf(templateInput.getVariableType()));
             dependencyLabel.setVisible(true);
             dependencyBox.setVisible(true);
             formulaLabel.setVisible(false);
             formulaBox.setVisible(false);
         } else if (templateInput.getVariableType() != null) {
-            inputVariableTypeJFXComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
+            inputVariableTypeMFXComboBox.selectItem(InputVariableType.valueOf(templateInput.getVariableType()));
             dependencyLabel.setVisible(false);
             dependencyBox.setVisible(false);
             formulaLabel.setVisible(false);
             formulaBox.setVisible(false);
         } else {
-            inputVariableTypeJFXComboBox.getSelectionModel().selectFirst();
+            inputVariableTypeMFXComboBox.getSelectionModel().selectFirst();
         }
 
-        inputVariableTypeJFXComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        inputVariableTypeMFXComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             templateInput.setVariableType(newValue.toString());
             if (newValue.equals(InputVariableType.FORMULA)) {
                 Platform.runLater(() -> {
@@ -542,14 +509,14 @@ public class TemplateCalculationInputDialog extends Dialog {
         if (templateInput.getTemplateFormula() != null) {
             TemplateFormula selectedFormula = formulaBox.getItems().stream().filter(templateFormula -> templateFormula.getId().equals(templateInput.getTemplateFormula())).findFirst().orElse(null);
             if (selectedFormula != null)
-                formulaBox.getSelectionModel().select(selectedFormula);
+                formulaBox.selectItem(selectedFormula);
             else {
                 formulaBox.getSelectionModel().selectFirst();
             }
         } else if (templateInput.getDependency() != null) {
             TemplateInput selectedInput = dependencyBox.getItems().stream().filter(ti -> ti.getId().equals(templateInput.getDependency())).findFirst().orElse(null);
             if (selectedInput != null)
-                dependencyBox.getSelectionModel().select(selectedInput);
+                dependencyBox.selectItem(selectedInput);
             else {
                 dependencyBox.getSelectionModel().selectFirst();
             }
@@ -622,7 +589,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         row++;
 
         gridPane.add(typeLabel, 0, row);
-        gridPane.add(inputVariableTypeJFXComboBox, 1, row);
+        gridPane.add(inputVariableTypeMFXComboBox, 1, row);
         row++;
 
         gridPane.add(isQuantitylabel, 0, row);
@@ -664,7 +631,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         getDialogPane().setContent(gridPane);
     }
 
-    private void createFilterList(TemplateInput templateInput, JFXTextField limiterField, JFXListView<JEVisObject> listView, ObservableList<JEVisObject> objects) {
+    private void createFilterList(TemplateInput templateInput, MFXTextField limiterField, JFXListView<JEVisObject> listView, ObservableList<JEVisObject> objects) {
         FilteredList<JEVisObject> filteredList = new FilteredList<>(objects, s -> true);
 
         limiterField.textProperty().addListener(obs -> {

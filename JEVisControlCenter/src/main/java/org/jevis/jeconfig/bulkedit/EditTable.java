@@ -5,8 +5,8 @@
  */
 package org.jevis.jeconfig.bulkedit;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.Pair;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.spreadsheet.*;
@@ -124,16 +125,29 @@ public class EditTable {
             }
         };
 
-        JFXComboBox<JEVisClass> classComboBox = new JFXComboBox<JEVisClass>(options);
-        classComboBox.setCellFactory(cellFactory);
-        classComboBox.setButtonCell(cellFactory.call(null));
+        MFXComboBox<JEVisClass> classComboBox = new MFXComboBox<JEVisClass>(options);
+
+        //TODO JFX17
+
+        classComboBox.setConverter(new StringConverter<JEVisClass>() {
+            @Override
+            public String toString(JEVisClass object) {
+                return object.toString();
+            }
+
+            @Override
+            public JEVisClass fromString(String string) {
+                return classComboBox.getItems().get(classComboBox.getSelectedIndex());
+            }
+        });
+
         classComboBox.setMinWidth(250);
         classComboBox.getSelectionModel().selectFirst();
         selectedClass = classComboBox.getSelectionModel().getSelectedItem();
 
         addListChildren(parent, selectedClass);
-        JFXButton editBtn = new JFXButton("Edit Structure");
-        JFXButton cancelBtn = new JFXButton("Cancel");
+        MFXButton editBtn = new MFXButton("Edit Structure");
+        MFXButton cancelBtn = new MFXButton("Cancel");
 
         try {
             if (selectedClass.getName().equals("Data")) {
@@ -152,7 +166,7 @@ public class EditTable {
         hBoxTop.setSpacing(10);
         //hBoxTop.setPadding(new Insets(3, 3, 3, 3));
         Label lClass = new Label("Class:");
-        JFXButton help = new JFXButton("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
+        MFXButton help = new MFXButton("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
         Separator sep1 = new Separator();
         hBoxTop.getChildren().addAll(lClass, classComboBox, sep1, help);
         root.setTop(hBoxTop);
@@ -536,7 +550,7 @@ public class EditTable {
 
         private final ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndAttribute = FXCollections.observableArrayList();
 
-        public CreateNewDataEditTable(JEVisObject parent, JFXButton editBtn) {
+        public CreateNewDataEditTable(JEVisObject parent, MFXButton editBtn) {
 
             String[] colNames = {"Object ID", "Object Name", "Display Prefix", "Display Symbol", "Display Sample Rate", "Input Prefix", "Input Symbol", "Input Sample Rate"};
             try {

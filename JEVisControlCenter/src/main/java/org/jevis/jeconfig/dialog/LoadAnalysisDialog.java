@@ -1,6 +1,10 @@
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXTimePicker;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +20,7 @@ import javafx.scene.layout.Region;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -55,10 +60,10 @@ public class LoadAnalysisDialog extends Dialog {
     private final ChartPlugin chartPlugin;
     private Response response = Response.CANCEL;
     private PickerCombo pickerCombo;
-    private final JFXTextField filterInput = new JFXTextField();
-    private JFXDatePicker pickerDateStart;
+    private final MFXTextField filterInput = new MFXTextField();
+    private MFXDatePicker pickerDateStart;
     private JFXTimePicker pickerTimeStart;
-    private JFXDatePicker pickerDateEnd;
+    private MFXDatePicker pickerDateEnd;
     private JFXTimePicker pickerTimeEnd;
     private final FilteredList<JEVisObject> filteredData;
     private PresetDateBox presetDateBox;
@@ -67,7 +72,74 @@ public class LoadAnalysisDialog extends Dialog {
     private final AggregationPeriodBox aggregationBox = new AggregationPeriodBox(AggregationPeriod.NONE);
     private final DisabledItemsComboBox<ManipulationMode> mathBox = getMathBox();
     private List<CustomPeriodObject> finalListCustomPeriodObjects;
-    private final JFXComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
+
+    private void initializeControls() {
+        aggregationBox.getSelectionModel().selectIndex(AggregationPeriod.parseAggregationIndex(chartPlugin.getDataSettings().getAggregationPeriod()));
+        aggregationBox.setMaxWidth(200);
+
+        comboBoxCustomPeriods.setMaxWidth(200);
+        if (chartPlugin.getDataSettings().getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
+            for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
+                if (cpo.getObject().getID().equals(chartPlugin.getDataSettings().getAnalysisTimeFrame().getId())) {
+                    comboBoxCustomPeriods.getSelectionModel().selectIndex(finalListCustomPeriodObjects.indexOf(cpo) + 1);
+                }
+            }
+        } else {
+            comboBoxCustomPeriods.getSelectionModel().selectFirst();
+        }
+
+        mathBox.selectItem(chartPlugin.getDataSettings().getManipulationMode());
+        mathBox.setMaxWidth(200);
+
+        this.getDialogPane().getButtonTypes().addAll(cancelType, newType, loadType);
+
+        Button loadButton = (Button) this.getDialogPane().lookupButton(loadType);
+        loadButton.setId("ok-button");
+        loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.load")));
+        loadButton.setDefaultButton(true);
+        loadButton.setDisable(true);
+        loadButton.setOnAction(actionEvent -> {
+            response = Response.LOAD;
+
+            chartPlugin.getDataSettings().setAggregationPeriod(AggregationPeriod.parseAggregationIndex(aggregationBox.getSelectionModel().getSelectedIndex()));
+            chartPlugin.getDataSettings().setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
+            AnalysisTimeFrame analysisTimeFrame = presetDateBox.getSelectionModel().getSelectedItem();
+            if (analysisTimeFrame == null && comboBoxCustomPeriods.getSelectionModel().getSelectedIndex() > 0) {
+                analysisTimeFrame = chartPlugin.getDataSettings().getAnalysisTimeFrame();
+            } else if (presetDateBox.getSelectionModel().getSelectedItem().getTimeFrame().equals(TimeFrame.CUSTOM)) {
+                DateTime start = new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
+                        pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond());
+                DateTime end = new DateTime(pickerDateEnd.getValue().getYear(), pickerDateEnd.getValue().getMonthValue(), pickerDateEnd.getValue().getDayOfMonth(),
+                        pickerTimeEnd.getValue().getHour(), pickerTimeEnd.getValue().getMinute(), pickerTimeEnd.getValue().getSecond());
+                analysisTimeFrame.setStart(start);
+                analysisTimeFrame.setEnd(end);
+            }
+            chartPlugin.getDataSettings().setAnalysisTimeFrame(analysisTimeFrame);
+
+            if (analysisListView.getSelectionModel().getSelectedItem() != null) {
+                chartPlugin.getDataSettings().setCurrentAnalysis(null);
+                chartPlugin.getDataSettings().setCurrentAnalysis(analysisListView.getSelectionModel().getSelectedItem());
+            }
+
+            this.close();
+        });
+
+        Button newButton = (Button) this.getDialogPane().lookupButton(newType);
+        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.new")));
+
+        newButton.setOnAction(event -> {
+            response = Response.NEW;
+            this.close();
+        });
+
+        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
+        cancelButton.setId("cancel-button");
+        cancelButton.setCancelButton(true);
+
+        cancelButton.setOnAction(event -> {
+            this.close();
+        });
+    }    private final MFXComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
     private final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
 
     /**
@@ -191,72 +263,80 @@ public class LoadAnalysisDialog extends Dialog {
     }
     //private JFXCheckBox drawOptimization;
 
-    private void initializeControls() {
-        aggregationBox.getSelectionModel().select(AggregationPeriod.parseAggregationIndex(chartPlugin.getDataSettings().getAggregationPeriod()));
-        aggregationBox.setMaxWidth(200);
+    private DisabledItemsComboBox<ManipulationMode> getMathBox() {
 
-        comboBoxCustomPeriods.setMaxWidth(200);
-        if (chartPlugin.getDataSettings().getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
-            for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
-                if (cpo.getObject().getID().equals(chartPlugin.getDataSettings().getAnalysisTimeFrame().getId())) {
-                    comboBoxCustomPeriods.getSelectionModel().select(finalListCustomPeriodObjects.indexOf(cpo) + 1);
-                }
+        final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
+
+        final String keyRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.runningmean");
+        final String keyCentricRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
+        final String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
+        final String keySortedMax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
+        final String keyCumulate = I18n.getInstance().getString("plugin.graph.manipulation.cumulate");
+
+        DisabledItemsComboBox<ManipulationMode> math = new DisabledItemsComboBox<>();
+        List<ManipulationMode> customList = new ArrayList<>();
+        customList.add(ManipulationMode.NONE);
+        customList.add(ManipulationMode.RUNNING_MEAN);
+        customList.add(ManipulationMode.CENTRIC_RUNNING_MEAN);
+        customList.add(ManipulationMode.SORTED_MIN);
+        customList.add(ManipulationMode.SORTED_MAX);
+        customList.add(ManipulationMode.CUMULATE);
+
+        math.setItems(FXCollections.observableArrayList(customList));
+        math.getSelectionModel().selectFirst();
+
+        Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>> cellFactory = new Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>>() {
+            @Override
+            public ListCell<ManipulationMode> call(javafx.scene.control.ListView<ManipulationMode> param) {
+                return new ListCell<ManipulationMode>() {
+                    @Override
+                    protected void updateItem(ManipulationMode manipulationMode, boolean empty) {
+                        super.updateItem(manipulationMode, empty);
+                        if (empty || manipulationMode == null) {
+                            setText("");
+                        } else {
+                            String text = "";
+                            switch (manipulationMode) {
+                                case NONE:
+                                    text = keyPreset;
+                                    break;
+                                case RUNNING_MEAN:
+                                    text = keyRunningMean;
+                                    break;
+                                case CENTRIC_RUNNING_MEAN:
+                                    text = keyCentricRunningMean;
+                                    break;
+                                case SORTED_MIN:
+                                    text = keySortedMin;
+                                    break;
+                                case SORTED_MAX:
+                                    text = keySortedMax;
+                                    break;
+                                case CUMULATE:
+                                    text = keyCumulate;
+                                    break;
+                            }
+                            setText(text);
+                        }
+                    }
+                };
             }
-        } else {
-            comboBoxCustomPeriods.getSelectionModel().select(0);
-        }
+        };
 
-        mathBox.getSelectionModel().select(chartPlugin.getDataSettings().getManipulationMode());
-        mathBox.setMaxWidth(200);
-
-        this.getDialogPane().getButtonTypes().addAll(cancelType, newType, loadType);
-
-        Button loadButton = (Button) this.getDialogPane().lookupButton(loadType);
-        loadButton.setId("ok-button");
-        loadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.load")));
-        loadButton.setDefaultButton(true);
-        loadButton.setDisable(true);
-        loadButton.setOnAction(actionEvent -> {
-            response = Response.LOAD;
-
-            chartPlugin.getDataSettings().setAggregationPeriod(AggregationPeriod.parseAggregationIndex(aggregationBox.getSelectionModel().getSelectedIndex()));
-            chartPlugin.getDataSettings().setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
-            AnalysisTimeFrame analysisTimeFrame = presetDateBox.getSelectionModel().getSelectedItem();
-            if (analysisTimeFrame == null && comboBoxCustomPeriods.getSelectionModel().getSelectedIndex() > 0) {
-                analysisTimeFrame = chartPlugin.getDataSettings().getAnalysisTimeFrame();
-            } else if (presetDateBox.getSelectionModel().getSelectedItem().getTimeFrame().equals(TimeFrame.CUSTOM)) {
-                DateTime start = new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
-                        pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond());
-                DateTime end = new DateTime(pickerDateEnd.getValue().getYear(), pickerDateEnd.getValue().getMonthValue(), pickerDateEnd.getValue().getDayOfMonth(),
-                        pickerTimeEnd.getValue().getHour(), pickerTimeEnd.getValue().getMinute(), pickerTimeEnd.getValue().getSecond());
-                analysisTimeFrame.setStart(start);
-                analysisTimeFrame.setEnd(end);
-            }
-            chartPlugin.getDataSettings().setAnalysisTimeFrame(analysisTimeFrame);
-
-            if (analysisListView.getSelectionModel().getSelectedItem() != null) {
-                chartPlugin.getDataSettings().setCurrentAnalysis(null);
-                chartPlugin.getDataSettings().setCurrentAnalysis(analysisListView.getSelectionModel().getSelectedItem());
+        //TODO: JFX17
+        math.setConverter(new StringConverter<ManipulationMode>() {
+            @Override
+            public String toString(ManipulationMode object) {
+                return ManipulationMode.getListNamesManipulationModes().get(ManipulationMode.parseManipulationIndex(object));
             }
 
-            this.close();
+            @Override
+            public ManipulationMode fromString(String string) {
+                return math.getItems().get(math.getSelectedIndex());
+            }
         });
 
-        Button newButton = (Button) this.getDialogPane().lookupButton(newType);
-        newButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.loaddialog.new")));
-
-        newButton.setOnAction(event -> {
-            response = Response.NEW;
-            this.close();
-        });
-
-        Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
-        cancelButton.setId("cancel-button");
-        cancelButton.setCancelButton(true);
-
-        cancelButton.setOnAction(event -> {
-            this.close();
-        });
+        return math;
     }
 
 
@@ -480,72 +560,7 @@ public class LoadAnalysisDialog extends Dialog {
         comboBoxCustomPeriods.setTooltip(customPeriodsComboBoxTT);
     }
 
-    private DisabledItemsComboBox<ManipulationMode> getMathBox() {
-
-        final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
-
-        final String keyRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.runningmean");
-        final String keyCentricRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
-        final String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
-        final String keySortedMax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
-        final String keyCumulate = I18n.getInstance().getString("plugin.graph.manipulation.cumulate");
-
-        DisabledItemsComboBox<ManipulationMode> math = new DisabledItemsComboBox<>();
-        List<ManipulationMode> customList = new ArrayList<>();
-        customList.add(ManipulationMode.NONE);
-        customList.add(ManipulationMode.RUNNING_MEAN);
-        customList.add(ManipulationMode.CENTRIC_RUNNING_MEAN);
-        customList.add(ManipulationMode.SORTED_MIN);
-        customList.add(ManipulationMode.SORTED_MAX);
-        customList.add(ManipulationMode.CUMULATE);
-
-        math.setItems(FXCollections.observableArrayList(customList));
-        math.getSelectionModel().selectFirst();
-
-        Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>> cellFactory = new Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>>() {
-            @Override
-            public ListCell<ManipulationMode> call(javafx.scene.control.ListView<ManipulationMode> param) {
-                return new ListCell<ManipulationMode>() {
-                    @Override
-                    protected void updateItem(ManipulationMode manipulationMode, boolean empty) {
-                        super.updateItem(manipulationMode, empty);
-                        if (empty || manipulationMode == null) {
-                            setText("");
-                        } else {
-                            String text = "";
-                            switch (manipulationMode) {
-                                case NONE:
-                                    text = keyPreset;
-                                    break;
-                                case RUNNING_MEAN:
-                                    text = keyRunningMean;
-                                    break;
-                                case CENTRIC_RUNNING_MEAN:
-                                    text = keyCentricRunningMean;
-                                    break;
-                                case SORTED_MIN:
-                                    text = keySortedMin;
-                                    break;
-                                case SORTED_MAX:
-                                    text = keySortedMax;
-                                    break;
-                                case CUMULATE:
-                                    text = keyCumulate;
-                                    break;
-                            }
-                            setText(text);
-                        }
-                    }
-                };
-            }
-        };
-        math.setCellFactory(cellFactory);
-        math.setButtonCell(cellFactory.call(null));
-
-        return math;
-    }
-
-    private JFXComboBox<String> getCustomPeriodsComboBox() {
+    private MFXComboBox<String> getCustomPeriodsComboBox() {
 
         ObservableList<String> customPeriods = FXCollections.observableArrayList();
         List<JEVisObject> listCalendarDirectories = new ArrayList<>();
@@ -598,7 +613,7 @@ public class LoadAnalysisDialog extends Dialog {
             }
         }
 
-        JFXComboBox<String> tempBox = new JFXComboBox<>(customPeriods);
+        MFXComboBox<String> tempBox = new MFXComboBox<>(customPeriods);
 
         finalListCustomPeriodObjects = listCustomPeriodObjects;
         if (customPeriods.size() > 1) {
@@ -621,6 +636,10 @@ public class LoadAnalysisDialog extends Dialog {
         }
 
         return tempBox;
+    }
+
+    public MFXTextField getFilterInput() {
+        return filterInput;
     }
 
     public Response getResponse() {
@@ -712,7 +731,5 @@ public class LoadAnalysisDialog extends Dialog {
                 aggregationBox, mathBox, presetDateBox, comboBoxCustomPeriods);
     }
 
-    public JFXTextField getFilterInput() {
-        return filterInput;
-    }
+
 }

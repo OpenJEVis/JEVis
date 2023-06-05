@@ -1,19 +1,21 @@
 package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.validation.DoubleValidator;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.Tab;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -48,10 +50,10 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final Label showValueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.showvalue"));
 
 
-    private final JFXTextField nameField = new JFXTextField();
-    private final JFXTextField tooltipField = new JFXTextField();
-    private final JFXTextField yPosField = new JFXTextField();
-    private final JFXTextField xPosField = new JFXTextField();
+    private final MFXTextField nameField = new MFXTextField();
+    private final MFXTextField tooltipField = new MFXTextField();
+    private final MFXTextField yPosField = new MFXTextField();
+    private final MFXTextField xPosField = new MFXTextField();
     private final JFXCheckBox showShadowField = new JFXCheckBox();
     private final JFXCheckBox showValueField = new JFXCheckBox();
     private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
@@ -65,7 +67,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final TimeFactoryBox timeFrameBox;
     private final Widget widget;
     private final DataModelDataHandler dataModelDataHandler;
-    private final JFXComboBox<Pos> alignmentBox;
+    private final MFXComboBox<Pos> alignmentBox;
 
     public GenericConfigNode(JEVisDataSource ds, Widget widget, DataModelDataHandler dataModelDataHandler) {
         super(I18n.getInstance().getString("plugin.dashboard.edit.general.tab"));
@@ -78,78 +80,73 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         timeFrameBox.setMinWidth(200);
         timeFrameBox.getItems().addAll(timeFrames);
 
-        alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+        alignmentBox = new MFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
         alignmentBox.setPrefWidth(200);
         alignmentBox.setMinWidth(200);
 
-        Callback<ListView<Pos>, ListCell<Pos>> cellFactory = new Callback<ListView<Pos>, ListCell<Pos>>() {
+        //TODO JFX17
+        alignmentBox.setConverter(new StringConverter<Pos>() {
             @Override
-            public ListCell<Pos> call(ListView<Pos> param) {
-                final ListCell<Pos> cell = new ListCell<Pos>() {
-
-                    @Override
-                    protected void updateItem(Pos item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            switch (item) {
-                                case CENTER:
-                                    setText(I18n.getInstance().getString("javafx.pos.center"));
-                                    break;
-                                case CENTER_LEFT:
-                                    setText(I18n.getInstance().getString("javafx.pos.centerleft"));
-                                    break;
-                                case CENTER_RIGHT:
-                                    setText(I18n.getInstance().getString("javafx.pos.centerright"));
-                                    break;
-                                case BOTTOM_RIGHT:
-                                    setText(I18n.getInstance().getString("javafx.pos.bottomright"));
-                                    break;
-                                case BOTTOM_LEFT:
-                                    setText(I18n.getInstance().getString("javafx.pos.bottomleft"));
-                                    break;
-                                case BOTTOM_CENTER:
-                                    setText(I18n.getInstance().getString("javafx.pos.bottomcenter"));
-                                    break;
-                                /**
-                                 case BASELINE_LEFT:
-                                 setText(I18n.getInstance().getString("javafx.pos.center"));
-                                 break;
-                                 case BASELINE_RIGHT:
-                                 setText(I18n.getInstance().getString("javafx.pos.center"));
-                                 break;
-                                 case BASELINE_CENTER:
-                                 setText(I18n.getInstance().getString("javafx.pos.center"));
-                                 break;
-                                 **/
-                                case TOP_LEFT:
-                                    setText(I18n.getInstance().getString("javafx.pos.topleft"));
-                                    break;
-                                case TOP_RIGHT:
-                                    setText(I18n.getInstance().getString("javafx.pos.topright"));
-                                    break;
-                                case TOP_CENTER:
-                                    setText(I18n.getInstance().getString("javafx.pos.topcenter"));
-                                    break;
-                                default:
-                                    setText(item.toString());
+            public String toString(Pos object) {
+                String text = "";
+                if (object != null) {
+                    switch (object) {
+                        case CENTER:
+                            text = I18n.getInstance().getString("javafx.pos.center");
+                            break;
+                        case CENTER_LEFT:
+                            text = I18n.getInstance().getString("javafx.pos.centerleft");
+                            break;
+                        case CENTER_RIGHT:
+                            text = I18n.getInstance().getString("javafx.pos.centerright");
+                            break;
+                        case BOTTOM_RIGHT:
+                            text = I18n.getInstance().getString("javafx.pos.bottomright");
+                            break;
+                        case BOTTOM_LEFT:
+                            text = I18n.getInstance().getString("javafx.pos.bottomleft");
+                            break;
+                        case BOTTOM_CENTER:
+                            text = I18n.getInstance().getString("javafx.pos.bottomcenter");
+                            break;
+                        /**
+                         case BASELINE_LEFT:
+                         text = I18n.getInstance().getString("javafx.pos.center");
+                         break;
+                         case BASELINE_RIGHT:
+                         text = I18n.getInstance().getString("javafx.pos.center");
+                         break;
+                         case BASELINE_CENTER:
+                         text = I18n.getInstance().getString("javafx.pos.center");
+                         break;
+                         **/
+                        case TOP_LEFT:
+                            text = I18n.getInstance().getString("javafx.pos.topleft");
+                            break;
+                        case TOP_RIGHT:
+                            text = I18n.getInstance().getString("javafx.pos.topright");
+                            break;
+                        case TOP_CENTER:
+                            text = I18n.getInstance().getString("javafx.pos.topcenter");
+                            break;
+                        default:
+                            text = object.toString();
 
 
-                            }
-
-
-                        } else {
-                            setText(null);
-                        }
                     }
-                };
 
-                return cell;
+
+                }
+
+                return text;
             }
-        };
 
-        alignmentBox.setCellFactory(cellFactory);
-        alignmentBox.setButtonCell(cellFactory.call(null));
-        alignmentBox.getSelectionModel().select(Pos.CENTER);
+            @Override
+            public Pos fromString(String string) {
+                return alignmentBox.getItems().get(alignmentBox.getSelectedIndex());
+            }
+        });
+        alignmentBox.selectItem(Pos.CENTER);
 
         bgColorPicker.setStyle("-fx-color-label-visible: false ;");
         fColorPicker.setStyle("-fx-color-label-visible: false ;");
@@ -222,14 +219,15 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         }
 
         DoubleValidator validator = new DoubleValidator();
-        yPosField.getValidators().add(validator);
+        //TODO JFX17
+        //yPosField.getValidators().add(validator);
 
         fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
-        fontWeightBox.getSelectionModel().select(widget.getConfig().getFontWeight());
-        fontPostureBox.getSelectionModel().select(widget.getConfig().getFontPosture());
+        fontWeightBox.selectItem(widget.getConfig().getFontWeight());
+        fontPostureBox.selectItem(widget.getConfig().getFontPosture());
         fontUnderlined.selectedProperty().setValue(widget.getConfig().getFontUnderlined());
         borderSizeSpinner.getValueFactory().setValue((int) widget.getConfig().getBorderSize().getTop());
-        alignmentBox.getSelectionModel().select(widget.getConfig().getTitlePosition());
+        alignmentBox.selectItem(widget.getConfig().getTitlePosition());
         precisionSpinner.getValueFactory().setValue(widget.getConfig().getDecimals().intValue());
     }
 

@@ -1,6 +1,10 @@
 package org.jevis.jeconfig.plugin.dtrc.dialogs;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXRadioButton;
+import com.jfoenix.controls.JFXTextArea;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -11,7 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -49,8 +53,8 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         stage.setAlwaysOnTop(true);
 
         Label nameLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.namelabel"));
-        JFXTextField jfxTextField = new JFXTextField(templateFormula.getName());
-        jfxTextField.textProperty().addListener((observable, oldValue, newValue) -> templateFormula.setName(newValue));
+        MFXTextField MFXTextField = new MFXTextField(templateFormula.getName());
+        MFXTextField.textProperty().addListener((observable, oldValue, newValue) -> templateFormula.setName(newValue));
 
         Separator separator1 = new Separator(Orientation.HORIZONTAL);
         separator1.setPadding(new Insets(8, 0, 8, 0));
@@ -134,61 +138,49 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         timeRestrictionEnabledCheckBox.setSelected(templateFormula.getTimeRestrictionEnabled());
         timeRestrictionEnabledCheckBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateFormula.setTimeRestrictionEnabled(t1));
 
-        JFXComboBox<TimeFrame> fixedTimeFrameBox = new JFXComboBox<>();
-        Callback<ListView<TimeFrame>, ListCell<TimeFrame>> fixedTimeFrameJFXComboBoxCellFactory = new Callback<ListView<TimeFrame>, ListCell<TimeFrame>>() {
-            @Override
-            public ListCell<TimeFrame> call(ListView<TimeFrame> param) {
-                return new JFXListCell<TimeFrame>() {
-                    @Override
-                    protected void updateItem(TimeFrame obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(obj.getListName());
-                        }
-                    }
-                };
-            }
-        };
+        MFXComboBox<TimeFrame> fixedTimeFrameBox = new MFXComboBox<>();
 
-        fixedTimeFrameBox.setCellFactory(fixedTimeFrameJFXComboBoxCellFactory);
-        fixedTimeFrameBox.setButtonCell(fixedTimeFrameJFXComboBoxCellFactory.call(null));
+        //TODO JFX17
+
+        fixedTimeFrameBox.setConverter(new StringConverter<TimeFrame>() {
+            @Override
+            public String toString(TimeFrame object) {
+                return object.getListName();
+            }
+
+            @Override
+            public TimeFrame fromString(String string) {
+                return fixedTimeFrameBox.getItems().get(fixedTimeFrameBox.getSelectedIndex());
+            }
+        });
 
         fixedTimeFrameBox.getItems().setAll(allowedTimeFrames);
         if (templateFormula.getFixedTimeFrame() != null) {
             TimeFrame selectedTimeFrame = allowedTimeFrames.stream().filter(timeFrame -> templateFormula.getFixedTimeFrame().equals(timeFrame.getID())).findFirst().orElse(null);
-            fixedTimeFrameBox.getSelectionModel().select(selectedTimeFrame);
+            fixedTimeFrameBox.selectItem(selectedTimeFrame);
         }
         fixedTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateFormula.setFixedTimeFrame(t1.getID()));
 
-        JFXComboBox<TimeFrame> reducingTimeFrameBox = new JFXComboBox<>();
-        Callback<ListView<TimeFrame>, ListCell<TimeFrame>> reducingTimeFrameJFXComboBoxCellFactory = new Callback<ListView<TimeFrame>, ListCell<TimeFrame>>() {
-            @Override
-            public ListCell<TimeFrame> call(ListView<TimeFrame> param) {
-                return new JFXListCell<TimeFrame>() {
-                    @Override
-                    protected void updateItem(TimeFrame obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(obj.getListName());
-                        }
-                    }
-                };
-            }
-        };
+        MFXComboBox<TimeFrame> reducingTimeFrameBox = new MFXComboBox<>();
 
-        reducingTimeFrameBox.setCellFactory(reducingTimeFrameJFXComboBoxCellFactory);
-        reducingTimeFrameBox.setButtonCell(reducingTimeFrameJFXComboBoxCellFactory.call(null));
+        //TODO JFX17
+
+        reducingTimeFrameBox.setConverter(new StringConverter<TimeFrame>() {
+            @Override
+            public String toString(TimeFrame object) {
+                return object.getListName();
+            }
+
+            @Override
+            public TimeFrame fromString(String string) {
+                return reducingTimeFrameBox.getItems().get(reducingTimeFrameBox.getSelectedIndex());
+            }
+        });
 
         reducingTimeFrameBox.getItems().setAll(allowedTimeFrames);
         if (templateFormula.getReducingTimeFrame() != null) {
             TimeFrame selectedTimeFrame = allowedTimeFrames.stream().filter(timeFrame -> templateFormula.getReducingTimeFrame().equals(timeFrame.getID())).findFirst().orElse(null);
-            reducingTimeFrameBox.getSelectionModel().select(selectedTimeFrame);
+            reducingTimeFrameBox.selectItem(selectedTimeFrame);
         }
         reducingTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateFormula.setReducingTimeFrame(t1.getID()));
 
@@ -229,7 +221,7 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         ScrollPane outputsScrollPane = new ScrollPane(outputsGridPane);
         outputsScrollPane.setMinHeight(550);
 
-        VBox vBox = new VBox(4, new HBox(4, nameLabel, jfxTextField), separator1,
+        VBox vBox = new VBox(4, new HBox(4, nameLabel, MFXTextField), separator1,
                 formulaLabel, jfxTextArea, separator2,
                 inputsLabel, inputsFlowPane, separator3,
                 outputsLabel, outputsScrollPane, separator4,

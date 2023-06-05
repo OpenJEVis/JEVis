@@ -1,9 +1,6 @@
 package org.jevis.jeconfig.application.control;
 
-import com.google.common.collect.Lists;
-import com.jfoenix.controls.JFXButton;
-import com.sun.javafx.scene.control.skin.CustomColorDialog;
-import com.sun.javafx.scene.control.skin.resources.ControlResources;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -15,14 +12,11 @@ import javafx.scene.control.Cell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.stage.Window;
-import javafx.stage.WindowEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.application.Chart.ChartElements.ColorTable;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 public class ColorPickerAdv extends HBox {
@@ -32,7 +26,7 @@ public class ColorPickerAdv extends HBox {
     private Window owner;
     private Color initColor = ColorTable.color_list[0];
     private final ObjectProperty<Color> finalColor = new SimpleObjectProperty<>(ColorTable.color_list[0]);
-    private final JFXButton button = new JFXButton();
+    private final MFXButton button = new MFXButton();
 
     public ColorPickerAdv() {
         this(null, null);
@@ -196,86 +190,87 @@ public class ColorPickerAdv extends HBox {
                 owner = this.getScene().getWindow();
             }
 
-            final CustomColorDialog customColorDialog = new CustomColorDialog(owner);
-            customColorDialog.setCurrentColor(initColor);
-
-            // remove save button
-            VBox controlBox = (VBox) customColorDialog.getChildren().get(1);
-            HBox buttonBox = (HBox) controlBox.getChildren().get(2);
-            buttonBox.getChildren().remove(0);
-
-
-            VBox vBox = new VBox();
-            vBox.setSpacing(2);
-            vBox.setPadding(new Insets(4));
-            Runnable saveUseRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Field customColorPropertyField = CustomColorDialog.class
-                                .getDeclaredField("customColorProperty"); //$NON-NLS-1$
-                        customColorPropertyField.setAccessible(true);
-                        @SuppressWarnings("unchecked")
-                        ObjectProperty<Color> customColorPropertyValue = (ObjectProperty<Color>) customColorPropertyField
-                                .get(customColorDialog);
-
-                        customColorPropertyValue.addListener((observable, oldValue, newValue) -> {
-                            selectColorProperty.setValue(newValue);
-                        });
-
-
-                        Lists.newArrayList(ColorTable.color_list).forEach(color -> {
-                            Node colorRect = colorRectPane(color, 12d);
-                            vBox.getChildren().add(colorRect);
-                            colorRect.setOnMouseClicked(event -> {
-                                customColorPropertyValue.setValue(color);
-                            });
-                        });
-
-
-                    } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
-                        logger.error(e);
-                    }
-                }
-            };
-
-            saveUseRunnable.run();
-
-            customColorDialog.setOnUse(saveUseRunnable);
-
-            customColorDialog.setOnHidden(new EventHandler<WindowEvent>() {
-                @Override
-                public void handle(WindowEvent event) {
-
-//                countDownLatch.countDown();
-                }
-            });
-
-            Field dialogField = CustomColorDialog.class.getDeclaredField("dialog"); //$NON-NLS-1$
-            dialogField.setAccessible(true);
-
-            customColorDialog.getChildren().add(0, vBox);
-            customColorDialog.setOnCancel(() -> {
-                selectColorProperty.set(initColor);
-                finalColor.setValue(initColor);
-            });
-            customColorDialog.setOnUse(() -> {
-                Node colorRect = colorRectPane(selectColorProperty.get(), 10d);
-//                this.setGraphic(colorRect);
-                button.setGraphic(colorRect);
-                finalColor.setValue(selectColorProperty.getValue());
-            });
-
-
-            Stage dialog = (Stage) dialogField.get(customColorDialog);
-
-            dialog.setTitle(ControlResources.getString("ColorPicker.customColorDialogTitle"));
-//            dialog.setTitle("Farbe Cool Picker");
-            customColorDialog.show();
-            dialog.centerOnScreen();
+            //TODO JFX17 : Standard Color Picker into Dialog
+//            final CustomColorDialog customColorDialog = new CustomColorDialog(owner);
+//            customColorDialog.setCurrentColor(initColor);
+//
+//            // remove save button
+//            VBox controlBox = (VBox) customColorDialog.getChildren().get(1);
+//            HBox buttonBox = (HBox) controlBox.getChildren().get(2);
+//            buttonBox.getChildren().remove(0);
+//
+//
+//            VBox vBox = new VBox();
+//            vBox.setSpacing(2);
+//            vBox.setPadding(new Insets(4));
+//            Runnable saveUseRunnable = new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        Field customColorPropertyField = CustomColorDialog.class
+//                                .getDeclaredField("customColorProperty"); //$NON-NLS-1$
+//                        customColorPropertyField.setAccessible(true);
+//                        @SuppressWarnings("unchecked")
+//                        ObjectProperty<Color> customColorPropertyValue = (ObjectProperty<Color>) customColorPropertyField
+//                                .get(customColorDialog);
+//
+//                        customColorPropertyValue.addListener((observable, oldValue, newValue) -> {
+//                            selectColorProperty.setValue(newValue);
+//                        });
+//
+//
+//                        Lists.newArrayList(ColorTable.color_list).forEach(color -> {
+//                            Node colorRect = colorRectPane(color, 12d);
+//                            vBox.getChildren().add(colorRect);
+//                            colorRect.setOnMouseClicked(event -> {
+//                                customColorPropertyValue.setValue(color);
+//                            });
+//                        });
+//
+//
+//                    } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
+//                        logger.error(e);
+//                    }
+//                }
+//            };
+//
+//            saveUseRunnable.run();
+//
+//            customColorDialog.setOnUse(saveUseRunnable);
+//
+//            customColorDialog.setOnHidden(new EventHandler<WindowEvent>() {
+//                @Override
+//                public void handle(WindowEvent event) {
+//
+////                countDownLatch.countDown();
+//                }
+//            });
+//
+//            Field dialogField = CustomColorDialog.class.getDeclaredField("dialog"); //$NON-NLS-1$
+//            dialogField.setAccessible(true);
+//
+//            customColorDialog.getChildren().add(0, vBox);
+//            customColorDialog.setOnCancel(() -> {
+//                selectColorProperty.set(initColor);
+//                finalColor.setValue(initColor);
+//            });
+//            customColorDialog.setOnUse(() -> {
+//                Node colorRect = colorRectPane(selectColorProperty.get(), 10d);
+////                this.setGraphic(colorRect);
+//                button.setGraphic(colorRect);
+//                finalColor.setValue(selectColorProperty.getValue());
+//            });
+//
+//
+//            Stage dialog = (Stage) dialogField.get(customColorDialog);
+//
+//            dialog.setTitle(ControlResources.getString("ColorPicker.customColorDialogTitle"));
+////            dialog.setTitle("Farbe Cool Picker");
+//            customColorDialog.show();
+//            dialog.centerOnScreen();
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+//            logger.error(ex);
+//            ex.printStackTrace();
         }
     }
 

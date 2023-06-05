@@ -1,19 +1,17 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -37,13 +35,13 @@ public class LimitDynamicPane extends GridPane {
 
     private final Label upperVOffsetlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.upper"));
     private final Label lowerVOffsetlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.lower"));
-    private final JFXTextField upperValueField = new JFXTextField();
-    private final JFXTextField lowerValueField = new JFXTextField();
+    private final MFXTextField upperValueField = new MFXTextField();
+    private final MFXTextField lowerValueField = new MFXTextField();
 
     private final Label sourceLable = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.source"));
     private final ObservableList<Widget> widgetList;
     private final Limit limit;
-    private JFXComboBox<Widget> widgetBox;
+    private MFXComboBox<Widget> widgetBox;
 
 
     public LimitDynamicPane(Limit limit, ObservableList<Widget> widgetList) {
@@ -81,43 +79,46 @@ public class LimitDynamicPane extends GridPane {
         upperValueField.setText(limit.upperLimitOffset.toString());
         lowerValueField.setText(limit.lowerLimitOffset.toString());
 
-        widgetBox = new JFXComboBox<>(
+        widgetBox = new MFXComboBox<>(
                 widgetList.filtered(widget -> widget.typeID().equals(ValueWidget.WIDGET_ID)));
-        Callback<ListView<Widget>, ListCell<Widget>> cellFactory = new Callback<javafx.scene.control.ListView<Widget>, ListCell<Widget>>() {
-            @Override
-            public ListCell<Widget> call(ListView<Widget> param) {
-                return new ListCell<Widget>() {
-                    @Override
-                    protected void updateItem(Widget item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            try {
-                                ValueWidget widget = ((ValueWidget) item);
-                                String title = item.getConfig().getTitle().isEmpty()
-                                        ? I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.list.nottitle")
-                                        : item.getConfig().getTitle();
 
-                                setText(String.format("[%d] '%s' | %.2f",
-                                        item.getConfig().getUuid(),
-                                        title,
-                                        widget.getDisplayedSampleProperty().getValue()));
-                            } catch (Exception ex) {
-                                logger.error(ex);
-                                setText(item.toString());
-                            }
-                        }
+        //TODO JFX17
+        widgetBox.setConverter(new StringConverter<Widget>() {
+            @Override
+            public String toString(Widget object) {
+                String text = "";
+                if (object != null) {
+                    try {
+                        ValueWidget widget = ((ValueWidget) object);
+                        String title = object.getConfig().getTitle().isEmpty()
+                                ? I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.list.nottitle")
+                                : object.getConfig().getTitle();
+
+                        text = String.format("[%d] '%s' | %.2f",
+                                object.getConfig().getUuid(),
+                                title,
+                                widget.getDisplayedSampleProperty().getValue());
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                        text = object.toString();
                     }
-                };
+                }
+
+                return text;
             }
-        };
-        widgetBox.setButtonCell(cellFactory.call(null));
-        widgetBox.setCellFactory(cellFactory);
+
+            @Override
+            public Widget fromString(String string) {
+                return widgetBox.getItems().get(widgetBox.getSelectedIndex());
+            }
+        });
+
         if (limit.limitWidget > 0) {
             Optional<Widget> widget = widgetList.stream()
                     .filter(widget1 -> widget1.getConfig().getUuid() == limit.limitWidget)
                     .findFirst();
             if (widget.isPresent()) {
-                widgetBox.getSelectionModel().select(widget.get());
+                widgetBox.selectItem(widget.get());
             }
         }
 

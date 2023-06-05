@@ -20,9 +20,10 @@
  */
 package org.jevis.jeconfig.plugin.object.extension.processchain;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.virtualizedfx.cell.Cell;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -34,6 +35,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -60,9 +62,9 @@ import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
 import java.math.BigDecimal;
+import java.util.function.Function;
 
 /**
- *
  * @author fs
  */
 public class NewFunctionDialog {
@@ -76,7 +78,6 @@ public class NewFunctionDialog {
     private boolean userSetName = false;
 
     /**
-     *
      * @param owner
      * @param jclass
      * @param parent
@@ -130,11 +131,11 @@ public class NewFunctionDialog {
 
         HBox buttonPanel = new HBox();
 
-        final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
+        final MFXButton ok = new MFXButton(I18n.getInstance().getString("newobject.ok"));
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("newobject.cancel"));
+        MFXButton cancel = new MFXButton(I18n.getInstance().getString("newobject.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -150,7 +151,7 @@ public class NewFunctionDialog {
         int x = 0;
 
         Label lName = new Label(I18n.getInstance().getString("newobject.name"));
-        final JFXTextField fName = new JFXTextField();
+        final MFXTextField fName = new MFXTextField();
         fName.setPromptText(I18n.getInstance().getString("newobject.name.prompt"));
 
         if (objName != null) {
@@ -217,9 +218,34 @@ public class NewFunctionDialog {
             }
         };
 
-        final JFXComboBox<JEVisClass> comboBox = new JFXComboBox<JEVisClass>(options);
-        comboBox.setCellFactory(cellFactory);
-        comboBox.setButtonCell(cellFactory.call(null));
+        final MFXComboBox<JEVisClass> comboBox = new MFXComboBox<JEVisClass>(options);
+
+        //TODO JFX17
+        comboBox.setCellFactory((Function<JEVisClass, Cell<JEVisClass>>) jeVisClass -> {
+            return new Cell<JEVisClass>() {
+                ImageView icon = new ImageView();
+                Label cName = new Label();
+                HBox box = new HBox(5, icon, cName);
+
+                @Override
+                public Node getNode() {
+                    cName.setTextFill(Color.BLACK);
+                    icon.fitHeightProperty().set(15);
+                    icon.fitWidthProperty().set(15);
+                    return box;
+                }
+
+                @Override
+                public void updateItem(JEVisClass item) {
+                    try {
+                        icon.setImage(ImageConverter.convertToFxImage(item.getIcon()));
+                        cName.setText(item.getName());
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
+                }
+            };
+        });
 
         comboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<JEVisClass>() {
 
@@ -236,7 +262,7 @@ public class NewFunctionDialog {
         });
 
         if (jclass != null) {
-            comboBox.getSelectionModel().select(jclass);
+            comboBox.selectItem(jclass);
         }
 
         comboBox.setMinWidth(250);
@@ -327,7 +353,7 @@ public class NewFunctionDialog {
             stage.setTitle(I18n.getInstance().getString("newobject.rename.title"));
             topTitle.setText(I18n.getInstance().getString("newobject.rename.message"));
             count.setDisable(true);
-            comboBox.getSelectionModel().select(jclass);
+            comboBox.selectItem(jclass);
         }
 
         stage.showAndWait();

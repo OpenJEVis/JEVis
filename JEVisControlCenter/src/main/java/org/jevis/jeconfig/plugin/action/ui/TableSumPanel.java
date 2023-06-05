@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.action.ui;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -28,9 +28,9 @@ import java.util.Map;
 
 public class TableSumPanel extends GridPane {
     ActionData fakeNames = new ActionData();
-    JFXTextField f_sumInvestment = new JFXTextField();
-    JFXTextField f_sumSavingsYear = new JFXTextField();
-    JFXTextField f_sumSavingEnergy = new JFXTextField();
+    MFXTextField f_sumInvestment = new MFXTextField();
+    MFXTextField f_sumSavingsYear = new MFXTextField();
+    MFXTextField f_sumSavingEnergy = new MFXTextField();
     Label l_sumLabel = new Label(I18n.getInstance().getString("plugin.action.sumtable.total"));
     Label l_sumInvestment = new Label(fakeNames.npv.get().investment.getName());
     Label l_sumSavingsYear = new Label(fakeNames.npv.get().einsparung.getName());
@@ -44,7 +44,7 @@ public class TableSumPanel extends GridPane {
         }
     };
     UnitDoubleConverter unitDoubleConverter = new UnitDoubleConverter();
-    private Map<String, JFXTextField> columns = new HashMap<>();
+    private Map<String, MFXTextField> columns = new HashMap<>();
     private ActionPlanData actionPlan;
 
     public TableSumPanel(ActionPlanData actionPlan, ObservableList<ActionData> data) {
@@ -106,7 +106,7 @@ public class TableSumPanel extends GridPane {
         for (String s : mediums) {
             if (!columns.containsKey(s)) {
                 Label label = new Label(s);
-                JFXTextField field = new JFXTextField();
+                MFXTextField field = new MFXTextField();
                 field.setAlignment(Pos.CENTER_RIGHT);
                 int newColumn = columns.size() + 2;
                 columns.put(s, field);
@@ -120,7 +120,7 @@ public class TableSumPanel extends GridPane {
         for (String s : actionPlan.getStatustags()) {
             if (!columns.containsKey(s)) {
                 Label label = new Label(s);
-                JFXTextField field = new JFXTextField();
+                MFXTextField field = new MFXTextField();
                 field.setAlignment(Pos.CENTER_RIGHT);
                 int newColumn = columns.size() + 2;
                 columns.put(s, field);
@@ -151,7 +151,7 @@ public class TableSumPanel extends GridPane {
 
         if (actionPlan != null) {
             Map<String, DoubleProperty> mediumSum = new HashMap<>();
-            columns.forEach((s, jfxTextField) -> {
+            columns.forEach((s, MFXTextField) -> {
                 mediumSum.put(s, new SimpleDoubleProperty(0));
             });
 
@@ -171,8 +171,8 @@ public class TableSumPanel extends GridPane {
                 }
             });
             /*
-            columns.forEach((s, jfxTextField) -> {
-                jfxTextField.setText(DoubleConverter.getInstance().getDoubleConverter().toString(mediumSum.get(s).get()) + " kWh");
+            columns.forEach((s, MFXTextField) -> {
+                MFXTextField.setText(DoubleConverter.getInstance().getDoubleConverter().toString(mediumSum.get(s).get()) + " kWh");
                 mediumSum.put(s, new SimpleDoubleProperty(0));
             });
 
@@ -185,7 +185,7 @@ public class TableSumPanel extends GridPane {
                 statusMap.put(s, new SimpleDoubleProperty(0));
             });
             /*
-            columns.forEach((s, jfxTextField) -> {
+            columns.forEach((s, MFXTextField) -> {
 
             });
 
@@ -200,27 +200,27 @@ public class TableSumPanel extends GridPane {
             });
 
             /*
-            columns.forEach((s, jfxTextField) -> {
+            columns.forEach((s, MFXTextField) -> {
                 //System.out.println("Reset field: " + s);
-                jfxTextField.setText("");
+                MFXTextField.setText("");
             });
              */
 
             mediumSum.forEach((s, doubleProperty) -> {
                 //System.out.println("Fill GUI: " + s + "  double: " + doubleProperty + " field: " + columns.get(s));
-                JFXTextField jfxTextField = columns.get(s);
+                MFXTextField MFXTextField = columns.get(s);
 
                 Platform.runLater(() -> {
-                    jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()) + " kWh");
+                    MFXTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()) + " kWh");
                 });
             });
 
             statusMap.forEach((s, doubleProperty) -> {
                 //System.out.println("Fill GUIs: " + s + "  double: " + doubleProperty + " field: " + columns.get(s));
-                JFXTextField jfxTextField = columns.get(s);
-                if (jfxTextField != null) {
+                MFXTextField MFXTextField = columns.get(s);
+                if (MFXTextField != null) {
                     Platform.runLater(() -> {
-                        jfxTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()));
+                        MFXTextField.setText(NumerFormating.getInstance().getDoubleConverter().toString(doubleProperty.get()));
                     });
 
                 } else {
