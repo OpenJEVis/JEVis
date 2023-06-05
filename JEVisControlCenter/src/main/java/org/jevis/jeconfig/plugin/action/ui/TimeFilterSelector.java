@@ -12,6 +12,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
@@ -24,14 +26,14 @@ import static org.jevis.jeconfig.plugin.action.ui.DateFilter.DateField.*;
 
 public class TimeFilterSelector extends GridPane {
 
-
+    private static final Logger logger = LogManager.getLogger(TimeFilterSelector.class);
     //TODo locale name from Column
     JFXComboBox<DateFilter.DateField> fDateField = new JFXComboBox<>(FXCollections.observableArrayList(ALL, UMSETZUNG, ABGESCHLOSSEN, ERSTELLT));
     JFXComboBox<Month> fFromMonth = generateMonthBox();
     JFXComboBox<Month> fToMonth = generateMonthBox();
     JFXComboBox<Integer> fFromYear = generateYearBox();
     JFXComboBox<Integer> fToYear = generateYearBox();
-    private SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
+    private final SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
 
 
     public TimeFilterSelector(ActionPlanData actionPlan) {
@@ -212,7 +214,7 @@ public class TimeFilterSelector extends GridPane {
             DateFilter dateRange = new DateFilter(fDateField.getValue(), from, until);
             valueProperty.set(dateRange);
         } catch (Exception ex) {
-            System.out.println("Unfinished Filter");
+            logger.error("Unfinished Filter", ex);
         }
     }
 

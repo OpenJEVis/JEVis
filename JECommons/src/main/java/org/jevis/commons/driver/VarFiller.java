@@ -34,7 +34,7 @@ public class VarFiller {
         LAST_TS// Last timestamp of the existing data in JEVis
     }
 
-    public interface VarFunction {
+        public interface VarFunction {
 
         public String getVarValue();
     }
