@@ -17,18 +17,18 @@ import java.util.Map;
 public class RequestParameters {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(RequestParameters.class);
-    private JEVisAttribute targetAtt;
-    private String query;
-    private String exeQuery;
+    private final JEVisAttribute targetAtt;
+    private final String query;
+    private final String exeQuery;
 
-    private String valueColumn;
-    private String timeStampColumn;
-    private String timeStampFormate;
-    private String noteColumn;
-    private String valueFormate;
-    private JEVisAttribute lastReadoutAttribute;
-    private JEVisAttribute statusAttribute;
-    private DateTime lastLog = new DateTime();
+    private final String valueColumn;
+    private final String timeStampColumn;
+    private final String timeStampFormate;
+    private final String noteColumn;
+    private final String valueFormate;
+    private final JEVisAttribute lastReadoutAttribute;
+    private final JEVisAttribute statusAttribute;
+    private final DateTime lastLog = new DateTime();
 
     public RequestParameters(JEVisObject queryObject) throws Exception {
 
@@ -123,7 +123,12 @@ public class RequestParameters {
      */
     public void logStatus(int status, DateTime ts, String msg) {
         try {
-            logger.error("Status: {} msg: {}", status, msg);
+            if (status == 0) {
+                logger.info("Status: {} msg: {}", status, msg);
+            } else {
+                logger.error("Status: {} msg: {}", status, msg);
+            }
+
             JEVisSample sample = null;
             if (lastLog.plusSeconds(1).isAfter(ts)) {
                 sample = statusAttribute.buildSample(ts, status + ": " + msg);
