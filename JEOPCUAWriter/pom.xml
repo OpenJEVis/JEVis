@@ -117,7 +117,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
+                            <mainClass>org.jevis.jecc.ControlCenter</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -35,7 +35,7 @@
     $dependencies
 </resources>
 
-  <jfx:javafx-desc main-class="org.jevis.jeconfig.JEConfig"  name="JEConfig">
+  <jfx:javafx-desc main-class="org.jevis.jecc.ControlCenter"  name="JEConfig">
           <fx:param name="datasource.class" value="org.jevis.jeapi.ws.JEVisDataSourceWS"/>
           <fx:param name="datasource.host" value="http://$jevisserver:8000"/>
           <fx:param name="fxlogin.logo" value="http://$jevisserver/images/logo.jpg"/>

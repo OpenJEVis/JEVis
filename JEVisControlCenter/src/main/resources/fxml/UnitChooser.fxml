@@ -4,15 +4,18 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane id="AnchorPane" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="-1.0" prefHeight="170.0" prefWidth="-1.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="org.jevis.jeconfig.tool.UnitChooserControler">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" id="AnchorPane" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="-1.0"
+            prefHeight="170.0" prefWidth="-1.0" xmlns="http://javafx.com/javafx/2.2"
+            fx:controller="org.jevis.jecc.tool.UnitChooserControler">
     <children>
-        <VBox prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <GridPane fx:id="gb" alignment="CENTER" gridLinesVisible="false" maxWidth="-1.0" VBox.vgrow="NEVER">
                     <children>
                         <Label maxWidth="-1.0" text="Quantity:" GridPane.columnIndex="0" GridPane.rowIndex="0">
                             <GridPane.margin>
-                                <Insets right="15.0" fx:id="x1" />
+                                <Insets right="15.0" fx:id="x1"/>
                             </GridPane.margin>
                         </Label>
                         <MFXComboBox fx:id="boxQuantity" maxWidth="1.7976931348623157E308"

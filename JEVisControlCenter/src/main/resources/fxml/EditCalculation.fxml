@@ -3,10 +3,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.*?>
-<?import org.jevis.jeconfig.plugin.object.extension.calculation.FormulaBox?>
-<?import org.jevis.jeconfig.plugin.object.extension.calculation.VariablesBox?>
+<?import org.jevis.jecc.plugin.object.extension.calculation.FormulaBox?>
+<?import org.jevis.jecc.plugin.object.extension.calculation.VariablesBox?>
 <ScrollPane xmlns:fx="http://javafx.com/fxml/1" fitToHeight="true" fitToWidth="true"
-            fx:controller="org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController">
+            fx:controller="org.jevis.jecc.plugin.object.extension.calculation.CalculationViewController">
     <content>
         <VBox spacing="10.0" HBox.hgrow="ALWAYS">
             <children>

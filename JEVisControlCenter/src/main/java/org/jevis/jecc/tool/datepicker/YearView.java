@@ -1,0 +1,90 @@
+package org.jevis.jecc.tool.datepicker;
+
+import io.github.palexdev.materialfx.controls.MFXButton;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+
+import java.text.DateFormatSymbols;
+import java.util.Calendar;
+
+/**
+ * The year view shows the months.
+ *
+ * @author Christian Schudt
+ */
+final class YearView extends DatePane {
+
+    private static final String CSS_CALENDAR_YEAR_VIEW = "calendar-year-view";
+    private static final String CSS_CALENDAR_MONTH_BUTTON = "calendar-month-button";
+
+
+    public YearView(final CalendarView calendarView) {
+        super(calendarView);
+
+        getStyleClass().add(CSS_CALENDAR_YEAR_VIEW);
+
+        // When the locale changes, updateData the contents (month names).
+        calendarView.localeProperty().addListener(new InvalidationListener() {
+            @Override
+            public void invalidated(Observable observable) {
+                updateContent();
+            }
+        });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void buildContent() {
+
+        // Get the number of months. I read, there are some lunar calendars, with more than 12 months.
+        int numberOfMonths = this.calendarView.getCalendar().getMaximum(Calendar.MONTH) + 1;
+
+        int numberOfColumns = 3;
+
+        for (int i = 0; i < numberOfMonths; i++) {
+            final int j = i;
+            MFXButton button = new MFXButton();
+            button.getStyleClass().add(CSS_CALENDAR_MONTH_BUTTON);
+
+            // Make the button stretch.
+            button.setMaxWidth(Double.MAX_VALUE);
+            button.setMaxHeight(Double.MAX_VALUE);
+            GridPane.setVgrow(button, Priority.ALWAYS);
+            GridPane.setHgrow(button, Priority.ALWAYS);
+
+            button.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    if (YearView.this.calendarView.currentlyViewing.get() == Calendar.YEAR) {
+                        YearView.this.calendarView.getCalendar().set(Calendar.MONTH, j);
+                        YearView.this.calendarView.currentlyViewing.set(Calendar.MONTH);
+                        YearView.this.calendarView.calendarDate.set(YearView.this.calendarView.getCalendar().getTime());
+                    }
+                }
+            });
+            int rowIndex = i % numberOfColumns;
+            int colIndex = (i - rowIndex) / numberOfColumns;
+            add(button, rowIndex, colIndex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void updateContent() {
+        DateFormatSymbols symbols = new DateFormatSymbols(this.calendarView.localeProperty().get());
+        String[] monthNames = symbols.getShortMonths();
+        for (int i = 1; i < monthNames.length; i++) {
+            MFXButton button = (MFXButton) getChildren().get(i - 1);
+            button.setText(monthNames[i - 1]);
+        }
+        this.title.set(getDateFormat("yyyy").format(this.calendarView.getCalendar().getTime()));
+    }
+}

@@ -10,10 +10,10 @@
         <Logger name="org.jevis.api" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="org.jevis.jeconfig.application" level="debug" additivity="false">
+        <Logger name="org.jevis.jecc.application" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="org.jevis.jeconfig" level="debug" additivity="false">
+        <Logger name="org.jevis.jecc" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="org.jevis.jeapi" level="debug" additivity="false">

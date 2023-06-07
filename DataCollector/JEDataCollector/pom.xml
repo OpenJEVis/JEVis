@@ -131,7 +131,7 @@
             <version>8.2.2.jre8</version>
         </dependency>
         <!--<dependency>-->
-        <!--<groupId>org.jevis.jeconfig.application</groupId>-->
+        <!--<groupId>org.jevis.jecc.application</groupId>-->
         <!--<artifactId>jeapplication</artifactId>-->
         <!--</dependency>-->
     </dependencies>

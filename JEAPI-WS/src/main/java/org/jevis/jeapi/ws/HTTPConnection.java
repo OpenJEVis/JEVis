@@ -454,7 +454,7 @@ public class HTTPConnection {
             StringBuffer response = new StringBuffer();
 
             /**
-             * this is producing a out of memory exception in some cases
+             * this is producing an out of memory exception in some cases
              */
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);

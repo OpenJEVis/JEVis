@@ -1,0 +1,66 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package org.jevis.jecc.plugin.object.attribute;
+
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import org.jevis.api.JEVisAttribute;
+
+/**
+ * @author fs
+ */
+public class ErrorEditor implements AttributeEditor {
+
+    private BooleanProperty ValueChangedProperty = new SimpleBooleanProperty(false);
+    private Label label = new Label();
+
+    @Override
+    public boolean hasChanged() {
+        return false;
+    }
+
+    @Override
+    public void commit() {
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public Node getEditor() {
+        label.setText("Error while loading values");
+        return label;
+    }
+
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return ValueChangedProperty;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+    }
+
+    public void setException(Exception ex) {
+        label.setText("Error: " + ex.toString());
+    }
+
+    @Override
+    public JEVisAttribute getAttribute() {
+        return null;
+    }
+
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
+
+}

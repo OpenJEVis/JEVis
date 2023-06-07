@@ -10,7 +10,11 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath org.jevis.jeconfig.JEConfig --datasource.class="org.jevis.api.sql.JEVisDataSourceSQL" --datasource.host="openjevis.org" --datasource.port="13306" --datasource.schema="jevis" --datasource.username="jevis" --datasource.password="jevistest"</exec.args>
+                <exec.args>-classpath %classpath org.jevis.jecc.ControlCenter
+                    --datasource.class="org.jevis.api.sql.JEVisDataSourceSQL" --datasource.host="openjevis.org"
+                    --datasource.port="13306" --datasource.schema="jevis" --datasource.username="jevis"
+                    --datasource.password="jevistest"
+                </exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
@@ -24,7 +28,11 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath org.jevis.jeconfig.JEConfig --datasource.class="org.jevis.api.sql.JEVisDataSourceSQL" --datasource.host="openjevis.org" --datasource.port="13306" --datasource.schema="jevis" --datasource.username="jevis" --datasource.password="jevistest"</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath
+                    org.jevis.jecc.ControlCenter --datasource.class="org.jevis.api.sql.JEVisDataSourceSQL"
+                    --datasource.host="openjevis.org" --datasource.port="13306" --datasource.schema="jevis"
+                    --datasource.username="jevis" --datasource.password="jevistest"
+                </exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
             </properties>
@@ -39,7 +47,11 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath org.jevis.jeconfig.JEConfig --datasource.class="org.jevis.api.sql.JEVisDataSourceSQL" --datasource.host="openjevis.org" --datasource.port="13306" --datasource.schema="jevis" --datasource.username="jevis" --datasource.password="jevistest"</exec.args>
+                <exec.args>-classpath %classpath org.jevis.jecc.ControlCenter
+                    --datasource.class="org.jevis.api.sql.JEVisDataSourceSQL" --datasource.host="openjevis.org"
+                    --datasource.port="13306" --datasource.schema="jevis" --datasource.username="jevis"
+                    --datasource.password="jevistest"
+                </exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>

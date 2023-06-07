@@ -100,12 +100,14 @@ public class ObjectRelations {
     public JEVisObject getPrimaryParent(JEVisObject object) {
         JEVisObject primaryParent = null;
         try {
-            for (JEVisObject dir : object.getParents()) {
-                if (dir.getJEVisClassName().equals("Building") || dir.getJEVisClassName().equals("Organization")) {
-                    primaryParent = dir;
-                    break;
-                } else {
-                    primaryParent = getPrimaryParent(dir);
+            if (object != null) {
+                for (JEVisObject dir : object.getParents()) {
+                    if (dir.getJEVisClassName().equals("Building") || dir.getJEVisClassName().equals("Organization")) {
+                        primaryParent = dir;
+                        break;
+                    } else {
+                        primaryParent = getPrimaryParent(dir);
+                    }
                 }
             }
         } catch (JEVisException e) {
