@@ -1,5 +1,7 @@
 package org.jevis.httpdatasource;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -13,17 +15,26 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.DataSourceHelper;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisFile;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.classes.JC;
+import org.jevis.commons.driver.*;
+import org.jevis.commons.driver.Parameter;
+import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author bf, FS
@@ -39,6 +50,9 @@ public class HTTPDataSource {
     private String password;
     private DateTimeZone timeZone;
     private Boolean ssl = false;
+
+    private DateTime lastReadout;
+    private DateTime currentTime;
 
     public enum AUTH_SCHEME {
         BASIC, DIGEST, NONE
@@ -61,11 +75,14 @@ public class HTTPDataSource {
         List<InputStream> answer = new ArrayList<InputStream>();
 
         String path = channel.getPath();
-        DateTime lastReadout = channel.getLastReadout();
+        lastReadout = channel.getLastReadout();
+        currentTime = DateTime.now();
 
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
+        ParameterHelper parameterHelper = new ParameterHelper(lastReadout,currentTime);
+        path = parameterHelper.getNewPath(path, channel.getChannelObject().getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).getLatestSample());
 
         logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {}", channelID, serverURL, userName, password);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
@@ -253,6 +270,10 @@ public class HTTPDataSource {
         String NAME = "HTTP Channel";
         String PATH = "Path";
     }
+
+
+
+
 
     public DateTimeZone getDateTimeZone() {
         return timeZone;
