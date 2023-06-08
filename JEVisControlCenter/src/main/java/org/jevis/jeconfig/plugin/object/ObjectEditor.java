@@ -177,6 +177,7 @@ public class ObjectEditor {
                     installedExtensions.add(new CalculationExtension(obj));
                     installedExtensions.add(new CleanDataExtension(obj));
                     installedExtensions.add(new RoleExtention(obj));
+                    installedExtensions.add(new HttpChanelExtension(obj));
 
                     //Generic Extensions every Class has
                     //TODO: make an better logic to decide/configure the extension order
