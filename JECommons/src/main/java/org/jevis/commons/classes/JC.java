@@ -465,6 +465,8 @@ public interface JC {
 
             public static String a_Path = "Path";
             public static String a_LastReadout = "Last Readout";
+
+            public static String a_ParameterConfig = "Parameter Config";
         }
 
         public interface LoytecXMLDLChannel {
