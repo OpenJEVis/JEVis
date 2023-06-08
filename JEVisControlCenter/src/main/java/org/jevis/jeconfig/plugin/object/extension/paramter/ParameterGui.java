@@ -157,7 +157,7 @@ public class ParameterGui {
 
     private boolean saveParameter(JEVisAttribute jeVisAttribute) {
         try {
-            JEVisSample jeVisSample = jeVisAttribute.buildSample(DateTime.now(), parametersToJson(parameters));
+            JEVisSample jeVisSample = jeVisAttribute.buildSample(DateTime.now(), parametersToFile(parameters));
             jeVisSample.commit();
             return true;
         } catch (Exception e) {

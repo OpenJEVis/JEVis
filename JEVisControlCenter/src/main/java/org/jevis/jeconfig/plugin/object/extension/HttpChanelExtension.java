@@ -56,7 +56,7 @@ public class HttpChanelExtension implements ObjectEditorExtension {
 
         try {
             pathAttribute = jeVisObject.getAttribute(JC.Channel.HTTPChannel.a_Path);
-            parameterAttribute = jeVisObject.getAttribute("parameter");
+            parameterAttribute = jeVisObject.getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig);
 
 
             Node node = parameterGui.buildGui(pathAttribute.getLatestSample(), parameterAttribute.getLatestSample(), I18n.getInstance().getString("plugin.objects.extension.paramter.path"));
@@ -104,25 +104,6 @@ public class HttpChanelExtension implements ObjectEditorExtension {
 
     @Override
     public void showHelp(boolean show) {
-
-    }
-
-
-    private Optional<JEVisObject> getParent(JEVisObject jeVisObject) {
-        try {
-
-            for (JEVisObject parent : jeVisObject.getParents()) {
-                if (parent.getJEVisClass().equals(httpChannelClass)) {
-                    return Optional.of(parent);
-                }
-
-            }
-
-        } catch (Exception e) {
-            logger.error(e);
-        }
-        return Optional.empty();
-
 
     }
 
