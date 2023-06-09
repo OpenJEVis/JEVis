@@ -12,21 +12,20 @@ public class Parameters {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Parameters.class);
 
-    private int second = 1000;
-    private String username;
-    private String password;
-    private String connectionURI;
-    private Integer port;
+    private final int second = 1000;
+    private final String username;
+    private final String password;
+    private final String connectionURI;
+    private final Integer port;
+    private final boolean sslEnabled;
+    private final String driver;
+    private final JEVisObject sqlServerObj;
     private Integer connectionTimeout = 30 * second;
     private Integer readTimeout = 60 * second * 10;
     private Boolean enabled = false;
-    private DateTimeZone timezone = DateTimeZone.UTC;
-    private boolean sslEnabled;
-    private String driver;
 
     //private String query;
-
-    private JEVisObject sqlServerObj;
+    private DateTimeZone timezone = DateTimeZone.UTC;
 
     public Parameters(JEVisObject sqlServerObj) throws Exception {
 
@@ -72,11 +71,11 @@ public class Parameters {
                 if (lSample != null) {
 
                     if (defaultValue instanceof DateTimeZone) {
-                        return (T) DateTimeZone.forID(lSample.getValueAsString());
+                        return (T) DateTimeZone.forID(lSample.getValueAsString().trim());
                     }
 
                     if (defaultValue instanceof String) {
-                        return (T) lSample.getValueAsString();
+                        return (T) lSample.getValueAsString().trim();
                     }
 
                     if (defaultValue instanceof Long) {
@@ -98,7 +97,7 @@ public class Parameters {
 
 
         } catch (Exception ex) {
-            if (ignoredError == true) {
+            if (ignoredError) {
                 return (T) defaultValue;
             } else {
                 logger.error("Empty Attribute '{}:{}' can not be ignored cancel", obj, attType, ex);

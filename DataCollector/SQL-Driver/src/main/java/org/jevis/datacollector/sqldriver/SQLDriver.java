@@ -65,7 +65,7 @@ public class SQLDriver implements DataSource {
                                         fmt = DateTimeFormat.forPattern(requestParameters.timeStampFormate().substring(7));
                                     }
                                     dateTime = fmt.parseDateTime(requestParameters.timeStampColumn());
-                                } else if (requestParameters.timeStampFormate().toUpperCase().equals("TIMESTAMP")) {
+                                } else if (requestParameters.timeStampFormate().equalsIgnoreCase("TIMESTAMP")) {
                                     Timestamp ts = rs.getTimestamp(requestParameters.timeStampColumn());
                                     dateTime = new DateTime(ts.getTime());
                                 }
@@ -102,7 +102,7 @@ public class SQLDriver implements DataSource {
 
                             } catch (Exception ex) {
                                 logger.error("Error in Row: ", ex, ex);
-                                logStatus(5, new DateTime(), "SQL Error: " + ex.toString());
+                                logStatus(5, new DateTime(), "SQL Error: " + ex);
                             }
                         }
                         logger.info("Importing {} sample for {}:{}:{}", resultSamples.size(), sqlServerObj.getID(), sqlServerObj.getName(), requestParameters.getTarget().getObjectID());
@@ -117,7 +117,7 @@ public class SQLDriver implements DataSource {
 
                     } catch (Exception ex) {
                         logger.error(ex, ex);
-                        logStatus(4, new DateTime(), "Error: " + ex.toString());
+                        logStatus(4, new DateTime(), "Error: " + ex);
                     }
                 }
 
@@ -135,7 +135,7 @@ public class SQLDriver implements DataSource {
             startReadout();
             logStatus(0, new DateTime(), "End Readout - Imported: " + totalSamples);
         } catch (Exception e) {
-            logger.error("Error while Run SQL Driver: {}:{}",sqlServerObj.getID(),sqlServerObj.getName(),e);
+            logger.error("Error while Run SQL Driver: {}:{}", sqlServerObj.getID(), sqlServerObj.getName(), e);
         }
     }
 
@@ -147,6 +147,7 @@ public class SQLDriver implements DataSource {
                 logger.error("Error Server Object is null");
                 return;
             }
+
             lastReadoutAttribute = sqlServerObj.getAttribute("Last Readout");
             statusAttribute = sqlServerObj.getAttribute("Status Log");
 
@@ -157,7 +158,7 @@ public class SQLDriver implements DataSource {
             loadDriver(parameters.driver());
         } catch (Exception ex) {
             logger.error("Error while fetching data from Server: {}:{}", sqlServerObj.getID(), sqlServerObj.getName(), ex);
-            logStatus(1, new DateTime(), "Unexpected error: " + ex.toString());
+            logStatus(1, new DateTime(), "Unexpected error: " + ex);
         }
     }
 
