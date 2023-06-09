@@ -1,0 +1,23 @@
+.text-area {
+    -fx-background-insets: 0;
+    -fx-padding: 0px;
+    -fx-background-color: transparent;
+}
+
+.text-area .content {
+    -fx-background-color: transparent;
+}
+
+.text-area:focused .content {
+    -fx-background-color: transparent;
+}
+
+.text-area:focused {
+    -fx-highlight-fill: transparent;
+}
+
+.text-area .content {
+    -fx-padding: 0px;
+    -fx-text-fill: gray;
+    -fx-highlight-fill: transparent;
+}

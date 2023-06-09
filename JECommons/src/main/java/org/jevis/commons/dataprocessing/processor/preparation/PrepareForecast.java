@@ -84,6 +84,10 @@ public class PrepareForecast implements ProcessStep {
                     endOfInterval = fixTimeZoneOffset(tz, endOfInterval, offset);
                     endOfInterval = endOfInterval.minusMillis(1);
 
+                    if (!start.isBefore(endOfInterval)) {
+                        break;
+                    }
+                    
                     Interval interval = new Interval(start, endOfInterval);
                     CleanInterval cleanInterval = new CleanInterval(interval, start);
                     cleanInterval.getResult().setTimeStamp(start);

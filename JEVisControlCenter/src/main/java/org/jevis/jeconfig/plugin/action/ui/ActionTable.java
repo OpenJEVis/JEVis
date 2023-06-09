@@ -2,9 +2,11 @@ package org.jevis.jeconfig.plugin.action.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.OverrunStyle;
@@ -46,25 +48,28 @@ public class ActionTable extends TableView<ActionData> {
         }
     }
 
+    private final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+    private final TableFilter tableFilter = new TableFilter();
+    private final ObservableList<SummeryData> summeryData;
+    private final Statistics statistic;
+    private final boolean showSumRow = false;
+    private final ActionPlanData actionPlanData;
     ObservableList<ActionData> data = FXCollections.observableArrayList();
     FilteredList<ActionData> filteredData;
+    NumberFormat currencyFormat = NumerFormating.getInstance().getCurrencyFormat();
     private ObservableList<String> statusFilter = FXCollections.observableArrayList();
     private ObservableList<String> mediumFilter = FXCollections.observableArrayList();
     private ObservableList<String> fieldFilter = FXCollections.observableArrayList();
     private ObservableList<String> fieldSEU = FXCollections.observableArrayList();
     private ObservableList<String> planFilters = FXCollections.observableArrayList();
-    private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private TableFilter tableFilter = new TableFilter();
     private DateFilter dateFilter;
-    private boolean showSumRow = false;
     private String containsTextFilter = "";
 
-    NumberFormat currencyFormat = NumerFormating.getInstance().getCurrencyFormat();
-
-    public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data) {
+    public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data, Statistics statistic) {
         this.data = data;
+        this.actionPlanData = actionPlanData;
         this.filteredData = new FilteredList<>(this.data);
-
+        this.statistic = statistic;
         SortedList sortedList = new SortedList(this.filteredData);
         setItems(sortedList);
         sortedList.comparatorProperty().bind(this.comparatorProperty());
@@ -76,7 +81,6 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> fromUserCol = new TableColumn(fakeForName.fromUserProperty().getName());
         fromUserCol.setCellValueFactory(param -> param.getValue().fromUserProperty());
         fromUserCol.setCellFactory(buildShotTextFactory());
-
 
         TableColumn<ActionData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsibleProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsibleProperty());
@@ -111,6 +115,7 @@ public class ActionTable extends TableView<ActionData> {
         statusTagsPropertyCol.setCellValueFactory(param -> param.getValue().statusTagsProperty());
         statusTagsPropertyCol.setCellFactory(new StringListColumnCell());
         statusTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
+        statusTagsPropertyCol.setMinWidth(110);
 
         TableColumn<ActionData, String> fieldTagsPropertyCol = new TableColumn(fakeForName.fieldTagsProperty().getName());
         fieldTagsPropertyCol.setCellValueFactory(param -> param.getValue().fieldTagsProperty());
@@ -164,17 +169,20 @@ public class ActionTable extends TableView<ActionData> {
         investPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         investPropertyCol.setCellFactory(new CurrencyColumnCell());
 
+
         TableColumn<ActionData, Double> savingYearPropertyCol = new TableColumn(fakeForName.npv.get().einsparung.getName());
         savingYearPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().einsparung.asObject());
         //savingYearPropertyCol.setCellFactory(buildShotTextFactory());
         savingYearPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         savingYearPropertyCol.setCellFactory(new CurrencyColumnCell());
+        savingYearPropertyCol.setMinWidth(130);
 
 
         TableColumn<ActionData, Double> enpiDevelopmentPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.enpiabechange"));
         enpiDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().enpi.get().diffProperty().asObject());
         //savingYearPropertyCol.setCellFactory(buildShotTextFactory());
         enpiDevelopmentPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        enpiDevelopmentPropertyCol.setMinWidth(150);
         enpiDevelopmentPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
             @Override
             public TableCell<ActionData, Double> call(TableColumn<ActionData, Double> param) {
@@ -198,6 +206,7 @@ public class ActionTable extends TableView<ActionData> {
         consumptionDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().consumption.get().diffProperty().asObject());
         //consumptionDevelopmentPropertyCol.setCellFactory(buildShotTextFactory());
         consumptionDevelopmentPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        consumptionDevelopmentPropertyCol.setMinWidth(160);
         //consumptionDevelopmentPropertyCol.setCellFactory(new CurrencyColumnCell());
         consumptionDevelopmentPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
             @Override
@@ -227,7 +236,7 @@ public class ActionTable extends TableView<ActionData> {
         fromUserCol.setVisible(false);
         responsiblePropertyCol.setVisible(true);
         desciptionPropertyCol.setVisible(false);
-        notePropertyCol.setVisible(true);
+        notePropertyCol.setVisible(false);
         createDatePropertyCol.setVisible(true);
         titlePropertyCol.setVisible(true);
         mediaTagsPropertyCol.setVisible(true);
@@ -247,7 +256,7 @@ public class ActionTable extends TableView<ActionData> {
         consumptionDevelopmentPropertyCol.setVisible(true);
 
         //setPrefHeight(1000);
-        titlePropertyCol.setPrefWidth(370);
+        titlePropertyCol.setPrefWidth(420);
         notePropertyCol.setPrefWidth(220);
 
 
@@ -269,22 +278,87 @@ public class ActionTable extends TableView<ActionData> {
 
         getSortOrder().addAll(createDatePropertyCol, actionNrPropertyCol);
 
+        //StringProperty summeryNrProperty = new SimpleStringProperty("Summe:");
+        ObservableMap<TableColumn, StringProperty> summeryRow1 = FXCollections.observableHashMap();
+        ObservableMap<TableColumn, StringProperty> summeryRow2 = FXCollections.observableHashMap();
 
+        summeryData = FXCollections.observableArrayList();
+        summeryData.add(new SummeryData(summeryRow1));
+        summeryData.add(new SummeryData(summeryRow2));
+
+
+        //summeryFunctionListA.put(actionNrPropertyCol, summeryNrProperty);
+        summeryRow1.put(investPropertyCol, statistic.sumInvestStrPropertyProperty());
+        summeryRow1.put(savingYearPropertyCol, statistic.sumSavingsStrPropertyProperty());
+        summeryRow1.put(consumptionDevelopmentPropertyCol, statistic.sumNPVResultStrPropertyProperty());
+
+        summeryRow1.put(titlePropertyCol, statistic.sumSinceStrImplementationProperty());
+        summeryRow2.put(consumptionDevelopmentPropertyCol, statistic.sumSavingsByMediumProperty());
+
+
+        updateStatusSummery(statusTagsPropertyCol);
+        updateMediumConsumptionSum(consumptionDevelopmentPropertyCol);
+
+
+        actionPlanData.getMediumTags().addListener((ListChangeListener<? super String>) c -> {
+            while (c.next()) {
+            }
+            updateMediumConsumptionSum(consumptionDevelopmentPropertyCol);
+        });
+        actionPlanData.getStatustags().addListener((ListChangeListener<? super String>) c -> {
+            while (c.next()) {
+            }
+            updateStatusSummery(statusTagsPropertyCol);
+        });
+    }
+
+    private void updateMediumConsumptionSum(TableColumn tableColumn) {
+        int row = 1;
+        for (String s : actionPlanData.getMediumTags()) {
+            addSummeryForMedium(s, tableColumn, row);
+            row++;
+        }
+    }
+
+    private void updateStatusSummery(TableColumn tableColumn) {
+        int row = 0;
+        for (String s : actionPlanData.getStatustags()) {
+            addSummeryForStatus(s, tableColumn, row);
+            row++;
+        }
+    }
+
+    public ObservableList<SummeryData> getSummeryData() {
+        return summeryData;
+    }
+
+    private SummeryData getOrCreateSummeryData(int row) {
+        int missingRows = row - summeryData.size() + 1;
+        // System.out.println("Get Col: " + row + "/" + (summeryData.size() + 1) + "=" + missingRows);
+        if (missingRows > 0) {
+            for (int i = 0; i < missingRows; i++) {
+                ObservableMap<TableColumn, StringProperty> summeryFunctionList = FXCollections.observableHashMap();
+                SummeryData data = new SummeryData(summeryFunctionList);
+                summeryData.add(data);
+            }
+        }
+        return summeryData.get(row);
+    }
+
+    private void addSummeryForMedium(String medium, TableColumn column, int row) {
+        SummeryData data1 = getOrCreateSummeryData(row);
+        data1.getSummeryList().put(column, statistic.getMediumSum(medium));
+    }
+
+    private void addSummeryForStatus(String status, TableColumn column, int row) {
+        SummeryData data1 = getOrCreateSummeryData(row);
+        data1.getSummeryList().put(column, statistic.getStatusAmount(status));
     }
 
     public ObservableList<ActionData> getFilteredList() {
         return filteredData;
     }
 
-    public void enableSumRow(boolean enable) {
-        showSumRow = enable;
-        if (enable) {
-            //sumRow.nrProperty().set(Integer.MAX_VALUE);
-            // data.add(sumRow);
-        } else {
-            // data.remove(sumRow);
-        }
-    }
 
     public void autoFitTable() {
         for (TableColumn<ActionData, ?> column : this.getColumns()) {
@@ -522,7 +596,7 @@ public class ActionTable extends TableView<ActionData> {
                                     }
 
                                     //TODO: may also check if column is visible
-                                    if (!containString.get()) return false;
+                                    return containString.get();
                                 }
 
                                 //System.out.println("Return true");

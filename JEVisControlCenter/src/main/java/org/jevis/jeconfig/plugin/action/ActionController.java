@@ -29,16 +29,21 @@ public class ActionController {
     private final ActionPlugin plugin;
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
+    private final TabPane tabPane = new TabPane();
+    private final BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
     private ObservableList<ActionPlanData> actionPlans;
     private ObservableList<ActionPlanData> actionPlansFilters;
-
     private ObservableList<String> actionPlanNames;
-    private TabPane tabPane = new TabPane();
-    private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
 
     public ActionController(ActionPlugin plugin) {
+
         this.plugin = plugin;
+        AnchorPane.setBottomAnchor(tabPane, 0.0);
+        AnchorPane.setTopAnchor(tabPane, 0.0);
+        AnchorPane.setRightAnchor(tabPane, 0.0);
+        AnchorPane.setLeftAnchor(tabPane, 0.0);
+        contentPane.getChildren().add(tabPane);
     }
 
     public void loadActionView() {
@@ -68,13 +73,39 @@ public class ActionController {
             isOverviewTab.set(getActiveActionPlan() instanceof ActionPlanOverviewData);
         });
 
+    }
 
-        AnchorPane.setBottomAnchor(tabPane, 0.0);
-        AnchorPane.setTopAnchor(tabPane, 0.0);
-        AnchorPane.setRightAnchor(tabPane, 0.0);
-        AnchorPane.setLeftAnchor(tabPane, 0.0);
-        contentPane.getChildren().add(tabPane);
+    public void reload() {
+        actionPlans.forEach(actionPlanData -> {
+            try {
+                JEConfig.getDataSource().reloadObject(actionPlanData.getObject());
+                JEConfig.getDataSource().reloadAttribute(actionPlanData.getObject());
 
+            } catch (Exception ex) {
+                logger.error("Error while reloading ActionPlan", ex);
+            }
+        });
+
+        try {
+            JEVisClass actionClass = JEConfig.getDataSource().getJEVisClass("Action");
+            List<JEVisObject> actions = JEConfig.getDataSource().getObjects(actionClass, true);
+            actions.forEach(jeVisObject -> {
+                try {
+                    JEConfig.getDataSource().reloadObject(jeVisObject);
+                    JEConfig.getDataSource().reloadAttribute(jeVisObject);
+                } catch (Exception ex) {
+
+                }
+            });
+
+        } catch (Exception exception) {
+
+        }
+
+        actionPlans.clear();
+        tabPane.getTabs().clear();
+        loadActionView();
+        loadActionPlans();
 
     }
 
@@ -302,6 +333,7 @@ public class ActionController {
         if (optional.get() == buttonTypeOne) {
             data.setNew(false);
             data.commit();
+            getActiveTab().updateStatistics();
         } else {
             if (data.isNew()) {
                 data.getActionPlan().removeAction(data);
