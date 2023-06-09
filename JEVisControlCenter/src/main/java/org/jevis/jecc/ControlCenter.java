@@ -258,7 +258,7 @@ public class ControlCenter extends Application {
 
 
     /**
-     * Get an imge in the given size from the common
+     * Get an image in the given size from the common
      *
      * @param icon
      * @param height
@@ -273,7 +273,7 @@ public class ControlCenter extends Application {
     }
 
     /**
-     * Inform the user the some precess is working
+     * Inform the user some precess is working
      *
      * @param working
      */
@@ -611,7 +611,7 @@ public class ControlCenter extends Application {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         //Platform.runLater(() -> notificationPane.show(message));
 
-        /**delay or it will not be shown**/
+        // delay or it will not be shown
         executor.schedule(new Runnable() {
             @Override
             public void run() {
