@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.Parser;
 import org.jevis.commons.driver.ParserReport;
@@ -41,15 +42,14 @@ public class JEVisJSONParser implements Parser {
     @Override
     public void parse(List<InputStream> input, DateTimeZone timezone) {
         try {
-            if (!parserObject.getAttribute("Date Time Path").hasSample()) return;
-            String dateTimePath = parserObject.getAttribute("Date Time Path").getLatestSample().getValueAsString();
+            if (!parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).hasSample()) return;
+            String dateTimePath = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).getLatestSample().getValueAsString();
             input.forEach(inputStream -> {
                 JSONParser jsonParser = new JSONParser(inputStream);
                 List<DateTime> dateTimes = new ArrayList<>();
                 try {
-                    if (!parserObject.getAttribute("Date Time Format").hasSample()) return;
-                    String dateTimeFormat = parserObject.getAttribute("Date Time Format").getLatestSample().getValueAsString();
-                    dateTimes = convertDateTime(dateTimePath, jsonParser, dateTimeFormat);
+                    if (!parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).hasSample()) return;
+                    dateTimes = getDateTimes(dateTimePath, jsonParser, dateTimes);
                 } catch (Exception e) {
                     logger.error(e);
                 }
@@ -57,14 +57,8 @@ public class JEVisJSONParser implements Parser {
                 jsonChannels.forEach(jsonChannel -> {
                     try {
                         if (!jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH).hasSample()) return;
-                        String valuePath = jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH).getLatestSample().getValueAsString();
-                        List<String> statusValues = getStatusList(jsonParser, jsonChannel);
-                        String statusOK = getStatusOkCondition(jsonChannel, DataCollectorTypes.Channel.JSONChannel.STAUS_VALUE_OK);
-                        String regex = getRegex(jsonChannel);
-                        List<String> values = getValueList(jsonParser, valuePath, regex);
-                        String targetString = getTargetValueAtribute(jsonChannel);
-                        Map map = getDateValueMap(finalDateTimes, values, statusValues, statusOK);
-                        results.addAll(getResults(targetString, map));
+                        List<Result> resultList = getResults(jsonParser, finalDateTimes, jsonChannel);
+                        results.addAll(resultList);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -76,6 +70,25 @@ public class JEVisJSONParser implements Parser {
 
 
     }
+
+    private List<DateTime> getDateTimes(String dateTimePath, JSONParser jsonParser, List<DateTime> dateTimes) throws JEVisException {
+        String dateTimeFormat = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).getLatestSample().getValueAsString();
+        dateTimes = convertDateTime(dateTimePath, jsonParser, dateTimeFormat);
+        return dateTimes;
+    }
+
+    private List<Result> getResults(JSONParser jsonParser, List<DateTime> finalDateTimes, JEVisObject jsonChannel) throws JEVisException {
+        String valuePath = jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH).getLatestSample().getValueAsString();
+        List<String> statusValues = getStatusList(jsonParser, jsonChannel);
+        String statusOK = getStatusOkCondition(jsonChannel, DataCollectorTypes.Channel.JSONChannel.STAUS_VALUE_OK);
+        String regex = getRegex(jsonChannel);
+        List<String> values = getValueList(jsonParser, valuePath, regex);
+        String targetString = getTargetValueAtribute(jsonChannel);
+        Map map = getDateValueMap(finalDateTimes, values, statusValues, statusOK);
+        List<Result> resultList =getResults(targetString, map);
+        return resultList;
+    }
+
 
     private List<String> getValueList(JSONParser jsonParser, String valuePath, String regex) {
         List<JsonNode> valuesJson = jsonParser.parse(valuePath);

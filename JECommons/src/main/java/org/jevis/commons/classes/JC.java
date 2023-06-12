@@ -3547,6 +3547,13 @@ public interface JC {
 
         }
 
+        public interface JSONParser{
+            public static String name = "JSON Parser";
+
+            public static String a_dateTimeFormat = "Date Time Format";
+            public static String a_dateTimePath = "Date Time Path";
+        }
+
         public interface XMLParser {
             public static String name = "XML Parser";
 
