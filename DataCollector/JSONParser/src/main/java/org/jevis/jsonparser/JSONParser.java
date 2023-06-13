@@ -23,6 +23,10 @@ public class JSONParser {
 
     }
 
+    public void setInputStream(InputStream inputStream) {
+        rootObject = getJSONObject(inputStream);
+    }
+
     private Optional<JsonNode> getJSONObject(InputStream inputStream) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -44,9 +48,8 @@ public class JSONParser {
             e.printStackTrace();
         }
 
-        System.out.println(results);
 
-
+        logger.error("Parse Result: {}",results);
         return results;
     }
 

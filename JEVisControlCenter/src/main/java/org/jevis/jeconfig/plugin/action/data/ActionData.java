@@ -18,7 +18,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
-import org.jevis.jeconfig.tool.gson.GsonBuilder;
+import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;

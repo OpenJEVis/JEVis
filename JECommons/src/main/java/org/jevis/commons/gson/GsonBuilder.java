@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.tool.gson;
+package org.jevis.commons.gson;
 
 import com.google.gson.*;
 import javafx.beans.property.SimpleListProperty;

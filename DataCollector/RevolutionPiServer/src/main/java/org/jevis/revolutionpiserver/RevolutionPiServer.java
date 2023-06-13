@@ -90,14 +90,17 @@ public class RevolutionPiServer implements DataSource {
                 }
                 resource += prefix + "id" + "=" + sourceId;
                 try(InputStream inputStream = this.con.getInputStreamRequest(resource)) {
-                    if (inputStream != null) {
+                    if (inputStream == null) return;
                         String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
                         RevPiResult[] revPiResults = objectMapper.readValue(result, RevPiResult[].class);
+                        if(revPiResults == null || revPiResults.length == 0) return;
                         for (RevPiResult sample : revPiResults) {
                             try {
                                 DateTime dateTime = DateTime.parse(sample.getDateTime(), FMT2);
-                                JEVisSample statusSample = statusAttribute.buildSample(dateTime, sample.getStatus());
-                                stati.add(statusSample);
+                                if (sample.getStatus() != 0) {
+                                    JEVisSample statusSample = statusAttribute.buildSample(dateTime, sample.getStatus());
+                                    stati.add(statusSample);
+                                }
                                 if (sample.getStatus() == OK) {
                                     JEVisSample jeVisSample = targetAttribute.buildSample((dateTime), sample.getValue());
                                     logger.debug("Add Sample {}", jeVisSample);
@@ -110,7 +113,6 @@ public class RevolutionPiServer implements DataSource {
                                 logger.error("Error parsing sample {} of sourceAttribute {}:{}", sample.toString(), targetAttribute.getObject().getID(), targetAttribute.getName());
                             }
                         }
-                    }
                 } catch (IllegalArgumentException ex) {
                     logger.error("Illegal argument exception. Error in getting samples.", ex);
                 } catch (JsonParseException ex) {
