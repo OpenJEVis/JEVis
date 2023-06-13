@@ -19,9 +19,6 @@
  */
 package org.jevis.emaildatasource;
 
-import com.sun.mail.imap.IMAPFolder;
-import com.sun.mail.imap.IMAPSSLStore;
-import com.sun.mail.imap.IMAPStore;
 import jakarta.mail.Folder;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
@@ -40,18 +37,19 @@ public class IMAPConnection implements EMailConnection {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(IMAPConnection.class);
 
     private Store _store;
-    private IMAPFolder _folder;
-    private IMAPSSLStore _sslStore;
+    private Folder _folder;
+    private Store _sslStore;
     private String _foldName;
 
     @Override
     public void setConnection(Session session, EMailServerParameters param) {
-
-        if (param.isSsl()) {
-            _store = new IMAPSSLStore(session, null);
-        } else {
-            _store = new IMAPStore(session, null);
-        }
+        //TODO JFX17
+        _store = _folder.getStore();
+//        if (param.isSsl()) {
+//            _store = new IMAPSSLStore(session, null);
+//        } else {
+//            _store = new IMAPStore(session, null);
+//        }
         _foldName = param.getFolderName();
         try {
             logger.info("Connect to IMAP Server: {}, User: {}, PW: '{}' .....", param.getHost(), param.getUserEMail(), param.getPassword());
@@ -80,12 +78,12 @@ public class IMAPConnection implements EMailConnection {
     }
 
     @Override
-    public IMAPFolder getFolder() {
+    public Folder getFolder() {
         try {
             if (!_store.isConnected()) {
                 logger.error("Connected not possible");
             }
-            _folder = (IMAPFolder) _store.getFolder(_foldName);
+            _folder = _store.getFolder(_foldName);
             if (_folder == null) {
                 Folder[] f = _store.getDefaultFolder().list();
 
