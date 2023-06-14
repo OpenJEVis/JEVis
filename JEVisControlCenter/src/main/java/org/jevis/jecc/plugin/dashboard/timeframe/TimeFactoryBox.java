@@ -49,12 +49,14 @@ public class TimeFactoryBox extends DisabledItemsComboBox<TimeFrame> {
         setConverter(new StringConverter<TimeFrame>() {
             @Override
             public String toString(TimeFrame object) {
-                return object.getListName();
+                if (object != null) {
+                    return object.getListName();
+                } else return "";
             }
 
             @Override
             public TimeFrame fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().stream().filter(timeFrame -> timeFrame.getListName().equals(string)).findFirst().orElse(null);
             }
         });
 
