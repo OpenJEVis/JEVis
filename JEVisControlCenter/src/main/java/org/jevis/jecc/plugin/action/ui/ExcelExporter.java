@@ -16,6 +16,7 @@ import org.jevis.jecc.plugin.action.data.ActionData;
 import org.jevis.jecc.plugin.action.data.ActionPlanData;
 import org.joda.time.DateTime;
 
+import java.awt.Color;
 import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -426,10 +427,13 @@ public class ExcelExporter {
         CellStyle currencyStyle = getCurrencyStyle(workbook);
 
         XSSFSheet sheet = workbook.createSheet(actionPlanData.getName().get());
+        IndexedColorMap colorMap = workbook.getStylesSource().getIndexedColors();
         if (actionPlanData.getName().get().equals("Übersicht")) {
-            sheet.setTabColor(new XSSFColor(new java.awt.Color(37, 150, 190)));
+            XSSFColor xssfColor = new XSSFColor(new Color(37, 150, 190), colorMap);
+            sheet.setTabColor(xssfColor);
         } else {
-            sheet.setTabColor(new XSSFColor(new java.awt.Color(55, 72, 148)));
+            XSSFColor xssfColor = new XSSFColor(new Color(55, 72, 148), colorMap);
+            sheet.setTabColor(xssfColor);
         }
 
 

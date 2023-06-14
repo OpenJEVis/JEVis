@@ -96,7 +96,6 @@ public class FXLogin extends AnchorPane {
     private final List<JEVisClass> classes = new ArrayList<>();
     //    private final MFXComboBox<JEVisConfiguration> serverSelection = new MFXComboBox<>();
     private final String css = "";
-
     private final int lastServer = -1;
     private final Stage statusDialog = new Stage(StageStyle.TRANSPARENT);
 
@@ -104,10 +103,10 @@ public class FXLogin extends AnchorPane {
     private final List<PreloadTask> tasks = new ArrayList<>();
 
     private final SimpleBooleanProperty loginStatus = new SimpleBooleanProperty(false);
-//    private final String URL_SYNTAX = "user:password@server:port/jevis";
+    //    private final String URL_SYNTAX = "user:password@server:port/jevis";
     private final ProgressIndicator progress = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
-    //Workaround replace later, in the moment i have problems showing the xeporion in an thread as an Alart
-    private final Exception lastExeption = null;
+    //Workaround replace later, at the moment I have problems showing the exception in a thread as an Alert
+    private final Exception lastException = null;
     private final NotificationPane notificationPane = new NotificationPane();
     private final StringBuilder messageText = new StringBuilder();
     private JEVisDataSource _ds;
@@ -115,7 +114,7 @@ public class FXLogin extends AnchorPane {
     private VBox mainHBox = new VBox();
     private Application.Parameters parameters;
     private List<JEVisOption> configuration;
-    private JEVisOption fxoptions;
+    private JEVisOption fxOptions;
     private boolean useCSSFile = false;
     private ApplicationInfo app = new ApplicationInfo("FXLogin", "");
     private Locale selectedLocale = Locale.getDefault();
@@ -133,7 +132,7 @@ public class FXLogin extends AnchorPane {
 
         this.messageBox.getStylesheets().add(FXLogin.class.getResource("/styles/LoginMessageBox.css").toExternalForm());
 //
-        this.messageBox.setId("LoginMessageBox");
+//        this.messageBox.setId("LoginMessageBox");
         this.messageBox.setBorder(null);
         this.messageBox.setPadding(new Insets(0));
         this.messageBox.setEditable(false);
@@ -150,7 +149,7 @@ public class FXLogin extends AnchorPane {
         this.configuration = parseConfig(parameters);
         for (JEVisOption opt : this.configuration) {
             if (opt.equals(CommonOptions.FXLogin.FXLogin)) {
-                this.fxoptions = opt;
+                this.fxOptions = opt;
             }
         }
 
@@ -184,9 +183,9 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Create an new Loginpanel
+     * Create a new Login panel
      *
-     * @param stage      The Stage will be used of eventuell dialogs
+     * @param stage      The Stage will be used of eventual dialogs
      * @param parameters
      */
     public FXLogin(Stage stage, Application.Parameters parameters) {
@@ -276,7 +275,7 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Load the DataSource from an configuration object.
+     * Load the DataSource from a configuration object.
      *
      * @param config
      * @return
@@ -305,9 +304,9 @@ public class FXLogin extends AnchorPane {
      */
     private void setStyleSheet() {
         try {
-            if (this.fxoptions != null) {
-                if (this.fxoptions.hasOption(CommonOptions.FXLogin.URL_CSS.getKey())) {
-                    JEVisOption opt = this.fxoptions.getOption(CommonOptions.FXLogin.URL_CSS.getKey());
+            if (this.fxOptions != null) {
+                if (this.fxOptions.hasOption(CommonOptions.FXLogin.URL_CSS.getKey())) {
+                    JEVisOption opt = this.fxOptions.getOption(CommonOptions.FXLogin.URL_CSS.getKey());
                     this.mainStage.getScene().getStylesheets().add(opt.getValue());
                     this.useCSSFile = true;
                 }
@@ -443,18 +442,18 @@ public class FXLogin extends AnchorPane {
      *
      * @return
      */
-    private Node buildHeader() {
+    private AnchorPane buildHeader() {
         AnchorPane header = new AnchorPane();
-        header.setId("fxlogin-header");
+//        header.setId("fxlogin-header");
         setDefaultStyle(header, "-fx-background-color: " + Color.MID_GREY);
 
         ImageView logo = null;
 
         String defaultLogo = "/icons/openjevis_longlogo.png";
 
-        if (this.fxoptions != null) {
-            if (this.fxoptions.hasOption(CommonOptions.FXLogin.URL_LOGO.getKey())) {
-                JEVisOption opt = this.fxoptions.getOption(CommonOptions.FXLogin.URL_LOGO.getKey());
+        if (this.fxOptions != null) {
+            if (this.fxOptions.hasOption(CommonOptions.FXLogin.URL_LOGO.getKey())) {
+                JEVisOption opt = this.fxOptions.getOption(CommonOptions.FXLogin.URL_LOGO.getKey());
                 if (opt.getValue() != null && !opt.getValue().isEmpty()) {
                     try {
                         logo = new ImageView(new Image(opt.getValue()));
@@ -478,7 +477,7 @@ public class FXLogin extends AnchorPane {
         AnchorPane.setBottomAnchor(logo, 0.0);
         AnchorPane.setLeftAnchor(logo, 0.0);
 
-        logo.setId("fxlogin-header-logo");
+//        logo.setId("fxlogin-header-logo");
 
         return header;
     }
@@ -488,13 +487,13 @@ public class FXLogin extends AnchorPane {
      *
      * @return
      */
-    private Node buildFooter() {
+    private AnchorPane buildFooter() {
         AnchorPane footer = new AnchorPane();
-        footer.setId("fx-login-footer");
+//        footer.setId("fx-login-footer");
         setDefaultStyle(footer, "-fx-background-color: " + Color.MID_GREY);
 
         Node buildInfo = buildBuildInfo();
-        buildInfo.setId("fx-login-footer-info");
+//        buildInfo.setId("fx-login-footer-info");
         AnchorPane.setBottomAnchor(buildInfo, 5.0);
         AnchorPane.setRightAnchor(buildInfo, 5.0);
         footer.getChildren().add(buildInfo);
@@ -507,7 +506,7 @@ public class FXLogin extends AnchorPane {
      *
      * @return
      */
-    private Node buildButtonsbar() {
+    private HBox buildButtonsbar() {
         Region spacer = new Region();
         setDefaultStyle(spacer, "-fx-background-color: transparent;");
 
@@ -525,9 +524,9 @@ public class FXLogin extends AnchorPane {
      *
      * @return
      */
-    private Node buildAuthForm() {
+    private VBox buildAuthForm() {
 
-        Node buttonBox = buildButtonsbar();
+        HBox buttonBox = buildButtonsbar();
 //        Node serverConfigBox = buildServerSelection();
         Region serverConfigBox = new Region();
         this.langSelect = buildLanguageBox();
@@ -537,19 +536,19 @@ public class FXLogin extends AnchorPane {
 
         //this.loginButton.setId("fxlogin-form-login");
         //this.closeButton.setId("fxlogin-form-close");
-        this.userName.setId("fxlogin-form-username");
+//        this.userName.setId("fxlogin-form-username");
         this.userName.setFloatMode(FloatMode.INLINE);
         this.userName.setFloatingText("Username:");
 
-        this.userPassword.setId("fxlogin-form-password");
+//        this.userPassword.setId("fxlogin-form-password");
         this.userPassword.setFloatMode(FloatMode.INLINE);
         this.userPassword.setFloatingText("Password:");
 
-        this.langSelect.setId("fxlogin-form-language");
+//        this.langSelect.setId("fxlogin-form-language");
         this.langSelect.setFloatMode(FloatMode.INLINE);
         this.langSelect.setFloatingText("Language:");
 
-        this.authGrid.setId("fxlogin-form");
+//        this.authGrid.setId("fxlogin-form");
 
         this.closeButton.setOnAction(event -> {
             this.loginStatus.setValue(Boolean.FALSE);
@@ -587,7 +586,7 @@ public class FXLogin extends AnchorPane {
 
         this.authGrid.getChildren().add(buttonBox);
 
-        this.storeConfig.setId("fxlogin-form-rememberme");
+        //this.storeConfig.setId("fxlogin-form-rememberme");
 
         return this.authGrid;
     }
@@ -601,20 +600,20 @@ public class FXLogin extends AnchorPane {
         AnchorPane leftSpacer = new AnchorPane();
         AnchorPane rightSpacer = new AnchorPane();
 
-        leftSpacer.setId("fxlogin-body-left");
-        rightSpacer.setId("fxlogin-body-right");
+//        leftSpacer.setId("fxlogin-body-left");
+//        rightSpacer.setId("fxlogin-body-right");
 
         leftSpacer.setMinWidth(200);//todo 20%
 
         HBox body = new HBox();
-        body.setId("fxlogin-body");
+//        body.setId("fxlogin-body");
         body.getChildren().setAll(leftSpacer, messageBox, rightSpacer);
         HBox.setHgrow(messageBox, Priority.NEVER);
         HBox.setHgrow(leftSpacer, Priority.NEVER);
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
 
-        Node header = buildHeader();
-        Node footer = buildFooter();
+        AnchorPane header = buildHeader();
+        AnchorPane footer = buildFooter();
 
         this.mainHBox = new VBox();
         this.mainHBox.getChildren().setAll(header, body, footer);
@@ -839,14 +838,14 @@ public class FXLogin extends AnchorPane {
      */
     private Node buildLink() {
         Hyperlink link = new Hyperlink();
-        link.setId("fxlogin-form-register");
+//        link.setId("fxlogin-form-register");
         link.setText("Register");
 
         final String url;
 
-        if (this.fxoptions != null) {
-            if (this.fxoptions.hasOption(CommonOptions.FXLogin.URL_REGISTER.getKey())) {
-                JEVisOption opt = this.fxoptions.getOption(CommonOptions.FXLogin.URL_REGISTER.getKey());
+        if (this.fxOptions != null) {
+            if (this.fxOptions.hasOption(CommonOptions.FXLogin.URL_REGISTER.getKey())) {
+                JEVisOption opt = this.fxOptions.getOption(CommonOptions.FXLogin.URL_REGISTER.getKey());
                 if (opt.getValue().equals("off")) {
                     link.setText("");
                     link.setVisible(false);
@@ -910,9 +909,9 @@ public class FXLogin extends AnchorPane {
         AnchorPane leftSpacer = new AnchorPane();
         AnchorPane rightSpacer = new AnchorPane();
 
-        leftSpacer.setId("fxlogin-body-left");
-        rightSpacer.setId("fxlogin-body-right");
-        this.progress.setId("fxlogin-body-progress");
+//        leftSpacer.setId("fxlogin-body-left");
+//        rightSpacer.setId("fxlogin-body-right");
+//        this.progress.setId("fxlogin-body-progress");
 
         this.progress.setPrefSize(80, 80);
         this.progress.setVisible(false);
@@ -922,10 +921,10 @@ public class FXLogin extends AnchorPane {
 
         leftSpacer.setMinWidth(200);//todo 20%
 
-        Node authForm = buildAuthForm();
+        VBox authForm = buildAuthForm();
 
         HBox body = new HBox();
-        body.setId("fxlogin-body");
+//        body.setId("fxlogin-body");
         body.getChildren().setAll(leftSpacer, authForm, rightSpacer, messageBox);
         HBox.setHgrow(authForm, Priority.NEVER);
         HBox.setHgrow(leftSpacer, Priority.NEVER);
@@ -971,7 +970,7 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * The an BooleanProperty which is true if the user logged in successfully
+     * The BooleanProperty which is true if the user logged in successfully
      *
      * @return
      */
@@ -981,8 +980,8 @@ public class FXLogin extends AnchorPane {
 
     /**
      * Store the current setting like username and password in the java
-     * preference context. Warning the password is in plaintext i guess, maye be
-     * find a better solution but the JEVisDataSource needs an plaintext pw.
+     * preference context. Warning the password is in plaintext I guess, maybe
+     * find a better solution but the JEVisDataSource needs a plaintext pw.
      */
     private void storePreference() {
         final String jevisUser = this.userName.getText();
@@ -1000,8 +999,8 @@ public class FXLogin extends AnchorPane {
 
     /**
      * Temporary solution the get the clear text password. The JEConfig will use this
-     * to login into the ISO 50001 webservice. Will be reloaded if an better way
-     * is found. Maybe the JEVisDataSource will give acces to it.
+     * to login into the ISO 50001 webservice. Will be reloaded if a better way
+     * is found. Maybe the JEVisDataSource will give access to it.
      *
      * @return
      */

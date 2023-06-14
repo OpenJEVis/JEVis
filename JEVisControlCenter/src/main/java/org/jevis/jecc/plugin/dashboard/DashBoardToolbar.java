@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.dashboard;
 import com.google.common.collect.Iterables;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -192,6 +193,7 @@ public class DashBoardToolbar extends ToolBar {
         logger.debug("InitLayout");
         ObservableList<JEVisObject> observableList = this.dashboardControl.getAllDashboards();
         this.listAnalysesComboBox = new MFXComboBox<>(observableList);
+        this.listAnalysesComboBox.setFloatMode(FloatMode.DISABLED);
         setCellFactoryForComboBox();
         this.listAnalysesComboBox.setPrefWidth(350);
         this.listAnalysesComboBox.setMinWidth(350);
