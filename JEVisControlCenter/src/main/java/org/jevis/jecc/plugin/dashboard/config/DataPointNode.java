@@ -122,6 +122,10 @@ public class DataPointNode {
         this.color = color;
     }
 
+    public void setColor(String colorString) {
+        this.color = Color.web(colorString);
+    }
+
     public ChartType getChartType() {
         return chartType;
     }

@@ -104,7 +104,7 @@ public class DataModelDataHandler {
             try {
                 value = samples.get(0).getValueAsDouble();
             } catch (JEVisException e) {
-                logger.error("Could not get value for datarow {}:{}", dataModel.getObject().getName(), dataModel.getObject().getID(), e);
+                logger.error("Could not get value for data row {}:{}", dataModel.getObject().getName(), dataModel.getObject().getID(), e);
             }
         } else {
             try {
