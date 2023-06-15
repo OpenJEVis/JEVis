@@ -3,6 +3,7 @@ package org.jevis.jecc.dialog;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -179,6 +180,7 @@ public class DataDialog extends Dialog {
         });
 
         MFXComboBox<String> dateConfig = new MFXComboBox<>();
+        dateConfig.setFloatMode(FloatMode.DISABLED);
         dateConfig.getItems().addAll("Auto", "Man");
 
         Label fromLabel = new Label(I18n.getInstance().getString("plugin.graph.dialog.export.from"));

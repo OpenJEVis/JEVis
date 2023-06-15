@@ -23,6 +23,7 @@ package org.jevis.jecc.application.unit;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -71,7 +72,8 @@ public class UnitPanel extends GridPane {
         List<Prefix> list = new ArrayList<>();
         list.add(CustomPrefix.NONE);
         Collections.addAll(list, MetricPrefix.values());
-        MFXComboBox<Prefix> prefixBox = new MFXComboBox(FXCollections.observableArrayList(list));
+        MFXComboBox<Prefix> prefixBox = new MFXComboBox<>(FXCollections.observableArrayList(list));
+        prefixBox.setFloatMode(FloatMode.DISABLED);
         prefixBox.setMaxWidth(520);
 //        prefixBox.getSelectionModel().select("");//toto get elsewhere?!
 

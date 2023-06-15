@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.object.extension.OPC;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -42,7 +43,7 @@ public class OPCBrowser {
     public final JEVisObject opcServerObj;
     MFXTextField port = new MFXTextField();
     MFXButton connect = new MFXButton();
-    MFXComboBox<String> comboRootFolder = new MFXComboBox();
+    MFXComboBox<String> comboRootFolder = new MFXComboBox<>();
     MFXComboBox<String> comboMode = new MFXComboBox<>();
     Dialog opcUaBrowserDialog;
     private OPCClient opcClient;
@@ -52,7 +53,9 @@ public class OPCBrowser {
 
     public OPCBrowser(JEVisObject opcServerObj) {
         this.opcServerObj = opcServerObj;
-
+        this.comboRootFolder.setFloatMode(FloatMode.DISABLED);
+        this.comboMode.setFloatMode(FloatMode.DISABLED);
+        this.port.setFloatMode(FloatMode.DISABLED);
 
         try {
             ds = opcServerObj.getDataSource();

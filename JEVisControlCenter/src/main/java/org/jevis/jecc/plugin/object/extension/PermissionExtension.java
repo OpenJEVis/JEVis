@@ -22,6 +22,7 @@ package org.jevis.jecc.plugin.object.extension;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -404,6 +405,7 @@ public class PermissionExtension implements ObjectEditorExtension {
         MFXButton newB = new MFXButton();
         //ToDo
         final MFXComboBox<JEVisObject> groupsCBox = new MFXComboBox<>();
+        groupsCBox.setFloatMode(FloatMode.DISABLED);
         groupsCBox.setMinWidth(300);
 
         //TODO JFX17
@@ -444,6 +446,7 @@ public class PermissionExtension implements ObjectEditorExtension {
 
         FilteredList<JEVisObject> filteredData = new FilteredList<>(possibleOwners, s -> true);
         MFXTextField filterInput = new MFXTextField();
+        filterInput.setFloatMode(FloatMode.DISABLED);
         filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         filterInput.textProperty().addListener(obs -> {

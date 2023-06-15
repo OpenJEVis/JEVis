@@ -2,6 +2,7 @@ package org.jevis.jecc.plugin.dashboard.config2;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Label;
@@ -36,6 +37,7 @@ public class NewWidgetSelector extends GridPane {
 
     public NewWidgetSelector(DashboardControl dashboardControl) {
         this.control = dashboardControl;
+        this.widgetComboBox.setFloatMode(FloatMode.DISABLED);
         Collection<WidgetSelection> widgets = Widgets.availableWidgets.values().stream().sorted((o1, o2) -> o1.getDisplayname().compareTo(o2.getDisplayname())).collect(Collectors.toList());
         widgetComboBox.getItems().addAll(widgets);
 

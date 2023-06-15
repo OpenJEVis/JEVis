@@ -22,6 +22,7 @@ package org.jevis.jecc.plugin.classes.relationship;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -133,6 +134,7 @@ public class ValidParentEditor {
 
                                   //TODO: replace with Tree selection dialog
                                   final MFXTextField newTF = new MFXTextField();
+                                  newTF.setFloatMode(FloatMode.DISABLED);
 
                                   newTF.setPromptText(I18n.getInstance().getString("plugin.classes.relationship.name.prompt"));
                                   gb.add(new Separator(Orientation.HORIZONTAL), 0, ++x, 2, 1);
@@ -218,6 +220,7 @@ public class ValidParentEditor {
 
     public MFXComboBox<String> buildTypeBox(JEVisClassRelationship rel) throws JEVisException {
         MFXComboBox<String> box = new MFXComboBox<>();
+        box.setFloatMode(FloatMode.DISABLED);
         box.getItems().add(INHERIT);
         box.getItems().add(NESTED);
         box.getItems().add(OK_PARENT);
@@ -249,6 +252,7 @@ public class ValidParentEditor {
 
     public MFXComboBox<String> buildDirectionBox(JEVisClassRelationship rel, JEVisClass jclass) throws JEVisException {
         MFXComboBox<String> box = new MFXComboBox<>();
+        box.setFloatMode(FloatMode.DISABLED);
         box.getItems().add("Forward");
         box.getItems().add("Backward");
 

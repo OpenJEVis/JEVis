@@ -22,6 +22,7 @@ package org.jevis.jecc.plugin.nonconformities.ui;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -100,6 +101,7 @@ public class NewNonconformitiesDialog {
         ObservableList<JEVisObject> optionsParents = FXCollections.observableArrayList(anaylsisDirs);
 
         final MFXComboBox<JEVisObject> comboBox = new MFXComboBox<>(optionsParents);
+        comboBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         comboBox.setConverter(new StringConverter<JEVisObject>() {

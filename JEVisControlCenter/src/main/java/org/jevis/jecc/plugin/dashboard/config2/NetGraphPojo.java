@@ -8,6 +8,7 @@ import com.jfoenix.controls.JFXCheckBox;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -194,6 +195,7 @@ public class NetGraphPojo {
             }
         });
         MFXComboBox = new MFXComboBox<>();
+        MFXComboBox.setFloatMode(FloatMode.DISABLED);
 
         for (NetGraphWidget.SKIN s : NetGraphWidget.SKIN.values()) {
             MFXComboBox.getItems().add(s);

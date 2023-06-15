@@ -7,6 +7,7 @@ package org.jevis.jecc.bulkedit;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -149,6 +150,7 @@ public class EditTable {
         };
 
         MFXComboBox<JEVisClass> classComboBox = new MFXComboBox<JEVisClass>(options);
+        classComboBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
 

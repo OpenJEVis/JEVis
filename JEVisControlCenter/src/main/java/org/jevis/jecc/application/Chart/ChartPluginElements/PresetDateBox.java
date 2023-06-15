@@ -1,6 +1,7 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -40,6 +41,7 @@ public class PresetDateBox extends MFXComboBox<AnalysisTimeFrame> {
         super();
         this.ds = ds;
         this.chartPlugin = chartPlugin;
+        this.setFloatMode(FloatMode.DISABLED);
 
         //TODO: JFX17
 //        this.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {

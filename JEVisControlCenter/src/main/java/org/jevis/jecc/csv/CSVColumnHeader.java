@@ -23,6 +23,7 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXRadioButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -361,6 +362,7 @@ public class CSVColumnHeader {
         ObservableList<Meaning> options = FXCollections.observableArrayList(Meaning.values());
 
         meaning = new MFXComboBox<Meaning>(options);
+        meaning.setFloatMode(FloatMode.DISABLED);
 
         meaning.setConverter(new StringConverter<Meaning>() {
             @Override
@@ -546,6 +548,7 @@ public class CSVColumnHeader {
         final MFXComboBox<String> timeZone;
         MFXComboBox<String> timeLocale;
         final MFXTextField format = new MFXTextField();
+        format.setFloatMode(FloatMode.DISABLED);
         Label timeZoneL = new Label(I18n.getInstance().getString("csv.timezone"));
         Label targetL = new Label(I18n.getInstance().getString("csv.target"));
         Label vaueLocaleL = new Label(I18n.getInstance().getString("csv.locale"));
@@ -557,6 +560,7 @@ public class CSVColumnHeader {
 
         timeZoneOpt = FXCollections.observableArrayList(allTimeZones);
         timeZone = new MFXComboBox<>(timeZoneOpt);
+        timeZone.setFloatMode(FloatMode.DISABLED);
 //        timeZone.getSelectionModel().select("UTC");
         timeZone.selectItem(TimeZone.getDefault().getID());
         timeZone.setOnAction(new EventHandler<ActionEvent>() {

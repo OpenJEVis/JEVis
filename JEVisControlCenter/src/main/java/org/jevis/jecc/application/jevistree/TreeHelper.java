@@ -24,6 +24,7 @@ import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -605,6 +606,7 @@ public class TreeHelper {
                     gp.setVgap(6);
                     Label multiplierLabel = new Label("Multiplier");
                     MFXTextField multiplier = new MFXTextField();
+                    multiplier.setFloatMode(FloatMode.DISABLED);
                     Label differentialLabel = new Label("Differential");
                     ToggleSwitchPlus differential = new ToggleSwitchPlus();
                     differential.setSelected(false);
@@ -857,24 +859,32 @@ public class TreeHelper {
 
                     Label limit1MinSubLabel = new Label("Toleranz der unteren Grenze [%]");
                     MFXTextField limit1MinSub = new MFXTextField("0");
+                    limit1MinSub.setFloatMode(FloatMode.DISABLED);
                     Label limit1MaxAddLabel = new Label("Toleranz der oberen Grenze [%]");
                     MFXTextField limit1MaxAdd = new MFXTextField("15");
+                    limit1MaxAdd.setFloatMode(FloatMode.DISABLED);
 
                     Label limit1MinTimesXLimit2MinLabel = new Label("Vielfaches des niedrigesten Wertes des Zeitbereichs");
                     MFXTextField limit1MinTimesXLimit2Min = new MFXTextField("2");
+                    limit1MinTimesXLimit2Min.setFloatMode(FloatMode.DISABLED);
 
                     Label limit1MaxTimesXLimit2MaxLabel = new Label("Vielfaches des höchsten Wertes des Zeitbereichs");
                     MFXTextField limit1MaxTimesXLimit2Max = new MFXTextField("2");
+                    limit1MaxTimesXLimit2Max.setFloatMode(FloatMode.DISABLED);
 
                     Label limit1MinLabel = new Label("Limit 1 Min");
                     MFXTextField limit1Min = new MFXTextField();
+                    limit1Min.setFloatMode(FloatMode.DISABLED);
                     Label limit1MaxLabel = new Label("Limit 1 Max");
                     MFXTextField limit1Max = new MFXTextField();
+                    limit1Max.setFloatMode(FloatMode.DISABLED);
 
                     Label limit2MinLabel = new Label("Limit 2 Min");
                     MFXTextField limit2Min = new MFXTextField();
+                    limit2Min.setFloatMode(FloatMode.DISABLED);
                     Label limit2MaxLabel = new Label("Limit 2 Max");
                     MFXTextField limit2Max = new MFXTextField();
+                    limit2Max.setFloatMode(FloatMode.DISABLED);
 
                     auto.selectedProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue) {
@@ -1892,6 +1902,7 @@ public class TreeHelper {
                     jeVisClassesStrings.sort(ac);
                     jeVisClassesStrings.add(0, "All");
                     MFXComboBox<String> jeVisClassComboBox = new MFXComboBox<>(FXCollections.observableList(jeVisClassesStrings));
+                    jeVisClassComboBox.setFloatMode(FloatMode.DISABLED);
                     jeVisClassComboBox.getSelectionModel().selectFirst();
                     vBox.getChildren().addAll(qLabel, jeVisClassComboBox);
 
@@ -2073,6 +2084,7 @@ public class TreeHelper {
         TopMenu.applyActiveTheme(warning.getDialogPane().getScene());
 
         MFXTextField textField = new MFXTextField();
+        textField.setFloatMode(FloatMode.DISABLED);
         Label message = new Label("You really sure you know what you're doing? Move all data/clean data samples between start and end their period x field");
 
         Label dateLabelFrom = new Label(I18n.getInstance().getString("tree.treehelper.from"));

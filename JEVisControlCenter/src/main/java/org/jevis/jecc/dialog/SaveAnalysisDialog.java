@@ -2,6 +2,7 @@ package org.jevis.jecc.dialog;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -55,6 +56,7 @@ public class SaveAnalysisDialog extends Dialog {
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
         MFXTextField name = new MFXTextField();
+        name.setFloatMode(FloatMode.DISABLED);
 
         JEVisClass analysesDirectory = null;
         List<JEVisObject> listAnalysesDirectories = null;
@@ -66,6 +68,7 @@ public class SaveAnalysisDialog extends Dialog {
         }
 
         MFXComboBox<JEVisObject> parentsDirectories = new MFXComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
+        parentsDirectories.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         parentsDirectories.setConverter(new StringConverter<JEVisObject>() {

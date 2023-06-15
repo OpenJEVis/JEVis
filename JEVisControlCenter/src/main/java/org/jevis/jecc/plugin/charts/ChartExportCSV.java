@@ -2,6 +2,7 @@ package org.jevis.jecc.plugin.charts;
 
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ButtonBar;
@@ -103,6 +104,7 @@ public class ChartExportCSV {
         numberFormat.setMaximumFractionDigits(2);
 
         MFXComboBox<Locale> decimalSeparatorChoiceBox = new MFXComboBox<>(choices);
+        decimalSeparatorChoiceBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         decimalSeparatorChoiceBox.setConverter(new StringConverter<Locale>() {

@@ -22,6 +22,7 @@ package org.jevis.jecc.plugin.object.attribute;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -308,6 +309,7 @@ public class AlarmEditor implements AttributeEditor {
         Label toleranceLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.label.tolerance"));
 
         MFXTextField nameField = new MFXTextField();
+        nameField.setFloatMode(FloatMode.DISABLED);
 
         HBox limitDataBox = new HBox();
         MFXButton treeButton = new MFXButton(I18n
@@ -417,8 +419,10 @@ public class AlarmEditor implements AttributeEditor {
         });
 
         MFXTextField limitField = new MFXTextField();
+        limitField.setFloatMode(FloatMode.DISABLED);
 
         MFXComboBox<AlarmConstants.Operator> operator = new MFXComboBox<>(this.operator);
+        operator.setFloatMode(FloatMode.DISABLED);
         Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>> cellFactory = new Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>>() {
             @Override
             public ListCell<AlarmConstants.Operator> call(ListView<AlarmConstants.Operator> param) {
@@ -450,6 +454,7 @@ public class AlarmEditor implements AttributeEditor {
         });
 
         MFXTextField toleranceField = new MFXTextField();
+        toleranceField.setFloatMode(FloatMode.DISABLED);
 
         ScheduleEditor silentTime;
 

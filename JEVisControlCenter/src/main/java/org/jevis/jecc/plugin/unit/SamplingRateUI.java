@@ -24,6 +24,7 @@ import com.jfoenix.controls.JFXSlider;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -264,6 +265,7 @@ public class SamplingRateUI extends MFXComboBox<Period> {
         final JFXSlider sliderMinutes = new JFXSlider();
         final JFXSlider sliderSeconds = new JFXSlider();
         final MFXTextField fieldISOString = new MFXTextField("");
+        fieldISOString.setFloatMode(FloatMode.DISABLED);
         final ObjectProperty<Period> newPeriod = new SimpleObjectProperty<>(Period.minutes(15));
 
         sliderMonth.setMin(0);

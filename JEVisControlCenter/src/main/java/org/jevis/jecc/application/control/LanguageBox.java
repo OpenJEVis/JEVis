@@ -1,6 +1,7 @@
 package org.jevis.jecc.application.control;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.StringConverter;
@@ -22,6 +23,7 @@ public class LanguageBox extends MFXComboBox<Locale> {
         ObservableList<Locale> options = FXCollections.observableArrayList(availableLanguages);
 
         final MFXComboBox<Locale> comboBox = new MFXComboBox<Locale>(options);
+        comboBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         comboBox.setConverter(new StringConverter<Locale>() {

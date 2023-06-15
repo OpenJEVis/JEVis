@@ -116,6 +116,7 @@ public class DashBoardToolbar extends ToolBar {
 
 
         MFXComboBox<Double> doubleComboBox = new MFXComboBox<>(zoomLevel);
+        doubleComboBox.setFloatMode(FloatMode.DISABLED);
         DecimalFormat df = new DecimalFormat("##0");
         df.setMaximumFractionDigits(2);
         Callback<ListView<Double>, ListCell<Double>> cellFactory = new Callback<ListView<Double>, ListCell<Double>>() {

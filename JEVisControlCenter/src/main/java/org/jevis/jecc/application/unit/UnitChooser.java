@@ -22,6 +22,7 @@ package org.jevis.jecc.application.unit;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -158,6 +159,7 @@ public class UnitChooser {
         ObservableList<Unit> options = FXCollections.observableArrayList(units);
 
         final MFXComboBox<Unit> comboBox = new MFXComboBox<Unit>(options);
+        comboBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
 
@@ -187,6 +189,7 @@ public class UnitChooser {
         ObservableList<String> options = FXCollections.observableArrayList(units);
 
         final MFXComboBox<String> comboBox = new MFXComboBox<String>(options);
+        comboBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
 

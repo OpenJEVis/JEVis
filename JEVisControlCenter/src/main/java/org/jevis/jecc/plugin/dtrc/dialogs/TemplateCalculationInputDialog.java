@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXListView;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -81,6 +82,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         String oldName = templateInput.getVariableName();
         AtomicBoolean changedName = new AtomicBoolean(false);
         MFXTextField variableNameField = new MFXTextField(templateInput.getVariableName());
+        variableNameField.setFloatMode(FloatMode.DISABLED);
         GridPane.setHgrow(variableNameField, Priority.ALWAYS);
 
         variableNameField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -91,6 +93,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         });
 
         MFXComboBox<InputVariableType> inputVariableTypeMFXComboBox = new MFXComboBox<>(FXCollections.observableArrayList(InputVariableType.values()));
+        inputVariableTypeMFXComboBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         inputVariableTypeMFXComboBox.setConverter(new StringConverter<InputVariableType>() {
@@ -151,6 +154,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         GridPane.setHgrow(limiterLabel, Priority.ALWAYS);
 
         MFXTextField filterField = new MFXTextField();
+        filterField.setFloatMode(FloatMode.DISABLED);
         filterField.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
         GridPane.setHgrow(filterField, Priority.ALWAYS);
 
@@ -168,7 +172,9 @@ public class TemplateCalculationInputDialog extends Dialog {
         groupCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> templateInput.setGroup(newValue));
 
         MFXComboBox<JEVisClass> classSelector = new MFXComboBox<>();
+        classSelector.setFloatMode(FloatMode.DISABLED);
         MFXComboBox<JEVisType> attributeSelector = new MFXComboBox<>();
+        attributeSelector.setFloatMode(FloatMode.DISABLED);
 
         JFXListView<JEVisObject> listView = new JFXListView<>();
         listView.setMinSize(450, 550);
@@ -371,6 +377,7 @@ public class TemplateCalculationInputDialog extends Dialog {
 
         Label formulaLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel"));
         MFXComboBox<TemplateFormula> formulaBox = new MFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateFormulas()));
+        formulaBox.setFloatMode(FloatMode.DISABLED);
         TemplateFormula none = new TemplateFormula();
         none.setName(I18n.getInstance().getString("dialog.regression.type.none"));
         formulaBox.getItems().add(0, none);
@@ -390,6 +397,7 @@ public class TemplateCalculationInputDialog extends Dialog {
 
         Label dependencyLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.dependencylabel"));
         MFXComboBox<TemplateInput> dependencyBox = new MFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateInputs()));
+        dependencyBox.setFloatMode(FloatMode.DISABLED);
         TemplateInput noneInput = new TemplateInput();
         noneInput.setVariableName(I18n.getInstance().getString("dialog.regression.type.none"));
         dependencyBox.getItems().add(0, noneInput);
@@ -413,6 +421,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         timeRestrictionEnabledCheckBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateInput.setTimeRestrictionEnabled(t1));
 
         MFXComboBox<TimeFrame> fixedTimeFrameBox = new MFXComboBox<>();
+        fixedTimeFrameBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         fixedTimeFrameBox.setConverter(new StringConverter<TimeFrame>() {
@@ -435,6 +444,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         fixedTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateInput.setFixedTimeFrame(t1.getID()));
 
         MFXComboBox<TimeFrame> reducingTimeFrameBox = new MFXComboBox<>();
+        reducingTimeFrameBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         reducingTimeFrameBox.setConverter(new StringConverter<TimeFrame>() {

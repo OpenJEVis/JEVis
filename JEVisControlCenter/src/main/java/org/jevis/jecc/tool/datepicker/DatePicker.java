@@ -2,6 +2,7 @@ package org.jevis.jecc.tool.datepicker;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -64,6 +65,7 @@ public class DatePicker extends HBox {
 //        calendarView = new CalendarView(locale);
 
         textField = new MFXTextField();
+        textField.setFloatMode(FloatMode.DISABLED);
         this.locale.set(locale);
 
         calendarView.setEffect(new DropShadow());

@@ -23,6 +23,7 @@ package org.jevis.jecc.tool;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -107,12 +108,14 @@ public class NewClassDialog {
 
         Label nameL = new Label("Name:");
         final MFXTextField nameF = new MFXTextField();
+        nameF.setFloatMode(FloatMode.DISABLED);
         nameF.setPromptText("Enter new name here");
 
         final Label warning = new Label("Exists!");
         warning.setTextFill(Color.web("#CB5959"));
 
         final MFXTextField heritB = new MFXTextField();
+        heritB.setFloatMode(FloatMode.DISABLED);
         heritB.setPromptText("Iherit class name");
         heritB.setDisable(true);
 

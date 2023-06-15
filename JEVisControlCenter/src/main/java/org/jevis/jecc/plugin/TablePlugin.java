@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
@@ -102,6 +103,7 @@ public class TablePlugin implements Plugin {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.title = title;
+        this.filterInput.setFloatMode(FloatMode.DISABLED);
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         Tooltip xlsxTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.xlsx"));
@@ -544,6 +546,7 @@ public class TablePlugin implements Plugin {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
                             MFXTextField textField = new MFXTextField();
+                            textField.setFloatMode(FloatMode.DISABLED);
                             textField.setStyle("-fx-text-fill: black;");
 
                             try {
@@ -780,6 +783,7 @@ public class TablePlugin implements Plugin {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
                             MFXTextField textField = new MFXTextField();
+                            textField.setFloatMode(FloatMode.DISABLED);
 
                             /**
                              if (getTableRow().getIndex() % 2 == 0) {
@@ -863,6 +867,7 @@ public class TablePlugin implements Plugin {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
                             MFXTextField textField = new MFXTextField();
+                            textField.setFloatMode(FloatMode.DISABLED);
 
                             /**
                              if (getTableRow().getIndex() % 2 == 0) {

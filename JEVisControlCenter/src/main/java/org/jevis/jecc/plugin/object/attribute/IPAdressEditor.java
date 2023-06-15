@@ -20,6 +20,7 @@
 package org.jevis.jecc.plugin.object.attribute;
 
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -50,6 +51,7 @@ public class IPAdressEditor implements AttributeEditor {
 
     public IPAdressEditor(JEVisAttribute att) {
         this.att = att;
+        this.ipAdressField.setFloatMode(FloatMode.DISABLED);
         buildGUI();
     }
 

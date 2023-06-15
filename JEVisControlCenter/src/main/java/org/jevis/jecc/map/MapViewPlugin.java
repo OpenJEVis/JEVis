@@ -7,6 +7,7 @@ package org.jevis.jecc.map;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -306,7 +307,8 @@ public class MapViewPlugin implements Plugin {
                 "Example 1",
                 "Example 2"
         );
-        comboBox = new MFXComboBox(options);
+        comboBox = new MFXComboBox<>(options);
+        comboBox.setFloatMode(FloatMode.DISABLED);
         comboBox.setPrefWidth(Double.MAX_VALUE);
         StackPane stack = new StackPane(comboBox);
 

@@ -2,6 +2,7 @@ package org.jevis.jecc.plugin.dtrc.dialogs;
 
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -74,9 +75,13 @@ public class TemplateCalculationOutputDialog extends Dialog {
         GridPane.setHgrow(tooltipLabel, Priority.ALWAYS);
 
         MFXTextField nameField = new MFXTextField(templateOutput.getName());
+        nameField.setFloatMode(FloatMode.DISABLED);
         MFXTextField variableNameField = new MFXTextField(templateOutput.getVariableName());
+        variableNameField.setFloatMode(FloatMode.DISABLED);
         MFXTextField unitField = new MFXTextField(templateOutput.getUnit());
+        unitField.setFloatMode(FloatMode.DISABLED);
         MFXTextField tooltipField = new MFXTextField(templateOutput.getTooltip());
+        tooltipField.setFloatMode(FloatMode.DISABLED);
 
         MFXCheckbox isLinkToggle = new MFXCheckbox(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
         isLinkToggle.setSelected(templateOutput.getLink());

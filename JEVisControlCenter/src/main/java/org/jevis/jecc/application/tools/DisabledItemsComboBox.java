@@ -1,6 +1,7 @@
 package org.jevis.jecc.application.tools;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -17,11 +18,13 @@ public class DisabledItemsComboBox<T> extends MFXComboBox<T> {
 
     public DisabledItemsComboBox() {
         super();
+        this.setFloatMode(FloatMode.DISABLED);
         setup();
     }
 
     public DisabledItemsComboBox(ObservableList<T> list) {
         super(list);
+        this.setFloatMode(FloatMode.DISABLED);
         setup();
     }
 

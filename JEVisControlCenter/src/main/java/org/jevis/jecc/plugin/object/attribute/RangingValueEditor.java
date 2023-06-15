@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -206,8 +207,11 @@ public class RangingValueEditor implements AttributeEditor {
         Label valueLabel = new Label(I18n.getInstance().getString("plugin.graph.table.value"));
 
         MFXTextField fromField = new MFXTextField();
+        fromField.setFloatMode(FloatMode.DISABLED);
         MFXTextField toField = new MFXTextField();
+        toField.setFloatMode(FloatMode.DISABLED);
         MFXTextField valueField = new MFXTextField();
+        valueField.setFloatMode(FloatMode.DISABLED);
 
         NumberFormat numberFormat = NumberFormat.getInstance(I18n.getInstance().getLocale());
 

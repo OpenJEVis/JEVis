@@ -4,6 +4,7 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -91,6 +92,9 @@ public class SideConfigPanel extends GridPane {
     public SideConfigPanel(DashboardControl control) {
         super();
         this.control = control;
+        this.layerComboBox.setFloatMode(FloatMode.DISABLED);
+        this.alignmentBox.setFloatMode(FloatMode.DISABLED);
+        this.objectSelectionBox.setFloatMode(FloatMode.DISABLED);
         setStyle("-fx-background-color: ffffff;"); //fcfcfc
 
 

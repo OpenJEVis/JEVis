@@ -20,6 +20,7 @@
 package org.jevis.jecc;
 
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -180,6 +181,7 @@ public class TopMenu extends MenuBar {
 
                     String suggestedName = favoriteAnalysis.createName(ControlCenter.getDataSource());
                     MFXTextField favoriteName = new MFXTextField();
+                    favoriteName.setFloatMode(FloatMode.DISABLED);
                     favoriteName.setMinWidth(450);
                     favoriteName.textProperty().bindBidirectional(favoriteAnalysis.nameProperty());
                     favoriteName.setText(suggestedName);

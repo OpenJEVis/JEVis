@@ -31,7 +31,6 @@ public class GetDeviceID {
      *
      * @param urlDevice
      * @param deviceAPIKey
-     * @param devices
      * @return
      * @throws Exception
      */

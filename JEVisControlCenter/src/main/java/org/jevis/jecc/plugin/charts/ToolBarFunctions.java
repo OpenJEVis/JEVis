@@ -4,6 +4,7 @@ import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -223,6 +224,7 @@ public class ToolBarFunctions {
         Label baseLoadBinding = new Label(I18n.getInstance().getString("dialog.baseload.repeatingtimeframe"));
         ObservableList<Integer> list = FXCollections.observableArrayList(0, 1, 2, 3, 4);
         MFXComboBox<Integer> boundSpecificBox = new MFXComboBox<>(list);
+        boundSpecificBox.setFloatMode(FloatMode.DISABLED);
 
         Callback<ListView<Integer>, ListCell<Integer>> cellFactoryBoundToSpecificBox = new Callback<javafx.scene.control.ListView<Integer>, ListCell<Integer>>() {
             @Override
@@ -496,6 +498,7 @@ public class ToolBarFunctions {
 
         Label limitLabel = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"));
         MFXTextField limitField = new MFXTextField();
+        limitField.setFloatMode(FloatMode.DISABLED);
 
         DoubleValidator validator = DoubleValidator.getInstance();
         limitField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -645,6 +648,7 @@ public class ToolBarFunctions {
 
         Label limitLabel = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"));
         MFXTextField limitField = new MFXTextField();
+        limitField.setFloatMode(FloatMode.DISABLED);
         DoubleValidator validator = DoubleValidator.getInstance();
         limitField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {

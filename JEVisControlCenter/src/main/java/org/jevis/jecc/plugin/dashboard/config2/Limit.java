@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -91,6 +92,7 @@ public class Limit {
 
         Label limitTypeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.type"));
         MFXComboBox<MODE> limitTypeBox = new MFXComboBox<>(types);
+        limitTypeBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
 

@@ -4,6 +4,7 @@ package org.jevis.jecc.plugin.object.extension.OPC;
 import com.jfoenix.controls.JFXCheckBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -53,6 +54,7 @@ public class DataValueTable {
 
     public DataValueTable(OPCClient opcClient) {
         this.opcClient = opcClient;
+        filterFieldGroup.setFloatMode(FloatMode.DISABLED);
         filterFieldGroup.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         filterFieldGroup.textProperty().addListener((observable, oldValue, newValue) -> updateFilteredData());
 

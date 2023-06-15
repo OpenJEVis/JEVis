@@ -2,6 +2,7 @@ package org.jevis.jecc.dialog;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -89,6 +90,7 @@ public class EquipmentDialog extends Dialog {
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
         MFXTextField nameField = new MFXTextField();
+        nameField.setFloatMode(FloatMode.DISABLED);
 
         Region targetSpace = new Region();
         targetSpace.setPrefWidth(20);
@@ -211,6 +213,7 @@ public class EquipmentDialog extends Dialog {
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
         MFXTextField nameField = new MFXTextField(selectedMeter.getName());
+        nameField.setFloatMode(FloatMode.DISABLED);
 
         HBox targetBox = new HBox(nameVBox, nameField);
         targetBox.setSpacing(4);

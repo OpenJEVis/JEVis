@@ -4,6 +4,7 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
@@ -124,7 +125,9 @@ public class DWDBrowser extends Dialog {
         row++;
 
         MFXTextField stationFilter = new MFXTextField();
+        stationFilter.setFloatMode(FloatMode.DISABLED);
         MFXComboBox<Station> stationBox = new MFXComboBox<>();
+        stationBox.setFloatMode(FloatMode.DISABLED);
 
         stationBox.setConverter(new StringConverter<Station>() {
             @Override
@@ -174,6 +177,7 @@ public class DWDBrowser extends Dialog {
         }
 
         MFXTextField messageField = new MFXTextField();
+        messageField.setFloatMode(FloatMode.DISABLED);
         gridPane.add(messageField, 0, row, 2, 1);
         row++;
 

@@ -74,8 +74,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>31.1-jre</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -100,23 +98,16 @@
             <version>2.9.0</version>
         </dependency>
         <dependency>
-            <groupId>commons-configuration</groupId>
-            <artifactId>commons-configuration</artifactId>
-            <version>1.10</version>
-        </dependency>
-        <dependency>
             <groupId>org.jevis.commons</groupId>
             <artifactId>JECommons</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
         </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
@@ -178,7 +169,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <inherited>true</inherited>
                 <configuration>
                     <source>17</source>

@@ -148,7 +148,7 @@ public class VIDA350Notification implements Notification {
     /**
      * set the start time for VIDA350
      *
-     * @param subject
+     * @param time
      */
     public void setSetTime(String time) {
         _setTime = time;
@@ -157,7 +157,7 @@ public class VIDA350Notification implements Notification {
     /**
      * set the instruction of the message
      *
-     * @param msg
+     * @param instruction
      */
     public void setInstruction(String instruction) {
         _instruction = instruction;

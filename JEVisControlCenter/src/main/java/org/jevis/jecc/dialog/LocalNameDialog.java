@@ -2,6 +2,7 @@ package org.jevis.jecc.dialog;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -79,6 +80,7 @@ public class LocalNameDialog {
 
         Label objLocalNameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
         MFXTextField objectLocalNameTest = new MFXTextField();
+        objectLocalNameTest.setFloatMode(FloatMode.DISABLED);
         Image img = new Image("/icons/flags2/" + I18n.getInstance().getLocale().getLanguage() + ".png");
         ImageView imageViewFlag = new ImageView(img);
         imageViewFlag.fitHeightProperty().setValue(20);
@@ -238,6 +240,7 @@ public class LocalNameDialog {
     private MFXComboBox<Locale> buildLangBox(Locale selected) {
         ObservableList<Locale> langList = FXCollections.observableArrayList(I18n.getInstance().getAvailableLang());
         MFXComboBox<Locale> picker = new MFXComboBox<>(langList);
+        picker.setFloatMode(FloatMode.DISABLED);
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override

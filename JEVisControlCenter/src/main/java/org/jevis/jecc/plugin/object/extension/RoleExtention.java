@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.object.extension;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -215,6 +216,7 @@ public class RoleExtention implements ObjectEditorExtension {
 
     private MFXComboBox<JEVisObject> buildDashboardListView() {
         MFXComboBox<JEVisObject> view = new MFXComboBox<>();
+        view.setFloatMode(FloatMode.DISABLED);
         List<JEVisObject> allDashboard = new ArrayList<>();
         try {
 
@@ -272,7 +274,9 @@ public class RoleExtention implements ObjectEditorExtension {
         Label filterGroupTable = new Label(I18n.getInstance().getString("plugin.object.role.filter"));
         Label filterUserTable = new Label(I18n.getInstance().getString("plugin.object.role.filter"));
         filterFieldGroup = new MFXTextField();
+        filterFieldGroup.setFloatMode(FloatMode.DISABLED);
         filterFieldUser = new MFXTextField();
+        filterFieldUser.setFloatMode(FloatMode.DISABLED);
         overwriteDashboad = new MFXCheckbox(I18n.getInstance().getString("plugin.object.role.overwritedashboard"));
         filterFieldGroup.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         filterFieldUser.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));

@@ -2,6 +2,7 @@ package org.jevis.jecc.plugin.scada;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -222,7 +223,8 @@ public class SCADAPlugin implements Plugin {
     private void updateToolbar(ToolBar toolBar, final SCADAAnalysis analyses) {
         logger.info("==Update Toolbar==");
         Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
-        MFXComboBox<JEVisObject> listAnalysesComboBox = new MFXComboBox();
+        MFXComboBox<JEVisObject> listAnalysesComboBox = new MFXComboBox<>();
+        listAnalysesComboBox.setFloatMode(FloatMode.DISABLED);
         listAnalysesComboBox.setPrefWidth(300);
 
         try {
@@ -246,6 +248,7 @@ public class SCADAPlugin implements Plugin {
         });
 
         MFXComboBox<SCADAAnalysis.BGMode> listBGType = new MFXComboBox<>();
+        listBGType.setFloatMode(FloatMode.DISABLED);
         listBGType.setItems(FXCollections.observableArrayList(SCADAAnalysis.BGMode.values()));
 
         //TODO JFX17

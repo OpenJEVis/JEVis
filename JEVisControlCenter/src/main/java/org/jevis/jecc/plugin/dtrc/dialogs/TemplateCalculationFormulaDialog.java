@@ -4,6 +4,7 @@ import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXRadioButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -53,6 +54,7 @@ public class TemplateCalculationFormulaDialog extends Dialog {
 
         Label nameLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.namelabel"));
         MFXTextField MFXTextField = new MFXTextField(templateFormula.getName());
+        MFXTextField.setFloatMode(FloatMode.DISABLED);
         MFXTextField.textProperty().addListener((observable, oldValue, newValue) -> templateFormula.setName(newValue));
 
         Separator separator1 = new Separator(Orientation.HORIZONTAL);
@@ -138,6 +140,7 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         timeRestrictionEnabledCheckBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateFormula.setTimeRestrictionEnabled(t1));
 
         MFXComboBox<TimeFrame> fixedTimeFrameBox = new MFXComboBox<>();
+        fixedTimeFrameBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
 
@@ -161,6 +164,7 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         fixedTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateFormula.setFixedTimeFrame(t1.getID()));
 
         MFXComboBox<TimeFrame> reducingTimeFrameBox = new MFXComboBox<>();
+        reducingTimeFrameBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
 

@@ -4,6 +4,7 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXRadioButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -364,6 +365,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         TimeStampEditor alarmLogTimeStamp = new TimeStampEditor(alarmLogAttribute);
         alarmLogTimeStamp.getEditor().setDisable(true);
         MFXTextField alarmLog = new MFXTextField();
+        alarmLog.setFloatMode(FloatMode.DISABLED);
         alarmLog.setDisable(true);
         if (alarmLogLastSample != null) {
             alarmLog.setText(alarmLogLastSample.getValueAsDouble().toString());
@@ -420,6 +422,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         }
         AttributeAdvSettingDialogButton advSettingDialogButtonPeriodOffset = new AttributeAdvSettingDialogButton(periodOffsetAttribute);
         periodOffset = new MFXTextField();
+        periodOffset.setFloatMode(FloatMode.DISABLED);
         if (periodOffsetLastSample != null) {
             periodOffset.setText(periodOffsetLastSample.getValueAsLong().toString());
         }

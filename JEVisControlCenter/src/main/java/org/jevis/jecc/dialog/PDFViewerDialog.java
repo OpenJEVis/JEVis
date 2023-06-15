@@ -1,6 +1,7 @@
 package org.jevis.jecc.dialog;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
@@ -178,7 +179,7 @@ public class PDFViewerDialog {
         fileName.setFont(new Font("Cambria", iconSize));
 
         //TODO JFX17
-
+        fileComboBox.setFloatMode(FloatMode.DISABLED);
         fileComboBox.setConverter(new StringConverter<JEVisFileWithSample>() {
             @Override
             public String toString(JEVisFileWithSample object) {

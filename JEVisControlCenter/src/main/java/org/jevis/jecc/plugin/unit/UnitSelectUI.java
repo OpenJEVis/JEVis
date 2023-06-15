@@ -23,6 +23,7 @@ package org.jevis.jecc.plugin.unit;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -58,11 +59,13 @@ public class UnitSelectUI {
 
     public UnitSelectUI(JEVisDataSource ds, JEVisUnit unit) {
         final JEVisUnit.Prefix prefix = unit.getPrefix();
+        this.symbolField.setFloatMode(FloatMode.DISABLED);
         jeVisUnit = unit;
         List<Prefix> list = new ArrayList<>();
         list.add(null);
         Collections.addAll(list, MetricPrefix.values());
         prefixBox = new MFXComboBox<>(FXCollections.observableArrayList(MetricPrefix.values()));
+        prefixBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
 //        prefixBox.setButtonCell(new ListCell<Prefix>() {

@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -60,6 +61,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
     public ValueEditWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
+        labelValue.setFloatMode(FloatMode.DISABLED);
     }
 
 

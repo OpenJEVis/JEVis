@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXListView;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -113,6 +114,7 @@ public class LoadAnalysisDialog extends Dialog {
 
         filteredData = new FilteredList<>(analyses, s -> true);
 
+        filterInput.setFloatMode(FloatMode.DISABLED);
         filterInput.textProperty().addListener(obs -> {
             String filter = filterInput.getText();
             if (filter == null || filter.length() == 0) {
@@ -612,6 +614,7 @@ public class LoadAnalysisDialog extends Dialog {
         }
 
         MFXComboBox<String> tempBox = new MFXComboBox<>(customPeriods);
+        tempBox.setFloatMode(FloatMode.DISABLED);
 
         finalListCustomPeriodObjects = listCustomPeriodObjects;
         if (customPeriods.size() > 1) {
@@ -660,6 +663,7 @@ public class LoadAnalysisDialog extends Dialog {
         pickerTimeStart = pickerCombo.getStartTimePicker();
         pickerDateEnd = pickerCombo.getEndDatePicker();
         pickerTimeEnd = pickerCombo.getEndTimePicker();
+        filterInput.setFloatMode(FloatMode.DISABLED);
         filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
         filterInput.setStyle("-fx-font-weight: bold;");
 

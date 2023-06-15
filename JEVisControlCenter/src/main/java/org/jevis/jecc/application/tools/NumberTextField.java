@@ -1,6 +1,7 @@
 package org.jevis.jecc.application.tools;
 
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -35,6 +36,7 @@ public class NumberTextField extends MFXTextField {
 
     public NumberTextField(BigDecimal value, NumberFormat nf) {
         super();
+        this.setFloatMode(FloatMode.DISABLED);
         this.nf = nf;
         initHandlers();
         setNumber(value);

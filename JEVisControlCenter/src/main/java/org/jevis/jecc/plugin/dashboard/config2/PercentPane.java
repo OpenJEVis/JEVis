@@ -1,6 +1,7 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -76,7 +77,7 @@ public class PercentPane extends GridPane {
         }
 
         widgetBox = new MFXComboBox<>(widgetList.filtered(widget -> widget.typeID() == Widgets.emptyValueWidget(dashboardControl).TYPE_ID || widget.typeID().equals(ValueWidget.WIDGET_ID)));
-
+        widgetBox.setFloatMode(FloatMode.DISABLED);
 
         Callback<ListView<Widget>, ListCell<Widget>> cellFactory = new Callback<ListView<Widget>, ListCell<Widget>>() {
             @Override

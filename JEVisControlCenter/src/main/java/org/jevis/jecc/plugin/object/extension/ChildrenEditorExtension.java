@@ -4,6 +4,7 @@ import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
@@ -49,6 +50,8 @@ public class ChildrenEditorExtension implements ObjectEditorExtension {
         this.parentObject = parentObject;
         this.borderPane.getStyleClass().add("children-editor-plugin");
 //        this.viewPane.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        this.filterInclude.setFloatMode(FloatMode.DISABLED);
+        this.filterExclude.setFloatMode(FloatMode.DISABLED);
 
         startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.startdate")));
         endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.enddate")));
@@ -68,6 +71,7 @@ public class ChildrenEditorExtension implements ObjectEditorExtension {
         dateSelection.setHgap(6);
         dateSelection.setVgap(6);
 
+        columnBox.setFloatMode(FloatMode.DISABLED);
         columnBox.getItems().addAll(nameString, classString, sourceString);
         columnBox.getSelectionModel().selectFirst();
 

@@ -7,6 +7,7 @@ package org.jevis.jecc.application.unit;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -53,6 +54,10 @@ public class UnitChooserPanel {
     private String _altSymbol = "";
 
     public UnitChooserPanel(JEVisUnit unit, String altSymbol) {
+        boxMeaning.setFloatMode(FloatMode.DISABLED);
+        boxPrefix.setFloatMode(FloatMode.DISABLED);
+        boxQuantity.setFloatMode(FloatMode.DISABLED);
+        boxUnit.setFloatMode(FloatMode.DISABLED);
         _unit = unit;
         _altSymbol = altSymbol;
 

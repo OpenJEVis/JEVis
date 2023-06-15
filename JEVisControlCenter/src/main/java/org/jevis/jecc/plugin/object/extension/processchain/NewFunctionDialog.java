@@ -23,6 +23,7 @@ package org.jevis.jecc.plugin.object.extension.processchain;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import io.github.palexdev.virtualizedfx.cell.Cell;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -153,6 +154,7 @@ public class NewFunctionDialog {
 
         Label lName = new Label(I18n.getInstance().getString("newobject.name"));
         final MFXTextField fName = new MFXTextField();
+        fName.setFloatMode(FloatMode.DISABLED);
         fName.setPromptText(I18n.getInstance().getString("newobject.name.prompt"));
 
         if (objName != null) {
@@ -220,6 +222,7 @@ public class NewFunctionDialog {
         };
 
         final MFXComboBox<JEVisClass> comboBox = new MFXComboBox<JEVisClass>(options);
+        comboBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         comboBox.setCellFactory((Function<JEVisClass, Cell<JEVisClass>>) jeVisClass -> {

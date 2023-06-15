@@ -23,6 +23,7 @@ package org.jevis.jecc.dialog;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -123,6 +124,7 @@ public class NewObjectDialog {
 
         Label lName = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
         final MFXTextField fName = new MFXTextField();
+        fName.setFloatMode(FloatMode.DISABLED);
         fName.setPromptText(I18n.getInstance().getString("jevistree.dialog.new.name.prompt"));
 
         if (objName != null) {
@@ -186,6 +188,7 @@ public class NewObjectDialog {
 
         Label templateLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.template"));
         MFXComboBox<Template> templateBox = new MFXComboBox<>();
+        templateBox.setFloatMode(FloatMode.DISABLED);
         templateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
             Platform.runLater(() -> optionsGrid.getChildren().clear());
@@ -223,6 +226,7 @@ public class NewObjectDialog {
         });
 
         final MFXComboBox<JEVisClass> jeVisClassComboBox = new MFXComboBox<>(options);
+        jeVisClassComboBox.setFloatMode(FloatMode.DISABLED);
         MFXCheckbox createCleanData = new MFXCheckbox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));
         createCleanData.setVisible(true);
 

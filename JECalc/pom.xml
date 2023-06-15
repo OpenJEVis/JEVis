@@ -69,7 +69,6 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
-                    <compilerArgument></compilerArgument>
                 </configuration>
             </plugin>
         </plugins>

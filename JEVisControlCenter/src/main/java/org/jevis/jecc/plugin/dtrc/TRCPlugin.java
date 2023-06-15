@@ -8,6 +8,7 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
@@ -88,6 +89,7 @@ public class TRCPlugin implements Plugin {
         this.objectRelations = new ObjectRelations(ds);
         this.title = getTitleFromPlugin();
 
+        this.filterInput.setFloatMode(FloatMode.DISABLED);
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
@@ -218,6 +220,7 @@ public class TRCPlugin implements Plugin {
         printButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print")));
 
         trcs = new MFXComboBox<>();
+        trcs.setFloatMode(FloatMode.DISABLED);
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {

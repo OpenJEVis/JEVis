@@ -19,13 +19,14 @@
  */
 package org.jevis.jecc.plugin.unit;
 
-import com.jfoenix.controls.JFXTextArea;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -59,9 +60,11 @@ public class UnitEditor {
             Label formel = new Label("Formel Editor:");
 
             MFXTextField nameT = new MFXTextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
+            nameT.setFloatMode(FloatMode.DISABLED);
             MFXTextField symboleT = new MFXTextField(unit.getUnit().toString());
+            symboleT.setFloatMode(FloatMode.DISABLED);
 //                MFXTextField orderT = new MFXTextField(unit.getUnit().getDimension().toString());
-            JFXTextArea formelField = new JFXTextArea();
+            TextArea formelField = new TextArea();
             formelField.setPrefSize(260, 100);
             formelField.setWrapText(true);
             formelField.setText(unit.getUnit().toJSON());

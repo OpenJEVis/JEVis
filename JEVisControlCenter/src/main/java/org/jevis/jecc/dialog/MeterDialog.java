@@ -4,6 +4,7 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -80,6 +81,8 @@ public class MeterDialog extends Dialog {
         TopMenu.applyActiveTheme(stage.getScene());
         stage.setAlwaysOnTop(true);
 
+        this.oldCounterValue.setFloatMode(FloatMode.DISABLED);
+        this.newCounterValue.setFloatMode(FloatMode.DISABLED);
         dataTypeBox.selectItem(EnterDataTypes.DAY);
         monthBox.setRelations(yearBox, dayBox, null);
         yearBox.setRelations(monthBox, dayBox);
@@ -150,6 +153,7 @@ public class MeterDialog extends Dialog {
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
         MFXTextField nameField = new MFXTextField();
+        nameField.setFloatMode(FloatMode.DISABLED);
 
         Region targetSpace = new Region();
         targetSpace.setPrefWidth(20);
@@ -267,6 +271,7 @@ public class MeterDialog extends Dialog {
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
         MFXTextField nameField = new MFXTextField(selectedMeter.getName());
+        nameField.setFloatMode(FloatMode.DISABLED);
 
         HBox targetBox = new HBox(nameVBox, nameField);
         targetBox.setSpacing(4);

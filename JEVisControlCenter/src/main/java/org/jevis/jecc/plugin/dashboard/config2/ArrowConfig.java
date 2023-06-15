@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -70,6 +71,7 @@ public class ArrowConfig {
         Label limitTypeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.orientation"));
 
         MFXComboBox<ARROW_ORIENTATION> orientationTypeBox = new MFXComboBox<>(FXCollections.observableArrayList(ARROW_ORIENTATION.values()));
+        orientationTypeBox.setFloatMode(FloatMode.DISABLED);
         Callback<ListView<ARROW_ORIENTATION>, ListCell<ARROW_ORIENTATION>> cellFactory = new Callback<ListView<ARROW_ORIENTATION>, ListCell<ARROW_ORIENTATION>>() {
             @Override
             public ListCell<ARROW_ORIENTATION> call(ListView<ARROW_ORIENTATION> param) {
@@ -132,6 +134,7 @@ public class ArrowConfig {
         Label shapeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.shape"));
 
         MFXComboBox<SHAPE> shapeBox = new MFXComboBox<>(FXCollections.observableArrayList(SHAPE.values()));
+        shapeBox.setFloatMode(FloatMode.DISABLED);
         Callback<ListView<SHAPE>, ListCell<SHAPE>> shapeCellFactory = new Callback<ListView<SHAPE>, ListCell<SHAPE>>() {
             @Override
             public ListCell<SHAPE> call(ListView<SHAPE> param) {

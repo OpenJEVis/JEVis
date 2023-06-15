@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXListView;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -59,6 +60,7 @@ public class NotePane extends StackPane {
     public NotePane(ObservableList<String> allTags, JEVisDataSource dataSource) {
         GridPane gridPane = new GridPane();
         this.dataSource = dataSource;
+        this.userField.setFloatMode(FloatMode.DISABLED);
 
         jeVisTree = JEVisTreeFactory.buildBasicDefault(dataSource, false);
 

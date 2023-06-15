@@ -105,7 +105,7 @@ public class CronDayOfMonth {
         for (int j = 0; j < spStr.length; ++j) {
             String tmp = spStr[j];
             if (isValidDay(tmp)) {
-                add = li.add(new Integer(tmp));
+                add = li.add(Integer.valueOf(tmp));
             } else {
                 li = null;
                 j = spStr.length;

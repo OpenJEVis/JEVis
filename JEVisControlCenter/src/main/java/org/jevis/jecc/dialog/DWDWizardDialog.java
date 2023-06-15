@@ -3,6 +3,7 @@ package org.jevis.jecc.dialog;
 import com.jfoenix.controls.JFXDialog;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
@@ -76,6 +77,8 @@ public class DWDWizardDialog {
         gridPane.setPadding(new Insets(15));
         gridPane.setHgap(6);
         gridPane.setVgap(9);
+
+        stationFilter.setFloatMode(FloatMode.DISABLED);
 
         aggregationBox.getItems().addAll(Aggregation.values());
         aggregationBox.getSelectionModel().selectFirst();

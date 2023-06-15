@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.dashboard.config2;
 import com.jfoenix.controls.JFXCheckBox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -80,6 +81,7 @@ public class LimitDynamicPane extends GridPane {
 
         widgetBox = new MFXComboBox<>(
                 widgetList.filtered(widget -> widget.typeID().equals(ValueWidget.WIDGET_ID)));
+        widgetBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         widgetBox.setConverter(new StringConverter<Widget>() {

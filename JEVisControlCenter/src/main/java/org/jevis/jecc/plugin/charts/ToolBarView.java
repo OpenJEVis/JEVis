@@ -6,6 +6,7 @@
 package org.jevis.jecc.plugin.charts;
 
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -111,6 +112,7 @@ public class ToolBarView {
         this.toolBarFunctions = new ToolBarFunctions(ds, chartPlugin.getDataSettings(), toolBarSettings, chartPlugin);
 
         analysesComboBox = new AnalysesComboBox(ds, dataModel);
+        analysesComboBox.setFloatMode(FloatMode.DISABLED);
         analysesComboBox.setPrefWidth(300);
 
         //TODO: JFX17

@@ -1,6 +1,7 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -32,6 +33,7 @@ public class TableTopDatePicker extends HBox {
         super();
         setAlignment(Pos.CENTER);
         selectionBox = new MFXComboBox<>();
+        selectionBox.setFloatMode(FloatMode.DISABLED);
         Callback<ListView<DateTime>, ListCell<DateTime>> cellFactory = new Callback<ListView<DateTime>, ListCell<DateTime>>() {
             @Override
             public ListCell<DateTime> call(ListView<DateTime> param) {

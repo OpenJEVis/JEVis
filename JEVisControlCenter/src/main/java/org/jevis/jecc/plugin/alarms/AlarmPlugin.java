@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.alarms;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -118,6 +119,7 @@ public class AlarmPlugin implements Plugin {
     private DateTime start;
     private DateTime end;
     private TimeFrame timeFrame = TimeFrame.TODAY;
+
     public AlarmPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
@@ -154,17 +156,6 @@ public class AlarmPlugin implements Plugin {
             }
         });
         this.borderPane.setCenter(pagination);
-    }    private MFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
-
-    public static void autoFitTable(TableView<AlarmRow> tableView) {
-//        for (TableColumn<AlarmRow, ?> column : tableView.getColumns()) {
-//            try {
-//                if (tableView.getSkin() != null) {
-//                    columnToFitMethod.invoke(tableView.getSkin(), column, -1);
-//                }
-//            } catch (Exception e) {
-//            }
-//        }
     }
 
     private void initToolBar() {
@@ -225,6 +216,7 @@ public class AlarmPlugin implements Plugin {
         endDatePicker.valueProperty().addListener(endDateChangeListener);
 
         MFXComboBox<String> filterBox = new MFXComboBox<>();
+        filterBox.setFloatMode(FloatMode.DISABLED);
         String showOnlyUncheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showunchecked");
         String showOnlyCheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showchecked");
         String showAllAlarms = I18n.getInstance().getString("plugin.alarm.label.showall");
@@ -280,6 +272,34 @@ public class AlarmPlugin implements Plugin {
         JEVisHelp.getInstance().addHelpItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
 
+    }    private MFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+
+    public static void autoFitTable(TableView<AlarmRow> tableView) {
+//        for (TableColumn<AlarmRow, ?> column : tableView.getColumns()) {
+//            try {
+//                if (tableView.getSkin() != null) {
+//                    columnToFitMethod.invoke(tableView.getSkin(), column, -1);
+//                }
+//            } catch (Exception e) {
+//            }
+//        }
+    }
+
+    private void restartExecutor() {
+        try {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText(I18n.getInstance().getString("plugin.alarms.info.wait"));
+            alert.show();
+            ControlCenter.getStatusBar().startProgressJob("stoppingAlarms", runningUpdateTaskList.size(), I18n.getInstance().getString("plugin.alarms.message.stoppingthreads"));
+
+            ControlCenter.getStatusBar().stopTasks(AlarmPlugin.class.getName());
+            this.runningUpdateTaskList.clear();
+            ControlCenter.getStatusBar().finishProgressJob("stoppingAlarms", I18n.getInstance().getString("plugin.alarms.message.stoppedall"));
+
+            alert.close();
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
     }
 
     private Node createPage(int pageIndex) {
@@ -897,45 +917,9 @@ public class AlarmPlugin implements Plugin {
         ControlCenter.getStatusBar().addTask(AlarmPlugin.class.getName(), task, taskImage, true);
     }
 
-    private void restartExecutor() {
-        try {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setContentText(I18n.getInstance().getString("plugin.alarms.info.wait"));
-            alert.show();
-            ControlCenter.getStatusBar().startProgressJob("stoppingAlarms", runningUpdateTaskList.size(), I18n.getInstance().getString("plugin.alarms.message.stoppingthreads"));
-
-            ControlCenter.getStatusBar().stopTasks(AlarmPlugin.class.getName());
-            this.runningUpdateTaskList.clear();
-            ControlCenter.getStatusBar().finishProgressJob("stoppingAlarms", I18n.getInstance().getString("plugin.alarms.message.stoppedall"));
-
-            alert.close();
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
-    }    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
-
-    private String getAlarm(Integer item) {
-        switch (item) {
-            case (4):
-                return I18n.getInstance().getString("plugin.alarm.table.alarm.silent");
-            case (2):
-                return I18n.getInstance().getString("plugin.alarm.table.alarm.standby");
-            case (1):
-            default:
-                return I18n.getInstance().getString("plugin.alarm.table.alarm.normal");
-        }
-    }
-
     private MFXComboBox<TimeFrame> getTimeFrameComboBox() {
         MFXComboBox<TimeFrame> box = new MFXComboBox<>();
+        box.setFloatMode(FloatMode.DISABLED);
 
         ObservableList<TimeFrame> timeFrames = FXCollections.observableArrayList(TimeFrame.values());
         timeFrames.remove(TimeFrame.values().length - 2, TimeFrame.values().length - 1);
@@ -1010,7 +994,33 @@ public class AlarmPlugin implements Plugin {
         });
 
         return box;
-    }    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
+    }
+
+    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+            Platform.runLater(this::initToolBar);
+        }
+    };
+
+    private String getAlarm(Integer item) {
+        switch (item) {
+            case (4):
+                return I18n.getInstance().getString("plugin.alarm.table.alarm.silent");
+            case (2):
+                return I18n.getInstance().getString("plugin.alarm.table.alarm.standby");
+            case (1):
+            default:
+                return I18n.getInstance().getString("plugin.alarm.table.alarm.normal");
+        }
+    }
+
+
+
+    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
         if (newValue != oldValue) {
             end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
             timeFrame = TimeFrame.CUSTOM;
@@ -1244,12 +1254,6 @@ public class AlarmPlugin implements Plugin {
     public SimpleBooleanProperty hasAlarmsProperty() {
         return hasAlarms;
     }
-
-
-
-
-
-
 
 
 }

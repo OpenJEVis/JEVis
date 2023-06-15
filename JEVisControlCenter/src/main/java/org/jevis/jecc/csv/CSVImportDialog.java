@@ -22,6 +22,7 @@ package org.jevis.jecc.csv;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -111,7 +112,11 @@ public class CSVImportDialog {
         Label sepTextL = new Label(I18n.getInstance().getString("csv.separator.text"));
 
         //TODO JFX17
+        otherSeparatorField.setFloatMode(FloatMode.DISABLED);
+        otherEnclosedField.setFloatMode(FloatMode.DISABLED);
+        customNoteField.setFloatMode(FloatMode.DISABLED);
 
+        separatorComboBox.setFloatMode(FloatMode.DISABLED);
         separatorComboBox.setConverter(new StringConverter<Separator>() {
             @Override
             public String toString(Separator object) {
@@ -143,6 +148,7 @@ public class CSVImportDialog {
         });
 
         //TODO JFX17
+        enclosedComboBox.setFloatMode(FloatMode.DISABLED);
         enclosedComboBox.setConverter(new StringConverter<Enclosed>() {
             @Override
             public String toString(Enclosed object) {
@@ -407,6 +413,7 @@ public class CSVImportDialog {
         ObservableList<Charset> options = FXCollections.observableArrayList(Charset.availableCharsets().values());
 
         final MFXComboBox<Charset> charsetBox = new MFXComboBox<>(options);
+        charsetBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         charsetBox.setConverter(new StringConverter<Charset>() {
@@ -439,6 +446,7 @@ public class CSVImportDialog {
 
 //        formatOptions = FXCollections.observableArrayList("MS Office, ARA01, Custom");
         final MFXComboBox<String> formats = new MFXComboBox<>(formatOptions);
+        formats.setFloatMode(FloatMode.DISABLED);
         formats.getSelectionModel().selectFirst();
 
         Node title = buildTitle(I18n.getInstance().getString("csv.tab.title.field_options"));

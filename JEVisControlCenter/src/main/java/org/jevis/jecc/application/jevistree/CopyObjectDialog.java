@@ -23,6 +23,7 @@ package org.jevis.jecc.application.jevistree;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXRadioButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -194,6 +195,7 @@ public class CopyObjectDialog extends Dialog {
         this.move.setToggleGroup(group);
         this.copy.setToggleGroup(group);
 
+        this.nameField.setFloatMode(FloatMode.DISABLED);
         this.nameField.setPrefWidth(250);
         this.nameField.setPromptText(I18n.getInstance().getString("jevistree.dialog.copy.name.prompt"));
 

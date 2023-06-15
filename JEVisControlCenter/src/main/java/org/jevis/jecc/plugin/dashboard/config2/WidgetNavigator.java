@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.dashboard.config2;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -239,6 +240,7 @@ public class WidgetNavigator {
         ObservableList<String> modeList = FXCollections.observableArrayList();
         modeList.addAll(BackgroundMode.defaultMode, BackgroundMode.repeat, BackgroundMode.stretch);
         MFXComboBox<String> comboBox = new MFXComboBox<>(modeList);
+        comboBox.setFloatMode(FloatMode.DISABLED);
         comboBox.setValue(control.getActiveDashboard().backgroundMode);
 
 

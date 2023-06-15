@@ -23,6 +23,7 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -322,6 +323,7 @@ public class MemberExtension implements ObjectEditorExtension {
         MFXButton newB = new MFXButton();
         //ToDo
         final MFXComboBox<JEVisObject> users = new MFXComboBox<>();
+        users.setFloatMode(FloatMode.DISABLED);
         users.setMinWidth(500);
 
         users.setConverter(new StringConverter<JEVisObject>() {
@@ -359,6 +361,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
         FilteredList<JEVisObject> filteredData = new FilteredList<>(possibleUsers, s -> true);
         MFXTextField filterInput = new MFXTextField();
+        filterInput.setFloatMode(FloatMode.DISABLED);
         filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         filterInput.textProperty().addListener(obs -> {

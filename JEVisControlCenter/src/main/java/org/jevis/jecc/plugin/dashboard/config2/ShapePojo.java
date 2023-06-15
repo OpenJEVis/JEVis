@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -151,6 +152,7 @@ public class ShapePojo {
         gridPane.setPadding(new Insets(5, 8, 5, 8));
 
         MFXComboBox = new MFXComboBox<>();
+        MFXComboBox.setFloatMode(FloatMode.DISABLED);
 
         for (SHAPE s : SHAPE.values()) {
             MFXComboBox.getItems().add(s);

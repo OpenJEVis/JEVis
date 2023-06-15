@@ -6,6 +6,7 @@ package org.jevis.jecc.dialog;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -312,6 +313,7 @@ public class AlarmWizardDialog {
 
     private MFXComboBox<ReportType> getReportTypeComboBox() {
         MFXComboBox<ReportType> box = new MFXComboBox<>();
+        box.setFloatMode(FloatMode.DISABLED);
 
         box.setItems(FXCollections.observableArrayList(ReportType.values()));
 

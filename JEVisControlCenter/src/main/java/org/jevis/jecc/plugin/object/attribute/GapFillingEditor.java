@@ -21,6 +21,7 @@ package org.jevis.jecc.plugin.object.attribute;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -142,7 +143,9 @@ public class GapFillingEditor implements AttributeEditor {
         referencePeriodCountText.setMin(new BigDecimal(1));
         referencePeriodCountText.setMax(new BigDecimal(99));
         MFXTextField boundaryText = new MFXTextField();
+        boundaryText.setFloatMode(FloatMode.DISABLED);
         MFXTextField defaultValueText = new MFXTextField();
+        defaultValueText.setFloatMode(FloatMode.DISABLED);
 
         /**
          * Text layout

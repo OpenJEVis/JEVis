@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXListCell;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -1367,6 +1368,7 @@ public class OutputView extends Tab {
         });
 
         MFXComboBox<JEVisObject> objectSelector = new MFXComboBox<>(FXCollections.observableArrayList(objects));
+        objectSelector.setFloatMode(FloatMode.DISABLED);
         objectSelector.setMaxWidth(Double.MAX_VALUE);
 
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {

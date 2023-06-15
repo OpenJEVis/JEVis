@@ -3,6 +3,7 @@ package org.jevis.jecc.dialog;
 import com.jfoenix.controls.JFXTextArea;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
@@ -67,6 +68,7 @@ public class KPIWizard extends Dialog {
         List<JEVisObject> objects = getAllChildren(object);
 
         MFXTextField name = new MFXTextField();
+        name.setFloatMode(FloatMode.DISABLED);
         name.setPromptText("Enter Name for created Folder Structure");
         JFXTextArea formula = new JFXTextArea();
         formula.setPromptText("Enter formula (Var1, Var2, ... VarX)");

@@ -3,6 +3,7 @@ package org.jevis.jecc.application.Chart.Charts;
 import com.ibm.icu.text.NumberFormat;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -240,6 +241,7 @@ public class TableChartV extends XYChart {
                 HBox nameLabelBox = new HBox(columnNameLabel);
                 nameLabelBox.setAlignment(Pos.CENTER);
                 MFXTextField filterBox = new MFXTextField();
+                filterBox.setFloatMode(FloatMode.DISABLED);
                 filterBox.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
                 filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {

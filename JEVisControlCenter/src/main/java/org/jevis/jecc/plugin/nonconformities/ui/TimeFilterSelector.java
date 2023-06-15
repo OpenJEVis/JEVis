@@ -1,6 +1,7 @@
 package org.jevis.jecc.plugin.nonconformities.ui;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -90,6 +91,7 @@ public class TimeFilterSelector extends GridPane {
             }
         };
 
+        fDateField.setFloatMode(FloatMode.DISABLED);
         fDateField.setConverter(new StringConverter<DateFilter.DateField>() {
             @Override
             public String toString(DateFilter.DateField object) {

@@ -2,6 +2,7 @@ package org.jevis.jecc.application.jevistree;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -41,6 +42,7 @@ public class SearchFilterBar extends GridPane {
 
         ObservableList<JEVisTreeFilter> filterList = FXCollections.observableArrayList(filter);
         filterBox = new MFXComboBox<>(filterList);
+        filterBox.setFloatMode(FloatMode.DISABLED);
         filterBox.setMaxWidth(Double.MAX_VALUE);
         //TODO JFX17
         filterBox.setConverter(new StringConverter<JEVisTreeFilter>() {

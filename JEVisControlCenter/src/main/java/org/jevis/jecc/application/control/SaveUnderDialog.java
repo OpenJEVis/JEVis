@@ -2,6 +2,7 @@ package org.jevis.jecc.application.control;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -68,6 +69,7 @@ public class SaveUnderDialog extends Dialog {
 
         ObjectProperty<JEVisObject> currentSaveDirectory = new SimpleObjectProperty<>(null);
         MFXComboBox<JEVisObject> parentsDirectories = new MFXComboBox<>(FXCollections.observableArrayList(listSaveDirectories));
+        parentsDirectories.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
 

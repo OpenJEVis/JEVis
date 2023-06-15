@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.nonconformities.ui.tab;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -209,9 +210,11 @@ public class GeneralTab extends Tab {
         f_ImmediateMeasures.textProperty().bindBidirectional(data.immediateMeasuresProperty());
         f_Creator.textProperty().bindBidirectional(data.creatorProperty());
         f_mediaTags = new MFXComboBox<>(data.getNonconformityPlan().getMediumTags());
+        f_mediaTags.setFloatMode(FloatMode.DISABLED);
         f_fieldTags = new CheckComboBox<>(data.getNonconformityPlan().getFieldsTags());
         f_action.textProperty().bindBidirectional(data.actionProperty());
         f_SEU = new MFXComboBox<>(data.getNonconformityPlan().getSignificantEnergyUseTags());
+        f_SEU.setFloatMode(FloatMode.DISABLED);
         f_SEU.valueProperty().bindBidirectional(data.seuProperty());
 
         f_mediaTags.valueProperty().bindBidirectional(data.mediumProperty());

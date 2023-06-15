@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXCheckBox;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -340,8 +341,10 @@ public class NodeTreeTable {
 
             HBox hbox = new HBox(6);
             MFXTextField valueField = new MFXTextField();
+            valueField.setFloatMode(FloatMode.DISABLED);
 
-            MFXComboBox<Boolean> valueComboBox = new MFXComboBox();
+            MFXComboBox<Boolean> valueComboBox = new MFXComboBox<>();
+            valueComboBox.setFloatMode(FloatMode.DISABLED);
             valueComboBox.getItems().addAll(true, false);
 
 

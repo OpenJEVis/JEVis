@@ -1,6 +1,7 @@
 package org.jevis.jecc.plugin.meters;
 
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
@@ -35,6 +36,7 @@ public class MeterRenameDialog extends Dialog {
 
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name.prompt"));
         MFXTextField nameField = new MFXTextField(selectedItem.getObject().getName());
+        nameField.setFloatMode(FloatMode.DISABLED);
         nameField.setMinWidth(250);
 
         Label dataRowLabel = new Label(I18n.getInstance().getString("plugin.alarm.table.objectname"));
@@ -46,6 +48,7 @@ public class MeterRenameDialog extends Dialog {
             JEVisObject targetObject = targetHelper.getObject().get(0);
 
             MFXTextField targetTextField = new MFXTextField(targetObject.getName());
+            targetTextField.setFloatMode(FloatMode.DISABLED);
             targetTextField.setMinWidth(250);
 
             int row = 0;

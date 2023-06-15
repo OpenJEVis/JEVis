@@ -7,6 +7,7 @@ package org.jevis.jecc.plugin.object.attribute;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -537,6 +538,7 @@ public class ScheduleEditor implements AttributeEditor {
         timeZones.addAll(FXCollections.observableArrayList(org.joda.time.DateTimeZone.getAvailableIDs()));
 
         MFXComboBox<String> timeZoneBox = new MFXComboBox<>(timeZones);
+        timeZoneBox.setFloatMode(FloatMode.DISABLED);
 
         timeZoneBox.selectItem(inputValue.getTimezone());
 

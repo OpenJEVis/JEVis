@@ -22,6 +22,7 @@ package org.jevis.jecc.plugin.object.attribute;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -267,7 +268,9 @@ public class DeltaEditor implements AttributeEditor {
         Label maxLabel = new Label(I18n.getInstance().getString("newobject.title2"));
 
         MFXTextField minField = new MFXTextField();
+        minField.setFloatMode(FloatMode.DISABLED);
         MFXTextField maxField = new MFXTextField();
+        maxField.setFloatMode(FloatMode.DISABLED);
 
         /**
          * Fill configuration values into gui elements

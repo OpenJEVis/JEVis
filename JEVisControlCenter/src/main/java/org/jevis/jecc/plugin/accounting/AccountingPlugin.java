@@ -9,6 +9,7 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
@@ -197,6 +198,7 @@ public class AccountingPlugin extends TablePlugin {
         contractsTab.setClosable(false);
 
         configComboBox.setMaxWidth(Double.MAX_VALUE);
+        configComboBox.setFloatMode(FloatMode.DISABLED);
         //TODO JFX17
         configComboBox.setConverter(new StringConverter<JEVisObject>() {
             @Override
@@ -221,6 +223,7 @@ public class AccountingPlugin extends TablePlugin {
         }
 
         energySupplierBox.setMaxWidth(Double.MAX_VALUE);
+        energySupplierBox.setFloatMode(FloatMode.DISABLED);
         energySupplierBox.setConverter(new StringConverter<JEVisObject>() {
             @Override
             public String toString(JEVisObject object) {
@@ -234,6 +237,7 @@ public class AccountingPlugin extends TablePlugin {
         });
 
         energyMeteringOperatorBox.setMaxWidth(Double.MAX_VALUE);
+        energyMeteringOperatorBox.setFloatMode(FloatMode.DISABLED);
         energyMeteringOperatorBox.setConverter(new StringConverter<JEVisObject>() {
             @Override
             public String toString(JEVisObject object) {
@@ -247,6 +251,7 @@ public class AccountingPlugin extends TablePlugin {
         });
 
         energyGridOperatorBox.setMaxWidth(Double.MAX_VALUE);
+        energyGridOperatorBox.setFloatMode(FloatMode.DISABLED);
         energyGridOperatorBox.setConverter(new StringConverter<JEVisObject>() {
             @Override
             public String toString(JEVisObject object) {
@@ -262,6 +267,7 @@ public class AccountingPlugin extends TablePlugin {
         energyContractorBox.setMaxWidth(Double.MAX_VALUE);
 
         //TODO JFX17
+        energyContractorBox.setFloatMode(FloatMode.DISABLED);
         energyContractorBox.setConverter(new StringConverter<ComboBoxItem>() {
             @Override
             public String toString(ComboBoxItem object) {
@@ -275,6 +281,7 @@ public class AccountingPlugin extends TablePlugin {
         });
 
         governmentalDuesBox.setMaxWidth(Double.MAX_VALUE);
+        governmentalDuesBox.setFloatMode(FloatMode.DISABLED);
         governmentalDuesBox.setConverter(new StringConverter<JEVisObject>() {
             @Override
             public String toString(JEVisObject object) {
@@ -376,6 +383,7 @@ public class AccountingPlugin extends TablePlugin {
         };
 
         //TODO JFX17
+        contractTypeBox.setFloatMode(FloatMode.DISABLED);
         contractTypeBox.setConverter(new StringConverter<ContractType>() {
             @Override
             public String toString(ContractType object) {
@@ -1318,6 +1326,7 @@ public class AccountingPlugin extends TablePlugin {
         };
 
         trcs.setMaxWidth(Double.MAX_VALUE);
+        trcs.setFloatMode(FloatMode.DISABLED);
         trcs.setConverter(new StringConverter<JEVisObject>() {
             @Override
             public String toString(JEVisObject object) {

@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.validation.DoubleValidator;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -83,6 +84,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         alignmentBox = new MFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
         alignmentBox.setPrefWidth(200);
         alignmentBox.setMinWidth(200);
+        alignmentBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         alignmentBox.setConverter(new StringConverter<Pos>() {

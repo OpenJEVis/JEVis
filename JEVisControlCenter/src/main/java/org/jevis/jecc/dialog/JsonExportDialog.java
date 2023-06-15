@@ -23,6 +23,7 @@ package org.jevis.jecc.dialog;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -76,6 +77,7 @@ public class JsonExportDialog {
 
         Label destinationL = new Label("File:");
         final MFXTextField destinationF = new MFXTextField();
+        destinationF.setFloatMode(FloatMode.DISABLED);
         final MFXButton fileSelect = new MFXButton("Change...");
         final MFXCheckbox allChildren = new MFXCheckbox("Include all sub-Objects");
         final MFXCheckbox allSamples = new MFXCheckbox("Include all Samples");

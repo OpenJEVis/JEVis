@@ -7,6 +7,7 @@ package org.jevis.jecc.plugin.object.extension.processchain;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -67,6 +68,7 @@ public class FunctionPane extends Region {
         //---------------------- body ------------------------
         Label functionName = new Label("ID:");
         MFXTextField nameField = new MFXTextField();
+        nameField.setFloatMode(FloatMode.DISABLED);
 //        Separator sep = new Separator(Orientation.HORIZONTAL_TOP_LEFT);
 
         AnchorPane bodySpcer = new AnchorPane();
@@ -87,6 +89,7 @@ public class FunctionPane extends Region {
             rowNr++;
             Label optionName = new Label(key);
             MFXTextField optionValue = new MFXTextField(value);
+            optionValue.setFloatMode(FloatMode.DISABLED);
             body.add(optionName, 0, rowNr);
             body.add(optionValue, 1, rowNr);
         }

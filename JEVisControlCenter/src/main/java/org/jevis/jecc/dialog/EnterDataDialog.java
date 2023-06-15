@@ -3,6 +3,7 @@ package org.jevis.jecc.dialog;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -117,6 +118,8 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.objectRelations = new ObjectRelations(ds);
         this.numberFormat.setMinimumFractionDigits(2);
         this.numberFormat.setMaximumFractionDigits(2);
+        this.doubleField.setFloatMode(FloatMode.DISABLED);
+        this.searchIdField.setFloatMode(FloatMode.DISABLED);
 
         init();
     }

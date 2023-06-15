@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.reports;
 import com.jfoenix.controls.JFXListView;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
@@ -88,9 +89,11 @@ public class ReportPlugin implements Plugin {
         this.ds = ds;
         this.title = title;
 
+        this.filterInput.setFloatMode(FloatMode.DISABLED);
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         sortedList.setComparator(alphanumComparator.reversed());
+        fileComboBox.setFloatMode(FloatMode.DISABLED);
         fileComboBox.setItems(sortedList);
 
         VBox view = new VBox(pagination);

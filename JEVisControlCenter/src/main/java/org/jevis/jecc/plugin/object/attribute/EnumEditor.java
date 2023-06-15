@@ -6,6 +6,7 @@
 package org.jevis.jecc.plugin.object.attribute;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -90,6 +91,7 @@ public class EnumEditor implements AttributeEditor {
         enumList.sort(ac);
 
         MFXComboBox<String> picker = new MFXComboBox<>(enumList);
+        picker.setFloatMode(FloatMode.DISABLED);
         picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 
         if (sample != null) {

@@ -1,6 +1,7 @@
 package org.jevis.jecc.plugin.object.extension;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingFXUtils;
@@ -97,6 +98,7 @@ public class StatisticExtension implements ObjectEditorExtension {
 
 
                     MFXComboBox<JEVisObject> box = new MFXComboBox<>();
+                    box.setFloatMode(FloatMode.DISABLED);
                     //TODO JFX17
                     box.setConverter(new StringConverter<JEVisObject>() {
                         @Override

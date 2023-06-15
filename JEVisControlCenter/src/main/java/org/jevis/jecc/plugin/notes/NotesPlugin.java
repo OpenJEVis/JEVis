@@ -7,6 +7,7 @@ import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -140,6 +141,7 @@ public class NotesPlugin implements Plugin {
         gridPane.setHgap(12);
 
         MFXTextField searchbar = new MFXTextField();
+        searchbar.setFloatMode(FloatMode.DISABLED);
         searchbar.setPromptText(I18n.getInstance().getString("plugin.notes.search.prompt"));
         searchbar.setMinWidth(250);
 
@@ -931,6 +933,7 @@ public class NotesPlugin implements Plugin {
 
     private MFXComboBox<TimeFrame> getTimeFrameComboBox() {
         MFXComboBox<TimeFrame> box = new MFXComboBox<>();
+        box.setFloatMode(FloatMode.DISABLED);
 
         ObservableList<TimeFrame> timeFrames = FXCollections.observableArrayList(TimeFrame.values());
         timeFrames.remove(TimeFrame.values().length - 2, TimeFrame.values().length - 1);
