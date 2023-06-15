@@ -69,6 +69,19 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         }
     };
     private final ObjectMapper objectMapper = new ObjectMapper();
+    //    private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
+    private final ConcurrentHashMap<String, JEVisClass> classCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, JEVisObject> objectCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, JEVisObject> deltedObjectCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, List<JEVisRelationship>> objectRelMapCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, Object> objectNullCache = new ConcurrentHashMap<>();
+
+
+    /**
+     * Amount of Samples in one request
+     **/
+    private final int SAMPLE_REQUEST_SIZE = 10000;
+    private final ConcurrentHashMap<Long, List<JEVisAttribute>> attributeCache = new ConcurrentHashMap<>();
     private String host = "http://localhost";
     private HTTPConnection con;
     /*
@@ -78,28 +91,16 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     //    private Gson gson = new Gson();
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
-    //    private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
-    private final ConcurrentHashMap<String, JEVisClass> classCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Long, JEVisObject> objectCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Long, JEVisObject> deltedObjectCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Long, List<JEVisRelationship>> objectRelMapCache = new ConcurrentHashMap<>();
     private boolean allAttributesPreloaded = false;
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean deletedObjectLoaded = false;
     private boolean orLoaded = false;
-    /**
-     * Amount of Samples in one request
-     **/
-    private final int SAMPLE_REQUEST_SIZE = 10000;
     private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
-
-
     /**
      * fallback because some old client will call preload but we now a days do per default
      **/
     private boolean hasPreloaded = false;
-    private final ConcurrentHashMap<Long, List<JEVisAttribute>> attributeCache = new ConcurrentHashMap<>();
 
     public JEVisDataSourceWS(String host) {
         this.host = host;
@@ -324,7 +325,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public List<JEVisObject> getObjects() {
         logger.debug("getObjects");
         if (!this.objectLoaded) {
-            getObjectsWS();
+            getObjectsWS(true);
             this.objectLoaded = true;
         }
 
@@ -357,13 +358,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
 
-    public void getObjectsWS() {
+    public void getObjectsWS(boolean includeDeleted) {
         logger.trace("Get ALL ObjectsWS");
         //TODO: throw exception?! so the other function can handle it?
         Benchmark benchmark = new Benchmark();
         String resource = HTTPConnection.API_PATH_V1
                 + REQUEST.OBJECTS.PATH
                 + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS + "false"
+                + "?" + REQUEST.OBJECTS.OPTIONS.DELETED + includeDeleted
                 + "&" + REQUEST.OBJECTS.OPTIONS.ONLY_ROOT + "false";
         List<JsonObject> jsonObjects = new ArrayList<>();
         try {
@@ -1401,14 +1403,19 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public JEVisObject getObject(Long id) {
-
         if (id != null) {
+            if (objectNullCache.containsKey(id)) return null;
+
             JEVisObject obj = this.objectCache.getOrDefault(id, null);
             if (obj != null) {
                 return obj;
             } else {
                 logger.debug("Object without cache: " + id);
-                return getObjectWS(id);
+                JEVisObject wsobj = getObjectWS(id);
+                if (wsobj == null) {
+                    objectNullCache.put(id, id);
+                }
+                return wsobj;
             }
         } else return null;
 
@@ -1695,7 +1702,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
             this.getRelationships();
 
-            if (!this.objectCache.isEmpty()) this.objectCache.clear();
+            if (!this.objectCache.isEmpty()) {
+                this.objectNullCache.clear();
+                this.objectCache.clear();
+            }
             getObjects();
             benchmark.printBenchmarkDetail("Preload - Objects");
             Optimization.getInstance().printStatistics();
@@ -1777,14 +1787,13 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void reloadObject(JEVisObject object) {
         JEVisObject newObj = getObjectWS(object.getID());
-
-
     }
 
     @Override
     public void clearCache() {
 //        classCache.clear();
 
+        this.objectNullCache.clear();
         this.objectRelMapCache.clear();
 //        this.objectRelCache.clear();
         this.objectCache.clear();

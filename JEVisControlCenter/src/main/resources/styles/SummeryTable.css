@@ -1,0 +1,15 @@
+.table-view .column-header-background {
+    -fx-max-height: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+}
+
+.table-row-cell:odd,
+.tree-table-row-cell:odd {
+    -fx-background-color: transparent;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: transparent;
+    -fx-text-fill: black;
+}

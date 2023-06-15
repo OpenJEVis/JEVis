@@ -16,15 +16,15 @@ import java.util.stream.Collectors;
 public class ActionPlanOverviewData extends ActionPlanData {
 
     protected static final Logger logger = LogManager.getLogger(ActionPlanOverviewData.class);
-    private ObservableList<String> statusTags;
-    private ObservableList<String> mediumTags;
-    private ObservableList<String> fieldsTags;
-    private ObservableList<String> significantEnergyUseTags;
-    private StringProperty name = new SimpleStringProperty("");
-    private StringProperty nrPrefix = new SimpleStringProperty("");
-    private String initNrPrefix = "";
-    private ObservableList<ActionData> actions;
-    private ActionController controller;
+    private final ObservableList<String> statusTags;
+    private final ObservableList<String> mediumTags;
+    private final ObservableList<String> fieldsTags;
+    private final ObservableList<String> significantEnergyUseTags;
+    private final StringProperty name = new SimpleStringProperty("");
+    private final StringProperty nrPrefix = new SimpleStringProperty("");
+    private final String initNrPrefix = "";
+    private final ObservableList<ActionData> actions;
+    private final ActionController controller;
 
     public ActionPlanOverviewData(ActionController controller) {
         //System.out.println("New OverViewData from Object: " + controller);
@@ -85,6 +85,8 @@ public class ActionPlanOverviewData extends ActionPlanData {
             mediumTags.addAll(actionPlanData.getMediumTags().stream().filter(obj -> !mediumTags.contains(obj)).collect(Collectors.toList()));
             fieldsTags.addAll(actionPlanData.getFieldsTags().stream().filter(obj -> !fieldsTags.contains(obj)).collect(Collectors.toList()));
             significantEnergyUseTags.addAll(actionPlanData.significantEnergyUseTags().stream().filter(obj -> !significantEnergyUseTags.contains(obj)).collect(Collectors.toList()));
+
+            System.out.println("ActionPlanOverview update mediums: " + mediumTags);
 
             actionPlanData.getActionData().addListener(new ListChangeListener<ActionData>() {
                 @Override

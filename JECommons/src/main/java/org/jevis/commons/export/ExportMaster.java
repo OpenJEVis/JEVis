@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.ws.json.JsonAttribute;
-import org.jevis.commons.ws.json.JsonFactory;
-import org.jevis.commons.ws.json.JsonObject;
-import org.jevis.commons.ws.json.JsonRelationship;
+import org.jevis.commons.ws.json.*;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -127,9 +124,13 @@ public class ExportMaster {
 
             //write Samples
             if (mo.getValue().getMode() == MetaObject.Mode.ALL_DATA) {
-//                for(JsonAttribute att: metaObject.getObject().getAttributes()){
-//                    List<JsonSample> list =
-//                }
+                for(JsonAttribute att: metaObject.getObject().getAttributes()){
+                   // List<JsonSample> list =
+                    if(att.getType().equals(JEVisConstants.PrimitiveType.FILE+"")){
+                        File fileFile = new File(outputfile.getAbsolutePath() + File.separatorChar + mo.getKey() +"_"+att.getType()+ ".json");
+
+                    }
+                }
 
 
             }

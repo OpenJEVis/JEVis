@@ -1,0 +1,76 @@
+{
+  "name": "SQL Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "SQL Request Directory",
+      "end": "SQL Server",
+      "type": 3
+    },
+    {
+      "start": "SQL Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "SQL Server",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "SQL Server"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "SQL Server"
+    },
+    {
+      "name": "Connection Timeout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "SQL Server"
+    },
+    {
+      "name": "Connection String",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "SQL Server"
+    },
+    {
+      "name": "Driver Class",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "SQL Server"
+    },
+    {
+      "name": "Status Log",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "SQL Request"
+    }
+  ]
+}
