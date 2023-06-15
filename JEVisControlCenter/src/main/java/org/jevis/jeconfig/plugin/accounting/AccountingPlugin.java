@@ -40,10 +40,12 @@ import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.*;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.RenameDialog;
 import org.jevis.jeconfig.plugin.TablePlugin;
 import org.jevis.jeconfig.plugin.dtrc.*;
@@ -1775,15 +1777,52 @@ public class AccountingPlugin extends TablePlugin {
                     VBox editorBox = new VBox();
 
                     if (!isContractorAttribute) {
-                        AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(attribute.getType(), attribute);
-                        attributeEditor.setReadOnly(false);
-                        if (attribute.getType().getGUIDisplayType().equals("Period")) {
-                            PeriodEditor periodEditor = (PeriodEditor) attributeEditor;
-                            periodEditor.showTs(false);
+                        if (attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.LONG) {
+                            Label lastValueLabel = new Label();
+
+                            JEVisSample latestSample;
+                            if (attribute.hasSample()) {
+                                latestSample = attribute.getLatestSample();
+
+                                JEVisUnit displayUnit = attribute.getDisplayUnit();
+                                String unitString = UnitManager.getInstance().format(displayUnit);
+
+                                lastValueLabel.setText(numberFormat.format(latestSample.getValueAsDouble()) + " " + unitString);
+                            } else {
+                                latestSample = null;
+                            }
+
+                            VBox labelVBox = new VBox(lastValueLabel);
+                            labelVBox.setAlignment(Pos.CENTER);
+
+                            JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 12, 12));
+                            manSampleButton.setOnAction(actionEvent -> {
+                                EnterDataDialog enterDataDialog = new EnterDataDialog(ds);
+                                enterDataDialog.setShowDetailedTarget(false);
+                                if (latestSample != null) {
+                                    enterDataDialog.setSample(latestSample);
+                                }
+                                enterDataDialog.setTarget(false, attribute);
+                                enterDataDialog.setShowValuePrompt(true);
+
+                                enterDataDialog.show();
+                            });
+
+                            HBox manSampleBox = new HBox(labelVBox, manSampleButton);
+
+                            editorBox.getChildren().setAll(manSampleBox);
+                            editorBox.setAlignment(Pos.CENTER);
+                        } else {
+                            AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(attribute.getType(), attribute);
+                            attributeEditor.setReadOnly(false);
+                            if (attribute.getType().getGUIDisplayType().equals("Period")) {
+                                PeriodEditor periodEditor = (PeriodEditor) attributeEditor;
+                                periodEditor.showTs(false);
+                            }
+                            attributeEditors.add(attributeEditor);
+                            editorBox.getChildren().setAll(attributeEditor.getEditor());
+                            editorBox.setAlignment(Pos.CENTER);
                         }
-                        attributeEditors.add(attributeEditor);
-                        editorBox.getChildren().setAll(attributeEditor.getEditor());
-                        editorBox.setAlignment(Pos.CENTER);
                     } else {
                         JFXComboBox<JEVisObject> contractorBox = new JFXComboBox<>();
                         contractorBox.setCellFactory(objectNameCellFactory);
