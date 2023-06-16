@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.legal.ui;
 
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -19,7 +19,7 @@ public class LegalCadastreForm extends Alert {
     Label nameLabel = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.planname"));
 
 
-    JFXTextField nameField = new JFXTextField();
+    MFXTextField nameField = new MFXTextField();
 
     Label l_category = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.category"));
     Label l_scope = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.scope"));

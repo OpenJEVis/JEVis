@@ -1,16 +1,14 @@
 package org.jevis.jecc.plugin.legal.ui;
 
-import com.jfoenix.controls.JFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,11 +34,11 @@ public class TimeFilterSelector extends GridPane {
 
 
     //TODo locale name from Column
-    JFXComboBox<DateFilter.DateField> fDateField = new JFXComboBox<>(FXCollections.observableArrayList(ALL, ISSUE_DATE, Date_Of_Examination, VERSION));
-    JFXComboBox<Month> fFromMonth = generateMonthBox();
-    JFXComboBox<Month> fToMonth = generateMonthBox();
-    JFXComboBox<Integer> fFromYear = generateYearBox();
-    JFXComboBox<Integer> fToYear = generateYearBox();
+    MFXComboBox<DateFilter.DateField> fDateField = new MFXComboBox<>(FXCollections.observableArrayList(ALL, ISSUE_DATE, Date_Of_Examination, VERSION));
+    MFXComboBox<Month> fFromMonth = generateMonthBox();
+    MFXComboBox<Month> fToMonth = generateMonthBox();
+    MFXComboBox<Integer> fFromYear = generateYearBox();
+    MFXComboBox<Integer> fToYear = generateYearBox();
     private SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
 
 
@@ -58,40 +56,44 @@ public class TimeFilterSelector extends GridPane {
         initValues(indexOfLegalProvisions);
         ObligationData fakeNames = new ObligationData();
 
-        Callback<ListView<DateFilter.DateField>, ListCell<DateFilter.DateField>> cellFactory = new Callback<ListView<DateFilter.DateField>, ListCell<DateFilter.DateField>>() {
+        fDateField.setFloatMode(FloatMode.DISABLED);
+        fDateField.setConverter(new StringConverter<DateFilter.DateField>() {
             @Override
-            public ListCell<DateFilter.DateField> call(ListView<DateFilter.DateField> param) {
-                return new ListCell<DateFilter.DateField>() {
-                    @Override
-                    protected void updateItem(DateFilter.DateField item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null) {
-                            switch (item) {
-                                case ALL:
-                                    setText(I18n.getInstance().getString("plugin.action.tfiler.all"));
-                                    break;
-                                case VERSION:
-                                    setText(fakeNames.currentVersionDateProperty().getName());
-                                    break;
-                                case ISSUE_DATE:
-                                    setText(fakeNames.issueDateProperty().getName());
-                                    break;
-                                case Date_Of_Examination:
-                                    setText(fakeNames.dateOfExaminationProperty().getName());
-                                    break;
-                                default:
-                                    setText("");
-                            }
-                        } else {
-                            setText(null);
-                        }
-                    }
-                };
-            }
-        };
+            public String toString(DateFilter.DateField object) {
+                String text = "";
+                if (object != null) {
+                    text = switch (object) {
+                        case ALL -> (I18n.getInstance().getString("plugin.action.tfiler.all"));
+                        case VERSION -> (fakeNames.currentVersionDateProperty().getName());
+                        case ISSUE_DATE -> (fakeNames.issueDateProperty().getName());
+                        case Date_Of_Examination -> (fakeNames.dateOfExaminationProperty().getName());
+                    };
+                }
 
-        fDateField.setCellFactory(cellFactory);
-        fDateField.setButtonCell(cellFactory.call(null));
+                return text;
+            }
+
+            @Override
+            public DateFilter.DateField fromString(String string) {
+                DateFilter.DateField returnField = null;
+
+                for (DateFilter.DateField dateField : fDateField.getItems()) {
+                    String text = "";
+                    text = switch (dateField) {
+                        case ALL -> (I18n.getInstance().getString("plugin.action.tfiler.all"));
+                        case VERSION -> (fakeNames.currentVersionDateProperty().getName());
+                        case ISSUE_DATE -> (fakeNames.issueDateProperty().getName());
+                        case Date_Of_Examination -> (fakeNames.dateOfExaminationProperty().getName());
+                    };
+                    if (text.equals(string)) {
+                        returnField = dateField;
+                        break;
+                    }
+                }
+
+                return returnField;
+            }
+        });
 
 
         ChangeListener changeListener = new ChangeListener() {
@@ -193,7 +195,7 @@ public class TimeFilterSelector extends GridPane {
         return valueProperty.get();
     }
 
-    private JFXComboBox<Month> generateMonthBox() {
+    private MFXComboBox<Month> generateMonthBox() {
 
         ObservableList<Month> months = FXCollections.observableArrayList();
         months.add(Month.JANUARY);
@@ -209,7 +211,7 @@ public class TimeFilterSelector extends GridPane {
         months.add(Month.NOVEMBER);
         months.add(Month.DECEMBER);
 
-        JFXComboBox<Month> field = new JFXComboBox(months);
+        MFXComboBox<Month> field = new MFXComboBox(months);
         field.setConverter(new StringConverter<Month>() {
             @Override
             public String toString(Month object) {
@@ -242,7 +244,7 @@ public class TimeFilterSelector extends GridPane {
         return valueProperty;
     }
 
-    private JFXComboBox<Integer> generateYearBox() {
+    private MFXComboBox<Integer> generateYearBox() {
 
         ObservableList<Integer> months = FXCollections.observableArrayList();
         months.add(2018);
@@ -253,7 +255,7 @@ public class TimeFilterSelector extends GridPane {
         months.add(2023);
         months.add(2024);
 
-        JFXComboBox<Integer> field = new JFXComboBox(months);
+        MFXComboBox<Integer> field = new MFXComboBox<>(months);
         field.setConverter(new StringConverter<Integer>() {
             @Override
             public String toString(Integer object) {

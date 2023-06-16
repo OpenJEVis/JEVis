@@ -1,7 +1,7 @@
 package org.jevis.jecc.application.Chart.Charts;
 
 import com.ibm.icu.text.NumberFormat;
-import de.jollyday.Holiday;
+import de.focus_shift.Holiday;
 import eu.hansolo.fx.charts.ChartType;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;

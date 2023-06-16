@@ -11,7 +11,6 @@ import org.jevis.jecc.Constants;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.Plugin;
 
-import javax.ws.rs.NotSupportedException;
 
 public class DataPlugin implements Plugin {
     public static String PLUGIN_CLASS_NAME = "Data Plugin";
@@ -120,7 +119,7 @@ public class DataPlugin implements Plugin {
 
     @Override
     public void setDataSource(JEVisDataSource ds) {
-        throw new NotSupportedException("No allowed to set new data source");
+//        throw new NotSupportedException("No allowed to set new data source");
     }
 
     @Override

@@ -34,6 +34,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.glyphfont.Glyph;
 import org.jevis.api.JEVisException;
@@ -42,10 +44,9 @@ import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.jecc.application.Chart.Charts.PieChart;
 import org.jevis.jecc.application.Chart.data.ChartDataRow;
 import org.jevis.jecc.plugin.charts.ChartPlugin;
+import org.jevis.jecc.plugin.charts.ToolBarView;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -80,7 +81,7 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
      * Default pan mouse filter passing on left mouse button with {@link MouseEvent#isControlDown() control key down}.
      */
     public static final Predicate<MouseEvent> DEFAULT_MOUSE_FILTER = MouseEventsHelper::isOnlyMiddleButtonDown;
-    private static final Logger LOGGER = LoggerFactory.getLogger(Zoomer.class);
+    private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private static final String FONT_AWESOME = "FontAwesome";
     private static final int ZOOM_RECT_MIN_SIZE = 5;
     private static final Duration DEFAULT_ZOOM_DURATION = Duration.millis(500);
@@ -1090,7 +1091,7 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
     private void performZoom(Entry<Axis, ZoomState> zoomStateEntry, final boolean isZoomIn) {
         ZoomState zoomState = zoomStateEntry.getValue();
         if (zoomState.zoomRangeMax - zoomState.zoomRangeMin == 0) {
-            LOGGER.atDebug().log("Cannot zoom in deeper than numerical precision");
+            logger.debug("Cannot zoom in deeper than numerical precision");
             return;
         }
 

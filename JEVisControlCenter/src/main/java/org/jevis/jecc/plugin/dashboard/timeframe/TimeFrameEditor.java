@@ -1,6 +1,7 @@
 package org.jevis.jecc.plugin.dashboard.timeframe;
 
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.layout.BorderPane;
@@ -56,7 +57,7 @@ public class TimeFrameEditor extends Popup {
         getContent().add(borderPane);
         this.datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
             setIntervalResult();
-            this.hide();
+            Platform.runLater(this::hide);
         });
 
     }

@@ -14,7 +14,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -33,7 +32,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -44,20 +42,20 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
     public static final String ONLY_RELVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlyrelevant");
     public static final String ONLY_NOT_RELEVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant");
     private static final Logger logger = LogManager.getLogger(IndexOfLegalProvisionsTable.class);
-    private static Method columnToFitMethod;
+    //    private static Method columnToFitMethod;
     private static int DATE_TIME_WIDTH = 120;
     private static int BIG_WIDTH = 200;
     private static int VERY_BIG_WIDTH = 400;
     private static int SMALL_WIDTH = 60;
 
-    static {
-        try {
-            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
-            columnToFitMethod.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
+//    static {
+//        try {
+//            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
+//            columnToFitMethod.setAccessible(true);
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     ObservableList<ObligationData> data = FXCollections.observableArrayList();
     FilteredList<ObligationData> filteredData;
@@ -219,14 +217,15 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
     }
 
     public void autoFitTable() {
-        for (TableColumn<ObligationData, ?> column : this.getColumns()) {
-            try {
-                if (getSkin() != null) {
-                    columnToFitMethod.invoke(getSkin(), column, -1);
-                }
-            } catch (Exception e) {
-            }
-        }
+        //TODO JFX17
+//        for (TableColumn<ObligationData, ?> column : this.getColumns()) {
+//            try {
+//                if (getSkin() != null) {
+//                    columnToFitMethod.invoke(getSkin(), column, -1);
+//                }
+//            } catch (Exception e) {
+//            }
+//        }
     }
 
 

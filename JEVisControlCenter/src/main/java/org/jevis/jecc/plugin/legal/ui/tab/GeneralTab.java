@@ -1,9 +1,9 @@
 package org.jevis.jecc.plugin.legal.ui.tab;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTextField;
+import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -23,18 +23,18 @@ public class GeneralTab extends Tab {
 
     private final JFXCheckBox f_relevance = new JFXCheckBox();
 
-    private final JFXTextField f_Nr = new JFXTextField();
-    private final JFXTextField f_title = new JFXTextField();
-    private final JFXTextField f_designation = new JFXTextField();
+    private final MFXTextField f_Nr = new MFXTextField();
+    private final MFXTextField f_title = new MFXTextField();
+    private final MFXTextField f_designation = new MFXTextField();
     private final TextArea f_description = new TextArea();
 
-    private final JFXComboBox f_category = new JFXComboBox();
-    private final JFXComboBox f_scope = new JFXComboBox();
+    private final MFXComboBox f_category = new MFXComboBox<>();
+    private final MFXComboBox f_scope = new MFXComboBox<>();
 
-    private final JFXTextField f_Attachment = new JFXTextField();
+    private final MFXTextField f_Attachment = new MFXTextField();
 
     private final TextArea f_importanceForTheCompany = new TextArea();
-    private final JFXTextField f_link = new JFXTextField();
+    private final MFXTextField f_link = new MFXTextField();
 
 
     private final Label l_title = new Label();

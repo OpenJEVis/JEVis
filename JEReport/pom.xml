@@ -16,6 +16,33 @@
         <version>3.4</version>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>maven.jahia.org</id>
+            <url>http://maven.jahia.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>maven2</id>
+            <url>http://repo.maven.apache.org/maven2/</url>
+        </repository>
+        <repository>
+            <releases>
+                <enabled>false</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+            <id>org.jevis</id>
+            <name>openjevis</name>
+            <url>http://maven.openjevis.org</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>true</skipTests>
@@ -69,6 +96,7 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                    <compilerArgument></compilerArgument>
                 </configuration>
             </plugin>
         </plugins>
@@ -98,15 +126,10 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
             <version>2.0.9</version>
         </dependency>
-
         <dependency>
             <groupId>org.jxls</groupId>
             <artifactId>jxls</artifactId>
@@ -136,7 +159,7 @@
         <dependency>
             <groupId>org.jodconverter</groupId>
             <artifactId>jodconverter-local</artifactId>
-            <version>4.4.6</version>
+            <version>4.4.4</version>
         </dependency>
         <dependency>
             <groupId>jakarta.mail</groupId>

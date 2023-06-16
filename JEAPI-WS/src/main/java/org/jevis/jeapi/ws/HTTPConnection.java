@@ -19,8 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -35,6 +33,7 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -216,7 +215,7 @@ public class HTTPConnection {
     }
 
     private void addAuth(HttpURLConnection conn, String username, String password) {
-        String auth = new String(Base64.encodeBase64((username + ":" + password).getBytes()));
+        String auth = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
 
 //        logger.info("Using auth: 'Authorization Basic " + auth);
         conn.setRequestProperty("Authorization", "Basic " + auth);
@@ -362,7 +361,7 @@ public class HTTPConnection {
 
             //            JEVisFile jf = new JEVisFileImp("tmp.file", bytes);//filename comes from the samples
             InputStream inputStream = conn.getInputStream();
-            byte[] response = IOUtils.toByteArray(inputStream);
+            byte[] response = inputStream.readAllBytes();
             inputStream.close();
             conn.disconnect();
 

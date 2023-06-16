@@ -66,12 +66,12 @@
         <dependency>
             <groupId>org.eclipse.milo</groupId>
             <artifactId>sdk-client</artifactId>
-            <version>0.6.5</version>
+            <version>0.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.milo</groupId>
             <artifactId>stack-client</artifactId>
-            <version>0.6.5</version>
+            <version>0.5.3</version>
         </dependency>
 
         <dependency>
@@ -85,14 +85,7 @@
         <dependency>
             <groupId>org.mockftpserver</groupId>
             <artifactId>MockFtpServer</artifactId>
-            <version>2.7.1</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.apache.commons</groupId>-->
-        <!--<artifactId>commons-lang3</artifactId>-->
-        <!--<version>3.0</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -100,14 +93,6 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-reload4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jevis</groupId>
@@ -118,18 +103,5 @@
             <artifactId>mssql-jdbc</artifactId>
             <version>11.2.3.jre17</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.jevis.jecc.application</groupId>-->
-        <!--<artifactId>jeapplication</artifactId>-->
-        <!--</dependency>-->
     </dependencies>
-
-
-    <!--    <repositories>
-            <repository>
-                <id>java.net2</id>
-                <name>Java.net</name>
-                <url>https://oss.sonatype.org/content/repositories/java.net2</url>
-            </repository>
-        </repositories>-->
 </project>

@@ -1,7 +1,8 @@
 package org.jevis.jecc.application.tools;
 
-import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameters;
+import de.focus_shift.HolidayManager;
+import de.focus_shift.ManagerParameter;
+import de.focus_shift.ManagerParameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class Holidays {
     private static final Logger logger = LogManager.getLogger(WorkDays.class);
@@ -31,16 +33,18 @@ public class Holidays {
         if (ds != null) {
             try {
                 siteClass = ds.getJEVisClass("Building");
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.fatal("Could not get JEVisClass for Building");
             }
         }
 
+        Locale locale = I18n.getInstance().getLocale();
         try {
-            defaultHolidayManager = HolidayManager.getInstance(ManagerParameters.create(I18n.getInstance().getLocale()));
+            ManagerParameter managerParameter = ManagerParameters.create(locale);
+            defaultHolidayManager = HolidayManager.getInstance(managerParameter);
         } catch (Exception e) {
             defaultHolidayManager = HolidayManager.getInstance(ManagerParameters.create(I18n.getInstance().getDefaultBundle().getLocale()));
-            logger.error("Could not identify {}, creating fallback default holiday manager {}", I18n.getInstance().getLocale(), I18n.getInstance().getDefaultBundle().getLocale());
+            logger.error("Could not identify {}, creating fallback default holiday manager {}", locale, I18n.getInstance().getDefaultBundle().getLocale());
         }
         if (ds != null) {
             try {

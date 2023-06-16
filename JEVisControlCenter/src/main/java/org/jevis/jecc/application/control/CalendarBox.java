@@ -1,8 +1,9 @@
 package org.jevis.jecc.application.control;
 
-import de.jollyday.CalendarHierarchy;
-import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameters;
+
+import de.focus_shift.CalendarHierarchy;
+import de.focus_shift.HolidayManager;
+import de.focus_shift.ManagerParameters;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ListCell;

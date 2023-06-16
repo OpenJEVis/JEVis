@@ -22,6 +22,11 @@
     </parent>
 
     <dependencies>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.7</version>
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>com.fasterxml.jackson.jaxrs</groupId>-->
         <!--<artifactId>jackson-jaxrs-json-provider</artifactId>-->
@@ -120,7 +125,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <inherited>true</inherited>
                 <configuration>
                     <source>17</source>

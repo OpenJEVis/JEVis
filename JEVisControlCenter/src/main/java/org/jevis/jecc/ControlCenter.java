@@ -20,7 +20,8 @@
 package org.jevis.jecc;
 
 
-import de.jollyday.HolidayManager;
+import de.focus_shift.HolidayManager;
+import de.focus_shift.ManagerParameters;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -58,6 +59,7 @@ import org.jevis.jecc.application.application.I18nWS;
 import org.jevis.jecc.application.application.JavaVersionCheck;
 import org.jevis.jecc.application.login.FXLogin;
 import org.jevis.jecc.application.statusbar.Statusbar;
+import org.jevis.jecc.application.tools.Holidays;
 import org.jevis.jecc.application.tools.JEVisHelp;
 import org.jevis.jecc.dialog.HiddenConfig;
 import org.jevis.jecc.tool.Exceptions;
@@ -431,7 +433,7 @@ public class ControlCenter extends Application {
                     preload(login);
                     logger.error("done preloading");
 //TODO JFX17 Holidays
-                    //    Holidays.setDataSource(_mainDS);
+                    Holidays.setDataSource(_mainDS);
                 } catch (Exception ex) {
                     logger.error("Error while preloading datasource", ex);
                     ex.printStackTrace();
@@ -545,7 +547,7 @@ public class ControlCenter extends Application {
                             try {
                                 this.updateTitle(I18n.getInstance().getString("preload.holidays"));
                                 for (String countryCode : HolidayManager.getSupportedCalendarCodes()) {
-                                    //  HolidayManager instance = HolidayManager.getInstance(ManagerParameters.create(countryCode));
+                                    HolidayManager instance = HolidayManager.getInstance(ManagerParameters.create(countryCode));
                                 }
 
                                 succeeded();

@@ -1,10 +1,10 @@
 package org.jevis.jecc.application.Chart.ChartElements;
 
+import de.focus_shift.Holiday;
 import de.gsi.chart.axes.AxisLabelOverlapPolicy;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import de.gsi.chart.axes.spi.TickMark;
 import de.gsi.chart.ui.geometry.Side;
-import de.jollyday.Holiday;
 import javafx.collections.ObservableList;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

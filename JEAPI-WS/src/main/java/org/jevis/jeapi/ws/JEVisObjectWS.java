@@ -22,7 +22,6 @@ package org.jevis.jeapi.ws;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -137,7 +136,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public Map<String, String> getLocalNameList() {
-        Map<String, String> names = new HashedMap();
+        Map<String, String> names = new HashMap<>();
         json.getI18n().forEach(jsonI18n -> {
             names.put(jsonI18n.getKey(), jsonI18n.getValue());
         });
