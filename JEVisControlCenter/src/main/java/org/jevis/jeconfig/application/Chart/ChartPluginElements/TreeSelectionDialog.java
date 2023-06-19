@@ -38,7 +38,7 @@ import java.util.List;
 
 public class TreeSelectionDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(TreeSelectionDialog.class);
-    public static List<String> allData = new ArrayList<>(Arrays.asList("Data", "Base Data"));
+    public static List<String> allData = new ArrayList<>(Arrays.asList("Data", "Base Data", "String Data"));
     public static List<String> allCleanData = new ArrayList<>(Arrays.asList("Data", "Clean Data", "Base Data", "Math Data", "Forecast Data"));
     public static List<String> alarms = new ArrayList<>(Collections.singletonList("Alarm Configuration"));
     public static List<String> analyses = new ArrayList<>(Collections.singletonList("Analysis"));
