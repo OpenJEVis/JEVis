@@ -220,6 +220,17 @@
       }
     },
     {
+      "type": "Verification Documentation",
+      "descriptions": {
+        "de": "Die Überprüfungsdokumentation enthält die Dokumentation der durchgeführten Überprüfung.",
+        "en": "The verification documentation contains documents concerning the verification."
+      },
+      "names": {
+        "de": "Überprüfungsdokumentation",
+        "en": "Verification documentation"
+      }
+    },
+    {
       "type": "Online ID",
       "descriptions": {
         "de": "Die Online ID verweist auf die im JEVis System gespeicherten Daten.",
