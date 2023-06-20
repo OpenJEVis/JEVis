@@ -19,6 +19,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.table.SummeryTable;
 import org.jevis.jeconfig.plugin.action.ActionController;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
