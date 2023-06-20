@@ -19,6 +19,7 @@ import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.table.SummeryTable;
 import org.jevis.jeconfig.plugin.legal.LegalCadastreController;
 import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 
@@ -132,6 +133,12 @@ public class LegalCadastreTab extends Tab {
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
         borderPane.setCenter(indexOfLegalProvisionsTable);
+
+
+        SummeryTable summeryTable = new SummeryTable(indexOfLegalProvisionsTable);
+        summeryTable.setItems(indexOfLegalProvisionsTable.getSummeryData());
+
+        borderPane.setBottom(summeryTable);
 
 
         indexOfLegalProvisionsTable.setOnMousePressed(new EventHandler<MouseEvent>() {

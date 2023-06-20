@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.action.ui;
+package org.jevis.jeconfig.application.table;
 
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableMap;
