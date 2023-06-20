@@ -465,6 +465,8 @@ public interface JC {
 
             public static String a_Path = "Path";
             public static String a_LastReadout = "Last Readout";
+
+            public static String a_ParameterConfig = "Parameter Config";
         }
 
         public interface LoytecXMLDLChannel {
@@ -3543,6 +3545,13 @@ public interface JC {
         public interface SQLParser {
             public static String name = "SQL Parser";
 
+        }
+
+        public interface JSONParser{
+            public static String name = "JSON Parser";
+
+            public static String a_dateTimeFormat = "Date Time Format";
+            public static String a_dateTimePath = "Date Time Path";
         }
 
         public interface XMLParser {
