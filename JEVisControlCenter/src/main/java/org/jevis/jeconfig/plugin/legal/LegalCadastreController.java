@@ -35,6 +35,8 @@ public class LegalCadastreController {
     private final AnchorPane contentPane = new AnchorPane();
     private ObservableList<IndexOfLegalProvisions> indexOfLegalProvisions;
     private TabPane tabPane = new TabPane();
+
+    private BooleanProperty updateTrigger = new SimpleBooleanProperty(false);
 //    private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
     private BooleanProperty inAlarm = new SimpleBooleanProperty();
@@ -73,10 +75,10 @@ public class LegalCadastreController {
 
     private void buildTabPane(IndexOfLegalProvisions indexOfLegalProvisions) {
 
-        IndexOfLegalProvisionsTable indexOfLegalProvisionsTable = new IndexOfLegalProvisionsTable(indexOfLegalProvisions, indexOfLegalProvisions.getLegislationDataList());
+        IndexOfLegalProvisionsTable indexOfLegalProvisionsTable = new IndexOfLegalProvisionsTable(indexOfLegalProvisions, indexOfLegalProvisions.getLegislationDataList(), updateTrigger);
 
         //actionTable.enableSumRow(true);
-        LegalCadastreTab tab = new LegalCadastreTab(indexOfLegalProvisions, this);
+        LegalCadastreTab tab = new LegalCadastreTab(indexOfLegalProvisions, this, updateTrigger);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -272,6 +274,8 @@ public class LegalCadastreController {
         btOk.setOnAction(actionEvent -> {
             try {
                 data.commit();
+                updateTrigger.set(!updateTrigger.get());
+
             } catch (Exception e) {
                 logger.error(e);
             }

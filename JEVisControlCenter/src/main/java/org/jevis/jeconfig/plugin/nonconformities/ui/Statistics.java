@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
@@ -10,15 +11,23 @@ public class Statistics {
 
     private final ObservableList<NonconformityData> nonconformityDataObservableList;
 
-    public Statistics(ObservableList<NonconformityData> nonconformityDataObservableList) {
+    private final BooleanProperty updateTrigger;
+
+    public Statistics(ObservableList<NonconformityData> nonconformityDataObservableList, BooleanProperty updateTrigger) {
         this.nonconformityDataObservableList = nonconformityDataObservableList;
+        this.updateTrigger = updateTrigger;
+
+        updateTrigger.addListener(observable -> {
+            System.out.println("update trigger changed to state");
+            System.out.println(observable);
+        });
     }
 
     public StringProperty getAll(String text) {
 
 
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(() -> text+ nonconformityDataObservableList.size(),nonconformityDataObservableList));
+        stringProperty.bind(Bindings.createStringBinding(() -> text+ nonconformityDataObservableList.size(),nonconformityDataObservableList,updateTrigger));
         return stringProperty;
 
     }
@@ -27,7 +36,7 @@ public class Statistics {
 
 
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(() -> text+ nonconformityDataObservableList.stream().filter(actionData -> actionData.getDoneDate()== null).count(),nonconformityDataObservableList));
+        stringProperty.bind(Bindings.createStringBinding(() -> text+ nonconformityDataObservableList.stream().filter(actionData -> actionData.getDoneDate()== null).count(),nonconformityDataObservableList,updateTrigger));
         return stringProperty;
 
     }
@@ -37,7 +46,7 @@ public class Statistics {
 
 
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(() -> text+ nonconformityDataObservableList.stream().filter(data1 -> data1.getDoneDate()!= null).count(),nonconformityDataObservableList));
+        stringProperty.bind(Bindings.createStringBinding(() -> text+ nonconformityDataObservableList.stream().filter(data1 -> data1.getDoneDate()!= null).count(),nonconformityDataObservableList,updateTrigger));
         return stringProperty;
 
     }
