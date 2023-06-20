@@ -23,14 +23,14 @@ public class NPVData {
     @Expose
     @SerializedName("Investment")
     public final SimpleDoubleProperty investment = new SimpleDoubleProperty("Investment"
-            , I18n.getInstance().getString("plugin.action.npv.invest"), 10000);
+            , I18n.getInstance().getString("plugin.action.npv.invest"), 0);
     @Expose
     @SerializedName("Saving")
     public final SimpleDoubleProperty einsparung = new SimpleDoubleProperty("Saving"
-            , I18n.getInstance().getString("plugin.action.npv.saving"), 1000);
+            , I18n.getInstance().getString("plugin.action.npv.saving"), 0);
     @Expose
     @SerializedName("Running Cost")
-    public final SimpleDoubleProperty runningCost = new SimpleDoubleProperty(500);
+    public final SimpleDoubleProperty runningCost = new SimpleDoubleProperty(0);
     @Expose
     @SerializedName("Inflation")
     public final SimpleDoubleProperty inflation = new SimpleDoubleProperty(3.1);
@@ -38,10 +38,10 @@ public class NPVData {
 
     @Expose
     @SerializedName("Years")
-    public final SimpleIntegerProperty amoutYear = new SimpleIntegerProperty(10);
+    public final SimpleIntegerProperty amoutYear = new SimpleIntegerProperty(0);
     @Expose
     @SerializedName("Duration")
-    public final SimpleIntegerProperty overXYear = new SimpleIntegerProperty(3);
+    public final SimpleIntegerProperty overXYear = new SimpleIntegerProperty(0);
     @Expose
     @SerializedName("Result")
     public final SimpleDoubleProperty npvResult = new SimpleDoubleProperty(0d);
@@ -64,7 +64,7 @@ public class NPVData {
     @SerializedName("Sum Net")
     public final SimpleDoubleProperty sumNetto = new SimpleDoubleProperty(0d);
 
-    private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
     private boolean initDone = false;
 
     public NPVData() {
@@ -82,7 +82,7 @@ public class NPVData {
         }
         npvYears.addAll(tmp);
 
-        if (initDone == false) {
+        if (!initDone) {
             initDone = true;
 
             /*
