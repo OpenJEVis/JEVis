@@ -5,10 +5,12 @@ import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
@@ -23,10 +25,12 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.table.DateTimeColumnCell;
 import org.jevis.jeconfig.application.table.HyperlinkCell;
 import org.jevis.jeconfig.application.table.ShortColumnCell;
+import org.jevis.jeconfig.application.table.SummeryData;
 import org.jevis.jeconfig.plugin.dashboard.config2.SankeyDataRow;
 import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 import org.jevis.jeconfig.plugin.legal.data.TableFilter;
+import org.jevis.jeconfig.tool.DragResizeMod;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -76,6 +80,8 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
     public static final String ALL = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.all");
     public static final String ONLY_RELVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlyrelevant");
     public static final String ONLY_NOT_RELEVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant");
+
+    private final ObservableList<SummeryData> summeryData;
 
 
     public IndexOfLegalProvisionsTable(IndexOfLegalProvisions indexOfLegalProvisions, ObservableList<ObligationData> data) {
@@ -209,6 +215,70 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
         });
 
 
+        Statistics statistics = new Statistics(sortedData);
+
+
+        int numberOfCategory = indexOfLegalProvisions.getCategories().size();
+        int numberOfScope = indexOfLegalProvisions.getScopes().size();
+
+        summeryData = FXCollections.observableArrayList();
+
+
+
+        if (numberOfCategory > 2 || numberOfScope > 2) {
+            if (numberOfCategory > numberOfScope) {
+                for (int i = numberOfCategory; i < 0; i++) {
+                    buildRow(indexOfLegalProvisions, legislationCol, relevanceCol, categoryCol, scopeCol, statistics, i);
+
+
+                }
+            }else {
+                for (int i = numberOfScope; i < 0; i++) {
+                    buildRow(indexOfLegalProvisions, legislationCol, relevanceCol, categoryCol, scopeCol, statistics, i);
+                }
+            }
+
+
+
+        }else {
+            for (int i = 0; i < 2; i++) {
+                buildRow(indexOfLegalProvisions, legislationCol, relevanceCol, categoryCol, scopeCol, statistics, i);
+            }
+        }
+
+        ObservableMap<TableColumn, StringProperty> summeryRow2 = FXCollections.observableHashMap();
+        ObservableMap<TableColumn, StringProperty> summeryRow3 = FXCollections.observableHashMap();
+
+
+
+
+    }
+
+    private void buildRow(IndexOfLegalProvisions indexOfLegalProvisions, TableColumn<ObligationData, String> legislationCol, TableColumn<ObligationData, Boolean> relevanceCol, TableColumn<ObligationData, String> categoryCol, TableColumn<ObligationData, String> scopeCol, Statistics statistics, int i) {
+        ObservableMap<TableColumn, StringProperty> summeryRow = FXCollections.observableHashMap();
+        System.out.println(i);
+
+        switch (i) {
+            case 0:
+                summeryRow.put(legislationCol, statistics.getAll(I18n.getInstance().getString("plugin.indexoflegalprovisions.all")));
+                summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.relevant"), true));
+                break;
+            case 1:
+                summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.notrrelevant"), false));
+                break;
+        }
+
+        String category = indexOfLegalProvisions.getCategories().get(i);
+        String scope = indexOfLegalProvisions.getScopes().get(i);
+        if (category != null) {
+            summeryRow.put(categoryCol, statistics.getCategory(category+": ", category));
+        }
+        if (scope != null) {
+            summeryRow.put(scopeCol, statistics.getScope(scope+": ", scope));
+        }
+        System.out.println(summeryRow);
+
+        summeryData.add(new SummeryData(summeryRow));
     }
 
     public void enableSumRow(boolean enable) {
@@ -466,5 +536,9 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
 
     public void setRelevantFilter(String relevantFilter) {
         this.relevantFilter = relevantFilter;
+    }
+
+    public ObservableList<SummeryData> getSummeryData() {
+        return summeryData;
     }
 }
