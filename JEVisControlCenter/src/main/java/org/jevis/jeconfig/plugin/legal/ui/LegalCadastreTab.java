@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.legal.ui;
 
 import com.jfoenix.controls.JFXTextField;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -30,14 +31,14 @@ public class LegalCadastreTab extends Tab {
     private IndexOfLegalProvisions indexOfLegalProvisions;
     private IndexOfLegalProvisionsTable indexOfLegalProvisionsTable;
 
-    public LegalCadastreTab(IndexOfLegalProvisions indexOfLegalProvisions, LegalCadastreController controller) {
+    public LegalCadastreTab(IndexOfLegalProvisions indexOfLegalProvisions, LegalCadastreController controller, BooleanProperty update) {
         super();
         this.indexOfLegalProvisions = indexOfLegalProvisions;
 
         if (indexOfLegalProvisions == null) return;
         textProperty().bind(this.indexOfLegalProvisions.getName());
         this.indexOfLegalProvisions = indexOfLegalProvisions;
-        this.indexOfLegalProvisionsTable = new IndexOfLegalProvisionsTable(this.indexOfLegalProvisions, this.indexOfLegalProvisions.getLegislationDataList());
+        this.indexOfLegalProvisionsTable = new IndexOfLegalProvisionsTable(this.indexOfLegalProvisions, this.indexOfLegalProvisions.getLegislationDataList(), update);
 
 
         GridPane gridPane = new GridPane();

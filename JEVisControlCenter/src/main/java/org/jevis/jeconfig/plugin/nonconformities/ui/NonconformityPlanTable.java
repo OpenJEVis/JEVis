@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -69,7 +70,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
     private final ObservableList<SummeryData> summeryData;
 
 
-    public NonconformityPlanTable(NonconformityPlan nonconformityPlan, ObservableList<NonconformityData> data) {
+    public NonconformityPlanTable(NonconformityPlan nonconformityPlan, ObservableList<NonconformityData> data, BooleanProperty updateTrigger) {
         this.data = data;
         this.filteredData = new FilteredList<>(data);
         sortedData = new SortedList<>(filteredData);
@@ -225,7 +226,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
             while (c.next()) autoFitTable();
         });
 
-        Statistics statistics = new Statistics(sortedData);
+        Statistics statistics = new Statistics(sortedData, updateTrigger);
 
 
         ObservableMap<TableColumn, StringProperty> summeryRow1 = FXCollections.observableHashMap();
