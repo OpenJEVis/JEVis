@@ -65,11 +65,9 @@ public class TimeFramePojo {
         //widgetObjects.addAll(dashboardControl.getWidgetList().stream().map(widget -> new TimeFrameWidgetObject(dashboardControl, widget.getConfig())).collect(Collectors.toList()));
 
 
-        System.out.println("TimeFramePojo");
         if (jsonNode != null) {
             if (jsonNode.has("selectedWidget")) {
                 selectedId = jsonNode.get("selectedWidget").get("id").asInt();
-                System.out.println(jsonNode.get("selectedWidget").get("id").asInt());
                 start = jsonNode.get("selectedWidget").get("start").asText();
                 end = jsonNode.get("selectedWidget").get("end").asText();
             }
@@ -211,7 +209,6 @@ public class TimeFramePojo {
     private void addWidgets() {
 
 
-        System.out.println("addWidgets");
         List<TimeFrameWidgetObject> allWidgets = dashboardControl.getWidgetList().stream().map(widget -> new TimeFrameWidgetObject(dashboardControl, widget.getConfig())).collect(Collectors.toList());
 
         widgetObjects.removeAll(widgetObjects.stream().filter(timeFrameWidgetObject -> !allWidgets.contains(timeFrameWidgetObject)).collect(Collectors.toList()));
