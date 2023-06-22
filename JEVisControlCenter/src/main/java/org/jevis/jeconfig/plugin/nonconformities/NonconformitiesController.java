@@ -41,6 +41,8 @@ public class NonconformitiesController {
     private TabPane tabPane = new TabPane();
     private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
+    private BooleanProperty updateTrigger = new SimpleBooleanProperty(false);
+
     public NonconformitiesController(NonconformitiesPlugin plugin) {
         this.plugin = plugin;
     }
@@ -79,10 +81,10 @@ public class NonconformitiesController {
 
     private void buildTabPane(NonconformityPlan nonconformityPlanPlan) {
 
-        NonconformityPlanTable nonconformityPlanTable = new NonconformityPlanTable(nonconformityPlanPlan, nonconformityPlanPlan.getActionData());
+        NonconformityPlanTable nonconformityPlanTable = new NonconformityPlanTable(nonconformityPlanPlan, nonconformityPlanPlan.getActionData(), updateTrigger);
 
         //actionTable.enableSumRow(true);
-        NonconformityPlanTab tab = new NonconformityPlanTab(nonconformityPlanPlan, this);
+        NonconformityPlanTab tab = new NonconformityPlanTab(nonconformityPlanPlan, this, updateTrigger);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -220,7 +222,7 @@ public class NonconformitiesController {
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
             NonconformtiesOverviewData overviewData = new NonconformtiesOverviewData(this);
-            NonconformityPlanTab overviewTab = new NonconformityPlanTab(overviewData,this);
+            NonconformityPlanTab overviewTab = new NonconformityPlanTab(overviewData,this, updateTrigger);
             overviewTab.setClosable(false);
             tabPane.getTabs().add(0, overviewTab);
 
@@ -288,6 +290,7 @@ public class NonconformitiesController {
                     data.getObject().delete();
                     getActiveTab().getNonconformityPlan().getNonconformityList().remove(data);
 
+
                 } catch (Exception e) {
                     logger.error(e);
                 }
@@ -302,7 +305,7 @@ public class NonconformitiesController {
 
     }
     @NotNull
-    private static EventHandler getCloseRequest(NonconformityData data, NonconformityForm nonconformityForm) {
+    private EventHandler getCloseRequest(NonconformityData data, NonconformityForm nonconformityForm) {
         return dialogEvent -> {
             String errorText = data.checkForRequirements();
             logger.debug(errorText);
@@ -312,6 +315,7 @@ public class NonconformitiesController {
 
             }  else {
                 data.commit();
+                updateTrigger.set(!updateTrigger.get());
             }
         };
     }

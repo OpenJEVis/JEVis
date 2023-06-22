@@ -4,6 +4,7 @@ package org.jevis.jeconfig.plugin.legal.data;
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -18,7 +19,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesPlugin;
-import org.jevis.jeconfig.tool.gson.GsonBuilder;
+import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -26,6 +27,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class ObligationData {
@@ -412,5 +414,25 @@ public class ObligationData {
 
     public void setScope(String scope) {
         this.scope.set(scope);
+    }
+
+    public StringProperty getNrAsStringProperty() {
+        StringProperty stringProperty = new SimpleStringProperty();
+        stringProperty.bind(Bindings.createStringBinding(() -> String.format("%02d", nrProperty().get()),nrProperty()));
+
+        return stringProperty;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ObligationData that = (ObligationData) o;
+        return Objects.equals(title, that.title) && Objects.equals(designation, that.designation) && Objects.equals(nr, that.nr) && Objects.equals(description, that.description) && Objects.equals(issueDate, that.issueDate) && Objects.equals(currentVersionDate, that.currentVersionDate) && Objects.equals(relevant, that.relevant) && Objects.equals(dateOfExamination, that.dateOfExamination) && Objects.equals(importanceForTheCompany, that.importanceForTheCompany) && Objects.equals(linkToVersion, that.linkToVersion) && Objects.equals(category, that.category) && Objects.equals(scope, that.scope) && Objects.equals(deleted, that.deleted) && Objects.equals(attachment, that.attachment) && Objects.equals(indexOfLegalProvisions, that.indexOfLegalProvisions) && Objects.equals(valueChanged, that.valueChanged) && Objects.equals(changeListener, that.changeListener) && Objects.equals(object, that.object) && Objects.equals(propertyList, that.propertyList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, designation, nr, description, issueDate, currentVersionDate, relevant, dateOfExamination, importanceForTheCompany, linkToVersion, category, scope, deleted, attachment, indexOfLegalProvisions, valueChanged, changeListener, object, propertyList);
     }
 }

@@ -69,28 +69,71 @@ public class TimeFrameWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         Platform.runLater(() -> {
-            try{
+            try {
                 logger.debug(this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval()));
-                this.label.setText(convertIntervalToString(this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval())));
+                Widget select = this.timeFramePojo.getSelectedWidget();
 
-            }catch (Exception e){
+                this.label.setText(convertIntervalToString(getStart(), getEnd()));
+
+
+            } catch (Exception e) {
                 logger.error(e);
             }
         });
 
 
+    }
 
+    private DateTime getEnd() {
+
+        DateTime dateTime = new DateTime();
+        switch (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().getEndObjectProperty()) {
+            case NONE:
+                dateTime = null;
+                break;
+            case LAST_TS:
+
+                dateTime = this.timeFramePojo.getSelectedWidget().sampleHandler.getMaxTimeStamps().get(0);
+                break;
+            case PERIODE_UNTIL:
+                dateTime = this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval()).getEnd();
+                break;
+
+        }
+
+        return dateTime;
 
     }
 
-    private String convertIntervalToString(Interval interval) {
+    private DateTime getStart() {
+
+        DateTime dateTime = new DateTime();
+        switch (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().getStartObjectProperty()) {
+            case NONE:
+                dateTime = null;
+                break;
+            case PERIODE_FROM:
+                dateTime = this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval()).getStart();
+        }
+
+        return dateTime;
+    }
+
+    private String convertIntervalToString(DateTime start, DateTime end) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(timeFramePojo.getParser());
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            stringBuilder.append(dateTimeFormatter.print(interval.getStart()));
-            stringBuilder.append(" - ");
-            stringBuilder.append(dateTimeFormatter.print(interval.getEnd()));
-        }catch (IllegalArgumentException e){
+            if (start != null) {
+                stringBuilder.append(dateTimeFormatter.print(start));
+            }
+            if (start != null && end != null) {
+                stringBuilder.append(" - ");
+            }
+            if (end != null) {
+                stringBuilder.append(dateTimeFormatter.print(end));
+            }
+
+        } catch (IllegalArgumentException e) {
             logger.error(e);
             return null;
         }
@@ -108,7 +151,7 @@ public class TimeFrameWidget extends Widget {
     public void updateConfig() {
         logger.debug("UpdateConfig");
 
-        timeFramePojo.selectWidget();
+//        timeFramePojo.selectWidget();
 
 
         Platform.runLater(() -> {
