@@ -84,12 +84,16 @@ public class GeneralTab extends Tab {
     public void initTab(NonconformityData nonconformityData) {
 
         addTabEvent(f_ImmediateMeasures);
+        f_ImmediateMeasures.setWrapText(true);
 
         addTabEvent(f_Cause);
+        f_Cause.setWrapText(true);
 
         addTabEvent(f_Description);
+        f_Description.setWrapText(true);
 
         addTabEvent(f_CorrectiveActions);
+        f_CorrectiveActions.setWrapText(true);
 
 
         GridPane gridPane = new GridPane();
