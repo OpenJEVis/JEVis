@@ -100,7 +100,7 @@ public class ActionToolbar extends ToolBar {
         }
         actionPlanConfig.setDisable(isOverview);
         newAction.setDisable(isOverview);
-
+        exportPDF.setDisable(true);
 
         //exportPDF.setDisable(true);//Disabled because implementation is missing
         //reloadButton.setDisable(true); //Disabled because implementation is missing

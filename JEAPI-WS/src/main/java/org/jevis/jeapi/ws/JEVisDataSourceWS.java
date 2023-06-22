@@ -305,7 +305,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      * @return Version of jecc. 0 if no version is set or unreachable.
      */
     public String getJEVisCCVersion() {
-        String resource = "/jecc/version";
+        String resource = "jecc/version";
         String version = "0";
         try {
             StringBuffer stringBuffer = this.con.getRequest(resource);
