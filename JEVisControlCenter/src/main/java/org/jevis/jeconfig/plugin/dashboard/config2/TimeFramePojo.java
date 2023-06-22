@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXTextField;
-import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,7 +18,9 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TimeFramePojo {
 
@@ -28,11 +30,10 @@ public class TimeFramePojo {
     private double iconSize = 20;
 
 
-    private TimeFrameColumnFactory timeFrameColumnFactory;
+    private TimeFrameTableView timeFrameTable;
 
 
     int timeFrameWidgetID = -1;
-
 
 
     final DashboardControl dashboardControl;
@@ -42,10 +43,18 @@ public class TimeFramePojo {
 
     private JFXTextField jfxTextFieldParser;
 
-    private Integer selectedWidgetId;
-    private Widget selectedWidget;
+//    private Integer selectedWidgetId;
+//    private Widget selectedWidget;
+
+    ObservableList<TimeFrameWidgetObject> widgetObjects = FXCollections.observableArrayList();
 
     private String parser = "yyyy.MM.dd HH:mm";
+
+    private String start;
+
+    private String end;
+
+    private int selectedId;
 
     public TimeFramePojo(DashboardControl control) {
         this(control, null);
@@ -53,44 +62,40 @@ public class TimeFramePojo {
 
     public TimeFramePojo(DashboardControl control, JsonNode jsonNode) {
         this.dashboardControl = control;
+        //widgetObjects.addAll(dashboardControl.getWidgetList().stream().map(widget -> new TimeFrameWidgetObject(dashboardControl, widget.getConfig())).collect(Collectors.toList()));
+
+
+        System.out.println("TimeFramePojo");
         if (jsonNode != null) {
             if (jsonNode.has("selectedWidget")) {
-                selectedWidgetId = jsonNode.get("selectedWidget").asInt();
+                selectedId = jsonNode.get("selectedWidget").get("id").asInt();
+                System.out.println(jsonNode.get("selectedWidget").get("id").asInt());
+                start = jsonNode.get("selectedWidget").get("start").asText();
+                end = jsonNode.get("selectedWidget").get("end").asText();
             }
             if (jsonNode.has("format")) {
                 parser = jsonNode.get("format").asText("yyyy.MM.dd HH:mm");
             }
 
-            
+
         }
 
+    }
+
+    public TimeFrameWidgetObject getSelectedTimeFarmeObjectWidget() {
+        Optional<TimeFrameWidgetObject> optionalTimeFrameWidgetObject = widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.isSelected()).findFirst();
+        if (!optionalTimeFrameWidgetObject.isPresent()) return null;
+        return optionalTimeFrameWidgetObject.get();
     }
 
     public Widget getSelectedWidget() {
-        return selectedWidget;
+        addWidgets();
+        TimeFrameWidgetObject timeFrameWidgetObject = getSelectedTimeFarmeObjectWidget();
+        Optional<Widget> widget = this.dashboardControl.getWidgets().stream().filter(widget1 -> widget1.config.getUuid() == timeFrameWidgetObject.getConfig().getUuid()).findFirst();
+        if (!widget.isPresent()) return null;
+        return widget.get();
     }
 
-    public void setSelectedWidget(Widget selectedWidget) {
-        this.selectedWidget = selectedWidget;
-    }
-
-    public void selectWidget() {
-        if (selectedWidget == null) {
-            logger.debug(selectedWidgetId);
-            logger.debug(dashboardControl.getWidgets());
-            Optional<Widget> widget =  dashboardControl.getWidgets().stream().filter(widget2 -> widget2.getConfig().getUuid() == selectedWidgetId).findAny();
-            if (widget.isPresent()) {
-                selectedWidget = widget.get();
-                logger.debug(selectedWidget);
-            }
-        }
-
-
-
-
-
-
-    }
 
     public String getParser() {
         return parser;
@@ -104,14 +109,12 @@ public class TimeFramePojo {
     public String toString() {
         return "TimeFramePojo{" +
                 "iconSize=" + iconSize +
-                ", timeFrameColumnFactory=" + timeFrameColumnFactory +
+                ", timeFrameColumnFactory=" + timeFrameTable +
                 ", timeFrameWidgetID=" + timeFrameWidgetID +
                 ", dashboardControl=" + dashboardControl +
                 ", lockIcon=" + lockIcon +
                 ", unlockIcon=" + unlockIcon +
                 ", jfxTextFieldParser=" + jfxTextFieldParser +
-                ", selectedWidgetId=" + selectedWidgetId +
-                ", selectedWidget=" + selectedWidget +
                 ", parser='" + parser + '\'' +
                 '}';
     }
@@ -129,8 +132,8 @@ public class TimeFramePojo {
         @Override
         public void commitChanges() {
 
-            logger.debug("Selected Widget:",timeFrameColumnFactory.getSelectedWidget());
-            setSelectedWidget(timeFrameColumnFactory.getSelectedWidget());
+            //logger.debug("Selected Widget:",timeFrameColumnFactory.getSelectedWidget());
+            //setSelectedWidget(timeFrameColumnFactory.getSelectedWidget());
             parser = jfxTextFieldParser.getText();
 
 
@@ -160,32 +163,17 @@ public class TimeFramePojo {
         gridPane.setPadding(new Insets(8, 5, 8, 5));
 
 
-
-        ToggleButton highlightButton = new ToggleButton("", this.unlockIcon);
-        highlightButton.setOnAction(event -> {
-            dashboardControl.enableHighlightGlow(highlightButton.isSelected());
-        });
-
-        highlightButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                highlightButton.setGraphic(this.lockIcon);
-            } else {
-                highlightButton.setGraphic(this.unlockIcon);
-            }
-        });
-
         jfxTextFieldParser = new JFXTextField(parser);
         jfxTextFieldParser.setPrefWidth(160d);
 
-        gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.dashboard.timeframe.format")),jfxTextFieldParser);
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.timeframe.format")), jfxTextFieldParser);
 
-        gridPane.addRow(1, highlightButton);
 
-        timeFrameColumnFactory = new TimeFrameColumnFactory(dashboardControl);
-        gridPane.add(timeFrameColumnFactory.buildTable(dashboardControl.getWidgetList()),0,2,3,1);
-        Platform.runLater(() -> {
-            timeFrameColumnFactory.setSelectedWidget(selectedWidget);
-        });
+        addWidgets();
+
+
+        timeFrameTable = new TimeFrameTableView(widgetObjects);
+        gridPane.add(timeFrameTable, 0, 2, 3, 1);
         tab.setContent(gridPane);
 
 
@@ -208,12 +196,37 @@ public class TimeFramePojo {
 
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-        dataNode.put("selectedWidget", selectedWidget.getConfig().getUuid());
         dataNode.put("format", parser);
         logger.debug(dataNode);
 
+        ObjectNode dataNode1 = dataNode.putObject("selectedWidget");
+        dataNode1.put("start", getSelectedTimeFarmeObjectWidget().getStartObjectProperty().toString());
+        dataNode1.put("end", getSelectedTimeFarmeObjectWidget().getEndObjectProperty().toString());
+        dataNode1.put("id", getSelectedWidget().getConfig().getUuid());
+
 
         return dataNode;
+    }
+
+    private void addWidgets() {
+
+
+        System.out.println("addWidgets");
+        List<TimeFrameWidgetObject> allWidgets = dashboardControl.getWidgetList().stream().map(widget -> new TimeFrameWidgetObject(dashboardControl, widget.getConfig())).collect(Collectors.toList());
+
+        widgetObjects.removeAll(widgetObjects.stream().filter(timeFrameWidgetObject -> !allWidgets.contains(timeFrameWidgetObject)).collect(Collectors.toList()));
+        widgetObjects.addAll(allWidgets.stream().filter(timeFrameWidgetObject -> !widgetObjects.contains(timeFrameWidgetObject)).collect(Collectors.toList()));
+
+
+        if (widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.isSelected()).count() == 0) {
+            Optional<TimeFrameWidgetObject> optionalTimeFrameWidgetObject = widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.getConfig().getUuid() == selectedId).findFirst();
+            if (optionalTimeFrameWidgetObject.isPresent()) {
+                TimeFrameWidgetObject selected = optionalTimeFrameWidgetObject.get();
+                selected.setSelected(true);
+                selected.setEndObjectProperty(TimeFrameWidgetObject.End.valueOf(end));
+                selected.setStartObjectProperty(TimeFrameWidgetObject.Start.valueOf(start));
+            }
+        }
     }
 
 }
