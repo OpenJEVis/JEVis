@@ -66,16 +66,6 @@ public class GeneralTab extends Tab {
     public void initTab(ObligationData data) {
         this.obligationData = data;
 
-
-//        addTabEvent(f_ImmediateMeasures);
-//
-//        addTabEvent(f_Cause);
-//
-//        addTabEvent(f_Description);
-//
-//        addTabEvent(f_CorrectiveActions);
-
-
         GridPane gridPane = new GridPane();
         notificationPane.setContent(gridPane);
         gridPane.setPadding(new Insets(20));
@@ -83,13 +73,12 @@ public class GeneralTab extends Tab {
         IndexOfLegalProvisions nonconformityPlan = obligationData.getLegalCadastre();
 
 
-        //ScrollPane scrollPane = new ScrollPane(gridPane);
+
         gridPane.setVgap(10);
         gridPane.setHgap(15);
 
         f_scope.setItems(data.getLegalCadastre().getScopes());
         f_category.setItems(data.getLegalCadastre().getCategories());
-        //gridPane.gridLinesVisibleProperty().set(true);
 
         add(gridPane, 1, 1, 1, 1, Priority.ALWAYS, l_Nr);
         add(gridPane, 1, 2, 1, 1, Priority.ALWAYS, l_title);
@@ -120,8 +109,12 @@ public class GeneralTab extends Tab {
 
         add(gridPane, 1, 6, 2, 1, Priority.ALWAYS, l_description);
         add(gridPane, 1, 7, 2, 1, Priority.ALWAYS, f_description);
+
         add(gridPane, 3, 6, 2, 1, Priority.ALWAYS, l_importanceForTheCompany);
         add(gridPane, 3, 7, 2, 1, Priority.ALWAYS, f_importanceForTheCompany);
+
+        f_description.setWrapText(true);
+        f_importanceForTheCompany.setWrapText(true);
 
 
         Region col3Spacer = new Region();
