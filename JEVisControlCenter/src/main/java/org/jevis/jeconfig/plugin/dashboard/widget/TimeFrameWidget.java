@@ -150,18 +150,14 @@ public class TimeFrameWidget extends Widget {
     @Override
     public void updateConfig() {
         logger.debug("UpdateConfig");
-
-//        timeFramePojo.selectWidget();
-
-
         Platform.runLater(() -> {
             try {
-
-
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 this.label.setBackground(bgColor);
                 this.label.setTextFill(this.config.getFontColor());
-                this.label.setFont(new Font(this.config.getFontSize()));
+                Font font = Font.font(this.label.getFont().getFamily(), this.getConfig().getFontWeight(), this.getConfig().getFontPosture(), this.config.getFontSize());
+                this.label.setFont(font);
+                this.label.setUnderline(this.getConfig().getFontUnderlined());
                 this.label.setPrefWidth(this.config.getSize().getWidth());
                 this.label.setAlignment(this.config.getTitlePosition());
             } catch (Exception ex) {
