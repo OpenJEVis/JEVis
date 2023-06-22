@@ -27,13 +27,13 @@ import static org.jevis.jeconfig.plugin.action.ui.DateFilter.DateField.*;
 public class TimeFilterSelector extends GridPane {
 
     private static final Logger logger = LogManager.getLogger(TimeFilterSelector.class);
+    private final SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
     //TODo locale name from Column
     JFXComboBox<DateFilter.DateField> fDateField = new JFXComboBox<>(FXCollections.observableArrayList(ALL, UMSETZUNG, ABGESCHLOSSEN, ERSTELLT));
     JFXComboBox<Month> fFromMonth = generateMonthBox();
     JFXComboBox<Month> fToMonth = generateMonthBox();
     JFXComboBox<Integer> fFromYear = generateYearBox();
     JFXComboBox<Integer> fToYear = generateYearBox();
-    private final SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
 
 
     public TimeFilterSelector(ActionPlanData actionPlan) {
@@ -225,14 +225,12 @@ public class TimeFilterSelector extends GridPane {
     private JFXComboBox<Integer> generateYearBox() {
 
         ObservableList<Integer> years = FXCollections.observableArrayList();
-        years.add(2018);
-        years.add(2019);
-        years.add(2020);
-        years.add(2021);
-        years.add(2022);
-        years.add(2023);
-        years.add(2024);
-
+        int year = 2010; //ISO5001 started 2010
+        DateTime now = DateTime.now();
+        while (year <= (now.getYear() + 10)) {
+            years.add(year);
+            year++;
+        }
         JFXComboBox<Integer> field = new JFXComboBox(years);
         field.setConverter(new StringConverter<Integer>() {
             @Override
