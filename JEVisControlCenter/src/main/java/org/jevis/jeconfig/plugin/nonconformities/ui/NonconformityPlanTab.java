@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.nonconformities.ui;
 
 import com.jfoenix.controls.JFXTextField;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -30,12 +31,13 @@ public class NonconformityPlanTab extends Tab {
     private NonconformityPlan plan;
     private NonconformityPlanTable nonconformityPlanTable;
 
-    public NonconformityPlanTab(NonconformityPlan plan, NonconformitiesController controller) {
+
+    public NonconformityPlanTab(NonconformityPlan plan, NonconformitiesController controller, BooleanProperty updateTrigger) {
         super();
 
         textProperty().bind(plan.getName());
         this.plan = plan;
-        this.nonconformityPlanTable = new NonconformityPlanTable(plan, plan.getNonconformityList());
+        this.nonconformityPlanTable = new NonconformityPlanTable(plan, plan.getNonconformityList(), updateTrigger);
 
 
         GridPane gridPane = new GridPane();
@@ -169,7 +171,7 @@ public class NonconformityPlanTab extends Tab {
 
     }
 
-    public NonconformityPlanTab(String text, Node content, NonconformityPlan plan) {
+    public NonconformityPlanTab(String text, Node content, NonconformityPlan plan, BooleanProperty updateTrigger) {
         super(text, content);
         this.plan = plan;
     }

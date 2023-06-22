@@ -39,7 +39,7 @@ public class LegalCatasdrePlugin implements Plugin {
         legalCadastreController = new LegalCadastreController(this);
         rootPane.setCenter(legalCadastreController.getContent());
         toolbar = new LegalCatasdreToolbar(legalCadastreController);
-        initGUI();
+        //initGUI();
     }
 
     private void initGUI() {

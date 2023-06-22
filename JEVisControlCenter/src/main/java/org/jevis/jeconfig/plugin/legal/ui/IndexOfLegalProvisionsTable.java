@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.legal.ui;
 import com.jfoenix.controls.JFXButton;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -81,10 +82,11 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
     public static final String ONLY_RELVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlyrelevant");
     public static final String ONLY_NOT_RELEVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant");
 
-    private final ObservableList<SummeryData> summeryData;
+    private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
 
 
-    public IndexOfLegalProvisionsTable(IndexOfLegalProvisions indexOfLegalProvisions, ObservableList<ObligationData> data) {
+
+    public IndexOfLegalProvisionsTable(IndexOfLegalProvisions indexOfLegalProvisions, ObservableList<ObligationData> data, BooleanProperty updateProperty) {
         this.data = data;
         this.filteredData = new FilteredList<>(data);
         sortedData = new SortedList<>(filteredData);
@@ -109,7 +111,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
         ObligationData fakeForName = new ObligationData();
 
         TableColumn<ObligationData, String> nrCol = new TableColumn(fakeForName.nrProperty().getName());
-        nrCol.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().getNr())));
+        nrCol.setCellValueFactory(param -> param.getValue().getNrAsStringProperty());
         nrCol.setCellFactory(new ShortColumnCell<ObligationData>());
         nrCol.setStyle("-fx-alignment: LEFT;");
         nrCol.setMinWidth(SMALL_WIDTH);
@@ -215,13 +217,12 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
         });
 
 
-        Statistics statistics = new Statistics(sortedData);
+        Statistics statistics = new Statistics(sortedData, updateProperty);
 
 
         int numberOfCategory = indexOfLegalProvisions.getCategories().size();
         int numberOfScope = indexOfLegalProvisions.getScopes().size();
 
-        summeryData = FXCollections.observableArrayList();
 
 
 
@@ -253,6 +254,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
 
 
     }
+
 
     private void buildRow(IndexOfLegalProvisions indexOfLegalProvisions, TableColumn<ObligationData, String> legislationCol, TableColumn<ObligationData, Boolean> relevanceCol, TableColumn<ObligationData, String> categoryCol, TableColumn<ObligationData, String> scopeCol, Statistics statistics, int i) {
         ObservableMap<TableColumn, StringProperty> summeryRow = FXCollections.observableHashMap();
