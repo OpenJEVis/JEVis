@@ -120,7 +120,7 @@ public class DetailsTab extends Tab {
             //System.out.println("Select Object; " + obj);
             // f_Enpi.valueProperty().set(obj);
             f_EnpiSelection.getSelectionModel().select(obj);
-            f_EnpiSelection.getSelectionModel().selectLast();
+            //f_EnpiSelection.getSelectionModel().selectLast();
 
 
         } catch (Exception ex) {
