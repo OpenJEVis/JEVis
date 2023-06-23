@@ -452,7 +452,7 @@ public class JEConfig extends Application {
                     try {
                         JEVisAttribute activities = getDataSource().getCurrentUser().getUserObject().getAttribute("Activities");
                         if (activities != null) {
-                            JEVisSample log = activities.buildSample(new DateTime().plusSeconds(5), "Login: " + PROGRAM_INFO.getName() + " Version: " + PROGRAM_INFO.getVersion());
+                            JEVisSample log = activities.buildSample((new DateTime()).plusSeconds(5), "Login: " + PROGRAM_INFO.getName() + " Version: " + PROGRAM_INFO.getVersion());
                             log.commit();
                         } else {
                             logger.warn("Missing activities attribute for user");
