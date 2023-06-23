@@ -15,10 +15,10 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.ActionPlugin;
-import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
@@ -30,14 +30,8 @@ public class ActionData {
 
     private static final Logger logger = LogManager.getLogger(ActionData.class);
     @Expose
-    @SerializedName("SEU Tags")
-    private final SimpleObjectProperty<String> seuTags = new SimpleObjectProperty<>("");
-    private final StringProperty nrText = new SimpleStringProperty();
-
-    @Expose
     @SerializedName("NPV")
     public final SimpleObjectProperty<NPVData> npv = new SimpleObjectProperty<>(new NPVData());
-
     @Expose
     @SerializedName("From User")
     public final SimpleStringProperty fromUser = new SimpleStringProperty("From User",
@@ -46,7 +40,6 @@ public class ActionData {
     @SerializedName("Nr")
     public final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr",
             I18n.getInstance().getString("plugin.action.nr"), 0);
-
     @Expose
     @SerializedName("Desciption")
     public final SimpleStringProperty desciption = new SimpleStringProperty("Desciption",
@@ -66,17 +59,15 @@ public class ActionData {
     @Expose
     @SerializedName("Done Date")
     public final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date",
-            "Abgeschlossen", null);
+            I18n.getInstance().getString("plugin.action.donedate"), null);
     @Expose
     @SerializedName("Attachment")
     public final SimpleStringProperty attachment = new SimpleStringProperty("Attachment",
             "Anhang", "");
-
     @Expose
     @SerializedName("Title")
     public final SimpleStringProperty title = new SimpleStringProperty("Title",
             I18n.getInstance().getString("plugin.action.title"), "");
-
     @Expose
     @SerializedName("Status Tags")
     public final SimpleStringProperty statusTags = new SimpleStringProperty("Status Tags",
@@ -117,32 +108,34 @@ public class ActionData {
     @SerializedName("Evaluation Note")
     public final SimpleStringProperty noteBewertet = new SimpleStringProperty("Evaluation Note",
             I18n.getInstance().getString("plugin.action.noteBewertet"), "");
-
     @Expose
     @SerializedName("Distributor")
     public final SimpleStringProperty distributor = new SimpleStringProperty("Distributor",
             I18n.getInstance().getString("plugin.action.distributor"), "");
-
     @Expose
     @SerializedName("EnpI")
     public final SimpleObjectProperty<ConsumptionData> enpi = new SimpleObjectProperty<>(new ConsumptionData());
     @Expose
     @SerializedName("Consumption")
     public final SimpleObjectProperty<ConsumptionData> consumption = new SimpleObjectProperty<>(new ConsumptionData());
+    public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
+    @Expose
+    @SerializedName("SEU Tags")
+    private final SimpleObjectProperty<String> seuTags = new SimpleObjectProperty<>("");
+    private final StringProperty nrText = new SimpleStringProperty();
     @Expose
     @SerializedName("Check List")
     private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
-    private Gson gson = GsonBuilder.createDefaultBuilder().create();
     @Expose
     @SerializedName("Deleted")
     private final SimpleBooleanProperty isDeleted = new SimpleBooleanProperty(false);
+    private final Gson gson = GsonBuilder.createDefaultBuilder().create();
     private String originalSettings = "";
-    public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     private ChangeListener changeListener;
     private JEVisObject object;
-    private ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
+    private final ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
 
-    private List<ReadOnlyProperty> propertyList = new ArrayList<>();
+    private final List<ReadOnlyProperty> propertyList = new ArrayList<>();
 
     private ActionPlanData actionPlan = null;
     private boolean isNew = false;
@@ -168,10 +161,6 @@ public class ActionData {
         npv.get().update();
     }
 
-    public void setObject(JEVisObject object) {
-        this.object = object;
-    }
-
     public ActionPlanData getActionPlan() {
         return actionPlan;
     }
@@ -182,7 +171,6 @@ public class ActionData {
 
         updateNrText();
     }
-
 
     private void updateNrText() {
         nrText.set(String.format("%s %03d", actionPlan.getNrPrefix(), nrProperty().get()));
@@ -200,6 +188,9 @@ public class ActionData {
         return object;
     }
 
+    public void setObject(JEVisObject object) {
+        this.object = object;
+    }
 
     public boolean hasChanged() {
         // if (valueChanged.getValue()) return true;

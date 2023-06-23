@@ -34,36 +34,36 @@ import java.util.Optional;
 public class DetailsTab extends Tab {
 
 
-    private Label l_enpiAfter = new Label(I18n.getInstance().getString("plugin.action.enpiafter"));
-    private Label l_enpiBefore = new Label(I18n.getInstance().getString("plugin.action.enpiabefore"));
-    private Label l_enpiChange = new Label(I18n.getInstance().getString("plugin.action.enpiabechange"));
-    private Label l_correctionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.correction"));
-    private Label l_nextActionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.followupaction"));
-    private Label l_alternativAction = new Label(I18n.getInstance().getString("plugin.action.alternativaction"));
-    private Label l_energyBefore = new Label("Verbrauch (Referenz)");
-    private Label l_energyAfter = new Label("Verbrauch (Ist)");
-    private Label l_energyChange = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
-    private Button beforeDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
-    private Button afterDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
-    private Button diffDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
-    private JFXButton buttonOpenAnalysisBefore = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
-    private Button buttonOpenAnalysisafter = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
-    private Button buttonOpenAnalysisaDiff = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
-    private JFXComboBox<JEVisObject> f_EnpiSelection;
-    private Label l_EnpiSelection = new Label("EnPI");
-    private Label l_mediaTags = new Label();
-    private JFXComboBox<String> f_mediaTags;
-    private TextArea f_correctionIfNeeded = new TextArea("");
-    private TextFieldWithUnit f_enpiAfter = new TextFieldWithUnit();
-    private TextFieldWithUnit f_enpiBefore = new TextFieldWithUnit();
-    private TextFieldWithUnit f_enpiDiff = new TextFieldWithUnit();
-    private TextArea f_nextActionIfNeeded = new TextArea("");
-    private TextArea f_alternativAction = new TextArea("");
-    private TextFieldWithUnit f_consumptionBefore = new TextFieldWithUnit();
-    private TextFieldWithUnit f_consumptionAfter = new TextFieldWithUnit();
-    private TextFieldWithUnit f_consumptionDiff = new TextFieldWithUnit();
+    private final Label l_enpiAfter = new Label(I18n.getInstance().getString("plugin.action.enpiafter"));
+    private final Label l_enpiBefore = new Label(I18n.getInstance().getString("plugin.action.enpiabefore"));
+    private final Label l_enpiChange = new Label(I18n.getInstance().getString("plugin.action.enpiabechange"));
+    private final Label l_correctionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.correction"));
+    private final Label l_nextActionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.followupaction"));
+    private final Label l_alternativAction = new Label(I18n.getInstance().getString("plugin.action.alternativaction"));
+    private final Label l_energyBefore = new Label("Verbrauch (Referenz)");
+    private final Label l_energyAfter = new Label("Verbrauch (Ist)");
+    private final Label l_energyChange = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
+    private final Button beforeDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+    private final Button afterDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+    private final Button diffDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
+    private final JFXButton buttonOpenAnalysisBefore = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+    private final Button buttonOpenAnalysisafter = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+    private final Button buttonOpenAnalysisaDiff = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+    private final JFXComboBox<JEVisObject> f_EnpiSelection;
+    private final Label l_EnpiSelection = new Label("EnPI");
+    private final Label l_mediaTags = new Label();
+    private final JFXComboBox<String> f_mediaTags;
+    private final TextArea f_correctionIfNeeded = new TextArea("");
+    private final TextFieldWithUnit f_enpiAfter = new TextFieldWithUnit();
+    private final TextFieldWithUnit f_enpiBefore = new TextFieldWithUnit();
+    private final TextFieldWithUnit f_enpiDiff = new TextFieldWithUnit();
+    private final TextArea f_nextActionIfNeeded = new TextArea("");
+    private final TextArea f_alternativAction = new TextArea("");
+    private final TextFieldWithUnit f_consumptionBefore = new TextFieldWithUnit();
+    private final TextFieldWithUnit f_consumptionAfter = new TextFieldWithUnit();
+    private final TextFieldWithUnit f_consumptionDiff = new TextFieldWithUnit();
 
-    private JFXTextField f_toUser = new JFXTextField();
+    private final JFXTextField f_toUser = new JFXTextField();
 
 
     public DetailsTab(ActionData data) {
@@ -136,7 +136,7 @@ public class DetailsTab extends Tab {
         });
         try {
             //System.out.println("Select Object: " + data.getEnpi().dataObject.get());
-            if (data.getEnpi().dataObject.get() <= 0l) {
+            if (data.getEnpi().dataObject.get() <= 0L) {
                 f_EnpiSelection.setValue(FreeObject.getInstance());
             } else {
                 f_EnpiSelection.setValue(data.getObject().getDataSource().getObject(data.getEnpi().dataObject.get()));
@@ -253,6 +253,9 @@ public class DetailsTab extends Tab {
         //Workaround
         f_EnpiSelection.setPrefWidth(320);
         f_mediaTags.setPrefWidth(320);
+
+        f_nextActionIfNeeded.setWrapText(true);
+        f_alternativAction.setWrapText(true);
 
 
         gridPane.addRow(0, l_EnpiSelection, f_EnpiSelection, new Region(), l_mediaTags, f_mediaTags);
