@@ -12,18 +12,18 @@ import org.jevis.jeconfig.plugin.action.data.ActionData;
 
 public class CheckListTab extends Tab {
 
+    private final CheckBox f_isNeedProcessDocument = new CheckBox();
+    private final CheckBox f_isNeedWorkInstruction = new CheckBox();
+    private final CheckBox f_isNeedTestInstruction = new CheckBox();
+    private final CheckBox f_isNeedDrawing = new CheckBox();
+    private final CheckBox f_isNeedOther = new CheckBox();
+    private final CheckBox f_IsNeedAdditionalMeters = new CheckBox();
+    private final CheckBox f_IsAffectsOtherProcess = new CheckBox();
+    private final CheckBox f_IsConsumptionDocumented = new CheckBox();
+    private final CheckBox f_isNeedCorrection = new CheckBox();
+    private final CheckBox f_isNeedAdditionalAction = new CheckBox();
+    private final CheckBox f_isTargetReached = new CheckBox();
     Label l_titleDocument = new Label(I18n.getInstance().getString("plugin.action.needdocchange.title"));
-    private CheckBox f_isNeedProcessDocument = new CheckBox();
-    private CheckBox f_isNeedWorkInstruction = new CheckBox();
-    private CheckBox f_isNeedTestInstruction = new CheckBox();
-    private CheckBox f_isNeedDrawing = new CheckBox();
-    private CheckBox f_isNeedOther = new CheckBox();
-    private CheckBox f_IsNeedAdditionalMeters = new CheckBox();
-    private CheckBox f_IsAffectsOtherProcess = new CheckBox();
-    private CheckBox f_IsConsumptionDocumented = new CheckBox();
-    private CheckBox f_isNeedCorrection = new CheckBox();
-    private CheckBox f_isNeedAdditionalAction = new CheckBox();
-    private CheckBox f_isTargetReached = new CheckBox();
     //private ActionData names = new ActionData();
     Label l_isNeedProcessDocument = new Label("Prozessanweisungen");
     Label l_isNeedWorkInstruction = new Label("Arbeitsanweisungen");
@@ -95,7 +95,7 @@ public class CheckListTab extends Tab {
         gridPane.add(q2, 0, ++row, 2, 1);
         //gridPane.add(q3, 0, ++row, 2, 1);
         //gridPane.add(q4, 0, ++row, 2, 1);
-        gridPane.add(q5, 0, ++row, 2, 1);
+        //gridPane.add(q5, 0, ++row, 2, 1);
 
         row = 9;
         gridPane.add(l_titleDocument, 0, ++row, 2, 1);

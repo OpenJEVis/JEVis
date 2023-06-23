@@ -64,14 +64,13 @@ public class GeneralTab extends Tab {
     private final TextArea f_Note = new TextArea();
     private final TextArea f_NoteEnergiefluss = new TextArea();
     private final Label l_seu = new Label(I18n.getInstance().getString("actionform.editor.tab.general.seu"));
-    private JFXComboBox<String> f_sueTags = new JFXComboBox<>();
     private final Label l_FromUser = new Label(I18n.getInstance().getString("plugin.action.fromuser"));
     private final JFXTextField f_FromUser = new JFXTextField();
-    private final Label l_CreateDate = new Label("Erstellt");
+    private final Label l_CreateDate = new Label(I18n.getInstance().getString("plugin.action.created"));  //
     private final JFXDatePicker f_CreateDate = new JFXDatePicker();
     private final Label l_distributor = new Label(I18n.getInstance().getString("plugin.action.distributor"));
     private final JFXTextField f_distributor = new JFXTextField();
-
+    private JFXComboBox<String> f_sueTags = new JFXComboBox<>();
 
     {
         f_NoteBewertet.setWrapText(true);
@@ -197,6 +196,10 @@ public class GeneralTab extends Tab {
             }
         });
 
+        f_Description.setWrapText(true);
+        f_NoteBewertet.setWrapText(true);
+        f_Note.setWrapText(true);
+        f_NoteEnergiefluss.setWrapText(true);
 
         // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
         JFXTextField l_savingsUnitLabel = new JFXTextField("€");
