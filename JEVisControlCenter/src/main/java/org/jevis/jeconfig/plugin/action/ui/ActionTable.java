@@ -116,7 +116,7 @@ public class ActionTable extends TableView<ActionData> {
         statusTagsPropertyCol.setCellValueFactory(param -> param.getValue().statusTagsProperty());
         statusTagsPropertyCol.setCellFactory(new StringListColumnCell());
         statusTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
-        statusTagsPropertyCol.setMinWidth(110);
+        statusTagsPropertyCol.setPrefWidth(150);
 
         TableColumn<ActionData, String> fieldTagsPropertyCol = new TableColumn(fakeForName.fieldTagsProperty().getName());
         fieldTagsPropertyCol.setCellValueFactory(param -> param.getValue().fieldTagsProperty());
@@ -170,6 +170,7 @@ public class ActionTable extends TableView<ActionData> {
         //investPropertyCol.setCellFactory(buildShotTextFactory());
         investPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         investPropertyCol.setCellFactory(new CurrencyColumnCell());
+        //investPropertyCol.setPrefWidth(180);
 
 
         TableColumn<ActionData, Double> savingYearPropertyCol = new TableColumn(fakeForName.npv.get().einsparung.getName());
@@ -208,7 +209,7 @@ public class ActionTable extends TableView<ActionData> {
         consumptionDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().consumption.get().diffProperty().asObject());
         //consumptionDevelopmentPropertyCol.setCellFactory(buildShotTextFactory());
         consumptionDevelopmentPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        consumptionDevelopmentPropertyCol.setMinWidth(160);
+        consumptionDevelopmentPropertyCol.setPrefWidth(200);
         //consumptionDevelopmentPropertyCol.setCellFactory(new CurrencyColumnCell());
         consumptionDevelopmentPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
             @Override
