@@ -240,7 +240,7 @@ public class TableChartV extends XYChart {
                 HBox nameLabelBox = new HBox(columnNameLabel);
                 nameLabelBox.setAlignment(Pos.CENTER);
                 JFXTextField filterBox = new JFXTextField();
-                filterBox.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
+                filterBox.setPromptText(I18n.getInstance().getString("plugin.chart.tablev.filter.prompt"));
                 filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {
                         String s = columnFilter.get(column);
