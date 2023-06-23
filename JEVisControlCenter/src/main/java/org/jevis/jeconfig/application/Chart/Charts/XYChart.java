@@ -365,12 +365,12 @@ public class XYChart implements Chart {
                 y1SumSerie.getSingleRow().setSamples(samples);
                 y1SumSerie.setValueDataSet(dataSets.get(0));
 
-                ValueWithDateTime minVWD = new ValueWithDateTime(min);
+                ValueWithDateTime minVWD = new ValueWithDateTime(min, nf);
                 minVWD.setUnit(unit);
                 sumEntry.setMin(minVWD);
                 y1SumSerie.setMinValue(minVWD);
 
-                ValueWithDateTime maxVWD = new ValueWithDateTime(max);
+                ValueWithDateTime maxVWD = new ValueWithDateTime(max, nf);
                 maxVWD.setUnit(unit);
                 sumEntry.setMax(maxVWD);
                 y1SumSerie.setMaxValue(maxVWD);
@@ -499,12 +499,12 @@ public class XYChart implements Chart {
                 y2SumSerie.getSingleRow().setSamples(samples);
                 y2SumSerie.setValueDataSet(dataSets.get(0));
 
-                ValueWithDateTime minVWD = new ValueWithDateTime(min);
+                ValueWithDateTime minVWD = new ValueWithDateTime(min, nf);
                 minVWD.setUnit(unit);
                 sumEntry.setMin(minVWD);
                 y2SumSerie.setMinValue(minVWD);
 
-                ValueWithDateTime maxVWD = new ValueWithDateTime(max);
+                ValueWithDateTime maxVWD = new ValueWithDateTime(max, nf);
                 maxVWD.setUnit(unit);
                 sumEntry.setMax(maxVWD);
                 y2SumSerie.setMaxValue(maxVWD);
@@ -706,12 +706,12 @@ public class XYChart implements Chart {
                 currentSumSerie.getSingleRow().setSamples(samples);
                 currentSumSerie.setValueDataSet(newDS);
 
-                ValueWithDateTime minVWD = new ValueWithDateTime(min);
+                ValueWithDateTime minVWD = new ValueWithDateTime(min, nf);
                 minVWD.setUnit(unit);
                 sumEntry.setMin(minVWD);
                 currentSumSerie.setMinValue(minVWD);
 
-                ValueWithDateTime maxVWD = new ValueWithDateTime(max);
+                ValueWithDateTime maxVWD = new ValueWithDateTime(max, nf);
                 maxVWD.setUnit(unit);
                 sumEntry.setMax(maxVWD);
                 currentSumSerie.setMaxValue(maxVWD);
@@ -1679,8 +1679,8 @@ public class XYChart implements Chart {
         for (XYChartSerie serie : xyChartSerieList) {
             try {
 
-                ValueWithDateTime min = new ValueWithDateTime(Double.MAX_VALUE);
-                ValueWithDateTime max = new ValueWithDateTime(-Double.MAX_VALUE);
+                ValueWithDateTime min = new ValueWithDateTime(Double.MAX_VALUE, serie.getNf());
+                ValueWithDateTime max = new ValueWithDateTime(-Double.MAX_VALUE, serie.getNf());
                 double avg = 0.0;
                 Double sum = 0.0;
                 long zeroCount = 0;
@@ -1740,8 +1740,8 @@ public class XYChart implements Chart {
 
         if (y1SumSerie != null) {
             try {
-                ValueWithDateTime min = new ValueWithDateTime(y1Min);
-                ValueWithDateTime max = new ValueWithDateTime(y1Max);
+                ValueWithDateTime min = new ValueWithDateTime(y1Min, y1SumSerie.getNf());
+                ValueWithDateTime max = new ValueWithDateTime(y1Max, y1SumSerie.getNf());
 
                 List<JEVisSample> samples = y1SumSerie.getSingleRow().getSamples();
                 JEVisUnit unit = y1SumSerie.getSingleRow().getUnit();
@@ -1766,8 +1766,8 @@ public class XYChart implements Chart {
 
         if (y2SumSerie != null) {
             try {
-                ValueWithDateTime min = new ValueWithDateTime(y2Min);
-                ValueWithDateTime max = new ValueWithDateTime(y2Max);
+                ValueWithDateTime min = new ValueWithDateTime(y2Min, y2SumSerie.getNf());
+                ValueWithDateTime max = new ValueWithDateTime(y2Max, y2SumSerie.getNf());
 
                 List<JEVisSample> samples = y2SumSerie.getSingleRow().getSamples();
                 JEVisUnit unit = y2SumSerie.getSingleRow().getUnit();

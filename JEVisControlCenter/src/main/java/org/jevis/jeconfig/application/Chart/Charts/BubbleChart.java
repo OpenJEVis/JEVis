@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import com.ibm.icu.text.NumberFormat;
 import de.gsi.chart.marker.DefaultMarker;
 import de.gsi.chart.renderer.ErrorStyle;
 import de.gsi.chart.renderer.LineStyle;
@@ -504,5 +505,9 @@ public class BubbleChart extends XYChart {
 
     public List<Bubble> getBubbles() {
         return bubbles;
+    }
+
+    public NumberFormat getNf() {
+        return nf;
     }
 }

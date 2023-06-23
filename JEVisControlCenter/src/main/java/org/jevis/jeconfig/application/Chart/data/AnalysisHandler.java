@@ -92,6 +92,8 @@ public class AnalysisHandler {
                     chartDataNode.put("manipulationMode", chartData.getManipulationMode().toString());
                 }
 
+                chartDataNode.put("decimalDigits", chartData.getDecimalDigits());
+
                 chartDataNode.put("css", chartData.getCss());
 
                 chartDataNode.put("intervalStart", chartData.getIntervalStart());
