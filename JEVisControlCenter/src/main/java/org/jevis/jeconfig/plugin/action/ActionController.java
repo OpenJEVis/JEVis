@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -130,8 +131,9 @@ public class ActionController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(I18n.getInstance().getString("plugin.action.plan.deletetitle"));
         alert.setHeaderText(I18n.getInstance().getString("plugin.action.plan.delete"));
-        Label text = new Label(I18n.getInstance().getString("plugin.action.plan.content") + "\n" + getActiveActionPlan().getName());
+        Label text = new Label(I18n.getInstance().getString("plugin.action.plan.content") + "\n=>" + getActiveActionPlan().getName().get());
         text.setWrapText(true);
+        text.setTextFill(Color.web("#e45131"));
         alert.getDialogPane().setContent(text);
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {

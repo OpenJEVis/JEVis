@@ -9,6 +9,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 
 import java.text.NumberFormat;
@@ -17,6 +19,7 @@ import java.util.List;
 
 public class NPVData {
 
+    private static final Logger logger = LogManager.getLogger(NPVData.class);
     @Expose
     @SerializedName("Interest Rate")
     public final SimpleDoubleProperty interestRate = new SimpleDoubleProperty(10);
@@ -71,7 +74,7 @@ public class NPVData {
     }
 
     public void update() {
-        System.out.println("NVP Update");
+        logger.info("NVP Update");
         int amountToCreate = amoutYear.get();
         npvYears.clear();
         //System.out.println("Update NPV: " + amountToCreate);
@@ -97,7 +100,7 @@ public class NPVData {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                     npvYears.forEach(NPVYearData::updateSums);
-                    System.out.println("Value changed: " + newValue);
+                    //System.out.println("Value changed: " + newValue);
                     //updateResults();
                 }
             };
@@ -113,11 +116,11 @@ public class NPVData {
                     npvYears.forEach(NPVYearData::updateSums);
                 }
             });
-            System.out.println("Listener: " + npvYears + " for " + this);
+            //System.out.println("Listener: " + npvYears + " for " + this);
             amoutYear.addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    System.out.println("Amount Year changed: " + newValue);
+                    //System.out.println("Amount Year changed: " + newValue);
                     npvYears.clear();
                     List<NPVYearData> tmp = new ArrayList<>();
                     for (int i = 1; i <= newValue.intValue(); i++) {

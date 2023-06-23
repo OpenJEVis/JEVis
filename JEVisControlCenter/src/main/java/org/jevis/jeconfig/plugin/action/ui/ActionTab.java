@@ -226,8 +226,8 @@ public class ActionTab extends Tab {
 
 
         SummeryTable summeryTable = new SummeryTable(actionTable);
-        summeryTable.setItems(actionTable.getSummeryData());
         VBox vbox = new VBox(summeryTable);
+        summeryTable.setItems(actionTable.getSummeryData());
         summeryTable.getItems().addListener((ListChangeListener<SummeryData>) c -> {
             while (c.next()) {
 
@@ -256,6 +256,10 @@ public class ActionTab extends Tab {
 
         actionTable.filter();
 
+        Platform.runLater(() -> {
+            summeryTable.setMinHeight(summeryTable.getItems().size() * 28);
+            vbox.setMinHeight(summeryTable.getItems().size() * 28);
+        });
 
     }
 

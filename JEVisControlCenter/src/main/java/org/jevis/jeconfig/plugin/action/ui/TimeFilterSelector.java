@@ -42,11 +42,6 @@ public class TimeFilterSelector extends GridPane {
         setHgap(8);
         setVgap(8);
 
-        Label lFrom = new Label("Start Datum");
-        Label lTo = new Label("End Datum");
-        Label lDatum = new Label("Zeitbereich");
-
-
         initValues(actionPlan);
         ActionData fakeNames = new ActionData();
 
@@ -141,6 +136,7 @@ public class TimeFilterSelector extends GridPane {
             }
         }
 
+        /*
         if (minDate != null) {
             fFromMonth.setValue(Month.of(minDate.getMonthOfYear()));
             fFromYear.setValue(minDate.getYear());
@@ -154,6 +150,11 @@ public class TimeFilterSelector extends GridPane {
             fToMonth.setValue(Month.of(12));
             fToYear.setValue(2024);
         }
+         */
+        fFromMonth.setValue(Month.of(1));
+        fToMonth.setValue(Month.of(12));
+        fFromYear.getSelectionModel().selectFirst();
+        fToYear.getSelectionModel().selectLast();
 
 
     }
@@ -243,6 +244,7 @@ public class TimeFilterSelector extends GridPane {
                 return Integer.valueOf(string);
             }
         });
+
 
         return field;
     }

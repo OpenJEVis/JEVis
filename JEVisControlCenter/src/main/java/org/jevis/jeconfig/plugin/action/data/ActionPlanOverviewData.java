@@ -86,7 +86,6 @@ public class ActionPlanOverviewData extends ActionPlanData {
             fieldsTags.addAll(actionPlanData.getFieldsTags().stream().filter(obj -> !fieldsTags.contains(obj)).collect(Collectors.toList()));
             significantEnergyUseTags.addAll(actionPlanData.significantEnergyUseTags().stream().filter(obj -> !significantEnergyUseTags.contains(obj)).collect(Collectors.toList()));
 
-            System.out.println("ActionPlanOverview update mediums: " + mediumTags);
 
             actionPlanData.getActionData().addListener(new ListChangeListener<ActionData>() {
                 @Override
