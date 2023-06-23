@@ -1795,7 +1795,6 @@ public class XYChart implements Chart {
     public void applyColors() {
 //        ObservableList<Color> colors = FXCollections.observableArrayList(hexColors);
 //        DefaultRenderColorScheme.strokeColorProperty().setValue(colors);
-
     }
 
     @Override
