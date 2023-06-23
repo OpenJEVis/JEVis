@@ -76,14 +76,15 @@ public class CapitalTab extends Tab {
         Label l_gesamt = new Label("Gesamt");
 
         ChoiceBox<Integer> f_period = new ChoiceBox<>();
-        f_period.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); // only 15 years by lore
+        f_period.getItems().addAll(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); // only 15 years by lore
         f_period.valueProperty().bindBidirectional(data.npv.get().amoutYear.asObject());
         f_period.setValue(data.npv.get().amoutYear.get());
 
 
         ChoiceBox<Integer> f_amortizedDuration = new ChoiceBox<>();
+        f_amortizedDuration.getItems().addAll(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
         f_amortizedDuration.valueProperty().bindBidirectional(data.npv.get().overXYear.asObject());
-        f_amortizedDuration.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
 
         GridPane.setHalignment(l_einzahlungGesamt, HPos.RIGHT);
         GridPane.setHalignment(l_auszahlungGesamt, HPos.RIGHT);
@@ -119,7 +120,11 @@ public class CapitalTab extends Tab {
         NumberStringConverter nscNoUnit = NumerFormating.getInstance().getDoubleConverter();
 
         //l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.get() + " Jahre");
-        data.npv.get().overXYear.addListener(observable -> l_periodOverX.setText("Amortisation über " + observable.toString() + " Year"));
+        data.npv.get().overXYear.addListener((observable, oldValue, newValue) -> {
+            l_periodOverX.setText("Amortisation über " + newValue.intValue() + " Year");
+        });
+        l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.intValue() + " Year");
+        // data.npv.get().overXYear.addListener(observable -> l_periodOverX.setText("Amortisation über " + observable.toString() + " Year"));
         DecimalFormat decimalFormat = new DecimalFormat();
         decimalFormat.setMinimumFractionDigits(4);
 
