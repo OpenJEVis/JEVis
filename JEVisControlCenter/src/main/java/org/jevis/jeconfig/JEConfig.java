@@ -94,28 +94,24 @@ import java.util.prefs.Preferences;
  */
 public class JEConfig extends Application {
 
+    public static final String xpathExpression = "//path/@d";
     /*
     TODO: Make the config into an singleton
      */
     private final static Configuration _config = new Configuration();
     private static final Logger logger = LogManager.getLogger(JEConfig.class);
-
+    private static final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     /**
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
     public static String userpassword;
+    public static Date startDate = new Date();
     static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", JEConfig.class.getPackage().getImplementationVersion());//can be ignored
-    private static final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
     private static Statusbar statusBar;
-
-    public static final String xpathExpression = "//path/@d";
-
     private TopMenu menu;
-    public static Date startDate = new Date();
-
 
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
@@ -351,6 +347,13 @@ public class JEConfig extends Application {
         return svgPath;
     }
 
+    public static void showError(String message, Exception ex) {
+        Platform.runLater(() -> {
+            String messagePlus = message + "\n" + Exceptions.toString(ex);
+            Alert dialog = new Alert(Alert.AlertType.ERROR, messagePlus, ButtonType.OK);
+            dialog.show();
+        });
+    }
 
     @Override
     public void init() throws Exception {
@@ -362,7 +365,6 @@ public class JEConfig extends Application {
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
     }
-
 
     private void checkMemory() {
         try {
@@ -450,7 +452,7 @@ public class JEConfig extends Application {
                     try {
                         JEVisAttribute activities = getDataSource().getCurrentUser().getUserObject().getAttribute("Activities");
                         if (activities != null) {
-                            JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAM_INFO.getName() + " Version: " + PROGRAM_INFO.getVersion());
+                            JEVisSample log = activities.buildSample(new DateTime().plusSeconds(5), "Login: " + PROGRAM_INFO.getName() + " Version: " + PROGRAM_INFO.getVersion());
                             log.commit();
                         } else {
                             logger.warn("Missing activities attribute for user");
@@ -659,15 +661,6 @@ public class JEConfig extends Application {
         login.addLoginMessage(FXLogin.checkMarkSymbol, true);
     }
 
-    public static void showError(String message, Exception ex) {
-        Platform.runLater(() -> {
-            String messagePlus = message + "\n" + Exceptions.toString(ex);
-            Alert dialog = new Alert(Alert.AlertType.ERROR, messagePlus, ButtonType.OK);
-            dialog.show();
-        });
-    }
-
-
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle(PROGRAM_INFO.getName());
@@ -678,6 +671,10 @@ public class JEConfig extends Application {
 
         _primaryStage = primaryStage;
         initGUI(primaryStage);
+    }
+
+    public TopMenu getMenu() {
+        return menu;
     }
 
     public static final class OsUtils {
@@ -694,10 +691,5 @@ public class JEConfig extends Application {
             return getOsName().startsWith("Windows");
         }
 
-    }
-
-
-    public TopMenu getMenu() {
-        return menu;
     }
 }
