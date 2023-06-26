@@ -6,10 +6,10 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -37,6 +37,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.application.tools.TableViewUtils;
 import org.jevis.jeconfig.plugin.charts.DataSettings;
 import org.jevis.jeconfig.plugin.charts.ToolBarSettings;
 import org.joda.time.DateTime;
@@ -145,6 +146,9 @@ public class TableChartV extends XYChart {
 
         try {
             tableHeader.getItems().clear();
+            newGraphicNodes.clear();
+            columnTitles.clear();
+
             Platform.runLater(() -> tableHeader.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY));
 
             List<TableColumn> tableColumns = new ArrayList<>();
@@ -213,21 +217,21 @@ public class TableChartV extends XYChart {
                         if (tableSample == null) {
                             TableSample nts = new TableSample(jeVisSample.getTimestamp(), xyChartSerieList.size());
 
-                            updateSample(nf, columnSums, xyChartSerie, index, jeVisSample, nts);
+                            updateSample(xyChartSerie.getNf(), columnSums, xyChartSerie, index, jeVisSample, nts);
 
                             tableSamples.put(jeVisSample.getTimestamp(), nts);
                             if (!xyChartSerie.getSingleRow().isStringData()) {
                                 rowSums.put(jeVisSample.getTimestamp(), jeVisSample.getValueAsDouble());
                             }
                         } else {
-                            updateSample(nf, columnSums, xyChartSerie, index, jeVisSample, tableSample);
+                            updateSample(xyChartSerie.getNf(), columnSums, xyChartSerie, index, jeVisSample, tableSample);
 
                             if (!xyChartSerie.getSingleRow().isStringData()) {
                                 double aDouble = rowSums.get(jeVisSample.getTimestamp()) + jeVisSample.getValueAsDouble();
                                 rowSums.replace(jeVisSample.getTimestamp(), aDouble);
                             }
                         }
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         logger.error(e);
                     }
                 }
@@ -251,7 +255,7 @@ public class TableChartV extends XYChart {
                 });
 
                 VBox graphicNode = new VBox(nameLabelBox, filterBox);
-                graphicNode.setPadding(new Insets(4));
+                graphicNode.setMinHeight(nameLabelBox.getLayoutBounds().getHeight() + filterBox.getLayoutBounds().getHeight());
 
                 newGraphicNodes.put(column, graphicNode);
                 columnTitles.put(column, xyChartSerie.getTableEntryName());
@@ -313,7 +317,8 @@ public class TableChartV extends XYChart {
 
                 columnSums.forEach(aDouble -> {
                     String string = "";
-                    ChartDataRow singleRow = xyChartSerieList.get(columnSums.indexOf(aDouble)).getSingleRow();
+                    XYChartSerie serie = xyChartSerieList.get(columnSums.indexOf(aDouble));
+                    ChartDataRow singleRow = serie.getSingleRow();
                     JEVisUnit unit = singleRow.getUnit();
 
                     if (!unit.toString().equals("")) {
@@ -328,9 +333,9 @@ public class TableChartV extends XYChart {
                             }
                         }
 
-                        string = nf.format(d) + " " + unit;
+                        string = serie.getNf().format(d) + " " + unit;
                     } else {
-                        string = nf.format(aDouble);
+                        string = serie.getNf().format(aDouble);
                     }
                     sumSample.getColumnValues().set(columnSums.indexOf(aDouble), string);
                 });
@@ -402,12 +407,13 @@ public class TableChartV extends XYChart {
                             CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), entry.getValue(),
                                     singleRow.getSelectedStart(), singleRow.getSelectedEnd(), true);
                             List<JEVisSample> results = calcJob.getResults();
-                            JEVisUnit unit = xyChartSerieList.get(entry.getKey()).getSingleRow().getUnit();
+                            XYChartSerie serie = xyChartSerieList.get(entry.getKey());
+                            JEVisUnit unit = serie.getSingleRow().getUnit();
 
                             if (results.size() == 1) {
                                 Platform.runLater(() -> {
                                     try {
-                                        values.get(values.size() - 1).getColumnValues().set(entry.getKey(), nf.format(results.get(0).getValueAsDouble()) + " " + unit);
+                                        values.get(values.size() - 1).getColumnValues().set(entry.getKey(), serie.getNf().format(results.get(0).getValueAsDouble()) + " " + unit);
                                     } catch (JEVisException e) {
                                         logger.error("Couldn't get calculation result");
                                     }
@@ -431,8 +437,10 @@ public class TableChartV extends XYChart {
                 tableHeader.getColumns().clear();
                 tableHeader.getColumns().addAll(tableColumns);
                 tableHeader.autoFitTable();
+                TableViewUtils.addCustomTableMenu(tableHeader, columnTitles);
             });
 
+            tableHeader.getVisibleLeafColumns().addListener((ListChangeListener) change -> TableViewUtils.addCustomTableMenu(tableHeader, columnTitles));
         } catch (Exception e) {
             logger.error("Error while adding Series to chart", e);
         }
@@ -453,8 +461,8 @@ public class TableChartV extends XYChart {
                 String columnValue;
                 if (!chartDataRow.isStringData()) {
                     try {
-                        Number parse = nf.parse(tableSample.getColumnValues().get(columnIndex - 1));
-                        Number parseFilter = nf.parse(columnFilterValue);
+                        Number parse = serie.getNf().parse(tableSample.getColumnValues().get(columnIndex - 1));
+                        Number parseFilter = serie.getNf().parse(columnFilterValue);
                         columnValue = parse.toString();
                         columnFilterValue = parseFilter.toString();
                     } catch (Exception e) {
