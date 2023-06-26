@@ -627,17 +627,17 @@ public class ChartPlugin implements Plugin {
                             break;
                     }
                 } else if (chart != null) {
-                    ScrollPane scrollPane = new ScrollPane();
+//                    ScrollPane scrollPane = new ScrollPane();
 
                     TableHeader tableHeader = new TableHeader(chartModel, chart);
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
-                    scrollPane.setContent(tableHeader);
-                    scrollPane.setFitToHeight(true);
-                    scrollPane.setFitToWidth(true);
-                    scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
-                    scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-                    bp.setCenter(scrollPane);
+//                    scrollPane.setContent(tableHeader);
+//                    scrollPane.setFitToHeight(true);
+//                    scrollPane.setFitToWidth(true);
+//                    scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
+//                    scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+//                    bp.setCenter(scrollPane);
                 }
 
                 if (chartModel.getChartType() != ChartType.PIE && chartModel.getChartType() != ChartType.HEAT_MAP
@@ -662,15 +662,15 @@ public class ChartPlugin implements Plugin {
 
                         HBox hBox = new HBox(8, titleLabel, spacer, tableChart.getFilterEnabledBox());
                         hBox.setAlignment(Pos.CENTER);
+                        hBox.setMaxHeight(titleLabel.getLayoutBounds().getHeight() * 1.25);
                         HBox.setHgrow(spacer, Priority.ALWAYS);
 
                         TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
                         tableChart.setTableHeader(tableHeaderTable);
-                        tableHeaderTable.maxWidthProperty().bind(bp.widthProperty());
-
-                        VBox vBox = new VBox(hBox, tableHeaderTable);
-                        VBox.setVgrow(hBox, Priority.NEVER);
-                        VBox.setVgrow(tableHeaderTable, Priority.ALWAYS);
+                        tableHeaderTable.prefWidthProperty().bind(bp.widthProperty());
+                        SplitPane vBox = new SplitPane();
+                        vBox.setOrientation(Orientation.VERTICAL);
+                        vBox.getItems().addAll(hBox, tableHeaderTable);
                         bp.setCenter(vBox);
                     }
                 } else if (chartModel.getChartType() != ChartType.LOGICAL) {
