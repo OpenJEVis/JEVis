@@ -24,7 +24,7 @@ public class ChartTools {
         try {
             return getCalculationMap(object.getDataSource(), object).get(object.getID());
         } catch (Exception e) {
-            logger.error("Could not find calculation for object {}:{}", object.getName(), object.getID(), e);
+            logger.error("Could not find calculation for object {}:{}", object.getName(), object.getID());
         }
 
         return -1;
