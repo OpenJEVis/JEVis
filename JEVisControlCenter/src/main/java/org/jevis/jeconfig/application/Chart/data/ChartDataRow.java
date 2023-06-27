@@ -588,7 +588,7 @@ public class ChartDataRow extends ChartData {
                 ChartUnits cu = new ChartUnits();
                 scaleFactor = cu.scaleValue(inputUnit, outputUnit);
 
-                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(inputList.size() - 1).getTimestamp());
                 PeriodComparator periodComparator = new PeriodComparator();
 
                 if ((inputUnit.equals("kWh") || inputUnit.equals("Wh") || inputUnit.equals("MWh") || inputUnit.equals("GWh"))
