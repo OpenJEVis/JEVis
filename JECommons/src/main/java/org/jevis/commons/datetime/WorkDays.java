@@ -96,12 +96,12 @@ public class WorkDays {
             if (attStart.hasSample()) {
                 String startStr = attStart.getLatestSample().getValueAsString();
                 DateTime dtStart = DateTime.parse(startStr);
-                start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
+                start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), dtStart.getSecondOfMinute(), 0);
             }
             if (attEnd.hasSample()) {
                 String endStr = attEnd.getLatestSample().getValueAsString();
                 DateTime dtEnd = DateTime.parse(endStr);
-                end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
+                end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), dtEnd.getSecondOfMinute(), 0);
             }
             if (zoneAtt.hasSample()) {
                 String zoneStr = zoneAtt.getLatestSample().getValueAsString();
@@ -131,12 +131,12 @@ public class WorkDays {
                         if (attStart.getLatestValue() != null) {
                             String startStr = attStart.getLatestValue().getValue();
                             DateTime dtStart = DateTime.parse(startStr);
-                            start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
+                            start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), dtStart.getSecondOfMinute(), 0);
                         }
                         if (attEnd.getLatestValue() != null) {
                             String endStr = attEnd.getLatestValue().getValue();
                             DateTime dtEnd = DateTime.parse(endStr);
-                            end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
+                            end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), dtEnd.getSecondOfMinute(), 0);
                         }
                         if (zoneAtt.getLatestValue() != null) {
                             String zoneStr = zoneAtt.getLatestValue().getValue();
