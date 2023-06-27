@@ -259,10 +259,10 @@ public class Table extends TableView<ChartData> {
         column.setCellValueFactory(new PropertyValueFactory<>("calculation"));
         column.setCellFactory(CheckBoxTableCell.forTableColumn(column));
         column.setEditable(true);
-        column.setOnEditCommit(chartDataBooleanCellEditEvent ->
-                chartDataBooleanCellEditEvent.getTableView().getItems().get(chartDataBooleanCellEditEvent.getTablePosition().getRow())
-                        .setCalculation(chartDataBooleanCellEditEvent.getNewValue()));
-
+        column.setOnEditCommit(chartDataBooleanCellEditEvent -> {
+            chartDataBooleanCellEditEvent.getTableView().getItems().get(chartDataBooleanCellEditEvent.getTablePosition().getRow())
+                    .setCalculation(chartDataBooleanCellEditEvent.getNewValue());
+        });
         return column;
     }
 
