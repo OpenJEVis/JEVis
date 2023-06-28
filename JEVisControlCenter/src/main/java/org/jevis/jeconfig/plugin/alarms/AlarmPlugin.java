@@ -51,11 +51,11 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
-import org.jevis.jeconfig.application.tools.NumberSpinner;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.object.attribute.AlarmEditor;
 import org.jevis.jeconfig.plugin.object.attribute.LimitEditor;
+import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 

@@ -24,7 +24,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.TabPane;
@@ -69,8 +68,8 @@ public class PluginManager {
     private final Number _tabPosOld = 0;
     private final AnchorPane toolbar = new AnchorPane();
     private final SimpleObjectProperty<Plugin> selectedPluginProperty = new SimpleObjectProperty<>();
-    private TopMenu menu;
     private final TabPane tabPane = new TabPane();
+    private TopMenu menu;
 
     public PluginManager(JEVisDataSource _ds) {
         this._ds = _ds;
@@ -165,46 +164,46 @@ public class PluginManager {
             } else {
                 for (JEVisObject plugObj : pluginObjs) {
                     try {
-                            JEVisAttribute enabled = plugObj.getAttribute("Enable");
-                            if (enabled == null) {
-                                continue;
-                            }
-                            JEVisSample value = enabled.getLatestSample();
-                            if (value != null) {
-                                if (value.getValueAsBoolean() || (plugObj.getJEVisClassName().equals(ObjectPlugin.PLUGIN_NAME) && user.isSysAdmin())) {
-                                    if (plugObj.getJEVisClassName().equals(ObjectPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(ChartPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new ChartPlugin(this._ds, I18n.getInstance().getString("plugin.graph.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(DashBordPlugIn.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(ReportPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(AlarmPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(NotesPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new NotesPlugin(this._ds, I18n.getInstance().getString("plugin.notes.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(ISO50001Plugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(AccountingPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
-                                    } else if (plugObj.getJEVisClassName().equals(ActionPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
-                                    } else if (plugObj.getJEVisClassName().equals(NonconformitiesPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")));
-                                    } else if (plugObj.getJEVisClassName().equals(LegalCatasdrePlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.indexoflegalprovisions.name")));
-                                    } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
-                                        enabledPlugins.add(new TRCPlugin(this._ds));
-                                    }
+                        JEVisAttribute enabled = plugObj.getAttribute("Enable");
+                        if (enabled == null) {
+                            continue;
+                        }
+                        JEVisSample value = enabled.getLatestSample();
+                        if (value != null) {
+                            if (value.getValueAsBoolean() || (plugObj.getJEVisClassName().equals(ObjectPlugin.PLUGIN_NAME) && user.isSysAdmin())) {
+                                if (plugObj.getJEVisClassName().equals(ObjectPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
+                                } else if (plugObj.getJEVisClassName().equals(ChartPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new ChartPlugin(this._ds, I18n.getInstance().getString("plugin.graph.title")));
+                                } else if (plugObj.getJEVisClassName().equals(DashBordPlugIn.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
+                                } else if (plugObj.getJEVisClassName().equals(ReportPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
+                                } else if (plugObj.getJEVisClassName().equals(AlarmPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
+                                } else if (plugObj.getJEVisClassName().equals(NotesPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new NotesPlugin(this._ds, I18n.getInstance().getString("plugin.notes.title")));
+                                } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
+                                } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
+                                } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
+                                } else if (plugObj.getJEVisClassName().equals(ISO50001Plugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new ISO50001Plugin(this._ds, I18n.getInstance().getString("plugin.iso50001.title")));
+                                } else if (plugObj.getJEVisClassName().equals(AccountingPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")));
+                                } else if (plugObj.getJEVisClassName().equals(ActionPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")));
+                                } else if (plugObj.getJEVisClassName().equals(NonconformitiesPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")));
+                                } else if (plugObj.getJEVisClassName().equals(LegalCatasdrePlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.indexoflegalprovisions.name")));
+                                } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new TRCPlugin(this._ds));
                                 }
                             }
+                        }
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -327,11 +326,12 @@ public class PluginManager {
                     JEVisHelp.getInstance().showHelpTooltips(false);
                     JEVisHelp.getInstance().showInfoTooltips(false);
                     JEVisHelp.getInstance().setActivePlugin(newValue.getClass().getSimpleName());
+                    menu.setPlugin(newValue);
                 } catch (Exception ex) {
                     logger.error("Error while switching plugin: {}", ex, ex);
                 }
 
-                menu.setPlugin(newValue);
+
             }
 
         }));

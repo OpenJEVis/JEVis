@@ -7,7 +7,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -28,6 +31,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class GaugePojo {
@@ -48,7 +52,9 @@ public class GaugePojo {
 
     private boolean inPercent = false;
 
-    private List<GaugeSectionPojo> sections = new ArrayList();
+    private ObservableList<GaugeSectionPojo> sections = FXCollections.observableArrayList();
+
+    private List<GaugeSectionPojo> sectionsComitted = new ArrayList<>();
 
     final DashboardControl dashboardControl;
 
@@ -76,7 +82,7 @@ public class GaugePojo {
 
     private JFXTextField maxTextField;
 
-    private TableView tableViewSections;
+    private GaugeSectionTableView tableViewSections;
 
     private GridPane gridPane;
 
@@ -136,7 +142,14 @@ public class GaugePojo {
                 double sectionEnd = jsonNode.get("sections").get(i).get("end").asDouble();
                 double sectionStart = jsonNode.get("sections").get(i).get("start").asDouble();
                 Color sectionColor = Color.valueOf(jsonNode.get("sections").get(i).get("color").asText());
-                sections.add(new GaugeSectionPojo(sectionStart, sectionEnd, sectionColor));
+                if (sections.size() > 0) {
+                    sections.add(new GaugeSectionPojo(sectionEnd,sectionColor,sections.get(i-1).endProperty()));
+                }else {
+                    sections.add(new GaugeSectionPojo(sectionStart, sectionEnd, sectionColor));
+                }
+
+
+
             }
 
 
@@ -150,9 +163,9 @@ public class GaugePojo {
         return sections;
     }
 
-    public void setSections(List<GaugeSectionPojo> sections) {
-        this.sections = sections;
-    }
+//    public void setSections(List<GaugeSectionPojo> sections) {
+//        this.sections = sections;
+//    }
 
 
     public boolean isInPercent() {
@@ -202,6 +215,7 @@ public class GaugePojo {
 
     public Tab getConfigTab() {
 
+
         GaugeDesignTab tab = new GaugeDesignTab(I18n.getInstance().getString("plugin.dashboard.gaugewidget.tab")
                 , this);
         gridPane = new GridPane();
@@ -218,15 +232,50 @@ public class GaugePojo {
 
         createMaxMin();
 
-        GaugeSectionTableFactory gaugeSectionTableFactory = new GaugeSectionTableFactory();
+//        tableViewSections = new GaugeSectionTableFactory();
+
+        if (sections.size() > 0) {
+            maxTextField.setDisable(true);
+            minTextField.setDisable(true);
+        }
+        tableViewSections = new GaugeSectionTableView(sections);
 
 
-        tableViewSections = gaugeSectionTableFactory.buildTable();
-        tableViewSections.getItems().addAll(sections);
+
+        tableViewSections.getItems().addListener(new ListChangeListener() {
+            @Override
+            public void onChanged(Change change) {
+                while (change.next()) {
+                    System.out.println(change.getList());
+                    if (change.getList().size() > 0) {
+                        maxTextField.setText(String.valueOf(sections.stream().max(Comparator.comparing(GaugeSectionPojo::getEnd)).get().getEnd()));
+                        minTextField.setText(String.valueOf(sections.stream().min(Comparator.comparing(GaugeSectionPojo::getStart)).get().getStart()));
+
+
+                        maxTextField.setDisable(true);
+                        minTextField.setDisable(true);
+
+                    } else {
+                        maxTextField.setDisable(false);
+                        minTextField.setDisable(false);
+                    }
+                }
+            }
+        });
+
+
+
+        //tableViewSections.getItems().addAll(sections);
 
 
         jfxButtonAdd.setOnAction(event -> {
-            tableViewSections.getItems().add(new GaugeSectionPojo());
+            if (sections.size() > 0) {
+                DoubleProperty doubleProperty = sections.get(sections.size() - 1).endProperty();
+                sections.add(new GaugeSectionPojo(doubleProperty));
+            }else {
+                sections.add(new GaugeSectionPojo());
+            }
+
         });
 
         jfxButtonDelete.setOnAction(event -> {
@@ -327,12 +376,16 @@ public class GaugePojo {
                 showUnit = jfxCheckBoxShowUnit.isSelected();
                 showTitle = jfxCheckBoxShowTitle.isSelected();
                 inPercent = jfxCheckBoxInPercent.isSelected();
-                minimum = Double.parseDouble(minTextField.getText());
-                maximum = Double.parseDouble(maxTextField.getText());
-
+                if (sections.size() > 0) {
+                    minimum = sections.stream().min(Comparator.comparing(GaugeSectionPojo::getStart)).get().getStart();
+                    maximum = sections.stream().max(Comparator.comparing(GaugeSectionPojo::getEnd)).get().getEnd();
+                }else {
+                    minimum = Double.parseDouble(minTextField.getText());
+                    maximum = Double.parseDouble(maxTextField.getText());
+                }
                 tableViewSections.getItems().forEach(x -> logger.debug(x));
-                sections.clear();
-                sections.addAll(tableViewSections.getItems());
+//                sectionsComitted.clear();
+//                sectionsComitted.addAll(sections);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -340,6 +393,7 @@ public class GaugePojo {
 
 
         }
+
     }
 
 }

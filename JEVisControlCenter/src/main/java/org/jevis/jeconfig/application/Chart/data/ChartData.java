@@ -40,6 +40,7 @@ public class ChartData {
     private final SimpleBooleanProperty intervalEnabled = new SimpleBooleanProperty(this, "intervalEnabled", false);
     private final SimpleStringProperty intervalStart = new SimpleStringProperty(this, "intervalStart", DateTime.now().withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).toString());
     private final SimpleStringProperty intervalEnd = new SimpleStringProperty(this, "intervalEnd", DateTime.now().toString());
+    private final SimpleIntegerProperty decimalDigits = new SimpleIntegerProperty(this, "decimalDigits", -1);
     private final SimpleStringProperty css = new SimpleStringProperty(this, "css", "");
 
     public ChartData() {
@@ -352,6 +353,18 @@ public class ChartData {
         return intervalEnabled;
     }
 
+    public int getDecimalDigits() {
+        return decimalDigits.get();
+    }
+
+    public void setDecimalDigits(int decimalDigits) {
+        this.decimalDigits.set(decimalDigits);
+    }
+
+    public SimpleIntegerProperty decimalDigitsProperty() {
+        return decimalDigits;
+    }
+
     public String getCss() {
         return css.get();
     }
@@ -384,6 +397,7 @@ public class ChartData {
         newData.setIntervalEnabled(this.isIntervalEnabled());
         newData.setIntervalStart(this.getIntervalStart());
         newData.setIntervalEnd(this.getIntervalEnd());
+        newData.setDecimalDigits(this.getDecimalDigits());
         newData.setCss(this.getCss());
 
         return newData;

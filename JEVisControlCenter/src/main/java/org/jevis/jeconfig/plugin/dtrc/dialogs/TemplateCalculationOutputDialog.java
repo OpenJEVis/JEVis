@@ -19,9 +19,9 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
-import org.jevis.jeconfig.application.tools.NumberSpinner;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.dtrc.TemplateOutput;
+import org.jevis.jeconfig.tool.NumberSpinner;
 
 import java.math.BigDecimal;
 
