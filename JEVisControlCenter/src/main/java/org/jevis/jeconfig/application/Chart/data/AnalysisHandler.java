@@ -16,6 +16,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.plugin.charts.DataSettings;
 import org.jevis.jeconfig.plugin.charts.ToolBarSettings;
 import org.joda.time.DateTime;
@@ -157,7 +158,9 @@ public class AnalysisHandler {
                 for (ChartModel chartModel : dataModel.getChartModels()) {
                     for (ChartData chartData : chartModel.getChartData()) {
                         try {
-                            chartData.setObjectName(analysisObject.getDataSource().getObject(chartData.getId()));
+                            JEVisObject object = analysisObject.getDataSource().getObject(chartData.getId());
+                            chartData.setObjectName(object);
+                            chartData.setName(DataMethods.getObjectName(object));
                         } catch (Exception ignored) {
                         }
                     }

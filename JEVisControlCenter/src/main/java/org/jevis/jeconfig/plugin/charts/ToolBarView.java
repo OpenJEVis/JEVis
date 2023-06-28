@@ -7,7 +7,6 @@ package org.jevis.jeconfig.plugin.charts;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import com.jfoenix.skins.JFXComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -122,17 +121,17 @@ public class ToolBarView {
         analysesComboBox = new AnalysesComboBox(ds, dataModel);
         analysesComboBox.setPrefWidth(300);
 
-        analysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) analysesComboBox.getSkin();
-                if (skin != null) {
-                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-                    if (popupContent != null) {
-                        popupContent.scrollTo(analysesComboBox.getObservableListAnalyses().indexOf(chartPlugin.getDataSettings().getCurrentAnalysis()));
-                    }
-                }
-            });
-        });
+//        analysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+//            Platform.runLater(() -> {
+//                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) analysesComboBox.getSkin();
+//                if (skin != null) {
+//                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+//                    if (popupContent != null) {
+//                        popupContent.scrollTo(analysesComboBox.getItems().indexOf(chartPlugin.getDataSettings().getCurrentAnalysis()));
+//                    }
+//                }
+//            });
+//        });
 
         pickerCombo = new PickerCombo(ds, chartPlugin, true);
         presetDateBox = pickerCombo.getPresetDateBox();
@@ -153,7 +152,7 @@ public class ToolBarView {
 
     private void loadNewDialog() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin, ds, analysesComboBox.getObservableListAnalyses());
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin, ds, analysesComboBox.getItems());
 
         dialog.setOnCloseRequest(event -> {
             JEVisHelp.getInstance().deactivatePluginModule();
@@ -231,10 +230,6 @@ public class ToolBarView {
 
             removeAnalysisComboBoxListener();
 
-            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
-                analysesComboBox.setSelectedAnalysis(chartPlugin.getDataSettings().getCurrentAnalysis());
-            }
-
             if (!analysesComboBox.getItems().isEmpty()) {
                 dateHelper.setWorkDays(chartPlugin.getWorkDays());
             }
@@ -304,11 +299,11 @@ public class ToolBarView {
     }
 
     public void addAnalysisComboBoxListener() {
-        analysesComboBox.selectedAnalysisProperty().addListener(analysisComboBoxChangeListener);
+        analysesComboBox.getSelectionModel().selectedItemProperty().addListener(analysisComboBoxChangeListener);
     }
 
     public void removeAnalysisComboBoxListener() {
-        analysesComboBox.selectedAnalysisProperty().removeListener(analysisComboBoxChangeListener);
+        analysesComboBox.getSelectionModel().selectedItemProperty().removeListener(analysisComboBoxChangeListener);
     }
 
     private void createToolbarIcons() {
@@ -521,7 +516,7 @@ public class ToolBarView {
 
 
     public void select(JEVisObject obj) {
-        getAnalysesComboBox().setSelectedAnalysis(obj);
+        getAnalysesComboBox().getSelectionModel().select(obj);
     }
 
     public void setDisableToolBarIcons(boolean bool) {
