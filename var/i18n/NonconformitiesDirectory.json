@@ -1,0 +1,19 @@
+{
+  "jevisclass": "Nonconformities Directory",
+  "names": {
+    "de": "Abweichungen",
+    "ru": "отклонения",
+    "uk": "відхилення",
+    "en": "Deviations Directory",
+    "ar": "الانحرافات"
+  },
+  "descriptions": {
+    "de": "Ein Abweichungsverzeichnis kann zur Ordnung verschiedener Abweichungen verwendet werden. Die Klasse ist unique, d.h. es kann auf oberster Ebene nur ein Objekt dieser Klasse existieren.",
+    "ru": "Таблицу отклонений можно использовать для организации различных отклонений. Класс уникален, т.е. на верхнем уровне может существовать только один объект этого класса.",
+    "uk": "Таблицю відхилень можна використовувати для організації різних відхилень. Клас є унікальним, тобто лише один об’єкт цього класу може існувати на верхньому рівні.",
+    "th": "ตารางส่วนเบี่ยงเบนสามารถใช้เพื่อจัดระเบียบส่วนเบี่ยงเบนต่างๆ คลาสไม่ซ้ำกัน กล่าวคือ มีเพียงอ็อบเจกต์เดียวของคลาสนี้เท่านั้นที่สามารถมีอยู่ในระดับบนสุด",
+    "en": "A deviations directory can be used to organize different deviations. The class is unique, i.e. only one object of this class can exist on the top level.",
+    "ar": "يمكن استخدام جدول الانحرافات لتنظيم الانحرافات المختلفة. الفصل فريد ، بمعنى أنه يمكن أن يوجد كائن واحد فقط من هذه الفئة في المستوى الأعلى."
+  },
+  "types": []
+}
