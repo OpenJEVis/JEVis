@@ -61,6 +61,11 @@
       "start": "Training Directory",
       "end": "Documents Directory",
       "type": 3
+    },
+    {
+      "start": "Documents Directory",
+      "end": "Directory",
+      "type": 0
     }
   ]
 }
