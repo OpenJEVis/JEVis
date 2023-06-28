@@ -121,18 +121,6 @@ public class ToolBarView {
         analysesComboBox = new AnalysesComboBox(ds, dataModel);
         analysesComboBox.setPrefWidth(300);
 
-//        analysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-//            Platform.runLater(() -> {
-//                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) analysesComboBox.getSkin();
-//                if (skin != null) {
-//                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-//                    if (popupContent != null) {
-//                        popupContent.scrollTo(analysesComboBox.getItems().indexOf(chartPlugin.getDataSettings().getCurrentAnalysis()));
-//                    }
-//                }
-//            });
-//        });
-
         pickerCombo = new PickerCombo(ds, chartPlugin, true);
         presetDateBox = pickerCombo.getPresetDateBox();
         presetDateBox.getStyleClass().add("ToolBarDatePicker");

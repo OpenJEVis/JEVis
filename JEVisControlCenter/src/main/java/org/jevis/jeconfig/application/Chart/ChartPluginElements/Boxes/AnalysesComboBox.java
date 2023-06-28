@@ -45,21 +45,6 @@ public class AnalysesComboBox extends JFXComboBox<JEVisObject> {
 
         JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, this);
 
-//        this.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//            int selectedIndex = analyses.indexOf(newValue);
-//
-//            if (selectedIndex > -1 && analyses.size() > selectedIndex) {
-//
-//                JFXComboBoxListViewSkin<?> skin = (JFXComboBoxListViewSkin<?>) getSkin();
-//                if (skin != null) {
-//                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-//                    if (popupContent != null) {
-//                        Platform.runLater(() -> popupContent.scrollTo(selectedIndex));
-//                    }
-//                }
-//            }
-//        });
-
         setConverter(new StringConverter<JEVisObject>() {
             @Override
             public String toString(JEVisObject obj) {
