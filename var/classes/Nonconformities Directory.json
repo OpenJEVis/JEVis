@@ -17,6 +17,11 @@
       "start": "Nonconformities Directory",
       "end": "Building",
       "type": 3
+    },
+    {
+      "start": "Nonconformities Directory",
+      "end": "Directory",
+      "type": 0
     }
   ]
 }
