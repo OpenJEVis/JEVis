@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.driver.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeapi.ws.HTTPConnection;
@@ -102,9 +103,25 @@ public class RevolutionPiServer implements DataSource {
                                     stati.add(statusSample);
                                 }
                                 if (sample.getStatus() == OK) {
-                                    JEVisSample jeVisSample = targetAttribute.buildSample((dateTime), sample.getValue());
-                                    logger.debug("Add Sample {}", jeVisSample);
-                                    samples.add(jeVisSample);
+                                    if (targetAttribute.getObject().getJEVisClassName().equals("Data")) {
+                                        try {
+                                            double d;
+                                            d = Double.parseDouble(sample.getValue());
+                                            JEVisSample jeVisSample = targetAttribute.buildSample((dateTime), d);
+                                            logger.debug("Add Sample {}", jeVisSample);
+                                            samples.add(jeVisSample);
+
+                                        } catch (Exception e) {
+                                           logger.error("Cant parse to double {}",sample.getValue());
+                                            JEVisSample statusSample = statusAttribute.buildSample(dateTime, 6);
+                                            stati.add(statusSample);
+                                        }
+
+                                    }else {
+                                        JEVisSample jeVisSample = targetAttribute.buildSample((dateTime), sample.getValue());
+                                        logger.debug("Add Sample {}", jeVisSample);
+                                        samples.add(jeVisSample);
+                                    }
                                 }
                                 if (lastReadout.isBefore(dateTime)) {
                                     lastReadout = dateTime;
