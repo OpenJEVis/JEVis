@@ -32,7 +32,7 @@ public class IndexOfLegalProvisions {
 
     private ObservableList<String> scopes;
     private ObservableList<String> categories;
-    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.relvant"), I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"));
+    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.relevant"), I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.notrrelevant"));
 
 
     private String initCustomCategory = "";
@@ -118,10 +118,10 @@ public class IndexOfLegalProvisions {
 
     public void reloadActionList() {
         actionsLoaded.set(false);
-        loadNonconformityList();
+        loadLegalList();
     }
 
-    public void loadNonconformityList() {
+    public void loadLegalList() {
         if (!actionsLoaded.get()) {
             actionsLoaded.set(true);
             try {
@@ -132,7 +132,7 @@ public class IndexOfLegalProvisions {
                     dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                         System.out.println("new Action from JEVis: " + actionObj);
                         try {
-                            obligationDataList.add(loadNonconformties(actionObj));
+                            obligationDataList.add(loadObligations(actionObj));
                         } catch (Exception e) {
                             logger.error("Could not load Action: {},{},{}", actionObj, e, e);
                         }
@@ -147,7 +147,7 @@ public class IndexOfLegalProvisions {
 
     }
 
-    public ObligationData loadNonconformties(JEVisObject actionObj) throws JEVisException, NullPointerException {
+    public ObligationData loadObligations(JEVisObject actionObj) throws JEVisException, NullPointerException {
         JEVisAttribute att = actionObj.getAttribute("Data");
         ;
         JEVisSample sample = att.getLatestSample();
@@ -203,7 +203,7 @@ public class IndexOfLegalProvisions {
     }
 
 
-    public Integer getNextNonconformityNr() {
+    public Integer getNextLegalNr() {
         biggestActionNr.set(biggestActionNr.get() + 1);
         return biggestActionNr.get();
     }

@@ -11,16 +11,16 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesController;
 
 public class LegalCatasdreToolbar extends ToolBar {
-    private static final Logger logger = LogManager.getLogger(NonconformitiesController.class);
+    private static final Logger logger = LogManager.getLogger(LegalCatasdreToolbar.class);
 
 
     private final double iconSize = 20;
 
-    private final ToggleButton nonconformityPlanConfig = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
+    private final ToggleButton legalPlanConfig = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
     private final ToggleButton openForm = new ToggleButton("", JEConfig.getSVGImage(Icon.PREVIEW, iconSize, iconSize));
-    private final ToggleButton newNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_ADD, iconSize, iconSize));
-    private final ToggleButton newNonconformityPlan = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
-    private final ToggleButton deleteNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_REMOVE, iconSize, iconSize));
+    private final ToggleButton newLegal = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_ADD, iconSize, iconSize));
+    private final ToggleButton newLegalPlan = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
+    private final ToggleButton deleteLegal = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_REMOVE, iconSize, iconSize));
     private final ToggleButton deletePlan = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
     private final ToggleButton exportPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.PDF, this.iconSize, this.iconSize));
@@ -32,23 +32,23 @@ public class LegalCatasdreToolbar extends ToolBar {
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
-        getItems().setAll(newNonconformityPlan, nonconformityPlanConfig, deletePlan, reloadButton,
-                sep1, newNonconformity, deleteNonconformity, openForm,
+        getItems().setAll(newLegalPlan, legalPlanConfig, deletePlan, reloadButton,
+                sep1, newLegal, deleteLegal, openForm,
                 sep2, exportPDF);
 
 
-        nonconformityPlanConfig.setOnAction(event -> legalCadastreController.openPlanSettings());
+        legalPlanConfig.setOnAction(event -> legalCadastreController.openPlanSettings());
         openForm.setOnAction(event -> legalCadastreController.openDataForm(false));
-        newNonconformityPlan.setOnAction(event -> legalCadastreController.createNewPlan());
-        newNonconformity.setOnAction(event -> legalCadastreController.createItem());
-        deleteNonconformity.setOnAction(event -> legalCadastreController.deleteItem());
+        newLegalPlan.setOnAction(event -> legalCadastreController.createNewPlan());
+        newLegal.setOnAction(event -> legalCadastreController.createItem());
+        deleteLegal.setOnAction(event -> legalCadastreController.deleteItem());
         deletePlan.setOnAction(event -> legalCadastreController.deletePlan());
 
 
         getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
-        nonconformityPlanConfig.setDisable(false);
-        newNonconformity.setDisable(false);
-        deleteNonconformity.setDisable(false);
+        legalPlanConfig.setDisable(false);
+        newLegal.setDisable(false);
+        deleteLegal.setDisable(false);
         deletePlan.setDisable(false);
         exportPDF.setDisable(true);//Disabled because implementation is missing
         reloadButton.setDisable(true);
@@ -57,9 +57,9 @@ public class LegalCatasdreToolbar extends ToolBar {
 
     private void setOverview(boolean isOverview) {
 
-        nonconformityPlanConfig.setDisable(isOverview);
-        newNonconformity.setDisable(isOverview);
-        deleteNonconformity.setDisable(isOverview);
+        legalPlanConfig.setDisable(isOverview);
+        newLegal.setDisable(isOverview);
+        deleteLegal.setDisable(isOverview);
         deletePlan.setDisable(isOverview);
         exportPDF.setDisable(true);//Disabled because implementation is missing
         reloadButton.setDisable(true); //Disabled because implementation is missing
