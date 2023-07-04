@@ -228,13 +228,13 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
 
         if (numberOfCategory > 2 || numberOfScope > 2) {
             if (numberOfCategory > numberOfScope) {
-                for (int i = numberOfCategory; i < 0; i++) {
+                for (int i = 0; i < numberOfCategory; i++) {
                     buildRow(indexOfLegalProvisions, legislationCol, relevanceCol, categoryCol, scopeCol, statistics, i);
 
 
                 }
             }else {
-                for (int i = numberOfScope; i < 0; i++) {
+                for (int i = 0; i < numberOfScope; i++) {
                     buildRow(indexOfLegalProvisions, legislationCol, relevanceCol, categoryCol, scopeCol, statistics, i);
                 }
             }
@@ -269,9 +269,14 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                 summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.notrrelevant"), false));
                 break;
         }
-
-        String category = indexOfLegalProvisions.getCategories().get(i);
-        String scope = indexOfLegalProvisions.getScopes().get(i);
+        String category = null;
+        String scope = null;
+        if (indexOfLegalProvisions.getCategories().size() > i) {
+            category = indexOfLegalProvisions.getCategories().get(i);
+        }
+        if (indexOfLegalProvisions.getScopes().size() > i) {
+            scope = indexOfLegalProvisions.getScopes().get(i);
+        }
         if (category != null) {
             summeryRow.put(categoryCol, statistics.getCategory(category+": ", category));
         }
@@ -372,11 +377,11 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                             if (!relevance.contains("*")) {
                                 relevance.forEach(s -> {
                                     try {
-                                        if (s.equals(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvant"))) {
+                                        if (s.equals(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.relevant"))) {
                                             if (notesRow.getRelevant()) {
                                                 relevanceMatch.set(true);
                                             }
-                                        } else if (s.equals(I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"))) {
+                                        } else if (s.equals(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.notrrelevant"))) {
                                             if (!notesRow.getRelevant()) {
                                                 relevanceMatch.set(true);
                                             }

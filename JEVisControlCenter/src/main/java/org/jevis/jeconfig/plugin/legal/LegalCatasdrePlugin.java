@@ -11,7 +11,6 @@ import javafx.scene.layout.Region;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
-import org.jevis.commons.classes.JC;
 import org.jevis.commons.classes.JEVisClassPrinter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
@@ -58,7 +57,7 @@ public class LegalCatasdrePlugin implements Plugin {
         isInit = true;
 
         legalCadastreController.loadActionView();
-        legalCadastreController.loadNonconformityPlans();
+        legalCadastreController.loadLegalPlans();
 
     }
 
