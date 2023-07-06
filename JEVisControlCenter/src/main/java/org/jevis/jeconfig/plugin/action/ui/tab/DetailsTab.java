@@ -257,25 +257,17 @@ public class DetailsTab extends Tab {
         f_nextActionIfNeeded.setWrapText(true);
         f_alternativAction.setWrapText(true);
 
-
-        gridPane.addRow(0, l_EnpiSelection, f_EnpiSelection, new Region(), l_mediaTags, f_mediaTags);
-        gridPane.addRow(1, l_enpiBefore, box_EnpiBefore, new Region(), l_energyBefore, f_consumptionBefore);
-        gridPane.addRow(2, l_enpiAfter, box_EnpiAfter, new Region(), l_energyAfter, f_consumptionAfter);
-        gridPane.addRow(3, l_enpiChange, box_EnpiDiff, new Region(), l_energyChange, f_consumptionDiff);
+        gridPane.addRow(0, l_mediaTags, f_mediaTags, new Region(), l_EnpiSelection, f_EnpiSelection);
+        gridPane.addRow(1, l_energyBefore, f_consumptionBefore, new Region(), l_enpiBefore, box_EnpiBefore);
+        gridPane.addRow(2, l_energyAfter, f_consumptionAfter, new Region(), l_enpiAfter, box_EnpiAfter);
+        gridPane.addRow(3, l_energyChange, f_consumptionDiff, new Region(), l_enpiChange, box_EnpiDiff);
         gridPane.addRow(4, new Region());
-
-        // gridPane.addRow(5, l_FromUser, f_FromUser, new Region(), l_CreateDate, f_CreateDate);
-        // gridPane.addRow(6, l_distributor, f_distributor);
 
         gridPane.add(l_correctionIfNeeded, 0, 7);
         gridPane.add(f_correctionIfNeeded, 0, 8);
 
         gridPane.add(l_nextActionIfNeeded, 3, 7);
         gridPane.add(f_nextActionIfNeeded, 3, 8);
-        //gridPane.addRow(7, l_correctionIfNeeded, new Region(), new Region(), l_nextActionIfNeeded, new Region());
-        //gridPane.addRow(8, f_correctionIfNeeded, new Region(), new Region(), f_nextActionIfNeeded, new Region());
-        // gridPane.addRow(8, l_alternativAction);
-        // gridPane.addRow(9, f_alternativAction, new Region(), new Region(), new Region(), new Region());
 
         GridPane.setColumnSpan(l_correctionIfNeeded, 2);
         GridPane.setColumnSpan(l_nextActionIfNeeded, 2);
