@@ -52,7 +52,7 @@ public class PrepareStep implements ProcessStep {
         List<JEVisSample> rawSamplesDown = cleanDataObject.getRawSamplesDown();
 //        List<JEVisSample> rawSamplesUp = cleanDataObject.getRawSamplesUp();
         logger.info("[{}] raw samples found for cleaning: {}", resourceManager.getID(), rawSamplesDown.size());
-        LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("Raw S.", rawSamplesDown.size() + "");
+        LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("Raw S.", String.valueOf(rawSamplesDown.size()));
 
 //        if (rawSamplesDown.isEmpty() || rawSamplesUp.isEmpty()) {
         if (rawSamplesDown.isEmpty()) {
@@ -296,6 +296,8 @@ public class PrepareStep implements ProcessStep {
                     if (dtEnd.isBefore(dtStart)) {
                         intervalDate = intervalDate.minusDays(1);
                         startDateTime = startDateTime.minusDays(1);
+                    } else if (dtEnd.equals(dtStart)) {
+                        endDateTime = endDateTime.plusDays(1);
                     }
                 }
 
@@ -318,6 +320,10 @@ public class PrepareStep implements ProcessStep {
                         (rawPeriod.getMonths() == 1 && cleanPeriod.getMonths() == 1)
                         || (rawPeriod.getYears() == 1 && cleanPeriod.getYears() == 1)) {
                     Interval interval = new Interval(startDateTime, endDateTime);
+                    currentInterval = new CleanInterval(interval, startDateTime);
+                    currentInterval.getResult().setTimeStamp(startDateTime);
+                } else if (!isDifferential && cleanPeriod.getDays() == 1) {
+                    Interval interval = new Interval(startDateTime.plusSeconds(1), endDateTime.minusSeconds(1));
                     currentInterval = new CleanInterval(interval, startDateTime);
                     currentInterval.getResult().setTimeStamp(startDateTime);
                 } else if (!isDifferential) {

@@ -141,7 +141,7 @@ public class TopMenu extends MenuBar {
             MenuItem addAnalysisToFavorites = new MenuItem(I18n.getInstance().getString("menu.plugins.chart.addfavorite"));
 
             addAnalysisToFavorites.setOnAction(event -> {
-                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectedAnalysis();
+                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectionModel().getSelectedItem();
                 DataSettings dataSettings = chartPlugin.getDataSettings();
 
                 if (selectedAnalysis != null) {
@@ -204,7 +204,7 @@ public class TopMenu extends MenuBar {
             MenuItem removeAnalysisFromFavorites = new MenuItem(I18n.getInstance().getString("menu.plugins.chart.removefavorite"));
 
             removeAnalysisFromFavorites.setOnAction(event -> {
-                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectedAnalysis();
+                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectionModel().getSelectedItem();
                 DataSettings dataSettings = chartPlugin.getDataSettings();
                 List<FavoriteAnalysis> toBeRemoved = new ArrayList<>();
                 favoriteAnalysisHandler.getFavoriteAnalysesList().forEach(favoriteAnalysis -> {
@@ -229,7 +229,7 @@ public class TopMenu extends MenuBar {
                 try {
                     JEVisObject analysisObject = JEConfig.getDataSource().getObject(favoriteAnalysis.getId());
 
-                    DataSettings dataSettings = new DataSettings();
+                    DataSettings dataSettings = chartPlugin.getDataSettings();
 
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(JEConfig.getDataSource(), analysisObject, favoriteAnalysis.getTimeFrame());
 

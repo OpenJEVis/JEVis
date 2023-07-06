@@ -56,6 +56,7 @@ public class ConfigManager {
         this.objectRelations = new ObjectRelations(jeVisDataSource);
         this.timeFrameFactory = new TimeFrameFactory(this.jeVisDataSource);
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
         this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
