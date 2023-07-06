@@ -229,7 +229,7 @@ public class RevPiAssistant {
     private JFXButton buildImportButton() {
         JFXButton importTrends = new JFXButton("import");
         importTrends.setOnAction(actionEvent -> {
-            if (targetDataObject != null) {
+            //if (targetDataObject != null) {
                 List<RevPiTrend> selectedTrends = revPiTrends.stream().filter(revPiTrend -> revPiTrend.isSelected()).collect(Collectors.toList());
                 if (selectedTrends.size() > 0) {
 
@@ -238,8 +238,10 @@ public class RevPiAssistant {
                         @Override
                         protected Void call() throws Exception {
                             try {
-                                rootDataFolder = targetDataObject.buildObject("import Rev Pi", dataDirClass);
-                                rootDataFolder.commit();
+                                if (targetDataObject != null) {
+                                    rootDataFolder = targetDataObject.buildObject("import Rev Pi", dataDirClass);
+                                    rootDataFolder.commit();
+                                }
 
                                 rootDataSourceFolder = revPiServer.buildObject("import Rev Pi", revPiDataSourceDir);
                                 rootDataSourceFolder.commit();
@@ -260,37 +262,41 @@ public class RevPiAssistant {
                 }
 
 
-            }
+          //  }
         });
         return importTrends;
     }
 
     private void addDataObject(RevPiTrend revPiTrend, DateTime dateTime) {
         try {
+            JEVisObject dataObject = null;
+            if (targetDataObject != null) {
+                if(!dataClass.isAllowedUnder(rootDataFolder.getJEVisClass())) return;
 
-            if(!dataClass.isAllowedUnder(rootDataFolder.getJEVisClass())) return;
+                dataObject = rootDataFolder.buildObject(revPiTrend.getName(), dataClass);
+                dataObject.commit();
+                JEVisAttribute dataPeriodAttribute = dataObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                if (dataPeriodAttribute != null) {
+                    JEVisSample sample = dataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(revPiTrend.getConfig()));
+                    sample.commit();
+                }
 
-            JEVisObject dataObject = rootDataFolder.buildObject(revPiTrend.getName(), dataClass);
-            dataObject.commit();
-            JEVisAttribute dataPeriodAttribute = dataObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
-            if (dataPeriodAttribute != null) {
-                JEVisSample sample = dataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(revPiTrend.getConfig()));
-                sample.commit();
+                if(!cleanDataClass.isAllowedUnder(dataObject.getJEVisClass())) return;
+
+
+                JEVisObject cleanDataObject = dataObject.buildObject(I18n.getInstance().getString("tree.treehelper.cleandata.name"), cleanDataClass);
+                cleanDataObject.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.cleandata.name"));
+
+                cleanDataObject.commit();
+
+                JEVisAttribute cleanDataPeriodAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                if (cleanDataPeriodAttribute != null) {
+                    JEVisSample sample = cleanDataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(revPiTrend.getConfig()));
+                    sample.commit();
+                }
             }
 
-            if(!cleanDataClass.isAllowedUnder(dataObject.getJEVisClass())) return;
 
-
-            JEVisObject cleanDataObject = dataObject.buildObject(I18n.getInstance().getString("tree.treehelper.cleandata.name"), cleanDataClass);
-            cleanDataObject.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.cleandata.name"));
-
-            cleanDataObject.commit();
-
-            JEVisAttribute cleanDataPeriodAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
-            if (cleanDataPeriodAttribute != null) {
-                JEVisSample sample = cleanDataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(revPiTrend.getConfig()));
-                sample.commit();
-            }
             if(!revPiDataSourceChannel.isAllowedUnder(rootDataSourceFolder.getJEVisClass())) return;
 
 
@@ -301,8 +307,10 @@ public class RevPiAssistant {
 
 
             sourceIdAttribute.buildSample(dateTime, revPiTrend.getTrendId()).commit();
+            if (dataObject != null) {
+                jevisTargetIdAttribute.buildSample(dateTime, dataObject.getID() + ":Value").commit();
+            }
 
-            jevisTargetIdAttribute.buildSample(dateTime, dataObject.getID() + ":Value").commit();
 
 
         } catch (Exception e) {

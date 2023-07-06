@@ -4,7 +4,6 @@
 
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.JFXComboBox;
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
@@ -24,7 +23,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.datetime.WorkDays;
-import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
@@ -48,7 +46,6 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
     private final org.jevis.jeconfig.application.Chart.Charts.XYChart currentChart;
     private final List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActiveCharts;
     private final List<XYChartSerie> xyChartSerieList;
-    private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
     boolean plotArea = true;
     private DateTime timestampFromFirstSample = null;
     private boolean asDuration = false;
@@ -65,8 +62,6 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
             workDays = new WorkDays(chartDataRow.getObject());
             break;
         }
-        this.nf.setMinimumFractionDigits(currentChart.getChartModel().getMinFractionDigits());
-        this.nf.setMaximumFractionDigits(currentChart.getChartModel().getMaxFractionDigits());
 
         this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
 
@@ -311,7 +306,8 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                         } catch (JEVisException e) {
                             e.printStackTrace();
                         }
-                        formattedDouble = nf.format(valueAsDouble);
+
+                        formattedDouble = xyChartSerie.getNf().format(valueAsDouble);
                         String finalFormattedDouble = formattedDouble;
                         Platform.runLater(() -> tableEntry.setValue(finalFormattedDouble + " " + unit));
                     } else {
@@ -347,8 +343,8 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 }
             });
 
-            String formattedX = nf.format(xValue.get());
-            String formattedY = nf.format(yValue);
+            String formattedX = currentChart.getNf().format(xValue.get());
+            String formattedY = currentChart.getNf().format(yValue);
             String xUnit = currentChart.getxUnit();
             String yUnit = currentChart.getyUnit();
             if (!xUnit.equals("")) {

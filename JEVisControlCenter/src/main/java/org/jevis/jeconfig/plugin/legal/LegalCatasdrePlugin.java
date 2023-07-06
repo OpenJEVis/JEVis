@@ -10,8 +10,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.commons.classes.JC;
 import org.jevis.commons.classes.JEVisClassPrinter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
@@ -23,10 +21,10 @@ public class LegalCatasdrePlugin implements Plugin {
     private final BorderPane rootPane = new BorderPane();
     private final StringProperty uuidProperty = new SimpleStringProperty("Nonconformity");
     public LegalCadastreController legalCadastreController;
-    private SimpleStringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.nonconformities.name"));
+    private final SimpleStringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.nonconformities.name"));
     private JEVisDataSource ds;
     private boolean isInit = false;
-    private LegalCatasdreToolbar toolbar;
+    private final LegalCatasdreToolbar toolbar;
     public static final String PLUGIN_NAME = "Index of Legal Provisions Plugin";
 
     BooleanProperty inAlarm = new SimpleBooleanProperty();
@@ -50,15 +48,16 @@ public class LegalCatasdrePlugin implements Plugin {
         //JC
         try {
             jeVisClass = ds.getJEVisClass("Legislation");
-        } catch (JEVisException e) {
+            jeVisClassPrinter.printClass(3, jeVisClass);
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        jeVisClassPrinter.printClass(3, jeVisClass);
+
         if (isInit) return;
         isInit = true;
 
         legalCadastreController.loadActionView();
-        legalCadastreController.loadNonconformityPlans();
+        legalCadastreController.loadLegalPlans();
 
     }
 

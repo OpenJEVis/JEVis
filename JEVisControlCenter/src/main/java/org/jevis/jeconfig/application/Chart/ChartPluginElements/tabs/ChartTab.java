@@ -328,6 +328,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(true);
                 setCssColumnVisible(false);
                 break;
             case LOGICAL:
@@ -347,6 +348,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(false);
+                setDecimalDigitsColumnVisible(false);
                 setCssColumnVisible(false);
                 break;
             case BAR:
@@ -366,6 +368,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(false);
                 setCssColumnVisible(false);
                 break;
             case BUBBLE:
@@ -380,6 +383,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(true);
                 setCssColumnVisible(false);
                 break;
             case PIE:
@@ -394,6 +398,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(false);
                 setCssColumnVisible(false);
                 break;
             case TABLE:
@@ -408,6 +413,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(true);
                 setCssColumnVisible(false);
                 break;
             case HEAT_MAP:
@@ -422,6 +428,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(false);
                 setCssColumnVisible(false);
                 break;
             case TABLE_V:
@@ -436,6 +443,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(true);
                 setCssColumnVisible(true);
                 break;
         }
@@ -571,6 +579,10 @@ public class ChartTab extends Tab {
 
     public void setMathColumnVisible(boolean visible) {
         chartTable.getMathColumn().setVisible(visible);
+    }
+
+    public void setDecimalDigitsColumnVisible(boolean visible) {
+        chartTable.getDecimalDigitsColumn().setVisible(visible);
     }
 
     public void setCssColumnVisible(boolean visible) {
