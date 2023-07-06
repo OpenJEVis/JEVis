@@ -10,6 +10,11 @@
     },
     {
       "start": "Group Directory",
+      "end": "Group Directory",
+      "type": 3
+    },
+    {
+      "start": "Group Directory",
       "end": "Administration Directory",
       "type": 3
     },
