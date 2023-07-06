@@ -88,20 +88,10 @@ public class NPVData {
         if (!initDone) {
             initDone = true;
 
-            /*
-            amoutYear.addListener((observable, oldValue, newValue) -> {
-                //  System.out.println("amoutYear.listener: " + newValue);
-                update();
-                npvYears.forEach(NPVYearData::updateSums);
-            });
-*/
-
             ChangeListener<Number> changeListener = new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                     npvYears.forEach(NPVYearData::updateSums);
-                    //System.out.println("Value changed: " + newValue);
-                    //updateResults();
                 }
             };
 
@@ -116,7 +106,6 @@ public class NPVData {
                     npvYears.forEach(NPVYearData::updateSums);
                 }
             });
-            //System.out.println("Listener: " + npvYears + " for " + this);
             amoutYear.addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {

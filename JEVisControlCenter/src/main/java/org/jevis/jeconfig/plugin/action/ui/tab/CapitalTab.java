@@ -80,6 +80,12 @@ public class CapitalTab extends Tab {
         f_period.valueProperty().bindBidirectional(data.npv.get().amoutYear.asObject());
         f_period.setValue(data.npv.get().amoutYear.get());
 
+        /*
+        f_period.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            data.npv.get().amoutYear.set(newValue);
+        });
+*/
+
 
         ChoiceBox<Integer> f_amortizedDuration = new ChoiceBox<>();
         f_amortizedDuration.getItems().addAll(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
@@ -111,31 +117,15 @@ public class CapitalTab extends Tab {
         f_auszahlungGesamt.setEditable(false);
 
 
-        f_period.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            data.npv.get().amoutYear.set(newValue);
-        });
-
-
         NumberStringConverter nsc = NumerFormating.getInstance().getCurrencyConverter();
         NumberStringConverter nscNoUnit = NumerFormating.getInstance().getDoubleConverter();
 
-        //l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.get() + " Jahre");
-        data.npv.get().overXYear.addListener((observable, oldValue, newValue) -> {
-            l_periodOverX.setText("Amortisation über " + newValue.intValue() + " Year");
-        });
-        l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.intValue() + " Year");
-        // data.npv.get().overXYear.addListener(observable -> l_periodOverX.setText("Amortisation über " + observable.toString() + " Year"));
+        data.npv.get().overXYear.addListener((observable, oldValue, newValue) -> updateAmoYears(newValue.intValue()));
+        data.npv.get().amoutYear.addListener((observable, oldValue, newValue) -> updateAmoYears(data.npv.get().overXYear.intValue()));
+        updateAmoYears(data.npv.get().overXYear.intValue());
+
         DecimalFormat decimalFormat = new DecimalFormat();
         decimalFormat.setMinimumFractionDigits(4);
-
-        /*
-        System.out.println("=== NPV Data ===");
-        System.out.println(GsonBuilder.createDefaultBuilder().create().toJson(data.npv.get()));
-        System.out.println("Saving: " + data.npv.get().einsparung.get());
-        System.out.println("nscNoUnit: " + nscNoUnit.toString(data.npv.get().einsparung.get()));
-
-         */
-        //f_einsparrung.textProperty().set("test");
 
         Bindings.bindBidirectional(f_zinssatz.textProperty(), data.npv.get().interestRate, new NumberStringConverter());
         Bindings.bindBidirectional(f_kapitalwert.textProperty(), data.npv.get().npvResult, nsc);
@@ -215,5 +205,9 @@ public class CapitalTab extends Tab {
         data.npv.get().updateResults();
 
         setContent(gridPane);
+    }
+
+    private void updateAmoYears(int value) {
+        l_periodOverX.setText(String.format(I18n.getInstance().getString("actionform.editor.tab.captial.amortoveryear"), value));
     }
 }
