@@ -157,11 +157,13 @@ public class AnalysisHandler {
 
                 for (ChartModel chartModel : dataModel.getChartModels()) {
                     for (ChartData chartData : chartModel.getChartData()) {
-                        try {
-                            JEVisObject object = analysisObject.getDataSource().getObject(chartData.getId());
-                            chartData.setObjectName(object);
-                            chartData.setName(DataMethods.getObjectName(object));
-                        } catch (Exception ignored) {
+                        if (chartData.getName() == null || chartData.getName().equals("")) {
+                            try {
+                                JEVisObject object = analysisObject.getDataSource().getObject(chartData.getId());
+                                chartData.setObjectName(object);
+                                chartData.setName(DataMethods.getObjectName(object));
+                            } catch (Exception ignored) {
+                            }
                         }
                     }
                 }
