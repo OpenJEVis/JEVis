@@ -125,10 +125,8 @@ public class JEVisJSONParser implements Parser {
     }
 
     private List<String> convertValues(List<JsonNode> valuesJson, String regexPattern) {
+        if (regexPattern == null || regexPattern.isEmpty()) return valuesJson.stream().map(jsonNode -> jsonNode.asText()).collect(Collectors.toList());
         Pattern pattern = Pattern.compile(regexPattern);
-        if (regexPattern.isEmpty() || regexPattern == null)
-            return valuesJson.stream().map(jsonNode -> jsonNode.asText()).collect(Collectors.toList());
-
         List<String> stringValues = valuesJson.stream().map(jsonNode -> {
             Matcher m = pattern.matcher(jsonNode.asText());
             if (m.find()) {
