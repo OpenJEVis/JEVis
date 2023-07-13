@@ -5,9 +5,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 public class InterchangeHeader {
-    private String SyntaxIdentifier;
-    private String Sender;
-    private String Recipient;
+    private String syntaxIdentifier;
+    private String sender;
+    private String recipient;
 
     private String date;
 
@@ -21,58 +21,52 @@ public class InterchangeHeader {
 
 
 
-    private DateTime dateTime;
+    private DateTime createdDateTime;
 
 
     public String getSyntaxIdentifier() {
-        return SyntaxIdentifier;
+        return syntaxIdentifier;
     }
 
     public void setSyntaxIdentifier(String syntaxIdentifier) {
-        SyntaxIdentifier = syntaxIdentifier;
+        this.syntaxIdentifier = syntaxIdentifier;
     }
 
     public String getSender() {
-        return Sender;
+        return sender;
     }
 
     public void setSender(String sender) {
-        Sender = sender;
+        this.sender = sender;
     }
 
     public String getRecipient() {
-        return Recipient;
+        return recipient;
     }
 
     public void setRecipient(String recipient) {
-        Recipient = recipient;
+        this.recipient = recipient;
     }
 
-    public DateTime getDateTime() {
-        return dateTime;
+    public DateTime getCreatedDateTime() {
+        return createdDateTime;
     }
 
-    public void setDateTime(DateTime dateTime) {
-        this.dateTime = dateTime;
+    public void setCreatedDateTime(DateTime createdDateTime) {
+        this.createdDateTime = createdDateTime;
     }
 
     public void genearteDateTime() {
         DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyMMdd HHmm");
-       dateTime = dateTimeFormatter.parseDateTime(date + " " + time);
+       createdDateTime = dateTimeFormatter.parseDateTime(date + " " + time);
 
     }
 
-    public String getDate() {
-        return date;
-    }
 
     public void setDate(String date) {
         this.date = date;
     }
 
-    public String getTime() {
-        return time;
-    }
 
     public void setTime(String time) {
         this.time = time;
@@ -98,14 +92,14 @@ public class InterchangeHeader {
     @Override
     public String toString() {
         return "InterchangeHeader{" +
-                "SyntaxIdentifier='" + SyntaxIdentifier + '\'' +
-                ", Sender='" + Sender + '\'' +
-                ", Recipient='" + Recipient + '\'' +
+                "SyntaxIdentifier='" + syntaxIdentifier + '\'' +
+                ", Sender='" + sender + '\'' +
+                ", Recipient='" + recipient + '\'' +
                 ", date='" + date + '\'' +
                 ", time='" + time + '\'' +
                 ", controlReference='" + controlReference + '\'' +
                 ", applicationReference='" + applicationReference + '\'' +
-                ", dateTime=" + dateTime +
+                ", dateTime=" + createdDateTime +
                 '}';
     }
 }

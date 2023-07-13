@@ -1,7 +1,5 @@
 package org.jevis.mscons;
 
-import org.apache.commons.digester.RegexMatcher;
-import org.apache.commons.digester.SimpleRegexMatcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -33,7 +31,7 @@ public class MsconsParser {
         this.inputStream = inputStream;
     }
 
-    public void readSegments() {
+    public void parse() {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
             int r;
             StringBuilder stringBuilder = new StringBuilder();
@@ -55,17 +53,17 @@ public class MsconsParser {
     }
 
     private void parseSegment(String segment) {
-        unb(segment);
-        unh(segment);
-        bgm(segment);
-        dtm(segment);
-        nad(segment);
-        loc(segment);
-        quantity(segment);
+        parseUnb(segment);
+        parseUnh(segment);
+        parseBgm(segment);
+        parseDtm(segment);
+        parseNad(segment);
+        parseLoc(segment);
+        parseQuantity(segment);
     }
 
 
-    private void unb(String segment) {
+    private void parseUnb(String segment) {
 
         Pattern pattern = Pattern.compile("UNB\\+(.*?)\\+(.*?):.*?\\+(.*?):.*?\\+(.*?):(.*?)\\+(.*?)\\+.*?\\+(.*?)($|\\+.*)");
         Matcher matcher = pattern.matcher(segment);
@@ -96,7 +94,7 @@ public class MsconsParser {
     }
 
 
-    private void unh(String segment) {
+    private void parseUnh(String segment) {
 
         Pattern pattern = Pattern.compile("UNH\\+(.*?)\\+(.*?):(.*?):(.*?):(.*?):(.*?)($|\\+|:).*");
         Matcher matcher = pattern.matcher(segment);
@@ -130,7 +128,7 @@ public class MsconsParser {
 //
     }
 
-    private void quantity(String segment) {
+    private void parseQuantity(String segment) {
         Pattern pattern = Pattern.compile("QTY\\+(.*?):(.*?)(:(.*?)$|$)");
         Matcher matcher = pattern.matcher(segment);
         if (matcher.find()) {
@@ -142,7 +140,7 @@ public class MsconsParser {
         }
     }
 
-    private void bgm(String segment) {
+    private void parseBgm(String segment) {
 
         Pattern pattern = Pattern.compile("BGM\\+(.*?)\\+(.*?)\\+(.*?)($|\\+.*$)");
         Matcher matcher = pattern.matcher(segment);
@@ -164,7 +162,7 @@ public class MsconsParser {
     }
 
 
-    private void nad(String segment) {
+    private void parseNad(String segment) {
         Pattern pattern = Pattern.compile("NAD\\+(.*?)\\+(.*?):(.*?):(.*?)$");
         Matcher matcher = pattern.matcher(segment);
         if (matcher.find()) {
@@ -172,7 +170,7 @@ public class MsconsParser {
                 msconsPojo.getMessageHeader().setSender(matcher.group(2));
 
             } else if (matcher.group(1).equals("MR")) {
-                msconsPojo.getMessageHeader().setReceiver(matcher.group(2));
+                msconsPojo.getMessageHeader().setRecipient(matcher.group(2));
 
             } else if (matcher.group(2).equals("DP")) {
                 msconsPojo.getMessageHeader().setDeliveryParty(matcher.group(2));
@@ -181,30 +179,30 @@ public class MsconsParser {
 
     }
 
-    private void loc(String segment) {
+    private void parseLoc(String segment) {
         Pattern pattern1 = Pattern.compile("LOC\\+(.*?)\\+(.*?)$");
         Matcher matcher1 = pattern1.matcher(segment);
         Pattern pattern2 = Pattern.compile("LOC\\+(.*?)\\+(.*?):(.*?):(.*?)$");
         Matcher matcher2 = pattern2.matcher(segment);
-        if (matcher1.find()) {
+        if (matcher2.find()) {
+            state = State.Messlokation;
+            try {
+                msconsPojo.getMesslokation().add(new Messlokation(matcher2.group(2)));
+            } catch (Exception e) {
+                logger.error(e);
+            }
+
+        }else if (matcher1.find()) {
             state = State.Messlokation;
             try {
                 msconsPojo.getMesslokation().add(new Messlokation(matcher1.group(2)));
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } if (matcher2.find()) {
-            state = State.Messlokation;
-            try {
-                msconsPojo.getMesslokation().add(new Messlokation(matcher2.group(2)));
-            } catch (Exception e) {
-           logger.error(e);
-            }
-
         }
     }
 
-    private void dtm(String segment) {
+    private void parseDtm(String segment) {
         Pattern pattern = Pattern.compile("DTM\\+(.*?):(.*?):(.*?)($|\\+.*|:.*)");
         Matcher matcher = pattern.matcher(segment);
         if (matcher.find()) {

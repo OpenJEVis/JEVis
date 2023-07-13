@@ -52,12 +52,12 @@ public class MSCONSJEVisParser implements Parser {
 
             MsconsParser msconsParser = new MsconsParser(inputStream);
 
-            msconsParser.readSegments();
+            msconsParser.parse();
 
             MsconsPojo msconsPojo = msconsParser.getMsconsPojo();
             try {
                 if (parserObject.getAttribute("File Created Date").hasSample()) {
-                    if (!msconsPojo.getInterchangeHeader().getDateTime().isAfter(parserObject.getAttribute("File Created Date").getLatestSample().getTimestamp()))
+                    if (!msconsPojo.getInterchangeHeader().getCreatedDateTime().isAfter(parserObject.getAttribute("File Created Date").getLatestSample().getTimestamp()))
                         break;
 
                 }
@@ -88,8 +88,8 @@ public class MSCONSJEVisParser implements Parser {
 
             try {
                 parserObject.getAttribute("Sender").buildSample(DateTime.now(), msconsPojo.getMessageHeader().getSender()).commit();
-                parserObject.getAttribute("Reciver").buildSample(DateTime.now(), msconsPojo.getMessageHeader().getReceiver()).commit();
-                parserObject.getAttribute("File Created Date").buildSample(DateTime.now(), msconsPojo.getInterchangeHeader().getDateTime()).commit();
+                parserObject.getAttribute("Reciver").buildSample(DateTime.now(), msconsPojo.getMessageHeader().getRecipient()).commit();
+                parserObject.getAttribute("File Created Date").buildSample(DateTime.now(), msconsPojo.getInterchangeHeader().getCreatedDateTime()).commit();
             } catch (Exception e) {
                 logger.error(e);
             }

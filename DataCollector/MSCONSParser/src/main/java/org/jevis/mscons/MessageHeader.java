@@ -23,7 +23,7 @@ public class MessageHeader {
     private String messageDtmFormat;
 
     private String sender;
-    private String receiver;
+    private String recipient;
     private String deliveryParty;
 
 
@@ -132,12 +132,12 @@ public class MessageHeader {
         this.sender = sender;
     }
 
-    public String getReceiver() {
-        return receiver;
+    public String getRecipient() {
+        return recipient;
     }
 
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 
     public String getDeliveryParty() {
@@ -164,7 +164,7 @@ public class MessageHeader {
                 ", messageDtm='" + messageDtm + '\'' +
                 ", messageDtmFormat='" + messageDtmFormat + '\'' +
                 ", sender='" + sender + '\'' +
-                ", receiver='" + receiver + '\'' +
+                ", receiver='" + recipient + '\'' +
                 ", deliveryParty='" + deliveryParty + '\'' +
                 '}';
     }
