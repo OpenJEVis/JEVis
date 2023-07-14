@@ -21,7 +21,6 @@ public class MsconsParser {
     private State state = State.None;
 
 
-
     private MsconsPojo msconsPojo = new MsconsPojo();
 
     private InputStream inputStream;
@@ -31,14 +30,14 @@ public class MsconsParser {
         this.inputStream = inputStream;
     }
 
-    public void parse() {
+    public boolean parse() {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
             int r;
             StringBuilder stringBuilder = new StringBuilder();
             while ((r = bufferedReader.read()) != -1) {
                 char c = (char) r;
                 if (c == '\'') {
-                    parseSegment(stringBuilder.toString());
+                    if (!parseSegment(stringBuilder.toString())) return false;
                     stringBuilder.setLength(0);
                 } else {
                     stringBuilder.append(c);
@@ -50,25 +49,30 @@ public class MsconsParser {
             logger.error(e);
 
         }
+        return true;
     }
 
-    private void parseSegment(String segment) {
-        parseUnb(segment);
-        parseUnh(segment);
-        parseBgm(segment);
-        parseDtm(segment);
-        parseNad(segment);
-        parseLoc(segment);
-        parseQuantity(segment);
+    private boolean parseSegment(String segment) {
+        logger.debug("Parse segment {}", segment);
+        if (!parseUnb(segment)) return false;
+        if (!parseUnh(segment)) return false;
+        if (!parseBgm(segment)) return false;
+        if (!parseDtm(segment)) return false;
+        if (!parseNad(segment)) return false;
+        if (!parseLoc(segment)) return false;
+        if (!parseQuantity(segment)) return false;
+
+        return true;
     }
 
 
-    private void parseUnb(String segment) {
+    private boolean parseUnb(String segment) {
 
         Pattern pattern = Pattern.compile("UNB\\+(.*?)\\+(.*?):.*?\\+(.*?):.*?\\+(.*?):(.*?)\\+(.*?)\\+.*?\\+(.*?)($|\\+.*)");
         Matcher matcher = pattern.matcher(segment);
         if (matcher.find()) {
             try {
+
 
                 msconsPojo.getInterchangeHeader().setSyntaxIdentifier(matcher.group(1));
 
@@ -85,16 +89,19 @@ public class MsconsParser {
 
                 msconsPojo.getInterchangeHeader().setApplicationReference(matcher.group(7));
 
+                logger.debug("UNB Parsed {}", msconsPojo.getInterchangeHeader());
+
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
         }
+        return true;
     }
 
 
-    private void parseUnh(String segment) {
+    private boolean parseUnh(String segment) {
 
         Pattern pattern = Pattern.compile("UNH\\+(.*?)\\+(.*?):(.*?):(.*?):(.*?):(.*?)($|\\+|:).*");
         Matcher matcher = pattern.matcher(segment);
@@ -114,21 +121,25 @@ public class MsconsParser {
                 msconsPojo.getMessageHeader().setAssociationAssignedCode(matcher.group(6));
 
                 if (!msconsPojo.getMessageHeader().getMessageType().equals("MSCONS")) {
-            System.out.println("no MSCONS message");
-        }
+                    logger.error("No MSCONS File Stop parsing");
+                    return false;
+                }else {
+                    logger.debug("UNH Parsed {}",msconsPojo.getMessageHeader());
+                }
 
 
 
-                } catch (Exception e) {
-               logger.error(e);
+            } catch (Exception e) {
+                logger.error(e);
             }
 
 
         }
+        return true;
 //
     }
 
-    private void parseQuantity(String segment) {
+    private boolean parseQuantity(String segment) {
         Pattern pattern = Pattern.compile("QTY\\+(.*?):(.*?)(:(.*?)$|$)");
         Matcher matcher = pattern.matcher(segment);
         if (matcher.find()) {
@@ -138,9 +149,10 @@ public class MsconsParser {
                 msconsSample.setQuantity(Double.valueOf(matcher.group(2)));
             }
         }
+        return true;
     }
 
-    private void parseBgm(String segment) {
+    private boolean parseBgm(String segment) {
 
         Pattern pattern = Pattern.compile("BGM\\+(.*?)\\+(.*?)\\+(.*?)($|\\+.*$)");
         Matcher matcher = pattern.matcher(segment);
@@ -152,17 +164,20 @@ public class MsconsParser {
 
                 msconsPojo.getMessageHeader().setMessageFunction(matcher.group(3));
 
+                logger.debug("BGM Parsed {}",msconsPojo.getMessageHeader());
+
             } catch (Exception e) {
-              logger.error(e);
+                logger.error(e);
             }
 
 
         }
+        return true;
 
     }
 
 
-    private void parseNad(String segment) {
+    private boolean parseNad(String segment) {
         Pattern pattern = Pattern.compile("NAD\\+(.*?)\\+(.*?):(.*?):(.*?)$");
         Matcher matcher = pattern.matcher(segment);
         if (matcher.find()) {
@@ -175,11 +190,15 @@ public class MsconsParser {
             } else if (matcher.group(2).equals("DP")) {
                 msconsPojo.getMessageHeader().setDeliveryParty(matcher.group(2));
             }
+
+            logger.debug("NAD Parsed {}",msconsPojo.getMessageHeader());
         }
+
+        return true;
 
     }
 
-    private void parseLoc(String segment) {
+    private boolean parseLoc(String segment) {
         Pattern pattern1 = Pattern.compile("LOC\\+(.*?)\\+(.*?)$");
         Matcher matcher1 = pattern1.matcher(segment);
         Pattern pattern2 = Pattern.compile("LOC\\+(.*?)\\+(.*?):(.*?):(.*?)$");
@@ -188,21 +207,24 @@ public class MsconsParser {
             state = State.Messlokation;
             try {
                 msconsPojo.getMesslokation().add(new Messlokation(matcher2.group(2)));
+                logger.debug("LOC Parsed {}",msconsPojo.getLastMesslokation());
             } catch (Exception e) {
                 logger.error(e);
             }
 
-        }else if (matcher1.find()) {
+        } else if (matcher1.find()) {
             state = State.Messlokation;
             try {
                 msconsPojo.getMesslokation().add(new Messlokation(matcher1.group(2)));
+                logger.debug("LOC PArsed {}",msconsPojo.getLastMesslokation());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        return true;
     }
 
-    private void parseDtm(String segment) {
+    private boolean parseDtm(String segment) {
         Pattern pattern = Pattern.compile("DTM\\+(.*?):(.*?):(.*?)($|\\+.*|:.*)");
         Matcher matcher = pattern.matcher(segment);
         if (matcher.find()) {
@@ -218,6 +240,7 @@ public class MsconsParser {
                 if (state == State.Sample) {
                     msconsSample.setEnd(convertDateTime(matcher.group(2)));
                     msconsPojo.getLastMesslokation().getSampleList().add(msconsSample);
+                    logger.debug("Sample Parsed {}",msconsSample);
                 } else if (state == State.Messlokation) {
                     msconsPojo.getLastMesslokation().setUntilDateTime(convertDateTime(matcher.group(2)));
                 }
@@ -226,6 +249,7 @@ public class MsconsParser {
 
 
         }
+        return true;
     }
 
     private DateTime convertDateTime(String string) {
@@ -239,7 +263,7 @@ public class MsconsParser {
         return msconsPojo;
     }
 
-    private enum State{
-        None,Messlokation, Sample,
+    private enum State {
+        None, Messlokation, Sample,
     }
 }
