@@ -42,4 +42,14 @@ public class MsconsSample {
     public void setUnit(String unit) {
         this.unit = unit;
     }
+
+    @Override
+    public String toString() {
+        return "MsconsSample{" +
+                "start=" + start +
+                ", end=" + end +
+                ", quantity=" + quantity +
+                ", unit='" + unit + '\'' +
+                '}';
+    }
 }

@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import static javolution.testing.TestContext.assertEquals;
+import static javolution.testing.TestContext.assertTrue;
 
 public class MSCONSParserTest {
 
@@ -28,9 +29,6 @@ public class MSCONSParserTest {
             msconsPojo1 = msconsParser.getMsconsPojo();
 
             msconsPojo2 = msconsParser2.getMsconsPojo();
-
-            System.out.println(msconsPojo2);
-            System.out.println(msconsPojo1);
 
         } catch (FileNotFoundException e) {
            e.printStackTrace();
@@ -135,6 +133,18 @@ public class MSCONSParserTest {
     void checkNumberOfSamples() {
         assertEquals(2980, msconsPojo2.getMesslokation().get(0).getSampleList().size());
         assertEquals(96, msconsPojo1.getMesslokation().get(0).getSampleList().size());
+    }
+
+    @Test
+    void noMSCONSFile() {
+        try {
+            InputStream inputStream = new FileInputStream("src/test/resources/TL-example.mscons2.txt");
+            MsconsParser msconsParser = new MsconsParser(inputStream);
+            assertEquals(false, msconsParser.parse());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
