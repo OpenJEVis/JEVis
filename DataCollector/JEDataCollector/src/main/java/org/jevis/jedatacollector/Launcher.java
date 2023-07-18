@@ -86,7 +86,7 @@ public class Launcher extends AbstractCliApp {
                                         JEVisAttribute attribute = object.getAttribute(DataCollectorTypes.DataSource.MANUAL_TRIGGER);
                                         JEVisSample sample = attribute.buildSample(DateTime.now(), false);
                                         sample.commit();
-                                    } catch (JEVisException e) {
+                                    } catch (Exception e) {
                                         logger.error("Could not disable manual trigger for datasource {}:{}", object.getName(), object.getID());
                                         removeJob(object);
                                     }

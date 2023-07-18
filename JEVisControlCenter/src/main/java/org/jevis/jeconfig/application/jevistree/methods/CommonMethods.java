@@ -160,8 +160,12 @@ public class CommonMethods {
     }
 
     public static JEVisObject getFirstParentalDataObject(JEVisObject jeVisObject) throws JEVisException {
+        if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("String Data")) {
+            return jeVisObject;
+        }
+
         for (JEVisObject object : jeVisObject.getParents()) {
-            if (object.getJEVisClassName().equals("Data")) {
+            if (object.getJEVisClassName().equals("Data") || object.getJEVisClassName().equals("String Data")) {
                 return object;
             } else {
                 return getFirstParentalDataObject(object);
