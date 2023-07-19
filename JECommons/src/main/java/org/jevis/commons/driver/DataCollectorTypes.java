@@ -78,6 +78,10 @@ public interface DataCollectorTypes {
             String NAME = "JSON Data Point Directory";
         }
 
+        interface MSCONShannelDirectory extends ChannelDirectory {
+            String NAME = "MSCONS Data Point Directory";
+        }
+
 
     }
 
@@ -244,9 +248,16 @@ public interface DataCollectorTypes {
             String TARGETID = "Target";
             String STATUS = "Status Log";
 
-            String REGEX = "regex";
+            String REGEX = "Regex Value";
             String STATUS_PATH = "Status Path";
             String STAUS_VALUE_OK = "Status Value OK";
+        }
+
+        interface MSCONSChannel extends Channel {
+            String NAME = "MSCONS Data Point";
+            String TARGETID = "Target";
+
+            String MESSLIKATION = "Messlukation";
         }
 
 
