@@ -46,7 +46,7 @@ public class Parameter implements VarFiller.VarFunction {
         try {
             if (format != null) {
                 DateTimeFormatter fmt = DateTimeFormat.forPattern(format);
-                return fmt.print(dateTime.withZone(DateTimeZone.UTC));
+                return fmt.print(dateTime.withZone(DateTimeZone.forID(timezone.get())));
             } else {
                 return dateTime.toString();
             }
@@ -60,12 +60,17 @@ public class Parameter implements VarFiller.VarFunction {
 
 
     private String getCurrentTs() {
-        return format(getFormat(), getCurrentTS().withZone(DateTimeZone.forID(timezone.get())));
+        return format(getFormat(), getCurrentTS());
     }
 
     private String getLasTs() {
         if (lastTS != null) {
-            return format(getFormat(), getLastTS().withZone(DateTimeZone.forID(timezone.get())));
+            System.out.println(getLastTS());
+            System.out.println(timezone.get());
+            System.out.println(getLastTS().withZone(DateTimeZone.forID(timezone.get())));
+
+
+            return format(getFormat(), getLastTS());
         } else {
             return format(getFormat(), new DateTime(1980, 01, 01, 01, 01));
         }
