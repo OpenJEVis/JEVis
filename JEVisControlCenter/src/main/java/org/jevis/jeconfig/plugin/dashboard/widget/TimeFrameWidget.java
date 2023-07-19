@@ -225,8 +225,6 @@ public class TimeFrameWidget extends Widget {
     @Override
     public ObjectNode toNode() {
         ObjectNode dashBoardNode = super.createDefaultNode();
-        dashBoardNode
-                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
         if (timeFramePojo != null) {
             dashBoardNode
                     .set(TIME_FRAME_DESIGN_NODE_NAME, timeFramePojo.toJSON());
