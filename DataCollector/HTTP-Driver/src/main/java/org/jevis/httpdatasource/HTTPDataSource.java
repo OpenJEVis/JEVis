@@ -1,9 +1,8 @@
 package org.jevis.httpdatasource;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -15,26 +14,18 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.driver.*;
-import org.jevis.commons.driver.Parameter;
-import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author bf, FS
@@ -52,7 +43,17 @@ public class HTTPDataSource {
     private Boolean ssl = false;
 
     private DateTime lastReadout;
-    private DateTime currentTime;
+    private DateTime endDateTime;
+
+    private StatusLine statusLine;
+
+    public StatusLine getStatusLine() {
+        return statusLine;
+    }
+
+    public DateTime getEndDateTime() {
+        return endDateTime;
+    }
 
     public enum AUTH_SCHEME {
         BASIC, DIGEST, NONE
@@ -76,12 +77,13 @@ public class HTTPDataSource {
 
         String path = channel.getPath();
         lastReadout = channel.getLastReadout();
-        currentTime = DateTime.now();
+
+        endDateTime = getCurrentTime(channel.getChannelObject(), lastReadout);
 
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
-        ParameterHelper parameterHelper = new ParameterHelper(lastReadout,currentTime);
+        ParameterHelper parameterHelper = new ParameterHelper(lastReadout, endDateTime);
         path = parameterHelper.getNewPath(path, channel.getChannelObject().getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).getLatestSample());
 
         logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {}", channelID, serverURL, userName, password);
@@ -163,6 +165,9 @@ public class HTTPDataSource {
         get.setConfig(requestConfig);
 
         HttpResponse oResponse = httpClient.execute(get);
+
+        statusLine = oResponse.getStatusLine();
+
         logger.info("[{}] HTTP response status code: {}", channelID, oResponse.getStatusLine());
         HttpEntity oEntity = oResponse.getEntity();
         String oXmlString = EntityUtils.toString(oEntity);
@@ -269,6 +274,21 @@ public class HTTPDataSource {
 
         String NAME = "HTTP Channel";
         String PATH = "Path";
+    }
+
+    private DateTime getCurrentTime(JEVisObject channel, DateTime lastReadout) {
+        try {
+
+            if (channel.getAttribute("Chunk Size(s)").hasSample()) {
+               return lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue());
+            }else {
+                DateTime.now();
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        return DateTime.now();
     }
 
 

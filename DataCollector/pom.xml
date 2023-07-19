@@ -71,6 +71,7 @@
         <module>RevolutionPiServer</module>
         <module>SQL-Driver</module>
         <module>JSONParser</module>
+        <module>MSCONSParser</module>
     </modules>
    
 </project>

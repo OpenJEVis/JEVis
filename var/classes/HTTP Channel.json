@@ -54,6 +54,14 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "HTTP Channel"
+    },
+    {
+      "name": "Chunk Size(s)",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HTTP Channel"
     }
   ]
 }

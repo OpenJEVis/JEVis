@@ -1,0 +1,78 @@
+{
+  "name": "MSCONS Parser",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "MSCONS Data Point Directory",
+      "end": "MSCONS Parser",
+      "type": 3
+    },
+    {
+      "start": "MSCONS Parser",
+      "end": "EMail Channel",
+      "type": 3
+    },
+    {
+      "start": "MSCONS Parser",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
+      "start": "MSCONS Parser",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "MSCONS Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
+      "start": "MSCONS Parser",
+      "end": "sFTP Channel",
+      "type": 3
+    },
+    {
+      "start": "MSCONS Parser",
+      "end": "SOAP Channel",
+      "type": 3
+    },
+    {
+      "start": "MSCONS Parser",
+      "end": "VIDA350 Channel",
+      "type": 3
+    },
+    {
+      "start": "XLS Parser",
+      "end": "MSCONS Parser",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Sender",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "MSCONS Parser"
+    },
+    {
+      "name": "Recipient",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "MSCONS Parser"
+    },
+    {
+      "name": "File Created Date",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "MSCONS Parser"
+    }
+  ]
+}

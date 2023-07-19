@@ -401,7 +401,8 @@ public class DataModelDataHandler {
                 ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
                 dataNode.put("objectID", dataPointNode.getObjectID());
                 dataNode.put("attribute", dataPointNode.getAttribute());
-                dataNode.put("calculationID", dataPointNode.getCalculationID());
+
+                dataNode.put("enpi", dataPointNode.isEnpi());
 
                 dataNode.put("name", dataPointNode.getName());
 
@@ -418,7 +419,6 @@ public class DataModelDataHandler {
                     dataNode.put("unit", dataPointNode.getUnit());
                 }
 
-                dataNode.put("enpi", dataPointNode.getCleanObjectID() != null);
                 if (dataPointNode.getCleanObjectID() != null) {
                     dataNode.put("cleanObjectID", dataPointNode.getCleanObjectID());
                 }
@@ -601,10 +601,8 @@ public class DataModelDataHandler {
                         this.chartDataRows.add(chartDataRow);
                         this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
 
-                        if (dataPointNode.getCalculationID() != null && dataPointNode.getCalculationID() > 0L) {
-                            chartDataRow.setCalculation(true);
-                            chartDataRow.setCalculationId(dataPointNode.getCalculationID());
-                        }
+                        chartDataRow.setCalculation(dataPointNode.isEnpi());
+
                         if (autoAggregation) {
                             chartDataRow.setAbsolute(true);
                         }
@@ -666,9 +664,6 @@ public class DataModelDataHandler {
             chartData.setAxis(dataPointNode.getAxis());
             chartData.setCalculation(dataPointNode.isEnpi());
             chartData.setCss(dataPointNode.getCustomCSS());
-            if (dataPointNode.getCalculationID() != null) {
-                chartData.setCalculationId(dataPointNode.getCalculationID());
-            }
 
             chartModel.getChartData().add(chartData);
         }
@@ -695,7 +690,7 @@ public class DataModelDataHandler {
             dataPointNode.setName(chartData.getName());
             dataPointNode.setObjectID(chartData.getId());
             dataPointNode.setUnit(chartData.getUnit().getLabel());
-            dataPointNode.setCalculationID(chartData.getCalculationId());
+            dataPointNode.setEnpi(chartData.isCalculation());
 
             if (autoAggregation) {
                 dataPointNode.setAbsolute(true);
@@ -763,10 +758,8 @@ public class DataModelDataHandler {
                         this.chartDataRows.add(chartDataRow);
                         this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
 
-                        if (dataPointNode.getCalculationID() != null && dataPointNode.getCalculationID() != 0L) {
-                            chartDataRow.setCalculation(dataPointNode.isEnpi());
-                            chartDataRow.setCalculationId(dataPointNode.getCalculationID());
-                        }
+                        chartDataRow.setCalculation(dataPointNode.isEnpi());
+
                         if (autoAggregation) {
                             chartDataRow.setAbsolute(true);
                         }

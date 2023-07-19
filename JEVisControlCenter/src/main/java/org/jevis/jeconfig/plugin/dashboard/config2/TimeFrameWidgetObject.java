@@ -65,7 +65,6 @@ public class TimeFrameWidgetObject extends Widget {
     public List<DateTime> getMaxTimeStamps() {
         List<DateTime> dateTimes = new ArrayList<>();
         super.sampleHandler.getMaxTimeStamps();
-        System.out.println("test");
         return dateTimes;
 
     }

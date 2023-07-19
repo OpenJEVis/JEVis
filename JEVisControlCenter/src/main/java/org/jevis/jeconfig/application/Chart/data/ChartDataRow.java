@@ -66,18 +66,22 @@ public class ChartDataRow extends ChartData {
 
     public ChartDataRow(JEVisDataSource dataSource) {
         this(dataSource, null);
-
-        this.calculationProperty().addListener((observableValue, aBoolean, t1) -> {
-            if (t1) {
-                setCalculationId(ChartTools.isObjectCalculated(getObject()));
-            } else {
-                setCalculationId(-1);
-            }
-        });
     }
 
     public ChartDataRow(JEVisDataSource ds, ChartData chartData) {
         this.dataSource = ds;
+
+        this.calculationProperty().addListener((observableValue, aBoolean, t1) -> {
+            if (t1) {
+                long id = ChartTools.isObjectCalculated(getObject());
+                setCalculationId(id);
+                if (id == -1) {
+                    setCalculation(false);
+                }
+            } else {
+                setCalculationId(-1);
+            }
+        });
 
         if (chartData != null) {
             setId(chartData.getId());

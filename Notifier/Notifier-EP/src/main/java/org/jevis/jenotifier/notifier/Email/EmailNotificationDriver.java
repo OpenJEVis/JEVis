@@ -169,7 +169,7 @@ public class EmailNotificationDriver implements NotificationDriver {
             try {
 
                 String authString = String.valueOf(getAttribute(notiObj, AUTHENTICATOR));
-                /* As an fallback we use "NO" for no Authentication, and all non set as default */
+                /* As a fallback we use "NO" for no Authentication, and all non set as default */
                 if (authString.equalsIgnoreCase("NO")) {
                     _authentication = null;
                     logger.error("using no Authentication");

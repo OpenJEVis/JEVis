@@ -148,9 +148,10 @@ public class ChartPlugin implements Plugin {
     public ChartPlugin(JEVisDataSource ds, String newName) {
         this.dataModel = new DataModel();
         this.dataSettings = new DataSettings();
-        this.dataSettings.setAnalysisTimeFrame(new AnalysisTimeFrame(ds, this, TimeFrame.TODAY));
-
         this.toolBarView = new ToolBarView(dataModel, ds, this);
+        this.dataSettings.setCurrentAnalysisProperty(toolBarView.getAnalysesComboBox().valueProperty());
+
+        this.dataSettings.setAnalysisTimeFrame(new AnalysisTimeFrame(ds, this, TimeFrame.TODAY));
 
         getToolbar();
 
@@ -390,7 +391,7 @@ public class ChartPlugin implements Plugin {
 
     private void openDialog() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(this, ds, toolBarView.getAnalysesComboBox().getObservableListAnalyses());
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(this, ds, toolBarView.getAnalysesComboBox().getItems());
 
         dialog.setOnCloseRequest(event -> {
             JEVisHelp.getInstance().deactivatePluginModule();
@@ -1356,9 +1357,8 @@ public class ChartPlugin implements Plugin {
 
                     Platform.runLater(() -> getToolBarView().getAnalysesComboBox().updateListAnalyses());
 
+                    dataSettings.setCurrentAnalysis(null);
                     dataSettings.setCurrentAnalysis(ds.getCurrentUser().getUserObject());
-
-                    update();
 
                     Platform.runLater(() -> toolBarView.getPickerCombo().updateCellFactory());
 
