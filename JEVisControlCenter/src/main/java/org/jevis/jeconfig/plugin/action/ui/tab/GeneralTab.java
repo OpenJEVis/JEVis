@@ -12,10 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -187,7 +184,9 @@ public class GeneralTab extends Tab {
         });
 
 
+        f_Investment.setTextFormatter(new TextFormatter<>(NumerFormating.getInstance().getDoubleConverter()));
         Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, NumerFormating.getInstance().getDoubleConverter());
+        f_savingYear.setTextFormatter(new TextFormatter<>(NumerFormating.getInstance().getDoubleConverter()));
         Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, NumerFormating.getInstance().getDoubleConverter());
 
         f_savingYear.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -200,6 +199,11 @@ public class GeneralTab extends Tab {
         f_NoteBewertet.setWrapText(true);
         f_Note.setWrapText(true);
         f_NoteEnergiefluss.setWrapText(true);
+
+
+        System.out.println("Investment: " + data.npv.get().investment.get());
+        System.out.println("InvestText: " + f_Investment.textProperty().get());
+
 
         // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
         JFXTextField l_savingsUnitLabel = new JFXTextField("€");
@@ -312,7 +316,7 @@ public class GeneralTab extends Tab {
 
         l_Title.setText(I18n.getInstance().getString("plugin.action.affectedprocess"));
         l_NoteBewertet.setText(I18n.getInstance().getString("plugin.action.noteBewertet"));
-        l_NoteEnergiefluss.setText("Maßnahmenbeschreibung");
+        l_NoteEnergiefluss.setText(I18n.getInstance().getString("plugin.action.measureDescription"));
 
         l_Title.setWrapText(true);
         l_NoteBewertet.setWrapText(true);

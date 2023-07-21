@@ -5,10 +5,7 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tab;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -91,7 +88,6 @@ public class CapitalTab extends Tab {
         f_amortizedDuration.getItems().addAll(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
         f_amortizedDuration.valueProperty().bindBidirectional(data.npv.get().overXYear.asObject());
 
-
         GridPane.setHalignment(l_einzahlungGesamt, HPos.RIGHT);
         GridPane.setHalignment(l_auszahlungGesamt, HPos.RIGHT);
         GridPane.setHalignment(l_overRuntime, HPos.RIGHT);
@@ -127,18 +123,25 @@ public class CapitalTab extends Tab {
         DecimalFormat decimalFormat = new DecimalFormat();
         decimalFormat.setMinimumFractionDigits(4);
 
+        f_zinssatz.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
         Bindings.bindBidirectional(f_zinssatz.textProperty(), data.npv.get().interestRate, new NumberStringConverter());
-        Bindings.bindBidirectional(f_kapitalwert.textProperty(), data.npv.get().npvResult, nsc);
-        Bindings.bindBidirectional(f_auszahlungGesamt.textProperty(), data.npv.get().sumAuszahlungProperty(), nsc);
+        f_investition.setTextFormatter(new TextFormatter<>(nscNoUnit));
+        Bindings.bindBidirectional(f_investition.textProperty(), data.npv.get().investment, nscNoUnit);
+        f_infation.setTextFormatter(new TextFormatter<>(nscNoUnit));
+        Bindings.bindBidirectional(f_infation.textProperty(), data.npv.get().inflation, nscNoUnit);
+        f_einsparrung.setTextFormatter(new TextFormatter<>(nscNoUnit));
+        Bindings.bindBidirectional(f_einsparrung.textProperty(), data.npv.get().einsparung, nscNoUnit);
+        f_runningCost.setTextFormatter(new TextFormatter<>(nscNoUnit));
+        Bindings.bindBidirectional(f_runningCost.textProperty(), data.npv.get().runningCost, nscNoUnit);
+
         Bindings.bindBidirectional(f_einzahlungGesamt.textProperty(), data.npv.get().sumEinzahlung, nsc);
+        Bindings.bindBidirectional(f_auszahlungGesamt.textProperty(), data.npv.get().sumAuszahlungProperty(), nsc);
+        Bindings.bindBidirectional(f_kapitalwert.textProperty(), data.npv.get().npvResult, nsc);
         Bindings.bindBidirectional(f_kapitalwertrate.textProperty(), data.npv.get().piResult, decimalFormat);
         Bindings.bindBidirectional(f_nettoGesamt.textProperty(), data.npv.get().sumNetto, nsc);
-        Bindings.bindBidirectional(f_investition.textProperty(), data.npv.get().investment, nscNoUnit);
-        Bindings.bindBidirectional(f_einsparrung.textProperty(), data.npv.get().einsparung, nscNoUnit);
         Bindings.bindBidirectional(f_kapitalwertOverX.textProperty(), data.npv.get().npvResultOverX, nsc);
         Bindings.bindBidirectional(f_kapitalrateOverX.textProperty(), data.npv.get().piResultOverX, decimalFormat);
-        Bindings.bindBidirectional(f_infation.textProperty(), data.npv.get().inflation, nscNoUnit);
-        Bindings.bindBidirectional(f_runningCost.textProperty(), data.npv.get().runningCost, nscNoUnit);
+
 
         f_zinssatz.setAlignment(Pos.CENTER_RIGHT);
         f_kapitalwert.setAlignment(Pos.CENTER_RIGHT);
@@ -202,6 +205,7 @@ public class CapitalTab extends Tab {
         gridPane.add(new Separator(), 0, 6, toalColums, 1);
         gridPane.add(bottomPane, 0, 7, 4, 1);
 
+        data.npv.get().update();
         data.npv.get().updateResults();
 
         setContent(gridPane);
