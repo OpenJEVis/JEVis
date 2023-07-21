@@ -6,6 +6,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
@@ -32,11 +33,11 @@ public class ConsumptionData {
 
     @Expose
     @SerializedName("Object")
-    public final SimpleLongProperty dataObject = new SimpleLongProperty(0l);
+    public final SimpleLongProperty dataObject = new SimpleLongProperty(0L);
 
     @Expose
     @SerializedName("Calculation")
-    public final SimpleLongProperty calcObject = new SimpleLongProperty(0l);
+    public final SimpleLongProperty calcObject = new SimpleLongProperty(0L);
 
     @Expose
     @SerializedName("Before From Date")
@@ -57,8 +58,38 @@ public class ConsumptionData {
     @SerializedName("Data Source")
     public final SimpleStringProperty jevisLink = new SimpleStringProperty("EnPI Link",
             I18n.getInstance().getString("plugin.action.enpilink"), "");
-    private SimpleStringProperty unit = new SimpleStringProperty("kWh");
+    public boolean isEnPI = false;
+    private final SimpleStringProperty unit = new SimpleStringProperty("kWh");
     private ActionData actionData = null;
+
+    public ConsumptionData() {
+    }
+
+    public static String getObjectName(JEVisDataSource ds, ConsumptionData consumptionData) {
+        try {
+            JEVisObject obj = EmptyObject.getInstance();
+
+            try {
+                Long id = Long.parseLong(consumptionData.jevisLinkProperty().get());
+                if (id.equals(EmptyObject.getInstance().getID())) {
+                    obj = EmptyObject.getInstance();
+                } else if (id.equals(FreeObject.getInstance().getID())) {
+                    obj = FreeObject.getInstance();
+                } else {
+                    obj = ds.getObject(id);
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+
+            return obj.getName();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return "";
+    }
 
     private boolean isManual() {
         return dataObject.get() == 0;
@@ -70,11 +101,6 @@ public class ConsumptionData {
 
     public SimpleStringProperty unitProperty() {
         return unit;
-    }
-
-    public boolean isEnPI = false;
-
-    public ConsumptionData() {
     }
 
     public void update() {
@@ -169,31 +195,25 @@ public class ConsumptionData {
         return actual;
     }
 
-
     public SimpleDoubleProperty diffProperty() {
         return diff;
     }
-
 
     public SimpleLongProperty dataObjectProperty() {
         return dataObject;
     }
 
-
     public SimpleLongProperty calcObjectProperty() {
         return calcObject;
     }
-
 
     public SimpleObjectProperty<DateTime> beforeFromDateProperty() {
         return beforeFromDate;
     }
 
-
     public SimpleObjectProperty<DateTime> beforeUntilDateProperty() {
         return beforeUntilDate;
     }
-
 
     public SimpleObjectProperty<DateTime> afterFromDateProperty() {
         return afterFromDate;
