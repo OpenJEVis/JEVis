@@ -100,6 +100,7 @@ public class NPVData {
             einsparung.addListener(changeListener);
             runningCost.addListener(changeListener);
             inflation.addListener(changeListener);
+
             npvYears.addListener(new ListChangeListener<NPVYearData>() {
                 @Override
                 public void onChanged(Change<? extends NPVYearData> c) {
@@ -192,14 +193,17 @@ public class NPVData {
  */
 
         npvResult.set(round(((initalInvestment * -1) + sum), 2));
-        piResult.set((sum / initalInvestment));
+        Double piR = (sum / initalInvestment);
+        piResult.set(piR.isNaN() ? 0 : piR.doubleValue());
+        Double piRoverX = (sum / initalInvestment);
+        piResultOverX.set(piRoverX.isNaN() ? 0 : piRoverX.doubleValue());
+
         sumEinzahlung.setValue(round(einsparrungSum, 2));
         sumAuszahlung.setValue(round(sumBetriebskosten, 2));
         sumNetto.setValue(round(sumEinzahlung.get() - sumAuszahlung.getValue(), 2));
-        //sumNetto.setValue(round(nettoSum, 2));
 
         npvResultOverX.set(round(((initalInvestment * -1) + sumOverX), 2));
-        piResultOverX.set((sumOverX / initalInvestment));
+
 
         /*
         System.out.println("new Sum:       " + sumAuszahlung.getValue());
