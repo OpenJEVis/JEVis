@@ -102,7 +102,7 @@ public class FXLogin extends AnchorPane {
     private final List<PreloadTask> tasks = new ArrayList<>();
 
     private final SimpleBooleanProperty loginStatus = new SimpleBooleanProperty(false);
-//    private final String URL_SYNTAX = "user:password@server:port/jevis";
+    //    private final String URL_SYNTAX = "user:password@server:port/jevis";
     private final ProgressIndicator progress = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
     //Workaround replace later, in the moment i have problems showing the xeporion in an thread as an Alart
     private final Exception lastExeption = null;
@@ -648,7 +648,7 @@ public class FXLogin extends AnchorPane {
     public void checkVersion() {
         try {
             String serverJECCVersion = ((JEVisDataSourceWS) _ds).getJEVisCCVersion();
-            if (serverJECCVersion != "0") {
+            if (serverJECCVersion != "0" && JEConfig.class.getPackage().getImplementationVersion() != null) {
                 DefaultArtifactVersion thisVersion = new DefaultArtifactVersion(JEConfig.class.getPackage().getImplementationVersion());
                 DefaultArtifactVersion serverVersion = new DefaultArtifactVersion(serverJECCVersion);
                 if (thisVersion.compareTo(serverVersion) < 0) {
