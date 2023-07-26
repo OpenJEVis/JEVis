@@ -36,6 +36,8 @@ public class ProcessManager {
     private Long id;
     private List<ProcessStep> processSteps = new ArrayList<>();
     private boolean isClean = true;
+    private boolean isForecast = false;
+    private boolean isMathData = false;
     private boolean isFinished = false;
 
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler, int processingSize) {
@@ -65,6 +67,8 @@ public class ProcessManager {
                 this.id = resourceManager.getForecastDataObject().getForecastDataObject().getID();
                 addForecastSteps();
                 isClean = false;
+                isMathData = false;
+                isForecast = true;
                 resourceManager.setClean(false);
             } else if (cleanObject.getJEVisClass().equals(mathDataClass)) {
                 this.resourceManager.setMathDataObject(new MathDataObject(cleanObject, objectHandler));
@@ -73,6 +77,8 @@ public class ProcessManager {
                 this.id = this.resourceManager.getMathDataObject().getMathDataObject().getID();
                 addMathSteps();
                 isClean = false;
+                isMathData = true;
+                isForecast = false;
                 resourceManager.setClean(false);
             } else {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
@@ -155,7 +161,7 @@ public class ProcessManager {
 
                 reinitializeCleanData();
             } while (!isFinished);
-        } else if (resourceManager.getForecastDataObject() != null) {
+        } else if (isForecast) {
             logger.info("[{}:{}] Starting Process", resourceManager.getForecastDataObject().getForecastDataObject().getName(), resourceManager.getID());
 
             while (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject())) {
@@ -166,7 +172,7 @@ public class ProcessManager {
             }
 
             logger.info("[{}:{}] Finished", resourceManager.getForecastDataObject().getForecastDataObject().getName(), resourceManager.getID());
-        } else if (resourceManager.getMathDataObject() != null) {
+        } else if (isMathData) {
             logger.info("[{}:{}] Starting Process", resourceManager.getMathDataObject().getMathDataObject().getName(), resourceManager.getID());
 
             while (resourceManager.getMathDataObject().isReady()) {
@@ -236,9 +242,9 @@ public class ProcessManager {
 
         if (isClean) {
             resourceManager.getCleanDataObject().reloadAttributes();
-        } else if (resourceManager.getForecastDataObject() != null) {
+        } else if (isForecast) {
             resourceManager.getForecastDataObject().reloadAttributes();
-        } else if (resourceManager.getMathDataObject() != null) {
+        } else if (isMathData) {
             resourceManager.getMathDataObject().reloadAttributes();
         }
 
@@ -247,7 +253,7 @@ public class ProcessManager {
                 ps.run(resourceManager);
             } catch (Exception e) {
                 setFinished(true);
-                if (ps instanceof PrepareStep) {
+                if (ps instanceof PrepareStep || ps instanceof PrepareForecast || ps instanceof PrepareMath) {
                     logger.info("Error in step {} of object {}:{}", ps, this.getName(), this.getId(), e);
                 } else {
                     logger.error("Error in step {} of object {}:{}", ps, this.getName(), this.getId(), e);
