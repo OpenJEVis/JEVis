@@ -35,9 +35,6 @@ public class JEVisImporterAdapter {
 
     public synchronized static void importResults(List<Result> results, Importer importer, JEVisObject channel) {
         DateTime date = importer.importResult(results);
-        DateTime date2 = date.plusSeconds(1);
-        System.out.println(date2);
-        System.out.println("test");
         setLastReadout(channel, date);
     }
     public synchronized static void importResultsWithOffset(List<Result> results, Importer importer, JEVisObject channel, int offset) {
