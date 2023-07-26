@@ -69,12 +69,18 @@
             <artifactId>sdk-client</artifactId>
             <version>0.5.0</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.eclipse.milo</groupId>
             <artifactId>stack-client</artifactId>
             <version>0.5.0</version>
         </dependency>
-
+        -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+            <version>2.0.1</version>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
