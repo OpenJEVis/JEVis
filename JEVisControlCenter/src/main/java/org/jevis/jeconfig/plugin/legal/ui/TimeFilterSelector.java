@@ -241,16 +241,15 @@ public class TimeFilterSelector extends GridPane {
 
     private JFXComboBox<Integer> generateYearBox() {
 
-        ObservableList<Integer> months = FXCollections.observableArrayList();
-        months.add(2018);
-        months.add(2019);
-        months.add(2020);
-        months.add(2021);
-        months.add(2022);
-        months.add(2023);
-        months.add(2024);
+        ObservableList<Integer> years = FXCollections.observableArrayList();
+        int year = 2010; //ISO5001 started 2010
+        DateTime now = DateTime.now();
+        while (year <= (now.getYear() + 10)) {
+            years.add(year);
+            year++;
+        }
 
-        JFXComboBox<Integer> field = new JFXComboBox(months);
+        JFXComboBox<Integer> field = new JFXComboBox(years);
         field.setConverter(new StringConverter<Integer>() {
             @Override
             public String toString(Integer object) {
