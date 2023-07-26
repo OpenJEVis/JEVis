@@ -56,6 +56,8 @@ public class TimeFramePojo {
 
     private int selectedId;
 
+    private boolean countOfSamples;
+
     public TimeFramePojo(DashboardControl control) {
         this(control, null);
     }
@@ -70,6 +72,7 @@ public class TimeFramePojo {
                 selectedId = jsonNode.get("selectedWidget").get("id").asInt();
                 start = jsonNode.get("selectedWidget").get("start").asText();
                 end = jsonNode.get("selectedWidget").get("end").asText();
+                countOfSamples = jsonNode.get("selectedWidget").get("count").asBoolean(false);
             }
             if (jsonNode.has("format")) {
                 parser = jsonNode.get("format").asText("yyyy.MM.dd HH:mm");
@@ -201,6 +204,7 @@ public class TimeFramePojo {
         dataNode1.put("start", getSelectedTimeFarmeObjectWidget().getStartObjectProperty().toString());
         dataNode1.put("end", getSelectedTimeFarmeObjectWidget().getEndObjectProperty().toString());
         dataNode1.put("id", getSelectedWidget().getConfig().getUuid());
+        dataNode1.put("count", getSelectedTimeFarmeObjectWidget().cuntOfSamplesProperty().getValue().toString());
 
 
         return dataNode;
@@ -222,6 +226,7 @@ public class TimeFramePojo {
                 selected.setSelected(true);
                 selected.setEndObjectProperty(TimeFrameWidgetObject.End.valueOf(end));
                 selected.setStartObjectProperty(TimeFrameWidgetObject.Start.valueOf(start));
+                selected.setCuntOfSamples(countOfSamples);
             }
         }
     }
