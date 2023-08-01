@@ -1,0 +1,22 @@
+﻿{
+  "name": "NonconformityPlan Directory",
+  "description": "NonconformityPlan Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "NonconformityPlan Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "NonconformityPlan Directory",
+      "end": "Building",
+      "type": 3
+    },
+    {
+      "start": "NonconformityPlan Directory",
+      "end": "Directory",
+      "type": 0
+    }
+  ]
+}
