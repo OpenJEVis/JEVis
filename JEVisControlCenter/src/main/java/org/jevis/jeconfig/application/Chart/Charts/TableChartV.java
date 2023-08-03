@@ -16,8 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -284,8 +283,9 @@ public class TableChartV extends XYChart {
 
                 Label columnNameLabel = new Label(xyChartSerie.getTableEntryName());
                 columnNameLabel.setAlignment(Pos.CENTER);
-                HBox nameLabelBox = new HBox(columnNameLabel);
-                nameLabelBox.setAlignment(Pos.CENTER);
+                columnNameLabel.setWrapText(true);
+                VBox columnNameLabelBox = new VBox(columnNameLabel);
+                columnNameLabelBox.setAlignment(Pos.CENTER);
                 JFXTextField filterBox = new JFXTextField();
                 filterBox.setPromptText(I18n.getInstance().getString("plugin.chart.tablev.filter.prompt"));
                 filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -297,18 +297,23 @@ public class TableChartV extends XYChart {
                     }
                 });
 
-                VBox graphicNode = new VBox(nameLabelBox, filterBox);
-
-                HBox hBox = new HBox(graphicNode);
+                Region freeSpace = new Region();
+                HBox graphicNode = new HBox(6, filterBox, freeSpace, columnNameLabelBox);
+                HBox.setHgrow(freeSpace, Priority.ALWAYS);
 
                 if (!nameEqualsExistingColumn) {
-                    newGraphicNodes.put(column, hBox);
+                    newGraphicNodes.put(column, graphicNode);
                     columnTitles.put(column, xyChartSerie.getTableEntryName());
                 }
 
 
                 if (filterEnabledBox.isSelected()) {
-                    column.setGraphic(hBox);
+                    tableHeader.skinProperty().addListener((obs, ol, ne) -> {
+                        Pane header = (Pane) tableHeader.lookup("TableHeaderRow");
+                        header.minHeightProperty().set(35);
+                        header.prefHeightProperty().set(35);
+                    });
+                    column.setGraphic(graphicNode);
                 } else {
                     column.setText(xyChartSerie.getTableEntryName());
                 }
@@ -444,7 +449,7 @@ public class TableChartV extends XYChart {
 
                 Label columnNameLabel = new Label(identifierColumnTitle);
                 columnNameLabel.setAlignment(Pos.CENTER);
-                HBox nameLabelBox = new HBox(columnNameLabel);
+                VBox nameLabelBox = new VBox(columnNameLabel);
                 nameLabelBox.setAlignment(Pos.CENTER);
                 JFXTextField filterBox = new JFXTextField();
                 filterBox.setPromptText(I18n.getInstance().getString("plugin.chart.tablev.filter.prompt"));
@@ -457,8 +462,8 @@ public class TableChartV extends XYChart {
                     }
                 });
 
-                VBox graphicNode = new VBox(nameLabelBox, filterBox);
-                graphicNode.setMinHeight(nameLabelBox.getLayoutBounds().getHeight() + filterBox.getLayoutBounds().getHeight());
+                Region freeSpace = new Region();
+                HBox graphicNode = new HBox(6, filterBox, freeSpace, nameLabelBox);
 
                 newGraphicNodes.put(identifierColumn, graphicNode);
 
