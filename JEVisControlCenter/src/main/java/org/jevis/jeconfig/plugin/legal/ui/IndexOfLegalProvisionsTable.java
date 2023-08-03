@@ -206,7 +206,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
         this.getSortOrder().add(nrCol);
 
 
-        this.getColumns().addAll(nrCol, legislationCol, designationCol, descriptionCol, issueDateCol, activeVersionCol, relevanceCol, dateOfExaminationCol, importanceForTheCompanyCol, linkCol, scopeCol, categoryCol
+        this.getColumns().addAll(nrCol, legislationCol, designationCol,linkCol, descriptionCol, issueDateCol, activeVersionCol, relevanceCol, dateOfExaminationCol, importanceForTheCompanyCol, scopeCol, categoryCol
         );
         this.getColumns().add(buildMoveColumn());
 

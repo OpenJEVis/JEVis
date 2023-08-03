@@ -78,11 +78,15 @@ public class JEVisJSONParser implements Parser {
     }
 
     private List<Result> getResults(JSONParser jsonParser, List<DateTime> finalDateTimes, JEVisObject jsonChannel) throws JEVisException {
+        String valueFormat = jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.VALUE_FORMAT).hasSample() ?
+                jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.VALUE_FORMAT).getLatestSample().getValueAsString():
+                "String";
+        if(!jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH).hasSample()) return new ArrayList<>();
         String valuePath = jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH).getLatestSample().getValueAsString();
         List<String> statusValues = getStatusList(jsonParser, jsonChannel);
         String statusOK = getStatusOkCondition(jsonChannel, DataCollectorTypes.Channel.JSONChannel.STAUS_VALUE_OK);
         String regex = getRegex(jsonChannel);
-        List<String> values = getValueList(jsonParser, valuePath, regex);
+        List<?> values = getValueList(jsonParser, valuePath, regex, valueFormat);
         String targetString = getTargetValueAtribute(jsonChannel);
         Map map = getDateValueMap(finalDateTimes, values, statusValues, statusOK);
         List<Result> resultList =getResults(targetString, map);
@@ -90,9 +94,9 @@ public class JEVisJSONParser implements Parser {
     }
 
 
-    private List<String> getValueList(JSONParser jsonParser, String valuePath, String regex) {
+    private List<?> getValueList(JSONParser jsonParser, String valuePath, String regex, String valueFormat) {
         List<JsonNode> valuesJson = jsonParser.parse(valuePath);
-        List<String> values = convertValues(valuesJson, regex);
+        List<?> values = convertValues(valuesJson, regex,valueFormat);
         return values;
     }
 
@@ -114,7 +118,7 @@ public class JEVisJSONParser implements Parser {
         return statusValues;
     }
 
-    private static List<Result> getResults(String targetString, Map<DateTime,String> map) {
+    private static List<Result> getResults(String targetString, Map<DateTime,?> map) {
         List<Result> resultList = map.entrySet().stream().map(dateTimeStringEntry -> new Result(targetString, dateTimeStringEntry.getValue(), dateTimeStringEntry.getKey())).collect(Collectors.toList());
         return resultList;
     }
@@ -124,7 +128,7 @@ public class JEVisJSONParser implements Parser {
         return regex;
     }
 
-    private List<String> convertValues(List<JsonNode> valuesJson, String regexPattern) {
+    private List<?> convertValues(List<JsonNode> valuesJson, String regexPattern, String valueClass) {
         if (regexPattern == null || regexPattern.isEmpty()) return valuesJson.stream().map(jsonNode -> jsonNode.asText()).collect(Collectors.toList());
         Pattern pattern = Pattern.compile(regexPattern);
         List<String> stringValues = valuesJson.stream().map(jsonNode -> {
@@ -136,13 +140,21 @@ public class JEVisJSONParser implements Parser {
             }
         }).collect(Collectors.toList());
 
+        if (valueClass == "Double") {
+            return stringValues.stream().map(s -> Double.valueOf(s)).collect(Collectors.toList());
+        } else if (valueClass == "String" || valueClass == "") {
+            return stringValues;
+        } else if (valueClass == "Boolean") {
+            return stringValues.stream().map(s -> Boolean.valueOf(s)).collect(Collectors.toList());
+        }
+
         return stringValues;
 
 
     }
 
-    private static Map<DateTime, String> getDateValueMap(List<DateTime> finalDateTimeList, List<String> valueList, List<String> stausList, String OK) {
-        Map<DateTime, String> map;
+    private static Map<DateTime, ?> getDateValueMap(List<DateTime> finalDateTimeList, List<?> valueList, List<String> stausList, String OK) {
+        Map<DateTime, ?> map;
         if (stausList == null) {
             map = IntStream.range(0, finalDateTimeList.size())
                     .boxed()

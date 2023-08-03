@@ -132,10 +132,10 @@ public class NonconformitiesController {
             NewNonconformitiesDialog.Response response = newNonconformitiesDialog.show(JEConfig.getStage(), plugin.getDataSource());
             if (response == NewNonconformitiesDialog.Response.YES) {
 
-                JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass(JC.Nonconformities.name);
+                JEVisClass nonconformityPlanClass = plugin.getDataSource().getJEVisClass(JC.NonconformitiesPlan.name);
                 JEVisObject parentDir = newNonconformitiesDialog.getParent();
 
-                JEVisObject newObject = parentDir.buildObject(newNonconformitiesDialog.getCreateName(), actionPlanClass);
+                JEVisObject newObject = parentDir.buildObject(newNonconformitiesDialog.getCreateName(), nonconformityPlanClass);
                 newObject.commit();
                 NonconformityPlan nonconformityPlan = new NonconformityPlan(newObject);
                 this.nonconformityPlanList.add(nonconformityPlan);
@@ -179,8 +179,8 @@ public class NonconformitiesController {
     public void createNonconformity() {
         NonconformityPlanTab tab = getActiveTab();
         try {
-            JEVisClass nonconformityPlanDirClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.Nonconformities.NonconformitiesDirectory.name);
-            JEVisClass nonconformityClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.Nonconformities.NonconformitiesDirectory.Nonconformity.name);
+            JEVisClass nonconformityPlanDirClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.NonconformitiesPlan.NonconformityPlanDirectory.Nonconformity.NonconformityDirectory.name);
+            JEVisClass nonconformityClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.NonconformitiesPlan.NonconformityPlanDirectory.Nonconformity.name);
             JEVisObject nonconformityPlanDirObj = null;
             if (getActiveNonconformityPlan().getObject().getChildren(nonconformityPlanDirClass, false).isEmpty()) {
                 nonconformityPlanDirObj = getActiveNonconformityPlan().getObject().buildObject(nonconformityPlanDirClass.getName(), nonconformityPlanDirClass);
@@ -218,7 +218,7 @@ public class NonconformitiesController {
 
     public void loadNonconformityPlans() {
         try {
-            JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass("NonconformityPlan");
+            JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass(JC.NonconformitiesPlan.name);
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
             NonconformtiesOverviewData overviewData = new NonconformtiesOverviewData(this);

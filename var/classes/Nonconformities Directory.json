@@ -5,17 +5,7 @@
   "relationships": [
     {
       "start": "Nonconformities Directory",
-      "end": "Organization",
-      "type": 3
-    },
-    {
-      "start": "Nonconformities Directory",
       "end": "NonconformityPlan",
-      "type": 3
-    },
-    {
-      "start": "Nonconformities Directory",
-      "end": "Building",
       "type": 3
     },
     {

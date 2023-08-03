@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
@@ -53,6 +54,30 @@ public class TimeFrameWidget extends Widget {
 
 
     @Override
+    public void updateData(Interval interval) {
+        Platform.runLater(() -> {
+            try {
+                logger.debug(this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval()));
+//                Widget select = this.timeFramePojo.getSelectedWidget();
+                setLabelText();
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        });
+
+
+    }
+
+    private void setLabelText() {
+        if (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().isCuntOfSamples()) {
+            this.label.setText(getSmapleCount());
+
+        }else {
+            this.label.setText(convertIntervalToString(getStart(), getEnd()));
+        }
+    }
+
+    @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.titlewidget.newname"));
@@ -62,24 +87,6 @@ public class TimeFrameWidget extends Widget {
         return widgetPojo;
     }
 
-
-    @Override
-    public void updateData(Interval interval) {
-        Platform.runLater(() -> {
-            try {
-                logger.debug(this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval()));
-                Widget select = this.timeFramePojo.getSelectedWidget();
-
-                this.label.setText(convertIntervalToString(getStart(), getEnd()));
-
-
-            } catch (Exception e) {
-                logger.error(e);
-            }
-        });
-
-
-    }
 
     private DateTime getEnd() {
 
@@ -138,6 +145,16 @@ public class TimeFrameWidget extends Widget {
         return stringBuilder.toString();
     }
 
+    private String getSmapleCount() {
+        try {
+            ChartDataRow dataModel = this.timeFramePojo.getSelectedWidget().sampleHandler.getDataModel().get(0);
+            return String.valueOf(dataModel.getSamples().size());
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return "0";
+    }
+
     @Override
     public void updateLayout() {
 
@@ -157,6 +174,11 @@ public class TimeFrameWidget extends Widget {
                 this.label.setUnderline(this.getConfig().getFontUnderlined());
                 this.label.setPrefWidth(this.config.getSize().getWidth());
                 this.label.setAlignment(this.config.getTitlePosition());
+                this.timeFramePojo.getSelectedWidget().sampleHandler.addEventListener(event -> {
+                   logger.info("{} fired  Update {}",event,this);
+                   setLabelText();
+                });
+
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -225,8 +247,6 @@ public class TimeFrameWidget extends Widget {
     @Override
     public ObjectNode toNode() {
         ObjectNode dashBoardNode = super.createDefaultNode();
-        dashBoardNode
-                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
         if (timeFramePojo != null) {
             dashBoardNode
                     .set(TIME_FRAME_DESIGN_NODE_NAME, timeFramePojo.toJSON());
