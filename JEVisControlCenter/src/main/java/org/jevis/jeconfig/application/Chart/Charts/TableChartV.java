@@ -16,7 +16,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -269,7 +271,7 @@ public class TableChartV extends XYChart {
                                 tableSample.getChartSeries().add(xyChartSerie);
                             }
 
-                            if (!xyChartSerie.getSingleRow().isStringData()) {
+                            if (!xyChartSerie.getSingleRow().isStringData()) {//* problem
                                 double aDouble = rowSums.get(tableSample.getUuid()) + jeVisSample.getValueAsDouble();
                                 rowSums.replace(tableSample.getUuid(), aDouble);
                             }
@@ -283,9 +285,8 @@ public class TableChartV extends XYChart {
 
                 Label columnNameLabel = new Label(xyChartSerie.getTableEntryName());
                 columnNameLabel.setAlignment(Pos.CENTER);
-                columnNameLabel.setWrapText(true);
-                VBox columnNameLabelBox = new VBox(columnNameLabel);
-                columnNameLabelBox.setAlignment(Pos.CENTER);
+                HBox nameLabelBox = new HBox(columnNameLabel);
+                nameLabelBox.setAlignment(Pos.CENTER);
                 JFXTextField filterBox = new JFXTextField();
                 filterBox.setPromptText(I18n.getInstance().getString("plugin.chart.tablev.filter.prompt"));
                 filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -297,9 +298,7 @@ public class TableChartV extends XYChart {
                     }
                 });
 
-                Region freeSpace = new Region();
-                HBox graphicNode = new HBox(6, filterBox, freeSpace, columnNameLabelBox);
-                HBox.setHgrow(freeSpace, Priority.ALWAYS);
+                VBox graphicNode = new VBox(nameLabelBox, filterBox);
 
                 if (!nameEqualsExistingColumn) {
                     newGraphicNodes.put(column, graphicNode);
@@ -449,7 +448,7 @@ public class TableChartV extends XYChart {
 
                 Label columnNameLabel = new Label(identifierColumnTitle);
                 columnNameLabel.setAlignment(Pos.CENTER);
-                VBox nameLabelBox = new VBox(columnNameLabel);
+                HBox nameLabelBox = new HBox(columnNameLabel);
                 nameLabelBox.setAlignment(Pos.CENTER);
                 JFXTextField filterBox = new JFXTextField();
                 filterBox.setPromptText(I18n.getInstance().getString("plugin.chart.tablev.filter.prompt"));
@@ -462,8 +461,8 @@ public class TableChartV extends XYChart {
                     }
                 });
 
-                Region freeSpace = new Region();
-                HBox graphicNode = new HBox(6, filterBox, freeSpace, nameLabelBox);
+                VBox graphicNode = new VBox(nameLabelBox, filterBox);
+                graphicNode.setMinHeight(nameLabelBox.getLayoutBounds().getHeight() + filterBox.getLayoutBounds().getHeight());
 
                 newGraphicNodes.put(identifierColumn, graphicNode);
 
@@ -501,7 +500,7 @@ public class TableChartV extends XYChart {
                                 Platform.runLater(() -> {
                                     try {
                                         values.get(values.size() - 1).getColumnValues().set(entry.getKey(), serie.getNf().format(results.get(0).getValueAsDouble()) + " " + unit);
-                                    } catch (JEVisException e) {
+                                    } catch (Exception e) {
                                         logger.error("Couldn't get calculation result");
                                     }
                                 });
@@ -525,6 +524,25 @@ public class TableChartV extends XYChart {
                 tableHeader.getColumns().addAll(tableColumns);
                 tableHeader.autoFitTable();
                 TableViewUtils.addCustomTableMenu(tableHeader, columnTitles);
+
+                Task<Void> task = new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        try {
+                            Thread.sleep(1000);
+                            Platform.runLater(() -> {
+                                tableHeader.getColumns().get(0).setVisible(false);
+                                tableHeader.getColumns().get(0).setVisible(true);
+                            });
+                        } catch (Exception e) {
+                            failed();
+                        } finally {
+                            succeeded();
+                        }
+                        return null;
+                    }
+                };
+                JEConfig.getStatusBar().addTask(TableChartV.class.getName(), task, TableChartV.taskImage, true);
             });
 
             tableHeader.getVisibleLeafColumns().addListener((ListChangeListener) change -> TableViewUtils.addCustomTableMenu(tableHeader, columnTitles));
@@ -560,7 +578,12 @@ public class TableChartV extends XYChart {
                         columnValue = parse.toString();
                         columnFilterValue = parseFilter.toString();
                     } catch (Exception e) {
-                        columnValue = tableSample.getColumnValues().get(columnIndex); //TableSample has no date column
+                        try {
+                            columnValue = tableSample.getColumnValues().get(columnIndex); //TableSample has no date column
+                        } catch (Exception e1) {
+                            columnValue = "";
+                            logger.error(e1);
+                        }
                     }
                 }
 
