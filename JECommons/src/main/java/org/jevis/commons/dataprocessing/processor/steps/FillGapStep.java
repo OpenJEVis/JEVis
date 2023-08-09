@@ -157,15 +157,8 @@ public class FillGapStep implements ProcessStep {
 
             // For Async Data
             if (periodForDate.equals(Period.ZERO)) {
-                periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), rawSampleTS);
-                if (i < rawSamples.size() - 1) {
-                    periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), rawSamples.get(i + 1).getTimestamp());
-                }
-
-                if (periodForDate.equals(Period.ZERO)) {
-                    logger.error("No raw and no clean data period, gap filling not possible");
-                    break;
-                }
+                logger.error("No raw and no clean data period, gap filling not possible");
+                break;
             }
 
             if (i == 0) {
@@ -191,14 +184,8 @@ public class FillGapStep implements ProcessStep {
                     expectedDateTime = expectedDateTime.plus(periodForDate);
 
                     if (periodForDate.equals(Period.ZERO)) {
-                        periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), rawSampleTS);
-                        if (i < rawSamples.size() - 1) {
-                            periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), rawSamples.get(i + 1).getTimestamp());
-                        }
-                        if (periodForDate.equals(Period.ZERO)) {
-                            logger.error("No raw and no clean data period, gap filling not possible");
-                            break;
-                        }
+                        logger.error("No raw and no clean data period, gap filling not possible");
+                        break;
                     }
                 }
 
