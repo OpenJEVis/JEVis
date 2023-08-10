@@ -3,7 +3,6 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements.SelectionTable;
 import javafx.application.Platform;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.paint.Color;
@@ -14,6 +13,7 @@ import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
@@ -171,7 +171,7 @@ public class Table extends TableView<ChartData> {
         column.setMinWidth(50);
         column.setStyle("-fx-alignment: CENTER;");
         column.setCellValueFactory(new PropertyValueFactory<>("intervalEnabled"));
-        column.setCellFactory(CheckBoxTableCell.forTableColumn(column));
+        column.setCellFactory(CheckBoxTableCell.forTableColumn());
         column.setEditable(true);
         column.setOnEditCommit(chartDataBooleanCellEditEvent -> {
             chartDataBooleanCellEditEvent.getTableView().getItems().get(chartDataBooleanCellEditEvent.getTablePosition().getRow())
@@ -257,11 +257,17 @@ public class Table extends TableView<ChartData> {
         column.setMinWidth(120);
         column.setStyle("-fx-alignment: CENTER;");
         column.setCellValueFactory(new PropertyValueFactory<>("calculation"));
-        column.setCellFactory(CheckBoxTableCell.forTableColumn(column));
+        column.setCellFactory(CheckBoxTableCell.forTableColumn());
         column.setEditable(true);
         column.setOnEditCommit(chartDataBooleanCellEditEvent -> {
-            chartDataBooleanCellEditEvent.getTableView().getItems().get(chartDataBooleanCellEditEvent.getTablePosition().getRow())
-                    .setCalculation(chartDataBooleanCellEditEvent.getNewValue());
+            ChartData chartData = chartDataBooleanCellEditEvent.getTableView().getItems().get(chartDataBooleanCellEditEvent.getTablePosition().getRow());
+            chartData.setCalculation(chartDataBooleanCellEditEvent.getNewValue());
+
+            if (chartDataBooleanCellEditEvent.getNewValue()) {
+                chartData.setCalculationId(ChartTools.getCalculationId(ds, chartData.getId()));
+            } else {
+                chartData.setCalculationId(-1);
+            }
         });
         return column;
     }
