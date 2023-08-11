@@ -25,16 +25,16 @@ public class CheckListTab extends Tab {
     private final CheckBox f_isTargetReached = new CheckBox();
     Label l_titleDocument = new Label(I18n.getInstance().getString("plugin.action.needdocchange.title"));
     //private ActionData names = new ActionData();
-    Label l_isNeedProcessDocument = new Label("Prozessanweisungen");
-    Label l_isNeedWorkInstruction = new Label("Arbeitsanweisungen");
-    Label l_isNeedTestInstruction = new Label("Prüfanweisungen");
-    Label l_isNeedDrawing = new Label("Prüfanweisungen");
-    Label l_isNeedOther = new Label("Zeichnungen");
+    Label l_isNeedProcessDocument = new Label(I18n.getInstance().getString("plugin.action.checklist.needProcessDoc"));//"Prozessanweisungen");
+    Label l_isNeedWorkInstruction = new Label(I18n.getInstance().getString("plugin.action.checklist.needWorkInstDoc"));//"Arbeitsanweisungen");
+    Label l_isNeedTestInstruction = new Label(I18n.getInstance().getString("plugin.action.checklist.needtestDoc"));//"Prüfanweisungen");
+    Label l_isNeedDrawing = new Label(I18n.getInstance().getString("plugin.action.checklist.needDrawDoc"));//"Prüfanweisungen");
+    Label l_isNeedOther = new Label(I18n.getInstance().getString("plugin.action.checklist.needOtherDoc"));//""Zeichnungen");
     Label l_isNeedAdditionalAction = new Label("Prüfanweisungen");
-    Label l_isAffectsOtherProcess = new Label("Sind vor- oder nachgelagerte Prozesse betroffen?");
+    Label l_isAffectsOtherProcess = new Label(I18n.getInstance().getString("plugin.action.checklist.affectOtherProcess"));//"Sind vor- oder nachgelagerte Prozesse betroffen?");
     Label l_isTargetReached = new Label("Wurde das Ziel der Maßnahme erreicht?");
     Label l_isNeedCorrection = new Label("Müssen Unterlagen geändert werden?");
-    Label l_IsNeedAdditionalMeters = new Label("Zusätzliche Messtechnik notwendig?");
+    Label l_IsNeedAdditionalMeters = new Label(I18n.getInstance().getString("plugin.action.checklist.needMeter"));//"Zusätzliche Messtechnik notwendig?");
 
     public CheckListTab(ActionData data) {
         super(I18n.getInstance().getString("actionform.editor.tab.checklist"));
@@ -44,13 +44,6 @@ public class CheckListTab extends Tab {
         ScrollPane scrollPane = new ScrollPane(gridPane);
         gridPane.setVgap(15);
         gridPane.setHgap(15);
-
-
-        l_isNeedProcessDocument.setText("Prozessanweisung");
-        l_isNeedWorkInstruction.setText("Arbeitsanweisung");
-        l_isNeedTestInstruction.setText("Prüfanweisung");
-        l_isNeedDrawing.setText("Zeichnungen");
-        l_isNeedOther.setText("Sonstige");
 
 
         f_IsNeedAdditionalMeters.selectedProperty().bindBidirectional(data.checkListDataProperty().get().isNeedAdditionalMetersProperty());
@@ -67,9 +60,9 @@ public class CheckListTab extends Tab {
 
         HBox q1 = new HBox(f_IsNeedAdditionalMeters, l_IsNeedAdditionalMeters);
         HBox q2 = new HBox(f_IsAffectsOtherProcess, l_isAffectsOtherProcess);
-        HBox q3 = new HBox(f_isTargetReached, l_isTargetReached);
-        HBox q4 = new HBox(f_isNeedCorrection, l_isNeedCorrection);
-        HBox q5 = new HBox(f_isNeedAdditionalAction, l_isNeedAdditionalAction);
+        //HBox q3 = new HBox(f_isTargetReached, l_isTargetReached);
+        //HBox q4 = new HBox(f_isNeedCorrection, l_isNeedCorrection);
+        //HBox q5 = new HBox(f_isNeedAdditionalAction, l_isNeedAdditionalAction);
         HBox qDoc1 = new HBox(f_isNeedProcessDocument, l_isNeedProcessDocument);
         HBox qDoc2 = new HBox(f_isNeedWorkInstruction, l_isNeedWorkInstruction);
         HBox qDoc3 = new HBox(f_isNeedTestInstruction, l_isNeedTestInstruction);
@@ -84,9 +77,9 @@ public class CheckListTab extends Tab {
 
         q1.setPadding(new Insets(0, 0, 0, 20));
         q2.setPadding(new Insets(0, 0, 0, 20));
-        q3.setPadding(new Insets(0, 0, 0, 20));
-        q4.setPadding(new Insets(0, 0, 0, 20));
-        q5.setPadding(new Insets(0, 0, 0, 20));
+        //q3.setPadding(new Insets(0, 0, 0, 20));
+        //q4.setPadding(new Insets(0, 0, 0, 20));
+        //q5.setPadding(new Insets(0, 0, 0, 20));
 
         int row = 0;
 
