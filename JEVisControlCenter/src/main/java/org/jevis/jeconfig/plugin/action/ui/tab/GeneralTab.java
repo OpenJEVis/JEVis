@@ -87,7 +87,12 @@ public class GeneralTab extends Tab {
 
         col3Spacer.setMinWidth(25);
 
+        /* Readable if the workaround is not needed */
         f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
+        f_ActionNr.setEditable(false);
+        /* allow editing NR */
+        // StringConverter sdfs = new IntegerStringConverter();
+        //Bindings.bindBidirectional(f_ActionNr.textProperty(), data.nr, sdfs);
 
 
         f_statusTags = new JFXComboBox<>(actionPlan.getStatustags());
@@ -296,7 +301,6 @@ public class GeneralTab extends Tab {
         l_NoteBewertet.setPadding(new Insets(15, 0, 0, 0));
         l_NoteEnergiefluss.setPadding(new Insets(15, 0, 0, 0));
 
-        f_ActionNr.setEditable(false);
 
         GridPane.setHgrow(f_statusTags, Priority.ALWAYS);
 
