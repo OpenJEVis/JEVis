@@ -7,7 +7,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,7 +90,8 @@ public class NPVData {
             ChangeListener<Number> changeListener = new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    npvYears.forEach(NPVYearData::updateSums);
+                    //npvYears.forEach(NPVYearData::updateSums);
+                    updateResults();
                 }
             };
 
@@ -101,16 +101,19 @@ public class NPVData {
             runningCost.addListener(changeListener);
             inflation.addListener(changeListener);
 
+            /*
             npvYears.addListener(new ListChangeListener<NPVYearData>() {
                 @Override
                 public void onChanged(Change<? extends NPVYearData> c) {
                     npvYears.forEach(NPVYearData::updateSums);
                 }
             });
+
+             */
             amoutYear.addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    //System.out.println("Amount Year changed: " + newValue);
+                    System.out.println("NPV Data: Amount Year changed: " + newValue);
                     npvYears.clear();
                     List<NPVYearData> tmp = new ArrayList<>();
                     for (int i = 1; i <= newValue.intValue(); i++) {
@@ -118,7 +121,8 @@ public class NPVData {
                         tmp.add(new NPVYearData(i, NPVData.this));
                     }
                     npvYears.addAll(tmp);
-                    npvYears.forEach(NPVYearData::updateSums);
+                    //npvYears.forEach(NPVYearData::updateSums);
+                    updateResults();
                 }
             });
 
@@ -130,11 +134,6 @@ public class NPVData {
 
     public void updateResults() {
         //System.out.println("######################");
-        // System.out.println("Update NPV sums");
-
-        for (NPVYearData npvYearData : npvYears) {
-            npvYearData.setInvestment(runningCost.doubleValue());
-        }
 
         double sum = 0;
         double einsparrungSum = 0;
@@ -144,25 +143,15 @@ public class NPVData {
         double initalInvestment = investment.get();
 
         sumBetriebskosten += initalInvestment;
-        //einzahlung = 0;
 
-        /*
-        System.out.println("Einmalig Anschaffung: " + investition.get());
-        System.out.println("Einmalig invest:      " + einsparung.get());
-        System.out.println("Einmalig runningCost: " + runningCost.get());
-        System.out.println("--");
-
-         */
 
         int year = 0;
         for (NPVYearData npvYearData : npvYears) {
             year++;
-            //npvYearData.setDeposit(this.einsparung.get());
             //neu mit teuerung
             npvYearData.setDeposit(round(einsparung.get() * Math.pow((1 + (inflation.get() / 100)), year), 2));
 
             //neu mit teuerung
-            //npvYearData.setInvestment(this.runningCost.get());
             npvYearData.setInvestment(round(runningCost.get() * Math.pow((1 + (inflation.get() / 100)), year), 2));
 
             npvYearData.netamount.set(npvYearData.getDeposit() - npvYearData.getInvestment());
@@ -173,6 +162,7 @@ public class NPVData {
             sumBetriebskosten += npvYearData.getInvestment();
             nettoSum += npvYearData.getNetamount();
 
+
             sum += npvYearData.netamount.get() / Math.pow((1 + (interestRate.get() / 100)), npvYearData.getYear());
 
             if (year <= overXYear.get()) {
@@ -180,18 +170,6 @@ public class NPVData {
             }
 
         }
-/*
-        System.out.println("Investtion:    " + (initalInvestment * -1));
-        System.out.println("Sum            " + sum);
-        System.out.println("sumEinzahlung: " + einsparrungSum);
-        System.out.println("sumAuszahlung: " + sumBetriebskosten);
-        System.out.println("sumNetto:      " + nettoSum);
-
-        System.out.println("hmmm: " + (1895.3933847042238 / 10000.0));
-        System.out.println("hmm2: " + (sum / initalInvestment));
-
- */
-
         npvResult.set(round(((initalInvestment * -1) + sum), 2));
         Double piR = (sum / initalInvestment);
         piResult.set(piR.isNaN() ? 0 : piR.doubleValue());
@@ -204,12 +182,6 @@ public class NPVData {
 
         npvResultOverX.set(round(((initalInvestment * -1) + sumOverX), 2));
 
-
-        /*
-        System.out.println("new Sum:       " + sumAuszahlung.getValue());
-        System.out.println("########################");
-
-         */
 
     }
 
@@ -244,5 +216,97 @@ public class NPVData {
 
     public SimpleDoubleProperty sumEinzahlungProperty() {
         return sumEinzahlung;
+    }
+
+    public double getInterestRate() {
+        return interestRate.get();
+    }
+
+    public SimpleDoubleProperty interestRateProperty() {
+        return interestRate;
+    }
+
+    public double getEinsparung() {
+        return einsparung.get();
+    }
+
+    public SimpleDoubleProperty einsparungProperty() {
+        return einsparung;
+    }
+
+    public double getRunningCost() {
+        return runningCost.get();
+    }
+
+    public SimpleDoubleProperty runningCostProperty() {
+        return runningCost;
+    }
+
+    public double getInflation() {
+        return inflation.get();
+    }
+
+    public SimpleDoubleProperty inflationProperty() {
+        return inflation;
+    }
+
+    public ObservableList<NPVYearData> getNpvYears() {
+        return npvYears;
+    }
+
+    public int getAmoutYear() {
+        return amoutYear.get();
+    }
+
+    public SimpleIntegerProperty amoutYearProperty() {
+        return amoutYear;
+    }
+
+    public int getOverXYear() {
+        return overXYear.get();
+    }
+
+    public SimpleIntegerProperty overXYearProperty() {
+        return overXYear;
+    }
+
+    public double getNpvResult() {
+        return npvResult.get();
+    }
+
+    public SimpleDoubleProperty npvResultProperty() {
+        return npvResult;
+    }
+
+    public double getPiResult() {
+        return piResult.get();
+    }
+
+    public SimpleDoubleProperty piResultProperty() {
+        return piResult;
+    }
+
+    public double getNpvResultOverX() {
+        return npvResultOverX.get();
+    }
+
+    public SimpleDoubleProperty npvResultOverXProperty() {
+        return npvResultOverX;
+    }
+
+    public double getPiResultOverX() {
+        return piResultOverX.get();
+    }
+
+    public SimpleDoubleProperty piResultOverXProperty() {
+        return piResultOverX;
+    }
+
+    public double getSumNetto() {
+        return sumNetto.get();
+    }
+
+    public SimpleDoubleProperty sumNettoProperty() {
+        return sumNetto;
     }
 }
