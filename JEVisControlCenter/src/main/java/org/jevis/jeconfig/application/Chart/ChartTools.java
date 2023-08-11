@@ -6,6 +6,7 @@ import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.CommonMethods;
+import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,18 @@ public class ChartTools {
     private static final Logger logger = LogManager.getLogger(ChartTools.class);
     private final static Map<Long, Long> calculationMap = new HashMap<>();
     private final static List<Calculation> calculationList = new ArrayList<>();
+
+    public static long getCalculationId(JEVisDataSource ds, long objectId) {
+        JEVisObject object = null;
+        try {
+            object = ds.getObject(objectId);
+            object = DataMethods.getFirstParentalDataObject(object);
+        } catch (Exception e) {
+            logger.error("Could not finde calculation for object {}", objectId);
+        }
+
+        return isObjectCalculated(object);
+    }
 
     public static long isObjectCalculated(JEVisObject object) {
         try {

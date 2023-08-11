@@ -137,35 +137,49 @@ public class DifferentialStep implements ProcessStep {
             CleanInterval lastInterval = null;
             boolean found = false;
 
-            for (JEVisSample smp : rawSamples) {
-                if (smp.getTimestamp().equals(firstTS) || smp.getTimestamp().isBefore(firstTS)) {
-                    if (smp.getTimestamp().equals(firstTS)) {
-                        logger.debug("Searching for new first diff value");
-                        List<PeriodRule> periods = new ArrayList<>();
-                        periods.addAll(cleanDataObject.getCleanDataPeriodAlignment());
-                        periods.addAll(cleanDataObject.getRawDataPeriodAlignment());
-                        Period maxPeriod = cleanDataObject.getMaxPeriod(periods);
-                        DateTime newFirstTs = firstTS.minus(maxPeriod).minus(maxPeriod);
-                        List<JEVisSample> samples = cleanDataObject.getRawAttribute().getSamples(newFirstTs, firstTS);
-
-                        for (int i = samples.size() - 1; i > -1; i--) {
-                            JEVisSample sample = samples.get(i);
-                            if (sample.getTimestamp().isBefore(firstTS)) {
-                                lastDiffVal = sample.getValueAsDouble();
-                                lastDiffTS = sample.getTimestamp();
-                                found = true;
-                                break;
-                            }
-                        }
-
-                    } else if (smp.getTimestamp().isBefore(firstTS)) {
-                        lastDiffVal = smp.getValueAsDouble();
-                        lastDiffTS = smp.getTimestamp();
-                        found = true;
-                    }
-                } else break;
+            //Find with loaded raw samples
+            for (int i = rawSamples.size() - 1; i > -1; i--) {
+                JEVisSample sample = rawSamples.get(i);
+                if (sample.getTimestamp().isBefore(firstTS)) {
+                    lastDiffVal = sample.getValueAsDouble();
+                    lastDiffTS = sample.getTimestamp();
+                    found = true;
+                    break;
+                }
             }
 
+            //Find with new raw samples
+            if (!found) {
+                for (JEVisSample smp : rawSamples) {
+                    if (smp.getTimestamp().equals(firstTS) || smp.getTimestamp().isBefore(firstTS)) {
+                        if (smp.getTimestamp().equals(firstTS)) {
+                            logger.debug("Searching for new first diff value");
+                            List<PeriodRule> periods = new ArrayList<>();
+                            periods.addAll(cleanDataObject.getCleanDataPeriodAlignment());
+                            periods.addAll(cleanDataObject.getRawDataPeriodAlignment());
+                            Period maxPeriod = cleanDataObject.getMaxPeriod(periods);
+                            DateTime newFirstTs = firstTS.minus(maxPeriod).minus(maxPeriod);
+                            List<JEVisSample> samples = cleanDataObject.getRawAttribute().getSamples(newFirstTs, firstTS);
+
+                            for (int i = samples.size() - 1; i > -1; i--) {
+                                JEVisSample sample = samples.get(i);
+                                if (sample.getTimestamp().isBefore(firstTS)) {
+                                    lastDiffVal = sample.getValueAsDouble();
+                                    lastDiffTS = sample.getTimestamp();
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                        } else if (smp.getTimestamp().isBefore(firstTS)) {
+                            lastDiffVal = smp.getValueAsDouble();
+                            lastDiffTS = smp.getTimestamp();
+                        }
+                    } else break;
+                }
+            }
+
+            //Last fallback
             if (!found) {
                 Period period = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), lastDiffTS);
                 DateTime approximateLastDate = lastDiffTS.minus(period).minus(period);
