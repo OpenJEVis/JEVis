@@ -280,6 +280,10 @@ public class ActionTab extends Tab {
         return actionTable;
     }
 
+    public Statistics getStatistics() {
+        return statistics;
+    }
+
     public void updateStatistics() {
         if (statistics != null) {
             statistics.update();
