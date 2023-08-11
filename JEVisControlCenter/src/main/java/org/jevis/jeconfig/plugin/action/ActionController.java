@@ -275,10 +275,13 @@ public class ActionController {
                 plan.loadActionList();
                 actionPlans.add(plan);
             });
-            ActionPlanOverviewData overviewData = new ActionPlanOverviewData(this);
-            ActionTab overviewTab = new ActionTab(this, overviewData);
-            tabPane.getTabs().add(0, overviewTab);
-            overviewData.updateData();
+            if (planObjs.size() > 1) {
+                ActionPlanOverviewData overviewData = new ActionPlanOverviewData(this);
+                ActionTab overviewTab = new ActionTab(this, overviewData);
+                tabPane.getTabs().add(0, overviewTab);
+                overviewData.updateData();
+            }
+
 
             Platform.runLater(() -> tabPane.getSelectionModel().selectFirst());
 

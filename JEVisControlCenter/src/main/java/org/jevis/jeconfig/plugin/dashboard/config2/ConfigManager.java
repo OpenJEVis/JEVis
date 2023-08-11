@@ -44,12 +44,12 @@ import static org.jevis.jeconfig.plugin.dashboard.config2.JsonNames.Dashboard.*;
 
 public class ConfigManager {
 
+    private static final Logger logger = LogManager.getLogger(ConfigManager.class);
     private final JEVisDataSource jeVisDataSource;
     private final ObjectMapper mapper = new ObjectMapper();
-    private static final Logger logger = LogManager.getLogger(ConfigManager.class);
     private final TimeFrameFactory timeFrameFactory;
-    private JEVisObject dashboardObject = null;
     private final ObjectRelations objectRelations;
+    private JEVisObject dashboardObject = null;
 
     public ConfigManager(JEVisDataSource dataSource) {
         this.jeVisDataSource = dataSource;
@@ -85,8 +85,11 @@ public class ConfigManager {
         logger.debug("---------\n {} \n-----------------", this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode));
         if (this.dashboardObject != null) {
             JEVisAttribute dataModel = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE);
+
+            String filenameStr = filename.replaceAll("[^A-Za-z0-9]", "") + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json";
+            
             JEVisFileImp jsonFile = new JEVisFileImp(
-                    filename + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
+                    filename.replaceAll("[^A-Za-z0-9]", "") + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
                     , this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode).getBytes(StandardCharsets.UTF_8));
             JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
             newSample.commit();

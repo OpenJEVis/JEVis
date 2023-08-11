@@ -82,7 +82,7 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> fromUserCol = new TableColumn(fakeForName.fromUserProperty().getName());
         fromUserCol.setCellValueFactory(param -> param.getValue().fromUserProperty());
         fromUserCol.setCellFactory(buildShotTextFactory());
-
+        
         TableColumn<ActionData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsibleProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsibleProperty());
 

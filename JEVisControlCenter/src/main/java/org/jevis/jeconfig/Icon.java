@@ -5,6 +5,7 @@ public class Icon {
     public static final String CREATE_NEW_FOLDER = "/icons/MaterialDesignSVG/outlined/create_new_folder.svg";
     public static final String POST_ADD = "/icons/MaterialDesignSVG/outlined/post_add.svg";
     public static final String CSS_TOOLBAR = "toolbarSVG";
+    public static final String EXCEL = "/icons/MaterialDesignSVG/outlined/Excel.svg";
 
     public static final String CSS_PLUGIN = "pluginSVG";
     public static final String SAVE = "/icons/MaterialDesignSVG/outlined/save.svg";

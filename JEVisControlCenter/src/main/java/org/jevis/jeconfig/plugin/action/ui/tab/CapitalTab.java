@@ -5,10 +5,7 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tab;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -26,25 +23,25 @@ public class CapitalTab extends Tab {
     Label l_investition = new Label("Investition");
     JFXTextField f_investition = new JFXTextField();
     Label l_investitionUnit = new Label("€");
-    Label l_einsparrung = new Label("Jährliche Einsparung");
+    Label l_einsparrung = new Label(I18n.getInstance().getString("actionform.action.nvp.annualSavings"));//"Jährliche Einsparung");
     JFXTextField f_einsparrung = new JFXTextField();
     Label l_einsparrungUnit = new Label("€");
-    Label l_zinssatz = new Label("Zinssatz");
+    Label l_zinssatz = new Label(I18n.getInstance().getString("actionform.action.nvp.interestRate"));//"Zinssatz");
     JFXTextField f_zinssatz = new JFXTextField("");
     Label l_proZent = new Label("%");
     Label l_years = new Label("Jahr(e)");
-    Label l_kapitalwert = new Label("Kapitalwert");
+    Label l_kapitalwert = new Label(I18n.getInstance().getString("actionform.action.nvp"));//"Kapitalwert");
     JFXTextField f_kapitalwert = new JFXTextField("");
-    Label l_kapitalwertrate = new Label("Kapitalwertrate");
+    Label l_kapitalwertrate = new Label(I18n.getInstance().getString("actionform.action.nvp.rate"));//"Kapitalwertrate");
     JFXTextField f_kapitalwertrate = new JFXTextField("");
-    Label l_period = new Label("Laufzeit");
-    Label l_periodOverX = new Label("Laufzeit über X");
-    Label l_overRuntime = new Label("Amortisation über die Laufzeit");
-    Label l_over = new Label("Amortisation über");
-    Label l_infation = new Label("Jährliche Preissteigerung");
+    Label l_period = new Label(I18n.getInstance().getString("actionform.action.nvp.label.term"));//"Laufzeit");
+    Label l_periodOverX = new Label(I18n.getInstance().getString("actionform.action.nvp.label.termOverX"));//"Laufzeit über X");
+    Label l_overRuntime = new Label(I18n.getInstance().getString("actionform.action.nvp.label.overRuntime"));//"Amortisation über die Laufzeit");
+    Label l_over = new Label(I18n.getInstance().getString("actionform.action.nvp.label.amortization"));//"Amortisation über");
+    Label l_infation = new Label(I18n.getInstance().getString("actionform.action.nvp.annualIncrease"));
     Label l_infationUnit = new Label("%");
     JFXTextField f_infation = new JFXTextField();
-    Label l_yearCost = new Label("Jährliche Betriebskosten");
+    Label l_yearCost = new Label(I18n.getInstance().getString("actionform.action.nvp.annualCost"));
     Label l_yearCostUnit = new Label("€");
     JFXTextField f_runningCost = new JFXTextField();
     JFXTextField f_kapitalwertOverX = new JFXTextField();
@@ -74,17 +71,22 @@ public class CapitalTab extends Tab {
         l_nettoGesamt.setAlignment(Pos.CENTER);
         JFXTextField f_nettoGesamt = new JFXTextField();
         Label l_gesamt = new Label("Gesamt");
+        System.out.println("-------------");
+        System.out.println("data.npv.get().overXYear: " + data.npv.get().amoutYear.get());
 
         ChoiceBox<Integer> f_period = new ChoiceBox<>();
         f_period.getItems().addAll(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); // only 15 years by lore
-        f_period.valueProperty().bindBidirectional(data.npv.get().amoutYear.asObject());
-        f_period.setValue(data.npv.get().amoutYear.get());
-
+        f_period.valueProperty().addListener((observableValue, integer, t1) -> {
+            data.npv.get().amoutYear.set(t1.intValue());
+        });
+        f_period.valueProperty().set(data.npv.get().amoutYear.get());
 
         ChoiceBox<Integer> f_amortizedDuration = new ChoiceBox<>();
         f_amortizedDuration.getItems().addAll(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-        f_amortizedDuration.valueProperty().bindBidirectional(data.npv.get().overXYear.asObject());
-
+        f_amortizedDuration.valueProperty().addListener((observableValue, integer, t1) -> {
+            data.npv.get().overXYear.set(t1.intValue());
+        });
+        f_amortizedDuration.valueProperty().set(data.npv.get().overXYear.get());
 
         GridPane.setHalignment(l_einzahlungGesamt, HPos.RIGHT);
         GridPane.setHalignment(l_auszahlungGesamt, HPos.RIGHT);
@@ -111,44 +113,38 @@ public class CapitalTab extends Tab {
         f_auszahlungGesamt.setEditable(false);
 
 
-        f_period.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            data.npv.get().amoutYear.set(newValue);
-        });
-
-
         NumberStringConverter nsc = NumerFormating.getInstance().getCurrencyConverter();
         NumberStringConverter nscNoUnit = NumerFormating.getInstance().getDoubleConverter();
 
-        //l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.get() + " Jahre");
-        data.npv.get().overXYear.addListener((observable, oldValue, newValue) -> {
-            l_periodOverX.setText("Amortisation über " + newValue.intValue() + " Year");
+        data.npv.get().amoutYear.addListener(observable -> {
+            System.out.println("Debug: new Years amount: " + observable);
         });
-        l_periodOverX.setText("Amortisation über " + data.npv.get().overXYear.intValue() + " Year");
-        // data.npv.get().overXYear.addListener(observable -> l_periodOverX.setText("Amortisation über " + observable.toString() + " Year"));
+        data.npv.get().overXYear.addListener((observable, oldValue, newValue) -> updateRunOverXText(data.npv.get().overXYear.intValue()));
+        data.npv.get().amoutYear.addListener((observable, oldValue, newValue) -> updateRunOverXText(data.npv.get().overXYear.intValue()));
+        updateRunOverXText(data.npv.get().overXYear.intValue());
+
         DecimalFormat decimalFormat = new DecimalFormat();
         decimalFormat.setMinimumFractionDigits(4);
 
-        /*
-        System.out.println("=== NPV Data ===");
-        System.out.println(GsonBuilder.createDefaultBuilder().create().toJson(data.npv.get()));
-        System.out.println("Saving: " + data.npv.get().einsparung.get());
-        System.out.println("nscNoUnit: " + nscNoUnit.toString(data.npv.get().einsparung.get()));
-
-         */
-        //f_einsparrung.textProperty().set("test");
-
+        f_zinssatz.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
         Bindings.bindBidirectional(f_zinssatz.textProperty(), data.npv.get().interestRate, new NumberStringConverter());
-        Bindings.bindBidirectional(f_kapitalwert.textProperty(), data.npv.get().npvResult, nsc);
-        Bindings.bindBidirectional(f_auszahlungGesamt.textProperty(), data.npv.get().sumAuszahlungProperty(), nsc);
+        f_investition.setTextFormatter(new TextFormatter<>(nscNoUnit));
+        Bindings.bindBidirectional(f_investition.textProperty(), data.npv.get().investment, nscNoUnit);
+        f_infation.setTextFormatter(new TextFormatter<>(nscNoUnit));
+        Bindings.bindBidirectional(f_infation.textProperty(), data.npv.get().inflation, nscNoUnit);
+        f_einsparrung.setTextFormatter(new TextFormatter<>(nscNoUnit));
+        Bindings.bindBidirectional(f_einsparrung.textProperty(), data.npv.get().einsparung, nscNoUnit);
+        f_runningCost.setTextFormatter(new TextFormatter<>(nscNoUnit));
+        Bindings.bindBidirectional(f_runningCost.textProperty(), data.npv.get().runningCost, nscNoUnit);
+
         Bindings.bindBidirectional(f_einzahlungGesamt.textProperty(), data.npv.get().sumEinzahlung, nsc);
+        Bindings.bindBidirectional(f_auszahlungGesamt.textProperty(), data.npv.get().sumAuszahlungProperty(), nsc);
+        Bindings.bindBidirectional(f_kapitalwert.textProperty(), data.npv.get().npvResult, nsc);
         Bindings.bindBidirectional(f_kapitalwertrate.textProperty(), data.npv.get().piResult, decimalFormat);
         Bindings.bindBidirectional(f_nettoGesamt.textProperty(), data.npv.get().sumNetto, nsc);
-        Bindings.bindBidirectional(f_investition.textProperty(), data.npv.get().investment, nscNoUnit);
-        Bindings.bindBidirectional(f_einsparrung.textProperty(), data.npv.get().einsparung, nscNoUnit);
         Bindings.bindBidirectional(f_kapitalwertOverX.textProperty(), data.npv.get().npvResultOverX, nsc);
         Bindings.bindBidirectional(f_kapitalrateOverX.textProperty(), data.npv.get().piResultOverX, decimalFormat);
-        Bindings.bindBidirectional(f_infation.textProperty(), data.npv.get().inflation, nscNoUnit);
-        Bindings.bindBidirectional(f_runningCost.textProperty(), data.npv.get().runningCost, nscNoUnit);
+
 
         f_zinssatz.setAlignment(Pos.CENTER_RIGHT);
         f_kapitalwert.setAlignment(Pos.CENTER_RIGHT);
@@ -212,8 +208,13 @@ public class CapitalTab extends Tab {
         gridPane.add(new Separator(), 0, 6, toalColums, 1);
         gridPane.add(bottomPane, 0, 7, 4, 1);
 
+        data.npv.get().update();
         data.npv.get().updateResults();
 
         setContent(gridPane);
+    }
+
+    private void updateRunOverXText(int value) {
+        l_periodOverX.setText(String.format(I18n.getInstance().getString("actionform.editor.tab.captial.amortoveryear"), value));
     }
 }

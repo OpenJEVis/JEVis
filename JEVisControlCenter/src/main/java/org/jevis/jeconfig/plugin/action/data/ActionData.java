@@ -130,13 +130,11 @@ public class ActionData {
     @SerializedName("Deleted")
     private final SimpleBooleanProperty isDeleted = new SimpleBooleanProperty(false);
     private final Gson gson = GsonBuilder.createDefaultBuilder().create();
+    private final ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
+    private final List<ReadOnlyProperty> propertyList = new ArrayList<>();
     private String originalSettings = "";
     private ChangeListener changeListener;
     private JEVisObject object;
-    private final ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-
-    private final List<ReadOnlyProperty> propertyList = new ArrayList<>();
-
     private ActionPlanData actionPlan = null;
     private boolean isNew = false;
 
@@ -207,7 +205,7 @@ public class ActionData {
     public void commit() {
         try {
             System.out.println("ActonData.commit: " + nr.get() + " changes: " + valueChanged.getValue());
-            if (!hasChanged()) return;
+            // if (!hasChanged()) return;
 
             Task task = new Task() {
                 @Override

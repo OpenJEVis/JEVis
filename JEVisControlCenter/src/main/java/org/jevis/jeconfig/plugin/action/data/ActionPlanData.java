@@ -9,9 +9,9 @@ import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
@@ -31,31 +31,28 @@ public class ActionPlanData {
 
     public static String STATUS_DONE = I18n.getInstance().getString("plugin.action.status.done");
     public static String STATUS_OPEN = I18n.getInstance().getString("plugin.action.status.open");
-
-    private JEVisObject object;
-    private ObservableList<String> statusTags;
-    private ObservableList<String> mediumTags;
-    private ObservableList<String> fieldsTags;
-    private ObservableList<String> significantEnergyUseTags;
-    private ObservableList<JEVisObject> enpis;
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty nrPrefix = new SimpleStringProperty("");
-    private String initNrPrefix = "";
     private final ObservableList<ActionData> actions = FXCollections.observableArrayList();
     private final AtomicInteger biggestActionNr = new AtomicInteger(0);
-    private String initCustomStatus = "";
-    private String initCustomFields = "";
-    private String initCustomMedium = "";
-    private String initCustomSEU = "";
     private final String ATTRIBUTE_CSTATUS = "Custom Status";
     private final String ATTRIBUTE_CFIELD = "Custom Fields";
     private final String ATTRIBUTE_CMEDIUM = "Custom Medium";
     private final String ATTRIBUTE_SEU = "Custom SEU";
     private final String ATTRIBUTE_EnPI = "EnPI";
     private final String ATTRIBUTE_NrPrefix = "Nr Prefix";
-
-
     private final AtomicBoolean actionsLoaded = new AtomicBoolean(false);
+    private JEVisObject object;
+    private ObservableList<String> statusTags;
+    private ObservableList<String> mediumTags;
+    private ObservableList<String> fieldsTags;
+    private ObservableList<String> significantEnergyUseTags;
+    private ObservableList<JEVisObject> enpis;
+    private String initNrPrefix = "";
+    private String initCustomStatus = "";
+    private String initCustomFields = "";
+    private String initCustomMedium = "";
+    private String initCustomSEU = "";
 
     public ActionPlanData() {
     }
@@ -158,15 +155,19 @@ public class ActionPlanData {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
             TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), attribute);
 
-            enpis.setAll(targetHelper.getObject());
+            if (!enpis.contains(EmptyObject.getInstance())) {
+                enpis.add(EmptyObject.getInstance());
+            }
+            if (!enpis.contains(FreeObject.getInstance())) {
+                enpis.add(FreeObject.getInstance());
+            }
+
+            enpis.addAll(targetHelper.getObject());
 
         } catch (Exception e) {
             logger.error(e);
         }
 
-        if (!enpis.contains(FreeObject.getInstance())) {
-            enpis.add(FreeObject.getInstance());
-        }
 
         // loadActionList();
 

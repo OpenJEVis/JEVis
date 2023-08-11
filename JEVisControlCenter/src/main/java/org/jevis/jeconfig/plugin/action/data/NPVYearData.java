@@ -23,7 +23,7 @@ public class NPVYearData {
     public NPVYearData() {
         super();
         addListeners();
-        updateSums();
+        //updateSums();
     }
 
     public NPVYearData(int year, NPVData npvData) {
@@ -50,6 +50,9 @@ public class NPVYearData {
         this.npvData = npvData;
     }
 
+    /**
+     * @deprecated use NPVData.updateResults() fro now
+     */
     public void updateSums() {
         try {
             //System.out.println("---- NPVYearData Update sums");
