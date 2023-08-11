@@ -15,6 +15,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
@@ -33,7 +35,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class DetailsTab extends Tab {
-
+    private static final Logger logger = LogManager.getLogger(DetailsTab.class);
 
     private final Label l_enpiAfter = new Label(I18n.getInstance().getString("plugin.action.enpiafter"));
     private final Label l_enpiBefore = new Label(I18n.getInstance().getString("plugin.action.enpiabefore"));
@@ -51,7 +53,7 @@ public class DetailsTab extends Tab {
     private final Button buttonOpenAnalysisafter = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
     private final Button buttonOpenAnalysisaDiff = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
     private final JFXComboBox<JEVisObject> f_EnpiSelection;
-    private final Label l_EnpiSelection = new Label("EnPI");
+    private final Label l_EnpiSelection = new Label(I18n.getInstance().getString("plugin.action.enpi"));//"EnPI"
     private final Label l_mediaTags = new Label();
     private final JFXComboBox<String> f_mediaTags;
     private final TextArea f_correctionIfNeeded = new TextArea("");
@@ -121,7 +123,7 @@ public class DetailsTab extends Tab {
                     obj = data.getObject().getDataSource().getObject(id);
                 }
             } catch (Exception exception) {
-                exception.printStackTrace();
+                logger.error(exception);
             }
             f_EnpiSelection.getSelectionModel().select(obj);
 
