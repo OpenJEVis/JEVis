@@ -58,8 +58,8 @@ public class ConsumptionData {
     @SerializedName("Data Source")
     public final SimpleStringProperty jevisLink = new SimpleStringProperty("EnPI Link",
             I18n.getInstance().getString("plugin.action.enpilink"), "");
-    public boolean isEnPI = false;
     private final SimpleStringProperty unit = new SimpleStringProperty("kWh");
+    public boolean isEnPI = false;
     private ActionData actionData = null;
 
     public ConsumptionData() {
@@ -69,15 +69,20 @@ public class ConsumptionData {
         try {
             JEVisObject obj = EmptyObject.getInstance();
 
+
             try {
-                Long id = Long.parseLong(consumptionData.jevisLinkProperty().get());
-                if (id.equals(EmptyObject.getInstance().getID())) {
-                    obj = EmptyObject.getInstance();
-                } else if (id.equals(FreeObject.getInstance().getID())) {
-                    obj = FreeObject.getInstance();
+                if (consumptionData.jevisLinkProperty().get().isEmpty()) {
                 } else {
-                    obj = ds.getObject(id);
+                    Long id = Long.parseLong(consumptionData.jevisLinkProperty().get());
+                    if (id.equals(EmptyObject.getInstance().getID())) {
+                        obj = EmptyObject.getInstance();
+                    } else if (id.equals(FreeObject.getInstance().getID())) {
+                        obj = FreeObject.getInstance();
+                    } else {
+                        obj = ds.getObject(id);
+                    }
                 }
+
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
