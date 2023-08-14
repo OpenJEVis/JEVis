@@ -15,6 +15,7 @@ import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.utils.CalcMethods;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.joda.time.DateTime;
@@ -238,7 +239,7 @@ public class CommonMethods {
                         pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
                         valueAtt.deleteAllSample();
 
-                        allSamplesMathData(object, true);
+                        allSamplesMathData(object);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -248,7 +249,7 @@ public class CommonMethods {
                                 + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(from, to);
 
-                        fromToMathData(object, true, from, to);
+                        fromToMathData(object, from, to);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -259,7 +260,7 @@ public class CommonMethods {
                         DateTime t = new DateTime();
                         valueAtt.deleteSamplesBetween(from, t);
 
-                        fromToMathData(object, true, from, t);
+                        fromToMathData(object, from, t);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -270,7 +271,7 @@ public class CommonMethods {
                         DateTime f = new DateTime(1990, 1, 1, 0, 0, 0);
                         valueAtt.deleteSamplesBetween(f, to);
 
-                        fromToMathData(object, true, f, to);
+                        fromToMathData(object, f, to);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -282,26 +283,56 @@ public class CommonMethods {
 
     public static void deleteAllSamples(ProgressForm pForm, JEVisObject object, boolean rawData, boolean cleanData) {
         try {
-            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
-            if (value != null) {
-                if (((object.getJEVisClassName().equals("Clean Data") || object.getJEVisClassName().equals("Math Data") || object.getJEVisClassName().equals("Forecast Data")) && cleanData)
-                        || ((object.getJEVisClassName().equals("Data") || object.getJEVisClassName().equals("String Data")) && rawData)) {
-                    pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
-                    value.deleteAllSample();
+            JEVisClass dataClass = object.getDataSource().getJEVisClass("Data");
+            JEVisClass stringDataClass = object.getDataSource().getJEVisClass("String Data");
 
-                    allSamplesMathData(object, cleanData);
-                }
+            JEVisClass cleanDataClass = object.getDataSource().getJEVisClass("Clean Data");
+            JEVisClass mathDataClass = object.getDataSource().getJEVisClass("Math Data");
+            JEVisClass forecastDataClass = object.getDataSource().getJEVisClass("Forecast Data");
+
+            List<JEVisObject> dataChildren = CalcMethods.getChildrenRecursive(object, dataClass);
+            List<JEVisObject> stringDataChildren = CalcMethods.getChildrenRecursive(object, stringDataClass);
+            List<JEVisObject> cleanDataChildren = CalcMethods.getChildrenRecursive(object, cleanDataClass);
+            List<JEVisObject> mathDataChildren = CalcMethods.getChildrenRecursive(object, mathDataClass);
+            List<JEVisObject> forecastDataChildren = CalcMethods.getChildrenRecursive(object, forecastDataClass);
+
+            List<JEVisObject> allChildren = new ArrayList<>();
+
+            if (rawData) {
+                allChildren.addAll(dataChildren);
+                allChildren.addAll(stringDataChildren);
             }
-            for (JEVisObject child : object.getChildren()) {
-                deleteAllSamples(pForm, child, rawData, cleanData);
+
+            if (cleanData) {
+                allChildren.addAll(cleanDataChildren);
+                allChildren.addAll(mathDataChildren);
+                allChildren.addAll(forecastDataChildren);
+            }
+
+            for (JEVisObject child : allChildren) {
+                deleteAllSamplesFromObject(pForm, child);
             }
         } catch (Exception e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
         }
     }
 
-    private static void allSamplesMathData(JEVisObject object, boolean cleanData) throws JEVisException {
-        if ((object.getJEVisClassName().equals("Math Data") || object.getJEVisClassName().equals("Forecast Data")) && cleanData) {
+    private static void deleteAllSamplesFromObject(ProgressForm pForm, JEVisObject object) {
+        try {
+            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+            if (value != null) {
+                pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
+                value.deleteAllSample();
+
+                allSamplesMathData(object);
+            }
+        } catch (Exception e) {
+            logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
+        }
+    }
+
+    private static void allSamplesMathData(JEVisObject object) throws JEVisException {
+        if ((object.getJEVisClassName().equals("Math Data") || object.getJEVisClassName().equals("Forecast Data"))) {
             try {
                 JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
                 if (lastRunAttribute != null) {
@@ -323,40 +354,73 @@ public class CommonMethods {
 
     public static void deleteAllSamples(ProgressForm pForm, JEVisObject object, DateTime from, DateTime to, boolean rawData, boolean cleanData) {
         try {
-            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
-            if (value != null) {
-                if (((object.getJEVisClassName().equals("Clean Data") || object.getJEVisClassName().equals("Math Data") || object.getJEVisClassName().equals("Forecast Data")) && cleanData)
-                        || (object.getJEVisClassName().equals("Data") && rawData)) {
-                    DateTime f = null;
-                    if (from == null) {
-                        f = new DateTime(1990, 1, 1, 0, 0, 0);
-                    } else {
-                        f = from;
-                    }
 
-                    DateTime t = null;
-                    if (to == null) {
-                        t = new DateTime();
-                    } else {
-                        t = to;
-                    }
-                    pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
-                            + " from " + f.toString("YYYY-MM-dd HH:mm:ss") + " to " + t.toString("YYYY-MM-dd HH:mm:ss"));
-                    value.deleteSamplesBetween(f, t);
+            JEVisClass dataClass = object.getDataSource().getJEVisClass("Data");
+            JEVisClass stringDataClass = object.getDataSource().getJEVisClass("String Data");
 
-                    fromToMathData(object, cleanData, f, t);
-                }
+            JEVisClass cleanDataClass = object.getDataSource().getJEVisClass("Clean Data");
+            JEVisClass mathDataClass = object.getDataSource().getJEVisClass("Math Data");
+            JEVisClass forecastDataClass = object.getDataSource().getJEVisClass("Forecast Data");
+
+            List<JEVisObject> dataChildren = CalcMethods.getChildrenRecursive(object, dataClass);
+            List<JEVisObject> stringDataChildren = CalcMethods.getChildrenRecursive(object, stringDataClass);
+            List<JEVisObject> cleanDataChildren = CalcMethods.getChildrenRecursive(object, cleanDataClass);
+            List<JEVisObject> mathDataChildren = CalcMethods.getChildrenRecursive(object, mathDataClass);
+            List<JEVisObject> forecastDataChildren = CalcMethods.getChildrenRecursive(object, forecastDataClass);
+
+            List<JEVisObject> allChildren = new ArrayList<>();
+
+            if (rawData) {
+                allChildren.addAll(dataChildren);
+                allChildren.addAll(stringDataChildren);
             }
-            for (JEVisObject child : object.getChildren()) {
-                deleteAllSamples(pForm, child, from, to, rawData, cleanData);
+
+            if (cleanData) {
+                allChildren.addAll(cleanDataChildren);
+                allChildren.addAll(mathDataChildren);
+                allChildren.addAll(forecastDataChildren);
+            }
+
+            for (JEVisObject child : allChildren) {
+                deleteAllSamplesFromObjectWithDate(pForm, child, from, to);
             }
         } catch (Exception e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
         }
     }
 
-    private static void fromToMathData(JEVisObject object, boolean cleanData, DateTime f, DateTime t) throws JEVisException {
-        if ((object.getJEVisClassName().equals("Math Data") || object.getJEVisClassName().equals("Forecast Data")) && cleanData) {
+    private static void deleteAllSamplesFromObjectWithDate(ProgressForm pForm, JEVisObject object, DateTime from, DateTime to) {
+        try {
+            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+            if (value != null) {
+
+                DateTime f = null;
+                if (from == null) {
+                    f = new DateTime(1990, 1, 1, 0, 0, 0);
+                } else {
+                    f = from;
+                }
+
+                DateTime t = null;
+                if (to == null) {
+                    t = new DateTime();
+                } else {
+                    t = to;
+                }
+                pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
+                        + " from " + f.toString("YYYY-MM-dd HH:mm:ss") + " to " + t.toString("YYYY-MM-dd HH:mm:ss"));
+                value.deleteSamplesBetween(f, t);
+
+                fromToMathData(object, f, t);
+
+            }
+        } catch (Exception e) {
+            logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
+        }
+    }
+
+    private static void fromToMathData(JEVisObject object, DateTime f, DateTime t) throws JEVisException {
+        if (object.getJEVisClassName().equals("Math Data") || object.getJEVisClassName().equals("Forecast Data")) {
             try {
                 JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
                 JEVisAttribute periodOffsetAttribute = object.getAttribute("Period Offset");
@@ -372,7 +436,7 @@ public class CommonMethods {
                         f = PeriodHelper.addPeriodToDate(f, period);
                     }
 
-                    if (allSamples.size() > 0) {
+                    if (!allSamples.isEmpty()) {
                         allSamples.remove(0);
                         DateTime finalTS = null;
                         for (JEVisSample sample : allSamples) {
