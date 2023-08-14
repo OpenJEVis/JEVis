@@ -160,7 +160,7 @@ public class NotePane extends StackPane {
             LocalTime ltime = pickerTime.valueProperty().get();
             date = new DateTime(ldate.getYear(), ldate.getMonthValue(), ldate.getDayOfMonth(), ltime.getHour(), ltime.getMinute());
 
-            JEVisSample noteSample = newNoteObject.getAttribute("User Notes").buildSample(date, noteTextArea.getText());
+            JEVisSample noteSample = newNoteObject.getAttribute("Value").buildSample(date, noteTextArea.getText());
             JEVisSample userSample = newNoteObject.getAttribute("User").buildSample(date, userField.getText());
 
             String tagString = "";

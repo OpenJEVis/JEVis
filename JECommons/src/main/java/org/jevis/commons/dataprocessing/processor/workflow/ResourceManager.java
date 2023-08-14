@@ -38,6 +38,7 @@ public class ResourceManager {
     private List<JEVisSample> sampleCache = new ArrayList<>();
     private List<CleanInterval> rawIntervals = new ArrayList<>();
     private Boolean isClean = true;
+    private Boolean isForecast = false;
 
     public ResourceManager() {
         numberFormat.setMinimumFractionDigits(4);
@@ -178,6 +179,14 @@ public class ResourceManager {
 
     public void setClean(Boolean clean) {
         isClean = clean;
+    }
+
+    public Boolean isForecast() {
+        return isForecast;
+    }
+
+    public void setForecast(Boolean forecast) {
+        isForecast = forecast;
     }
 
     public NumberFormat getNumberFormat() {
