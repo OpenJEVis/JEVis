@@ -340,7 +340,7 @@ public class NotesPlugin implements Plugin {
                     //List<NotesRow> list = new ArrayList<>();
                     try {
                         Platform.runLater(() -> this.updateTitle(I18n.getInstance().getString("plugin.notes.loading") + " '" + noteObject.getName() + "'"));
-                        JEVisAttribute userNotes = noteObject.getAttribute("User Notes");
+                        JEVisAttribute userNotes = noteObject.getAttribute("Value");
                         //list.addAll(getNotesRow(userNotes));
                         List<NotesRow> notesRow = getNotesRow(userNotes);
                         Platform.runLater(() -> {

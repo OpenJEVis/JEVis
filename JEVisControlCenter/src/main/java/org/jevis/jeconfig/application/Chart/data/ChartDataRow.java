@@ -128,7 +128,7 @@ public class ChartDataRow extends ChartData {
             final JEVisClass noteclass = getObject().getDataSource().getJEVisClass("Data Notes");
             for (JEVisObject obj : attribute.getObject().getParents().get(0).getChildren(noteclass, true)) {
                 if (obj.getName().contains(attribute.getObject().getName())) {
-                    JEVisAttribute userNotesAttribute = obj.getAttribute("User Notes");
+                    JEVisAttribute userNotesAttribute = obj.getAttribute("Value");
                     if (userNotesAttribute.hasSample()) {
                         for (JEVisSample jeVisSample : userNotesAttribute.getSamples(selectedStart, selectedEnd)) {
                             userNoteMap.put(jeVisSample.getTimestamp(), jeVisSample);
@@ -560,15 +560,6 @@ public class ChartDataRow extends ChartData {
         this.forecastSamples = forecastSamples;
     }
 
-    /**
-     * Workaround from FS, Gerrit find the right solution.
-     * This workaround is for the chart Sum function because it never calls the geSample with change function
-     * the scaleFactor is never set.
-     * <p>
-     * calling the factorizeSamples will add factor and will aso not work
-     *
-     * @throws JEVisException
-     */
     public void updateScaleFactor() throws JEVisException {
         String outputUnit = UnitManager.getInstance().format(getUnit()).replace("·", "");
         if (outputUnit.equals("")) outputUnit = getUnit().getLabel();
