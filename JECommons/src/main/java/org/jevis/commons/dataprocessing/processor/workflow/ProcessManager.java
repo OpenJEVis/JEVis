@@ -70,6 +70,7 @@ public class ProcessManager {
                 isMathData = false;
                 isForecast = true;
                 resourceManager.setClean(false);
+                resourceManager.setForecast(true);
             } else if (cleanObject.getJEVisClass().equals(mathDataClass)) {
                 this.resourceManager.setMathDataObject(new MathDataObject(cleanObject, objectHandler));
                 this.resourceManager.getMathDataObject().setProcessingSize(processingSize);
@@ -80,6 +81,7 @@ public class ProcessManager {
                 isMathData = true;
                 isForecast = false;
                 resourceManager.setClean(false);
+                resourceManager.setForecast(false);
             } else {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
                 this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);

@@ -284,8 +284,8 @@ public class CommonMethods {
         try {
             JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
             if (value != null) {
-                if (((object.getJEVisClassName().equals("Clean Data") || object.getJEVisClassName().equals("Math Data")) && cleanData)
-                        || (object.getJEVisClassName().equals("Data") && rawData)) {
+                if (((object.getJEVisClassName().equals("Clean Data") || object.getJEVisClassName().equals("Math Data") || object.getJEVisClassName().equals("Forecast Data")) && cleanData)
+                        || ((object.getJEVisClassName().equals("Data") || object.getJEVisClassName().equals("String Data")) && rawData)) {
                     pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
                     value.deleteAllSample();
 
@@ -295,13 +295,13 @@ public class CommonMethods {
             for (JEVisObject child : object.getChildren()) {
                 deleteAllSamples(pForm, child, rawData, cleanData);
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
         }
     }
 
     private static void allSamplesMathData(JEVisObject object, boolean cleanData) throws JEVisException {
-        if (object.getJEVisClassName().equals("Math Data") && cleanData) {
+        if ((object.getJEVisClassName().equals("Math Data") || object.getJEVisClassName().equals("Forecast Data")) && cleanData) {
             try {
                 JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
                 if (lastRunAttribute != null) {
@@ -315,7 +315,7 @@ public class CommonMethods {
                     }
                 }
 
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not get math data last run time: ", e);
             }
         }
@@ -325,7 +325,7 @@ public class CommonMethods {
         try {
             JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
             if (value != null) {
-                if (((object.getJEVisClassName().equals("Clean Data") || object.getJEVisClassName().equals("Math Data")) && cleanData)
+                if (((object.getJEVisClassName().equals("Clean Data") || object.getJEVisClassName().equals("Math Data") || object.getJEVisClassName().equals("Forecast Data")) && cleanData)
                         || (object.getJEVisClassName().equals("Data") && rawData)) {
                     DateTime f = null;
                     if (from == null) {
@@ -350,13 +350,13 @@ public class CommonMethods {
             for (JEVisObject child : object.getChildren()) {
                 deleteAllSamples(pForm, child, from, to, rawData, cleanData);
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
         }
     }
 
     private static void fromToMathData(JEVisObject object, boolean cleanData, DateTime f, DateTime t) throws JEVisException {
-        if (object.getJEVisClassName().equals("Math Data") && cleanData) {
+        if ((object.getJEVisClassName().equals("Math Data") || object.getJEVisClassName().equals("Forecast Data")) && cleanData) {
             try {
                 JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
                 JEVisAttribute periodOffsetAttribute = object.getAttribute("Period Offset");
@@ -386,7 +386,7 @@ public class CommonMethods {
                     }
                 }
 
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 logger.error("Could not get math data last run time: ", e);
             }
         }
