@@ -240,7 +240,7 @@ public class ProcessManager {
         resourceManager.setMathDataObject(new MathDataObject(mathObject, objectHandler));
         resourceManager.getMathDataObject().setProcessingSize(processingSize);
 
-        addDefaultSteps();
+        addMathSteps();
     }
 
     private void reRun() throws Exception {
