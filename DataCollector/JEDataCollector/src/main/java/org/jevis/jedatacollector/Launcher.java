@@ -140,7 +140,7 @@ public class Launcher extends AbstractCliApp {
             logger.info("----------------Finished DataSource " + object.getName() + "-----------------");
 
             StringBuilder running = new StringBuilder();
-            runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime));
+            runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
             logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
 
             checkLastJob();
