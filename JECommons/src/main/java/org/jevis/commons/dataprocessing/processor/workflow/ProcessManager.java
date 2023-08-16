@@ -59,12 +59,14 @@ public class ProcessManager {
             if (cleanObject.getJEVisClass().equals(cleanDataClass)) {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
                 this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+                processSteps.clear();
                 addDefaultSteps();
             } else if (cleanObject.getJEVisClass().equals(forecastDataClass)) {
                 this.resourceManager.setForecastDataObject(new ForecastDataObject(cleanObject, objectHandler));
                 this.resourceManager.getForecastDataObject().setProcessingSize(processingSize);
                 this.name = resourceManager.getForecastDataObject().getForecastDataObject().getName();
                 this.id = resourceManager.getForecastDataObject().getForecastDataObject().getID();
+                processSteps.clear();
                 addForecastSteps();
                 isClean = false;
                 isMathData = false;
@@ -76,6 +78,7 @@ public class ProcessManager {
                 this.resourceManager.getMathDataObject().setProcessingSize(processingSize);
                 this.name = this.resourceManager.getMathDataObject().getMathDataObject().getName();
                 this.id = this.resourceManager.getMathDataObject().getMathDataObject().getID();
+                processSteps.clear();
                 addMathSteps();
                 isClean = false;
                 isMathData = true;
@@ -85,6 +88,7 @@ public class ProcessManager {
             } else {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
                 this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+                processSteps.clear();
                 addDefaultSteps();
             }
         } catch (Exception e) {
@@ -236,7 +240,7 @@ public class ProcessManager {
         resourceManager.setMathDataObject(new MathDataObject(mathObject, objectHandler));
         resourceManager.getMathDataObject().setProcessingSize(processingSize);
 
-        addDefaultSteps();
+        addMathSteps();
     }
 
     private void reRun() throws Exception {
