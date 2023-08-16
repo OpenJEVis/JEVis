@@ -30,6 +30,7 @@ public class JEVisJSONParser implements Parser {
 
     @Override
     public void initialize(JEVisObject parserObject) {
+
         this.parserObject = parserObject;
         try {
             jsonChannels.addAll(getChannels(parserObject));
@@ -42,6 +43,7 @@ public class JEVisJSONParser implements Parser {
     @Override
     public void parse(List<InputStream> input, DateTimeZone timezone) {
         try {
+
             if (!parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).hasSample()) return;
             String dateTimePath = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).getLatestSample().getValueAsString();
             input.forEach(inputStream -> {
@@ -96,13 +98,15 @@ public class JEVisJSONParser implements Parser {
 
     private List<?> getValueList(JSONParser jsonParser, String valuePath, String regex, String valueFormat) {
         List<JsonNode> valuesJson = jsonParser.parse(valuePath);
-        List<?> values = convertValues(valuesJson, regex,valueFormat);
+        List<String> stringValues = regexValues(valuesJson, regex);
+        System.out.println(valueFormat);
+        List<?> values = convertValues(stringValues, valueFormat);
         return values;
     }
 
     private static String getStatusOkCondition(JEVisObject jsonChannel, String stausValueOk) throws JEVisException {
         String statusOK = null;
-        if (jsonChannel.getAttribute(stausValueOk).hasSample()) {
+        if (jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.STAUS_VALUE_OK).hasSample()) {
             statusOK = jsonChannel.getAttribute(stausValueOk).getLatestSample().getValueAsString();
         }
         return statusOK;
@@ -128,7 +132,7 @@ public class JEVisJSONParser implements Parser {
         return regex;
     }
 
-    private List<?> convertValues(List<JsonNode> valuesJson, String regexPattern, String valueClass) {
+    private List<String> regexValues(List<JsonNode> valuesJson, String regexPattern) {
         if (regexPattern == null || regexPattern.isEmpty()) return valuesJson.stream().map(jsonNode -> jsonNode.asText()).collect(Collectors.toList());
         Pattern pattern = Pattern.compile(regexPattern);
         List<String> stringValues = valuesJson.stream().map(jsonNode -> {
@@ -140,15 +144,40 @@ public class JEVisJSONParser implements Parser {
             }
         }).collect(Collectors.toList());
 
-        if (valueClass == "Double") {
-            return stringValues.stream().map(s -> Double.valueOf(s)).collect(Collectors.toList());
-        } else if (valueClass == "String" || valueClass == "") {
-            return stringValues;
-        } else if (valueClass == "Boolean") {
-            return stringValues.stream().map(s -> Boolean.valueOf(s)).collect(Collectors.toList());
-        }
-
         return stringValues;
+
+
+    }
+
+    private List<?> convertValues(List<String> strings, String valueClass) {
+        System.out.println(strings);
+        System.out.println(valueClass);
+
+        if (valueClass == "Double") {
+            return strings.stream().map(s -> {
+                try {
+                    return Double.valueOf(s);
+                } catch (Exception e) {
+                    logger.error("could not parse {}",s);
+                    logger.error(e);
+                    return 0;
+                }
+
+            }).collect(Collectors.toList());
+        } else if (valueClass == "String" || valueClass == "") {
+            return strings;
+        } else if (valueClass == "Boolean") {
+            return strings.stream().map(s -> {
+                try {
+                    return Boolean.valueOf(s);
+                } catch (Exception e) {
+                    logger.error("Could not parse {}",s);
+                    logger.error(e);
+                    return false;
+                }
+            }).collect(Collectors.toList());
+        }
+        return strings;
 
 
     }
