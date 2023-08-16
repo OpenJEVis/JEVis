@@ -139,7 +139,9 @@ public class Launcher extends AbstractCliApp {
             }
             logger.info("----------------Finished DataSource " + object.getName() + "-----------------");
 
-            logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+            StringBuilder running = new StringBuilder();
+            runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime));
+            logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
 
             checkLastJob();
         }
@@ -191,7 +193,7 @@ public class Launcher extends AbstractCliApp {
 
             checkForTimeout();
 
-            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+            if (plannedJobs.isEmpty() && runningJobs.isEmpty()) {
                 TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 //                if (!firstRun) {
 //                    try {
