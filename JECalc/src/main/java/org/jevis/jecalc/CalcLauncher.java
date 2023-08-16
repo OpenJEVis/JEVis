@@ -116,7 +116,10 @@ public class CalcLauncher extends AbstractCliApp {
                     } finally {
                         removeJob(object);
 
-                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
+                        StringBuilder running = new StringBuilder();
+                        runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime));
+
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
 
                         checkLastJob();
                     }
