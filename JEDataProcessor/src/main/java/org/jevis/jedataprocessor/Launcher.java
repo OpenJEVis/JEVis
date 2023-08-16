@@ -89,7 +89,7 @@ public class Launcher extends AbstractCliApp {
                         removeJob(currentCleanDataObject);
 
                         StringBuilder running = new StringBuilder();
-                        runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime));
+                        runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
 
                         logger.info("Planned Jobs: {} running Jobs: {} runnables: {}", plannedJobs.size(), running.toString(), runnables.size());
 
