@@ -173,8 +173,8 @@ public class LegalCadastreController {
     public void createItem() {
         LegalCadastreTab tab = getActiveTab();
         try {
-            JEVisClass legalPlanDirClass = getActivePlan().getObject().getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.name);
-            JEVisClass legalClass = getActivePlan().getObject().getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.Obligation.name);
+            JEVisClass legalPlanDirClass = getActivePlan().getObject().getDataSource().getJEVisClass(JC.IndexofLegalProvisions.IndexofLegalProvionsDirectory.Obligation.ObligationDirectory.name);
+            JEVisClass legalClass = getActivePlan().getObject().getDataSource().getJEVisClass(JC.IndexofLegalProvisions.IndexofLegalProvionsDirectory.Obligation.name);
             JEVisObject legalPlanDirObj = null;
             if (getActivePlan().getObject().getChildren(legalPlanDirClass, false).isEmpty()) {
                 legalPlanDirObj = getActivePlan().getObject().buildObject(legalPlanDirClass.getName(), legalPlanDirClass);
