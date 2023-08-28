@@ -1,0 +1,44 @@
+{
+  "name": "MSCONS Data Point",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "MSCONS Data Point",
+      "end": "MSCONS Data Point Directory",
+      "type": 3
+    },
+    {
+      "start": "MSCONS Data Point",
+      "end": "Data Point",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Messlukation",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "MSCONS Data Point"
+    },
+    {
+      "name": "Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "MSCONS Data Point"
+    },
+    {
+      "name": "Date Time",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "MSCONS Data Point"
+    }
+  ]
+}

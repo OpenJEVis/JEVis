@@ -126,8 +126,8 @@ public class IndexOfLegalProvisions {
             actionsLoaded.set(true);
             try {
 
-                JEVisClass actionDirClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.name);
-                JEVisClass actionClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.Obligation.name);
+                JEVisClass actionDirClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.IndexofLegalProvionsDirectory.Obligation.ObligationDirectory.name);
+                JEVisClass actionClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.IndexofLegalProvionsDirectory.Obligation.name);
                 for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
                     dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                         System.out.println("new Action from JEVis: " + actionObj);

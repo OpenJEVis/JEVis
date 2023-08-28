@@ -5,7 +5,7 @@
   "relationships": [
     {
       "start": "Obligation",
-      "end": "Index of Legal Provisions Directory",
+      "end": "Obligation Directory",
       "type": 3
     }
   ],
@@ -16,7 +16,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Legislation"
+      "jevisClass": "Directory"
     }
   ]
 }

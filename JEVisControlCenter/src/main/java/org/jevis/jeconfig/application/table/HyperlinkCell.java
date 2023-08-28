@@ -19,6 +19,7 @@ public class HyperlinkCell<T> implements Callback<TableColumn<T, String>, TableC
                         super.updateItem(item, empty);
                         Hyperlink hyperlink = new Hyperlink();
                         hyperlink.setText(item);
+                        System.out.println(item);
                         hyperlink.setOnAction(actionEvent -> {
                                     Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
                                     if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
@@ -35,6 +36,7 @@ public class HyperlinkCell<T> implements Callback<TableColumn<T, String>, TableC
 
                         if (item == null || empty) {
                             setText(null);
+                            setGraphic(null);
                         } else {
                             setGraphic(hyperlink);
                         }

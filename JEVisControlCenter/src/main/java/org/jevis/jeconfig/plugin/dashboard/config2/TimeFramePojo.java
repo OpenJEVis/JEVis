@@ -56,6 +56,8 @@ public class TimeFramePojo {
 
     private int selectedId;
 
+    private boolean countOfSamples;
+
     public TimeFramePojo(DashboardControl control) {
         this(control, null);
     }
@@ -70,6 +72,7 @@ public class TimeFramePojo {
                 selectedId = jsonNode.get("selectedWidget").get("id").asInt();
                 start = jsonNode.get("selectedWidget").get("start").asText();
                 end = jsonNode.get("selectedWidget").get("end").asText();
+                countOfSamples = jsonNode.get("selectedWidget").get("count").asBoolean(false);
             }
             if (jsonNode.has("format")) {
                 parser = jsonNode.get("format").asText("yyyy.MM.dd HH:mm");
@@ -80,18 +83,27 @@ public class TimeFramePojo {
 
     }
 
-    public TimeFrameWidgetObject getSelectedTimeFarmeObjectWidget() {
+    public Optional<TimeFrameWidgetObject>  getSelectedTimeFarmeObjectWidget() {
         Optional<TimeFrameWidgetObject> optionalTimeFrameWidgetObject = widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.isSelected()).findFirst();
-        if (!optionalTimeFrameWidgetObject.isPresent()) return null;
-        return optionalTimeFrameWidgetObject.get();
+       return optionalTimeFrameWidgetObject;
     }
 
-    public Widget getSelectedWidget() {
+    public Optional<Widget> getSelectedWidget() {
         addWidgets();
-        TimeFrameWidgetObject timeFrameWidgetObject = getSelectedTimeFarmeObjectWidget();
-        Optional<Widget> widget = this.dashboardControl.getWidgets().stream().filter(widget1 -> widget1.config.getUuid() == timeFrameWidgetObject.getConfig().getUuid()).findFirst();
-        if (!widget.isPresent()) return null;
-        return widget.get();
+        try {
+            if (getSelectedTimeFarmeObjectWidget().isPresent()) {
+
+                TimeFrameWidgetObject timeFrameWidgetObject = getSelectedTimeFarmeObjectWidget().get();
+                Optional<Widget> widget = this.dashboardControl.getWidgets().stream().filter(widget1 -> widget1.config.getUuid() == timeFrameWidgetObject.getConfig().getUuid()).findFirst();
+                return widget;
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            logger.error(e);
+            return Optional.empty();
+        }
+
+
     }
 
 
@@ -198,9 +210,20 @@ public class TimeFramePojo {
         logger.debug(dataNode);
 
         ObjectNode dataNode1 = dataNode.putObject("selectedWidget");
-        dataNode1.put("start", getSelectedTimeFarmeObjectWidget().getStartObjectProperty().toString());
-        dataNode1.put("end", getSelectedTimeFarmeObjectWidget().getEndObjectProperty().toString());
-        dataNode1.put("id", getSelectedWidget().getConfig().getUuid());
+        if (getSelectedTimeFarmeObjectWidget().isPresent()) {
+            dataNode1.put("start", getSelectedTimeFarmeObjectWidget().get().getStartObjectProperty().toString());
+        }
+        if (getSelectedTimeFarmeObjectWidget().isPresent()) {
+
+            dataNode1.put("end", getSelectedTimeFarmeObjectWidget().get().getEndObjectProperty().toString());
+        }
+        if (getSelectedWidget().isPresent()) {
+            dataNode1.put("id", getSelectedWidget().get().getConfig().getUuid());
+        }
+        if (getSelectedTimeFarmeObjectWidget().isPresent()) {
+            dataNode1.put("count", getSelectedTimeFarmeObjectWidget().get().cuntOfSamplesProperty().getValue().toString());
+
+        }
 
 
         return dataNode;
@@ -222,6 +245,7 @@ public class TimeFramePojo {
                 selected.setSelected(true);
                 selected.setEndObjectProperty(TimeFrameWidgetObject.End.valueOf(end));
                 selected.setStartObjectProperty(TimeFrameWidgetObject.Start.valueOf(start));
+                selected.setCuntOfSamples(countOfSamples);
             }
         }
     }
