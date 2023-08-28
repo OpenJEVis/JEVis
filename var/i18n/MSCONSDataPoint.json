@@ -1,0 +1,69 @@
+{
+  "jevisclass": "MSCONS Data Point",
+  "names": {
+    "de": "Eingangsvariable",
+    "ru": "Input",
+    "en": "Input",
+    "ar": "مدخل"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Messlukation",
+      "descriptions": {
+        "de": "Messlukation",
+        "ru": "Messlukation",
+        "en": "Messlukation",
+        "ar": "Messlukation"
+      },
+      "names": {
+        "de": "Messlukation",
+        "ru": "Messlukation",
+        "en": "Messlukation",
+        "ar": "Messlukation"
+      }
+    },
+    {
+      "type": "Input Data",
+      "descriptions": {
+        "de": "Definiert die Quelldatenreihe",
+        "ru": "Input Data desctiption",
+        "en": "Defines source input data",
+        "ar": "ادخال البيانات"
+      },
+      "names": {
+        "de": "Quelldatenreihe",
+        "ru": "Input Data",
+        "en": "Input Data",
+        "ar": "سلاسل بيانات المصدر"
+      }
+    },
+    {
+      "type": "Date Time",
+      "names": {
+        "de": "Date Time",
+        "ru": "Date Time",
+        "en": "Date Time",
+        "ar": "Date Time"
+      },
+      "enums" : {
+        "START" : {
+          "descriptions" : null,
+          "names" : {
+            "de": "Start",
+            "en": "Start",
+            "ar": "Start"
+          }
+        },
+        "END": {
+          "descriptions": null,
+          "names": {
+            "de": "End",
+            "en": "End",
+            "ar": "End"
+          }
+        }
+      }
+    }
+  ]
+}

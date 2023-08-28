@@ -38,6 +38,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
+import javax.swing.event.EventListenerList;
 import java.util.*;
 
 public class DataModelDataHandler {
@@ -65,6 +66,8 @@ public class DataModelDataHandler {
     private final PeriodComparator periodComparator = new PeriodComparator();
     private WorkDays wd;
     private Interval forcedZeroInterval;
+
+    private final EventListenerList listeners = new EventListenerList();
 
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, DashboardControl dashboardControl, JsonNode configNode, String id) {
         this.jeVisDataSource = jeVisDataSource;
@@ -461,6 +464,30 @@ public class DataModelDataHandler {
         return this.dataModelNode;
     }
 
+    public void addEventListener(SampleHandlerEventListener listener) {
+
+        if (this.listeners.getListeners(JEVisEventListener.class).length > 0) {
+        }
+
+        this.listeners.add(SampleHandlerEventListener.class, listener);
+    }
+
+
+    public void removeEventListener(SampleHandlerEventListener listener) {
+        this.listeners.remove(SampleHandlerEventListener.class, listener);
+    }
+
+    public SampleHandlerEventListener[] getEventListener() {
+        return this.listeners.getListeners(SampleHandlerEventListener.class);
+    }
+
+    private synchronized void notifyListeners(SampleHandlerEvent event) {
+        logger.error("SampleHandlerEvent: {}",event);
+        for (SampleHandlerEventListener l : this.listeners.getListeners(SampleHandlerEventListener.class)) {
+            l.fireEvent(event);
+        }
+    }
+
     public void update() {
         logger.debug("Update Samples: {}", this.durationProperty.getValue());
         this.chartDataRows.forEach(chartDataModel -> {
@@ -497,6 +524,7 @@ public class DataModelDataHandler {
         });
 
         this.lastUpdate.setValue(new DateTime());
+        notifyListeners(new SampleHandlerEvent(this, SampleHandlerEvent.TYPE.UPDATE));
     }
 
     public void setMultiSelect(boolean enable) {

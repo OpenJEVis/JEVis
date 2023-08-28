@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -18,6 +19,11 @@ public class Parameter implements VarFiller.VarFunction {
     @Expose
     @SerializedName("Parameter")
     private ObjectProperty<VarFiller.Variable> variable = new SimpleObjectProperty<>();
+
+    @Expose
+    @SerializedName("Timezone")
+    private StringProperty timezone = new SimpleStringProperty(DateTimeZone.UTC.getID());
+
     @JsonIgnore
     private DateTime lastTS;
 
@@ -40,7 +46,7 @@ public class Parameter implements VarFiller.VarFunction {
         try {
             if (format != null) {
                 DateTimeFormatter fmt = DateTimeFormat.forPattern(format);
-                return fmt.print(dateTime);
+                return fmt.print(dateTime.withZone(DateTimeZone.forID(timezone.get())));
             } else {
                 return dateTime.toString();
             }
@@ -59,6 +65,11 @@ public class Parameter implements VarFiller.VarFunction {
 
     private String getLasTs() {
         if (lastTS != null) {
+            System.out.println(getLastTS());
+            System.out.println(timezone.get());
+            System.out.println(getLastTS().withZone(DateTimeZone.forID(timezone.get())));
+
+
             return format(getFormat(), getLastTS());
         } else {
             return format(getFormat(), new DateTime(1980, 01, 01, 01, 01));
@@ -109,5 +120,17 @@ public class Parameter implements VarFiller.VarFunction {
 
     public void setVariable(VarFiller.Variable variable) {
         this.variable.set(variable);
+    }
+
+    public String getTimezone() {
+        return timezone.get();
+    }
+
+    public StringProperty timezoneProperty() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone.set(timezone);
     }
 }

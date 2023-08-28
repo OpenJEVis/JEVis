@@ -94,6 +94,13 @@ public class TimeFrameTableView extends TableView<TimeFrameWidgetObject> {
                 )
         );
 
+        TableColumn<TimeFrameWidgetObject, Boolean> countOfSamplesCol = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.timeframe.table.count"));
+        countOfSamplesCol.setCellValueFactory(object -> object.getValue().cuntOfSamplesProperty());
+        countOfSamplesCol.setCellFactory(CheckBoxTableCell.forTableColumn(countOfSamplesCol));
+        countOfSamplesCol.setEditable(true);
+
+
+
         TableColumn<TimeFrameWidgetObject, TimeFrameWidgetObject.Start> startCol = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.timeframe.table.start"));
         startCol.setCellValueFactory(object -> object.getValue().startObjectPropertyProperty());
         startCol.setEditable(true);
@@ -131,7 +138,7 @@ public class TimeFrameTableView extends TableView<TimeFrameWidgetObject> {
         );
 
         setItems(list);
-        getColumns().addAll(idCol, typeAttributeColumn(), titleCol, startCol, endCol, selectedCol);
+        getColumns().addAll(idCol, typeAttributeColumn(), titleCol, startCol, endCol,countOfSamplesCol, selectedCol);
 
 
     }

@@ -21,9 +21,39 @@ public class TimeFrameWidgetObject extends Widget {
     private ObjectProperty<Start> startObjectProperty = new SimpleObjectProperty<>(Start.NONE);
     private ObjectProperty<End> endObjectProperty = new SimpleObjectProperty<>(End.NONE);
 
+    private BooleanProperty cuntOfSamples = new SimpleBooleanProperty();
+
 
     public TimeFrameWidgetObject(DashboardControl control, WidgetPojo config) {
         super(control, config);
+        addListner();
+    }
+
+    private void addListner() {
+
+        cuntOfSamples.addListener((observableValue, aBoolean, t1) -> {
+            if (t1) {
+                startObjectProperty.set(Start.NONE);
+                endObjectProperty.set(End.NONE);
+            }
+        });
+        startObjectProperty.addListener((observableValue, start, t1) -> {
+            System.out.println(t1);
+            if (!t1.equals(Start.NONE)) {
+                cuntOfSamples.set(false);
+
+            }
+        });
+        endObjectProperty.addListener((observableValue, start, t1) -> {
+            System.out.println(t1);
+            if (!t1.equals(End.NONE)) {
+                cuntOfSamples.set(false);
+
+            }
+        });
+
+
+
     }
 
     @Override
@@ -65,7 +95,6 @@ public class TimeFrameWidgetObject extends Widget {
     public List<DateTime> getMaxTimeStamps() {
         List<DateTime> dateTimes = new ArrayList<>();
         super.sampleHandler.getMaxTimeStamps();
-        System.out.println("test");
         return dateTimes;
 
     }
@@ -129,6 +158,18 @@ public class TimeFrameWidgetObject extends Widget {
                 ", endObjectProperty=" + endObjectProperty +
                 ", config=" + config +
                 '}';
+    }
+
+    public boolean isCuntOfSamples() {
+        return cuntOfSamples.get();
+    }
+
+    public BooleanProperty cuntOfSamplesProperty() {
+        return cuntOfSamples;
+    }
+
+    public void setCuntOfSamples(boolean cuntOfSamples) {
+        this.cuntOfSamples.set(cuntOfSamples);
     }
 
     public enum Start {

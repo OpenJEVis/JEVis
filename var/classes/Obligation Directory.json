@@ -1,0 +1,17 @@
+﻿{
+  "name": "Obligation Directory",
+  "description": "Obligation Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Obligation Directory",
+      "end": "Index of Legal Provisions",
+      "type": 3
+    },
+    {
+      "start": "Obligation Directory",
+      "end": "Directory",
+      "type": 0
+    }
+  ]
+}
