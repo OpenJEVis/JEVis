@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.datahandler;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -71,6 +72,8 @@ public class DataModelDataHandler {
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, DashboardControl dashboardControl, JsonNode configNode, String id) {
         this.jeVisDataSource = jeVisDataSource;
         this.dashboardControl = dashboardControl;
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         this.widgetType = id;
 
         try {
@@ -428,6 +431,8 @@ public class DataModelDataHandler {
 
                 dataNode.put("color", dataPointNode.getColor().toString());
                 dataNode.put("axis", dataPointNode.getAxis().toString());
+                dataNode.put("decimalDigits", dataPointNode.getDecimalDigits());
+                dataNode.put("bubbleType", dataPointNode.getBubbleType().toString());
 
                 if (dataPointNode.getCustomCSS() != null) {
                     dataNode.put("customCSS", dataPointNode.getCustomCSS());
@@ -635,6 +640,9 @@ public class DataModelDataHandler {
                             chartDataRow.setAbsolute(true);
                         }
 
+                        chartDataRow.setBubbleType(dataPointNode.getBubbleType());
+                        chartDataRow.setDecimalDigits(dataPointNode.getDecimalDigits());
+
                         if (dataPointNode.getCustomCSS() != null) {
                             chartDataRow.setCustomCSS(dataPointNode.getCustomCSS());
                         }
@@ -690,6 +698,8 @@ public class DataModelDataHandler {
             chartData.setAggregationPeriod(dataPointNode.getAggregationPeriod());
             chartData.setManipulationMode(dataPointNode.getManipulationMode());
             chartData.setAxis(dataPointNode.getAxis());
+            chartData.setDecimalDigits(dataPointNode.getDecimalDigits());
+            chartData.setBubbleType(dataPointNode.getBubbleType());
             chartData.setCalculation(dataPointNode.isEnpi());
             chartData.setCss(dataPointNode.getCustomCSS());
 
@@ -711,6 +721,7 @@ public class DataModelDataHandler {
             dataPointNode.setAttribute(chartData.getAttributeString());
             dataPointNode.setColor(chartData.getColor());
             dataPointNode.setAxis(chartData.getAxis());
+            dataPointNode.setDecimalDigits(chartData.getDecimalDigits());
             dataPointNode.setAggregationPeriod(chartData.getAggregationPeriod());
             dataPointNode.setCleanObjectID(chartData.getId());
             dataPointNode.setCustomCSS(chartData.getCss());
@@ -719,6 +730,7 @@ public class DataModelDataHandler {
             dataPointNode.setObjectID(chartData.getId());
             dataPointNode.setUnit(chartData.getUnit().getLabel());
             dataPointNode.setEnpi(chartData.isCalculation());
+            dataPointNode.setBubbleType(chartData.getBubbleType());
 
             if (autoAggregation) {
                 dataPointNode.setAbsolute(true);
@@ -792,9 +804,13 @@ public class DataModelDataHandler {
                             chartDataRow.setAbsolute(true);
                         }
 
+                        chartDataRow.setDecimalDigits(dataPointNode.getDecimalDigits());
+
                         if (dataPointNode.getCustomCSS() != null) {
                             chartDataRow.setCustomCSS(dataPointNode.getCustomCSS());
                         }
+
+                        chartDataRow.setBubbleType(dataPointNode.getBubbleType());
 
 
                     } else {

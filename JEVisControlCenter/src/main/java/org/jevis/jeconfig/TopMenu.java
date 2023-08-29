@@ -229,7 +229,7 @@ public class TopMenu extends MenuBar {
                 try {
                     JEVisObject analysisObject = JEConfig.getDataSource().getObject(favoriteAnalysis.getId());
 
-                    DataSettings dataSettings = chartPlugin.getDataSettings();
+                    DataSettings dataSettings = new DataSettings();
 
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(JEConfig.getDataSource(), analysisObject, favoriteAnalysis.getTimeFrame());
 

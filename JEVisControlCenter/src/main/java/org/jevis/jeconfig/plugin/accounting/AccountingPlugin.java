@@ -157,7 +157,7 @@ public class AccountingPlugin extends TablePlugin {
             };
         }
     };
-    private final JFXComboBox<JEVisObject> energySupplierBox = new JFXComboBox<>();
+    private final JFXComboBox<ComboBoxItem> energySupplierBox = new JFXComboBox<>();
 
     private final Callback<ListView<ComboBoxItem>, ListCell<ComboBoxItem>> comboBoxItemCellFactory = new Callback<ListView<ComboBoxItem>, ListCell<ComboBoxItem>>() {
         @Override
@@ -179,8 +179,8 @@ public class AccountingPlugin extends TablePlugin {
             };
         }
     };
-    private final JFXComboBox<JEVisObject> energyMeteringOperatorBox = new JFXComboBox<>();
-    private final JFXComboBox<JEVisObject> energyGridOperatorBox = new JFXComboBox<>();
+    private final JFXComboBox<ComboBoxItem> energyMeteringOperatorBox = new JFXComboBox<>();
+    private final JFXComboBox<ComboBoxItem> energyGridOperatorBox = new JFXComboBox<>();
     private final JFXComboBox<ComboBoxItem> energyContractorBox = new JFXComboBox<>();
     private final JFXComboBox<JEVisObject> governmentalDuesBox = new JFXComboBox<>();
     private final List<AttributeEditor> attributeEditors = new ArrayList<>();
@@ -246,16 +246,16 @@ public class AccountingPlugin extends TablePlugin {
         }
 
         energySupplierBox.setMaxWidth(Double.MAX_VALUE);
-        energySupplierBox.setCellFactory(objectNameCellFactory);
-        energySupplierBox.setButtonCell(objectNameCellFactory.call(null));
+        energySupplierBox.setCellFactory(comboBoxItemCellFactory);
+        energySupplierBox.setButtonCell(comboBoxItemCellFactory.call(null));
 
         energyMeteringOperatorBox.setMaxWidth(Double.MAX_VALUE);
-        energyMeteringOperatorBox.setCellFactory(objectNameCellFactory);
-        energyMeteringOperatorBox.setButtonCell(objectNameCellFactory.call(null));
+        energyMeteringOperatorBox.setCellFactory(comboBoxItemCellFactory);
+        energyMeteringOperatorBox.setButtonCell(comboBoxItemCellFactory.call(null));
 
         energyGridOperatorBox.setMaxWidth(Double.MAX_VALUE);
-        energyGridOperatorBox.setCellFactory(objectNameCellFactory);
-        energyGridOperatorBox.setButtonCell(objectNameCellFactory.call(null));
+        energyGridOperatorBox.setCellFactory(comboBoxItemCellFactory);
+        energyGridOperatorBox.setButtonCell(comboBoxItemCellFactory.call(null));
 
         energyContractorBox.setMaxWidth(Double.MAX_VALUE);
         energyContractorBox.setCellFactory(comboBoxItemCellFactory);
@@ -986,11 +986,11 @@ public class AccountingPlugin extends TablePlugin {
                 if (motherTabPane.getSelectionModel().getSelectedItem().equals(enterDataTab)) {
                     JEVisObject objectToDelete = null;
                     if (enterDataTabPane.getSelectionModel().getSelectedItem().equals(energySupplierTab)) {
-                        objectToDelete = energySupplierBox.getSelectionModel().getSelectedItem();
+                        objectToDelete = energySupplierBox.getSelectionModel().getSelectedItem().getObject();
                     } else if (enterDataTabPane.getSelectionModel().getSelectedItem().equals(energyMeteringOperatorsTab)) {
-                        objectToDelete = energyMeteringOperatorBox.getSelectionModel().getSelectedItem();
+                        objectToDelete = energyMeteringOperatorBox.getSelectionModel().getSelectedItem().getObject();
                     } else if (enterDataTabPane.getSelectionModel().getSelectedItem().equals(energyGridOperatorsTab)) {
-                        objectToDelete = energyGridOperatorBox.getSelectionModel().getSelectedItem();
+                        objectToDelete = energyGridOperatorBox.getSelectionModel().getSelectedItem().getObject();
                     } else if (enterDataTabPane.getSelectionModel().getSelectedItem().equals(energyContractorTab)) {
                         objectToDelete = energyContractorBox.getSelectionModel().getSelectedItem().getObject();
                     } else if (enterDataTabPane.getSelectionModel().getSelectedItem().equals(governmentalDuesTab)) {
@@ -1050,19 +1050,19 @@ public class AccountingPlugin extends TablePlugin {
                         newObjectClasses.add(accountingDirectories.getElectricitySupplyContractorClass());
                         newObjectClasses.add(accountingDirectories.getGasSupplyContractorClass());
                         newObjectClasses.add(accountingDirectories.getCommunityHeatingSupplyContractorClass());
-                        selected = energySupplierBox;
+                        selectedOther = energySupplierBox;
                     } else if (enterDataTabPane.getSelectionModel().getSelectedItem().equals(energyMeteringOperatorsTab)) {
                         directory = accountingDirectories.getEnergyMeteringPointOperationDir();
                         newObjectClasses.add(accountingDirectories.getElectricityMeteringPointOperatorClass());
                         newObjectClasses.add(accountingDirectories.getGasMeteringPointOperatorClass());
                         newObjectClasses.add(accountingDirectories.getCommunityHeatingMeteringPointOperatorClass());
-                        selected = energyMeteringOperatorBox;
+                        selectedOther = energyMeteringOperatorBox;
                     } else if (enterDataTabPane.getSelectionModel().getSelectedItem().equals(energyGridOperatorsTab)) {
                         directory = accountingDirectories.getEnergyGridOperationDir();
                         newObjectClasses.add(accountingDirectories.getElectricityGridOperatorClass());
                         newObjectClasses.add(accountingDirectories.getGasGridOperatorClass());
                         newObjectClasses.add(accountingDirectories.getCommunityHeatingGridOperatorClass());
-                        selected = energyGridOperatorBox;
+                        selectedOther = energyGridOperatorBox;
                     } else if (enterDataTabPane.getSelectionModel().getSelectedItem().equals(energyContractorTab)) {
                         directory = accountingDirectories.getEnergyContractorDir();
                         newObjectClasses.add(accountingDirectories.getEnergySupplyContractorClass());
@@ -1318,7 +1318,7 @@ public class AccountingPlugin extends TablePlugin {
         JFXButton esRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         esRename.setOnAction(event -> {
             if (energySupplierBox.getSelectionModel().getSelectedItem() != null) {
-                RenameDialog renameDialog = new RenameDialog(energySupplierBox.getSelectionModel().getSelectedItem());
+                RenameDialog renameDialog = new RenameDialog(energySupplierBox.getSelectionModel().getSelectedItem().getObject());
                 renameDialog.show();
             }
         });
@@ -1336,7 +1336,7 @@ public class AccountingPlugin extends TablePlugin {
         energySupplierTab.setContent(esVBox);
 
         energySupplierBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(esGP, newValue, esClassLabel, esCGP);
+            updateWithChangeCheck(esGP, newValue.getObject(), esClassLabel, esCGP);
         });
 
         GridPane emoGP = new GridPane();
@@ -1358,7 +1358,7 @@ public class AccountingPlugin extends TablePlugin {
         JFXButton emoRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         emoRename.setOnAction(event -> {
             if (energyMeteringOperatorBox.getSelectionModel().getSelectedItem() != null) {
-                RenameDialog renameDialog = new RenameDialog(energyMeteringOperatorBox.getSelectionModel().getSelectedItem());
+                RenameDialog renameDialog = new RenameDialog(energyMeteringOperatorBox.getSelectionModel().getSelectedItem().getObject());
                 renameDialog.show();
             }
         });
@@ -1376,7 +1376,7 @@ public class AccountingPlugin extends TablePlugin {
         energyMeteringOperatorsTab.setContent(emoVBox);
 
         energyMeteringOperatorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(emoGP, newValue, emoClassLabel, emoCGP);
+            updateWithChangeCheck(emoGP, newValue.getObject(), emoClassLabel, emoCGP);
         });
 
         GridPane egoGP = new GridPane();
@@ -1398,7 +1398,7 @@ public class AccountingPlugin extends TablePlugin {
         JFXButton egoRename = new JFXButton(I18n.getInstance().getString("plugin.meters.button.rename"));
         egoRename.setOnAction(event -> {
             if (energyGridOperatorBox.getSelectionModel().getSelectedItem() != null) {
-                RenameDialog renameDialog = new RenameDialog(energyGridOperatorBox.getSelectionModel().getSelectedItem());
+                RenameDialog renameDialog = new RenameDialog(energyGridOperatorBox.getSelectionModel().getSelectedItem().getObject());
                 renameDialog.show();
             }
         });
@@ -1416,7 +1416,7 @@ public class AccountingPlugin extends TablePlugin {
         energyGridOperatorsTab.setContent(egoVBox);
 
         energyGridOperatorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateWithChangeCheck(egoGP, newValue, egoClassLabel, egoCGP);
+            updateWithChangeCheck(egoGP, newValue.getObject(), egoClassLabel, egoCGP);
         });
 
         GridPane cGP = new GridPane();
@@ -1560,9 +1560,9 @@ public class AccountingPlugin extends TablePlugin {
         guiUpdate = true;
 
         JEVisObject configComboBoxSelectedItem = configComboBox.getSelectionModel().getSelectedItem();
-        JEVisObject energySupplierBoxSelectedItem = energySupplierBox.getSelectionModel().getSelectedItem();
-        JEVisObject energyMeteringOperatorBoxSelectedItem = energyMeteringOperatorBox.getSelectionModel().getSelectedItem();
-        JEVisObject energyGridOperatorBoxSelectedItem = energyGridOperatorBox.getSelectionModel().getSelectedItem();
+        ComboBoxItem energySupplierBoxSelectedItem = energySupplierBox.getSelectionModel().getSelectedItem();
+        ComboBoxItem energyMeteringOperatorBoxSelectedItem = energyMeteringOperatorBox.getSelectionModel().getSelectedItem();
+        ComboBoxItem energyGridOperatorBoxSelectedItem = energyGridOperatorBox.getSelectionModel().getSelectedItem();
         ComboBoxItem energyContractorBoxSelectedItem = energyContractorBox.getSelectionModel().getSelectedItem();
         JEVisObject governmentalDuesBoxSelectedItem = governmentalDuesBox.getSelectionModel().getSelectedItem();
 
@@ -1587,34 +1587,97 @@ public class AccountingPlugin extends TablePlugin {
         } catch (Exception e) {
         }
 
-        List<JEVisObject> allEnergySupplier = ds.getObjects(accountingDirectories.getEnergySupplierClass(), true);
-        allEnergySupplier.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
-        energySupplierBox.getItems().addAll(allEnergySupplier);
+        List<JEVisObject> electricitySupplyContractors = ds.getObjects(accountingDirectories.getElectricitySupplyContractorClass(), false);
+        electricitySupplyContractors.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+        List<JEVisObject> gasSupplyContractors = ds.getObjects(accountingDirectories.getGasSupplyContractorClass(), false);
+        gasSupplyContractors.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+        List<JEVisObject> communityHeatingSupplyContractors = ds.getObjects(accountingDirectories.getCommunityHeatingSupplyContractorClass(), false);
+        communityHeatingSupplyContractors.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+
+        List<ComboBoxItem> allSuppliers = new ArrayList<>();
+        allSuppliers.add(new ComboBoxItem(I18nWS.getInstance().getClassName(accountingDirectories.getElectricitySupplyContractorClass().getName()), false));
+        electricitySupplyContractors.forEach(jeVisObject -> allSuppliers.add(new ComboBoxItem(jeVisObject, true)));
+        allSuppliers.add(new ComboBoxItem("", false));
+        allSuppliers.add(new ComboBoxItem(I18nWS.getInstance().getClassName(accountingDirectories.getGasSupplyContractorClass().getName()), false));
+        gasSupplyContractors.forEach(jeVisObject -> allSuppliers.add(new ComboBoxItem(jeVisObject, true)));
+        allSuppliers.add(new ComboBoxItem("", false));
+        allSuppliers.add(new ComboBoxItem(I18nWS.getInstance().getClassName(accountingDirectories.getCommunityHeatingSupplyContractorClass().getName()), false));
+        communityHeatingSupplyContractors.forEach(jeVisObject -> allSuppliers.add(new ComboBoxItem(jeVisObject, true)));
+
+        energySupplierBox.getItems().addAll(allSuppliers);
 
         if (energySupplierBoxSelectedItem != null && energySupplierBox.getItems().contains(energySupplierBoxSelectedItem)) {
             energySupplierBox.getSelectionModel().select(energySupplierBoxSelectedItem);
         } else {
-            energySupplierBox.getSelectionModel().selectFirst();
+            if (!electricitySupplyContractors.isEmpty()) {
+                energySupplierBox.getSelectionModel().select(new ComboBoxItem(electricitySupplyContractors.get(0), true));
+            } else if (!gasSupplyContractors.isEmpty()) {
+                energySupplierBox.getSelectionModel().select(new ComboBoxItem(gasSupplyContractors.get(0), true));
+            } else if (!communityHeatingSupplyContractors.isEmpty()) {
+                energySupplierBox.getSelectionModel().select(new ComboBoxItem(communityHeatingSupplyContractors.get(0), true));
+            }
         }
 
-        List<JEVisObject> allEnergyMeteringOperators = ds.getObjects(accountingDirectories.getEnergyMeteringOperatorClass(), true);
-        allEnergyMeteringOperators.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
-        energyMeteringOperatorBox.getItems().addAll(allEnergyMeteringOperators);
+        List<JEVisObject> electricityMeteringPointOperators = ds.getObjects(accountingDirectories.getElectricityMeteringPointOperatorClass(), false);
+        electricityMeteringPointOperators.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+        List<JEVisObject> gasMeteringPointOperators = ds.getObjects(accountingDirectories.getGasMeteringPointOperatorClass(), false);
+        gasMeteringPointOperators.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+        List<JEVisObject> communityHeatingMeteringPointOperators = ds.getObjects(accountingDirectories.getCommunityHeatingMeteringPointOperatorClass(), false);
+        communityHeatingMeteringPointOperators.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+
+        List<ComboBoxItem> allMeteringPointOperators = new ArrayList<>();
+        allMeteringPointOperators.add(new ComboBoxItem(I18nWS.getInstance().getClassName(accountingDirectories.getElectricityMeteringPointOperatorClass().getName()), false));
+        electricityMeteringPointOperators.forEach(jeVisObject -> allMeteringPointOperators.add(new ComboBoxItem(jeVisObject, true)));
+        allMeteringPointOperators.add(new ComboBoxItem("", false));
+        allMeteringPointOperators.add(new ComboBoxItem(I18nWS.getInstance().getClassName(accountingDirectories.getGasMeteringPointOperatorClass().getName()), false));
+        gasMeteringPointOperators.forEach(jeVisObject -> allMeteringPointOperators.add(new ComboBoxItem(jeVisObject, true)));
+        allMeteringPointOperators.add(new ComboBoxItem("", false));
+        allMeteringPointOperators.add(new ComboBoxItem(I18nWS.getInstance().getClassName(accountingDirectories.getCommunityHeatingMeteringPointOperatorClass().getName()), false));
+        communityHeatingMeteringPointOperators.forEach(jeVisObject -> allMeteringPointOperators.add(new ComboBoxItem(jeVisObject, true)));
+
+        energyMeteringOperatorBox.getItems().addAll(allMeteringPointOperators);
 
         if (energyMeteringOperatorBoxSelectedItem != null && energyMeteringOperatorBox.getItems().contains(energyMeteringOperatorBoxSelectedItem)) {
             energyMeteringOperatorBox.getSelectionModel().select(energyMeteringOperatorBoxSelectedItem);
         } else {
-            energyMeteringOperatorBox.getSelectionModel().selectFirst();
+            if (!electricityMeteringPointOperators.isEmpty()) {
+                energyMeteringOperatorBox.getSelectionModel().select(new ComboBoxItem(electricityMeteringPointOperators.get(0), true));
+            } else if (!gasMeteringPointOperators.isEmpty()) {
+                energyMeteringOperatorBox.getSelectionModel().select(new ComboBoxItem(gasMeteringPointOperators.get(0), true));
+            } else if (!communityHeatingMeteringPointOperators.isEmpty()) {
+                energyMeteringOperatorBox.getSelectionModel().select(new ComboBoxItem(communityHeatingMeteringPointOperators.get(0), true));
+            }
         }
 
-        List<JEVisObject> allEnergyGridOperators = ds.getObjects(accountingDirectories.getEnergyGridOperatorClass(), true);
-        allEnergyGridOperators.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
-        energyGridOperatorBox.getItems().addAll(allEnergyGridOperators);
+        List<JEVisObject> electricityGridOperators = ds.getObjects(accountingDirectories.getElectricityGridOperatorClass(), false);
+        electricityGridOperators.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+        List<JEVisObject> gasGridOperators = ds.getObjects(accountingDirectories.getGasGridOperatorClass(), false);
+        gasGridOperators.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+        List<JEVisObject> communityHeatingGridOperators = ds.getObjects(accountingDirectories.getCommunityHeatingGridOperatorClass(), false);
+        communityHeatingGridOperators.sort((o1, o2) -> alphanumComparator.compare(o1.getName(), o2.getName()));
+
+        List<ComboBoxItem> allGridOperators = new ArrayList<>();
+        allGridOperators.add(new ComboBoxItem(I18nWS.getInstance().getClassName(accountingDirectories.getElectricityGridOperatorClass().getName()), false));
+        electricityGridOperators.forEach(jeVisObject -> allGridOperators.add(new ComboBoxItem(jeVisObject, true)));
+        allGridOperators.add(new ComboBoxItem("", false));
+        allGridOperators.add(new ComboBoxItem(I18nWS.getInstance().getClassName(accountingDirectories.getGasGridOperatorClass().getName()), false));
+        gasGridOperators.forEach(jeVisObject -> allGridOperators.add(new ComboBoxItem(jeVisObject, true)));
+        allGridOperators.add(new ComboBoxItem("", false));
+        allGridOperators.add(new ComboBoxItem(I18nWS.getInstance().getClassName(accountingDirectories.getCommunityHeatingGridOperatorClass().getName()), false));
+        communityHeatingGridOperators.forEach(jeVisObject -> allGridOperators.add(new ComboBoxItem(jeVisObject, true)));
+
+        energyGridOperatorBox.getItems().addAll(allGridOperators);
 
         if (energyGridOperatorBoxSelectedItem != null && energyGridOperatorBox.getItems().contains(energyGridOperatorBoxSelectedItem)) {
             energyGridOperatorBox.getSelectionModel().select(energyGridOperatorBoxSelectedItem);
         } else {
-            energyGridOperatorBox.getSelectionModel().selectFirst();
+            if (!electricityGridOperators.isEmpty()) {
+                energyGridOperatorBox.getSelectionModel().select(new ComboBoxItem(electricityGridOperators.get(0), true));
+            } else if (!gasGridOperators.isEmpty()) {
+                energyGridOperatorBox.getSelectionModel().select(new ComboBoxItem(gasGridOperators.get(0), true));
+            } else if (!communityHeatingGridOperators.isEmpty()) {
+                energyGridOperatorBox.getSelectionModel().select(new ComboBoxItem(communityHeatingGridOperators.get(0), true));
+            }
         }
 
         List<JEVisObject> energySupplyContractors = ds.getObjects(accountingDirectories.getEnergySupplyContractorClass(), false);

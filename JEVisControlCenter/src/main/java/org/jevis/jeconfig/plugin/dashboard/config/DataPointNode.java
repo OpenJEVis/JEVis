@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.config;
 
 import javafx.scene.paint.Color;
+import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartType;
@@ -18,6 +19,8 @@ public class DataPointNode {
     private String unit;
     private String name;
     private Integer axis = 0;
+    private Integer decimalDigits = -1;
+    private BubbleType bubbleType = BubbleType.NONE;
     private String customCSS;
 
     public boolean isAbsolute() {
@@ -128,6 +131,22 @@ public class DataPointNode {
         this.axis = axis;
     }
 
+    public Integer getDecimalDigits() {
+        return decimalDigits;
+    }
+
+    public void setDecimalDigits(Integer decimalDigits) {
+        this.decimalDigits = decimalDigits;
+    }
+
+    public BubbleType getBubbleType() {
+        return bubbleType;
+    }
+
+    public void setBubbleType(BubbleType bubbleType) {
+        this.bubbleType = bubbleType;
+    }
+
     public String getCustomCSS() {
         return customCSS;
     }
@@ -152,6 +171,8 @@ public class DataPointNode {
                 ", unit=" + this.unit +
                 ", calculationID=" + this.calculationID +
                 ", axis=" + this.axis +
+                ", decimalDigits=" + this.decimalDigits +
+                ", bubbleType=" + this.bubbleType +
                 ", customCSS=" + this.customCSS +
                 '}';
     }

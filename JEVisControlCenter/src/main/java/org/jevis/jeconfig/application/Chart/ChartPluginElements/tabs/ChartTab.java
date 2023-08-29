@@ -15,10 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
@@ -219,7 +216,10 @@ public class ChartTab extends Tab {
                             chartData.setId(object.getID());
                             chartData.setObjectName(object);
                             chartData.setAttributeString("Value");
-                            chartData.setUnit(object.getAttribute("Value").getDisplayUnit());
+                            JEVisAttribute value = object.getAttribute("Value");
+                            if (value != null) {
+                                chartData.setUnit(value.getDisplayUnit());
+                            }
                             Color nextColor = ColorTable.getNextColor(usedColors);
                             chartData.setColor(nextColor);
                             chartData.setChartType(ChartType.DEFAULT);

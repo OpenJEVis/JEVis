@@ -14,6 +14,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
+import org.jevis.jeconfig.application.Chart.ChartElements.TableSample;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -42,7 +43,7 @@ public class TableViewUtils {
         col.setPrefWidth(textWidth + COLUMN_OFFSET_WIDTH);
     }
 
-    public static void addCustomTableMenu(TableView tableView, HashMap<TableColumn, String> columnTitles) {
+    public static void addCustomTableMenu(TableView<TableSample> tableView, HashMap<TableColumn<TableSample, ?>, String> columnTitles) {
 
         // enable table menu
         tableView.setTableMenuButtonVisible(true);
@@ -67,7 +68,7 @@ public class TableViewUtils {
         addCustomMenuItems(contextMenu, tableView, columnTitles);
     }
 
-    private static void addCustomMenuItems(ContextMenu cm, TableView table, HashMap<TableColumn, String> columnTitles) {
+    private static void addCustomMenuItems(ContextMenu cm, TableView<TableSample> table, HashMap<TableColumn<TableSample, ?>, String> columnTitles) {
 
         // create new context menu
         CustomMenuItem cmi;
@@ -78,8 +79,8 @@ public class TableViewUtils {
 
             @Override
             public void handle(MouseEvent event) {
-                for (Object obj : table.getColumns()) {
-                    ((TableColumn<?, ?>) obj).setVisible(true);
+                for (TableColumn<TableSample, ?> obj : table.getColumns()) {
+                    obj.setVisible(true);
                 }
             }
 
@@ -93,19 +94,17 @@ public class TableViewUtils {
         cm.getItems().add(new SeparatorMenuItem());
 
         // menu item for each of the available columns
-        for (Object obj : table.getColumns()) {
+        for (TableColumn<?, ?> obj : table.getColumns()) {
 
-            TableColumn<?, ?> tableColumn = (TableColumn<?, ?>) obj;
+            String customTitle = columnTitles.get(obj);
 
-            String customTitle = columnTitles.get(tableColumn);
-
-            CheckBox cb = new CheckBox(tableColumn.getText());
+            CheckBox cb = new CheckBox(obj.getText());
 
             if (customTitle != null) {
                 cb.setText(customTitle);
             }
 
-            cb.selectedProperty().bindBidirectional(tableColumn.visibleProperty());
+            cb.selectedProperty().bindBidirectional(obj.visibleProperty());
 
             cmi = new CustomMenuItem(cb);
             cmi.setHideOnClick(false);
@@ -122,7 +121,7 @@ public class TableViewUtils {
      *
      * @param tableView
      */
-    public static void addCustomTableMenu(TableView tableView) {
+    public static void addCustomTableMenu(TableView<TableSample> tableView) {
 
         // enable table menu
         tableView.setTableMenuButtonVisible(true);
@@ -154,7 +153,7 @@ public class TableViewUtils {
      * @param cm
      * @param table
      */
-    private static void addCustomMenuItems(ContextMenu cm, TableView table) {
+    private static void addCustomMenuItems(ContextMenu cm, TableView<TableSample> table) {
 
         // create new context menu
         CustomMenuItem cmi;
@@ -165,8 +164,8 @@ public class TableViewUtils {
 
             @Override
             public void handle(MouseEvent event) {
-                for (Object obj : table.getColumns()) {
-                    ((TableColumn<?, ?>) obj).setVisible(true);
+                for (TableColumn<TableSample, ?> obj : table.getColumns()) {
+                    obj.setVisible(true);
                 }
             }
 
@@ -183,8 +182,8 @@ public class TableViewUtils {
             @Override
             public void handle(MouseEvent event) {
 
-                for (Object obj : table.getColumns()) {
-                    ((TableColumn<?, ?>) obj).setVisible(false);
+                for (TableColumn<?, ?> obj : table.getColumns()) {
+                    obj.setVisible(false);
                 }
             }
 
@@ -198,12 +197,10 @@ public class TableViewUtils {
         cm.getItems().add(new SeparatorMenuItem());
 
         // menu item for each of the available columns
-        for (Object obj : table.getColumns()) {
+        for (TableColumn<?, ?> obj : table.getColumns()) {
 
-            TableColumn<?, ?> tableColumn = (TableColumn<?, ?>) obj;
-
-            CheckBox cb = new CheckBox(tableColumn.getText());
-            cb.selectedProperty().bindBidirectional(tableColumn.visibleProperty());
+            CheckBox cb = new CheckBox(obj.getText());
+            cb.selectedProperty().bindBidirectional(obj.visibleProperty());
 
             cmi = new CustomMenuItem(cb);
             cmi.setHideOnClick(false);
@@ -225,9 +222,7 @@ public class TableViewUtils {
         ObservableList<Node> children = tableSkin.getChildren();
 
         // find the TableHeaderRow child
-        for (int i = 0; i < children.size(); i++) {
-
-            Node node = children.get(i);
+        for (Node node : children) {
 
             if (node instanceof TableHeaderRow) {
                 return (TableHeaderRow) node;
@@ -255,9 +250,8 @@ public class TableViewUtils {
             privateContextMenuField.setAccessible(true);
 
             // get field
-            ContextMenu contextMenu = (ContextMenu) privateContextMenuField.get(headerRow);
 
-            return contextMenu;
+            return (ContextMenu) privateContextMenuField.get(headerRow);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -266,7 +260,7 @@ public class TableViewUtils {
         return null;
     }
 
-    public static void setColumnMinSize(List<TableColumn> columns) {
+    public static void setColumnMinSize(List<TableColumn<TableSample, ?>> columns) {
         columns.forEach(TableViewUtils::setColumnMinSize);
     }
 
@@ -297,7 +291,7 @@ public class TableViewUtils {
         boolean needResize = false;
         double totalColSize = 0;
         for (int i = 0; i < view.getColumns().size(); i++) {
-            TableColumn col = view.getColumns().get(i);
+            TableColumn<?, ?> col = view.getColumns().get(i);
 //            System.out.println("Col: " + col.getText());
             totalColSize += col.getPrefWidth();
         }
@@ -305,7 +299,7 @@ public class TableViewUtils {
 
         if (totalColSize > view.getWidth()) {
             for (int i = 0; i < view.getColumns().size(); i++) {
-                TableColumn col = view.getColumns().get(i);
+                TableColumn<?, ?> col = view.getColumns().get(i);
                 for (TableColumn tc : column) {
                     if (!col.equals(tc)) {
                         col.setPrefWidth(col.getMinWidth());
@@ -359,7 +353,7 @@ public class TableViewUtils {
     /**
      * @param table
      */
-    public static void addAutoScrollbarResize(TableView table) {
+    public static void addAutoScrollbarResize(TableView<TableSample> table) {
         ScrollBar scrollBar = getTableScrollBar(table, Orientation.HORIZONTAL);
 //        scrollBar.visibleProperty().addListener((observable, oldValue, newValue) -> {
 //            System.out.println("ScrollbarEvent: " + newValue);
@@ -390,7 +384,7 @@ public class TableViewUtils {
 
     }
 
-    public static ScrollBar getTableScrollBar(TableView table, Orientation orientation) {
+    public static ScrollBar getTableScrollBar(TableView<TableSample> table, Orientation orientation) {
 
         ScrollBar sbar = new ScrollBar();
 
@@ -425,7 +419,7 @@ public class TableViewUtils {
         });
     }
 
-    public static void resizeColumnToFitContent(TableView<?> tableView, TableColumn tc, int maxRows) {
+    public static void resizeColumnToFitContent(TableView<?> tableView, TableColumn<TableSample, ?> tc, int maxRows) {
         if (!tc.isResizable()) return;
 
 //        final TableColumn<T, ?> col = tc;

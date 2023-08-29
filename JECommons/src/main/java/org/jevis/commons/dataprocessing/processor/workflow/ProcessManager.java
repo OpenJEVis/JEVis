@@ -36,6 +36,8 @@ public class ProcessManager {
     private Long id;
     private List<ProcessStep> processSteps = new ArrayList<>();
     private boolean isClean = true;
+    private boolean isForecast = false;
+    private boolean isMathData = false;
     private boolean isFinished = false;
 
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler, int processingSize) {
@@ -57,26 +59,36 @@ public class ProcessManager {
             if (cleanObject.getJEVisClass().equals(cleanDataClass)) {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
                 this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+                processSteps.clear();
                 addDefaultSteps();
             } else if (cleanObject.getJEVisClass().equals(forecastDataClass)) {
                 this.resourceManager.setForecastDataObject(new ForecastDataObject(cleanObject, objectHandler));
                 this.resourceManager.getForecastDataObject().setProcessingSize(processingSize);
                 this.name = resourceManager.getForecastDataObject().getForecastDataObject().getName();
                 this.id = resourceManager.getForecastDataObject().getForecastDataObject().getID();
+                processSteps.clear();
                 addForecastSteps();
                 isClean = false;
+                isMathData = false;
+                isForecast = true;
                 resourceManager.setClean(false);
+                resourceManager.setForecast(true);
             } else if (cleanObject.getJEVisClass().equals(mathDataClass)) {
                 this.resourceManager.setMathDataObject(new MathDataObject(cleanObject, objectHandler));
                 this.resourceManager.getMathDataObject().setProcessingSize(processingSize);
                 this.name = this.resourceManager.getMathDataObject().getMathDataObject().getName();
                 this.id = this.resourceManager.getMathDataObject().getMathDataObject().getID();
+                processSteps.clear();
                 addMathSteps();
                 isClean = false;
+                isMathData = true;
+                isForecast = false;
                 resourceManager.setClean(false);
+                resourceManager.setForecast(false);
             } else {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
                 this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+                processSteps.clear();
                 addDefaultSteps();
             }
         } catch (Exception e) {
@@ -155,7 +167,7 @@ public class ProcessManager {
 
                 reinitializeCleanData();
             } while (!isFinished);
-        } else if (resourceManager.getForecastDataObject() != null) {
+        } else if (isForecast) {
             logger.info("[{}:{}] Starting Process", resourceManager.getForecastDataObject().getForecastDataObject().getName(), resourceManager.getID());
 
             while (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject())) {
@@ -166,7 +178,7 @@ public class ProcessManager {
             }
 
             logger.info("[{}:{}] Finished", resourceManager.getForecastDataObject().getForecastDataObject().getName(), resourceManager.getID());
-        } else if (resourceManager.getMathDataObject() != null) {
+        } else if (isMathData) {
             logger.info("[{}:{}] Starting Process", resourceManager.getMathDataObject().getMathDataObject().getName(), resourceManager.getID());
 
             while (resourceManager.getMathDataObject().isReady()) {
@@ -228,7 +240,7 @@ public class ProcessManager {
         resourceManager.setMathDataObject(new MathDataObject(mathObject, objectHandler));
         resourceManager.getMathDataObject().setProcessingSize(processingSize);
 
-        addDefaultSteps();
+        addMathSteps();
     }
 
     private void reRun() throws Exception {
@@ -236,9 +248,9 @@ public class ProcessManager {
 
         if (isClean) {
             resourceManager.getCleanDataObject().reloadAttributes();
-        } else if (resourceManager.getForecastDataObject() != null) {
+        } else if (isForecast) {
             resourceManager.getForecastDataObject().reloadAttributes();
-        } else if (resourceManager.getMathDataObject() != null) {
+        } else if (isMathData) {
             resourceManager.getMathDataObject().reloadAttributes();
         }
 
@@ -247,7 +259,7 @@ public class ProcessManager {
                 ps.run(resourceManager);
             } catch (Exception e) {
                 setFinished(true);
-                if (ps instanceof PrepareStep) {
+                if (ps instanceof PrepareStep || ps instanceof PrepareForecast || ps instanceof PrepareMath) {
                     logger.info("Error in step {} of object {}:{}", ps, this.getName(), this.getId(), e);
                 } else {
                     logger.error("Error in step {} of object {}:{}", ps, this.getName(), this.getId(), e);

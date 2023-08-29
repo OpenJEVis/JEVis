@@ -15,12 +15,15 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
+import org.jevis.jeconfig.plugin.action.data.EmptyObject;
 import org.jevis.jeconfig.plugin.action.data.FreeObject;
 import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 import org.jevis.jeconfig.plugin.action.ui.TimeRangeDialog;
@@ -32,7 +35,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class DetailsTab extends Tab {
-
+    private static final Logger logger = LogManager.getLogger(DetailsTab.class);
 
     private final Label l_enpiAfter = new Label(I18n.getInstance().getString("plugin.action.enpiafter"));
     private final Label l_enpiBefore = new Label(I18n.getInstance().getString("plugin.action.enpiabefore"));
@@ -40,8 +43,8 @@ public class DetailsTab extends Tab {
     private final Label l_correctionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.correction"));
     private final Label l_nextActionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.followupaction"));
     private final Label l_alternativAction = new Label(I18n.getInstance().getString("plugin.action.alternativaction"));
-    private final Label l_energyBefore = new Label("Verbrauch (Referenz)");
-    private final Label l_energyAfter = new Label("Verbrauch (Ist)");
+    private final Label l_energyBefore = new Label(I18n.getInstance().getString("plugin.action.consumption.before"));//"Verbrauch (Referenz)");f_consumptionBefore
+    private final Label l_energyAfter = new Label(I18n.getInstance().getString("plugin.action.consumption.after"));//"Verbrauch (Ist)");
     private final Label l_energyChange = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
     private final Button beforeDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
     private final Button afterDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
@@ -50,7 +53,7 @@ public class DetailsTab extends Tab {
     private final Button buttonOpenAnalysisafter = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
     private final Button buttonOpenAnalysisaDiff = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
     private final JFXComboBox<JEVisObject> f_EnpiSelection;
-    private final Label l_EnpiSelection = new Label("EnPI");
+    private final Label l_EnpiSelection = new Label(I18n.getInstance().getString("plugin.action.enpi"));//"EnPI"
     private final Label l_mediaTags = new Label();
     private final JFXComboBox<String> f_mediaTags;
     private final TextArea f_correctionIfNeeded = new TextArea("");
@@ -108,19 +111,21 @@ public class DetailsTab extends Tab {
         f_EnpiSelection.setCellFactory(enpiCellFactory);
         f_EnpiSelection.setButtonCell(enpiCellFactory.call(null));
         try {
-            JEVisObject obj = FreeObject.getInstance();
-            if (!data.enpiProperty().get().jevisLinkProperty().get().isEmpty()
-                    && !data.enpiProperty().get().jevisLinkProperty().get().equals(FreeObject.getInstance().getID())) {
-                try {
-                    obj = data.getObject().getDataSource().getObject(new Long(data.enpiProperty().get().jevisLinkProperty().get()));
-                } catch (Exception exception) {
-                    exception.printStackTrace();
+            JEVisObject obj = EmptyObject.getInstance();
+
+            try {
+                Long id = Long.parseLong(data.enpiProperty().get().jevisLinkProperty().get());
+                if (id.equals(EmptyObject.getInstance().getID())) {
+                    obj = EmptyObject.getInstance();
+                } else if (id.equals(FreeObject.getInstance().getID())) {
+                    obj = FreeObject.getInstance();
+                } else {
+                    obj = data.getObject().getDataSource().getObject(id);
                 }
+            } catch (Exception exception) {
+                logger.error(exception);
             }
-            //System.out.println("Select Object; " + obj);
-            // f_Enpi.valueProperty().set(obj);
             f_EnpiSelection.getSelectionModel().select(obj);
-            //f_EnpiSelection.getSelectionModel().selectLast();
 
 
         } catch (Exception ex) {
@@ -131,21 +136,17 @@ public class DetailsTab extends Tab {
         f_EnpiSelection.valueProperty().addListener(new ChangeListener<JEVisObject>() {
             @Override
             public void changed(ObservableValue<? extends JEVisObject> observable, JEVisObject oldValue, JEVisObject newValue) {
-                data.enpiProperty().get().jevisLinkProperty().set(newValue.getID().toString());
+                if (newValue == null) {
+                    data.enpiProperty().get().jevisLinkProperty().set("");
+                } else {
+                    data.enpiProperty().get().jevisLinkProperty().set(newValue.getID().toString());
+                }
+
+
             }
         });
-        try {
-            //System.out.println("Select Object: " + data.getEnpi().dataObject.get());
-            if (data.getEnpi().dataObject.get() <= 0L) {
-                f_EnpiSelection.setValue(FreeObject.getInstance());
-            } else {
-                f_EnpiSelection.setValue(data.getObject().getDataSource().getObject(data.getEnpi().dataObject.get()));
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
 
-        l_mediaTags.setText("Medium");
+        l_mediaTags.setText(I18n.getInstance().getString("actionform.editor.tab.deteils.medium"));
         f_mediaTags = new JFXComboBox<>(data.getActionPlan().getMediumTags());
         f_mediaTags.getSelectionModel().select(data.mediaTagsProperty().getValue());
         f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
@@ -219,23 +220,30 @@ public class DetailsTab extends Tab {
         NumberStringConverter nsc = NumerFormating.getInstance().getCurrencyConverter();
         NumberStringConverter nscNoUnit = NumerFormating.getInstance().getDoubleConverter();
 
+        f_consumptionBefore.getTextField().setTextFormatter(new TextFormatter<>(nscNoUnit));
         Bindings.bindBidirectional(f_consumptionBefore.getTextField().textProperty(), data.consumptionProperty().get().actualProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_consumptionBefore.getUnitField().textProperty(), data.consumptionProperty().get().unitProperty());
+        f_consumptionAfter.getTextField().setTextFormatter(new TextFormatter<>(nscNoUnit));
         Bindings.bindBidirectional(f_consumptionAfter.getTextField().textProperty(), data.consumptionProperty().get().afterProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_consumptionAfter.getUnitField().textProperty(), data.consumptionProperty().get().unitProperty());
+        f_consumptionDiff.getTextField().setTextFormatter(new TextFormatter<>(nscNoUnit));
         Bindings.bindBidirectional(f_consumptionDiff.getTextField().textProperty(), data.consumptionProperty().get().diffProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_consumptionDiff.getUnitField().textProperty(), data.consumptionProperty().get().unitProperty());
-
+        f_enpiBefore.getTextField().setTextFormatter(new TextFormatter<>(nscNoUnit));
         Bindings.bindBidirectional(f_enpiBefore.getTextField().textProperty(), data.enpiProperty().get().actualProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_enpiBefore.getUnitField().textProperty(), data.enpiProperty().get().unitProperty());
+        f_enpiAfter.getTextField().setTextFormatter(new TextFormatter<>(nscNoUnit));
         Bindings.bindBidirectional(f_enpiAfter.getTextField().textProperty(), data.enpiProperty().get().afterProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_enpiAfter.getUnitField().textProperty(), data.enpiProperty().get().unitProperty());
+        f_enpiDiff.getTextField().setTextFormatter(new TextFormatter<>(nscNoUnit));
         Bindings.bindBidirectional(f_enpiDiff.getTextField().textProperty(), data.enpiProperty().get().diffProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_enpiDiff.getUnitField().textProperty(), data.enpiProperty().get().unitProperty());
+
 
         Bindings.bindBidirectional(f_nextActionIfNeeded.textProperty(), data.noteAlternativeMeasuresProperty());
         Bindings.bindBidirectional(f_correctionIfNeeded.textProperty(), data.noteCorrectionProperty());
 
+        //f_consumptionBefore.getTextField().setTextFormatter(new TextFormatter<>(nscNoUnit));
 
         f_correctionIfNeeded.setPrefWidth(400);
         f_nextActionIfNeeded.setPrefWidth(400);
@@ -256,26 +264,19 @@ public class DetailsTab extends Tab {
 
         f_nextActionIfNeeded.setWrapText(true);
         f_alternativAction.setWrapText(true);
+        f_correctionIfNeeded.setWrapText(true);
 
-
-        gridPane.addRow(0, l_EnpiSelection, f_EnpiSelection, new Region(), l_mediaTags, f_mediaTags);
-        gridPane.addRow(1, l_enpiBefore, box_EnpiBefore, new Region(), l_energyBefore, f_consumptionBefore);
-        gridPane.addRow(2, l_enpiAfter, box_EnpiAfter, new Region(), l_energyAfter, f_consumptionAfter);
-        gridPane.addRow(3, l_enpiChange, box_EnpiDiff, new Region(), l_energyChange, f_consumptionDiff);
+        gridPane.addRow(0, l_mediaTags, f_mediaTags, new Region(), l_EnpiSelection, f_EnpiSelection);
+        gridPane.addRow(1, l_energyBefore, f_consumptionBefore, new Region(), l_enpiBefore, box_EnpiBefore);
+        gridPane.addRow(2, l_energyAfter, f_consumptionAfter, new Region(), l_enpiAfter, box_EnpiAfter);
+        gridPane.addRow(3, l_energyChange, f_consumptionDiff, new Region(), l_enpiChange, box_EnpiDiff);
         gridPane.addRow(4, new Region());
-
-        // gridPane.addRow(5, l_FromUser, f_FromUser, new Region(), l_CreateDate, f_CreateDate);
-        // gridPane.addRow(6, l_distributor, f_distributor);
 
         gridPane.add(l_correctionIfNeeded, 0, 7);
         gridPane.add(f_correctionIfNeeded, 0, 8);
 
         gridPane.add(l_nextActionIfNeeded, 3, 7);
         gridPane.add(f_nextActionIfNeeded, 3, 8);
-        //gridPane.addRow(7, l_correctionIfNeeded, new Region(), new Region(), l_nextActionIfNeeded, new Region());
-        //gridPane.addRow(8, f_correctionIfNeeded, new Region(), new Region(), f_nextActionIfNeeded, new Region());
-        // gridPane.addRow(8, l_alternativAction);
-        // gridPane.addRow(9, f_alternativAction, new Region(), new Region(), new Region(), new Region());
 
         GridPane.setColumnSpan(l_correctionIfNeeded, 2);
         GridPane.setColumnSpan(l_nextActionIfNeeded, 2);

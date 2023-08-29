@@ -12,11 +12,16 @@
       "start": "Data Notes",
       "end": "Clean Data",
       "type": 3
+    },
+    {
+      "start": "Data Notes",
+      "end": "String Data",
+      "type": 0
     }
   ],
   "types": [
     {
-      "name": "User Notes",
+      "name": "Value",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 0,

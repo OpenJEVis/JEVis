@@ -52,9 +52,19 @@ public class ImportStep implements ProcessStep {
         } else if (resourceManager.getForecastDataObject() != null) {
             ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
             cleanObject = forecastDataObject.getForecastDataObject();
-            JEVisAttribute attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
-            if (!resourceManager.getIntervals().isEmpty()) {
-                attribute.deleteAllSample();
+            JEVisAttribute valueAttribute = forecastDataObject.getValueAttribute();
+            JEVisAttribute keepValuesAttribute = forecastDataObject.getKeepValuesAttribute();
+            boolean keepValues = false;
+
+            if (keepValuesAttribute != null && keepValuesAttribute.hasSample()) {
+                JEVisSample latestSample = keepValuesAttribute.getLatestSample();
+                if (latestSample != null) {
+                    keepValues = latestSample.getValueAsBoolean();
+                }
+            }
+
+            if (!resourceManager.getIntervals().isEmpty() && !keepValues) {
+                valueAttribute.deleteAllSample();
             }
         } else if (resourceManager.getMathDataObject() != null) {
             MathDataObject mathDataObject = resourceManager.getMathDataObject();
@@ -82,7 +92,7 @@ public class ImportStep implements ProcessStep {
             }
         }
 
-        if (resourceManager.isClean() && !resourceManager.getIntervals().isEmpty() && !monthPeriods) {
+        if ((resourceManager.isClean() && !resourceManager.getIntervals().isEmpty() && !monthPeriods) || resourceManager.isForecast() && !resourceManager.getIntervals().isEmpty()) {
 //            resourceManager.getIntervals().remove(0);
             firstDateTimeOfResults = resourceManager.getIntervals().get(0).getInterval().getStart();
             lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
@@ -104,7 +114,7 @@ public class ImportStep implements ProcessStep {
             if (date != null) {
                 DateTime timestamp = sample.getTimestamp().plusSeconds(periodOffset);
 
-                if (hasSamples && resourceManager.isClean()) {
+                if (hasSamples && (resourceManager.isClean() || resourceManager.isForecast())) {
                     JEVisSample smp = listOldSamples.get(timestamp);
                     if (smp != null) {
                         attribute.deleteSamplesBetween(timestamp, timestamp);

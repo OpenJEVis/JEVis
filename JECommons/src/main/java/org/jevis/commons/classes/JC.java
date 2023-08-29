@@ -3872,20 +3872,19 @@ public interface JC {
     public interface IndexofLegalProvisions {
         public static String name = "Index of Legal Provisions";
 
-        public static String a_CustomMedium = "Custom Medium";
-        public static String a_category = "category";
-        public static String a_scope = "scope";
-        public interface IndexofLegalProvionsDirectory {
-            public static String name = "Index of Legal Provisions Directory";
-            public interface Obligation {
-                public static String name = "Obligation";
+        String a_CustomMedium = "Custom Medium";
+        String a_category = "category";
+        String a_scope = "scope";
+        interface IndexofLegalProvionsDirectory {
+            String name = "Index of Legal Provisions Directory";
+            interface Obligation {
+                String name = "Obligation";
 
-                public static String a_Data = "Data";
+                String a_Data = "Data";
 
                 public interface ObligationDirectory{
                     public static String name = "Index of Legal Provisions Directory";
                 }
-
             }
 
         }

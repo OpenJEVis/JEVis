@@ -6,11 +6,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.joda.time.DateTime;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class TableHeaderTable extends TableView {
+public class TableHeaderTable extends TableView<TableSample> {
     private static Method columnToFitMethod;
 
     static {
@@ -38,10 +39,8 @@ public class TableHeaderTable extends TableView {
 
         setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
-        TableColumn<List<String>, String> dateColumn = new TableColumn<>(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.time"));
-        dateColumn.setCellValueFactory(param ->
-                new ReadOnlyObjectWrapper<>(param.getValue().get(0))
-        );
+        TableColumn<TableSample, DateTime> dateColumn = new TableColumn<>(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.time"));
+        dateColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getTimeStamp()));
         getColumns().add(dateColumn);
     }
 

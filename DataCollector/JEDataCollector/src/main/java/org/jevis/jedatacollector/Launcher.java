@@ -86,7 +86,7 @@ public class Launcher extends AbstractCliApp {
                                         JEVisAttribute attribute = object.getAttribute(DataCollectorTypes.DataSource.MANUAL_TRIGGER);
                                         JEVisSample sample = attribute.buildSample(DateTime.now(), false);
                                         sample.commit();
-                                    } catch (JEVisException e) {
+                                    } catch (Exception e) {
                                         logger.error("Could not disable manual trigger for datasource {}:{}", object.getName(), object.getID());
                                         removeJob(object);
                                     }
@@ -139,7 +139,9 @@ public class Launcher extends AbstractCliApp {
             }
             logger.info("----------------Finished DataSource " + object.getName() + "-----------------");
 
-            logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+            StringBuilder running = new StringBuilder();
+            runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
+            logger.info("Queued Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
 
             checkLastJob();
         }
@@ -191,7 +193,7 @@ public class Launcher extends AbstractCliApp {
 
             checkForTimeout();
 
-            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+            if (plannedJobs.isEmpty() && runningJobs.isEmpty()) {
                 TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 //                if (!firstRun) {
 //                    try {
