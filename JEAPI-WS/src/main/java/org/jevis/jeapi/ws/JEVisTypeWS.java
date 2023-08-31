@@ -199,13 +199,18 @@ public class JEVisTypeWS implements JEVisType {
     }
 
     @Override
+    public int hashCode() {
+        return getName().hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj
     ) {
         try {
             if (obj == null) {
                 return false;
             }
-            if (getClass() != obj.getClass()) {
+            if (getClass() != obj.getClass() && !getClass().isAssignableFrom(obj.getClass())) {
                 return false;
             }
             /**
@@ -215,7 +220,7 @@ public class JEVisTypeWS implements JEVisType {
             if ((this.getName() == null) ? (other.getName() != null) : !this.getName().equals(other.getName())) {
                 return false;
             }
-            return this.getJEVisClass() == other.getJEVisClass() || (this.getJEVisClass() != null && this.getJEVisClass().equals(other.getJEVisClass()));
+            return this.getJEVisClass() == other.getJEVisClass() || this.getClass().isAssignableFrom(other.getClass()) ||other.getClass().isAssignableFrom(this.getClass()) || (this.getJEVisClass() != null && this.getJEVisClass().equals(other.getJEVisClass()));
         } catch (Exception ex) {
             return false;
         }
