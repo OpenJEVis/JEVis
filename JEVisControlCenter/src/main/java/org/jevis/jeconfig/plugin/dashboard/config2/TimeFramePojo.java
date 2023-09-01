@@ -27,7 +27,7 @@ public class TimeFramePojo {
 
     private static final Logger logger = LogManager.getLogger(TimeFramePojo.class);
 
-    private double iconSize = 20;
+    private final double iconSize = 20;
 
 
     private TimeFrameTableView timeFrameTable;
@@ -221,7 +221,7 @@ public class TimeFramePojo {
             dataNode1.put("id", getSelectedWidget().get().getConfig().getUuid());
         }
         if (getSelectedTimeFarmeObjectWidget().isPresent()) {
-            dataNode1.put("count", getSelectedTimeFarmeObjectWidget().get().cuntOfSamplesProperty().getValue().toString());
+            dataNode1.put("count", getSelectedTimeFarmeObjectWidget().get().countOfSamplesProperty().getValue().toString());
 
         }
 
@@ -245,7 +245,7 @@ public class TimeFramePojo {
                 selected.setSelected(true);
                 selected.setEndObjectProperty(TimeFrameWidgetObject.End.valueOf(end));
                 selected.setStartObjectProperty(TimeFrameWidgetObject.Start.valueOf(start));
-                selected.setCuntOfSamples(countOfSamples);
+                selected.setCountOfSamples(countOfSamples);
             }
         }
     }

@@ -78,6 +78,8 @@ public class TableChartV extends XYChart {
                 @Override
                 protected Object call() throws Exception {
                     try {
+                        showColumnSums(chartModel.isShowColumnSums());
+                        showRowSums(chartModel.isShowRowSums());
                         buildChart(toolBarSettings, dataSettings);
 
                         tableTopDatePicker.initialize(singleRow, timeStampOfLastSample.get());
@@ -237,6 +239,10 @@ public class TableChartV extends XYChart {
                     sumSample.getColumnNumbers().set(columnIndex, 0d);
                     sumSample.getUnits().set(columnIndex, xyChartSerie.getSingleRow().getUnit());
                     sumSample.getColumnNumbersSize().set(columnIndex, 0L);
+                    sumSample.isCalculation().set(columnIndex, xyChartSerie.getSingleRow().isCalculation());
+                    sumSample.getCalculationObjects().set(columnIndex, xyChartSerie.getSingleRow().getCalculationObject());
+                    sumSample.getChartSeries().set(columnIndex, xyChartSerie);
+                    sumSample.getNumberFormats().set(columnIndex, xyChartSerie.getNf());
                 }
 
                 for (JEVisSample jeVisSample : samples) {
@@ -377,7 +383,7 @@ public class TableChartV extends XYChart {
 
                     if (unit != null && !unit.toString().isEmpty()) {
                         boolean isQuantity = qu.isQuantityUnit(unit);
-                        isQuantity = qu.isQuantityIfCleanData(singleRow.getAttribute(), isQuantity);
+                        isQuantity = qu.isQuantityIfCleanData(sumSample.getChartSeries().get(i).getSingleRow().getAttribute(), isQuantity);
 
                         if (!isQuantity) {
                             v = v / size;
