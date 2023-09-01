@@ -37,6 +37,7 @@ public class TableSample {
             numberFormats.add(NumberFormat.getInstance());
             isCalculation.add(false);
             calculationObjects.add(new JEVisObjectWS(null, new JsonObject()));
+            chartSeries.add(new XYChartSerie());
 
             units.add(new JEVisUnitImp(Unit.ONE));
         }

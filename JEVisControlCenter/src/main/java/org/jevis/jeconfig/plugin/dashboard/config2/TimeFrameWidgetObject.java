@@ -16,12 +16,12 @@ import java.util.List;
 
 public class TimeFrameWidgetObject extends Widget {
 
-    private BooleanProperty selected = new SimpleBooleanProperty(false);
+    private final BooleanProperty selected = new SimpleBooleanProperty(false);
 
-    private ObjectProperty<Start> startObjectProperty = new SimpleObjectProperty<>(Start.NONE);
-    private ObjectProperty<End> endObjectProperty = new SimpleObjectProperty<>(End.NONE);
+    private final ObjectProperty<Start> startObjectProperty = new SimpleObjectProperty<>(Start.NONE);
+    private final ObjectProperty<End> endObjectProperty = new SimpleObjectProperty<>(End.NONE);
 
-    private BooleanProperty cuntOfSamples = new SimpleBooleanProperty();
+    private final BooleanProperty countOfSamples = new SimpleBooleanProperty();
 
 
     public TimeFrameWidgetObject(DashboardControl control, WidgetPojo config) {
@@ -31,7 +31,7 @@ public class TimeFrameWidgetObject extends Widget {
 
     private void addListner() {
 
-        cuntOfSamples.addListener((observableValue, aBoolean, t1) -> {
+        countOfSamples.addListener((observableValue, aBoolean, t1) -> {
             if (t1) {
                 startObjectProperty.set(Start.NONE);
                 endObjectProperty.set(End.NONE);
@@ -40,14 +40,14 @@ public class TimeFrameWidgetObject extends Widget {
         startObjectProperty.addListener((observableValue, start, t1) -> {
             System.out.println(t1);
             if (!t1.equals(Start.NONE)) {
-                cuntOfSamples.set(false);
+                countOfSamples.set(false);
 
             }
         });
         endObjectProperty.addListener((observableValue, start, t1) -> {
             System.out.println(t1);
             if (!t1.equals(End.NONE)) {
-                cuntOfSamples.set(false);
+                countOfSamples.set(false);
 
             }
         });
@@ -160,16 +160,16 @@ public class TimeFrameWidgetObject extends Widget {
                 '}';
     }
 
-    public boolean isCuntOfSamples() {
-        return cuntOfSamples.get();
+    public boolean getCountOfSamples() {
+        return countOfSamples.get();
     }
 
-    public BooleanProperty cuntOfSamplesProperty() {
-        return cuntOfSamples;
+    public void setCountOfSamples(boolean countOfSamples) {
+        this.countOfSamples.set(countOfSamples);
     }
 
-    public void setCuntOfSamples(boolean cuntOfSamples) {
-        this.cuntOfSamples.set(cuntOfSamples);
+    public BooleanProperty countOfSamplesProperty() {
+        return countOfSamples;
     }
 
     public enum Start {
