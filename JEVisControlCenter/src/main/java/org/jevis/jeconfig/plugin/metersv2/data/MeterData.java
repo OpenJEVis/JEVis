@@ -13,10 +13,12 @@ public class MeterData {
     private JEVisClass jeVisClass;
 
     public MeterData(JEVisObject jeVisObject) {
-        try {
-
-            System.out.println(jeVisObject);
             this.jeVisObject = jeVisObject;
+            load();
+    }
+
+    public void load() {
+        try {
             jeVisClass = jeVisObject.getJEVisClass();
             for (JEVisAttribute jeVisAttribute : jeVisObject.getAttributes()) {
                 if (jeVisAttribute.hasSample()) {
@@ -29,7 +31,6 @@ public class MeterData {
         } catch (Exception e) {
 
         }
-
     }
 
 

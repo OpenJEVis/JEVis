@@ -2,8 +2,6 @@ package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -12,12 +10,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
-import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jeconfig.application.table.FileCell;
-import org.jevis.jeconfig.application.table.ShortColumnCell;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.plugin.metersv2.cells.*;
 import org.jevis.jeconfig.plugin.metersv2.data.*;
@@ -26,7 +20,6 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -50,7 +43,7 @@ public class MeterPlanTable extends TableView<MeterData> {
         }
     }
 
-    ObservableList<NonconformityData> data = FXCollections.observableArrayList();
+    //ObservableList<NonconformityData> data = FXCollections.observableArrayList();
     FilteredList<MeterData> filteredData;
 
     SortedList<MeterData> sortedData;
@@ -70,12 +63,15 @@ public class MeterPlanTable extends TableView<MeterData> {
     private static int BIG_WIDTH = 200;
     private static int SMALL_WIDTH = 60;
 
+    ObservableList<MeterData> data;
+
 
 
 
     public MeterPlanTable(MeterPlan meterPlan, ObservableList<MeterData> data, JEVisDataSource ds) {
         this.ds = ds;
-        this.filteredData = new FilteredList<>(data);
+        this.data = data;
+        this.filteredData = new FilteredList<>(this.data);
 
         this.setTableMenuButtonVisible(true);
 
@@ -93,6 +89,7 @@ public class MeterPlanTable extends TableView<MeterData> {
         }
 
 
+
         List<JEVisType> jeVisTypes = data.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().keySet()).flatMap(jeVisTypes1 -> jeVisTypes1.stream()).distinct().collect(Collectors.toList());
         try {
             for (JEVisType jeVisType : jeVisTypes) {
@@ -106,6 +103,7 @@ public class MeterPlanTable extends TableView<MeterData> {
 
                         if(jeVisType.equals(onlineIdType)){
                             col = new LastRawValue("Last Raw Value",ds,jeVisType,BIG_WIDTH);
+                            this.getSortOrder().add(col);
                         }
 
                         else {
@@ -140,9 +138,17 @@ public class MeterPlanTable extends TableView<MeterData> {
         }
         sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(this.comparatorProperty());
+
         setItems(sortedData);
 
 
+    }
+
+
+    public void replaceItem(MeterData meterData) {
+        this.data.remove(meterData);
+        meterData.load();
+        this.data.add(meterData);
     }
 
 

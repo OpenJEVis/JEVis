@@ -31,7 +31,7 @@ public class LastRawValue extends TableColumn<MeterData, String> {
                   TargetHelper th = new TargetHelper(ds,meterDataJEVisSampleCellDataFeatures.getValue().getJeVisObject().getAttribute(jeVisType));
                   if(th.getAttribute().size() == 0) return new SimpleStringProperty("");
                   if(!th.getAttribute().get(0).hasSample())  return new SimpleStringProperty("");
-                  return  new SimpleStringProperty(th.getAttribute().get(0).getLatestSample().getValueAsString());
+                  return  new SimpleStringProperty(th.getAttribute().get(0).getLatestSample().getValueAsString()+" "+th.getAttribute().get(0).getLatestSample().getUnit().getLabel());
               } catch (Exception e) {
 
               }

@@ -19,7 +19,6 @@ import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
 import org.jevis.jeconfig.plugin.metersv2.ui.MeterForm;
 import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTab;
-import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesToolbar;
 
 import java.util.List;
 
@@ -288,7 +287,7 @@ public class MeterController {
 
     public void openDataForm(boolean isNew) {
         MeterData data = getSelectedData();
-        MeterForm meterForm = new MeterForm(data);
+        MeterForm meterForm = new MeterForm(data,ds);
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         meterForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
@@ -301,88 +300,13 @@ public class MeterController {
                     logger.error(e);
                 }
             });
+            getActiveTab().getMeterPlanTable().replaceItem(data);
+            getActiveTab().getMeterPlanTable().sort();
+            getActiveTab().getMeterPlanTable().refresh();
+            //getActiveTab().getMeterPlanTable().getItems().add(data);
         });
 
         meterForm.show();
 
     }
-
-
-
-//        nonconformityForm.setData(data);
-//        nonconformityForm.setNew(isNew);
-//        nonconformityForm.setTitle(I18n.getInstance().getString("plugin.nonconformities.nonconformity.dialog.title"));
-//        nonconformityForm.setHeaderText(I18n.getInstance().getString("plugin.nonconformities.nonconformity.dialog.header"));
-//        ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.nonconformities.form.save"), ButtonBar.ButtonData.APPLY);
-//        ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.nonconformities.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-
-
-//        nonconformityForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
-//        final Button btOk = (Button) nonconformityForm.getDialogPane().lookupButton(buttonTypeOne);
-//        final Button btCancel = (Button) nonconformityForm.getDialogPane().lookupButton(buttonTypeTwo);
-//        btOk.addEventFilter(ActionEvent.ACTION,getCloseRequest(data, nonconformityForm));
-//        btCancel.addEventFilter(ActionEvent.ACTION,event -> {
-//            if (nonconformityForm.isNew()) {
-//                try {
-//                    data.getObject().delete();
-//                    getActiveTab().getNonconformityPlan().getNonconformityList().remove(data);
-//
-//
-//                } catch (Exception e) {
-//                    logger.error(e);
-//                }
-//            }else {
-//                reload(data);
-//            }
-//        });
-
-//
-//
-//
-//
-//    }
-//    @NotNull
-//    private EventHandler getCloseRequest(NonconformityData data, NonconformityForm nonconformityForm) {
-//        return dialogEvent -> {
-//            String errorText = data.checkForRequirements();
-//            logger.debug(errorText);
-//            if (!errorText.equals(NonconformityData.REQUIREMENTS_MET)) {
-//                nonconformityForm.showNotification(errorText,Icon.Warning);
-//                dialogEvent.consume();
-//
-//            }  else {
-//                data.commit();
-//                updateTrigger.set(!updateTrigger.get());
-//            }
-//        };
-//    }
-
-//    private void reload(NonconformityData nonconformityData) {
-//        try {
-//            nonconformityData = getActiveNonconformityPlan().loadNonconformties(nonconformityData.getObject());
-//        } catch (Exception e) {
-//           logger.error(e);
-//        }
-//    }
-
-
-//    public boolean isIsOverviewTab() {
-//        return isOverviewTab.get();
-//    }
-//
-//    public BooleanProperty isOverviewTabProperty() {
-//        return isOverviewTab;
-//    }
-//
-//    public void setIsOverviewTab(boolean isOverviewTab) {
-//        this.isOverviewTab.set(isOverviewTab);
-//    }
-//
-//    public ObservableList<NonconformityPlan> getNonconformityPlanList() {
-//        return nonconformityPlanList;
-//    }
-//
-//    public void setNonconformityPlanList(ObservableList<NonconformityPlan> nonconformityPlanList) {
-//        this.nonconformityPlanList = nonconformityPlanList;
-//    }
 }
