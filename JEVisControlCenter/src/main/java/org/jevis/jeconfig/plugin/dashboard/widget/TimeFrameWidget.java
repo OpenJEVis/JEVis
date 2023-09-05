@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
@@ -17,10 +18,8 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config2.Size;
-import org.jevis.jeconfig.plugin.dashboard.config2.TimeFramePojo;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
@@ -45,6 +44,8 @@ public class TimeFrameWidget extends Widget {
 
     private TimeFramePojo timeFramePojo;
 
+    private Tab timeFrameTabe;
+
     public TimeFrameWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         this.setId(WIDGET_ID);
@@ -58,9 +59,34 @@ public class TimeFrameWidget extends Widget {
 
     @Override
     public void updateData(Interval interval) {
+        this.sampleHandler.setInterval(interval);
+        this.sampleHandler.update();
+
+        if (sampleHandler.getDataModel().size() != 0) {
+            Platform.runLater(() -> {
+                timeFramePojo.getWidgetObjects().forEach(timeFrameWidgetObject -> {
+                    timeFrameWidgetObject.setSelected(false);
+                    timeFrameWidgetObject.setStartObjectProperty(TimeFrameWidgetObject.Start.NONE);
+                    timeFrameWidgetObject.setEndObjectProperty(TimeFrameWidgetObject.End.NONE);
+                });
+                DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(timeFramePojo.getParser());
+                this.label.setText(dateTimeFormatter.print(this.sampleHandler.getMaxTimeStamps().get(0)));
+            });
+            return;
+
+        }
+
+
+        try{
+            System.out.println(this.sampleHandler.getMaxTimeStamps());
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         Platform.runLater(() -> {
-            if (!this.timeFramePojo.getSelectedWidget().isPresent()) {
-            } else {
+            if (!this.timeFramePojo.getSelectedWidget().isPresent()) return;
+                else {
                 try {
                     logger.debug(this.timeFramePojo.getSelectedWidget().get().getCurrentInterval(control.getInterval()));
 //                Widget select = this.timeFramePojo.getSelectedWidget();
@@ -229,6 +255,8 @@ public class TimeFrameWidget extends Widget {
 
     @Override
     public void init() {
+
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
         this.label.setPadding(new Insets(0, 8, 0, 8));
         anchorPane.setBackground(null);
         anchorPane.getChildren().add(this.label);
@@ -249,11 +277,19 @@ public class TimeFrameWidget extends Widget {
 
     @Override
     public void openConfig() {
+
+        Tab timeFrameTab = timeFramePojo.getConfigTab();
+
+        if (this.sampleHandler.getDataModel().size() != 0) {
+            timeFramePojo.getTimeFrameTable().setDisable(true);
+        }
+
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
-        widgetConfigDialog.addGeneralTabsDataModel(null);
+
+        widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
 
         if (timeFramePojo != null) {
-            widgetConfigDialog.addTab(timeFramePojo.getConfigTab());
+            widgetConfigDialog.addTab(timeFrameTab);
         }
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
@@ -277,6 +313,7 @@ public class TimeFrameWidget extends Widget {
     @Override
     public ObjectNode toNode() {
         ObjectNode dashBoardNode = super.createDefaultNode();
+        dashBoardNode.set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
         if (timeFramePojo != null) {
             dashBoardNode
                     .set(TIME_FRAME_DESIGN_NODE_NAME, timeFramePojo.toJSON());

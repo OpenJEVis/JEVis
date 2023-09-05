@@ -30,6 +30,10 @@ public class TimeFramePojo {
     private final double iconSize = 20;
 
 
+    public TimeFrameTableView getTimeFrameTable() {
+        return timeFrameTable;
+    }
+
     private TimeFrameTableView timeFrameTable;
 
 
@@ -45,6 +49,14 @@ public class TimeFramePojo {
 
 //    private Integer selectedWidgetId;
 //    private Widget selectedWidget;
+
+    public ObservableList<TimeFrameWidgetObject> getWidgetObjects() {
+        return widgetObjects;
+    }
+
+    public void setWidgetObjects(ObservableList<TimeFrameWidgetObject> widgetObjects) {
+        this.widgetObjects = widgetObjects;
+    }
 
     ObservableList<TimeFrameWidgetObject> widgetObjects = FXCollections.observableArrayList();
 
