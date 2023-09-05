@@ -27,8 +27,12 @@ public class TimeFramePojo {
 
     private static final Logger logger = LogManager.getLogger(TimeFramePojo.class);
 
-    private double iconSize = 20;
+    private final double iconSize = 20;
 
+
+    public TimeFrameTableView getTimeFrameTable() {
+        return timeFrameTable;
+    }
 
     private TimeFrameTableView timeFrameTable;
 
@@ -45,6 +49,14 @@ public class TimeFramePojo {
 
 //    private Integer selectedWidgetId;
 //    private Widget selectedWidget;
+
+    public ObservableList<TimeFrameWidgetObject> getWidgetObjects() {
+        return widgetObjects;
+    }
+
+    public void setWidgetObjects(ObservableList<TimeFrameWidgetObject> widgetObjects) {
+        this.widgetObjects = widgetObjects;
+    }
 
     ObservableList<TimeFrameWidgetObject> widgetObjects = FXCollections.observableArrayList();
 
@@ -91,13 +103,9 @@ public class TimeFramePojo {
     public Optional<Widget> getSelectedWidget() {
         addWidgets();
         try {
-            if (getSelectedTimeFarmeObjectWidget().isPresent()) {
-
-                TimeFrameWidgetObject timeFrameWidgetObject = getSelectedTimeFarmeObjectWidget().get();
-                Optional<Widget> widget = this.dashboardControl.getWidgets().stream().filter(widget1 -> widget1.config.getUuid() == timeFrameWidgetObject.getConfig().getUuid()).findFirst();
+                Optional<Widget> widget = this.dashboardControl.getWidgets().stream()
+                        .filter(widget1 -> widget1.config.getUuid() == getSelectedTimeFarmeObjectWidget().orElseThrow(RuntimeException::new).getConfig().getUuid()).findFirst();
                 return widget;
-            }
-            return Optional.empty();
         } catch (Exception e) {
             logger.error(e);
             return Optional.empty();
@@ -221,7 +229,7 @@ public class TimeFramePojo {
             dataNode1.put("id", getSelectedWidget().get().getConfig().getUuid());
         }
         if (getSelectedTimeFarmeObjectWidget().isPresent()) {
-            dataNode1.put("count", getSelectedTimeFarmeObjectWidget().get().cuntOfSamplesProperty().getValue().toString());
+            dataNode1.put("count", getSelectedTimeFarmeObjectWidget().get().countOfSamplesProperty().getValue().toString());
 
         }
 
@@ -231,23 +239,24 @@ public class TimeFramePojo {
 
     private void addWidgets() {
 
-
-        List<TimeFrameWidgetObject> allWidgets = dashboardControl.getWidgetList().stream().map(widget -> new TimeFrameWidgetObject(dashboardControl, widget.getConfig())).collect(Collectors.toList());
-
-        widgetObjects.removeAll(widgetObjects.stream().filter(timeFrameWidgetObject -> !allWidgets.contains(timeFrameWidgetObject)).collect(Collectors.toList()));
-        widgetObjects.addAll(allWidgets.stream().filter(timeFrameWidgetObject -> !widgetObjects.contains(timeFrameWidgetObject)).collect(Collectors.toList()));
-
-
-        if (widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.isSelected()).count() == 0) {
-            Optional<TimeFrameWidgetObject> optionalTimeFrameWidgetObject = widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.getConfig().getUuid() == selectedId).findFirst();
-            if (optionalTimeFrameWidgetObject.isPresent()) {
-                TimeFrameWidgetObject selected = optionalTimeFrameWidgetObject.get();
+        try{
+            List<TimeFrameWidgetObject> allWidgets = dashboardControl.getWidgetList().stream().map(widget -> new TimeFrameWidgetObject(dashboardControl, widget.getConfig())).collect(Collectors.toList());
+            widgetObjects.removeAll(widgetObjects.stream().filter(timeFrameWidgetObject -> !allWidgets.contains(timeFrameWidgetObject)).collect(Collectors.toList()));
+            widgetObjects.addAll(allWidgets.stream().filter(timeFrameWidgetObject -> !widgetObjects.contains(timeFrameWidgetObject)).collect(Collectors.toList()));
+            if (widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.isSelected()).count() == 0) {
+                Optional<TimeFrameWidgetObject> optionalTimeFrameWidgetObject = widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.getConfig().getUuid() == selectedId).findFirst();
+                TimeFrameWidgetObject selected = optionalTimeFrameWidgetObject.orElseThrow(RuntimeException::new);
                 selected.setSelected(true);
                 selected.setEndObjectProperty(TimeFrameWidgetObject.End.valueOf(end));
                 selected.setStartObjectProperty(TimeFrameWidgetObject.Start.valueOf(start));
-                selected.setCuntOfSamples(countOfSamples);
+                selected.setCountOfSamples(countOfSamples);
             }
+        }catch (Exception e){
+            logger.error(e);
         }
+
+
+
     }
 
 }

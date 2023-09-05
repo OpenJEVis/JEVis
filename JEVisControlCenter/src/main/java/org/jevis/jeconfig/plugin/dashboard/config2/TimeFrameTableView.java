@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -58,7 +59,7 @@ public class TimeFrameTableView extends TableView<TimeFrameWidgetObject> {
                         new StringConverter<TimeFrameWidgetObject.End>() {
                             @Override
                             public String toString(TimeFrameWidgetObject.End end) {
-                                String string = new String();
+                                String string = "";
                                 switch (end) {
                                     case NONE:
                                         string = I18n.getInstance().getString("plugin.dashboard.timeframe.end.none");
@@ -95,7 +96,7 @@ public class TimeFrameTableView extends TableView<TimeFrameWidgetObject> {
         );
 
         TableColumn<TimeFrameWidgetObject, Boolean> countOfSamplesCol = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.timeframe.table.count"));
-        countOfSamplesCol.setCellValueFactory(object -> object.getValue().cuntOfSamplesProperty());
+        countOfSamplesCol.setCellValueFactory(object -> object.getValue().countOfSamplesProperty());
         countOfSamplesCol.setCellFactory(CheckBoxTableCell.forTableColumn(countOfSamplesCol));
         countOfSamplesCol.setEditable(true);
 
@@ -111,7 +112,7 @@ public class TimeFrameTableView extends TableView<TimeFrameWidgetObject> {
                         new StringConverter<TimeFrameWidgetObject.Start>() {
                             @Override
                             public String toString(TimeFrameWidgetObject.Start start) {
-                                String string = new String();
+                                String string = "";
                                 switch (start) {
                                     case NONE:
                                         string = I18n.getInstance().getString("plugin.dashboard.timeframe.start.none");
