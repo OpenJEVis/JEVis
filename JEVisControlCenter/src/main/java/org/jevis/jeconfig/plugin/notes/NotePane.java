@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.notes;
 import com.jfoenix.controls.*;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
@@ -12,10 +13,8 @@ import javafx.scene.layout.StackPane;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
@@ -32,8 +31,9 @@ import java.time.ZoneId;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class NotePane extends StackPane {
+public class NotePane extends Dialog {
 
     private static final Logger logger = LogManager.getLogger(NotePane.class);
     Label targetLabel = new Label(I18n.getInstance().getString("plugin.note.pane.target"));
@@ -46,7 +46,7 @@ public class NotePane extends StackPane {
     JFXTextField userField = new JFXTextField();
     TextArea noteTextArea = new TextArea();
     private final JFXDatePicker pickerDate = new JFXDatePicker();
-    JFXButton targetTreeButton = new JFXButton(I18n.getInstance().getString("plugin.note.pane.opentree"));
+    JFXButton targetTreeButton;
     private final JFXTimePicker pickerTime = new JFXTimePicker();
     JFXListView<String> tagList = new JFXListView<>();
     HBox hBox = new HBox(pickerDate, pickerTime);
@@ -58,9 +58,20 @@ public class NotePane extends StackPane {
     private JEVisObject parentObject;
     DateTime date = new DateTime();
 
-    public NotePane(ObservableList<String> allTags, JEVisDataSource dataSource) {
+   private final Optional<NotesRow> notesRow;
+
+    public NotePane(ObservableList<String> allTags, JEVisDataSource dataSource, Optional<NotesRow> notesRow) {
+        this.notesRow = notesRow;
         GridPane gridPane = new GridPane();
         this.dataSource = dataSource;
+        parentObject = getParentObject(notesRow);
+        if (parentObject != null) {
+            targetTreeButton = new JFXButton(parentObject.getName());
+        }else {
+            targetTreeButton = new JFXButton((I18n.getInstance().getString("plugin.note.pane.opentree")));
+        }
+
+
 
         jeVisTree = JEVisTreeFactory.buildBasicDefault(dataSource, false);
 
@@ -101,14 +112,16 @@ public class NotePane extends StackPane {
             tagList.getItems().add(s);
         });
 
+
         targetTreeButton.setOnAction(event -> {
 
             List<UserSelection> openList = new ArrayList<>();
+            openList.add(new UserSelection(UserSelection.SelectionType.Attribute, parentObject));
             List<JEVisTreeFilter> allFilter = new ArrayList<>();
             JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
             allFilter.add(allDataFilter);
             //allFilter.add(allAttributesFilter);
-            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE, dataSource, openList);
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter,null , SelectionMode.SINGLE, dataSource, openList);
 
             selectTargetDialog.setOnCloseRequest(treeevent -> {
                 try {
@@ -133,16 +146,24 @@ public class NotePane extends StackPane {
         gridPane.addColumn(0, targetLabel, timeLabel, noteLabel, tagLabel, userLabel);
         gridPane.addColumn(1, targetTreeButton, hBox, noteTextArea, tagList, userField);
 
-        getChildren().add(gridPane);
+        getDialogPane().setContent(gridPane);
 
 
+    }
+
+    private static JEVisObject getParentObject(Optional<NotesRow> notesRow) {
+        try{
+            return notesRow.orElseThrow(RuntimeException::new).getObject().getParent();
+        }catch (Exception e){
+            return null;
+        }
     }
 
     public DateTime getDate() {
         return date;
     }
 
-    public JEVisObject commit() {
+    public Optional<NotesRow> commit() {
         try {
             JEVisObject newNoteObject;
             JEVisClass noteClass = dataSource.getJEVisClass(NotesPlugin.NOTES_CLASS);
@@ -165,27 +186,35 @@ public class NotePane extends StackPane {
 
             String tagString = "";
             for (String o : tagList.getSelectionModel().getSelectedItems()) {
-                //System.out.println("-- selected tag: " + o);
                 List<NoteTag> tags = NoteTag.parseTags(o);
                 for (NoteTag noteTag : tags) {
                     tagString += noteTag.getId() + ";";
                 }
             }
             logger.debug("Tags: " + tagString);
-            //tagString = tagString.substring(0, tagString.length() - 1);
-            //System.out.println("Tags2: " + tagString);
+
 
             JEVisSample tagSample = newNoteObject.getAttribute("Tag").buildSample(date, tagString);
 
             noteSample.commit();
             userSample.commit();
             tagSample.commit();
-            return newNoteObject;
+            return getNotesRow(getDate(), noteTextArea.getText(), newNoteObject, tagString, userField.getText());
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return null;
+        return Optional.empty();
+    }
+
+    private Optional<NotesRow> getNotesRow(DateTime date, String note, JEVisObject jeVisObject, String tag, String user){
+        try {
+            return Optional.of(new NotesRow(date, note, jeVisObject, tag, user));
+
+        } catch (Exception e) {
+            logger.error(e);
+            return Optional.empty();
+        }
     }
 
 
