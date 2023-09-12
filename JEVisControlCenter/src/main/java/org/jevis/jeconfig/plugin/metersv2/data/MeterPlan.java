@@ -30,6 +30,7 @@ public class MeterPlan {
 
     public void loadMeterList() {
 
+
         List<JEVisObject> directory = new ArrayList<>();
         directory.add(jeVisObject);
         for (JEVisObject jeVisObject1 : load(directory)) {
@@ -93,5 +94,9 @@ public class MeterPlan {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public JEVisObject getJeVisObject() {
+        return jeVisObject;
     }
 }

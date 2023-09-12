@@ -2,21 +2,18 @@ package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTextField;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jeapi.ws.JEVisSampleWS;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
@@ -25,15 +22,11 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
-import org.jevis.jeconfig.tool.DragResizeMod;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import javax.xml.soap.Text;
 import java.io.File;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class MeterForm extends Dialog {
@@ -45,8 +38,28 @@ public class MeterForm extends Dialog {
     GridPane gridPane = new GridPane();
 
     private JEVisDataSource ds;
-    Map<Label, Node> fields = new TreeMap<>(new Comparator<Label>() {
+
+
+
+    private  Map<String,Map<Label,Node>> fields =new TreeMap<>(new Comparator<String>() {
         @Override
+        public int compare(String o1, String o2) {
+            if (o1 == o2) {
+                return 0;
+            }
+            if (o1 == null) {
+                return 1;
+            }
+            if (o2== null) {
+                return -1;
+            }
+            return o2.compareTo(o1);
+        }
+    });
+
+
+Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
+            @Override
         public int compare(Label o1, Label o2) {
             if (o1.getText() == o2.getText()) {
                 return 0;
@@ -65,8 +78,10 @@ public class MeterForm extends Dialog {
     private static final Logger logger = LogManager.getLogger(MeterForm.class);
 
     public MeterForm(MeterData meterData, JEVisDataSource ds) {
+
         this.ds = ds;
         this.meterData = meterData;
+        initializeMap();
 
         Stage stage = (Stage) this.getDialogPane().getScene().getWindow();
         TopMenu.applyActiveTheme(stage.getScene());
@@ -94,15 +109,22 @@ public class MeterForm extends Dialog {
         }
 
 
-        for (Map.Entry<Label, Node> entry : fields.entrySet()) {
-            int rowcount = gridPane.getChildren().stream().mapToInt(value -> {
-                Integer row = GridPane.getRowIndex(value);
-                Integer rowSpan = GridPane.getRowSpan(value);
-                return (row == null ? 0 : row) + (rowSpan == null ? 0 : rowSpan - 1);
-            }).max().orElse(-1);
-            System.out.println(entry.getKey());
-            System.out.println(entry.getValue());
-            gridPane.addRow(rowcount + 1, entry.getKey(), entry.getValue());
+        boolean firstRow =true;
+        for(Map.Entry<String, Map<Label, Node>> entryMap : fields.entrySet()){
+            for(Map.Entry<Label, Node> entry : entryMap.getValue().entrySet()){
+                int rowcount = gridPane.getChildren().stream().mapToInt(value -> {
+                    Integer row = GridPane.getRowIndex(value);
+                    Integer rowSpan = GridPane.getRowSpan(value);
+                    return (row == null ? 0 : row) + (rowSpan == null ? 0 : rowSpan - 1);
+                }).max().orElse(-1);
+                if(firstRow){
+                    gridPane.addRow(rowcount + 1, entry.getKey(), entry.getValue());
+                    firstRow = false;
+                }else {
+                    gridPane.addRow(rowcount, entry.getKey(), entry.getValue());
+                    firstRow = true;
+                }
+            }
         }
 
         gridPane.setVgap(10);
@@ -113,6 +135,72 @@ public class MeterForm extends Dialog {
         getDialogPane().setContent(scrollPane);
 
 
+    }
+
+    private void initializeMap() {
+        fields.put("Text",new TreeMap<>(new Comparator<Label>() {
+            @Override
+            public int compare(Label o1, Label o2) {
+                if (o1.getText() == o2.getText()) {
+                    return 0;
+                }
+                if (o1.getText() == null) {
+                    return -1;
+                }
+                if (o2.getText() == null) {
+                    return 1;
+                }
+                return o1.getText().compareTo(o2.getText());
+            }
+        }));
+
+        fields.put("Calendar",new TreeMap<>(new Comparator<Label>() {
+            @Override
+            public int compare(Label o1, Label o2) {
+                if (o1.getText() == o2.getText()) {
+                    return 0;
+                }
+                if (o1.getText() == null) {
+                    return -1;
+                }
+                if (o2.getText() == null) {
+                    return 1;
+                }
+                return o1.getText().compareTo(o2.getText());
+            }
+        }));
+
+        fields.put("File",new TreeMap<>(new Comparator<Label>() {
+            @Override
+            public int compare(Label o1, Label o2) {
+                if (o1.getText() == o2.getText()) {
+                    return 0;
+                }
+                if (o1.getText() == null) {
+                    return -1;
+                }
+                if (o2.getText() == null) {
+                    return 1;
+                }
+                return o1.getText().compareTo(o2.getText());
+            }
+        }));
+
+        fields.put("Target",new TreeMap<>(new Comparator<Label>() {
+            @Override
+            public int compare(Label o1, Label o2) {
+                if (o1.getText() == o2.getText()) {
+                    return 0;
+                }
+                if (o1.getText() == null) {
+                    return -1;
+                }
+                if (o2.getText() == null) {
+                    return 1;
+                }
+                return o1.getText().compareTo(o2.getText());
+            }
+        }));
     }
 
     private void buildTextField(MeterData meterData, Map.Entry<JEVisType, Optional<JEVisSample>> entry) {
@@ -168,8 +256,7 @@ public class MeterForm extends Dialog {
             logger.error(e);
             return;
         }
-
-        fields.put(label, textField);
+        fields.get("Text").put(label,textField);
     }
 
     private void buildFileChooser(MeterData meterData, Map.Entry<JEVisType, Optional<JEVisSample>> entry) {
@@ -207,7 +294,7 @@ public class MeterForm extends Dialog {
             Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis error", ButtonType.OK);
             alert.showAndWait();
         }
-        fields.put(label, hBox);
+        fields.get("File").put(label,hBox);
 
     }
 
@@ -238,7 +325,7 @@ public class MeterForm extends Dialog {
             logger.error(e);
         }
 
-        fields.put(label, jfxDatePicker);
+        fields.get("Calendar").put(label,jfxDatePicker);
 
 
     }
@@ -332,6 +419,6 @@ public class MeterForm extends Dialog {
             Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis Exception", ButtonType.OK);
             alert.showAndWait();
         }
-        fields.put(label, jfxButton);
+        fields.get("Target").put(label,jfxButton);
     }
 }

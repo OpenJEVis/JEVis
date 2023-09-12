@@ -151,6 +151,10 @@ public class MeterPlanTable extends TableView<MeterData> {
         this.data.add(meterData);
     }
 
+    public void setItems(List<MeterData> meterDatas){
+        this.data.setAll(meterDatas);
+    }
+
 
     public void setMedium(ObservableList<String> medium) {
         this.medium = medium;

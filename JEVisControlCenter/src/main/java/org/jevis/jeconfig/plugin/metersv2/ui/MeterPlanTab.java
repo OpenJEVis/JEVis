@@ -46,7 +46,7 @@ public class MeterPlanTab extends Tab {
             @Override
             public void handle(MouseEvent event) {
                 if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-                    controller.openDataForm(false);//actionTable.getSelectionModel().getSelectedItem()
+                    controller.openDataForm(Optional.empty());//actionTable.getSelectionModel().getSelectedItem()
                 }
             }
         });
@@ -150,6 +150,10 @@ public class MeterPlanTab extends Tab {
 
     public void setMeterPlanTable(MeterPlanTable meterPlanTable) {
         this.meterPlanTable = meterPlanTable;
+    }
+
+    public MeterPlan getPlan() {
+        return plan;
     }
 }
 

@@ -19,8 +19,10 @@ import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
 import org.jevis.jeconfig.plugin.metersv2.ui.MeterForm;
 import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTab;
+import org.jevis.jeconfig.plugin.metersv2.ui.NewMeterDialog;
 
 import java.util.List;
+import java.util.Optional;
 
 public class MeterController {
     private static final Logger logger = LogManager.getLogger(MeterController.class);
@@ -30,7 +32,7 @@ public class MeterController {
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
     private ObservableList<MeterPlan> meterPlans = FXCollections.observableArrayList();
-    private TabPane tabPane = new TabPane();
+    private TabPane tabPane;
     private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
     private BooleanProperty updateTrigger = new SimpleBooleanProperty(false);
@@ -212,6 +214,7 @@ public class MeterController {
 
 
     public void loadNonconformityPlans() {
+        tabPane = new TabPane();
         AnchorPane.setBottomAnchor(tabPane, 0.0);
         AnchorPane.setTopAnchor(tabPane, 0.0);
         AnchorPane.setRightAnchor(tabPane, 0.0);
@@ -285,8 +288,8 @@ public class MeterController {
         }
     }
 
-    public void openDataForm(boolean isNew) {
-        MeterData data = getSelectedData();
+    public void openDataForm(Optional<MeterData> meterData) {
+        MeterData data = meterData.orElse(getSelectedData());
         MeterForm meterForm = new MeterForm(data,ds);
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -296,17 +299,53 @@ public class MeterController {
             meterForm.getNewSamples().values().forEach(jeVisSample -> {
                 try {
                     jeVisSample.commit();
+
                 } catch (JEVisException e) {
                     logger.error(e);
                 }
             });
-            getActiveTab().getMeterPlanTable().replaceItem(data);
-            getActiveTab().getMeterPlanTable().sort();
-            getActiveTab().getMeterPlanTable().refresh();
+            if(meterData.isPresent()){
+                loadNonconformityPlans();
+            }else {
+                getActiveTab().getMeterPlanTable().replaceItem(data);
+                getActiveTab().getMeterPlanTable().sort();
+                getActiveTab().getMeterPlanTable().refresh();
+            }
+
             //getActiveTab().getMeterPlanTable().getItems().add(data);
         });
 
         meterForm.show();
+
+    }
+
+    public void addMeter(){
+        NewMeterDialog newMeterDialog = new NewMeterDialog(ds,getActiveTab().getPlan());
+        ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.save"), ButtonBar.ButtonData.APPLY);
+        ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        newMeterDialog.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
+        final Button btOk = (Button) newMeterDialog.getDialogPane().lookupButton(buttonTypeOne);
+
+        btOk.setOnAction(actionEvent -> {
+
+            try{
+
+                JEVisObject parent = newMeterDialog.getParent().orElse(newMeterDialog.getMeterPlan().getJeVisObject());
+                JEVisObject jeVisObject = parent.buildObject(newMeterDialog.getNameProperty(),newMeterDialog.getJeVisClassSingleSelectionModel().getSelectedItem().getJeVisClass());
+                if(jeVisObject.isAllowedUnder(parent)){
+                    jeVisObject.commit();
+                    MeterData meterData = new MeterData(jeVisObject);
+                    openDataForm(Optional.of(meterData));
+                }
+            }catch (Exception e){
+                logger.error(e);
+            }
+        });
+
+
+        newMeterDialog.showAndWait();
+
+
 
     }
 }
