@@ -25,7 +25,7 @@ public class MediumColumn extends TableColumn<MeterData,String> {
             }
             return new SimpleStringProperty("N/A");
         });
-        this.setStyle("-fx-alignment: LEFT;");
+        //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
         this.setVisible(true);
     }

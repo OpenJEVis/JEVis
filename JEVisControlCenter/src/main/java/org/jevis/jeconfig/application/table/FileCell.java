@@ -66,6 +66,7 @@ public class FileCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
 
 
                         } catch (Exception e) {
+                            System.out.println("jdjsdi");
                             e.printStackTrace();
 
                         }

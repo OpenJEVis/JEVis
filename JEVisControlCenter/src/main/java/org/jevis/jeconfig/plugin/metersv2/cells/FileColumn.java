@@ -6,6 +6,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisType;
 import org.jevis.jeconfig.application.table.FileCell;
+import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 
 import java.util.Optional;
@@ -20,10 +21,10 @@ int width;
 
         this.setCellValueFactory(param -> {
             Optional<JEVisSample> jeVisSample;
-            if (param.getValue().getJeVisAttributeJEVisSampleMap().get(jeVisType) == null) {
+            if (param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)) == null) {
                 jeVisSample = Optional.empty();
             } else {
-                jeVisSample = param.getValue().getJeVisAttributeJEVisSampleMap().get(jeVisType);
+                jeVisSample = param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType));
             }
             try {
                 return new SimpleObjectProperty<Optional<JEVisSample>>(jeVisSample);
@@ -36,7 +37,7 @@ int width;
         });
 
         this.setCellFactory(new FileCell<>());
-        this.setStyle("-fx-alignment: LEFT;");
+        //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
         this.setVisible(true);
 

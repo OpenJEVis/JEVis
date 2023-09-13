@@ -1,25 +1,33 @@
 package org.jevis.jeconfig.plugin.metersv2.ui;
 
+import com.jfoenix.controls.JFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.metersv2.MeterController;
+import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class MeterPlanTab extends Tab {
 
@@ -30,15 +38,34 @@ public class MeterPlanTab extends Tab {
 
     private JEVisDataSource ds;
 
+    //private Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
+
+    private Label lSearch = new Label("Search");
+    private JFXTextField fSearch = new JFXTextField();
+    JEVisTypeWrapper typeWrapper;
+
 
     public MeterPlanTab(MeterPlan plan, MeterController controller, JEVisDataSource ds) {
         super();
         this.ds = ds;
+        try {
+            JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
+
+            JEVisType jeVisType = jeVisClass.getType(JC.MeasurementInstrument.a_Type);
+            typeWrapper = new JEVisTypeWrapper(jeVisType);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
 
         setText(plan.getName());
         this.plan = plan;
+
+
+
         this.meterPlanTable = new MeterPlanTable(plan, plan.getMeterDataList(), ds);
+
 
 
 
@@ -51,12 +78,34 @@ public class MeterPlanTab extends Tab {
             }
         });
 
-
+        meterPlanTable.setMedium(FXCollections.observableArrayList("*"));
+        meterPlanTable.setType(FXCollections.observableArrayList("*"));
+        meterPlanTable.filter();
         BorderPane borderPane = new BorderPane();
 
         GridPane gridPane = new GridPane();
-        gridPane.addColumn(0, initClassFilterButton(meterPlanTable));
-        gridPane.addColumn(1, buildTypeFilterButton(meterPlanTable));
+        gridPane.setPadding(new Insets(25));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+
+        Separator vSep1 = new Separator(Orientation.VERTICAL);
+        Separator vSep2 = new Separator(Orientation.VERTICAL);
+
+
+        GridPane.setRowSpan(vSep1, 2);
+        GridPane.setRowSpan(vSep2, 2);
+        gridPane.addColumn(0, lSearch, fSearch);
+        gridPane.addColumn(1, vSep1);
+        //gridPane.addColumn(2, new Label("Relevant"), relevantFilter);
+        gridPane.addColumn(3, new Region(), initClassFilterButton(meterPlanTable));
+        gridPane.addColumn(4, new Region(),  buildTypeFilterButton(meterPlanTable));
+        //gridPane.addColumn(5, new Region(), scopeButton);
+//        gridPane.addColumn(6, vSep2);
+//        gridPane.addColumn(7, new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.date")), dateSelector);
+
+        //gridPane.addColumn(0, initClassFilterButton(meterPlanTable));
+        //gridPane.addColumn(1, buildTypeFilterButton(meterPlanTable));
 
 
         borderPane.setTop(gridPane);
@@ -102,11 +151,12 @@ public class MeterPlanTab extends Tab {
     private TagButton buildTypeFilterButton(MeterPlanTable meterPlanTable) {
         TagButton button = null;
         try {
-            JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
+            //JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
 
-            JEVisType jeVisType = jeVisClass.getType(JC.MeasurementInstrument.a_Type);
-            List<Map<JEVisType,Optional<JEVisSample>>> meterTypes = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap()).collect(Collectors.toList());
-            List<JEVisSample> samples =  meterTypes.stream().map(jeVisTypeOptionalMap -> jeVisTypeOptionalMap.get(jeVisType)).filter(jeVisSample -> jeVisSample.isPresent()).map(jeVisSample -> jeVisSample.get()).collect(Collectors.toList());
+           // JEVisType jeVisType = jeVisClass.getType(JC.MeasurementInstrument.a_Type);
+            //JEVisTypeWrapper jeVisTypeWrapper = jeVisTypeJEVisTypeWrapperMap.get(jeVisType);
+            List<Map<JEVisTypeWrapper,Optional<JEVisSample>>> meterTypes = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap()).collect(Collectors.toList());
+            List<JEVisSample> samples =  meterTypes.stream().map(jeVisTypeOptionalMap -> jeVisTypeOptionalMap.get(typeWrapper)).filter(jeVisSample -> jeVisSample.isPresent()).map(jeVisSample -> jeVisSample.get()).collect(Collectors.toList());
             List<String> stringValues = samples.stream().map(jeVisSample -> {
                 try {
                     return jeVisSample.getValueAsString();
@@ -130,7 +180,7 @@ public class MeterPlanTab extends Tab {
                     logger.debug("List Changed: {}", c);
                     while (c.next()) {
                         System.out.println(c.getList());
-                        meterPlanTable.setTpe((ObservableList<String>) c.getList());
+                        meterPlanTable.setType((ObservableList<String>) c.getList());
                         meterPlanTable.filter();
                     }
                 }

@@ -8,9 +8,11 @@ import java.util.Optional;
 
 public class MeterData {
     JEVisObject jeVisObject;
-    Map<JEVisType, Optional<JEVisSample>> jeVisAttributeJEVisSampleMap = new HashMap<>();
+    Map<JEVisTypeWrapper, Optional<JEVisSample>> jeVisAttributeJEVisSampleMap = new HashMap<>();
 
     private JEVisClass jeVisClass;
+
+    private String jEVisClassName;
 
     public MeterData(JEVisObject jeVisObject) {
             this.jeVisObject = jeVisObject;
@@ -20,11 +22,12 @@ public class MeterData {
     public void load() {
         try {
             jeVisClass = jeVisObject.getJEVisClass();
+            jEVisClassName = jeVisClass.getName();
             for (JEVisAttribute jeVisAttribute : jeVisObject.getAttributes()) {
                 if (jeVisAttribute.hasSample()) {
-                    jeVisAttributeJEVisSampleMap.put(jeVisAttribute.getType(), Optional.of(jeVisAttribute.getLatestSample()));
+                    jeVisAttributeJEVisSampleMap.put(new JEVisTypeWrapper(jeVisAttribute.getType()), Optional.of(jeVisAttribute.getLatestSample()));
                 }else {
-                    jeVisAttributeJEVisSampleMap.put(jeVisAttribute.getType(), Optional.empty());
+                    jeVisAttributeJEVisSampleMap.put(new JEVisTypeWrapper(jeVisAttribute.getType()), Optional.empty());
                 }
 
             }
@@ -34,11 +37,11 @@ public class MeterData {
     }
 
 
-    public Map<JEVisType, Optional<JEVisSample>> getJeVisAttributeJEVisSampleMap() {
+    public Map<JEVisTypeWrapper, Optional<JEVisSample>> getJeVisAttributeJEVisSampleMap() {
         return jeVisAttributeJEVisSampleMap;
     }
 
-    public void setJeVisAttributeJEVisSampleMap(Map<JEVisType, Optional<JEVisSample>> jeVisAttributeJEVisSampleMap) {
+    public void setJeVisAttributeJEVisSampleMap(Map<JEVisTypeWrapper, Optional<JEVisSample>> jeVisAttributeJEVisSampleMap) {
         this.jeVisAttributeJEVisSampleMap = jeVisAttributeJEVisSampleMap;
     }
 
@@ -63,5 +66,9 @@ public class MeterData {
         return "MeterData{" +
                 "jeVisObject=" + jeVisObject.getName() +
                 '}';
+    }
+
+    public String getjEVisClassName() {
+        return jEVisClassName;
     }
 }

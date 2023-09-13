@@ -31,7 +31,7 @@ public class LastRawValue extends TableColumn<MeterData, String> {
                   TargetHelper th = new TargetHelper(ds,meterDataJEVisSampleCellDataFeatures.getValue().getJeVisObject().getAttribute(jeVisType));
                   if(th.getAttribute().size() == 0) return new SimpleStringProperty("");
                   if(!th.getAttribute().get(0).hasSample())  return new SimpleStringProperty("");
-                  return  new SimpleStringProperty(th.getAttribute().get(0).getLatestSample().getValueAsString()+" "+th.getAttribute().get(0).getLatestSample().getUnit().getLabel());
+                  return  new SimpleStringProperty(String.format("%.02f",th.getAttribute().get(0).getLatestSample().getValueAsDouble())+" "+th.getAttribute().get(0).getLatestSample().getUnit().getLabel());
               } catch (Exception e) {
 
               }
@@ -41,7 +41,7 @@ public class LastRawValue extends TableColumn<MeterData, String> {
           });
 
         this.setCellFactory(new ShortColumnCell<MeterData>());
-        this.setStyle("-fx-alignment: LEFT;");
+        //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
         this.setVisible(true);
 

@@ -21,6 +21,7 @@ import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -88,17 +89,18 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
         stage.setAlwaysOnTop(false);
 
 
-        for (Map.Entry<JEVisType, Optional<JEVisSample>> entry : meterData.getJeVisAttributeJEVisSampleMap().entrySet()) {
+        for (Map.Entry<JEVisTypeWrapper, Optional<JEVisSample>> entry : meterData.getJeVisAttributeJEVisSampleMap().entrySet()) {
+            JEVisType jeVisType =entry.getKey().getJeVisType();
 
             try {
-                if (entry.getKey().getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
-                    buildFileChooser(meterData, entry);
-                } else if (entry.getKey().getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || entry.getKey().getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
-                    buildCal(meterData, entry);
-                } else if (entry.getKey().getName().equals("Online ID")) {
-                    buildTargetSelect(meterData,entry);
+                if (jeVisType.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
+                    buildFileChooser(meterData, jeVisType,entry.getValue());
+                } else if (jeVisType.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || jeVisType.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
+                    buildCal(meterData, jeVisType,entry.getValue());
+                } else if (jeVisType.getName().equals("Online ID")) {
+                    buildTargetSelect(meterData,jeVisType,entry.getValue());
                 } else {
-                    buildTextField(meterData, entry);
+                    buildTextField(meterData, jeVisType,entry.getValue());
                 }
             } catch (JEVisException e) {
                 logger.error(e);
@@ -203,17 +205,17 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
         }));
     }
 
-    private void buildTextField(MeterData meterData, Map.Entry<JEVisType, Optional<JEVisSample>> entry) {
+    private void buildTextField(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
         Label label = null;
         TextField textField = null;
         try {
-            label = new Label(entry.getKey().getName());
-            textField = entry.getValue().isPresent() ? new TextField(entry.getValue().get().getValueAsString()) : new TextField();
+            label = new Label(jeVisType.getName());
+            textField = optionalJEVisSample.isPresent() ? new TextField(optionalJEVisSample.get().getValueAsString()) : new TextField();
 
             textField.textProperty().addListener((observableValue, s, t1) -> {
                 int primitiveType = 0;
                 try {
-                    primitiveType = entry.getKey().getPrimitiveType();
+                    primitiveType = jeVisType.getPrimitiveType();
                 } catch (JEVisException e) {
                     logger.error(e);
                     return;
@@ -224,19 +226,19 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
                     switch (primitiveType) {
                         case JEVisConstants.PrimitiveType.STRING:
                             String str = s;
-                            newSamples.put(entry.getKey(), meterData.getJeVisObject().getAttribute(entry.getKey()).buildSample(DateTime.now(), str));
+                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), str));
                             break;
                         case JEVisConstants.PrimitiveType.LONG:
                             Long l = Long.valueOf(s);
-                            newSamples.put(entry.getKey(), meterData.getJeVisObject().getAttribute(entry.getKey()).buildSample(DateTime.now(), l));
+                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), l));
                             break;
                         case JEVisConstants.PrimitiveType.BOOLEAN:
                             Boolean b = Boolean.valueOf(s);
-                            newSamples.put(entry.getKey(), meterData.getJeVisObject().getAttribute(entry.getKey()).buildSample(DateTime.now(), b));
+                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), b));
                             break;
                         case JEVisConstants.PrimitiveType.DOUBLE:
                             Double d = Double.valueOf(s);
-                            newSamples.put(entry.getKey(), meterData.getJeVisObject().getAttribute(entry.getKey()).buildSample(DateTime.now(), d));
+                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), d));
                             break;
                     }
                 } catch (NumberFormatException e) {
@@ -259,7 +261,7 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
         fields.get("Text").put(label,textField);
     }
 
-    private void buildFileChooser(MeterData meterData, Map.Entry<JEVisType, Optional<JEVisSample>> entry) {
+    private void buildFileChooser(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
 
 
         Label label = null;
@@ -268,9 +270,9 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
 
         try {
             Label fileName = new Label();
-            fileName.setText(entry.getValue().isPresent() ? entry.getValue().get().getValueAsFile().getFilename() : "");
+            fileName.setText(optionalJEVisSample.isPresent() ? optionalJEVisSample.get().getValueAsFile().getFilename() : "");
             uploadButton = new JFXButton("", JEConfig.getSVGImage(Icon.CLOUD_UPLOAD, 20, 20));
-            label = new Label(entry.getKey().getName());
+            label = new Label(jeVisType.getName());
             hBox = new HBox(uploadButton, fileName);
             hBox.setSpacing(5);
 
@@ -283,7 +285,7 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
                         JEConfig.setLastPath(selectedFile);
                         JEVisFile jfile = new JEVisFileImp(selectedFile.getName(), selectedFile);
                         fileName.setText(selectedFile.getName());
-                        newSamples.put(entry.getKey(), meterData.getJeVisObject().getAttribute(entry.getKey()).buildSample(DateTime.now(), jfile));
+                        newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), jfile));
                     } catch (Exception ex) {
                         logger.catching(ex);
                     }
@@ -298,21 +300,21 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
 
     }
 
-    private void buildCal(MeterData meterData, Map.Entry<JEVisType, Optional<JEVisSample>> entry) {
+    private void buildCal(MeterData meterData,JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
         Label label = null;
         JFXDatePicker jfxDatePicker = new JFXDatePicker();
         JEVisObject jeVisObject = meterData.getJeVisObject();
         try {
-            label = new Label(entry.getKey().getName());
-            DateTime dateTime = DatabaseHelper.getObjectAsDate(jeVisObject, entry.getKey());
+            label = new Label(jeVisType.getName());
+            DateTime dateTime = DatabaseHelper.getObjectAsDate(jeVisObject, jeVisType);
 //            System.out.println(DatabaseHelper.getObjectAsLocaleDate(jeVisObject, entry.getKey()).toLocalDate());
             jfxDatePicker.setValue(toLocalDate(dateTime));
             jfxDatePicker.valueProperty().addListener((observableValue, localDate, t1) -> {
 
                 try {
-                    newSamples.put(entry.getKey(), jeVisObject.getAttribute(
-                            entry.getKey()).buildSample(DateTime.now(), toDateTime(localDate)));
-                    System.out.println(newSamples.get(entry.getKey()));
+                    newSamples.put(jeVisType, jeVisObject.getAttribute(
+                            jeVisType).buildSample(DateTime.now(), toDateTime(localDate)));
+                    System.out.println(newSamples.get(jeVisType));
                 } catch (JEVisException e) {
                     logger.error(e);
                     Alert alert = new Alert(Alert.AlertType.ERROR, "Could not create Sample", ButtonType.OK);
@@ -349,15 +351,15 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
         ).withTime(0, 0, 0, 0);
     }
 
-    public void buildTargetSelect(MeterData meterData, Map.Entry<JEVisType, Optional<JEVisSample>> entry) {
+    public void buildTargetSelect(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
 
         Label label = null;
         JFXButton jfxButton = null;
         try {
             jfxButton = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 20, 20));
-            label = new Label(entry.getKey().getName());
+            label = new Label(jeVisType.getName());
 
-            JEVisSample latestSample = meterData.getJeVisObject().getAttribute(entry.getKey()).getLatestSample();
+            JEVisSample latestSample = meterData.getJeVisObject().getAttribute(jeVisType).getLatestSample();
 
             jfxButton.setOnAction(actionEvent -> {
                 TargetHelper th = null;
@@ -401,8 +403,8 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
                                     newTarget += ":Value";
                                 }
                             }
-                            JEVisSample newTargetSample = meterData.getJeVisObject().getAttribute(entry.getKey()).buildSample(new DateTime(), newTarget);
-                            newSamples.put(entry.getKey(), newTargetSample);
+                            JEVisSample newTargetSample = meterData.getJeVisObject().getAttribute(jeVisType).buildSample(new DateTime(), newTarget);
+                            newSamples.put(jeVisType, newTargetSample);
                         }
 
                     } catch (JEVisException e) {

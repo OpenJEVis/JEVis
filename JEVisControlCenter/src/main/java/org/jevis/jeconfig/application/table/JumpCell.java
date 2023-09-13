@@ -26,6 +26,7 @@ import java.util.Optional;
 public class JumpCell<T> implements Callback<TableColumn<T, Optional<JEVisSample>>, TableCell<T, Optional<JEVisSample>>> {
     private static final Logger logger = LogManager.getLogger(MeterPlanTable.class);
     JEVisDataSource ds;
+
     public JumpCell(JEVisDataSource ds) {
         this.ds = ds;
     }
@@ -37,18 +38,16 @@ public class JumpCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
             protected void updateItem(Optional<JEVisSample> item, boolean empty) {
                 super.updateItem(item, empty);
                 HBox hBox = new HBox();
-                try {
-                TargetHelper th = new TargetHelper(ds,item.get().getAttribute());
-                JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY,20,20));
-                AnalysisLinkButton analysisLinkButton = null;
-                if (item.isPresent()) {
-                    JEVisObject firstCleanObject = CommonMethods.getFirstCleanObject(th.getObject().get(0));
-                    analysisLinkButton = new AnalysisLinkButton(JEConfig.getSVGImage(Icon.GRAPH,20,20),firstCleanObject.getAttribute("Value"));
-                }
-
+                JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 20, 20));
+                JFXButton analysisLinkButton = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 20, 20));
                 hBox.getChildren().addAll(manSampleButton, analysisLinkButton);
-
-                manSampleButton.setOnAction(event -> {
+                try {
+                    if (item != null && item.isPresent()) {
+                        TargetHelper th = new TargetHelper(ds, item.get().getAttribute());
+                        JEVisObject firstCleanObject = CommonMethods.getFirstCleanObject(th.getObject().get(0));
+                        analysisLinkButton = new AnalysisLinkButton(JEConfig.getSVGImage(Icon.GRAPH, 20, 20), firstCleanObject.getAttribute("Value"));
+                        hBox.getChildren().setAll(manSampleButton, analysisLinkButton);
+                        manSampleButton.setOnAction(event -> {
 
                             if (th.isValid() && th.targetObjectAccessible()) {
 
@@ -68,7 +67,7 @@ public class JumpCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
                                     if (attribute != null) {
                                         enterDataDialog.setTarget(false, attribute);
                                     } else {
-                                       // logger.warn("No attribute target found");
+                                        // logger.warn("No attribute target found");
                                     }
                                 }
 
@@ -83,7 +82,11 @@ public class JumpCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
                             }
 
 
-                });
+                        });
+
+                    }
+
+
 
                 } catch (Exception ex) {
                     logger.error(ex);
@@ -93,6 +96,10 @@ public class JumpCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
                 if (item == null || empty) {
                     setText(null);
                     setGraphic(null);
+                } else if (!item.isPresent()) {
+                    analysisLinkButton.setDisable(true);
+                    manSampleButton.setDisable(true);
+                    setGraphic(hBox);
                 } else {
                     setGraphic(hBox);
                 }

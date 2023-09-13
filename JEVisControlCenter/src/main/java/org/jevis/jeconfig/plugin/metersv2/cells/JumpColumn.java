@@ -7,6 +7,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisType;
 import org.jevis.jeconfig.application.table.FileCell;
 import org.jevis.jeconfig.application.table.JumpCell;
+import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 
 
@@ -18,11 +19,11 @@ public class JumpColumn extends TableColumn<MeterData, Optional<JEVisSample>> {
         super(s);
 
         this.setCellValueFactory(meterDataOptionalCellDataFeatures -> {
-            return new SimpleObjectProperty<>(meterDataOptionalCellDataFeatures.getValue().getJeVisAttributeJEVisSampleMap().get(jeVisType));
+            return new SimpleObjectProperty<>(meterDataOptionalCellDataFeatures.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)));
         });
 
         this.setCellFactory(new JumpCell<>(ds));
-        this.setStyle("-fx-alignment: LEFT;");
+        //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
         this.setVisible(true);
     }
