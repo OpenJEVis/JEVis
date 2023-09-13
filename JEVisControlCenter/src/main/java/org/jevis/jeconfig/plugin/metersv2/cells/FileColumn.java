@@ -24,7 +24,7 @@ int width;
             if (param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)) == null) {
                 jeVisSample = Optional.empty();
             } else {
-                jeVisSample = param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType));
+                jeVisSample = param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).getOptionalJEVisSample();
             }
             try {
                 return new SimpleObjectProperty<Optional<JEVisSample>>(jeVisSample);

@@ -210,8 +210,8 @@ e.printStackTrace();
 
                             AtomicBoolean typMatch = new AtomicBoolean(false);
                             if (!type.contains("*")) {
-                                if (meterData.getJeVisAttributeJEVisSampleMap().get(typeWrapper).isPresent()) {
-                                    String s = (meterData.getJeVisAttributeJEVisSampleMap().get(typeWrapper).get().getValueAsString());
+                                if (meterData.getJeVisAttributeJEVisSampleMap().get(typeWrapper).getOptionalJEVisSample().isPresent()) {
+                                    String s = (meterData.getJeVisAttributeJEVisSampleMap().get(typeWrapper).getOptionalJEVisSample().get().getValueAsString());
                                     if (type.contains(s)) {
                                         typMatch.set(true);
                                     }

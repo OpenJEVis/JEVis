@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class MeterData {
     JEVisObject jeVisObject;
-    Map<JEVisTypeWrapper, Optional<JEVisSample>> jeVisAttributeJEVisSampleMap = new HashMap<>();
+    Map<JEVisTypeWrapper, SampleData> jeVisAttributeJEVisSampleMap = new HashMap<>();
 
     private JEVisClass jeVisClass;
 
@@ -25,9 +25,9 @@ public class MeterData {
             jEVisClassName = jeVisClass.getName();
             for (JEVisAttribute jeVisAttribute : jeVisObject.getAttributes()) {
                 if (jeVisAttribute.hasSample()) {
-                    jeVisAttributeJEVisSampleMap.put(new JEVisTypeWrapper(jeVisAttribute.getType()), Optional.of(jeVisAttribute.getLatestSample()));
+                    jeVisAttributeJEVisSampleMap.put(new JEVisTypeWrapper(jeVisAttribute.getType()), new SampleData(jeVisAttribute));
                 }else {
-                    jeVisAttributeJEVisSampleMap.put(new JEVisTypeWrapper(jeVisAttribute.getType()), Optional.empty());
+                    jeVisAttributeJEVisSampleMap.put(new JEVisTypeWrapper(jeVisAttribute.getType()), new SampleData(jeVisAttribute));
                 }
 
             }
@@ -37,11 +37,11 @@ public class MeterData {
     }
 
 
-    public Map<JEVisTypeWrapper, Optional<JEVisSample>> getJeVisAttributeJEVisSampleMap() {
+    public Map<JEVisTypeWrapper, SampleData> getJeVisAttributeJEVisSampleMap() {
         return jeVisAttributeJEVisSampleMap;
     }
 
-    public void setJeVisAttributeJEVisSampleMap(Map<JEVisTypeWrapper, Optional<JEVisSample>> jeVisAttributeJEVisSampleMap) {
+    public void setJeVisAttributeJEVisSampleMap(Map<JEVisTypeWrapper, SampleData> jeVisAttributeJEVisSampleMap) {
         this.jeVisAttributeJEVisSampleMap = jeVisAttributeJEVisSampleMap;
     }
 

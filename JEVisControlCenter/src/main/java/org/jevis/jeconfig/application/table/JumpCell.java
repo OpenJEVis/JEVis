@@ -18,12 +18,13 @@ import org.jevis.jeconfig.application.control.AnalysisLinkButton;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.ImageViewerDialog;
 import org.jevis.jeconfig.dialog.PDFViewerDialog;
+import org.jevis.jeconfig.plugin.metersv2.data.SampleData;
 import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTable;
 import org.joda.time.DateTime;
 
 import java.util.Optional;
 
-public class JumpCell<T> implements Callback<TableColumn<T, Optional<JEVisSample>>, TableCell<T, Optional<JEVisSample>>> {
+public class JumpCell<T> implements Callback<TableColumn<T, SampleData>, TableCell<T, SampleData>> {
     private static final Logger logger = LogManager.getLogger(MeterPlanTable.class);
     JEVisDataSource ds;
 
@@ -32,18 +33,22 @@ public class JumpCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
     }
 
     @Override
-    public TableCell<T, Optional<JEVisSample>> call(TableColumn<T, Optional<JEVisSample>> param) {
-        return new TableCell<T, Optional<JEVisSample>>() {
+    public TableCell<T, SampleData> call(TableColumn<T, SampleData> param) {
+        return new TableCell<T,SampleData>() {
+            HBox hBox = new HBox();
+            JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 20, 20));
+            JFXButton analysisLinkButton = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 20, 20));
+
             @Override
-            protected void updateItem(Optional<JEVisSample> item, boolean empty) {
+            protected void updateItem(SampleData item, boolean empty) {
                 super.updateItem(item, empty);
-                HBox hBox = new HBox();
-                JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 20, 20));
-                JFXButton analysisLinkButton = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 20, 20));
-                hBox.getChildren().addAll(manSampleButton, analysisLinkButton);
+
+                hBox.getChildren().setAll(manSampleButton, analysisLinkButton);
+
+
                 try {
-                    if (item != null && item.isPresent()) {
-                        TargetHelper th = new TargetHelper(ds, item.get().getAttribute());
+                    if (item != null && item.getOptionalJEVisSample().isPresent()) {
+                        TargetHelper th = new TargetHelper(ds, item.getOptionalJEVisSample().get().getAttribute());
                         JEVisObject firstCleanObject = CommonMethods.getFirstCleanObject(th.getObject().get(0));
                         analysisLinkButton = new AnalysisLinkButton(JEConfig.getSVGImage(Icon.GRAPH, 20, 20), firstCleanObject.getAttribute("Value"));
                         hBox.getChildren().setAll(manSampleButton, analysisLinkButton);
@@ -96,11 +101,13 @@ public class JumpCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
                 if (item == null || empty) {
                     setText(null);
                     setGraphic(null);
-                } else if (!item.isPresent()) {
+                } else if (!item.getOptionalJEVisSample().isPresent()) {
                     analysisLinkButton.setDisable(true);
                     manSampleButton.setDisable(true);
                     setGraphic(hBox);
                 } else {
+                    manSampleButton.setDisable(false);
+                    analysisLinkButton.setDisable(false);
                     setGraphic(hBox);
                 }
             }

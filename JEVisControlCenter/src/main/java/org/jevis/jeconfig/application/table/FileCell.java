@@ -27,10 +27,11 @@ public class FileCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
     @Override
             public TableCell<T, Optional<JEVisSample>> call(TableColumn<T, Optional<JEVisSample>> param) {
                 return new TableCell<T, Optional<JEVisSample>>() {
+                    JFXButton previewButton = new JFXButton("", JEConfig.getSVGImage(Icon.PREVIEW,20,20));
                     @Override
                     protected void updateItem(Optional<JEVisSample> item, boolean empty) {
                         super.updateItem(item, empty);
-                        JFXButton previewButton = new JFXButton("", JEConfig.getSVGImage(Icon.PREVIEW,20,20));
+
 
                         try {
                             JEVisFile jeVisFile;

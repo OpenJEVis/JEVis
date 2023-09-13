@@ -14,9 +14,9 @@ public class ShortCellColumn extends TableColumn<MeterData,String>{
     public ShortCellColumn(JEVisType jeVisType, int width, String name) {
         super(name);
         this.setCellValueFactory(param -> {
-            if (param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)) != null && param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).isPresent()) {
+            if (param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)) != null && param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).getOptionalJEVisSample().isPresent()) {
                 try {
-                    JEVisSample jeVisSample = param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).get();
+                    JEVisSample jeVisSample = param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).getOptionalJEVisSample().get();
                     return new SimpleStringProperty(jeVisSample.getValueAsString());
                 } catch (Exception e) {
                     e.printStackTrace();

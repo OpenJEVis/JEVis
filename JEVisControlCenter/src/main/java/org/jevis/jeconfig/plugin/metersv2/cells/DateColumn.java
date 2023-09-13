@@ -20,7 +20,7 @@ public class DateColumn extends TableColumn<MeterData, DateTime > {
         super(s);
 
         this.setCellValueFactory(param -> {
-            if (param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)) != null && param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).isPresent()) {
+            if (param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)) != null && param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).getOptionalJEVisSample().isPresent()) {
                 try {
                     DateTime  dateTime = DatabaseHelper.getObjectAsDate(param.getValue().getJeVisObject(), jeVisType);
                     return new SimpleObjectProperty<>(dateTime);

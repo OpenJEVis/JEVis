@@ -22,6 +22,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.metersv2.MeterController;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
+import org.jevis.jeconfig.plugin.metersv2.data.SampleData;
 
 import java.util.List;
 import java.util.Map;
@@ -155,8 +156,8 @@ public class MeterPlanTab extends Tab {
 
            // JEVisType jeVisType = jeVisClass.getType(JC.MeasurementInstrument.a_Type);
             //JEVisTypeWrapper jeVisTypeWrapper = jeVisTypeJEVisTypeWrapperMap.get(jeVisType);
-            List<Map<JEVisTypeWrapper,Optional<JEVisSample>>> meterTypes = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap()).collect(Collectors.toList());
-            List<JEVisSample> samples =  meterTypes.stream().map(jeVisTypeOptionalMap -> jeVisTypeOptionalMap.get(typeWrapper)).filter(jeVisSample -> jeVisSample.isPresent()).map(jeVisSample -> jeVisSample.get()).collect(Collectors.toList());
+            List<Map<JEVisTypeWrapper, SampleData>> meterTypes = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap()).collect(Collectors.toList());
+            List<JEVisSample> samples =  meterTypes.stream().map(jeVisTypeOptionalMap -> jeVisTypeOptionalMap.get(typeWrapper)).filter(jeVisSample -> jeVisSample.getOptionalJEVisSample().isPresent()).map(jeVisSample -> jeVisSample.getOptionalJEVisSample().get()).collect(Collectors.toList());
             List<String> stringValues = samples.stream().map(jeVisSample -> {
                 try {
                     return jeVisSample.getValueAsString();

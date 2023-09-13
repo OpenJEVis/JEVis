@@ -23,6 +23,7 @@ import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
+import org.jevis.jeconfig.plugin.metersv2.data.SampleData;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -89,18 +90,18 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
         stage.setAlwaysOnTop(false);
 
 
-        for (Map.Entry<JEVisTypeWrapper, Optional<JEVisSample>> entry : meterData.getJeVisAttributeJEVisSampleMap().entrySet()) {
+        for (Map.Entry<JEVisTypeWrapper, SampleData> entry : meterData.getJeVisAttributeJEVisSampleMap().entrySet()) {
             JEVisType jeVisType =entry.getKey().getJeVisType();
 
             try {
                 if (jeVisType.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
-                    buildFileChooser(meterData, jeVisType,entry.getValue());
+                    buildFileChooser(meterData, jeVisType,entry.getValue().getOptionalJEVisSample());
                 } else if (jeVisType.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || jeVisType.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
-                    buildCal(meterData, jeVisType,entry.getValue());
+                    buildCal(meterData, jeVisType,entry.getValue().getOptionalJEVisSample());
                 } else if (jeVisType.getName().equals("Online ID")) {
-                    buildTargetSelect(meterData,jeVisType,entry.getValue());
+                    buildTargetSelect(meterData,jeVisType,entry.getValue().getOptionalJEVisSample());
                 } else {
-                    buildTextField(meterData, jeVisType,entry.getValue());
+                    buildTextField(meterData, jeVisType,entry.getValue().getOptionalJEVisSample());
                 }
             } catch (JEVisException e) {
                 logger.error(e);
