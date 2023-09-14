@@ -26,7 +26,9 @@ import org.jevis.jeconfig.plugin.metersv2.data.SampleData;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,33 +43,27 @@ public class MeterPlanTab extends Tab {
 
     //private Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
 
-    private Label lSearch = new Label("Search");
-    private JFXTextField fSearch = new JFXTextField();
+    //private Label lSearch = new Label("Search");
+    //private JFXTextField fSearch = new JFXTextField();
     JEVisTypeWrapper typeWrapper;
+    JEVisTypeWrapper locationWrapper;
 
 
     public MeterPlanTab(MeterPlan plan, MeterController controller, JEVisDataSource ds) {
         super();
         this.ds = ds;
-        try {
-            JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
 
-            JEVisType jeVisType = jeVisClass.getType(JC.MeasurementInstrument.a_Type);
-            typeWrapper = new JEVisTypeWrapper(jeVisType);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
+        typeWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Type));
+        locationWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Location));
 
 
         setText(plan.getName());
         this.plan = plan;
 
 
-
         this.meterPlanTable = new MeterPlanTable(plan, plan.getMeterDataList(), ds);
-
-
+        //fSearch = buildSearch(meterPlanTable);
 
 
         meterPlanTable.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -80,7 +76,6 @@ public class MeterPlanTab extends Tab {
         });
 
         meterPlanTable.setMedium(FXCollections.observableArrayList("*"));
-        meterPlanTable.setType(FXCollections.observableArrayList("*"));
         meterPlanTable.filter();
         BorderPane borderPane = new BorderPane();
 
@@ -96,23 +91,23 @@ public class MeterPlanTab extends Tab {
 
         GridPane.setRowSpan(vSep1, 2);
         GridPane.setRowSpan(vSep2, 2);
-        gridPane.addColumn(0, lSearch, fSearch);
+        gridPane.addColumn(0, new Label("Search"), buildSearch(meterPlanTable));
         gridPane.addColumn(1, vSep1);
         //gridPane.addColumn(2, new Label("Relevant"), relevantFilter);
-        gridPane.addColumn(3, new Region(), initClassFilterButton(meterPlanTable));
-        gridPane.addColumn(4, new Region(),  buildTypeFilterButton(meterPlanTable));
+        gridPane.addColumn(3, new Region(), buildClassFilterButton(meterPlanTable));
+        gridPane.addColumn(4, new Region(), buildTypeFilterButton(meterPlanTable, "Type", meterPlanTable::setType, typeWrapper));
+        gridPane.addColumn(5, new Region(), buildTypeFilterButton(meterPlanTable, "Location", meterPlanTable::setLocation, locationWrapper));
         //gridPane.addColumn(5, new Region(), scopeButton);
 //        gridPane.addColumn(6, vSep2);
 //        gridPane.addColumn(7, new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.date")), dateSelector);
 
         //gridPane.addColumn(0, initClassFilterButton(meterPlanTable));
         //gridPane.addColumn(1, buildTypeFilterButton(meterPlanTable));
-
+        meterPlanTable.filter();
 
         borderPane.setTop(gridPane);
         borderPane.setCenter(meterPlanTable);
         setContent(borderPane);
-
 
 
         //initClassFilterButton(nonconformityPlanTable);
@@ -120,7 +115,17 @@ public class MeterPlanTab extends Tab {
 
     }
 
-    private TagButton initClassFilterButton(MeterPlanTable meterPlanTable) {
+    private JFXTextField buildSearch(MeterPlanTable meterPlanTable) {
+        JFXTextField textField = new JFXTextField();
+        textField.textProperty().addListener((observableValue, s, t1) -> {
+            meterPlanTable.setContainsTextFilter(t1);
+            meterPlanTable.filter();
+        });
+
+        return textField;
+    }
+
+    private TagButton buildClassFilterButton(MeterPlanTable meterPlanTable) {
 
 
         List<String> clasNAmes = plan.getMeterDataList().stream().map(meterData -> {
@@ -149,31 +154,24 @@ public class MeterPlanTab extends Tab {
         return mediumButton;
     }
 
-    private TagButton buildTypeFilterButton(MeterPlanTable meterPlanTable) {
+    private TagButton buildTypeFilterButton(MeterPlanTable meterPlanTable, String name, Function<ObservableList<String>, Void> function, JEVisTypeWrapper jeVisTypeWrapper) {
         TagButton button = null;
         try {
-            //JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
-
-           // JEVisType jeVisType = jeVisClass.getType(JC.MeasurementInstrument.a_Type);
-            //JEVisTypeWrapper jeVisTypeWrapper = jeVisTypeJEVisTypeWrapperMap.get(jeVisType);
             List<Map<JEVisTypeWrapper, SampleData>> meterTypes = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap()).collect(Collectors.toList());
-            List<JEVisSample> samples =  meterTypes.stream().map(jeVisTypeOptionalMap -> jeVisTypeOptionalMap.get(typeWrapper)).filter(jeVisSample -> jeVisSample.getOptionalJEVisSample().isPresent()).map(jeVisSample -> jeVisSample.getOptionalJEVisSample().get()).collect(Collectors.toList());
+            List<JEVisSample> samples = meterTypes.stream().map(jeVisTypeOptionalMap -> jeVisTypeOptionalMap.get(jeVisTypeWrapper)).filter(jeVisSample -> jeVisSample.getOptionalJEVisSample().isPresent()).map(jeVisSample -> jeVisSample.getOptionalJEVisSample().get()).collect(Collectors.toList());
             List<String> stringValues = samples.stream().map(jeVisSample -> {
                 try {
                     return jeVisSample.getValueAsString();
                 } catch (JEVisException e) {
                     return null;
                 }
-            }).filter(s -> s!= null).distinct().collect(Collectors.toList());
+            }).filter(s -> s != null).distinct().collect(Collectors.toList());
 
-            ObservableList<String> stings = FXCollections.observableArrayList(stringValues);
-
-
+            ObservableList<String> strings = FXCollections.observableArrayList(stringValues);
 
 
-
-
-           button = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), stings, stings);
+            button = new TagButton(name, strings, strings);
+            function.apply(FXCollections.observableArrayList("*"));
 
             button.getSelectedTags().addListener(new ListChangeListener<String>() {
                 @Override
@@ -181,22 +179,36 @@ public class MeterPlanTab extends Tab {
                     logger.debug("List Changed: {}", c);
                     while (c.next()) {
                         System.out.println(c.getList());
-                        meterPlanTable.setType((ObservableList<String>) c.getList());
+                        function.apply((ObservableList<String>) c.getList());
                         meterPlanTable.filter();
                     }
                 }
             });
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e);
         }
 
         return button;
     }
 
+
     public MeterPlanTable getMeterPlanTable() {
         return meterPlanTable;
+    }
+
+    private JEVisType getJEVisType(String string) {
+        try {
+            JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
+            JEVisType jeVisType = jeVisClass.getType(string);
+            return jeVisType;
+
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return null;
+
+
     }
 
     public void setMeterPlanTable(MeterPlanTable meterPlanTable) {
@@ -302,7 +314,7 @@ public class MeterPlanTab extends Tab {
 //        });
 
 
-        //nonconformityPlanTable.setStaus(stausButton.getSelectedTags());
+//nonconformityPlanTable.setStaus(stausButton.getSelectedTags());
 //        nonconformityPlanTable.setSeu(seuButton.getSelectedTags());
 //        nonconformityPlanTable.setMedium(mediumButton.getSelectedTags());
 //        nonconformityPlanTable.setFields(fieldButton.getSelectedTags());

@@ -28,19 +28,22 @@ public class FileCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
             public TableCell<T, Optional<JEVisSample>> call(TableColumn<T, Optional<JEVisSample>> param) {
                 return new TableCell<T, Optional<JEVisSample>>() {
                     JFXButton previewButton = new JFXButton("", JEConfig.getSVGImage(Icon.PREVIEW,20,20));
+
                     @Override
                     protected void updateItem(Optional<JEVisSample> item, boolean empty) {
                         super.updateItem(item, empty);
 
-
-                        try {
-                            JEVisFile jeVisFile;
-                            JEVisAttribute jeVisAttribute;
+                        previewButton.setDisable(true);
                             if (item != null) {
                                 if (item.isPresent()) {
-                                    jeVisFile = item.get().getValueAsFile();
-                                    jeVisAttribute = item.get().getAttribute();
                                     previewButton.setOnAction(actionEvent -> {
+                                        try{
+
+
+                                        JEVisFile jeVisFile;
+                                        JEVisAttribute jeVisAttribute;
+                                        jeVisFile = item.get().getValueAsFile();
+                                        jeVisAttribute = item.get().getAttribute();
                                         String fileName = jeVisFile.getFilename();
                                         String fileExtension = FilenameUtils.getExtension(fileName);
 
@@ -55,27 +58,22 @@ public class FileCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
                                                 imageViewerDialog.show(jeVisAttribute, jeVisFile, JEConfig.getStage());
                                             });
                                         }
+                                        } catch (Exception e) {
+                                            System.out.println("jdjsdi");
+                                            e.printStackTrace();
+
+                                        }
 
                                     });
-                                }else {
-                                    previewButton.setDisable(true);
                                 }
-
-                            }else {
-                                previewButton.setDisable(true);
                             }
-
-
-                        } catch (Exception e) {
-                            System.out.println("jdjsdi");
-                            e.printStackTrace();
-
-                        }
-
                         if (item == null || empty) {
                             setText(null);
                             setGraphic(null);
-                        } else {
+                        } else if(!item.isPresent()) {
+                            setGraphic(previewButton);
+                        }else {
+                            previewButton.setDisable(false);
                             setGraphic(previewButton);
                         }
                     }

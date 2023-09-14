@@ -59,7 +59,7 @@ public class MeterPlanTable extends TableView<MeterData> {
     private String containsTextFilter = "";
     private ObservableList<String> medium = FXCollections.observableArrayList();
     private ObservableList<String> type = FXCollections.observableArrayList();
-    private ObservableList<String> staus = FXCollections.observableArrayList();
+    private ObservableList<String> location = FXCollections.observableArrayList();
     private ObservableList<String> fields = FXCollections.observableArrayList();
     private ObservableList<String> seu = FXCollections.observableArrayList();
 
@@ -70,6 +70,8 @@ public class MeterPlanTable extends TableView<MeterData> {
     ObservableList<MeterData> data;
 
     JEVisTypeWrapper typeWrapper;
+    JEVisTypeWrapper locationWrapper;
+    JEVisTypeWrapper pointNameWrapper;
 
 
    // Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
@@ -85,6 +87,8 @@ public class MeterPlanTable extends TableView<MeterData> {
         this.filteredData = new FilteredList<>(this.data);
 
         typeWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Type));
+        locationWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Location));
+        pointNameWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_MeasuringPointName));
 
         //this.jeVisTypeJEVisTypeWrapperMap = jeVisTypeJEVisTypeWrapperMap;
 
@@ -154,8 +158,10 @@ e.printStackTrace();
         }
         sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(this.comparatorProperty());
+        Platform.runLater(() -> {
 
-        setItems(sortedData);
+            setItems(sortedData);
+        });
 
 
     }
@@ -176,8 +182,9 @@ e.printStackTrace();
         this.medium = medium;
     }
 
-    public void setType(ObservableList<String> type) {
+    public Void setType(ObservableList<String> type) {
         this.type = type;
+        return null;
     }
 
 
@@ -207,20 +214,35 @@ e.printStackTrace();
                             endTime  = System.nanoTime();
                             duration = ((endTime - startTime)/1000000);
                             System.out.println("2: "+duration);
+                            
 
-                            AtomicBoolean typMatch = new AtomicBoolean(false);
-                            if (!type.contains("*")) {
-                                if (meterData.getJeVisAttributeJEVisSampleMap().get(typeWrapper).getOptionalJEVisSample().isPresent()) {
-                                    String s = (meterData.getJeVisAttributeJEVisSampleMap().get(typeWrapper).getOptionalJEVisSample().get().getValueAsString());
-                                    if (type.contains(s)) {
-                                        typMatch.set(true);
-                                    }
-                                }
-                                if (!typMatch.get()) return false;
-                            }
+                            if(!filter(typeWrapper,type,meterData)) return false;
+                            if(!filter(locationWrapper,location,meterData)) return false;
                             endTime  = System.nanoTime();
                             duration = ((endTime - startTime)/1000000);
                             System.out.println("3: "+duration);
+
+
+                            AtomicBoolean containString = new AtomicBoolean(false);
+                            if (containsTextFilter != null && !containsTextFilter.isEmpty()) {
+                                //Optional<JEVisSample> meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample();
+                                try{
+
+                                    String meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(pointNameWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
+                                    //String meteringIP = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
+                                    //String meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
+                                    if (meteringPoint.toLowerCase().contains(containsTextFilter.toLowerCase())) {
+                                        containString.set(true);
+                                    }
+
+                                }catch (Exception e){
+                                    logger.error(e);
+                                }
+
+                                //TODO: may also check if column is visible
+                                if (!containString.get()) return false;
+                            }
+
                             return true;
 
 
@@ -233,7 +255,7 @@ e.printStackTrace();
                     }
                 });
         Platform.runLater(() -> {
-           // sort();
+            sort();
         });
 //        long endTime  = System.nanoTime();
 //        long duration = (endTime - startTime);
@@ -263,38 +285,30 @@ e.printStackTrace();
         this.containsTextFilter = containsTextFilter;
     }
 
-//
-//
-//    public ObservableList<String> getMedium() {
-//        return medium;
-//    }
-//
-//    public void setMedium(ObservableList<String> medium) {
-//        this.medium = medium;
-//    }
-//
-//    public ObservableList<String> getStaus() {
-//        return staus;
-//    }
-//
-//    public void setStaus(ObservableList<String> staus) {
-//        this.staus = staus;
-//    }
-//
-//    public ObservableList<String> getFields() {
-//        return fields;
-//    }
-//
-//    public void setFields(ObservableList<String> fields) {
-//        this.fields = fields;
-//    }
-//
-//    public ObservableList<String> getSeu() {
-//        return seu;
-//    }
-//
-//    public void setSeu(ObservableList<String> seu) {
-//        this.seu = seu;
-//    }
+    public ObservableList<String> getLocation() {
+        return location;
+    }
+
+    public Void setLocation(ObservableList<String> location) {
+        this.location = location;
+        return null;
+    }
+
+    private boolean filter(JEVisTypeWrapper jeVisTypeWrapper, ObservableList<String> observableList, MeterData meterData){
+        try{
+
+        if (observableList.contains("*")) return true;
+            if (meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper).getOptionalJEVisSample().isPresent()) {
+                String s = (meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper).getOptionalJEVisSample().get().getValueAsString());
+                if (type.contains(s)) {
+                    return true;
+                }
+            }
+        }catch (Exception e){
+            logger.error(e);
+        }
+        return false;
+    }
+
 
 }
