@@ -2,12 +2,14 @@ package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -30,6 +32,7 @@ import org.joda.time.DateTimeZone;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MeterForm extends Dialog {
 
@@ -43,9 +46,9 @@ public class MeterForm extends Dialog {
 
 
 
-    private  Map<String,Map<Label,Node>> fields =new TreeMap<>(new Comparator<String>() {
+    private  Map<Integer,List<Node>> fields = new TreeMap<>(new Comparator<Integer>() {
         @Override
-        public int compare(String o1, String o2) {
+        public int compare(Integer o1, Integer o2) {
             if (o1 == o2) {
                 return 0;
             }
@@ -59,22 +62,6 @@ public class MeterForm extends Dialog {
         }
     });
 
-
-Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
-            @Override
-        public int compare(Label o1, Label o2) {
-            if (o1.getText() == o2.getText()) {
-                return 0;
-            }
-            if (o1.getText() == null) {
-                return -1;
-            }
-            if (o2.getText() == null) {
-                return 1;
-            }
-            return o1.getText().compareTo(o2.getText());
-        }
-    });
     Map<JEVisType, JEVisSample> newSamples = new HashMap<>();
 
     private static final Logger logger = LogManager.getLogger(MeterForm.class);
@@ -113,21 +100,25 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
 
 
         boolean firstRow =true;
-        for(Map.Entry<String, Map<Label, Node>> entryMap : fields.entrySet()){
-            for(Map.Entry<Label, Node> entry : entryMap.getValue().entrySet()){
+        for(Map.Entry<Integer, List<Node>> entryMap : fields.entrySet()){
+
+            //Label label = (Label) entryMap.getValue().get(0);
+            //Node node = entryMap.getValue().get(1);
+            //System.out.println(entryMap.getValue().get(1));
+
                 int rowcount = gridPane.getChildren().stream().mapToInt(value -> {
                     Integer row = GridPane.getRowIndex(value);
                     Integer rowSpan = GridPane.getRowSpan(value);
                     return (row == null ? 0 : row) + (rowSpan == null ? 0 : rowSpan - 1);
                 }).max().orElse(-1);
                 if(firstRow){
-                    gridPane.addRow(rowcount + 1, entry.getKey(), entry.getValue());
+                    gridPane.addRow(rowcount + 1, entryMap.getValue().get(0), entryMap.getValue().get(1));
                     firstRow = false;
                 }else {
-                    gridPane.addRow(rowcount, entry.getKey(), entry.getValue());
+                    gridPane.addRow(rowcount, entryMap.getValue().get(0),entryMap.getValue().get(1));
                     firstRow = true;
                 }
-            }
+//            }
         }
 
         gridPane.setVgap(10);
@@ -141,69 +132,7 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
     }
 
     private void initializeMap() {
-        fields.put("Text",new TreeMap<>(new Comparator<Label>() {
-            @Override
-            public int compare(Label o1, Label o2) {
-                if (o1.getText() == o2.getText()) {
-                    return 0;
-                }
-                if (o1.getText() == null) {
-                    return -1;
-                }
-                if (o2.getText() == null) {
-                    return 1;
-                }
-                return o1.getText().compareTo(o2.getText());
-            }
-        }));
 
-        fields.put("Calendar",new TreeMap<>(new Comparator<Label>() {
-            @Override
-            public int compare(Label o1, Label o2) {
-                if (o1.getText() == o2.getText()) {
-                    return 0;
-                }
-                if (o1.getText() == null) {
-                    return -1;
-                }
-                if (o2.getText() == null) {
-                    return 1;
-                }
-                return o1.getText().compareTo(o2.getText());
-            }
-        }));
-
-        fields.put("File",new TreeMap<>(new Comparator<Label>() {
-            @Override
-            public int compare(Label o1, Label o2) {
-                if (o1.getText() == o2.getText()) {
-                    return 0;
-                }
-                if (o1.getText() == null) {
-                    return -1;
-                }
-                if (o2.getText() == null) {
-                    return 1;
-                }
-                return o1.getText().compareTo(o2.getText());
-            }
-        }));
-
-        fields.put("Target",new TreeMap<>(new Comparator<Label>() {
-            @Override
-            public int compare(Label o1, Label o2) {
-                if (o1.getText() == o2.getText()) {
-                    return 0;
-                }
-                if (o1.getText() == null) {
-                    return -1;
-                }
-                if (o2.getText() == null) {
-                    return 1;
-                }
-                return o1.getText().compareTo(o2.getText());
-            }
-        }));
     }
 
     private void buildTextField(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
@@ -259,7 +188,7 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
             logger.error(e);
             return;
         }
-        fields.get("Text").put(label,textField);
+        fields.put(getGuiPosition(jeVisType), Arrays.asList(label, textField));
     }
 
     private void buildFileChooser(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
@@ -297,7 +226,7 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
             Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis error", ButtonType.OK);
             alert.showAndWait();
         }
-        fields.get("File").put(label,hBox);
+        fields.put(getGuiPosition(jeVisType),Arrays.asList(label,hBox));
 
     }
 
@@ -328,7 +257,7 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
             logger.error(e);
         }
 
-        fields.get("Calendar").put(label,jfxDatePicker);
+        fields.put(getGuiPosition(jeVisType),Arrays.asList(label,jfxDatePicker));
 
 
     }
@@ -422,6 +351,15 @@ Map<Label, Node> textFields = new TreeMap<>(new Comparator<Label>() {
             Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis Exception", ButtonType.OK);
             alert.showAndWait();
         }
-        fields.get("Target").put(label,jfxButton);
+        fields.put(getGuiPosition(jeVisType),Arrays.asList(label,jfxButton));
+    }
+
+    private int getGuiPosition(JEVisType jeVisType) {
+        try {
+            return jeVisType.getGUIPosition();
+        } catch (JEVisException jeVisException) {
+            logger.error(jeVisException);
+        }
+        return 0;
     }
 }
