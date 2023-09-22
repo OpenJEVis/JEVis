@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXToggleButton;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -45,6 +46,8 @@ public class MeterPlanTab extends Tab {
     JEVisTypeWrapper typeWrapper;
     JEVisTypeWrapper locationWrapper;
     JEVisTypeWrapper verificationDateWrapper;
+    JFXToggleButton jfxToggleButton = new JFXToggleButton();
+
 
     private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
 
@@ -99,6 +102,14 @@ public class MeterPlanTab extends Tab {
         gridPane.addColumn(3, new Region(), buildClassFilterButton(meterPlanTable));
         gridPane.addColumn(4, new Region(), buildTypeFilterButton(meterPlanTable, "Type", meterPlanTable::setType, typeWrapper));
         gridPane.addColumn(5, new Region(), buildTypeFilterButton(meterPlanTable, "Location", meterPlanTable::setLocation, locationWrapper));
+        gridPane.addColumn(6,new Label("Overdue"),jfxToggleButton);
+
+
+        jfxToggleButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
+            meterPlanTable.setShowOnlyOvedue(t1);
+            meterPlanTable.filter();
+        });
+
         //gridPane.addColumn(5, new Region(), scopeButton);
 //        gridPane.addColumn(6, vSep2);
 //        gridPane.addColumn(7, new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.date")), dateSelector);
@@ -215,15 +226,16 @@ public class MeterPlanTab extends Tab {
     private TagButton buildTypeFilterButton(MeterPlanTable meterPlanTable, String name, Function<ObservableList<String>, Void> function, JEVisTypeWrapper jeVisTypeWrapper) {
         TagButton button = null;
         try {
-            List<Map<JEVisTypeWrapper, SampleData>> meterTypes = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap()).collect(Collectors.toList());
-            List<JEVisSample> samples = meterTypes.stream().map(jeVisTypeOptionalMap -> jeVisTypeOptionalMap.get(jeVisTypeWrapper)).filter(jeVisSample -> jeVisSample.getOptionalJEVisSample().isPresent()).map(jeVisSample -> jeVisSample.getOptionalJEVisSample().get()).collect(Collectors.toList());
-            List<String> stringValues = samples.stream().map(jeVisSample -> {
-                try {
-                    return jeVisSample.getValueAsString();
-                } catch (JEVisException e) {
-                    return null;
-                }
-            }).filter(s -> s != null).distinct().collect(Collectors.toList());
+            List<String> stringValues = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper))
+                    .filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent()).map(optionalJEVisSample -> {
+                        try {
+                            System.out.println(optionalJEVisSample.get());
+                            return optionalJEVisSample.get().getValueAsString();
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                            throw new RuntimeException(e);
+                        }
+                    }).distinct().collect(Collectors.toList());
 
             ObservableList<String> strings = FXCollections.observableArrayList(stringValues);
 

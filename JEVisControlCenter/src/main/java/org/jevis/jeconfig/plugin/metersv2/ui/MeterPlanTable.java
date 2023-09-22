@@ -13,12 +13,11 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.jeconfig.application.type.GUIConstants;
-import org.jevis.jeconfig.plugin.dashboard.datahandler.SampleHandlerEvent;
-import org.jevis.jeconfig.plugin.dashboard.datahandler.SampleHandlerEventListener;
 import org.jevis.jeconfig.plugin.metersv2.cells.*;
 import org.jevis.jeconfig.plugin.metersv2.data.*;
 import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEvent;
 import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEventListener;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -27,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -53,15 +53,10 @@ public class MeterPlanTable extends TableView<MeterData> {
             e.printStackTrace();
         }
     }
-
-    //ObservableList<NonconformityData> data = FXCollections.observableArrayList();
     FilteredList<MeterData> filteredData;
 
     SortedList<MeterData> sortedData;
     private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private TableFilter tableFilter = new TableFilter();
-    private NonconformityData sumRow = new NonconformityData();
-    //private DateFilter dateFilter;
     private boolean showSumRow = false;
     private String containsTextFilter = "";
     private ObservableList<String> medium = FXCollections.observableArrayList();
@@ -69,6 +64,8 @@ public class MeterPlanTable extends TableView<MeterData> {
     private ObservableList<String> location = FXCollections.observableArrayList();
     private ObservableList<String> fields = FXCollections.observableArrayList();
     private ObservableList<String> seu = FXCollections.observableArrayList();
+
+    private boolean showOnlyOvedue;
 
     private static int DATE_TIME_WIDTH = 120;
     private static int BIG_WIDTH = 200;
@@ -79,6 +76,7 @@ public class MeterPlanTable extends TableView<MeterData> {
     JEVisTypeWrapper typeWrapper;
     JEVisTypeWrapper locationWrapper;
     JEVisTypeWrapper pointNameWrapper;
+    JEVisTypeWrapper verficationDateWrapper;
 
 
     // Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
@@ -93,7 +91,7 @@ public class MeterPlanTable extends TableView<MeterData> {
         typeWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Type));
         locationWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Location));
         pointNameWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_MeasuringPointName));
-
+        verficationDateWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_VerificationDate));
         //this.jeVisTypeJEVisTypeWrapperMap = jeVisTypeJEVisTypeWrapperMap;
 
         this.setTableMenuButtonVisible(true);
@@ -107,7 +105,6 @@ public class MeterPlanTable extends TableView<MeterData> {
             pointName = jeVisClass.getType(JC.MeasurementInstrument.a_MeasuringPointName);
 
         } catch (Exception e) {
-            System.out.println("ggg");
             e.printStackTrace();
 
         }
@@ -191,6 +188,8 @@ public class MeterPlanTable extends TableView<MeterData> {
     }
 
 
+
+
     public void filter() {
 
 
@@ -213,13 +212,25 @@ public class MeterPlanTable extends TableView<MeterData> {
 
                             if (!filter(typeWrapper, type, meterData)) return false;
                             if (!filter(locationWrapper, location, meterData)) return false;
+                            AtomicBoolean overdueMatch = new AtomicBoolean(false);
+                            if (showOnlyOvedue == true) {
+                                SampleData sampleData = meterData.getJeVisAttributeJEVisSampleMap().get(verficationDateWrapper);
+                                if (sampleData != null && sampleData.getOptionalJEVisSample().isPresent()) {
+                                    JEVisSample jeVisSample = sampleData.getOptionalJEVisSample().get();
+                                    if (new DateTime(jeVisSample.getValueAsString()).isBeforeNow()) {
+                                        overdueMatch.set(true);
+                                    }
+                                }
+                                if (!overdueMatch.get()) return false;
+                            }
+
+
 
 
                             AtomicBoolean containString = new AtomicBoolean(false);
                             if (containsTextFilter != null && !containsTextFilter.isEmpty()) {
                                 //Optional<JEVisSample> meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample();
                                 try {
-
                                     String meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(pointNameWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
                                     //String meteringIP = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
                                     //String meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
@@ -324,4 +335,11 @@ public class MeterPlanTable extends TableView<MeterData> {
     }
 
 
+    public boolean isShowOnlyOvedue() {
+        return showOnlyOvedue;
+    }
+
+    public void setShowOnlyOvedue(boolean showOnlyOvedue) {
+        this.showOnlyOvedue = showOnlyOvedue;
+    }
 }

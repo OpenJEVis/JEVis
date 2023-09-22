@@ -23,12 +23,15 @@ public class JEVisTypeWrapper {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public boolean equals(Object o) {
-
         if(o.getClass() != this.getClass()) return false;
-        JEVisTypeWrapper object = (JEVisTypeWrapper) o;
-       return name.equals(object.getName());
+        if(((JEVisTypeWrapper) o).getName().equals(name)) return true;
+        return false;
     }
 
     @Override
@@ -36,7 +39,12 @@ public class JEVisTypeWrapper {
         return name.hashCode();
     }
 
-    public String getName() {
-        return name;
+
+    @Override
+    public String toString() {
+        return "JEVisTypeWrapper{" +
+                "jeVisType=" + jeVisType +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
