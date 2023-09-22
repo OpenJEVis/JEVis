@@ -158,7 +158,8 @@ public class PluginManager {
                         new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")),
                         new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")),
                         new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.Legalcadastre.name")),
-                        new TRCPlugin(this._ds)
+                        new TRCPlugin(this._ds),
+                        new org.jevis.jeconfig.plugin.metersv2.MeterPlugin(this._ds,I18n.getInstance().getString("gg"))
                 ));
                 return;
             } else {
@@ -208,6 +209,7 @@ public class PluginManager {
                         ex.printStackTrace();
                     }
                 }
+                this._plugins.add(new org.jevis.jeconfig.plugin.metersv2.MeterPlugin(this._ds,I18n.getInstance().getString("gg")));
 
                 this._plugins.addAll(enabledPlugins);
             }

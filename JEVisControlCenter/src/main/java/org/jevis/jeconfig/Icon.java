@@ -132,4 +132,6 @@ public class Icon {
     public static final String FILTER_ALT = "/icons/MaterialDesignSVG/outlined/filter_alt.svg";
     public static final String FILTER_ALT_OFF = "/icons/MaterialDesignSVG/outlined/filter_alt_off.svg";
     public static final String BALANCE = "/icons/MaterialDesignSVG/outlined/balance.svg";
+
+    public static final String CLOUD_UPLOAD = "/icons/MaterialDesignSVG/outlined/cloud_upload.svg";
 }
