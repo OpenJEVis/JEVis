@@ -16,15 +16,14 @@ import java.util.List;
 import java.util.Optional;
 
 public class LastRawValue extends TableColumn<MeterData, String> {
-
-
-
-
-
-
-
     public LastRawValue(String s, JEVisDataSource ds, JEVisType jeVisType, int width) {
         super(s);
+        try {
+
+            setId(jeVisType.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
           this.setCellValueFactory(meterDataJEVisSampleCellDataFeatures -> {
 
               try {

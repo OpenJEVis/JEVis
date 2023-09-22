@@ -18,6 +18,12 @@ public class JumpColumn extends TableColumn<MeterData, SampleData> {
 
     public JumpColumn(String s, JEVisType jeVisType, int width, JEVisDataSource ds) {
         super(s);
+        try {
+
+            setId(jeVisType.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         this.setCellValueFactory(meterDataOptionalCellDataFeatures -> {
             return new SimpleObjectProperty<>(meterDataOptionalCellDataFeatures.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)));

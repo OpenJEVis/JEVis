@@ -18,6 +18,12 @@ import org.joda.time.format.DateTimeFormatter;
 public class DateColumn extends TableColumn<MeterData, DateTime > {
     public DateColumn(String s, JEVisType jeVisType, int width) {
         super(s);
+        try {
+
+            setId(jeVisType.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         this.setCellValueFactory(param -> {
             if (param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)) != null && param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).getOptionalJEVisSample().isPresent()) {

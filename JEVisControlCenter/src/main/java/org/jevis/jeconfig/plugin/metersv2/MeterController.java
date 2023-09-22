@@ -296,14 +296,7 @@ public class MeterController {
         meterForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
         final Button btOk = (Button) meterForm.getDialogPane().lookupButton(buttonTypeOne);
         btOk.setOnAction(actionEvent -> {
-            meterForm.getNewSamples().values().forEach(jeVisSample -> {
-                try {
-                    jeVisSample.commit();
-
-                } catch (JEVisException e) {
-                    logger.error(e);
-                }
-            });
+            meterForm.commit();
             if(meterData.isPresent()){
                 loadNonconformityPlans();
             }else {
@@ -312,7 +305,6 @@ public class MeterController {
                 getActiveTab().getMeterPlanTable().refresh();
             }
 
-            //getActiveTab().getMeterPlanTable().getItems().add(data);
         });
 
         meterForm.show();

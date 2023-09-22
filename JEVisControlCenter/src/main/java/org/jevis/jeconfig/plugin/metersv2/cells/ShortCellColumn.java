@@ -13,6 +13,12 @@ public class ShortCellColumn extends TableColumn<MeterData,String>{
 
     public ShortCellColumn(JEVisType jeVisType, int width, String name) {
         super(name);
+        try {
+
+            setId(jeVisType.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         this.setCellValueFactory(param -> {
             if (param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)) != null && param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).getOptionalJEVisSample().isPresent()) {
                 try {
@@ -31,6 +37,9 @@ public class ShortCellColumn extends TableColumn<MeterData,String>{
         //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
         this.setVisible(false);
+        if (this.getId().equals("Type")) {
+            this.setVisible(true);
+        }
 
 
 

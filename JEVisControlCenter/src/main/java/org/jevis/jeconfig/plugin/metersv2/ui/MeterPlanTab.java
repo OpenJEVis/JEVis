@@ -1,15 +1,18 @@
 package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import com.jfoenix.controls.JFXTextField;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TableColumn;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -19,18 +22,16 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.table.SummeryData;
+import org.jevis.jeconfig.application.table.SummeryTable;
 import org.jevis.jeconfig.plugin.metersv2.MeterController;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
 import org.jevis.jeconfig.plugin.metersv2.data.SampleData;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class MeterPlanTab extends Tab {
 
@@ -41,12 +42,11 @@ public class MeterPlanTab extends Tab {
 
     private JEVisDataSource ds;
 
-    //private Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
-
-    //private Label lSearch = new Label("Search");
-    //private JFXTextField fSearch = new JFXTextField();
     JEVisTypeWrapper typeWrapper;
     JEVisTypeWrapper locationWrapper;
+    JEVisTypeWrapper verificationDateWrapper;
+
+    private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
 
 
     public MeterPlanTab(MeterPlan plan, MeterController controller, JEVisDataSource ds) {
@@ -56,6 +56,7 @@ public class MeterPlanTab extends Tab {
 
         typeWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Type));
         locationWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Location));
+        verificationDateWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_VerificationDate));
 
 
         setText(plan.getName());
@@ -63,7 +64,8 @@ public class MeterPlanTab extends Tab {
 
 
         this.meterPlanTable = new MeterPlanTable(plan, plan.getMeterDataList(), ds);
-        //fSearch = buildSearch(meterPlanTable);
+
+        Statistics statistics = new Statistics(meterPlanTable.filteredData, meterPlanTable);
 
 
         meterPlanTable.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -107,6 +109,58 @@ public class MeterPlanTab extends Tab {
 
         borderPane.setTop(gridPane);
         borderPane.setCenter(meterPlanTable);
+
+
+       List<JEVisClass> jeVisClasses = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisClass()).distinct().collect(Collectors.toList());
+       List<String> type = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(typeWrapper)).filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent()).map(optionalJEVisSample -> {
+           try {
+               return optionalJEVisSample.get().getValueAsString();
+           } catch (JEVisException e) {
+               throw new RuntimeException(e);
+           }
+       }).distinct().collect(Collectors.toList());
+       int j = type.size() > jeVisClasses.size() ? type.size() : jeVisClasses.size();
+
+        for (int i = 0; i < j; i++) {
+            try {
+                ObservableMap<TableColumn, StringProperty> summeryRow = FXCollections.observableHashMap();
+
+                if (jeVisClasses.size() > i) {
+                    summeryRow.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals("Medium")).findAny().orElseThrow(RuntimeException::new), statistics.getAllOfMedium(jeVisClasses.get(i).getName(), jeVisClasses.get(i).getName()));
+                }
+
+                if (type.size() > i) {
+                    summeryRow.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals("Type")).findAny().orElseThrow(RuntimeException::new), statistics.getType(typeWrapper, type.get(i)));
+                }
+                if (i == 0) {
+                    summeryRow.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals("Verification Date")).findAny().orElseThrow(RuntimeException::new), statistics.getOverdue(verificationDateWrapper,"Overdue"));
+                }
+                summeryData.add(new SummeryData(summeryRow));
+            } catch (JEVisException jeVisException) {
+                jeVisException.printStackTrace();
+            }
+
+
+
+
+        }
+
+
+//        summeryData.add(new SummeryData(summeryRow1));
+//        ObservableMap<TableColumn, StringProperty> summeryRow2 = FXCollections.observableHashMap();
+//        summeryRow2.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals("Medium")).findAny().orElseThrow(RuntimeException::new), statistics.getAllOfType(JC.MeasurementInstrument.GasMeasurementInstrument.name,"Gas"));
+//        summeryData.add(new SummeryData(summeryRow2));
+//        ObservableMap<TableColumn, StringProperty> summeryRow3 = FXCollections.observableHashMap();
+//        summeryRow3.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals("Medium")).findAny().orElseThrow(RuntimeException::new), statistics.getAllOfType(JC.MeasurementInstrument.HeatMeasurementInstrument.name,"Heat"));
+//        summeryData.add(new SummeryData(summeryRow3));
+//        ObservableMap<TableColumn, StringProperty> summeryRow4 = FXCollections.observableHashMap();
+//        summeryRow4.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals("Medium")).findAny().orElseThrow(RuntimeException::new), statistics.getAllOfType(JC.MeasurementInstrument.WaterMeasurementInstrument.name,"Water"));
+//        summeryData.add(new SummeryData(summeryRow4));
+        SummeryTable summeryTable = new SummeryTable(meterPlanTable);
+       summeryTable.setItems(summeryData);
+
+
+        borderPane.setBottom(summeryTable);
         setContent(borderPane);
 
 
@@ -123,6 +177,10 @@ public class MeterPlanTab extends Tab {
         });
 
         return textField;
+    }
+
+    private void buildRow(List<TableColumn> tableColumns, List<Function<String,StringProperty>> list, List<String> translations) {
+
     }
 
     private TagButton buildClassFilterButton(MeterPlanTable meterPlanTable) {

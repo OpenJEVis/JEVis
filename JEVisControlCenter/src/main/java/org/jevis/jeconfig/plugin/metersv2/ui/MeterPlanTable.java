@@ -13,11 +13,16 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.jeconfig.application.type.GUIConstants;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.SampleHandlerEvent;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.SampleHandlerEventListener;
 import org.jevis.jeconfig.plugin.metersv2.cells.*;
 import org.jevis.jeconfig.plugin.metersv2.data.*;
+import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEvent;
+import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEventListener;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import javax.swing.event.EventListenerList;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +39,8 @@ public class MeterPlanTable extends TableView<MeterData> {
     private Map<JEVisType, JEVisTypeWrapper> map = new HashMap<>();
 
     private static final Logger logger = LogManager.getLogger(MeterPlanTable.class);
+
+    private final EventListenerList listeners = new EventListenerList();
 
 
     private static Method columnToFitMethod;
@@ -74,10 +81,7 @@ public class MeterPlanTable extends TableView<MeterData> {
     JEVisTypeWrapper pointNameWrapper;
 
 
-   // Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
-
-
-
+    // Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
 
 
     public MeterPlanTable(MeterPlan meterPlan, ObservableList<MeterData> data, JEVisDataSource ds) {
@@ -94,22 +98,20 @@ public class MeterPlanTable extends TableView<MeterData> {
 
         this.setTableMenuButtonVisible(true);
 
-        this.getColumns().add(new MediumColumn("Medium",BIG_WIDTH));
+        this.getColumns().add(new MediumColumn("Medium", BIG_WIDTH));
         JEVisType onlineIdType = null;
         JEVisType pointName = null;
         try {
             JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
-            onlineIdType =  jeVisClass.getType("Online ID");
+            onlineIdType = jeVisClass.getType("Online ID");
             pointName = jeVisClass.getType(JC.MeasurementInstrument.a_MeasuringPointName);
 
         } catch (Exception e) {
             System.out.println("ggg");
-e.printStackTrace();
+            e.printStackTrace();
 
         }
         List<JEVisTypeWrapper> jeVisTypes = data.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().keySet()).flatMap(jeVisTypes1 -> jeVisTypes1.stream()).distinct().collect(Collectors.toList());
-
-
 
 
         try {
@@ -131,15 +133,15 @@ e.printStackTrace();
 
 
                         }
-                       break;
+                        break;
                     case JEVisConstants.PrimitiveType.FILE:
-                        col = new FileColumn(jeVisType,BIG_WIDTH,jeVisType.getName());
+                        col = new FileColumn(jeVisType, BIG_WIDTH, jeVisType.getName());
                         break;
                     default:
 
                         if ((jeVisType.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || jeVisType.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId()))) {
                             col = new DateColumn(jeVisType.getName(), jeVisType, BIG_WIDTH);
-                        }else{
+                        } else {
 
                             col = new ShortCellColumn(jeVisType, BIG_WIDTH, jeVisType.getName());
                         }
@@ -149,7 +151,7 @@ e.printStackTrace();
                     this.getColumns().add(col);
                 }
             }
-            this.getColumns().add(new JumpColumn("Jump", onlineIdType, BIG_WIDTH,ds));
+            this.getColumns().add(new JumpColumn("", onlineIdType, BIG_WIDTH, ds));
 
 
         } catch (Exception e) {
@@ -171,9 +173,10 @@ e.printStackTrace();
         this.data.remove(meterData);
         meterData.load();
         this.data.add(meterData);
+        notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.UPDATE));
     }
 
-    public void setItems(List<MeterData> meterDatas){
+    public void setItems(List<MeterData> meterDatas) {
         this.data.setAll(meterDatas);
     }
 
@@ -196,11 +199,6 @@ e.printStackTrace();
                 new Predicate<MeterData>() {
                     @Override
                     public boolean test(MeterData meterData) {
-                        long startTime = System.nanoTime();
-                        long endTime  = System.nanoTime();
-                        long duration = ((endTime - startTime)/1000000);
-                        System.out.println(meterData);
-                        System.out.println("1: "+duration);
 
                         try {
 
@@ -211,22 +209,16 @@ e.printStackTrace();
                                 }
                                 if (!mediumMatch.get()) return false;
                             }
-                            endTime  = System.nanoTime();
-                            duration = ((endTime - startTime)/1000000);
-                            System.out.println("2: "+duration);
-                            
 
-                            if(!filter(typeWrapper,type,meterData)) return false;
-                            if(!filter(locationWrapper,location,meterData)) return false;
-                            endTime  = System.nanoTime();
-                            duration = ((endTime - startTime)/1000000);
-                            System.out.println("3: "+duration);
+
+                            if (!filter(typeWrapper, type, meterData)) return false;
+                            if (!filter(locationWrapper, location, meterData)) return false;
 
 
                             AtomicBoolean containString = new AtomicBoolean(false);
                             if (containsTextFilter != null && !containsTextFilter.isEmpty()) {
                                 //Optional<JEVisSample> meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample();
-                                try{
+                                try {
 
                                     String meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(pointNameWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
                                     //String meteringIP = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
@@ -235,7 +227,7 @@ e.printStackTrace();
                                         containString.set(true);
                                     }
 
-                                }catch (Exception e){
+                                } catch (Exception e) {
                                     logger.error(e);
                                 }
 
@@ -246,8 +238,6 @@ e.printStackTrace();
                             return true;
 
 
-
-
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -256,20 +246,19 @@ e.printStackTrace();
                 });
         Platform.runLater(() -> {
             sort();
+            notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.FILTER));
         });
-//        long endTime  = System.nanoTime();
-//        long duration = (endTime - startTime);
-//        System.out.println(duration);
+
 
     }
 
-    private JEVisType getJEVisType(String string){
-        try{
+    private JEVisType getJEVisType(String string) {
+        try {
             JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
             JEVisType jeVisType = jeVisClass.getType(string);
             return jeVisType;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e);
         }
         return null;
@@ -291,23 +280,47 @@ e.printStackTrace();
 
     public Void setLocation(ObservableList<String> location) {
         this.location = location;
+        System.out.println(location);
         return null;
     }
 
-    private boolean filter(JEVisTypeWrapper jeVisTypeWrapper, ObservableList<String> observableList, MeterData meterData){
-        try{
+    private boolean filter(JEVisTypeWrapper jeVisTypeWrapper, ObservableList<String> observableList, MeterData meterData) {
+        try {
 
-        if (observableList.contains("*")) return true;
+            if (observableList.contains("*")) return true;
             if (meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper).getOptionalJEVisSample().isPresent()) {
                 String s = (meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper).getOptionalJEVisSample().get().getValueAsString());
-                if (type.contains(s)) {
+                if (observableList.contains(s)) {
                     return true;
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e);
         }
         return false;
+    }
+
+    public void addEventListener(MeterPlanEventListener listener) {
+
+        if (this.listeners.getListeners(JEVisEventListener.class).length > 0) {
+        }
+
+        this.listeners.add(MeterPlanEventListener.class, listener);
+    }
+
+    public void removeEventListener(MeterPlanEventListener listener) {
+        this.listeners.remove(MeterPlanEventListener.class, listener);
+    }
+
+    public MeterPlanEventListener[] getEventListener() {
+        return this.listeners.getListeners(MeterPlanEventListener.class);
+    }
+
+    private synchronized void notifyListeners(MeterPlanEvent event) {
+        logger.error("SampleHandlerEvent: {}", event);
+        for (MeterPlanEventListener l : this.listeners.getListeners(MeterPlanEventListener.class)) {
+            l.fireEvent(event);
+        }
     }
 
 

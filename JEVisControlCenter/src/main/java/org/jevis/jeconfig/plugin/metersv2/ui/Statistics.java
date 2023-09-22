@@ -2,52 +2,102 @@ package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
-import org.jevis.jeconfig.plugin.metersv2.data.NonconformityData;
+import org.jevis.api.JEVisException;
+import org.jevis.commons.DatabaseHelper;
+import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
+import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
+import org.joda.time.DateTime;
 
 public class Statistics {
 
-    private final ObservableList<NonconformityData> nonconformityDataObservableList;
+    private final ObservableList<MeterData> meterDatas;
+    private final MeterPlanTable meterPlanTable;
 
-    private final BooleanProperty updateTrigger;
+    private BooleanProperty updateTrigger = new SimpleBooleanProperty();
 
-    public Statistics(ObservableList<NonconformityData> nonconformityDataObservableList, BooleanProperty updateTrigger) {
-        this.nonconformityDataObservableList = nonconformityDataObservableList;
-        this.updateTrigger = updateTrigger;
 
-        updateTrigger.addListener(observable -> {
-            System.out.println("update trigger changed to state");
-            System.out.println(observable);
+    public Statistics(ObservableList<MeterData> nonconformityDataObservableList, MeterPlanTable meterPlanTable) {
+        this.meterDatas = nonconformityDataObservableList;
+        this.meterPlanTable = meterPlanTable;
+
+        updateTrigger.addListener((observableValue, aBoolean, t1) -> {
+            System.out.println(t1);
+        });
+
+        meterPlanTable.addEventListener(event -> {
+            System.out.println(event);
+            switch (event.getType()) {
+                case UPDATE:
+                    updateTrigger.set(true);
+                    System.out.println(meterDatas);
+                    break;
+                case ADD:
+                    System.out.println(meterDatas);
+                    updateTrigger.set(true);
+                    break;
+                case FILTER:
+                    System.out.println(meterDatas);
+                    updateTrigger.set(true);
+                   break;
+                case REMOVE:
+                    System.out.println(meterDatas);
+                    updateTrigger.set(true);
+                    break;
+            }
+            updateTrigger.set(false);
         });
     }
-
-    public StringProperty getAll(String text) {
+    public StringProperty getType(JEVisTypeWrapper jeVisTypeWrapper, String name) {
 
 
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(() -> text+ nonconformityDataObservableList.size(),nonconformityDataObservableList,updateTrigger));
+        stringProperty.bind(Bindings.createStringBinding(() -> name+": "+ meterDatas.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper))
+                .filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent())
+                .map(optionalJEVisSample -> {
+                    try {
+                        return optionalJEVisSample.get().getValueAsString();
+                    } catch (JEVisException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).filter(s -> s.equals(name)).count(),updateTrigger));
         return stringProperty;
 
     }
 
-    public StringProperty getActive(String text) {
+
+    public StringProperty getAllOfMedium(String jeVisClass, String name) {
 
 
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(() -> text+ nonconformityDataObservableList.stream().filter(actionData -> actionData.getDoneDate()== null).count(),nonconformityDataObservableList,updateTrigger));
+        stringProperty.bind(Bindings.createStringBinding(() ->name+": "+String.valueOf(meterDatas.stream().filter(meterData -> {
+            try {
+                return meterData.getJeVisClass().getName().equals(jeVisClass);
+            } catch (JEVisException e) {
+                throw new RuntimeException(e);
+            }
+        }).count()),updateTrigger));
         return stringProperty;
 
     }
 
-
-    public StringProperty getFinished(String text) {
-
-
+    public StringProperty getOverdue(JEVisTypeWrapper jeVisTypeWrapper, String name) {
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(() -> text+ nonconformityDataObservableList.stream().filter(data1 -> data1.getDoneDate()!= null).count(),nonconformityDataObservableList,updateTrigger));
-        return stringProperty;
+        stringProperty.bind(Bindings.createStringBinding(()-> name +": "+ meterDatas.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap()
+                .get(jeVisTypeWrapper)).filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent())
+                .map(optionalJEVisSample -> {
+                    try {
+                        return new DateTime(optionalJEVisSample.get().getValueAsString());
+                    } catch (JEVisException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).filter(dateTime -> dateTime.isBeforeNow()).count(),updateTrigger));
 
+        return stringProperty;
     }
+
+
 }

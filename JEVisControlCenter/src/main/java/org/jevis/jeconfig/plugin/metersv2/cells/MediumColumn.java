@@ -13,6 +13,7 @@ public class MediumColumn extends TableColumn<MeterData,String> {
 
     public MediumColumn(String s, int width) {
         super(s);
+       setId(s);
 
 
 

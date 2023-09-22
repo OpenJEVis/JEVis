@@ -11,6 +11,12 @@ import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 public class DoubleColumn extends TableColumn<MeterData,String> {
     public DoubleColumn(JEVisType jeVisType, int width, String name) {
         super(name);
+        try {
+
+            setId(jeVisType.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         this.setCellValueFactory(param -> {
             if (param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)) != null && param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).getOptionalJEVisSample().isPresent()) {
                 try {

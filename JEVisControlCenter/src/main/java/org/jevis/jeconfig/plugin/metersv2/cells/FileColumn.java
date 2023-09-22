@@ -17,6 +17,12 @@ int width;
 
     public FileColumn(JEVisType jeVisType, int width, String name) {
         super(name);
+        try {
+
+            setId(jeVisType.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
         this.setCellValueFactory(param -> {
