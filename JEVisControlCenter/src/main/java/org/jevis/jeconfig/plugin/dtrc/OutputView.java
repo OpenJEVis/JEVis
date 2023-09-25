@@ -139,11 +139,7 @@ public class OutputView extends Tab {
 
         intervalSelector.updateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                if (intervalSelector.getTimeFactoryBox().getSelectionModel().getSelectedItem().equals(timeFrameFactory.custom())) {
-                    showDatePicker(true);
-                } else {
-                    showDatePicker(false);
-                }
+                showDatePicker(intervalSelector.getTimeFactoryBox().getSelectionModel().getSelectedItem().equals(timeFrameFactory.custom()));
 
                 requestUpdate();
                 intervalSelector.setUpdate(false);
@@ -268,13 +264,19 @@ public class OutputView extends Tab {
         }
 
         Platform.runLater(() -> {
-            intervalSelector.getTimeFactoryBox().getItems().clear();
-            intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrames);
+            try {
+                intervalSelector.getTimeFactoryBox().getItems().clear();
 
-            if (intervalSelector.getTimeFactoryBox().getItems().contains(lastSelectedTimeFrame)) {
-                intervalSelector.getTimeFactoryBox().getSelectionModel().select(lastSelectedTimeFrame);
-            } else {
-                intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
+                //intervalSelector.getTimeFactoryBox().getItems().clear();
+                intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrames);
+
+                if (intervalSelector.getTimeFactoryBox().getItems().contains(lastSelectedTimeFrame)) {
+                    intervalSelector.getTimeFactoryBox().getSelectionModel().select(lastSelectedTimeFrame);
+                } else {
+                    intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
+                }
+            } catch (NullPointerException np) {
+                logger.error(np);
             }
         });
     }

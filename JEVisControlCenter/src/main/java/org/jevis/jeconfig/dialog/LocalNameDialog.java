@@ -211,16 +211,7 @@ public class LocalNameDialog {
                                 commitLangMap.put(I18n.getInstance().getLocale().getLanguage(), newName);
                             }
                             object.setLocalNames(commitLangMap);
-                            if (!object.getLocalName("en").isEmpty()) {
-                                object.setName(object.getLocalName("en"));
-                            } else if (!object.getLocalName("de").isEmpty()) {
-                                object.setName(object.getLocalName("de"));
-                            } else {
-                                Optional<String> firstKey = object.getLocalNameList().keySet().stream().findFirst();
-                                if (firstKey.isPresent()) {
-                                    object.setName(object.getLocalName(firstKey.get()));
-                                }
-                            }
+                            object.setName(newName);
                             object.commit();
 
                         } catch (Exception ex) {
