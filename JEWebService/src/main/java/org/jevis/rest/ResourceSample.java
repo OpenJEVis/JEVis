@@ -103,6 +103,8 @@ public class ResourceSample {
                 } else {
                     // allow user to change its own user attributes
                 }
+
+
             } else {
                 ds.getUserManager().canWrite(obj);
             }
@@ -141,6 +143,12 @@ public class ResourceSample {
 
             int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
             samples.clear();
+
+            if (obj.getJevisClass().equals("User") && attribute.equals("Password")) {
+                CachedAccessControl.getInstance(ds).updateUser(ds);
+            }
+
+
             return Response.status(Status.OK).build();
 
         } catch (AuthenticationException ex) {

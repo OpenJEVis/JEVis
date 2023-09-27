@@ -554,13 +554,14 @@ public class TopMenu extends MenuBar {
                     String note = String.format("Password set by %s", getActivePlugin().getDataSource().getCurrentUser().getAccountName());
 
                     JEVisSample sample;
+                    /*
                     if (getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").hasSample()) {
                         sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").getLatestSample();
                         sample.setValue(dia.getPassword());
-                    } else {
-                        sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").buildSample(new DateTime(), dia.getPassword(), note);
+                    } else {*/
+                    sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").buildSample(new DateTime(), dia.getPassword(), note);
 
-                    }
+                    // }
                     sample.commit();
 
 
