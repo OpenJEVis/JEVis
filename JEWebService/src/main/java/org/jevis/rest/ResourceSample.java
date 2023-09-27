@@ -144,8 +144,10 @@ public class ResourceSample {
             int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
             samples.clear();
 
-            if (obj.getJevisClass().equals("User") && attribute.equals("Password")) {
-                CachedAccessControl.getInstance(ds).updateUser(ds);
+            if (obj.getJevisClass().equals("User")) {
+                if (attribute.equals("Password") || attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                    CachedAccessControl.getInstance(ds).updateUser(ds);
+                }
             }
 
 
@@ -562,13 +564,15 @@ public class ResourceSample {
                 ds.deleteSamplesBetween(object.getId(), attribute, startDate, endDate);
             }
 
+            ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE, String.format("%s:%s|%s -> %s", id, attribute, startDate, endDate));
+            
             try {
                 CachedAccessControl.getInstance(ds).checkForChanges(object, attribute, CachedAccessControl.Change.DELETE);
             } catch (Exception ex) {
                 logger.error(ex, ex);
             }
 
-            ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE, String.format("%s:%s|%s -> %s", id, attribute, startDate, endDate));
+
             return Response.status(Status.OK).build();
 
         } catch (AuthenticationException ex) {
