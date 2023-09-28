@@ -780,6 +780,7 @@ public class NotesPlugin implements Plugin {
 
         ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 18, 18));
         newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.add")));
+        newB.setDisable(true);
         ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
         save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.save")));
         ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
@@ -823,15 +824,18 @@ public class NotesPlugin implements Plugin {
         });
 
 
-
         tableView.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                if (event.isPrimaryButtonDown() && event.getClickCount() == 1) {
+                    Platform.runLater(() -> newB.setDisable(false));
+                }
                 if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
                     addNote();
                 }
             }
         });
+
 
         newB.setOnAction(event -> {
             addNote();
@@ -839,100 +843,96 @@ public class NotesPlugin implements Plugin {
 
         delete.setOnAction(event ->
 
-    {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(I18n.getInstance().getString("plugin.note.delete.title"));
-        alert.setHeaderText(I18n.getInstance().getString("plugin.note.delete.message"));
-        //alert.setContentText("Before : ");
+        {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(I18n.getInstance().getString("plugin.note.delete.title"));
+            alert.setHeaderText(I18n.getInstance().getString("plugin.note.delete.message"));
+            //alert.setContentText("Before : ");
 
-        ButtonType buttonYes = new ButtonType(I18n.getInstance().getString("plugin.note.delete.delete"));
-        alert.getButtonTypes().clear();
-        alert.getButtonTypes().addAll(buttonYes, ButtonType.CANCEL);
+            ButtonType buttonYes = new ButtonType(I18n.getInstance().getString("plugin.note.delete.delete"));
+            alert.getButtonTypes().clear();
+            alert.getButtonTypes().addAll(buttonYes, ButtonType.CANCEL);
 
-        Button noButton = (Button) alert.getDialogPane().lookupButton(ButtonType.CANCEL);
-        noButton.setDefaultButton(true);
+            Button noButton = (Button) alert.getDialogPane().lookupButton(ButtonType.CANCEL);
+            noButton.setDefaultButton(true);
 
-        final Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == buttonYes) {
-            tableView.getSelectionModel().getSelectedItems().forEach(notesRow -> {
-                notesRow.delete();
-                data.remove(notesRow);
-            });
-            filter();
-        }
+            final Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonYes) {
+                tableView.getSelectionModel().getSelectedItems().forEach(notesRow -> {
+                    notesRow.delete();
+                    data.remove(notesRow);
+                });
+                filter();
+            }
 
-    });
+        });
 
         save.setOnAction(event ->
 
-    {
-        this.data.forEach(notesRow -> {
-            if (notesRow.hasChanged()) {
-                logger.debug("Note Has changed commit:");
-                notesRow.commit();
-            }
+        {
+            this.data.forEach(notesRow -> {
+                if (notesRow.hasChanged()) {
+                    logger.debug("Note Has changed commit:");
+                    notesRow.commit();
+                }
+            });
         });
-    });
 
-    Separator sep1 = new Separator(Orientation.VERTICAL);
-    Separator sep2 = new Separator(Orientation.VERTICAL);
+        Separator sep1 = new Separator(Orientation.VERTICAL);
+        Separator sep2 = new Separator(Orientation.VERTICAL);
 
-        if(start !=null)
-
-    {
-        startDatePicker.valueProperty().removeListener(startDateChangeListener);
-        startDatePicker.setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
-    }
+        if (start != null) {
+            startDatePicker.valueProperty().removeListener(startDateChangeListener);
+            startDatePicker.setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        }
 
 
-        if(end !=null)
-
-    {
-        endDatePicker.valueProperty().removeListener(endDateChangeListener);
-        endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
-    }
+        if (end != null) {
+            endDatePicker.valueProperty().removeListener(endDateChangeListener);
+            endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+        }
 
 
         startDatePicker.valueProperty().
 
-    addListener(startDateChangeListener);
+                addListener(startDateChangeListener);
         endDatePicker.valueProperty().
 
-    addListener(endDateChangeListener);
+                addListener(endDateChangeListener);
 
-    ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
-    ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+        ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+        ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
 
         timeFrameComboBox.setTooltip(new
 
-    Tooltip(I18n.getInstance().
+                Tooltip(I18n.getInstance().
 
-    getString("plugin.alarms.reload.timebox.tooltip")));
+                getString("plugin.alarms.reload.timebox.tooltip")));
         startDatePicker.setTooltip(new
 
-    Tooltip(I18n.getInstance().
+                Tooltip(I18n.getInstance().
 
-    getString("plugin.alarms.reload.startdate.tooltip")));
+                getString("plugin.alarms.reload.startdate.tooltip")));
         endDatePicker.setTooltip(new
 
-    Tooltip(I18n.getInstance().
+                Tooltip(I18n.getInstance().
 
-    getString("plugin.alarms.reload.enddate.tooltip")));
+                getString("plugin.alarms.reload.enddate.tooltip")));
 
         toolBar.getItems().
 
-    setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, newB, save, delete);
+                setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, newB, save, delete);
         toolBar.getItems().
 
-    addAll(JEVisHelp.getInstance().
+                addAll(JEVisHelp.getInstance().
 
-    buildSpacerNode(),helpButton,infoButton);
+                        buildSpacerNode(), helpButton, infoButton);
 
         JEVisHelp.getInstance().
 
-    addHelpItems(NotesPlugin .class.getSimpleName(), "",JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER,toolBar.getItems());
+                addHelpItems(NotesPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
-}
+    }
 
     private void addNote() {
         NotePane notePane = new NotePane(allTags, ds, Optional.ofNullable(tableView.getSelectionModel().getSelectedItem()));
@@ -980,8 +980,8 @@ public class NotesPlugin implements Plugin {
             } catch (Exception e) {
                 logger.error(e);
             }
-                notePane.close();
-    });
+            notePane.close();
+        });
         btCancel.setOnAction(event1 -> {
             notePane.close();
         });
