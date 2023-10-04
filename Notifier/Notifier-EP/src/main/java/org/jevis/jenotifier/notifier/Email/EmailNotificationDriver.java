@@ -12,6 +12,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -24,6 +25,7 @@ import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,16 +37,7 @@ import java.util.regex.Pattern;
  * @author gf
  */
 public class EmailNotificationDriver implements NotificationDriver {
-    private static final Logger logger = LogManager.getLogger(EmailNotificationDriver.class);
-
-    private JEVisObject _jeDri;
-    private String _SMTPServer;
-    private long _port;
-    private String _userName;
-    private String _password;
     public static final String _type = "EMail Plugin";
-    private TansportSecurity _transportSecurity = TansportSecurity.NO;
-    private Authenticator _authentication;
     //
     public static final String APPLICATIVE_NOTI_TYPE = "E-Mail Notification";
     //
@@ -60,21 +53,22 @@ public class EmailNotificationDriver implements NotificationDriver {
     public static final String SMTP_SERVER = "SMTP Server";
     public static final String TRANSPORT_SECURITY = "Transport Security";
     public static final String AUTHENTICATOR = "Authenticator";
+    private static final Logger logger = LogManager.getLogger(EmailNotificationDriver.class);
+    private JEVisObject _jeDri;
+    private String _SMTPServer;
+    private long _port;
+    private String _userName;
+    private String _password;
+    private TansportSecurity _transportSecurity = TansportSecurity.NO;
+    private Authenticator _authentication;
 //    private Session session;
 //    private MimeMessage _message;
 
-    /**
-     *
-     */
-    public void setDefaultTransportSecurity() {
-        _transportSecurity = TansportSecurity.STARTTLS;
+    public EmailNotificationDriver() {
     }
 // public enum Authentication {
 // Password, CodedPassword, KerberosGSSAPI, NTLM, TLSCertificate
 // }
-
-    public EmailNotificationDriver() {
-    }
 
     /**
      * This constructor is used to creat a new variable of type
@@ -93,6 +87,13 @@ public class EmailNotificationDriver implements NotificationDriver {
             _transportSecurity = emnotidrv.getTransportSecurity();
             _authentication = emnotidrv.getAuthenticator();
         }
+    }
+
+    /**
+     *
+     */
+    public void setDefaultTransportSecurity() {
+        _transportSecurity = TansportSecurity.STARTTLS;
     }
 
     /**
@@ -122,118 +123,6 @@ public class EmailNotificationDriver implements NotificationDriver {
     }
 
     /**
-     * Call the function getAttribute(,) to get parameters of the notification
-     * in Database and use the setter to assign the global variables. If there
-     * is an IllegalArgumentException, the complex variable will be assigned
-     * with null and the simple variables will not be dealed. The information of
-     * the exception will also be printed.
-     *
-     * @param notiObj
-     * @throws JEVisException
-     */
-    @Override
-    public void setNotificationDriverObject(JEVisObject notiObj) throws JEVisException {
-        if (notiObj.getJEVisClass().getName().equals(_type)) {
-            _jeDri = notiObj;
-            try {
-                setSMTPServer(String.valueOf(getAttribute(notiObj, SMTP_SERVER))); //the second parameter should one to one correspondance with the name in JEConfig
-            } catch (Exception ex) {
-                setSMTPServer(null);
-                logger.error(ex);
-            }
-            try {
-                setPort(Long.valueOf(String.valueOf(getAttribute(notiObj, PORT))));
-            } catch (Exception ex) {
-                setPort(0);
-                logger.error(ex);
-            }
-            try {
-                setUser(String.valueOf(getAttribute(notiObj, SENDER)));
-            } catch (Exception ex) {
-                setUser(null);
-                logger.error(ex);
-            }
-            try {
-                setPassword(String.valueOf(getAttribute(notiObj, PASSWORD)));
-            } catch (Exception ex) {
-                setPassword(null);
-                logger.error(ex);
-            }
-            try {
-                setTransportSecurity(String.valueOf(getAttribute(notiObj, TRANSPORT_SECURITY)));
-            } catch (Exception ex) {
-                setTransportSecurity("STARTTLS");
-                logger.info(ex);
-            }
-
-            try {
-
-                String authString = String.valueOf(getAttribute(notiObj, AUTHENTICATOR));
-                /* As an fallback we use "NO" for no Authentication, and all non set as default */
-                if (authString.equalsIgnoreCase("NO")) {
-                    _authentication = null;
-                    logger.error("using no Authentication");
-                } else {
-                    logger.error("using default Authentication");
-                    setDefaultAuthenticator();
-                }
-            } catch (Exception ex) {
-                logger.info("error in Authenticator", ex);
-            }
-
-
-        } else {
-            logger.info(notiObj + "is not suitable for the Driver(Email)");
-        }
-
-    }
-
-    /**
-     * To set the global variable _SMTPServer. If the param is null or "",
-     * _SMTPServer remains null.
-     *
-     * @param smtp
-     */
-    public void setSMTPServer(String smtp) {
-        if (smtp != null && !smtp.isEmpty()) {
-            _SMTPServer = smtp;
-        }
-    }
-
-    /**
-     * To set the global variable _port. If it is not setted, _port will be 0
-     *
-     * @param port
-     */
-    public void setPort(long port) {
-        _port = port;
-    }
-
-    /**
-     * To set the global variable _userName, it is an email address. If the
-     * email address is illegal, keeps _userName as null.
-     *
-     * @param user
-     */
-    public void setUser(String user) {
-        if (isEmailAddressLegal(user)) {
-            _userName = user;
-        }
-    }
-
-    /**
-     * To set the global variable _password. If the param is null or "",
-     * _password remains null.
-     *
-     * @param password
-     */
-    public void setPassword(String password) {
-        if (password != null && !password.isEmpty()) {
-            _password = password;
-        }
-    }
-
-    /**
      * To set the global variable _authentication. Default: password
      * authentication
      */
@@ -244,37 +133,6 @@ public class EmailNotificationDriver implements NotificationDriver {
                 return new PasswordAuthentication(getUser(), getPassword());
             }
         };
-    }
-
-    /**
-     * not finished
-     *
-     * @param auth
-     */
-    public void setAuthenticator(long auth) {
-        if (auth == 1) {
-//not finished
-        } else {
-            _authentication = new Authenticator() {
-                @Override
-                public PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(getUser(), getPassword()); //
-                }
-            };
-        }
-    }
-
-    /**
-     * @param ts
-     */
-    public void setTransportSecurity(String ts) {
-        if (ts.equalsIgnoreCase("<<No>>")) {
-            _transportSecurity = TansportSecurity.NO;
-        } else if (ts.equalsIgnoreCase("STARTTLS")) {
-            _transportSecurity = TansportSecurity.STARTTLS;
-        } else if (ts.equalsIgnoreCase("SSL")) {
-            _transportSecurity = TansportSecurity.SSL;
-        }
     }
 
     /**
@@ -305,7 +163,15 @@ public class EmailNotificationDriver implements NotificationDriver {
         if (this.getAuthenticator() != null) {
             properties.setProperty(PROPERTY_SMTP_AUTH, "true");// must set with true
             session = Session.getInstance(properties, this.getAuthenticator()); //get the Instance of Session
+        } else {
+            properties.setProperty(PROPERTY_SMTP_AUTH, "false");// must set with true
+            session = Session.getInstance(properties, null); //get the Instance of Session
         }
+        if (logger.getLevel().equals(Level.DEBUG)) {
+            session.setDebug(true);
+        }
+
+        logger.error("Using session: {}", session);
 
         return session;
     }
@@ -320,6 +186,19 @@ public class EmailNotificationDriver implements NotificationDriver {
     }
 
     /**
+     * @param ts
+     */
+    public void setTransportSecurity(String ts) {
+        if (ts.equalsIgnoreCase("<<No>>")) {
+            _transportSecurity = TansportSecurity.NO;
+        } else if (ts.equalsIgnoreCase("STARTTLS")) {
+            _transportSecurity = TansportSecurity.STARTTLS;
+        } else if (ts.equalsIgnoreCase("SSL")) {
+            _transportSecurity = TansportSecurity.SSL;
+        }
+    }
+
+    /**
      * return the global variable _authentication.
      *
      * @return
@@ -329,13 +208,21 @@ public class EmailNotificationDriver implements NotificationDriver {
     }
 
     /**
-     * return the global variable _jeDri.
+     * not finished
      *
-     * @return
+     * @param auth
      */
-    @Override
-    public JEVisObject getJEVisObjectDriver() {
-        return _jeDri;
+    public void setAuthenticator(long auth) {
+        if (auth == 1) {
+//not finished
+        } else {
+            _authentication = new Authenticator() {
+                @Override
+                public PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(getUser(), getPassword()); //
+                }
+            };
+        }
     }
 
     /**
@@ -348,12 +235,33 @@ public class EmailNotificationDriver implements NotificationDriver {
     }
 
     /**
+     * To set the global variable _SMTPServer. If the param is null or "",
+     * _SMTPServer remains null.
+     *
+     * @param smtp
+     */
+    public void setSMTPServer(String smtp) {
+        if (smtp != null && !smtp.isEmpty()) {
+            _SMTPServer = smtp;
+        }
+    }
+
+    /**
      * return the global variable _port.
      *
      * @return
      */
     public long getPort() {
         return _port;
+    }
+
+    /**
+     * To set the global variable _port. If it is not setted, _port will be 0
+     *
+     * @param port
+     */
+    public void setPort(long port) {
+        _port = port;
     }
 
     /**
@@ -366,12 +274,37 @@ public class EmailNotificationDriver implements NotificationDriver {
     }
 
     /**
+     * To set the global variable _userName, it is an email address. If the
+     * email address is illegal, keeps _userName as null.
+     *
+     * @param user
+     */
+    public void setUser(String user) {
+        _userName = user;
+        // if (isEmailAddressLegal(user)) {
+        //      _userName = user;
+        // }
+    }
+
+    /**
      * return the global variable _password.
      *
      * @return
      */
     public String getPassword() {
         return _password;
+    }
+
+    /**
+     * To set the global variable _password. If the param is null or "",
+     * _password remains null.
+     *
+     * @param password
+     */
+    public void setPassword(String password) {
+        if (password != null && !password.isEmpty()) {
+            _password = password;
+        }
     }
 
     /**
@@ -429,6 +362,165 @@ public class EmailNotificationDriver implements NotificationDriver {
     }
 
     /**
+     * Only if the smtp server, the user and the password is setted, the driver
+     * is considered as configured. But if, for example, the server is not
+     * rightly setted, then the driver can not send Email, even if it is
+     * configured.
+     *
+     * @return
+     */
+    @Override
+    public boolean isDriverConfigured() {
+        boolean isConfigured = _SMTPServer != null;
+        //boolean isConfigured = _SMTPServer != null && _userName != null && _password != null;
+        return isConfigured;
+    }
+
+    /**
+     * If the notification has the type: E-Mail Notification, then the driver
+     * can support the notification. If supported, it only means, this driver
+     * can send the email. But if the driver is not configured or rightly
+     * configured, the driver can not send the Email, even if it is supported.
+     *
+     * @param jenoti
+     * @return
+     */
+    @Override
+    public boolean isSupported(Notification jenoti) {
+        boolean support;
+        support = jenoti.getType().equals(APPLICATIVE_NOTI_TYPE);
+        return support;
+    }
+
+    /**
+     * Call the function getAttribute(,) to get parameters of the notification
+     * in Database and use the setter to assign the global variables. If there
+     * is an IllegalArgumentException, the complex variable will be assigned
+     * with null and the simple variables will not be dealed. The information of
+     * the exception will also be printed.
+     *
+     * @param notiObj
+     * @throws JEVisException
+     */
+    @Override
+    public void setNotificationDriverObject(JEVisObject notiObj) throws JEVisException {
+        if (notiObj.getJEVisClass().getName().equals(_type)) {
+            _jeDri = notiObj;
+            try {
+                setSMTPServer(String.valueOf(getAttribute(notiObj, SMTP_SERVER))); //the second parameter should one to one correspondance with the name in JEConfig
+            } catch (Exception ex) {
+                setSMTPServer(null);
+                logger.error(ex);
+            }
+            try {
+                setPort(Long.valueOf(String.valueOf(getAttribute(notiObj, PORT))));
+            } catch (Exception ex) {
+                setPort(0);
+                logger.error(ex);
+            }
+            try {
+                setUser(String.valueOf(getAttribute(notiObj, SENDER)));
+            } catch (Exception ex) {
+                setUser(null);
+                logger.error(ex);
+            }
+            try {
+                setPassword(String.valueOf(getAttribute(notiObj, PASSWORD)));
+            } catch (Exception ex) {
+                setPassword(null);
+                logger.error(ex);
+            }
+            try {
+                setTransportSecurity(String.valueOf(getAttribute(notiObj, TRANSPORT_SECURITY)));
+            } catch (Exception ex) {
+                setTransportSecurity("STARTTLS");
+                logger.info(ex);
+            }
+
+            try {
+
+                String authString = String.valueOf(getAttribute(notiObj, AUTHENTICATOR));
+                /* As a fallback we use "NO" for no Authentication, and all non set as default */
+                if (authString.equalsIgnoreCase("NO")) {
+                    _authentication = null;
+                    logger.error("using no Authentication");
+                } else {
+                    logger.error("using default Authentication");
+                    setDefaultAuthenticator();
+                }
+            } catch (Exception ex) {
+                logger.info("error in Authenticator", ex);
+            }
+
+
+        } else {
+            logger.info(notiObj + "is not suitable for the Driver(Email)");
+        }
+
+    }
+
+    /**
+     * store the send time into JEConfig
+     *
+     * @param noti
+     * @return
+     */
+    @Override
+    public boolean sendTimeRecorder(Notification noti) {
+        boolean re = false;
+        if (noti.isSendSuccessfully()) {
+            try {
+                List<JEVisSample> ts = new ArrayList<JEVisSample>();
+                JEVisAttribute recorder = noti.getJEVisObjectNoti().getAttribute(Notification.SENT_TIME);
+                if (recorder != null) {
+                    for (DateTime time : noti.getSendTime()) {
+                        JEVisSample t = recorder.buildSample(time, time.toString("yyyy-MM-dd HH:mm:ss"), "Sent by Driver" + getJEVisObjectDriver().getID()); //
+                        ts.add(t);
+                    }
+                    recorder.addSamples(ts);
+                    re = true;
+                } else {
+                    logger.info("The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
+                }
+            } catch (JEVisException ex) {
+                logger.error(ex);
+            }
+        }
+        return re;
+    }
+
+    /**
+     * check, whether the jevis object of type "EMail Plugin" and can be used to
+     * set
+     *
+     * @param driverObj
+     * @return
+     */
+    @Override
+    public boolean isConfigurationObject(JEVisObject driverObj) {
+        try {
+            return driverObj.getJEVisClass().getName().equals(_type);
+        } catch (JEVisException ex) {
+            logger.error(ex);
+        }
+        return false;
+    }
+
+    /**
+     * return the global variable _jeDri.
+     *
+     * @return
+     */
+    @Override
+    public JEVisObject getJEVisObjectDriver() {
+        return _jeDri;
+    }
+
+    @Override
+    public void setNotificationDriver(List<String> str) {
+    }
+
+    /**
      * All necessary parameters will be configured to send the
      * EmailNotification. If the EmailNotification is sucessfully sent, returns
      * true. Else, returns false.
@@ -452,7 +544,7 @@ public class EmailNotificationDriver implements NotificationDriver {
 
             emnoti.setSuccessfulSend(true, new DateTime());//set the send time
             return true;
-        } catch (MessagingException mex) {
+        } catch (Exception mex) {
             logger.error(mex);
             return false;
         }
@@ -479,13 +571,15 @@ public class EmailNotificationDriver implements NotificationDriver {
             message = configureMessage(session, emnoti, customMessage);
             logger.debug("Finished configuring message.");
 
+            logger.debug("Sending message. Subject: '{}'", message.getSubject());
             Transport.send(message);
-            logger.debug("Sent message.");
+            logger.debug("Sent message");
 
             emnoti.setSuccessfulSend(true, new DateTime(new Date()));//set the send time
             return true;
-        } catch (MessagingException mex) {
-            logger.error(mex);
+        } catch (Exception mex) {
+            logger.error(mex, mex);
+
             return false;
         }
 
@@ -509,7 +603,12 @@ public class EmailNotificationDriver implements NotificationDriver {
         message.addHeader("format", "flowed");
         message.addHeader("Content-Transfer-Encoding", "8bit");
 
-        if (getUser() != null) { //set the sender
+        try {
+            message.setFrom(System.getProperty("user.name") + "@" + InetAddress.getLocalHost().getCanonicalHostName());
+        } catch (Exception ex) {
+            logger.warn(ex, ex);
+        }
+        if (getUser() != null && !getUser().isEmpty()) { //set the sender
             message.setFrom(new InternetAddress(getUser()));
         } else {
             logger.info("The address of sender is empty.");
@@ -587,11 +686,6 @@ public class EmailNotificationDriver implements NotificationDriver {
         return message;
     }
 
-    public enum TansportSecurity {
-
-        NO, STARTTLS, SSL
-    }
-
     /**
      * To check, whether the email address is legal. If the email address matchs
      * the Canonical law,it is legal and true will be returned. Else, false will
@@ -610,39 +704,9 @@ public class EmailNotificationDriver implements NotificationDriver {
             isEmail = false;
         }
         if (!isEmail) {
-            logger.info("User name is illegal.");
+            logger.info("E-Mail name is illegal.");
         }
         return isEmail;
-    }
-
-    /**
-     * If the notification has the type: E-Mail Notification, then the driver
-     * can support the notification. If supported, it only means, this driver
-     * can send the email. But if the driver is not configured or rightly
-     * configured, the driver can not send the Email, even if it is supported.
-     *
-     * @param jenoti
-     * @return
-     */
-    @Override
-    public boolean isSupported(Notification jenoti) {
-        boolean support;
-        support = jenoti.getType().equals(APPLICATIVE_NOTI_TYPE);
-        return support;
-    }
-
-    /**
-     * Only if the smtp server, the user and the password is setted, the driver
-     * is considered as configured. But if, for example, the server is not
-     * rightly setted, then the driver can not send Email, even if it is
-     * configured.
-     *
-     * @return
-     */
-    @Override
-    public boolean isDriverConfigured() {
-        boolean isConfigured = _SMTPServer != null && _userName != null && _password != null;
-        return isConfigured;
     }
 
     @Override
@@ -650,54 +714,8 @@ public class EmailNotificationDriver implements NotificationDriver {
         return "EmailNotificationDriver{" + "_jeDri=" + _jeDri + ", _SMTPServer=" + _SMTPServer + ", _port=" + _port + ", _userName=" + _userName + ", _password=" + _password + ", _type=" + _type + ", _transportSecurity=" + _transportSecurity + ", _authentication=" + _authentication + '}';
     }
 
-    /**
-     * check, whether the jevis object of type "EMail Plugin" and can be used to
-     * set
-     *
-     * @param driverObj
-     * @return
-     */
-    @Override
-    public boolean isConfigurationObject(JEVisObject driverObj) {
-        try {
-            return driverObj.getJEVisClass().getName().equals(_type);
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
-        return false;
-    }
+    public enum TansportSecurity {
 
-    /**
-     * store the send time into JEConfig
-     *
-     * @param noti
-     * @return
-     */
-    @Override
-    public boolean sendTimeRecorder(Notification noti) {
-        boolean re = false;
-        if (noti.isSendSuccessfully()) {
-            try {
-                List<JEVisSample> ts = new ArrayList<JEVisSample>();
-                JEVisAttribute recorder = noti.getJEVisObjectNoti().getAttribute(Notification.SENT_TIME);
-                if (recorder != null) {
-                    for (DateTime time : noti.getSendTime()) {
-                        JEVisSample t = recorder.buildSample(time, time.toString("yyyy-MM-dd HH:mm:ss"), "Sent by Driver" + getJEVisObjectDriver().getID()); //
-                        ts.add(t);
-                    }
-                    recorder.addSamples(ts);
-                    re = true;
-                } else {
-                    logger.info("The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
-                }
-            } catch (JEVisException ex) {
-                logger.error(ex);
-            }
-        }
-        return re;
-    }
-
-    @Override
-    public void setNotificationDriver(List<String> str) {
+        NO, STARTTLS, SSL
     }
 }

@@ -5,9 +5,11 @@
  */
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
+import com.ibm.icu.text.NumberFormat;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.paint.Color;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.data.ValueWithDateTime;
 
 /**
@@ -19,8 +21,8 @@ public class TableEntry {
     private final SimpleStringProperty value = new SimpleStringProperty(this, "value", "-");
     private final SimpleStringProperty name = new SimpleStringProperty(this, "name", "-");
     private final SimpleObjectProperty<Color> color = new SimpleObjectProperty<>(this, "color", Color.BLUE);
-    private final SimpleObjectProperty<ValueWithDateTime> min = new SimpleObjectProperty<>(this, "min", new ValueWithDateTime(0d));
-    private final SimpleObjectProperty<ValueWithDateTime> max = new SimpleObjectProperty<>(this, "max", new ValueWithDateTime(0d));
+    private final SimpleObjectProperty<ValueWithDateTime> min = new SimpleObjectProperty<>(this, "min", new ValueWithDateTime(0d, NumberFormat.getInstance(I18n.getInstance().getLocale())));
+    private final SimpleObjectProperty<ValueWithDateTime> max = new SimpleObjectProperty<>(this, "max", new ValueWithDateTime(0d, NumberFormat.getInstance(I18n.getInstance().getLocale())));
     private final SimpleStringProperty avg = new SimpleStringProperty(this, "avg", "-");
     private final SimpleStringProperty enpi = new SimpleStringProperty(this, "enpi", "-");
     private final SimpleStringProperty sum = new SimpleStringProperty(this, "sum", "-");

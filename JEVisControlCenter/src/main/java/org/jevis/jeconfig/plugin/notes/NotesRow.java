@@ -12,7 +12,7 @@ import java.util.List;
 public class NotesRow {
     private final DateTime timeStamp;
     private String note;
-    private StringProperty noteProperty = new SimpleStringProperty();
+    private final StringProperty noteProperty = new SimpleStringProperty();
     private final JEVisObject object;
     private String user;
     private String tag;
@@ -35,7 +35,7 @@ public class NotesRow {
         }
 
         try {
-            user = object.getAttribute("User Notes").getSamples(timeStamp, timeStamp).get(0).getValueAsString();
+            user = object.getAttribute("Value").getSamples(timeStamp, timeStamp).get(0).getValueAsString();
         } catch (Exception ex) {
             //ex.printStackTrace();
         }
@@ -60,7 +60,7 @@ public class NotesRow {
 
     public void commit() {
         try {
-            JEVisSample noteSample = object.getAttribute("User Notes").getSamples(timeStamp, timeStamp).get(0);
+            JEVisSample noteSample = object.getAttribute("Value").getSamples(timeStamp, timeStamp).get(0);
             noteSample.setValue(noteProperty.get());
             noteSample.commit();
 
@@ -116,7 +116,7 @@ public class NotesRow {
 
     public void delete() {
         try {
-            JEVisAttribute noteSample = object.getAttribute("User Notes");
+            JEVisAttribute noteSample = object.getAttribute("Value");
             noteSample.deleteSamplesBetween(getTimeStamp(), getTimeStamp());
 
         } catch (Exception ex) {

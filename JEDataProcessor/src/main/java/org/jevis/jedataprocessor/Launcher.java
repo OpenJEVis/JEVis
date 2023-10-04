@@ -88,7 +88,10 @@ public class Launcher extends AbstractCliApp {
 
                         removeJob(currentCleanDataObject);
 
-                        logger.info("Planned Jobs: {} running Jobs: {} runnables: {}", plannedJobs.size(), runningJobs.size(), runnables.size());
+                        StringBuilder running = new StringBuilder();
+                        runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
+
+                        logger.info("Queued Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
 
                         checkLastJob();
                     }

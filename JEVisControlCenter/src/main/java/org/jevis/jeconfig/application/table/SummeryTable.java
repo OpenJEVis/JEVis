@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.action.ui;
+package org.jevis.jeconfig.application.table;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
@@ -46,16 +46,10 @@ public class SummeryTable extends TableView<SummeryData> {
             initColumns();
         });
 
-        getItems().addListener(new ListChangeListener<SummeryData>() {
-            @Override
-            public void onChanged(Change<? extends SummeryData> c) {
-                while (c.next()) {
-                }
-                setMinHeight(getItems().size() * 27);
-            }
-        });
+
         autoFitTable();
     }
+
 
     private void initColumns() {
         AtomicInteger col = new AtomicInteger(0);
@@ -64,47 +58,10 @@ public class SummeryTable extends TableView<SummeryData> {
             TableColumn column = (TableColumn) o;
 
             TableColumn<SummeryData, String> cellCopie = new TableColumn(column.getText());
-            // actionNrPropertyCol.setCellValueFactory;
             cellCopie.setCellValueFactory(param -> param.getValue().getProperty(column));
-            //cellCopie.setCellValueFactory(param -> param.getValue().getFunction(column).getValue());
-
-            /* To Calculate the text wight and set the DataColumn minWight
-
-            Text helper = new Text();
-                                helper.setFont(getFont());
-                                helper.setText(item);
-                                helper.prefWidth(-1);
-                                helper.setWrappingWidth(0);
-                                helper.setLineSpacing(0);
-                                System.out.println("ddddddddddddddd: " + Math.ceil(helper.getLayoutBounds().getWidth()));
-             */
-
-            /*
-            cellCopie.setCellFactory(new Callback<TableColumn<SummeryData, String>, TableCell<SummeryData, String>>() {
-                @Override
-                public TableCell<SummeryData, String> call(TableColumn<SummeryData, String> param) {
-                    return new TableCell<SummeryData, String>() {
-
-
-                        @Override
-                        protected void updateItem(String item, boolean empty) {
-                            super.updateItem(item, empty);
-                            if (!empty) {
-                                setText(item);
-                            } else {
-                                setText(null);
-                            }
-
-
-                        }
-                    };
-                }
-            });
-
-
-             */
 
             cellCopie.setStyle("-fx-alignment: top-right;-fx-font-weight: bold; -fx-text-alignment: right;");
+
             cellCopie.setSortable(false);
             //cellCopie.setSortType(TableColumn.SortType.ASCENDING);
             cellCopie.setMinWidth(column.getMinWidth());

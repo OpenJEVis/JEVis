@@ -64,4 +64,19 @@ public enum BubbleType {
 
         return FXCollections.observableArrayList(tempList);
     }
+
+    @Override
+    public String toString() {
+        switch (this) {
+            default:
+            case NONE:
+                return "NONE";
+            case X:
+                return "X";
+            case Y:
+                return "Y";
+            case SIZE:
+                return "SIZE";
+        }
+    }
 }

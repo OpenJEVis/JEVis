@@ -87,6 +87,15 @@
       "jevisClass": "Forecast Data"
     },
     {
+      "name": "Keep Values",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    },
+    {
       "name": "Last Run",
       "primitiveType": 0,
       "guiType": "Date Time",

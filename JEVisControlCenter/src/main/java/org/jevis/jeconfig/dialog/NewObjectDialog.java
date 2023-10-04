@@ -52,7 +52,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.resource.ImageConverter;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
-import org.jevis.jeconfig.application.tools.NumberSpinner;
+import org.jevis.jeconfig.tool.NumberSpinner;
 import org.jevis.jeconfig.tool.template.NullTemplate;
 import org.jevis.jeconfig.tool.template.Template;
 import org.jevis.jeconfig.tool.template.Templates;

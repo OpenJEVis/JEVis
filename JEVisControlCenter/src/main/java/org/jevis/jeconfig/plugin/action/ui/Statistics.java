@@ -93,8 +93,12 @@ public class Statistics {
                 sumImprovement += o.getConsumption().diff.get();
 
                 if (!o.mediaTags.get().isEmpty() && !nvpresultMap.isEmpty()) {
-                    double sumMedium = nvpresultMap.get(o.mediaTags.get()) + o.getConsumption().diff.get();
-                    nvpresultMap.put(o.mediaTags.get(), sumMedium);
+                    try {
+                        double sumMedium = nvpresultMap.get(o.mediaTags.get()) + o.getConsumption().diff.get();
+                        nvpresultMap.put(o.mediaTags.get(), sumMedium);
+                    } catch (Exception ex) {
+                        logger.error("Error in Sum by Medium: medium: {} , value: {}", o.mediaTags, o.getConsumption().diff);
+                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

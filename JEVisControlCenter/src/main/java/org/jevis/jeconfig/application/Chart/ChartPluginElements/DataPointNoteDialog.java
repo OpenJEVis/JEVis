@@ -548,7 +548,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                 }
                 if (correspondingNoteObject != null) {
                     try {
-                        JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
+                        JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("Value");
                         List<JEVisSample> listSamples = userNoteAttribute.getSamples(timeStamp, timeStamp);
                         if (listSamples.size() == 1) {
                             for (JEVisSample smp : listSamples) {
@@ -608,7 +608,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
                     if (correspondingNoteObject != null) {
                         try {
-                            JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
+                            JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("Value");
 
                             List<JEVisSample> listSamples;
                             if (userNoteAttribute.hasSample()) {

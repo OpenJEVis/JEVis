@@ -18,26 +18,7 @@
   },
   "types": [
     {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "",
-        "ru": "",
-        "uk": "",
-        "th": "",
-        "en": "",
-        "ar": "مصدر طاقة"
-      },
-      "names": {
-        "de": "Energieträger",
-        "ru": "Энергетический ресурс",
-        "uk": "Джерело енергії",
-        "th": "แหล่งพลังงาน",
-        "en": "Energy Source",
-        "ar": "مصدر طاقة"
-      }
-    },
-    {
-      "type": "VAT",
+      "type": "VAT Gas",
       "descriptions": {
         "de": "",
         "ru": "",
@@ -47,11 +28,49 @@
         "ar": ""
       },
       "names": {
-        "de": "Umsatzsteuer",
+        "de": "Umsatzsteuer Gas",
         "ru": "налог на добавленную стоимость",
         "uk": "податок на додану вартість",
         "th": "ภาษีมูลค่าเพิ่ม",
-        "en": "VAT",
+        "en": "VAT Gas",
+        "ar": "ضريبة القيمة المضافة"
+      }
+    },
+    {
+      "type": "VAT Electricity",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "",
+        "ar": ""
+      },
+      "names": {
+        "de": "Umsatzsteuer Strom",
+        "ru": "налог на добавленную стоимость",
+        "uk": "податок на додану вартість",
+        "th": "ภาษีมูลค่าเพิ่ม",
+        "en": "VAT Electricity",
+        "ar": "ضريبة القيمة المضافة"
+      }
+    },
+    {
+      "type": "VAT Community Heating",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "uk": "",
+        "th": "",
+        "en": "",
+        "ar": ""
+      },
+      "names": {
+        "de": "Umsatzsteuer Fernwärme",
+        "ru": "налог на добавленную стоимость",
+        "uk": "податок на додану вартість",
+        "th": "ภาษีมูลค่าเพิ่ม",
+        "en": "VAT Community Heating",
         "ar": "ضريبة القيمة المضافة"
       }
     },
@@ -180,7 +199,7 @@
         "ar": ""
       },
       "names": {
-        "de": "§ 17f EnWG",
+        "de": "Offshore-Umlage",
         "ru": "",
         "uk": "",
         "th": "",
@@ -256,7 +275,7 @@
         "ar": ""
       },
       "names": {
-        "de": "Abgabe 09",
+        "de": "Gasspeicherumlage",
         "ru": "",
         "uk": "",
         "th": "",
@@ -275,7 +294,7 @@
         "ar": ""
       },
       "names": {
-        "de": "Abgabe 10",
+        "de": "Bilanzierungsumlage",
         "ru": "",
         "uk": "",
         "th": "",

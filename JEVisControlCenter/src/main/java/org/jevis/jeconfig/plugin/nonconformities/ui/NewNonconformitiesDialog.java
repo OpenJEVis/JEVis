@@ -70,7 +70,7 @@ public class NewNonconformitiesDialog {
      * @return
      */
     public Response show(Stage owner, JEVisDataSource ds) throws JEVisException {
-        JEVisClass actionPlanDirClass = ds.getJEVisClass(JC.Nonconformities.NonconformitiesDirectory.name);
+        JEVisClass actionPlanDirClass = ds.getJEVisClass(JC.NonconformitiesPlan.NonconformityPlanDirectory.name);
         List<JEVisObject> anaylsisDirs = ds.getObjects(actionPlanDirClass, true);
         boolean canWrite = true;
 

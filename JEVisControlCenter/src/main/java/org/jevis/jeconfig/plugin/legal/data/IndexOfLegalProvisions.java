@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.tool.gson.GsonBuilder;
+import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
@@ -32,7 +32,7 @@ public class IndexOfLegalProvisions {
 
     private ObservableList<String> scopes;
     private ObservableList<String> categories;
-    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.relvant"), I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"));
+    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.relevant"), I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.notrrelevant"));
 
 
     private String initCustomCategory = "";
@@ -118,21 +118,21 @@ public class IndexOfLegalProvisions {
 
     public void reloadActionList() {
         actionsLoaded.set(false);
-        loadNonconformityList();
+        loadLegalList();
     }
 
-    public void loadNonconformityList() {
+    public void loadLegalList() {
         if (!actionsLoaded.get()) {
             actionsLoaded.set(true);
             try {
 
-                JEVisClass actionDirClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.name);
-                JEVisClass actionClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.Obligation.name);
+                JEVisClass actionDirClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.IndexofLegalProvionsDirectory.Obligation.ObligationDirectory.name);
+                JEVisClass actionClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.IndexofLegalProvionsDirectory.Obligation.name);
                 for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
                     dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                         System.out.println("new Action from JEVis: " + actionObj);
                         try {
-                            obligationDataList.add(loadNonconformties(actionObj));
+                            obligationDataList.add(loadObligations(actionObj));
                         } catch (Exception e) {
                             logger.error("Could not load Action: {},{},{}", actionObj, e, e);
                         }
@@ -147,7 +147,7 @@ public class IndexOfLegalProvisions {
 
     }
 
-    public ObligationData loadNonconformties(JEVisObject actionObj) throws JEVisException, NullPointerException {
+    public ObligationData loadObligations(JEVisObject actionObj) throws JEVisException, NullPointerException {
         JEVisAttribute att = actionObj.getAttribute("Data");
         ;
         JEVisSample sample = att.getLatestSample();
@@ -203,7 +203,7 @@ public class IndexOfLegalProvisions {
     }
 
 
-    public Integer getNextNonconformityNr() {
+    public Integer getNextLegalNr() {
         biggestActionNr.set(biggestActionNr.get() + 1);
         return biggestActionNr.get();
     }

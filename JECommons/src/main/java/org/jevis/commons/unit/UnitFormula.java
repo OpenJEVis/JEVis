@@ -79,14 +79,14 @@ public class UnitFormula {
         if (parts.length == 2) {
 
             boolean isNumber = false;
-            if (parts[0].matches("[0-9]+") && !parts[1].matches("[0-9]+")) {
+            if (parts[0].matches("^-?(?:\\d+|\\d{1,3}(?:,\\d{3})+)(?:(\\.|,)\\d+)?$") && !parts[1].matches("^-?(?:\\d+|\\d{1,3}(?:,\\d{3})+)(?:(\\.|,)\\d+)?$")) {
                 isNumber = true;
                 String tmp0 = parts[0];
                 String tmp1 = parts[1];
                 parts[0] = tmp1;
                 parts[1] = tmp0;
             }
-            if (parts[1].matches("[0-9]+")) {
+            if (parts[1].matches("^-?(?:\\d+|\\d{1,3}(?:,\\d{3})+)(?:(\\.|,)\\d+)?$")) {
                 isNumber = true;
             }
 
@@ -110,7 +110,7 @@ public class UnitFormula {
             } else if (formula.contains(PLUS)) {
 //                u1.times(u2);
             }
-            logger.info("Building uning faild");
+            logger.info("Building unit failed");
             return Unit.ONE;
         } else {
             logger.info("Error part is not 2 long");

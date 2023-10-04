@@ -31,11 +31,32 @@
       "start": "ZIP Converter",
       "end": "HTTP Channel",
       "type": 3
+    },
+    {
+      "start": "HTTP Parameter",
+      "end": "HTTP Channel",
+      "type": 3
     }
   ],
   "types": [
     {
       "name": "Path",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HTTP Channel"
+    },
+    {
+      "name": "Parameter Config",
+      "primitiveType": 3,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HTTP Channel"
+    },
+    {
+      "name": "Chunk Size(s)",
       "primitiveType": 0,
       "guiposition": 0,
       "validity": 0,

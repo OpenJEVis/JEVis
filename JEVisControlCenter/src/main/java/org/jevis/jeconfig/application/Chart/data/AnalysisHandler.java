@@ -92,6 +92,8 @@ public class AnalysisHandler {
                     chartDataNode.put("manipulationMode", chartData.getManipulationMode().toString());
                 }
 
+                chartDataNode.put("decimalDigits", chartData.getDecimalDigits());
+
                 chartDataNode.put("css", chartData.getCss());
 
                 chartDataNode.put("intervalStart", chartData.getIntervalStart());
@@ -123,6 +125,8 @@ public class AnalysisHandler {
 
             chartModelNode.put("filterEnabled", chartModel.isFilterEnabled());
             chartModelNode.put("fixYAxisToZero", chartModel.isFixYAxisToZero());
+            chartModelNode.put("showColumnSums", chartModel.isShowColumnSums());
+            chartModelNode.put("showRowSums", chartModel.isShowRowSums());
 
             chartModelNode.set("chartData", chartDataList);
 
@@ -155,7 +159,8 @@ public class AnalysisHandler {
                 for (ChartModel chartModel : dataModel.getChartModels()) {
                     for (ChartData chartData : chartModel.getChartData()) {
                         try {
-                            chartData.setObjectName(analysisObject.getDataSource().getObject(chartData.getId()));
+                            JEVisObject object = analysisObject.getDataSource().getObject(chartData.getId());
+                            chartData.setObjectName(object);
                         } catch (Exception ignored) {
                         }
                     }

@@ -38,7 +38,7 @@ import java.util.List;
 
 public class TreeSelectionDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(TreeSelectionDialog.class);
-    public static List<String> allData = new ArrayList<>(Arrays.asList("Data", "Base Data"));
+    public static List<String> allData = new ArrayList<>(Arrays.asList("Data", "Base Data", "String Data"));
     public static List<String> allCleanData = new ArrayList<>(Arrays.asList("Data", "Clean Data", "Base Data", "Math Data", "Forecast Data"));
     public static List<String> alarms = new ArrayList<>(Collections.singletonList("Alarm Configuration"));
     public static List<String> analyses = new ArrayList<>(Collections.singletonList("Analysis"));
@@ -61,6 +61,7 @@ public class TreeSelectionDialog extends Dialog {
     private final List<JEVisClass> allReportClasses = new ArrayList<>();
 
     private final JEVisTreeView treeView;
+    private List<JEVisClass> classFilter;
     private Response response = Response.CANCEL;
     private final JFXTextField filterTextField = new JFXTextField();
 
@@ -70,6 +71,7 @@ public class TreeSelectionDialog extends Dialog {
 
     public TreeSelectionDialog(JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode, List<UserSelection> selection, boolean showAttributes) {
         super();
+        this.classFilter = classFilter;
 
         setTitle(I18n.getInstance().getString("plugin.graph.treeselectiondialog.title"));
         setHeaderText(I18n.getInstance().getString("plugin.graph.treeselectiondialog.header"));
@@ -111,8 +113,6 @@ public class TreeSelectionDialog extends Dialog {
         filterBox.getItems().add(I18n.getInstance().getString("tree.filter.meters"));
         filterBox.getItems().add(I18n.getInstance().getString("tree.filter.reports"));
 
-        filterBox.getSelectionModel().selectFirst();
-
         filterBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 int i = newValue.intValue();
@@ -142,7 +142,7 @@ public class TreeSelectionDialog extends Dialog {
             }
         });
 
-        updateFilter(classFilter);
+        filterBox.getSelectionModel().selectFirst();
 
         ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -156,7 +156,7 @@ public class TreeSelectionDialog extends Dialog {
                 boolean correctChoice = true;
                 List<JEVisObject> incorrectObjects = new ArrayList<>();
                 for (JEVisObject object : treeView.getSelectedObjects()) {
-                    if (!classFilter.isEmpty() && !classFilter.contains(object.getJEVisClass())) {
+                    if (!this.classFilter.isEmpty() && !this.classFilter.contains(object.getJEVisClass())) {
                         correctChoice = false;
                         incorrectObjects.add(object);
                     }
@@ -337,17 +337,18 @@ public class TreeSelectionDialog extends Dialog {
     }
 
     private void updateFilter(List<JEVisClass> classFilter) {
+        this.classFilter = classFilter;
         if (treeView.getRoot() instanceof FilterableTreeItem) {
             ((FilterableTreeItem) treeView.getRoot()).predicateProperty().unbind();
             ((FilterableTreeItem) treeView.getRoot()).predicateProperty().bind(Bindings.createObjectBinding(() -> {
-                if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (classFilter.isEmpty()))
+                if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (this.classFilter.isEmpty()))
                     return null;
-                else if ((filterTextField.getText() != null || !filterTextField.getText().isEmpty()) && (classFilter.isEmpty())) {
+                else if ((filterTextField.getText() != null || !filterTextField.getText().isEmpty()) && (this.classFilter.isEmpty())) {
                     return TreeItemPredicate.create(jeVisTreeViewItem -> jeVisTreeViewItem.getObject().getLocalName(I18n.getInstance().getLocale().getLanguage()).toLowerCase(I18n.getInstance().getLocale()).contains(filterTextField.getText().toLowerCase(I18n.getInstance().getLocale())));
-                } else if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (!classFilter.isEmpty())) {
+                } else if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (!this.classFilter.isEmpty())) {
                     return TreeItemPredicate.create(jeVisTreeViewItem -> {
                         try {
-                            return classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
+                            return this.classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
                         } catch (JEVisException e) {
                             e.printStackTrace();
                         }
@@ -357,7 +358,7 @@ public class TreeSelectionDialog extends Dialog {
                     boolean containsName = jeVisTreeViewItem.getObject().getLocalName(I18n.getInstance().getLocale().getLanguage()).toLowerCase(I18n.getInstance().getLocale()).contains(filterTextField.getText().toLowerCase(I18n.getInstance().getLocale()));
                     boolean classFiltered = false;
                     try {
-                        classFiltered = classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
+                        classFiltered = this.classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }

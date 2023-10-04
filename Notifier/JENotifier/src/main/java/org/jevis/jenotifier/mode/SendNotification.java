@@ -19,6 +19,7 @@ public class SendNotification implements Runnable {
 
     private final Notification _noti;
     private final NotificationDriver _driver;
+    int retry = 0;
     private PrintWriter _writer;
     private String _customMessage;
 
@@ -38,8 +39,6 @@ public class SendNotification implements Runnable {
 //        _socket = socket;
         _writer = writer;
     }
-
-    int retry = 0;
 
     @Override
     public void run() {
@@ -71,7 +70,7 @@ public class SendNotification implements Runnable {
                     if (retry < 5) {
                         try {
                             retry++;
-                            Thread.sleep(5000);
+                            Thread.sleep(30000);
                             run();
                         } catch (Exception e) {
                             logger.error("Error in retry queue for report notification");
@@ -79,6 +78,9 @@ public class SendNotification implements Runnable {
                     }
                 }
             }
+        } else {
+            _writer.println("------- " + _noti.getJEVisObjectNoti().getName() + "is not configured correctly");
+            _writer.flush();
         }
     }
 }

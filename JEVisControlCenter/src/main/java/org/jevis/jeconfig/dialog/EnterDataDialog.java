@@ -401,7 +401,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         showMoreButton.setOnAction(actionEvent -> {
             JEVisAttribute value = null;
             try {
-                value = selectedObject.getAttribute("Value");
+                value = initSample.getAttribute();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -452,6 +452,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                     }
 
                 } else {
+                    dataTypeBox.setVisible(true);
                     dateTypeLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.datetype.valid"));
                     valueLabel.setText(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
                     lastRawValueLabel.setText(I18n.getInstance().getString("status.table.captions.lastrawvalue"));
@@ -726,7 +727,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
             WorkDays workDays = new WorkDays(selectedObject);
             String unitString = "";
             try {
-                valueAttribute = selectedObject.getAttribute("Value");
+                valueAttribute = selectedObject.getAttribute(target.getType());
 
                 JEVisUnit displayUnit = valueAttribute.getDisplayUnit();
                 unitString = UnitManager.getInstance().format(displayUnit);

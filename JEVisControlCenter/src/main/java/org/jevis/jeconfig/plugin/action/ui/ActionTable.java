@@ -17,6 +17,7 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.table.SummeryData;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.TableFilter;
@@ -81,7 +82,7 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> fromUserCol = new TableColumn(fakeForName.fromUserProperty().getName());
         fromUserCol.setCellValueFactory(param -> param.getValue().fromUserProperty());
         fromUserCol.setCellFactory(buildShotTextFactory());
-
+        
         TableColumn<ActionData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsibleProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsibleProperty());
 
@@ -115,7 +116,7 @@ public class ActionTable extends TableView<ActionData> {
         statusTagsPropertyCol.setCellValueFactory(param -> param.getValue().statusTagsProperty());
         statusTagsPropertyCol.setCellFactory(new StringListColumnCell());
         statusTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
-        statusTagsPropertyCol.setMinWidth(110);
+        statusTagsPropertyCol.setPrefWidth(150);
 
         TableColumn<ActionData, String> fieldTagsPropertyCol = new TableColumn(fakeForName.fieldTagsProperty().getName());
         fieldTagsPropertyCol.setCellValueFactory(param -> param.getValue().fieldTagsProperty());
@@ -126,9 +127,10 @@ public class ActionTable extends TableView<ActionData> {
         doneDatePropertyCol.setCellValueFactory(param -> param.getValue().doneDateProperty());
         doneDatePropertyCol.setCellFactory(buildDateTimeFactory());
 
-        TableColumn<ActionData, DateTime> createDatePropertyCol = new TableColumn(fakeForName.createDateProperty().getName());
+        TableColumn<ActionData, DateTime> createDatePropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.created"));
         createDatePropertyCol.setCellValueFactory(param -> param.getValue().createDateProperty());
         createDatePropertyCol.setCellFactory(buildDateTimeFactory());
+        createDatePropertyCol.setMinWidth(95);
 
         TableColumn<ActionData, DateTime> plannedDatePropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.plandate"));
         plannedDatePropertyCol.setCellValueFactory(param -> param.getValue().plannedDateProperty());
@@ -168,6 +170,7 @@ public class ActionTable extends TableView<ActionData> {
         //investPropertyCol.setCellFactory(buildShotTextFactory());
         investPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         investPropertyCol.setCellFactory(new CurrencyColumnCell());
+        //investPropertyCol.setPrefWidth(180);
 
 
         TableColumn<ActionData, Double> savingYearPropertyCol = new TableColumn(fakeForName.npv.get().einsparung.getName());
@@ -206,7 +209,7 @@ public class ActionTable extends TableView<ActionData> {
         consumptionDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().consumption.get().diffProperty().asObject());
         //consumptionDevelopmentPropertyCol.setCellFactory(buildShotTextFactory());
         consumptionDevelopmentPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        consumptionDevelopmentPropertyCol.setMinWidth(160);
+        consumptionDevelopmentPropertyCol.setPrefWidth(200);
         //consumptionDevelopmentPropertyCol.setCellFactory(new CurrencyColumnCell());
         consumptionDevelopmentPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
             @Override

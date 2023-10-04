@@ -10,13 +10,13 @@
     },
     {
       "start": "Index of Legal Provisions Directory",
-      "end": "Index of Legal Provisions",
+      "end": "Building",
       "type": 3
     },
     {
       "start": "Index of Legal Provisions Directory",
-      "end": "Building",
-      "type": 3
+      "end": "Directory",
+      "type": 0
     }
   ]
 }

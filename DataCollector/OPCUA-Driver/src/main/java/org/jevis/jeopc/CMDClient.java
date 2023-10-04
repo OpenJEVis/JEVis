@@ -41,7 +41,7 @@ public class CMDClient {
         for (EndpointDescription endpointDescription : opcClient.getEndpoints()) {
 
 
-            System.out.println(String.format("\nEP[%s]:  %s", i, endpointDescription.getEndpointUrl()));
+            System.out.printf("\nEP[%s]:  %s%n", i, endpointDescription.getEndpointUrl());
             try {
                 SecurityPolicy securityPolicy = SecurityPolicy.fromUri(endpointDescription.getSecurityPolicyUri());
                 if (securityPolicy == SecurityPolicy.None) {
@@ -79,11 +79,11 @@ public class CMDClient {
 
                 System.out.println("\nBrowse Device?(y/n)");
                 String browse = scanner.nextLine();
-                if (browse.toLowerCase().equals("y")) {
+                if (browse.equalsIgnoreCase("y")) {
                     getDP(opcClient);
                 }
 
-                System.out.println("\nfetch samples?(type ID)");
+                System.out.println("\nfetch samples?(for example: ns=1;s=SM_E_38_WA )");
                 String fetch = scanner.nextLine();
                 if (!browse.isEmpty()) {
                     printData(opcClient, fetch);
@@ -103,11 +103,11 @@ public class CMDClient {
         System.out.println("Fetch Datapoint: '" + id + "'");
         NodeId nodeIdName = NodeId.parse(id);//"ns=1;i=20036");
 
-        DateTime from= new DateTime(2021,04,22,15,00,00);
-        DateTime until= new DateTime(2021,04,22,16,00,00);
+        DateTime from = new DateTime(DateTime.now().getYear(), 01, 01, 15, 00, 00);
+        DateTime until = new DateTime(DateTime.now().getYear(), 12, 22, 31, 00, 00);
 
         //HistoryReadResult historyReadResult = opcClient.getHistory(nodeIdName, new DateTime().minusDays(1), new DateTime());
-        OPCUAChannel OPCUAChannel = new OPCUAChannel(id,"i=11506",900000);
+        OPCUAChannel OPCUAChannel = new OPCUAChannel(id, "i=11505", 900000);
 
         HistoryReadResult historyReadResult = opcClient.getHistory(OPCUAChannel, from, until);
         List<DataValue> valueList = opcClient.getDateValues(historyReadResult);
@@ -144,7 +144,7 @@ public class CMDClient {
         HashMap<String, ReferenceDescription> map = opcClient.browse();
         map.forEach((s, referenceDescription) -> {
             System.out.println("New Des: " + referenceDescription.getBrowseName().getName() + " " + referenceDescription.getNodeId().toParseableString());
-            System.out.println("-" + referenceDescription.toString());
+            System.out.println("-" + referenceDescription);
             /**
              if (referenceDescription.getBrowseName().getName().equals("Strom - E-Mobility - Total Import (reactive) (Trend_Strom - E-Mobility - Total Import (reactive))")) {
              System.out.println("--Wait here");

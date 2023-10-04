@@ -3,6 +3,8 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
@@ -12,6 +14,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.CustomNumericAxis;
@@ -118,7 +121,9 @@ public class ChartWidget extends Widget implements DataModelWidget {
             toolBarSettings.setShowIcons(false);
             toolBarSettings.setCustomWorkday(customWorkDay);
 
+            ObjectProperty<JEVisObject> currentAnalysis = new SimpleObjectProperty<>();
             DataSettings dataSettings = new DataSettings();
+            dataSettings.setCurrentAnalysisProperty(currentAnalysis);
             dataSettings.setCurrentAnalysis(control.getActiveDashboard().getDashboardObject());
 
             ChartModel chartModel = this.sampleHandler.getChartModel();

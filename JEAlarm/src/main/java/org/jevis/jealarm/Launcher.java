@@ -72,7 +72,10 @@ public class Launcher extends AbstractCliApp {
                     } finally {
                         removeJob(alarmConfiguration.getObject());
 
-                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
+                        StringBuilder running = new StringBuilder();
+                        runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
+
+                        logger.info("Queued Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
 
                         checkLastJob();
                     }

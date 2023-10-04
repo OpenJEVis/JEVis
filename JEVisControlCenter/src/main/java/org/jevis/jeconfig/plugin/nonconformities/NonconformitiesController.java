@@ -41,6 +41,8 @@ public class NonconformitiesController {
     private TabPane tabPane = new TabPane();
     private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
+    private BooleanProperty updateTrigger = new SimpleBooleanProperty(false);
+
     public NonconformitiesController(NonconformitiesPlugin plugin) {
         this.plugin = plugin;
     }
@@ -79,10 +81,10 @@ public class NonconformitiesController {
 
     private void buildTabPane(NonconformityPlan nonconformityPlanPlan) {
 
-        NonconformityPlanTable nonconformityPlanTable = new NonconformityPlanTable(nonconformityPlanPlan, nonconformityPlanPlan.getActionData());
+        NonconformityPlanTable nonconformityPlanTable = new NonconformityPlanTable(nonconformityPlanPlan, nonconformityPlanPlan.getActionData(), updateTrigger);
 
         //actionTable.enableSumRow(true);
-        NonconformityPlanTab tab = new NonconformityPlanTab(nonconformityPlanPlan, this);
+        NonconformityPlanTab tab = new NonconformityPlanTab(nonconformityPlanPlan, this, updateTrigger);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -130,10 +132,10 @@ public class NonconformitiesController {
             NewNonconformitiesDialog.Response response = newNonconformitiesDialog.show(JEConfig.getStage(), plugin.getDataSource());
             if (response == NewNonconformitiesDialog.Response.YES) {
 
-                JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass(JC.Nonconformities.name);
+                JEVisClass nonconformityPlanClass = plugin.getDataSource().getJEVisClass(JC.NonconformitiesPlan.name);
                 JEVisObject parentDir = newNonconformitiesDialog.getParent();
 
-                JEVisObject newObject = parentDir.buildObject(newNonconformitiesDialog.getCreateName(), actionPlanClass);
+                JEVisObject newObject = parentDir.buildObject(newNonconformitiesDialog.getCreateName(), nonconformityPlanClass);
                 newObject.commit();
                 NonconformityPlan nonconformityPlan = new NonconformityPlan(newObject);
                 this.nonconformityPlanList.add(nonconformityPlan);
@@ -177,8 +179,8 @@ public class NonconformitiesController {
     public void createNonconformity() {
         NonconformityPlanTab tab = getActiveTab();
         try {
-            JEVisClass nonconformityPlanDirClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.Nonconformities.NonconformitiesDirectory.name);
-            JEVisClass nonconformityClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.Nonconformities.NonconformitiesDirectory.Nonconformity.name);
+            JEVisClass nonconformityPlanDirClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.NonconformitiesPlan.NonconformityPlanDirectory.Nonconformity.NonconformityDirectory.name);
+            JEVisClass nonconformityClass = getActiveNonconformityPlan().getObject().getDataSource().getJEVisClass(JC.NonconformitiesPlan.NonconformityPlanDirectory.Nonconformity.name);
             JEVisObject nonconformityPlanDirObj = null;
             if (getActiveNonconformityPlan().getObject().getChildren(nonconformityPlanDirClass, false).isEmpty()) {
                 nonconformityPlanDirObj = getActiveNonconformityPlan().getObject().buildObject(nonconformityPlanDirClass.getName(), nonconformityPlanDirClass);
@@ -216,11 +218,11 @@ public class NonconformitiesController {
 
     public void loadNonconformityPlans() {
         try {
-            JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass("NonconformityPlan");
+            JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass(JC.NonconformitiesPlan.name);
             List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
 
             NonconformtiesOverviewData overviewData = new NonconformtiesOverviewData(this);
-            NonconformityPlanTab overviewTab = new NonconformityPlanTab(overviewData,this);
+            NonconformityPlanTab overviewTab = new NonconformityPlanTab(overviewData,this, updateTrigger);
             overviewTab.setClosable(false);
             tabPane.getTabs().add(0, overviewTab);
 
@@ -288,6 +290,7 @@ public class NonconformitiesController {
                     data.getObject().delete();
                     getActiveTab().getNonconformityPlan().getNonconformityList().remove(data);
 
+
                 } catch (Exception e) {
                     logger.error(e);
                 }
@@ -302,7 +305,7 @@ public class NonconformitiesController {
 
     }
     @NotNull
-    private static EventHandler getCloseRequest(NonconformityData data, NonconformityForm nonconformityForm) {
+    private EventHandler getCloseRequest(NonconformityData data, NonconformityForm nonconformityForm) {
         return dialogEvent -> {
             String errorText = data.checkForRequirements();
             logger.debug(errorText);
@@ -312,6 +315,7 @@ public class NonconformitiesController {
 
             }  else {
                 data.commit();
+                updateTrigger.set(!updateTrigger.get());
             }
         };
     }

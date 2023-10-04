@@ -465,6 +465,8 @@ public interface JC {
 
             public static String a_Path = "Path";
             public static String a_LastReadout = "Last Readout";
+
+            public static String a_ParameterConfig = "Parameter Config";
         }
 
         public interface LoytecXMLDLChannel {
@@ -3545,6 +3547,13 @@ public interface JC {
 
         }
 
+        public interface JSONParser{
+            public static String name = "JSON Parser";
+
+            public static String a_dateTimeFormat = "Date Time Format";
+            public static String a_dateTimePath = "Date Time Path";
+        }
+
         public interface XMLParser {
             public static String name = "XML Parser";
 
@@ -3836,21 +3845,25 @@ public interface JC {
         public static String a_StartDashboard = "Start Dashboard";
     }
 
-    public interface Nonconformities {
-        public static String name = "Nonconformities";
+    public interface NonconformitiesPlan {
+        public static String name = "NonconformityPlan";
 
         public static String a_CustomStatus = "Custom Status";
         public static String a_CustomFields = "Custom Fields";
         public static String a_CustomMedium = "Custom Medium";
         public static String a_EnPI = "EnPI";
 
-        public interface NonconformitiesDirectory {
-            public static String name = "Nonconformities Directory";
+        public interface NonconformityPlanDirectory {
+            public static String name = "NonconformityPlan Directory";
 
             public interface Nonconformity {
                 public static String name = "Nonconformity";
 
                 public static String a_Data = "Data";
+
+                public interface NonconformityDirectory{
+                    public static String name = "Nonconformities Directory";
+                }
 
 
             }
@@ -3859,15 +3872,19 @@ public interface JC {
     public interface IndexofLegalProvisions {
         public static String name = "Index of Legal Provisions";
 
-        public static String a_CustomMedium = "Custom Medium";
-        public static String a_category = "category";
-        public static String a_scope = "scope";
-        public interface LegalCadastreDirectory {
-            public static String name = "Index of Legal Provisions Directory";
-            public interface Obligation {
-                public static String name = "Obligation";
+        String a_CustomMedium = "Custom Medium";
+        String a_category = "category";
+        String a_scope = "scope";
+        interface IndexofLegalProvionsDirectory {
+            String name = "Index of Legal Provisions Directory";
+            interface Obligation {
+                String name = "Obligation";
 
-                public static String a_Data = "Data";
+                String a_Data = "Data";
+
+                public interface ObligationDirectory{
+                    public static String name = "Index of Legal Provisions Directory";
+                }
             }
 
         }

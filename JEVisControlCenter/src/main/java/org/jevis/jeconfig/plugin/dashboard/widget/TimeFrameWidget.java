@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.TimeFramePojo;
@@ -39,7 +40,7 @@ public class TimeFrameWidget extends Widget {
     private final Label label = new Label();
 
     private DataModelDataHandler sampleHandler;
-    private AnchorPane anchorPane = new AnchorPane();
+    private final AnchorPane anchorPane = new AnchorPane();
     public static String TIME_FRAME_DESIGN_NODE_NAME = "Time Frame";
 
     private TimeFramePojo timeFramePojo;
@@ -56,6 +57,37 @@ public class TimeFrameWidget extends Widget {
 
 
     @Override
+    public void updateData(Interval interval) {
+        Platform.runLater(() -> {
+            if (!this.timeFramePojo.getSelectedWidget().isPresent()) {
+            } else {
+                try {
+                    logger.debug(this.timeFramePojo.getSelectedWidget().get().getCurrentInterval(control.getInterval()));
+//                Widget select = this.timeFramePojo.getSelectedWidget();
+                    setLabelText();
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+            }
+
+        });
+
+
+    }
+
+    private void setLabelText() {
+        if (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().isPresent()) {
+
+            if (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().get().getCountOfSamples()) {
+                Platform.runLater(() -> this.label.setText(getSmapleCount()));
+
+            } else {
+                Platform.runLater(() -> this.label.setText(convertIntervalToString(getStart(), getEnd())));
+            }
+        }
+    }
+
+    @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.titlewidget.newname"));
@@ -66,36 +98,87 @@ public class TimeFrameWidget extends Widget {
     }
 
 
-    @Override
-    public void updateData(Interval interval) {
-        Platform.runLater(() -> {
-            try{
-                logger.debug(this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval()));
-                this.label.setText(convertIntervalToString(this.timeFramePojo.getSelectedWidget().getCurrentInterval(control.getInterval())));
+    private DateTime getEnd() {
 
-            }catch (Exception e){
-                logger.error(e);
-            }
-        });
+        DateTime dateTime = new DateTime();
+        if (!this.timeFramePojo.getSelectedTimeFarmeObjectWidget().isPresent()) return null;
+        switch (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().get().getEndObjectProperty()) {
+            case NONE:
+                dateTime = null;
+                break;
+            case LAST_TS:
+                if (this.timeFramePojo.getSelectedWidget().isPresent() && !this.timeFramePojo.getSelectedWidget().get().sampleHandler.getMaxTimeStamps().isEmpty()) {
+                    dateTime = this.timeFramePojo.getSelectedWidget().get().sampleHandler.getMaxTimeStamps().get(0);
+                } else {
+                    dateTime = null;
+                }
+                break;
+            case PERIODE_UNTIL:
+                if (this.timeFramePojo.getSelectedWidget().isPresent()) {
+                    dateTime = this.timeFramePojo.getSelectedWidget().get().getCurrentInterval(control.getInterval()).getEnd();
+                } else {
+                    dateTime = null;
+                }
+                break;
 
+        }
 
-
+        return dateTime;
 
     }
 
-    private String convertIntervalToString(Interval interval) {
+    private DateTime getStart() {
+        if (!this.timeFramePojo.getSelectedTimeFarmeObjectWidget().isPresent()) return null;
+        DateTime dateTime = new DateTime();
+        switch (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().get().getStartObjectProperty()) {
+            case NONE:
+                dateTime = null;
+                break;
+            case PERIODE_FROM:
+                if (this.timeFramePojo.getSelectedWidget().isPresent()) {
+                    dateTime = this.timeFramePojo.getSelectedWidget().get().getCurrentInterval(control.getInterval()).getStart();
+                } else {
+                    dateTime = null;
+                }
+        }
+
+        return dateTime;
+    }
+
+    private String convertIntervalToString(DateTime start, DateTime end) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(timeFramePojo.getParser());
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            stringBuilder.append(dateTimeFormatter.print(interval.getStart()));
-            stringBuilder.append(" - ");
-            stringBuilder.append(dateTimeFormatter.print(interval.getEnd()));
-        }catch (IllegalArgumentException e){
+            if (start != null) {
+                stringBuilder.append(dateTimeFormatter.print(start));
+            }
+            if (start != null && end != null) {
+                stringBuilder.append(" - ");
+            }
+            if (end != null) {
+                stringBuilder.append(dateTimeFormatter.print(end));
+            }
+
+        } catch (IllegalArgumentException e) {
             logger.error(e);
             return null;
         }
 
         return stringBuilder.toString();
+    }
+
+    private String getSmapleCount() {
+        try {
+            if (this.timeFramePojo.getSelectedWidget().isPresent()) {
+                ChartDataRow dataModel = this.timeFramePojo.getSelectedWidget().get().sampleHandler.getDataModel().get(0);
+                return String.valueOf(dataModel.getSamples().size());
+            } else {
+                return "0";
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return "0";
     }
 
     @Override
@@ -107,20 +190,25 @@ public class TimeFrameWidget extends Widget {
     @Override
     public void updateConfig() {
         logger.debug("UpdateConfig");
-
-        timeFramePojo.selectWidget();
-
-
         Platform.runLater(() -> {
             try {
-
-
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 this.label.setBackground(bgColor);
                 this.label.setTextFill(this.config.getFontColor());
-                this.label.setFont(new Font(this.config.getFontSize()));
+                Font font = Font.font(this.label.getFont().getFamily(), this.getConfig().getFontWeight(), this.getConfig().getFontPosture(), this.config.getFontSize());
+                this.label.setFont(font);
+                this.label.setUnderline(this.getConfig().getFontUnderlined());
                 this.label.setPrefWidth(this.config.getSize().getWidth());
                 this.label.setAlignment(this.config.getTitlePosition());
+
+                if (this.timeFramePojo.getSelectedWidget().isPresent()) {
+                    this.timeFramePojo.getSelectedWidget().get().sampleHandler.addEventListener(event -> {
+                        logger.info("{} fired  Update {}", event, this);
+                        setLabelText();
+                    });
+                }
+
+
             } catch (Exception ex) {
                 logger.error(ex);
             }

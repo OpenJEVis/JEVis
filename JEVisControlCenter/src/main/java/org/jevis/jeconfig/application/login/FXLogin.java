@@ -79,7 +79,7 @@ import java.util.prefs.Preferences;
  */
 public class FXLogin extends AnchorPane {
     private static final Logger logger = LogManager.getLogger(FXLogin.class);
-
+    public static String checkMarkSymbol = "\uD83D\uDDF8";
     private final Stage mainStage;
     private final JFXButton loginButton = new JFXButton("Login");
     private final JFXButton closeButton = new JFXButton("Close");
@@ -89,7 +89,6 @@ public class FXLogin extends AnchorPane {
     private final GridPane authGrid = new GridPane();
     private final Preferences jevisPref = Preferences.userRoot().node("JEVis");
     private final TextArea messageBox = new TextArea("");
-    private JEVisDataSource _ds;
     //    private final Preferences serverPref = Preferences.userRoot().node("JEVis.Server");
     private final List<JEVisObject> rootObjects = new ArrayList<>();
     private final List<JEVisClass> classes = new ArrayList<>();
@@ -103,27 +102,23 @@ public class FXLogin extends AnchorPane {
     private final List<PreloadTask> tasks = new ArrayList<>();
 
     private final SimpleBooleanProperty loginStatus = new SimpleBooleanProperty(false);
-//    private final String URL_SYNTAX = "user:password@server:port/jevis";
-
-    //    private final ObservableList<JEVisConfiguration> serverConfigurations = FXCollections.observableList(new ArrayList<>());
-    private VBox mainHBox = new VBox();
+    //    private final String URL_SYNTAX = "user:password@server:port/jevis";
     private final ProgressIndicator progress = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
-
     //Workaround replace later, in the moment i have problems showing the xeporion in an thread as an Alart
     private final Exception lastExeption = null;
-
+    private final NotificationPane notificationPane = new NotificationPane();
+    private final StringBuilder messageText = new StringBuilder();
+    private JEVisDataSource _ds;
+    //    private final ObservableList<JEVisConfiguration> serverConfigurations = FXCollections.observableList(new ArrayList<>());
+    private VBox mainHBox = new VBox();
     private Application.Parameters parameters;
-
     private List<JEVisOption> configuration;
     private JEVisOption fxoptions;
     private boolean useCSSFile = false;
     private ApplicationInfo app = new ApplicationInfo("FXLogin", "");
     private Locale selectedLocale = Locale.getDefault();
-    private final NotificationPane notificationPane = new NotificationPane();
     private JFXComboBox<Locale> langSelect;
     private boolean hasCredentials = false;
-    public static String checkMarkSymbol = "\uD83D\uDDF8";
-
 
     private FXLogin() {
         this.mainStage = null;
@@ -186,6 +181,16 @@ public class FXLogin extends AnchorPane {
         }
     }
 
+    /**
+     * Create an new Loginpanel
+     *
+     * @param stage      The Stage will be used of eventuell dialogs
+     * @param parameters
+     */
+    public FXLogin(Stage stage, Application.Parameters parameters) {
+        this(stage, parameters, new ApplicationInfo("FXLogin", ""));
+    }
+
     private boolean hasLoginCredentials(List<JEVisOption> configuration) {
         String userName = null;
         String password = null;
@@ -211,16 +216,6 @@ public class FXLogin extends AnchorPane {
             this.userPassword.setText(password);
             return true;
         } else return false;
-    }
-
-    /**
-     * Create an new Loginpanel
-     *
-     * @param stage      The Stage will be used of eventuell dialogs
-     * @param parameters
-     */
-    public FXLogin(Stage stage, Application.Parameters parameters) {
-        this(stage, parameters, new ApplicationInfo("FXLogin", ""));
     }
 
     /**
@@ -602,8 +597,6 @@ public class FXLogin extends AnchorPane {
         return this.authGrid;
     }
 
-    private final StringBuilder messageText = new StringBuilder();
-
     private void initSlim() {
 
         //TODO load from URL/RESOURCE
@@ -655,7 +648,7 @@ public class FXLogin extends AnchorPane {
     public void checkVersion() {
         try {
             String serverJECCVersion = ((JEVisDataSourceWS) _ds).getJEVisCCVersion();
-            if (serverJECCVersion != "0") {
+            if (serverJECCVersion != "0" && JEConfig.class.getPackage().getImplementationVersion() != null) {
                 DefaultArtifactVersion thisVersion = new DefaultArtifactVersion(JEConfig.class.getPackage().getImplementationVersion());
                 DefaultArtifactVersion serverVersion = new DefaultArtifactVersion(serverJECCVersion);
                 if (thisVersion.compareTo(serverVersion) < 0) {
@@ -705,7 +698,7 @@ public class FXLogin extends AnchorPane {
                 logger.error("Could not fetch JEVisCC Server Version");
             }
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.error(ex, ex);
         }
     }
 

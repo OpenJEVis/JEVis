@@ -2,6 +2,7 @@ package org.jevis.httpdatasource;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -13,8 +14,9 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.commons.driver.DataCollectorTypes;
-import org.jevis.commons.driver.DataSourceHelper;
+import org.jevis.api.JEVisObject;
+import org.jevis.commons.classes.JC;
+import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -40,6 +42,19 @@ public class HTTPDataSource {
     private DateTimeZone timeZone;
     private Boolean ssl = false;
 
+    private DateTime lastReadout;
+    private DateTime endDateTime;
+
+    private StatusLine statusLine;
+
+    public StatusLine getStatusLine() {
+        return statusLine;
+    }
+
+    public DateTime getEndDateTime() {
+        return endDateTime;
+    }
+
     public enum AUTH_SCHEME {
         BASIC, DIGEST, NONE
     }
@@ -61,11 +76,15 @@ public class HTTPDataSource {
         List<InputStream> answer = new ArrayList<InputStream>();
 
         String path = channel.getPath();
-        DateTime lastReadout = channel.getLastReadout();
+        lastReadout = channel.getLastReadout();
+
+        endDateTime = getCurrentTime(channel.getChannelObject(), lastReadout);
 
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
+        ParameterHelper parameterHelper = new ParameterHelper(lastReadout, endDateTime);
+        path = parameterHelper.getNewPath(path, channel.getChannelObject().getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).getLatestSample());
 
         logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {}", channelID, serverURL, userName, password);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
@@ -146,6 +165,9 @@ public class HTTPDataSource {
         get.setConfig(requestConfig);
 
         HttpResponse oResponse = httpClient.execute(get);
+
+        statusLine = oResponse.getStatusLine();
+
         logger.info("[{}] HTTP response status code: {}", channelID, oResponse.getStatusLine());
         HttpEntity oEntity = oResponse.getEntity();
         String oXmlString = EntityUtils.toString(oEntity);
@@ -253,6 +275,25 @@ public class HTTPDataSource {
         String NAME = "HTTP Channel";
         String PATH = "Path";
     }
+
+    private DateTime getCurrentTime(JEVisObject channel, DateTime lastReadout) {
+        try {
+
+            if (channel.getAttribute("Chunk Size(s)").hasSample()) {
+               return lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue());
+            }else {
+                DateTime.now();
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        return DateTime.now();
+    }
+
+
+
+
 
     public DateTimeZone getDateTimeZone() {
         return timeZone;

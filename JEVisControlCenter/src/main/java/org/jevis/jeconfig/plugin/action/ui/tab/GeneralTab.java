@@ -12,10 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -64,14 +61,13 @@ public class GeneralTab extends Tab {
     private final TextArea f_Note = new TextArea();
     private final TextArea f_NoteEnergiefluss = new TextArea();
     private final Label l_seu = new Label(I18n.getInstance().getString("actionform.editor.tab.general.seu"));
-    private JFXComboBox<String> f_sueTags = new JFXComboBox<>();
     private final Label l_FromUser = new Label(I18n.getInstance().getString("plugin.action.fromuser"));
     private final JFXTextField f_FromUser = new JFXTextField();
-    private final Label l_CreateDate = new Label("Erstellt");
+    private final Label l_CreateDate = new Label(I18n.getInstance().getString("plugin.action.created"));  //
     private final JFXDatePicker f_CreateDate = new JFXDatePicker();
     private final Label l_distributor = new Label(I18n.getInstance().getString("plugin.action.distributor"));
     private final JFXTextField f_distributor = new JFXTextField();
-
+    private JFXComboBox<String> f_sueTags = new JFXComboBox<>();
 
     {
         f_NoteBewertet.setWrapText(true);
@@ -91,7 +87,12 @@ public class GeneralTab extends Tab {
 
         col3Spacer.setMinWidth(25);
 
+        /* Readable if the workaround is not needed */
         f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
+        f_ActionNr.setEditable(false);
+        /* allow editing NR */
+        // StringConverter sdfs = new IntegerStringConverter();
+        //Bindings.bindBidirectional(f_ActionNr.textProperty(), data.nr, sdfs);
 
 
         f_statusTags = new JFXComboBox<>(actionPlan.getStatustags());
@@ -188,7 +189,9 @@ public class GeneralTab extends Tab {
         });
 
 
+        f_Investment.setTextFormatter(new TextFormatter<>(NumerFormating.getInstance().getDoubleConverter()));
         Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, NumerFormating.getInstance().getDoubleConverter());
+        f_savingYear.setTextFormatter(new TextFormatter<>(NumerFormating.getInstance().getDoubleConverter()));
         Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, NumerFormating.getInstance().getDoubleConverter());
 
         f_savingYear.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -196,6 +199,15 @@ public class GeneralTab extends Tab {
                 f_savingYear.textProperty().set(NumerFormating.getInstance().getDoubleFormate().format(data.npv.get().einsparung.get()));
             }
         });
+
+        f_Description.setWrapText(true);
+        f_NoteBewertet.setWrapText(true);
+        f_Note.setWrapText(true);
+        f_NoteEnergiefluss.setWrapText(true);
+
+
+        System.out.println("Investment: " + data.npv.get().investment.get());
+        System.out.println("InvestText: " + f_Investment.textProperty().get());
 
 
         // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
@@ -289,7 +301,6 @@ public class GeneralTab extends Tab {
         l_NoteBewertet.setPadding(new Insets(15, 0, 0, 0));
         l_NoteEnergiefluss.setPadding(new Insets(15, 0, 0, 0));
 
-        f_ActionNr.setEditable(false);
 
         GridPane.setHgrow(f_statusTags, Priority.ALWAYS);
 
@@ -309,7 +320,7 @@ public class GeneralTab extends Tab {
 
         l_Title.setText(I18n.getInstance().getString("plugin.action.affectedprocess"));
         l_NoteBewertet.setText(I18n.getInstance().getString("plugin.action.noteBewertet"));
-        l_NoteEnergiefluss.setText("Maßnahmenbeschreibung");
+        l_NoteEnergiefluss.setText(I18n.getInstance().getString("plugin.action.measureDescription"));
 
         l_Title.setWrapText(true);
         l_NoteBewertet.setWrapText(true);

@@ -5,7 +5,7 @@
   "relationships": [
     {
       "start": "NonconformityPlan",
-      "end": "Nonconformities Directory",
+      "end": "NonconformityPlan Directory",
       "type": 3
     }
   ],
