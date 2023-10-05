@@ -8,12 +8,14 @@ import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
 
 import java.util.List;
+import java.util.UUID;
 
 public class NotesRow {
+    private final UUID uuid;
     private final DateTime timeStamp;
-    private String note;
     private final StringProperty noteProperty = new SimpleStringProperty();
     private final JEVisObject object;
+    private String note;
     private String user;
     private String tag;
     private List<NoteTag> noteTags;
@@ -22,6 +24,7 @@ public class NotesRow {
     public NotesRow(DateTime timeStamp, JEVisObject object) {
         this.timeStamp = timeStamp;
         this.object = object;
+        this.uuid = UUID.randomUUID();
 
         try {
             tag = object.getAttribute("Tag").getSamples(timeStamp, timeStamp).get(0).getValueAsString();
@@ -46,6 +49,7 @@ public class NotesRow {
         this.timeStamp = timeStamp;
         this.object = object;
         this.note = note;
+        this.uuid = UUID.randomUUID();
         noteProperty.setValue(note);
         noteProperty.addListener((observable, oldValue, newValue) -> {
             hasChanged = true;
@@ -82,6 +86,10 @@ public class NotesRow {
         return note;
     }
 
+    public void setNote(String note) {
+        this.note = note;
+    }
+
     public StringProperty getNoteProperty() {
         return noteProperty;
     }
@@ -92,10 +100,6 @@ public class NotesRow {
 
     public boolean hasChanged() {
         return hasChanged;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
     }
 
     public JEVisObject getObject() {
@@ -136,9 +140,24 @@ public class NotesRow {
         }
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof NotesRow) {
+            NotesRow otherRow = (NotesRow) obj;
+            return otherRow.getUuid().equals(this.getUuid());
+        }
+
+        return false;
+    }
+
     @Override
     public String toString() {
         return "NotesRow{" +
+                "uuid=" + uuid.toString() +
                 "timeStamp=" + timeStamp +
                 ", note='" + note + '\'' +
                 ", object=" + object +
