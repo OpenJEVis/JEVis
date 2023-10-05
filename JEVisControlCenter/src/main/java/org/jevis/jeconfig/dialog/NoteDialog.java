@@ -13,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
@@ -65,6 +66,13 @@ public class NoteDialog extends Dialog<ButtonType> {
             String name = param.getValue().getName();
             return new ReadOnlyObjectWrapper<>(name);
         });
+
+        TableColumn<RowNote, Boolean> columnShowSample = new TableColumn<>(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showValue"));
+        columnShowSample.setEditable(true);
+        columnShowSample.setCellValueFactory(new PropertyValueFactory<>("visible"));
+        columnShowSample.setCellFactory(CheckBoxTableCell.forTableColumn(columnShowSample));
+        columnShowSample.setOnEditCommit(rowNoteBooleanCellEditEvent -> (rowNoteBooleanCellEditEvent.getTableView().getItems().get(rowNoteBooleanCellEditEvent.getTablePosition().getRow()))
+                .setVisible(rowNoteBooleanCellEditEvent.getNewValue()));
 
 
         TableColumn<RowNote, String> columnTimeStampY = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.timestamp"));
@@ -260,6 +268,7 @@ public class NoteDialog extends Dialog<ButtonType> {
         });
 
         TableView<RowNote> tv = new TableView<>();
+        tv.setEditable(true);
         if (!areThereXSamples) {
             tv.getColumns().setAll(columnName, columnTimeStampY, columnNote, columnUserNote, columnValueY, columnUserData);
         } else {
@@ -267,7 +276,7 @@ public class NoteDialog extends Dialog<ButtonType> {
             columnTimeStampY.setText(columnTimeStampY.getText() + " Y");
             columnValueY.setText(columnValueY.getText() + " Y");
 
-            tv.getColumns().setAll(columnTimeStampY, columnValueY, columnTimeStampX, columnValueX);
+            tv.getColumns().setAll(columnShowSample, columnTimeStampY, columnValueY, columnTimeStampX, columnValueX);
         }
         tv.setItems(observableList);
 
