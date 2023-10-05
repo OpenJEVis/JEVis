@@ -7,3883 +7,3887 @@ package org.jevis.commons.classes;
 public interface JC {
 
 
-    public interface AccountingConfiguration {
-        public static String name = "Accounting Configuration";
+    interface AccountingConfiguration {
+        String name = "Accounting Configuration";
 
-        public static String a_TemplateFile = "Template File";
+        String a_TemplateFile = "Template File";
     }
 
-    public interface Alarm {
-        public static String name = "Alarm";
+    interface Alarm {
+        String name = "Alarm";
 
-        public interface DynamicLimitAlarm {
-            public static String name = "Dynamic Limit Alarm";
+        interface DynamicLimitAlarm {
+            String name = "Dynamic Limit Alarm";
 
-            public static String a_AlarmLog = "Alarm Log";
-            public static String a_Enable = "Enable";
-            public static String a_LimitData = "Limit Data";
-            public static String a_Operator = "Operator";
-            public static String a_Status = "Status";
-            public static String a_Tolerance = "Tolerance";
+            String a_AlarmLog = "Alarm Log";
+            String a_Enable = "Enable";
+            String a_LimitData = "Limit Data";
+            String a_Operator = "Operator";
+            String a_Status = "Status";
+            String a_Tolerance = "Tolerance";
         }
 
-        public interface StaticLimitAlarm {
-            public static String name = "Static Limit Alarm";
+        interface StaticLimitAlarm {
+            String name = "Static Limit Alarm";
 
-            public static String a_AlarmLog = "Alarm Log";
-            public static String a_Enable = "Enable";
-            public static String a_Limit = "Limit";
-            public static String a_Operator = "Operator";
-            public static String a_Status = "Status";
-        }
-    }
-
-    public interface AlarmConfiguration {
-        public static String name = "Alarm Configuration";
-
-        public static String a_Enabled = "Enabled";
-        public static String a_DisableLink = "Disable Link";
-        public static String a_AlarmScope = "Alarm Scope";
-        public static String a_AlarmObjects = "Alarm Objects";
-        public static String a_TimeStamp = "Time Stamp";
-        public static String a_AlarmPeriod = "Alarm Period";
-        public static String a_CustomScheduleObject = "Custom Schedule Object";
-        public static String a_Log = "Log";
-        public static String a_LogFile = "Log File";
-        public static String a_AlarmChecked = "Alarm Checked";
-    }
-
-    public interface AlarmLink {
-        public static String name = "Alarm Link";
-
-        public static String a_AlarmLink = "Alarm Link";
-        public static String a_TemplateName = "Template Name";
-    }
-
-    public interface Analysis {
-        public static String name = "Analysis";
-
-        public static String a_DataModel = "Data Model";
-        public static String a_Charts = "Charts";
-        public static String a_NumberOfChartsPerScreen = "Number of Charts per Screen";
-        public static String a_NumberOfHorizontalPies = "Number of Horizontal Pies";
-        public static String a_NumberOfHorizontalTables = "Number of Horizontal Tables";
-        public static String a_AnalysisFile = "Analysis File";
-    }
-
-    public interface BuildingEquipment {
-        public static String name = "Building Equipment";
-
-        public static String a_Manufacturer = "Manufacturer";
-        public static String a_Type = "Type";
-        public static String a_YearOfConstruction = "Year of Construction";
-        public static String a_Number = "Number";
-        public static String a_NominalPower = "Nominal Power";
-        public static String a_StandbyConsumption = "Standby Consumption";
-        public static String a_EnergySource = "Energy Source";
-        public static String a_Productivity = "Productivity";
-        public static String a_MeasuringPoint = "Measuring Point";
-        public static String a_WeightingFactor = "Weighting Factor";
-        public static String a_DailyOperatingHours = "Daily Operating Hours";
-        public static String a_WorkingDays = "Working Days";
-        public static String a_WorkWeeks = "Work Weeks";
-
-        public interface AirConditioning {
-            public static String name = "Air Conditioning";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface Compressor {
-            public static String name = "Compressor";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_Flow = "Flow";
-            public static String a_NormalOperatingPressure = "Normal Operating Pressure";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface Cooler {
-            public static String name = "Cooler";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_CoolingCapacity = "Cooling Capacity";
-            public static String a_PerformanceNumberCompressor = "Performance Number Compressor";
-            public static String a_Refrigerant = "Refrigerant";
-            public static String a_ServedArea = "Served Area";
-            public static String a_Remark = "Remark";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface Engine {
-            public static String name = "Engine";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_EfficiencyClass = "Efficiency Class";
-            public static String a_PowerFactor = "Power Factor";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface Facade {
-            public static String name = "Facade";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_UValueGround = "U Value Ground";
-            public static String a_UValueOuterwall = "U Value Outerwall";
-            public static String a_UValueRoof = "U Value Roof";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface Floor {
-            public static String name = "Floor";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_Floor = "Floor";
-            public static String a_Usage = "Usage";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface HeatGeneration {
-            public static String name = "Heat Generation";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_Domain = "Domain";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface HVACSystemSimplified {
-            public static String name = "HVAC System Simplified";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface Lighting {
-            public static String name = "Lighting";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_Domain = "Domain";
-            public static String a_BallastPower = "Ballast Power";
-            public static String a_BulbsPerLamp = "Bulbs per Lamp";
-            public static String a_LampPower = "Lamp Power";
-            public static String a_NumberOfLamps = "Number of Lamps";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface Occupancy {
-            public static String name = "Occupancy";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_Occupancy = "Occupancy";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface OfficeEquipment {
-            public static String name = "Office Equipment";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_Sector = "Sector";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface PantryEquipment {
-            public static String name = "Pantry Equipment";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_Remark = "Remark";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface PlugLoad {
-            public static String name = "Plug Load";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_PlugLoad = "Plug Load";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface ProductionEquipment {
-            public static String name = "Production Equipment";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_Sector = "Sector";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface Pump {
-            public static String name = "Pump";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_Domain = "Domain";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface RecoolerOrCondenser {
-            public static String name = "Recooler or Condenser";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_RecoolingCapacity = "Recooling Capacity";
-            public static String a_Remark = "Remark";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
-        }
-
-        public interface Ventilation {
-            public static String name = "Ventilation";
-
-            public static String a_Manufacturer = "Manufacturer";
-            public static String a_Type = "Type";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_Number = "Number";
-            public static String a_NominalPower = "Nominal Power";
-            public static String a_StandbyConsumption = "Standby Consumption";
-            public static String a_EnergySource = "Energy Source";
-            public static String a_Productivity = "Productivity";
-            public static String a_MeasuringPoint = "Measuring Point";
-            public static String a_WeightingFactor = "Weighting Factor";
-            public static String a_SupplyArea = "Supply Area";
-            public static String a_AirExchangeRate = "Air Exchange Rate";
-            public static String a_EnginePowerFROM = "Engine Power FROM";
-            public static String a_EnginePowerTO = "Engine Power TO";
-            public static String a_Remark = "Remark";
-            public static String a_DailyOperatingHours = "Daily Operating Hours";
-            public static String a_WorkingDays = "Working Days";
-            public static String a_WorkWeeks = "Work Weeks";
+            String a_AlarmLog = "Alarm Log";
+            String a_Enable = "Enable";
+            String a_Limit = "Limit";
+            String a_Operator = "Operator";
+            String a_Status = "Status";
         }
     }
 
-    public interface Calculation {
-        public static String name = "Calculation";
+    interface AlarmConfiguration {
+        String name = "Alarm Configuration";
 
-        public static String a_Enabled = "Enabled";
-        public static String a_Expression = "Expression";
-        public static String a_DIV0Handling = "DIV0 Handling";
-        public static String a_StaticValue = "Static Value";
-        public static String a_AllZeroValue = "All Zero Value";
+        String a_Enabled = "Enabled";
+        String a_DisableLink = "Disable Link";
+        String a_IncludeLimitsInNotification = "Include Limits In Notification";
+        String a_AlarmScope = "Alarm Scope";
+        String a_AlarmObjects = "Alarm Objects";
+        String a_TimeStamp = "Time Stamp";
+        String a_AlarmPeriod = "Alarm Period";
+        String a_CustomScheduleObject = "Custom Schedule Object";
+        String a_Log = "Log";
+        String a_LogFile = "Log File";
+        String a_AlarmChecked = "Alarm Checked";
     }
 
-    public interface Channel {
-        public static String name = "Channel";
+    interface AlarmLink {
+        String name = "Alarm Link";
 
-        public static String a_LastReadout = "Last Readout";
+        String a_AlarmLink = "Alarm Link";
+        String a_TemplateName = "Template Name";
+    }
 
-        public interface EMailChannel {
-            public static String name = "EMail Channel";
+    interface Analysis {
+        String name = "Analysis";
 
-            public static String a_Sender = "Sender";
-            public static String a_Subject = "Subject";
-            public static String a_Filename = "Filename";
-            public static String a_DataInBody = "Data in body";
-            public static String a_LastReadout = "Last Readout";
+        String a_DataModel = "Data Model";
+        String a_Charts = "Charts";
+        String a_NumberOfChartsPerScreen = "Number of Charts per Screen";
+        String a_NumberOfHorizontalPies = "Number of Horizontal Pies";
+        String a_NumberOfHorizontalTables = "Number of Horizontal Tables";
+        String a_AnalysisFile = "Analysis File";
+    }
+
+    interface BuildingEquipment {
+        String name = "Building Equipment";
+
+        String a_Manufacturer = "Manufacturer";
+        String a_Type = "Type";
+        String a_YearOfConstruction = "Year of Construction";
+        String a_Number = "Number";
+        String a_NominalPower = "Nominal Power";
+        String a_StandbyConsumption = "Standby Consumption";
+        String a_EnergySource = "Energy Source";
+        String a_Productivity = "Productivity";
+        String a_MeasuringPoint = "Measuring Point";
+        String a_WeightingFactor = "Weighting Factor";
+        String a_DailyOperatingHours = "Daily Operating Hours";
+        String a_WorkingDays = "Working Days";
+        String a_WorkWeeks = "Work Weeks";
+
+        interface AirConditioning {
+            String name = "Air Conditioning";
+
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
 
-        public interface FTPChannel {
-            public static String name = "FTP Channel";
+        interface Compressor {
+            String name = "Compressor";
 
-            public static String a_Path = "Path";
-            public static String a_LastReadout = "Last Readout";
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_Flow = "Flow";
+            String a_NormalOperatingPressure = "Normal Operating Pressure";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
 
-        public interface HTTPChannel {
-            public static String name = "HTTP Channel";
+        interface Cooler {
+            String name = "Cooler";
 
-            public static String a_Path = "Path";
-            public static String a_LastReadout = "Last Readout";
-
-            public static String a_ParameterConfig = "Parameter Config";
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_CoolingCapacity = "Cooling Capacity";
+            String a_PerformanceNumberCompressor = "Performance Number Compressor";
+            String a_Refrigerant = "Refrigerant";
+            String a_ServedArea = "Served Area";
+            String a_Remark = "Remark";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
 
-        public interface LoytecXMLDLChannel {
-            public static String name = "Loytec XML-DL Channel";
+        interface Engine {
+            String name = "Engine";
 
-            public static String a_TargetID = "Target ID";
-            public static String a_TrendID = "Trend ID";
-            public static String a_StatusLog = "Status Log";
-            public static String a_LastReadout = "Last Readout";
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_EfficiencyClass = "Efficiency Class";
+            String a_PowerFactor = "Power Factor";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
 
-        public interface SFTPChannel {
-            public static String name = "sFTP Channel";
+        interface Facade {
+            String name = "Facade";
 
-            public static String a_Path = "Path";
-            public static String a_LastReadout = "Last Readout";
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_UValueGround = "U Value Ground";
+            String a_UValueOuterwall = "U Value Outerwall";
+            String a_UValueRoof = "U Value Roof";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
 
-        public interface SOAPChannel {
-            public static String name = "SOAP Channel";
+        interface Floor {
+            String name = "Floor";
 
-            public static String a_Path = "Path";
-            public static String a_Template = "Template";
-            public static String a_LastReadout = "Last Readout";
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_Floor = "Floor";
+            String a_Usage = "Usage";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
 
-        public interface SQLChannel {
-            public static String name = "SQL Channel";
+        interface HeatGeneration {
+            String name = "Heat Generation";
 
-            public static String a_Query = "Query";
-            public static String a_LastReadout = "Last Readout";
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_Domain = "Domain";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
 
-        public interface VIDA350Channel {
-            public static String name = "VIDA350 Channel";
+        interface HVACSystemSimplified {
+            String name = "HVAC System Simplified";
 
-            public static String a_Index = "Index";
-            public static String a_Target = "Target";
-            public static String a_LastReadoutTry = "Last Readout Try";
-            public static String a_LastReadout = "Last Readout";
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
 
-        public interface LoytecXMLDLOutputChannel {
-            public static String name = "Loytec XML-DL Output Channel";
+        interface Lighting {
+            String name = "Lighting";
 
-            public static String a_TargetID = "Target ID";
-            public static String a_OPCID = "OPC ID";
-            public static String a_StatusLog = "Status Log";
-            public static String a_LastReadout = "Last Readout";
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_Domain = "Domain";
+            String a_BallastPower = "Ballast Power";
+            String a_BulbsPerLamp = "Bulbs per Lamp";
+            String a_LampPower = "Lamp Power";
+            String a_NumberOfLamps = "Number of Lamps";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
 
-        public interface JEVisChannel {
-            public static String name = "JEVis Channel";
+        interface Occupancy {
+            String name = "Occupancy";
 
-            public static String a_SourceId = "Source Id";
-            public static String a_SourceAttribute = "Source Attribute";
-            public static String a_TargetId = "Target Id";
-            public static String a_LastReadout = "Last Readout";
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_Occupancy = "Occupancy";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
 
-        public interface OPCUAChannel {
-            public static String name = "OPC UA Channel";
+        interface OfficeEquipment {
+            String name = "Office Equipment";
 
-            public static String a_TargetID = "Target ID";
-            public static String a_NodeID = "Node ID";
-            public static String a_FunctionNodeID = "Function Node ID";
-            public static String a_FunctionInterval = "Function Interval";
-            public static String a_StatusLog = "Status Log";
-            public static String a_LastReadout = "Last Readout";
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_Sector = "Sector";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
+        }
+
+        interface PantryEquipment {
+            String name = "Pantry Equipment";
+
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_Remark = "Remark";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
+        }
+
+        interface PlugLoad {
+            String name = "Plug Load";
+
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_PlugLoad = "Plug Load";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
+        }
+
+        interface ProductionEquipment {
+            String name = "Production Equipment";
+
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_Sector = "Sector";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
+        }
+
+        interface Pump {
+            String name = "Pump";
+
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_Domain = "Domain";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
+        }
+
+        interface RecoolerOrCondenser {
+            String name = "Recooler or Condenser";
+
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_RecoolingCapacity = "Recooling Capacity";
+            String a_Remark = "Remark";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
+        }
+
+        interface Ventilation {
+            String name = "Ventilation";
+
+            String a_Manufacturer = "Manufacturer";
+            String a_Type = "Type";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_Number = "Number";
+            String a_NominalPower = "Nominal Power";
+            String a_StandbyConsumption = "Standby Consumption";
+            String a_EnergySource = "Energy Source";
+            String a_Productivity = "Productivity";
+            String a_MeasuringPoint = "Measuring Point";
+            String a_WeightingFactor = "Weighting Factor";
+            String a_SupplyArea = "Supply Area";
+            String a_AirExchangeRate = "Air Exchange Rate";
+            String a_EnginePowerFROM = "Engine Power FROM";
+            String a_EnginePowerTO = "Engine Power TO";
+            String a_Remark = "Remark";
+            String a_DailyOperatingHours = "Daily Operating Hours";
+            String a_WorkingDays = "Working Days";
+            String a_WorkWeeks = "Work Weeks";
         }
     }
 
-    public interface Constants {
-        public static String name = "Constants";
+    interface Calculation {
+        String name = "Calculation";
 
-        public static String a_Attribute = "Attribute";
-        public static String a_Editable = "Editable";
-        public static String a_Entries = "Entries";
+        String a_Enabled = "Enabled";
+        String a_Expression = "Expression";
+        String a_DIV0Handling = "DIV0 Handling";
+        String a_StaticValue = "Static Value";
+        String a_AllZeroValue = "All Zero Value";
     }
 
-    public interface ControlCenter {
-        public static String name = "Control Center";
+    interface Channel {
+        String name = "Channel";
 
-    }
+        String a_LastReadout = "Last Readout";
 
-    public interface ControlCenterPlugin {
-        public static String name = "Control Center Plugin";
+        interface EMailChannel {
+            String name = "EMail Channel";
 
-        public static String a_Enable = "Enable";
-
-        public interface UnitPlugin {
-            public static String name = "Unit Plugin";
-
-            public static String a_Enable = "Enable";
+            String a_Sender = "Sender";
+            String a_Subject = "Subject";
+            String a_Filename = "Filename";
+            String a_DataInBody = "Data in body";
+            String a_LastReadout = "Last Readout";
         }
 
-        public interface EquipmentPlugin {
-            public static String name = "Equipment Plugin";
+        interface FTPChannel {
+            String name = "FTP Channel";
 
-            public static String a_Enable = "Enable";
+            String a_Path = "Path";
+            String a_LastReadout = "Last Readout";
         }
 
-        public interface ISO5001BrowserPlugin {
-            public static String name = "ISO5001 Browser Plugin";
+        interface HTTPChannel {
+            String name = "HTTP Channel";
 
-            public static String a_Enable = "Enable";
+            String a_Path = "Path";
+            String a_LastReadout = "Last Readout";
+
+            String a_ParameterConfig = "Parameter Config";
         }
 
-        public interface TemplateResultCalculationPlugin {
-            public static String name = "Template Result Calculation Plugin";
+        interface LoytecXMLDLChannel {
+            String name = "Loytec XML-DL Channel";
 
-            public static String a_Enable = "Enable";
+            String a_TargetID = "Target ID";
+            String a_TrendID = "Trend ID";
+            String a_StatusLog = "Status Log";
+            String a_LastReadout = "Last Readout";
         }
 
-        public interface MapPlugin {
-            public static String name = "Map Plugin";
+        interface SFTPChannel {
+            String name = "sFTP Channel";
 
-            public static String a_Enable = "Enable";
+            String a_Path = "Path";
+            String a_LastReadout = "Last Readout";
         }
 
-        public interface AccountingPlugin {
-            public static String name = "Accounting Plugin";
+        interface SOAPChannel {
+            String name = "SOAP Channel";
 
-            public static String a_Enable = "Enable";
+            String a_Path = "Path";
+            String a_Template = "Template";
+            String a_LastReadout = "Last Readout";
         }
 
-        public interface GraphPlugin {
-            public static String name = "Graph Plugin";
+        interface SQLChannel {
+            String name = "SQL Channel";
 
-            public static String a_NumberOfChartsPerAnalysis = "Number of Charts per Analysis";
-            public static String a_NumberOfChartsPerScreen = "Number of Charts per Screen";
-            public static String a_NumberOfHorizontalPies = "Number of Horizontal Pies";
-            public static String a_NumberOfHorizontalTables = "Number of Horizontal Tables";
-            public static String a_Enable = "Enable";
+            String a_Query = "Query";
+            String a_LastReadout = "Last Readout";
         }
 
-        public interface AlarmPlugin {
-            public static String name = "Alarm Plugin";
+        interface VIDA350Channel {
+            String name = "VIDA350 Channel";
 
-            public static String a_Enable = "Enable";
+            String a_Index = "Index";
+            String a_Target = "Target";
+            String a_LastReadoutTry = "Last Readout Try";
+            String a_LastReadout = "Last Readout";
         }
 
-        public interface NotesPlugin {
-            public static String name = "Notes Plugin";
+        interface LoytecXMLDLOutputChannel {
+            String name = "Loytec XML-DL Output Channel";
 
-            public static String a_Enable = "Enable";
+            String a_TargetID = "Target ID";
+            String a_OPCID = "OPC ID";
+            String a_StatusLog = "Status Log";
+            String a_LastReadout = "Last Readout";
         }
 
-        public interface ClassPlugin {
-            public static String name = "Class Plugin";
+        interface JEVisChannel {
+            String name = "JEVis Channel";
 
-            public static String a_Enable = "Enable";
+            String a_SourceId = "Source Id";
+            String a_SourceAttribute = "Source Attribute";
+            String a_TargetId = "Target Id";
+            String a_LastReadout = "Last Readout";
         }
 
-        public interface DashboardPlugin {
-            public static String name = "Dashboard Plugin";
+        interface OPCUAChannel {
+            String name = "OPC UA Channel";
 
-            public static String a_Enable = "Enable";
-        }
-
-        public interface MeterPlugin {
-            public static String name = "Meter Plugin";
-
-            public static String a_Enable = "Enable";
-        }
-
-        public interface ConfigurationPlugin {
-            public static String name = "Configuration Plugin";
-
-            public static String a_Enable = "Enable";
-        }
-
-        public interface BaseDataPlugin {
-            public static String name = "Base Data Plugin";
-
-            public static String a_Enable = "Enable";
-        }
-
-        public interface LoytecPlugin {
-            public static String name = "Loytec Plugin";
-
-            public static String a_Enable = "Enable";
-        }
-
-        public interface ReportPlugin {
-            public static String name = "Report Plugin";
-
-            public static String a_Enable = "Enable";
+            String a_TargetID = "Target ID";
+            String a_NodeID = "Node ID";
+            String a_FunctionNodeID = "Function Node ID";
+            String a_FunctionInterval = "Function Interval";
+            String a_StatusLog = "Status Log";
+            String a_LastReadout = "Last Readout";
         }
     }
 
-    public interface Converter {
-        public static String name = "Converter";
+    interface Constants {
+        String name = "Constants";
 
-        public interface ZIPConverter {
-            public static String name = "ZIP Converter";
+        String a_Attribute = "Attribute";
+        String a_Editable = "Editable";
+        String a_Entries = "Entries";
+    }
 
-            public static String a_Path = "Path";
+    interface ControlCenter {
+        String name = "Control Center";
+
+    }
+
+    interface ControlCenterPlugin {
+        String name = "Control Center Plugin";
+
+        String a_Enable = "Enable";
+
+        interface UnitPlugin {
+            String name = "Unit Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface EquipmentPlugin {
+            String name = "Equipment Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface ISO5001BrowserPlugin {
+            String name = "ISO5001 Browser Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface TemplateResultCalculationPlugin {
+            String name = "Template Result Calculation Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface MapPlugin {
+            String name = "Map Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface AccountingPlugin {
+            String name = "Accounting Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface GraphPlugin {
+            String name = "Graph Plugin";
+
+            String a_NumberOfChartsPerAnalysis = "Number of Charts per Analysis";
+            String a_NumberOfChartsPerScreen = "Number of Charts per Screen";
+            String a_NumberOfHorizontalPies = "Number of Horizontal Pies";
+            String a_NumberOfHorizontalTables = "Number of Horizontal Tables";
+            String a_Enable = "Enable";
+        }
+
+        interface AlarmPlugin {
+            String name = "Alarm Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface NotesPlugin {
+            String name = "Notes Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface ClassPlugin {
+            String name = "Class Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface DashboardPlugin {
+            String name = "Dashboard Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface MeterPlugin {
+            String name = "Meter Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface ConfigurationPlugin {
+            String name = "Configuration Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface BaseDataPlugin {
+            String name = "Base Data Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface LoytecPlugin {
+            String name = "Loytec Plugin";
+
+            String a_Enable = "Enable";
+        }
+
+        interface ReportPlugin {
+            String name = "Report Plugin";
+
+            String a_Enable = "Enable";
         }
     }
 
-    public interface DashboardAnalysis {
-        public static String name = "Dashboard Analysis";
+    interface Converter {
+        String name = "Converter";
 
-        public static String a_DataModelFile = "Data Model File";
-        public static String a_Background = "Background";
-    }
+        interface ZIPConverter {
+            String name = "ZIP Converter";
 
-    public interface Data {
-        public static String name = "Data";
-
-        public static String a_Value = "Value";
-        public static String a_Period = "Period";
-
-        public interface CleanData {
-            public static String name = "Clean Data";
-
-            public static String a_Value = "Value";
-            public static String a_Period = "Period";
-            public static String a_Enabled = "Enabled";
-            public static String a_ValueMultiplier = "Value Multiplier";
-            public static String a_ValueOffset = "Value Offset";
-            public static String a_ValueIsAQuantity = "Value is a Quantity";
-            public static String a_CounterOverflow = "Counter Overflow";
-            public static String a_ConversionToDifferential = "Conversion to Differential";
-            public static String a_PeriodAlignment = "Period Alignment";
-            public static String a_PeriodOffset = "Period Offset";
-            public static String a_LimitsEnabled = "Limits Enabled";
-            public static String a_LimitsConfiguration = "Limits Configuration";
-            public static String a_GapFillingEnabled = "GapFilling Enabled";
-            public static String a_GapFillingConfig = "Gap Filling Config";
-            public static String a_DeltaEnabled = "Delta Enabled";
-            public static String a_DeltaConfig = "Delta Config";
-            public static String a_AlarmEnabled = "Alarm Enabled";
-            public static String a_AlarmConfig = "Alarm Config";
-            public static String a_AlarmLog = "Alarm Log";
-        }
-
-        public interface BaseData {
-            public static String name = "Base Data";
-
-            public static String a_Value = "Value";
-            public static String a_Period = "Period";
-        }
-
-        public interface ForecastData {
-            public static String name = "Forecast Data";
-
-            public static String a_Enabled = "Enabled";
-            public static String a_Type = "Type";
-            public static String a_ReferencePeriod = "Reference Period";
-            public static String a_ReferencePeriodCount = "Reference Period Count";
-            public static String a_BindToSpecific = "Bind To Specific";
-            public static String a_ForecastDuration = "Forecast Duration";
-            public static String a_ForecastDurationCount = "Forecast Duration Count";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_Timezone = "Timezone";
-            public static String a_Value = "Value";
-            public static String a_Period = "Period";
-        }
-
-        public interface MathData {
-            public static String name = "Math Data";
-
-            public static String a_Enabled = "Enabled";
-            public static String a_Manipulation = "Manipulation";
-            public static String a_Formula = "Formula";
-            public static String a_ReferencePeriod = "Reference Period";
-            public static String a_ReferencePeriodCount = "Reference Period Count";
-            public static String a_Beginning = "Beginning";
-            public static String a_Ending = "Ending";
-            public static String a_LastRun = "Last Run";
-            public static String a_PeriodOffset = "Period Offset";
-            public static String a_FillPeriod = "Fill Period";
-            public static String a_Timezone = "Timezone";
-            public static String a_Value = "Value";
-            public static String a_Period = "Period";
+            String a_Path = "Path";
         }
     }
 
-    public interface DataNotes {
-        public static String name = "Data Notes";
+    interface DashboardAnalysis {
+        String name = "Dashboard Analysis";
 
-        public static String a_UserNotes = "User Notes";
-        public static String a_Tag = "Tag";
-        public static String a_User = "User";
+        String a_DataModelFile = "Data Model File";
+        String a_Background = "Background";
     }
 
-    public interface DataPoint {
-        public static String name = "Data Point";
+    interface Data {
+        String name = "Data";
 
-        public interface CSVDataPoint {
-            public static String name = "CSV Data Point";
+        String a_Value = "Value";
+        String a_Period = "Period";
 
-            public static String a_MappingIdentifier = "Mapping Identifier";
-            public static String a_Target = "Target";
-            public static String a_ValueIndex = "Value Index";
+        interface CleanData {
+            String name = "Clean Data";
+
+            String a_Value = "Value";
+            String a_Period = "Period";
+            String a_Enabled = "Enabled";
+            String a_ValueMultiplier = "Value Multiplier";
+            String a_ValueOffset = "Value Offset";
+            String a_ValueIsAQuantity = "Value is a Quantity";
+            String a_CounterOverflow = "Counter Overflow";
+            String a_ConversionToDifferential = "Conversion to Differential";
+            String a_PeriodAlignment = "Period Alignment";
+            String a_PeriodOffset = "Period Offset";
+            String a_LimitsEnabled = "Limits Enabled";
+            String a_LimitsConfiguration = "Limits Configuration";
+            String a_GapFillingEnabled = "GapFilling Enabled";
+            String a_GapFillingConfig = "Gap Filling Config";
+            String a_DeltaEnabled = "Delta Enabled";
+            String a_DeltaConfig = "Delta Config";
+            String a_AlarmEnabled = "Alarm Enabled";
+            String a_AlarmConfig = "Alarm Config";
+            String a_AlarmLog = "Alarm Log";
         }
 
-        public interface DWDDataPoint {
-            public static String name = "DWD Data Point";
+        interface BaseData {
+            String name = "Base Data";
 
-            public static String a_City = "City";
-            public static String a_HeightTarget = "Height Target";
-            public static String a_AtmosphericPressureTarget = "Atmospheric Pressure Target";
-            public static String a_TemperatureTarget = "Temperature Target";
-            public static String a_TemperatureMinTarget = "Temperature Min Target";
-            public static String a_TemperatureMaxTarget = "Temperature Max Target";
-            public static String a_HumidityTarget = "Humidity Target";
-            public static String a_PrecipitationTarget = "Precipitation Target";
-            public static String a_Precipitation12Target = "Precipitation12 Target";
-            public static String a_SnowHeightTarget = "Snow Height Target";
-            public static String a_WindSpeedTarget = "Wind Speed Target";
-            public static String a_WindPeaksTarget = "Wind Peaks Target";
-            public static String a_WindDirectionTarget = "Wind Direction Target";
-            public static String a_ClimateAndCloudsTarget = "Climate and Clouds Target";
-            public static String a_SquallTarget = "Squall Target";
-            public static String a_Station = "Station";
-            public static String a_HeatingDegreeDaysTarget = "Heating Degree Days Target";
+            String a_Value = "Value";
+            String a_Period = "Period";
         }
 
-        public interface SQLDataPoint {
-            public static String name = "SQL Data Point";
+        interface ForecastData {
+            String name = "Forecast Data";
 
-            public static String a_TargetAttribute = "Target Attribute";
-            public static String a_TargetID = "Target ID";
-            public static String a_TimestampColumn = "Timestamp Column";
-            public static String a_TimestampType = "Timestamp Type";
-            public static String a_ValueColumn = "Value Column";
-            public static String a_ValueType = "Value Type";
+            String a_Enabled = "Enabled";
+            String a_Type = "Type";
+            String a_ReferencePeriod = "Reference Period";
+            String a_ReferencePeriodCount = "Reference Period Count";
+            String a_BindToSpecific = "Bind To Specific";
+            String a_ForecastDuration = "Forecast Duration";
+            String a_ForecastDurationCount = "Forecast Duration Count";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_Timezone = "Timezone";
+            String a_Value = "Value";
+            String a_Period = "Period";
         }
 
-        public interface XMLDataPoint {
-            public static String name = "XML Data Point";
+        interface MathData {
+            String name = "Math Data";
 
-            public static String a_MappingIdentifier = "Mapping Identifier";
-            public static String a_Target = "Target";
-            public static String a_ValueIdentifier = "Value Identifier";
-        }
-
-        public interface DWDHDDDataPoint {
-            public static String name = "DWD HDD Data Point";
-
-            public static String a_Station = "Station";
-            public static String a_HeatingDegreeDaysTarget = "Heating Degree Days Target";
+            String a_Enabled = "Enabled";
+            String a_Manipulation = "Manipulation";
+            String a_Formula = "Formula";
+            String a_ReferencePeriod = "Reference Period";
+            String a_ReferencePeriodCount = "Reference Period Count";
+            String a_Beginning = "Beginning";
+            String a_Ending = "Ending";
+            String a_LastRun = "Last Run";
+            String a_PeriodOffset = "Period Offset";
+            String a_FillPeriod = "Fill Period";
+            String a_Timezone = "Timezone";
+            String a_Value = "Value";
+            String a_Period = "Period";
         }
     }
 
-    public interface DataSource {
-        public static String name = "Data Source";
+    interface DataNotes {
+        String name = "Data Notes";
 
-        public static String a_Enabled = "Enabled";
-        public static String a_Timezone = "Timezone";
-        public static String a_LastRun = "Last Run";
-        public static String a_CycleTime = "Cycle Time";
-        public static String a_LatestReported = "Latest reported";
+        String a_UserNotes = "User Notes";
+        String a_Tag = "Tag";
+        String a_User = "User";
+    }
 
-        public interface DataServer {
-            public static String name = "Data Server";
+    interface DataPoint {
+        String name = "Data Point";
 
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_ConnectionTimeout = "Connection Timeout";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
+        interface CSVDataPoint {
+            String name = "CSV Data Point";
 
-            public interface EMailServer {
-                public static String name = "EMail Server";
+            String a_MappingIdentifier = "Mapping Identifier";
+            String a_Target = "Target";
+            String a_ValueIndex = "Value Index";
+        }
 
-                public static String a_Password = "Password";
-                public static String a_SSL = "SSL";
-                public static String a_User = "User";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_ConnectionTimeout = "Connection Timeout";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
+        interface DWDDataPoint {
+            String name = "DWD Data Point";
 
-                public interface IMAPEMailServer {
-                    public static String name = "IMAP EMail Server";
+            String a_City = "City";
+            String a_HeightTarget = "Height Target";
+            String a_AtmosphericPressureTarget = "Atmospheric Pressure Target";
+            String a_TemperatureTarget = "Temperature Target";
+            String a_TemperatureMinTarget = "Temperature Min Target";
+            String a_TemperatureMaxTarget = "Temperature Max Target";
+            String a_HumidityTarget = "Humidity Target";
+            String a_PrecipitationTarget = "Precipitation Target";
+            String a_Precipitation12Target = "Precipitation12 Target";
+            String a_SnowHeightTarget = "Snow Height Target";
+            String a_WindSpeedTarget = "Wind Speed Target";
+            String a_WindPeaksTarget = "Wind Peaks Target";
+            String a_WindDirectionTarget = "Wind Direction Target";
+            String a_ClimateAndCloudsTarget = "Climate and Clouds Target";
+            String a_SquallTarget = "Squall Target";
+            String a_Station = "Station";
+            String a_HeatingDegreeDaysTarget = "Heating Degree Days Target";
+        }
 
-                    public static String a_Folder = "Folder";
-                    public static String a_Password = "Password";
-                    public static String a_SSL = "SSL";
-                    public static String a_User = "User";
-                    public static String a_Host = "Host";
-                    public static String a_Port = "Port";
-                    public static String a_ReadTimeout = "Read Timeout";
-                    public static String a_ManualTrigger = "Manual Trigger";
-                    public static String a_ConnectionTimeout = "Connection Timeout";
-                    public static String a_MaxThreadTime = "Max thread time";
-                    public static String a_Overwrite = "Overwrite";
-                    public static String a_Enabled = "Enabled";
-                    public static String a_Timezone = "Timezone";
-                    public static String a_LastRun = "Last Run";
-                    public static String a_CycleTime = "Cycle Time";
-                    public static String a_LatestReported = "Latest reported";
+        interface SQLDataPoint {
+            String name = "SQL Data Point";
+
+            String a_TargetAttribute = "Target Attribute";
+            String a_TargetID = "Target ID";
+            String a_TimestampColumn = "Timestamp Column";
+            String a_TimestampType = "Timestamp Type";
+            String a_ValueColumn = "Value Column";
+            String a_ValueType = "Value Type";
+        }
+
+        interface XMLDataPoint {
+            String name = "XML Data Point";
+
+            String a_MappingIdentifier = "Mapping Identifier";
+            String a_Target = "Target";
+            String a_ValueIdentifier = "Value Identifier";
+        }
+
+        interface DWDHDDDataPoint {
+            String name = "DWD HDD Data Point";
+
+            String a_Station = "Station";
+            String a_HeatingDegreeDaysTarget = "Heating Degree Days Target";
+        }
+    }
+
+    interface DataSource {
+        String name = "Data Source";
+
+        String a_Enabled = "Enabled";
+        String a_Timezone = "Timezone";
+        String a_LastRun = "Last Run";
+        String a_CycleTime = "Cycle Time";
+        String a_LatestReported = "Latest reported";
+
+        interface DataServer {
+            String name = "Data Server";
+
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_ConnectionTimeout = "Connection Timeout";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
+
+            interface EMailServer {
+                String name = "EMail Server";
+
+                String a_Password = "Password";
+                String a_SSL = "SSL";
+                String a_User = "User";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_ConnectionTimeout = "Connection Timeout";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
+
+                interface IMAPEMailServer {
+                    String name = "IMAP EMail Server";
+
+                    String a_Folder = "Folder";
+                    String a_Password = "Password";
+                    String a_SSL = "SSL";
+                    String a_User = "User";
+                    String a_Host = "Host";
+                    String a_Port = "Port";
+                    String a_ReadTimeout = "Read Timeout";
+                    String a_ManualTrigger = "Manual Trigger";
+                    String a_ConnectionTimeout = "Connection Timeout";
+                    String a_MaxThreadTime = "Max thread time";
+                    String a_Overwrite = "Overwrite";
+                    String a_Enabled = "Enabled";
+                    String a_Timezone = "Timezone";
+                    String a_LastRun = "Last Run";
+                    String a_CycleTime = "Cycle Time";
+                    String a_LatestReported = "Latest reported";
                 }
 
-                public interface POP3EMailServer {
-                    public static String name = "POP3 EMail Server";
-
-                    public static String a_Password = "Password";
-                    public static String a_SSL = "SSL";
-                    public static String a_User = "User";
-                    public static String a_Host = "Host";
-                    public static String a_Port = "Port";
-                    public static String a_ReadTimeout = "Read Timeout";
-                    public static String a_ManualTrigger = "Manual Trigger";
-                    public static String a_ConnectionTimeout = "Connection Timeout";
-                    public static String a_MaxThreadTime = "Max thread time";
-                    public static String a_Overwrite = "Overwrite";
-                    public static String a_Enabled = "Enabled";
-                    public static String a_Timezone = "Timezone";
-                    public static String a_LastRun = "Last Run";
-                    public static String a_CycleTime = "Cycle Time";
-                    public static String a_LatestReported = "Latest reported";
-                }
-            }
-
-            public interface IMAPEMailServer {
-                public static String name = "IMAP EMail Server";
-
-                public static String a_Folder = "Folder";
-                public static String a_Password = "Password";
-                public static String a_SSL = "SSL";
-                public static String a_User = "User";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_ConnectionTimeout = "Connection Timeout";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface POP3EMailServer {
-                public static String name = "POP3 EMail Server";
-
-                public static String a_Password = "Password";
-                public static String a_SSL = "SSL";
-                public static String a_User = "User";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_ConnectionTimeout = "Connection Timeout";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface FTPServer {
-                public static String name = "FTP Server";
-
-                public static String a_Password = "Password";
-                public static String a_SSL = "SSL";
-                public static String a_User = "User";
-                public static String i_ConnectionTimeout = "Connection Timeout";
-                public static String a_DeleteFileOnSuccessfulParsing = "Delete File on successful parsing";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface HTTPServer {
-                public static String name = "HTTP Server";
-
-                public static String a_Password = "Password";
-                public static String a_SSL = "SSL";
-                public static String a_User = "User";
-                public static String a_ConnectionTimeout = "Connection Timeout";
-                public static String a_Authentication = "Authentication";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface LoytecXMLDLServer {
-                public static String name = "Loytec XML-DL Server";
-
-                public static String a_User = "User";
-                public static String a_Password = "Password";
-                public static String a_LogHandleBasePath = "LogHandle Base Path";
-                public static String a_SSL = "SSL";
-                public static String i_ConnectionTimeout = "Connection Timeout";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface SFTPServer {
-                public static String name = "sFTP Server";
-
-                public static String a_Password = "Password";
-                public static String a_User = "User";
-                public static String i_ConnectionTimeout = "Connection Timeout";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface SOAPServer {
-                public static String name = "SOAP Server";
-
-                public static String a_Password = "Password";
-                public static String a_SSL = "SSL";
-                public static String a_User = "User";
-                public static String i_ConnectionTimeout = "Connection Timeout";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface VIDA350 {
-                public static String name = "VIDA350";
-
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_ConnectionTimeout = "Connection Timeout";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface JEVisServer {
-                public static String name = "JEVis Server";
-
-                public static String a_Password = "Password";
-                public static String a_SSL = "SSL";
-                public static String a_User = "User";
-                public static String i_ConnectionTimeout = "Connection Timeout";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface OPCDAServer {
-                public static String name = "OPC DA Server";
-
-                public static String a_User = "User";
-                public static String a_Password = "Password";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_ConnectionTimeout = "Connection Timeout";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface ProfiNET {
-                public static String name = "ProfiNET";
-
-                public static String a_User = "User";
-                public static String a_Password = "Password";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_ConnectionTimeout = "Connection Timeout";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface OPCUAServer {
-                public static String name = "OPC UA Server";
-
-                public static String a_User = "User";
-                public static String a_Password = "Password";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_ConnectionTimeout = "Connection Timeout";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-        }
-
-        public interface EMailServer {
-            public static String name = "EMail Server";
-
-            public static String a_Password = "Password";
-            public static String a_SSL = "SSL";
-            public static String a_User = "User";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_ConnectionTimeout = "Connection Timeout";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-
-            public interface IMAPEMailServer {
-                public static String name = "IMAP EMail Server";
-
-                public static String a_Folder = "Folder";
-                public static String a_Password = "Password";
-                public static String a_SSL = "SSL";
-                public static String a_User = "User";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_ConnectionTimeout = "Connection Timeout";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-
-            public interface POP3EMailServer {
-                public static String name = "POP3 EMail Server";
-
-                public static String a_Password = "Password";
-                public static String a_SSL = "SSL";
-                public static String a_User = "User";
-                public static String a_Host = "Host";
-                public static String a_Port = "Port";
-                public static String a_ReadTimeout = "Read Timeout";
-                public static String a_ManualTrigger = "Manual Trigger";
-                public static String a_ConnectionTimeout = "Connection Timeout";
-                public static String a_MaxThreadTime = "Max thread time";
-                public static String a_Overwrite = "Overwrite";
-                public static String a_Enabled = "Enabled";
-                public static String a_Timezone = "Timezone";
-                public static String a_LastRun = "Last Run";
-                public static String a_CycleTime = "Cycle Time";
-                public static String a_LatestReported = "Latest reported";
-            }
-        }
-
-        public interface IMAPEMailServer {
-            public static String name = "IMAP EMail Server";
-
-            public static String a_Folder = "Folder";
-            public static String a_Password = "Password";
-            public static String a_SSL = "SSL";
-            public static String a_User = "User";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_ConnectionTimeout = "Connection Timeout";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface POP3EMailServer {
-            public static String name = "POP3 EMail Server";
-
-            public static String a_Password = "Password";
-            public static String a_SSL = "SSL";
-            public static String a_User = "User";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_ConnectionTimeout = "Connection Timeout";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface FTPServer {
-            public static String name = "FTP Server";
-
-            public static String a_Password = "Password";
-            public static String a_SSL = "SSL";
-            public static String a_User = "User";
-            public static String i_ConnectionTimeout = "Connection Timeout";
-            public static String a_DeleteFileOnSuccessfulParsing = "Delete File on successful parsing";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface HTTPServer {
-            public static String name = "HTTP Server";
-
-            public static String a_Password = "Password";
-            public static String a_SSL = "SSL";
-            public static String a_User = "User";
-            public static String a_ConnectionTimeout = "Connection Timeout";
-            public static String a_Authentication = "Authentication";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface LoytecXMLDLServer {
-            public static String name = "Loytec XML-DL Server";
-
-            public static String a_User = "User";
-            public static String a_Password = "Password";
-            public static String a_LogHandleBasePath = "LogHandle Base Path";
-            public static String a_SSL = "SSL";
-            public static String i_ConnectionTimeout = "Connection Timeout";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface SFTPServer {
-            public static String name = "sFTP Server";
-
-            public static String a_Password = "Password";
-            public static String a_User = "User";
-            public static String i_ConnectionTimeout = "Connection Timeout";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface SOAPServer {
-            public static String name = "SOAP Server";
-
-            public static String a_Password = "Password";
-            public static String a_SSL = "SSL";
-            public static String a_User = "User";
-            public static String i_ConnectionTimeout = "Connection Timeout";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface VIDA350 {
-            public static String name = "VIDA350";
-
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_ConnectionTimeout = "Connection Timeout";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface JEVisServer {
-            public static String name = "JEVis Server";
-
-            public static String a_Password = "Password";
-            public static String a_SSL = "SSL";
-            public static String a_User = "User";
-            public static String i_ConnectionTimeout = "Connection Timeout";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface OPCDAServer {
-            public static String name = "OPC DA Server";
-
-            public static String a_User = "User";
-            public static String a_Password = "Password";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_ConnectionTimeout = "Connection Timeout";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface ProfiNET {
-            public static String name = "ProfiNET";
-
-            public static String a_User = "User";
-            public static String a_Password = "Password";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_ConnectionTimeout = "Connection Timeout";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-
-        public interface OPCUAServer {
-            public static String name = "OPC UA Server";
-
-            public static String a_User = "User";
-            public static String a_Password = "Password";
-            public static String a_Host = "Host";
-            public static String a_Port = "Port";
-            public static String a_ReadTimeout = "Read Timeout";
-            public static String a_ManualTrigger = "Manual Trigger";
-            public static String a_ConnectionTimeout = "Connection Timeout";
-            public static String a_MaxThreadTime = "Max thread time";
-            public static String a_Overwrite = "Overwrite";
-            public static String a_Enabled = "Enabled";
-            public static String a_Timezone = "Timezone";
-            public static String a_LastRun = "Last Run";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LatestReported = "Latest reported";
-        }
-    }
-
-    public interface Directory {
-        public static String name = "Directory";
-
-        public interface AdministrationDirectory {
-            public static String name = "Administration Directory";
-
-        }
-
-        public interface AlarmDirectory {
-            public static String name = "Alarm Directory";
-
-        }
-
-        public interface ChannelDirectory {
-            public static String name = "Channel Directory";
-
-            public interface EMailChannelDirectory {
-                public static String name = "EMail Channel Directory";
-
-            }
-
-            public interface FTPChannelDirectory {
-                public static String name = "FTP Channel Directory";
-
-            }
-
-            public interface HTTPChannelDirectory {
-                public static String name = "HTTP Channel Directory";
-
-            }
-
-            public interface LoytecXMLDLChannelDirectory {
-                public static String name = "Loytec XML-DL Channel Directory";
-
-                public interface LoytecXMLDLCEA709ChannelDirectory {
-                    public static String name = "Loytec XML-DL CEA709 Channel Directory";
-
-                }
-
-                public interface LoytecXMLDLGenericChannelDirectory {
-                    public static String name = "Loytec XML-DL Generic Channel Directory";
-
-                }
-
-                public interface LoytecXMLDLBacnetChannelDirectory {
-                    public static String name = "Loytec XML-DL Bacnet Channel Directory";
-
+                interface POP3EMailServer {
+                    String name = "POP3 EMail Server";
+
+                    String a_Password = "Password";
+                    String a_SSL = "SSL";
+                    String a_User = "User";
+                    String a_Host = "Host";
+                    String a_Port = "Port";
+                    String a_ReadTimeout = "Read Timeout";
+                    String a_ManualTrigger = "Manual Trigger";
+                    String a_ConnectionTimeout = "Connection Timeout";
+                    String a_MaxThreadTime = "Max thread time";
+                    String a_Overwrite = "Overwrite";
+                    String a_Enabled = "Enabled";
+                    String a_Timezone = "Timezone";
+                    String a_LastRun = "Last Run";
+                    String a_CycleTime = "Cycle Time";
+                    String a_LatestReported = "Latest reported";
                 }
             }
 
-            public interface LoytecXMLDLCEA709ChannelDirectory {
-                public static String name = "Loytec XML-DL CEA709 Channel Directory";
+            interface IMAPEMailServer {
+                String name = "IMAP EMail Server";
 
+                String a_Folder = "Folder";
+                String a_Password = "Password";
+                String a_SSL = "SSL";
+                String a_User = "User";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_ConnectionTimeout = "Connection Timeout";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface LoytecXMLDLGenericChannelDirectory {
-                public static String name = "Loytec XML-DL Generic Channel Directory";
+            interface POP3EMailServer {
+                String name = "POP3 EMail Server";
 
+                String a_Password = "Password";
+                String a_SSL = "SSL";
+                String a_User = "User";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_ConnectionTimeout = "Connection Timeout";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface LoytecXMLDLBacnetChannelDirectory {
-                public static String name = "Loytec XML-DL Bacnet Channel Directory";
+            interface FTPServer {
+                String name = "FTP Server";
 
+                String a_Password = "Password";
+                String a_SSL = "SSL";
+                String a_User = "User";
+                String i_ConnectionTimeout = "Connection Timeout";
+                String a_DeleteFileOnSuccessfulParsing = "Delete File on successful parsing";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface SFTPChannelDirectory {
-                public static String name = "sFTP Channel Directory";
+            interface HTTPServer {
+                String name = "HTTP Server";
 
+                String a_Password = "Password";
+                String a_SSL = "SSL";
+                String a_User = "User";
+                String a_ConnectionTimeout = "Connection Timeout";
+                String a_Authentication = "Authentication";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface SOAPChannelDirectory {
-                public static String name = "SOAP Channel Directory";
+            interface LoytecXMLDLServer {
+                String name = "Loytec XML-DL Server";
 
+                String a_User = "User";
+                String a_Password = "Password";
+                String a_LogHandleBasePath = "LogHandle Base Path";
+                String a_SSL = "SSL";
+                String i_ConnectionTimeout = "Connection Timeout";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface VIDA350ChannelDirectory {
-                public static String name = "VIDA350 Channel Directory";
+            interface SFTPServer {
+                String name = "sFTP Server";
 
+                String a_Password = "Password";
+                String a_User = "User";
+                String i_ConnectionTimeout = "Connection Timeout";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface OPCUAChannelDirectory {
-                public static String name = "OPC UA Channel Directory";
+            interface SOAPServer {
+                String name = "SOAP Server";
 
+                String a_Password = "Password";
+                String a_SSL = "SSL";
+                String a_User = "User";
+                String i_ConnectionTimeout = "Connection Timeout";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface JEVisChannelDirectory {
-                public static String name = "JEVis Channel Directory";
+            interface VIDA350 {
+                String name = "VIDA350";
 
-            }
-        }
-
-        public interface EMailChannelDirectory {
-            public static String name = "EMail Channel Directory";
-
-        }
-
-        public interface FTPChannelDirectory {
-            public static String name = "FTP Channel Directory";
-
-        }
-
-        public interface HTTPChannelDirectory {
-            public static String name = "HTTP Channel Directory";
-
-        }
-
-        public interface LoytecXMLDLChannelDirectory {
-            public static String name = "Loytec XML-DL Channel Directory";
-
-            public interface LoytecXMLDLCEA709ChannelDirectory {
-                public static String name = "Loytec XML-DL CEA709 Channel Directory";
-
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_ConnectionTimeout = "Connection Timeout";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface LoytecXMLDLGenericChannelDirectory {
-                public static String name = "Loytec XML-DL Generic Channel Directory";
+            interface JEVisServer {
+                String name = "JEVis Server";
 
+                String a_Password = "Password";
+                String a_SSL = "SSL";
+                String a_User = "User";
+                String i_ConnectionTimeout = "Connection Timeout";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface LoytecXMLDLBacnetChannelDirectory {
-                public static String name = "Loytec XML-DL Bacnet Channel Directory";
+            interface OPCDAServer {
+                String name = "OPC DA Server";
 
-            }
-        }
-
-        public interface LoytecXMLDLCEA709ChannelDirectory {
-            public static String name = "Loytec XML-DL CEA709 Channel Directory";
-
-        }
-
-        public interface LoytecXMLDLGenericChannelDirectory {
-            public static String name = "Loytec XML-DL Generic Channel Directory";
-
-        }
-
-        public interface LoytecXMLDLBacnetChannelDirectory {
-            public static String name = "Loytec XML-DL Bacnet Channel Directory";
-
-        }
-
-        public interface SFTPChannelDirectory {
-            public static String name = "sFTP Channel Directory";
-
-        }
-
-        public interface SOAPChannelDirectory {
-            public static String name = "SOAP Channel Directory";
-
-        }
-
-        public interface VIDA350ChannelDirectory {
-            public static String name = "VIDA350 Channel Directory";
-
-        }
-
-        public interface OPCUAChannelDirectory {
-            public static String name = "OPC UA Channel Directory";
-
-        }
-
-        public interface JEVisChannelDirectory {
-            public static String name = "JEVis Channel Directory";
-
-        }
-
-        public interface DashboardDirectory {
-            public static String name = "Dashboard Directory";
-
-        }
-
-        public interface DataDirectory {
-            public static String name = "Data Directory";
-
-        }
-
-        public interface DataPointDirectory {
-            public static String name = "Data Point Directory";
-
-            public interface CSVDataPointDirectory {
-                public static String name = "CSV Data Point Directory";
-
+                String a_User = "User";
+                String a_Password = "Password";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_ConnectionTimeout = "Connection Timeout";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface DWDDataPointDirectory {
-                public static String name = "DWD Data Point Directory";
+            interface ProfiNET {
+                String name = "ProfiNET";
 
+                String a_User = "User";
+                String a_Password = "Password";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_ConnectionTimeout = "Connection Timeout";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
 
-            public interface XMLDataPointDirectory {
-                public static String name = "XML Data Point Directory";
+            interface OPCUAServer {
+                String name = "OPC UA Server";
 
-            }
-        }
-
-        public interface CSVDataPointDirectory {
-            public static String name = "CSV Data Point Directory";
-
-        }
-
-        public interface DWDDataPointDirectory {
-            public static String name = "DWD Data Point Directory";
-
-        }
-
-        public interface XMLDataPointDirectory {
-            public static String name = "XML Data Point Directory";
-
-        }
-
-        public interface DataSourceDirectory {
-            public static String name = "Data Source Directory";
-
-        }
-
-        public interface DriverDirectory {
-            public static String name = "Driver Directory";
-
-            public interface ConverterDriverDirectory {
-                public static String name = "Converter Driver Directory";
-
-            }
-
-            public interface DataSourceDriverDirectory {
-                public static String name = "Data Source Driver Directory";
-
-            }
-
-            public interface ImporterDriverDirectory {
-                public static String name = "Importer Driver Directory";
-
-            }
-
-            public interface ParserDriverDirectory {
-                public static String name = "Parser Driver Directory";
-
-            }
-        }
-
-        public interface ConverterDriverDirectory {
-            public static String name = "Converter Driver Directory";
-
-        }
-
-        public interface DataSourceDriverDirectory {
-            public static String name = "Data Source Driver Directory";
-
-        }
-
-        public interface ImporterDriverDirectory {
-            public static String name = "Importer Driver Directory";
-
-        }
-
-        public interface ParserDriverDirectory {
-            public static String name = "Parser Driver Directory";
-
-        }
-
-        public interface EnumDirectory {
-            public static String name = "Enum Directory";
-
-        }
-
-        public interface EquipmentDirectory {
-            public static String name = "Equipment Directory";
-
-            public interface AirConditionEquipmentDirectory {
-                public static String name = "Air Condition Equipment Directory";
-
-            }
-
-            public interface CompressorEquipmentDirectory {
-                public static String name = "Compressor Equipment Directory";
-
-            }
-
-            public interface CoolingEquipmentDirectory {
-                public static String name = "Cooling Equipment Directory";
-
-            }
-
-            public interface HeatingEquipmentDirectory {
-                public static String name = "Heating Equipment Directory";
-
-            }
-
-            public interface LightingEquipmentDirectory {
-                public static String name = "Lighting Equipment Directory";
-
-            }
-
-            public interface OfficeEquipmentDirectory {
-                public static String name = "Office Equipment Directory";
-
-            }
-
-            public interface PantryEquipmentDirectory {
-                public static String name = "Pantry Equipment Directory";
-
-            }
-
-            public interface ProductionEquipmentDirectory {
-                public static String name = "Production Equipment Directory";
-
-            }
-
-            public interface VentilationEquipmentDirectory {
-                public static String name = "Ventilation Equipment Directory";
-
+                String a_User = "User";
+                String a_Password = "Password";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_ConnectionTimeout = "Connection Timeout";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
         }
 
-        public interface AirConditionEquipmentDirectory {
-            public static String name = "Air Condition Equipment Directory";
+        interface EMailServer {
+            String name = "EMail Server";
 
-        }
+            String a_Password = "Password";
+            String a_SSL = "SSL";
+            String a_User = "User";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_ConnectionTimeout = "Connection Timeout";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
 
-        public interface CompressorEquipmentDirectory {
-            public static String name = "Compressor Equipment Directory";
+            interface IMAPEMailServer {
+                String name = "IMAP EMail Server";
 
-        }
+                String a_Folder = "Folder";
+                String a_Password = "Password";
+                String a_SSL = "SSL";
+                String a_User = "User";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_ConnectionTimeout = "Connection Timeout";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
+            }
 
-        public interface CoolingEquipmentDirectory {
-            public static String name = "Cooling Equipment Directory";
+            interface POP3EMailServer {
+                String name = "POP3 EMail Server";
 
-        }
-
-        public interface HeatingEquipmentDirectory {
-            public static String name = "Heating Equipment Directory";
-
-        }
-
-        public interface LightingEquipmentDirectory {
-            public static String name = "Lighting Equipment Directory";
-
-        }
-
-        public interface OfficeEquipmentDirectory {
-            public static String name = "Office Equipment Directory";
-
-        }
-
-        public interface PantryEquipmentDirectory {
-            public static String name = "Pantry Equipment Directory";
-
-        }
-
-        public interface ProductionEquipmentDirectory {
-            public static String name = "Production Equipment Directory";
-
-        }
-
-        public interface VentilationEquipmentDirectory {
-            public static String name = "Ventilation Equipment Directory";
-
-        }
-
-        public interface FileDirectory {
-            public static String name = "File Directory";
-
-            public interface DocumentDirectory {
-                public static String name = "Document Directory";
-
+                String a_Password = "Password";
+                String a_SSL = "SSL";
+                String a_User = "User";
+                String a_Host = "Host";
+                String a_Port = "Port";
+                String a_ReadTimeout = "Read Timeout";
+                String a_ManualTrigger = "Manual Trigger";
+                String a_ConnectionTimeout = "Connection Timeout";
+                String a_MaxThreadTime = "Max thread time";
+                String a_Overwrite = "Overwrite";
+                String a_Enabled = "Enabled";
+                String a_Timezone = "Timezone";
+                String a_LastRun = "Last Run";
+                String a_CycleTime = "Cycle Time";
+                String a_LatestReported = "Latest reported";
             }
         }
 
-        public interface DocumentDirectory {
-            public static String name = "Document Directory";
+        interface IMAPEMailServer {
+            String name = "IMAP EMail Server";
 
+            String a_Folder = "Folder";
+            String a_Password = "Password";
+            String a_SSL = "SSL";
+            String a_User = "User";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_ConnectionTimeout = "Connection Timeout";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface GroupDirectory {
-            public static String name = "Group Directory";
+        interface POP3EMailServer {
+            String name = "POP3 EMail Server";
 
+            String a_Password = "Password";
+            String a_SSL = "SSL";
+            String a_User = "User";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_ConnectionTimeout = "Connection Timeout";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface MonitoredObjectDirectory {
-            public static String name = "Monitored Object Directory";
+        interface FTPServer {
+            String name = "FTP Server";
 
+            String a_Password = "Password";
+            String a_SSL = "SSL";
+            String a_User = "User";
+            String i_ConnectionTimeout = "Connection Timeout";
+            String a_DeleteFileOnSuccessfulParsing = "Delete File on successful parsing";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface OrganizationDirectory {
-            public static String name = "Organization Directory";
+        interface HTTPServer {
+            String name = "HTTP Server";
 
+            String a_Password = "Password";
+            String a_SSL = "SSL";
+            String a_User = "User";
+            String a_ConnectionTimeout = "Connection Timeout";
+            String a_Authentication = "Authentication";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface ReportDirectory {
-            public static String name = "Report Directory";
+        interface LoytecXMLDLServer {
+            String name = "Loytec XML-DL Server";
 
+            String a_User = "User";
+            String a_Password = "Password";
+            String a_LogHandleBasePath = "LogHandle Base Path";
+            String a_SSL = "SSL";
+            String i_ConnectionTimeout = "Connection Timeout";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface ReportLinkDirectory {
-            public static String name = "Report Link Directory";
+        interface SFTPServer {
+            String name = "sFTP Server";
 
+            String a_Password = "Password";
+            String a_User = "User";
+            String i_ConnectionTimeout = "Connection Timeout";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface ServiceDirectory {
-            public static String name = "Service Directory";
+        interface SOAPServer {
+            String name = "SOAP Server";
 
+            String a_Password = "Password";
+            String a_SSL = "SSL";
+            String a_User = "User";
+            String i_ConnectionTimeout = "Connection Timeout";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface UserDirectory {
-            public static String name = "User Directory";
+        interface VIDA350 {
+            String name = "VIDA350";
 
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_ConnectionTimeout = "Connection Timeout";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface ViewDirectory {
-            public static String name = "View Directory";
+        interface JEVisServer {
+            String name = "JEVis Server";
 
+            String a_Password = "Password";
+            String a_SSL = "SSL";
+            String a_User = "User";
+            String i_ConnectionTimeout = "Connection Timeout";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface TemplateCalculationDirectory {
-            public static String name = "Template Calculation Directory";
+        interface OPCDAServer {
+            String name = "OPC DA Server";
 
+            String a_User = "User";
+            String a_Password = "Password";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_ConnectionTimeout = "Connection Timeout";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface MeasurementDirectory {
-            public static String name = "Measurement Directory";
+        interface ProfiNET {
+            String name = "ProfiNET";
 
-            public interface WaterMeasurementDirectory {
-                public static String name = "Water Measurement Directory";
-
-            }
-
-            public interface HeatMeasurementDirectory {
-                public static String name = "Heat Measurement Directory";
-
-            }
-
-            public interface GasMeasurementDirectory {
-                public static String name = "Gas Measurement Directory";
-
-            }
-
-            public interface CompressedAirMeasurementDirectory {
-                public static String name = "Compressed-Air Measurement Directory";
-
-            }
-
-            public interface ElectricityMeasurementDirectory {
-                public static String name = "Electricity Measurement Directory";
-
-            }
-
-            public interface AirMeasurementDirectory {
-                public static String name = "Air Measurement Directory";
-
-            }
-
-            public interface NitrogenMeasurementDirectory {
-                public static String name = "Nitrogen Measurement Directory";
-
-            }
+            String a_User = "User";
+            String a_Password = "Password";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_ConnectionTimeout = "Connection Timeout";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
 
-        public interface WaterMeasurementDirectory {
-            public static String name = "Water Measurement Directory";
+        interface OPCUAServer {
+            String name = "OPC UA Server";
 
-        }
-
-        public interface HeatMeasurementDirectory {
-            public static String name = "Heat Measurement Directory";
-
-        }
-
-        public interface GasMeasurementDirectory {
-            public static String name = "Gas Measurement Directory";
-
-        }
-
-        public interface CompressedAirMeasurementDirectory {
-            public static String name = "Compressed-Air Measurement Directory";
-
-        }
-
-        public interface ElectricityMeasurementDirectory {
-            public static String name = "Electricity Measurement Directory";
-
-        }
-
-        public interface AirMeasurementDirectory {
-            public static String name = "Air Measurement Directory";
-
-        }
-
-        public interface NitrogenMeasurementDirectory {
-            public static String name = "Nitrogen Measurement Directory";
-
-        }
-
-        public interface BaseDataDirectory {
-            public static String name = "Base Data Directory";
-
-        }
-
-        public interface CalendarDirectory {
-            public static String name = "Calendar Directory";
-
-            public interface CustomPeriod {
-                public static String name = "Custom Period";
-
-                public static String a_Visible = "Visible";
-                public static String a_StartReferencePoint = "Start Reference Point";
-                public static String a_StartYears = "Start Years";
-                public static String a_StartMonths = "Start Months";
-                public static String a_StartWeeks = "Start Weeks";
-                public static String a_StartDays = "Start Days";
-                public static String a_StartHours = "Start Hours";
-                public static String a_StartMinutes = "Start Minutes";
-                public static String a_StartReferenceObject = "Start Reference Object";
-                public static String a_StartInterval = "Start Interval";
-                public static String a_EndReferencePoint = "End Reference Point";
-                public static String a_EndYears = "End Years";
-                public static String a_EndMonths = "End Months";
-                public static String a_EndWeeks = "End Weeks";
-                public static String a_EndDays = "End Days";
-                public static String a_EndHours = "End Hours";
-                public static String a_EndMinutes = "End Minutes";
-                public static String a_EndReferenceObject = "End Reference Object";
-                public static String a_EndInterval = "End Interval";
-            }
-        }
-
-        public interface CustomPeriod {
-            public static String name = "Custom Period";
-
-            public static String a_Visible = "Visible";
-            public static String a_StartReferencePoint = "Start Reference Point";
-            public static String a_StartYears = "Start Years";
-            public static String a_StartMonths = "Start Months";
-            public static String a_StartWeeks = "Start Weeks";
-            public static String a_StartDays = "Start Days";
-            public static String a_StartHours = "Start Hours";
-            public static String a_StartMinutes = "Start Minutes";
-            public static String a_StartReferenceObject = "Start Reference Object";
-            public static String a_StartInterval = "Start Interval";
-            public static String a_EndReferencePoint = "End Reference Point";
-            public static String a_EndYears = "End Years";
-            public static String a_EndMonths = "End Months";
-            public static String a_EndWeeks = "End Weeks";
-            public static String a_EndDays = "End Days";
-            public static String a_EndHours = "End Hours";
-            public static String a_EndMinutes = "End Minutes";
-            public static String a_EndReferenceObject = "End Reference Object";
-            public static String a_EndInterval = "End Interval";
-        }
-
-        public interface UserRoleDirectory {
-            public static String name = "User Role Directory";
-
-        }
-
-        public interface EnergyInvoicesDirectory {
-            public static String name = "Energy Invoices Directory";
-
-        }
-
-        public interface AnalysesDirectory {
-            public static String name = "Analyses Directory";
-
-        }
-
-        public interface CalculationDirectory {
-            public static String name = "Calculation Directory";
-
-        }
-
-        public interface EnergyContractingDirectory {
-            public static String name = "Energy Contracting Directory";
-
-            public interface AccountingConfigurationDirectory {
-                public static String name = "Accounting Configuration Directory";
-
-            }
-
-            public interface EnergyContractorDirectory {
-                public static String name = "Energy Contractor Directory";
-
-            }
-
-            public interface EnergyGridOperationDirectory {
-                public static String name = "Energy Grid Operation Directory";
-
-            }
-
-            public interface EnergyMeteringPointOperationDirectory {
-                public static String name = "Energy Metering Point Operation Directory";
-
-            }
-
-            public interface EnergySupplyDirectory {
-                public static String name = "Energy Supply Directory";
-
-            }
-
-            public interface EnergyGovernmentalDuesDirectory {
-                public static String name = "Energy Governmental Dues Directory";
-
-            }
-        }
-
-        public interface AccountingConfigurationDirectory {
-            public static String name = "Accounting Configuration Directory";
-
-        }
-
-        public interface EnergyContractorDirectory {
-            public static String name = "Energy Contractor Directory";
-
-        }
-
-        public interface EnergyGridOperationDirectory {
-            public static String name = "Energy Grid Operation Directory";
-
-        }
-
-        public interface EnergyMeteringPointOperationDirectory {
-            public static String name = "Energy Metering Point Operation Directory";
-
-        }
-
-        public interface EnergySupplyDirectory {
-            public static String name = "Energy Supply Directory";
-
-        }
-
-        public interface EnergyGovernmentalDuesDirectory {
-            public static String name = "Energy Governmental Dues Directory";
-
+            String a_User = "User";
+            String a_Password = "Password";
+            String a_Host = "Host";
+            String a_Port = "Port";
+            String a_ReadTimeout = "Read Timeout";
+            String a_ManualTrigger = "Manual Trigger";
+            String a_ConnectionTimeout = "Connection Timeout";
+            String a_MaxThreadTime = "Max thread time";
+            String a_Overwrite = "Overwrite";
+            String a_Enabled = "Enabled";
+            String a_Timezone = "Timezone";
+            String a_LastRun = "Last Run";
+            String a_CycleTime = "Cycle Time";
+            String a_LatestReported = "Latest reported";
         }
     }
 
-    public interface Driver {
-        public static String name = "Driver";
-
-        public static String a_Enabled = "Enabled";
-        public static String a_JEVisClass = "JEVis Class";
-        public static String a_MainClass = "Main Class";
-        public static String a_SourceFile = "Source File";
-
-        public interface ConverterDriver {
-            public static String name = "Converter Driver";
-
-            public static String a_Enabled = "Enabled";
-            public static String a_JEVisClass = "JEVis Class";
-            public static String a_MainClass = "Main Class";
-            public static String a_SourceFile = "Source File";
-        }
-
-        public interface DataSourceDriver {
-            public static String name = "Data Source Driver";
-
-            public static String a_Enabled = "Enabled";
-            public static String a_JEVisClass = "JEVis Class";
-            public static String a_MainClass = "Main Class";
-            public static String a_SourceFile = "Source File";
-        }
-
-        public interface ImporterDriver {
-            public static String name = "Importer Driver";
-
-            public static String a_Enabled = "Enabled";
-            public static String a_JEVisClass = "JEVis Class";
-            public static String a_MainClass = "Main Class";
-            public static String a_SourceFile = "Source File";
-        }
-
-        public interface ParserDriver {
-            public static String name = "Parser Driver";
-
-            public static String a_Enabled = "Enabled";
-            public static String a_JEVisClass = "JEVis Class";
-            public static String a_MainClass = "Main Class";
-            public static String a_SourceFile = "Source File";
-        }
-    }
-
-    public interface DynamicChannelPath {
-        public static String name = "Dynamic Channel Path";
-
-        public static String a_Match = "Match";
-        public static String a_Element = "Element";
-    }
-
-    public interface EnergyContractor {
-        public static String name = "Energy Contractor";
-
-        public static String a_VendorNumber = "Vendor Number";
-        public static String a_EnergyContractorNumber = "Energy Contractor Number";
-        public static String a_CustomerNumber = "Customer Number";
-        public static String a_Company = "Company";
-        public static String a_Address = "Address";
-        public static String a_ZipCode = "Zip Code";
-        public static String a_City = "City";
-        public static String a_ContactName = "Contact Name";
-        public static String a_ContactPhone = "Contact phone";
-        public static String a_ContactMobile = "Contact mobile";
-        public static String a_ContactMail = "Contact mail";
-
-        public interface EnergyMeteringPointOperationContractor {
-            public static String name = "Energy Metering Point Operation Contractor";
-
-            public static String a_VendorNumber = "Vendor Number";
-            public static String a_EnergyContractorNumber = "Energy Contractor Number";
-            public static String a_CustomerNumber = "Customer Number";
-            public static String a_Company = "Company";
-            public static String a_Address = "Address";
-            public static String a_ZipCode = "Zip Code";
-            public static String a_City = "City";
-            public static String a_ContactName = "Contact Name";
-            public static String a_ContactPhone = "Contact phone";
-            public static String a_ContactMobile = "Contact mobile";
-            public static String a_ContactMail = "Contact mail";
-        }
-
-        public interface EnergyGridOperationContractor {
-            public static String name = "Energy Grid Operation Contractor";
-
-            public static String a_VendorNumber = "Vendor Number";
-            public static String a_EnergyContractorNumber = "Energy Contractor Number";
-            public static String a_CustomerNumber = "Customer Number";
-            public static String a_Company = "Company";
-            public static String a_Address = "Address";
-            public static String a_ZipCode = "Zip Code";
-            public static String a_City = "City";
-            public static String a_ContactName = "Contact Name";
-            public static String a_ContactPhone = "Contact phone";
-            public static String a_ContactMobile = "Contact mobile";
-            public static String a_ContactMail = "Contact mail";
-        }
-
-        public interface EnergySupplyContractor {
-            public static String name = "Energy Supply Contractor";
-
-            public static String a_VendorNumber = "Vendor Number";
-            public static String a_EnergyContractorNumber = "Energy Contractor Number";
-            public static String a_CustomerNumber = "Customer Number";
-            public static String a_Company = "Company";
-            public static String a_Address = "Address";
-            public static String a_ZipCode = "Zip Code";
-            public static String a_City = "City";
-            public static String a_ContactName = "Contact Name";
-            public static String a_ContactPhone = "Contact phone";
-            public static String a_ContactMobile = "Contact mobile";
-            public static String a_ContactMail = "Contact mail";
-        }
-    }
-
-    public interface EnergyGridOperator {
-        public static String name = "Energy Grid Operator";
-
-        public static String a_Contractor = "Contractor";
-        public static String a_EnergyGridOperatorCodeNumber = "Energy Grid Operator Code Number";
-        public static String a_FranchiseTax = "Franchise Tax";
-        public static String a_NetCost = "Net Cost";
-        public static String a_EnergyPriceGrid = "Energy Price Grid";
-        public static String a_DemandCharge = "Demand Charge";
-
-        public interface CommunityHeatingGridOperator {
-            public static String name = "Community Heating Grid Operator";
-
-            public static String a_Contractor = "Contractor";
-            public static String a_EnergyGridOperatorCodeNumber = "Energy Grid Operator Code Number";
-            public static String a_FranchiseTax = "Franchise Tax";
-            public static String a_NetCost = "Net Cost";
-            public static String a_EnergyPriceGrid = "Energy Price Grid";
-            public static String a_DemandCharge = "Demand Charge";
-        }
-
-        public interface ElectricityGridOperator {
-            public static String name = "Electricity Grid Operator";
-
-            public static String a_Contractor = "Contractor";
-            public static String a_EnergyGridOperatorCodeNumber = "Energy Grid Operator Code Number";
-            public static String a_FranchiseTax = "Franchise Tax";
-            public static String a_NetCost = "Net Cost";
-            public static String a_EnergyPriceGrid = "Energy Price Grid";
-            public static String a_DemandCharge = "Demand Charge";
-        }
-
-        public interface GasGridOperator {
-            public static String name = "Gas Grid Operator";
-
-            public static String a_Contractor = "Contractor";
-            public static String a_EnergyGridOperatorCodeNumber = "Energy Grid Operator Code Number";
-            public static String a_FranchiseTax = "Franchise Tax";
-            public static String a_NetCost = "Net Cost";
-            public static String a_EnergyPriceGrid = "Energy Price Grid";
-            public static String a_DemandCharge = "Demand Charge";
-        }
-    }
-
-    public interface EnergyMeteringPointOperator {
-        public static String name = "Energy Metering Point Operator";
-
-        public static String a_Contractor = "Contractor";
-        public static String a_EnergyMeteringPointOperatorCodeNumber = "Energy Metering Point Operator Code Number";
-        public static String a_NetCost = "Net Cost";
-        public static String a_AdditionalRelativeCost = "Additional Relative Cost";
-        public static String a_AdditionalFixCost = "Additional Fix Cost";
-
-        public interface GasMeteringPointOperator {
-            public static String name = "Gas Metering Point Operator";
-
-            public static String a_Contractor = "Contractor";
-            public static String a_EnergyMeteringPointOperatorCodeNumber = "Energy Metering Point Operator Code Number";
-            public static String a_NetCost = "Net Cost";
-            public static String a_AdditionalRelativeCost = "Additional Relative Cost";
-            public static String a_AdditionalFixCost = "Additional Fix Cost";
-        }
-
-        public interface CommunityHeatingMeteringPointOperator {
-            public static String name = "Community Heating Metering Point Operator";
-
-            public static String a_Contractor = "Contractor";
-            public static String a_EnergyMeteringPointOperatorCodeNumber = "Energy Metering Point Operator Code Number";
-            public static String a_NetCost = "Net Cost";
-            public static String a_AdditionalRelativeCost = "Additional Relative Cost";
-            public static String a_AdditionalFixCost = "Additional Fix Cost";
-        }
-
-        public interface ElectricityMeteringPointOperator {
-            public static String name = "Electricity Metering Point Operator";
-
-            public static String a_Contractor = "Contractor";
-            public static String a_EnergyMeteringPointOperatorCodeNumber = "Energy Metering Point Operator Code Number";
-            public static String a_NetCost = "Net Cost";
-            public static String a_AdditionalRelativeCost = "Additional Relative Cost";
-            public static String a_AdditionalFixCost = "Additional Fix Cost";
-        }
-    }
-
-    public interface EnergySupplier {
-        public static String name = "Energy Supplier";
-
-        public static String a_Contractor = "Contractor";
-        public static String a_AdditionalRelativeCost = "Additional Relative Cost";
-        public static String a_AdditionalFixCost = "Additional Fix Cost";
-
-        public interface ElectricitySupplyContractor {
-            public static String name = "Electricity Supply Contractor";
-
-            public static String a_Contractor = "Contractor";
-            public static String a_EnergyPriceHT = "Energy Price HT";
-            public static String a_EnergyPriceNT = "Energy Price NT";
-            public static String a_DemandCharge = "Demand Charge";
-            public static String a_AdditionalRelativeCost = "Additional Relative Cost";
-            public static String a_AdditionalFixCost = "Additional Fix Cost";
-        }
-
-        public interface GasSupplyContractor {
-            public static String name = "Gas Supply Contractor";
-
-            public static String a_Contractor = "Contractor";
-            public static String a_EnergyPrice = "Energy Price";
-            public static String a_DemandCharge = "Demand Charge";
-            public static String a_HeatingValue = "Heating Value";
-            public static String a_StateNumber = "State Number";
-            public static String a_AdditionalRelativeCost = "Additional Relative Cost";
-            public static String a_AdditionalFixCost = "Additional Fix Cost";
-        }
-
-        public interface CommunityHeatingSupplyContractor {
-            public static String name = "Community Heating Supply Contractor";
-
-            public static String a_Contractor = "Contractor";
-            public static String a_EnergyPrice = "Energy Price";
-            public static String a_DemandCharge = "Demand Charge";
-            public static String a_AdditionalRelativeCost = "Additional Relative Cost";
-            public static String a_AdditionalFixCost = "Additional Fix Cost";
-        }
-    }
-
-    public interface Enum {
-        public static String name = "Enum";
-
-        public static String a_JEVisClass = "JEVisClass";
-    }
-
-    public interface Export {
-        public static String name = "Export";
-
-        public static String a_Enabled = "Enabled";
-        public static String a_TimeZone = "Time Zone";
-
-        public interface CSVExport {
-            public static String name = "CSV Export";
-
-            public static String a_Separator = "Separator";
-            public static String a_Enclosed = "Enclosed";
-            public static String a_FileName = "File Name";
-            public static String a_Header = "Header";
-            public static String a_TimestampFormat = "Timestamp Format";
-            public static String a_ExportDate = "Export Date";
-            public static String a_StartPeriodOffset = "Start Period Offset";
-            public static String a_ExportStatus = "Export Status";
-            public static String a_Enabled = "Enabled";
-            public static String a_TimeZone = "Time Zone";
-        }
-    }
-
-    public interface ExportDirectory {
-        public static String name = "Export Directory";
-
-    }
-
-    public interface ExportEvent {
-        public static String name = "Export Event";
-
-        public interface ExportDataEvent {
-            public static String name = "Export Data Event";
-
-            public static String a_Operator = "Operator";
-            public static String a_JEVisID = "JEVis ID";
-            public static String a_Limit = "Limit";
-        }
-    }
-
-    public interface ExportLink {
-        public static String name = "Export Link";
-
-        public static String a_JEVisID = "JEVis ID";
-        public static String a_Optional = "Optional";
-        public static String a_TemplateVariableName = "Template Variable Name";
-
-        public interface CSVExportLink {
-            public static String name = "CSV Export Link";
-
-            public static String a_ColumnID = "Column ID";
-            public static String a_ValueFormat = "Value Format";
-            public static String a_JEVisID = "JEVis ID";
-            public static String a_Optional = "Optional";
-            public static String a_TemplateVariableName = "Template Variable Name";
-        }
-    }
-
-    public interface File {
-        public static String name = "File";
-
-        public static String a_File = "File";
-
-        public interface Document {
-            public static String name = "Document";
-
-            public static String a_File = "File";
-        }
-    }
-
-    public interface GovernmentalDues {
-        public static String name = "Governmental Dues";
-
-        public static String a_EnergySource = "Energy Source";
-        public static String a_VAT = "VAT";
-        public static String a_EnergyTaxGas = "Energy Tax Gas";
-        public static String a_EnergyTaxElectricity = "Energy Tax Electricity";
-        public static String a_Allocation01 = "Allocation 01";
-        public static String a_Allocation02 = "Allocation 02";
-        public static String a_Allocation03 = "Allocation 03";
-        public static String a_Allocation04 = "Allocation 04";
-        public static String a_Allocation05 = "Allocation 05";
-        public static String a_Allocation06 = "Allocation 06";
-        public static String a_Allocation07 = "Allocation 07";
-        public static String a_Allocation08 = "Allocation 08";
-        public static String a_Allocation09 = "Allocation 09";
-        public static String a_Allocation10 = "Allocation 10";
-    }
-
-    public interface Group {
-        public static String name = "Group";
-
-    }
-
-    public interface ISO50001 {
-        public static String name = "ISO 50001";
-
-        public interface ActionPlanDirectory {
-            public static String name = "Action Plan Directory";
+    interface Directory {
+        String name = "Directory";
+
+        interface AdministrationDirectory {
+            String name = "Administration Directory";
 
         }
 
-        public interface AnnouncementDirectory {
-            public static String name = "Announcement Directory";
+        interface AlarmDirectory {
+            String name = "Alarm Directory";
 
         }
 
-        public interface Audit {
-            public static String name = "Audit";
+        interface ChannelDirectory {
+            String name = "Channel Directory";
 
-            public static String a_AuditDate = "Audit Date";
-            public static String a_Auditor = "Auditor";
+            interface EMailChannelDirectory {
+                String name = "EMail Channel Directory";
 
-            public interface ExternalAudit {
-                public static String name = "External Audit";
-
-                public static String a_Certifier = "Certifier";
-                public static String a_ReportFile = "Report File";
-                public static String a_AuditDate = "Audit Date";
-                public static String a_Auditor = "Auditor";
             }
 
-            public interface InternalAudit {
-                public static String name = "Internal Audit";
+            interface FTPChannelDirectory {
+                String name = "FTP Channel Directory";
 
-                public static String a_AuditDate = "Audit Date";
-                public static String a_Auditor = "Auditor";
-            }
-        }
-
-        public interface ExternalAudit {
-            public static String name = "External Audit";
-
-            public static String a_Certifier = "Certifier";
-            public static String a_ReportFile = "Report File";
-            public static String a_AuditDate = "Audit Date";
-            public static String a_Auditor = "Auditor";
-        }
-
-        public interface InternalAudit {
-            public static String name = "Internal Audit";
-
-            public static String a_AuditDate = "Audit Date";
-            public static String a_Auditor = "Auditor";
-        }
-
-        public interface AuditDirectory {
-            public static String name = "Audit Directory";
-
-        }
-
-        public interface AuditQuestion {
-            public static String name = "Audit Question";
-
-            public static String a_AuditObservation = "Audit Observation";
-            public static String a_Evaluation000Points = "Evaluation 000 points";
-            public static String a_Evaluation025Points = "Evaluation 025 points";
-            public static String a_Evaluation050Points = "Evaluation 050 points";
-            public static String a_Evaluation075Points = "Evaluation 075 points";
-            public static String a_Evaluation100Points = "Evaluation 100 points";
-            public static String a_NormChapter = "Norm Chapter";
-            public static String a_ProposedMeasures = "Proposed Measures";
-            public static String a_Question = "Question";
-        }
-
-        public interface Documents {
-            public static String name = "Documents";
-
-            public static String a_Content = "Content";
-            public static String a_CreatedBy = "Created by";
-            public static String a_DateOfCreation = "Date of Creation";
-            public static String a_DocumentNumber = "Document Number";
-            public static String a_ReleaseDate = "Release Date";
-            public static String a_ReleasedBy = "Released by";
-            public static String a_Title = "Title";
-            public static String a_Version = "Version";
-
-            public interface ActionPlan {
-                public static String name = "Action Plan";
-
-                public static String a_ActionPlanFile = "Action Plan File";
-                public static String a_Participants = "Participants";
-                public static String a_Content = "Content";
-                public static String a_CreatedBy = "Created by";
-                public static String a_DateOfCreation = "Date of Creation";
-                public static String a_DocumentNumber = "Document Number";
-                public static String a_ReleaseDate = "Release Date";
-                public static String a_ReleasedBy = "Released by";
-                public static String a_Title = "Title";
-                public static String a_Version = "Version";
             }
 
-            public interface Announcement {
-                public static String name = "Announcement";
+            interface HTTPChannelDirectory {
+                String name = "HTTP Channel Directory";
 
-                public static String a_AnnouncementFile = "Announcement File";
-                public static String a_Content = "Content";
-                public static String a_CreatedBy = "Created by";
-                public static String a_DateOfCreation = "Date of Creation";
-                public static String a_DocumentNumber = "Document Number";
-                public static String a_ReleaseDate = "Release Date";
-                public static String a_ReleasedBy = "Released by";
-                public static String a_Title = "Title";
-                public static String a_Version = "Version";
             }
 
-            public interface ProceduralDocument {
-                public static String name = "Procedural Document";
+            interface LoytecXMLDLChannelDirectory {
+                String name = "Loytec XML-DL Channel Directory";
 
-                public static String a_Content = "Content";
-                public static String a_CreatedBy = "Created by";
-                public static String a_DateOfCreation = "Date of Creation";
-                public static String a_DocumentNumber = "Document Number";
-                public static String a_ReleaseDate = "Release Date";
-                public static String a_ReleasedBy = "Released by";
-                public static String a_Title = "Title";
-                public static String a_Version = "Version";
-            }
+                interface LoytecXMLDLCEA709ChannelDirectory {
+                    String name = "Loytec XML-DL CEA709 Channel Directory";
 
-            public interface TrainingCourse {
-                public static String name = "Training Course";
+                }
 
-                public static String a_PresentationFile = "Presentation File";
-                public static String a_Content = "Content";
-                public static String a_CreatedBy = "Created by";
-                public static String a_DateOfCreation = "Date of Creation";
-                public static String a_DocumentNumber = "Document Number";
-                public static String a_ReleaseDate = "Release Date";
-                public static String a_ReleasedBy = "Released by";
-                public static String a_Title = "Title";
-                public static String a_Version = "Version";
-            }
-        }
+                interface LoytecXMLDLGenericChannelDirectory {
+                    String name = "Loytec XML-DL Generic Channel Directory";
 
-        public interface ActionPlan {
-            public static String name = "Action Plan";
+                }
 
-            public static String a_ActionPlanFile = "Action Plan File";
-            public static String a_Participants = "Participants";
-            public static String a_Content = "Content";
-            public static String a_CreatedBy = "Created by";
-            public static String a_DateOfCreation = "Date of Creation";
-            public static String a_DocumentNumber = "Document Number";
-            public static String a_ReleaseDate = "Release Date";
-            public static String a_ReleasedBy = "Released by";
-            public static String a_Title = "Title";
-            public static String a_Version = "Version";
-        }
+                interface LoytecXMLDLBacnetChannelDirectory {
+                    String name = "Loytec XML-DL Bacnet Channel Directory";
 
-        public interface Announcement {
-            public static String name = "Announcement";
-
-            public static String a_AnnouncementFile = "Announcement File";
-            public static String a_Content = "Content";
-            public static String a_CreatedBy = "Created by";
-            public static String a_DateOfCreation = "Date of Creation";
-            public static String a_DocumentNumber = "Document Number";
-            public static String a_ReleaseDate = "Release Date";
-            public static String a_ReleasedBy = "Released by";
-            public static String a_Title = "Title";
-            public static String a_Version = "Version";
-        }
-
-        public interface ProceduralDocument {
-            public static String name = "Procedural Document";
-
-            public static String a_Content = "Content";
-            public static String a_CreatedBy = "Created by";
-            public static String a_DateOfCreation = "Date of Creation";
-            public static String a_DocumentNumber = "Document Number";
-            public static String a_ReleaseDate = "Release Date";
-            public static String a_ReleasedBy = "Released by";
-            public static String a_Title = "Title";
-            public static String a_Version = "Version";
-        }
-
-        public interface TrainingCourse {
-            public static String name = "Training Course";
-
-            public static String a_PresentationFile = "Presentation File";
-            public static String a_Content = "Content";
-            public static String a_CreatedBy = "Created by";
-            public static String a_DateOfCreation = "Date of Creation";
-            public static String a_DocumentNumber = "Document Number";
-            public static String a_ReleaseDate = "Release Date";
-            public static String a_ReleasedBy = "Released by";
-            public static String a_Title = "Title";
-            public static String a_Version = "Version";
-        }
-
-        public interface DocumentsDirectory {
-            public static String name = "Documents Directory";
-
-        }
-
-        public interface EnergyFlowChartDirectory {
-            public static String name = "Energy Flow Chart Directory";
-
-            public interface EnergyFlowChart {
-                public static String name = "Energy Flow Chart";
-
-                public static String a_CreatedOn = "Created On";
-                public static String a_ImageFile = "Image File";
-                public static String a_OriginalFile = "Original File";
-            }
-        }
-
-        public interface EnergyFlowChart {
-            public static String name = "Energy Flow Chart";
-
-            public static String a_CreatedOn = "Created On";
-            public static String a_ImageFile = "Image File";
-            public static String a_OriginalFile = "Original File";
-        }
-
-        public interface EnergyPlanning {
-            public static String name = "Energy Planning";
-
-        }
-
-        public interface EnergySavingAction {
-            public static String name = "Energy Saving Action";
-
-            public static String a_InvestmentCosts = "Investment Costs";
-            public static String a_Measure = "Measure";
-            public static String a_PaybackTime = "Payback Time";
-            public static String a_ReponsiblePerson = "Reponsible Person";
-            public static String a_SavingsPotentialCapital = "Savings Potential Capital";
-            public static String a_SavingsPotentialCO2 = "Savings Potential CO2";
-            public static String a_SavingsPotentialEnergy = "Savings Potential Energy";
-        }
-
-        public interface EnergySource {
-            public static String name = "Energy Source";
-
-            public static String a_CO2EmissionFactor = "CO2 Emission Factor";
-        }
-
-        public interface EnergySourcesDirectory {
-            public static String name = "Energy Sources Directory";
-
-        }
-
-        public interface EnergyTeamDirectory {
-            public static String name = "Energy Team Directory";
-
-        }
-
-        public interface EvaluatedOutput {
-            public static String name = "Evaluated Output";
-
-            public static String a_01January = "01 January";
-            public static String a_02February = "02 February";
-            public static String a_03March = "03 March";
-            public static String a_04April = "04 April";
-            public static String a_05May = "05 May";
-            public static String a_06June = "06 June";
-            public static String a_07July = "07 July";
-            public static String a_08August = "08 August";
-            public static String a_09September = "09 September";
-            public static String a_10October = "10 October";
-            public static String a_11November = "11 November";
-            public static String a_12December = "12 December";
-            public static String a_Year = "Year";
-        }
-
-        public interface ImplementedActionsDirectory {
-            public static String name = "Implemented Actions Directory";
-
-        }
-
-        public interface InitialContact {
-            public static String name = "Initial Contact";
-
-            public static String a_Comment = "Comment";
-            public static String a_ContactDate = "Contact Date";
-            public static String a_ContactFile = "Contact File";
-        }
-
-        public interface ISO50001Directory {
-            public static String name = "ISO 50001 Directory";
-
-        }
-
-        public interface ISO50001MeetingsDirectory {
-            public static String name = "ISO 50001 Meetings Directory";
-
-        }
-
-        public interface LegalRegulation {
-            public static String name = "Legal Regulation";
-
-            public static String a_ContentSummary = "Content Summary";
-            public static String a_DateOfReview = "Date of Review";
-            public static String a_IssueDate = "Issue Date";
-            public static String a_LastAmended = "Last Amended";
-            public static String a_RegulationDesignation = "Regulation Designation";
-            public static String a_RelevanceToISO50001 = "Relevance to ISO 50001";
-            public static String a_SignificanceToTheCompany = "Significance to the Company";
-        }
-
-        public interface LegalRegulationDirectory {
-            public static String name = "Legal Regulation Directory";
-
-        }
-
-        public interface ManagementManualDirectory {
-            public static String name = "Management Manual Directory";
-
-        }
-
-        public interface ManagementReview {
-            public static String name = "Management Review";
-
-            public static String a_Content = "Content";
-            public static String a_ManagementReviewFile = "Management Review File";
-            public static String a_ManagementReviewPDF = "Management Review PDF";
-            public static String a_Participants = "Participants";
-            public static String a_ReviewDate = "Review Date";
-        }
-
-        public interface ManagementReviewDirectory {
-            public static String name = "Management Review Directory";
-
-        }
-
-        public interface Meeting {
-            public static String name = "Meeting";
-
-            public static String a_ContentOfMeetingAndResults = "Content of Meeting and Results";
-            public static String a_MeetingDate = "Meeting Date";
-            public static String a_MeetingParticipants = "Meeting Participants";
-            public static String a_MeetingTime = "Meeting Time";
-            public static String a_MinutesOfMeeting = "Minutes of Meeting";
-        }
-
-        public interface MonitoringRegister {
-            public static String name = "Monitoring Register";
-
-            public interface MeasuringPointDirectory {
-                public static String name = "Measuring Point Directory";
-
-                public interface MeasuringPoint {
-                    public static String name = "Measuring Point";
-
-                    public static String a_Comment = "Comment";
-                    public static String a_DataPointAssignment = "Data Point Assignment";
-                    public static String a_InstallationLocation = "Installation Location";
-                    public static String a_Meter = "Meter";
-                    public static String a_MonitoringID = "Monitoring ID";
-                    public static String a_Name = "Name";
-                    public static String a_Photo = "Photo";
-                    public static String a_PhysicalProperty = "Physical Property";
-                    public static String a_Station = "Station";
-                    public static String a_Unit = "Unit";
                 }
             }
 
-            public interface MeasuringPoint {
-                public static String name = "Measuring Point";
+            interface LoytecXMLDLCEA709ChannelDirectory {
+                String name = "Loytec XML-DL CEA709 Channel Directory";
 
-                public static String a_Comment = "Comment";
-                public static String a_DataPointAssignment = "Data Point Assignment";
-                public static String a_InstallationLocation = "Installation Location";
-                public static String a_Meter = "Meter";
-                public static String a_MonitoringID = "Monitoring ID";
-                public static String a_Name = "Name";
-                public static String a_Photo = "Photo";
-                public static String a_PhysicalProperty = "Physical Property";
-                public static String a_Station = "Station";
-                public static String a_Unit = "Unit";
             }
 
-            public interface MeterDirectory {
-                public static String name = "Meter Directory";
+            interface LoytecXMLDLGenericChannelDirectory {
+                String name = "Loytec XML-DL Generic Channel Directory";
 
-                public interface Meter {
-                    public static String name = "Meter";
+            }
 
-                    public static String a_ConversionFactor = "Conversion Factor";
-                    public static String a_CurrentTransformer = "Current Transformer";
-                    public static String a_InstallationDate = "Installation Date";
-                    public static String a_Interface = "Interface";
-                    public static String a_Type = "Type";
-                    public static String a_VoltageTransformer = "Voltage Transformer";
+            interface LoytecXMLDLBacnetChannelDirectory {
+                String name = "Loytec XML-DL Bacnet Channel Directory";
+
+            }
+
+            interface SFTPChannelDirectory {
+                String name = "sFTP Channel Directory";
+
+            }
+
+            interface SOAPChannelDirectory {
+                String name = "SOAP Channel Directory";
+
+            }
+
+            interface VIDA350ChannelDirectory {
+                String name = "VIDA350 Channel Directory";
+
+            }
+
+            interface OPCUAChannelDirectory {
+                String name = "OPC UA Channel Directory";
+
+            }
+
+            interface JEVisChannelDirectory {
+                String name = "JEVis Channel Directory";
+
+            }
+        }
+
+        interface EMailChannelDirectory {
+            String name = "EMail Channel Directory";
+
+        }
+
+        interface FTPChannelDirectory {
+            String name = "FTP Channel Directory";
+
+        }
+
+        interface HTTPChannelDirectory {
+            String name = "HTTP Channel Directory";
+
+        }
+
+        interface LoytecXMLDLChannelDirectory {
+            String name = "Loytec XML-DL Channel Directory";
+
+            interface LoytecXMLDLCEA709ChannelDirectory {
+                String name = "Loytec XML-DL CEA709 Channel Directory";
+
+            }
+
+            interface LoytecXMLDLGenericChannelDirectory {
+                String name = "Loytec XML-DL Generic Channel Directory";
+
+            }
+
+            interface LoytecXMLDLBacnetChannelDirectory {
+                String name = "Loytec XML-DL Bacnet Channel Directory";
+
+            }
+        }
+
+        interface LoytecXMLDLCEA709ChannelDirectory {
+            String name = "Loytec XML-DL CEA709 Channel Directory";
+
+        }
+
+        interface LoytecXMLDLGenericChannelDirectory {
+            String name = "Loytec XML-DL Generic Channel Directory";
+
+        }
+
+        interface LoytecXMLDLBacnetChannelDirectory {
+            String name = "Loytec XML-DL Bacnet Channel Directory";
+
+        }
+
+        interface SFTPChannelDirectory {
+            String name = "sFTP Channel Directory";
+
+        }
+
+        interface SOAPChannelDirectory {
+            String name = "SOAP Channel Directory";
+
+        }
+
+        interface VIDA350ChannelDirectory {
+            String name = "VIDA350 Channel Directory";
+
+        }
+
+        interface OPCUAChannelDirectory {
+            String name = "OPC UA Channel Directory";
+
+        }
+
+        interface JEVisChannelDirectory {
+            String name = "JEVis Channel Directory";
+
+        }
+
+        interface DashboardDirectory {
+            String name = "Dashboard Directory";
+
+        }
+
+        interface DataDirectory {
+            String name = "Data Directory";
+
+        }
+
+        interface DataPointDirectory {
+            String name = "Data Point Directory";
+
+            interface CSVDataPointDirectory {
+                String name = "CSV Data Point Directory";
+
+            }
+
+            interface DWDDataPointDirectory {
+                String name = "DWD Data Point Directory";
+
+            }
+
+            interface XMLDataPointDirectory {
+                String name = "XML Data Point Directory";
+
+            }
+        }
+
+        interface CSVDataPointDirectory {
+            String name = "CSV Data Point Directory";
+
+        }
+
+        interface DWDDataPointDirectory {
+            String name = "DWD Data Point Directory";
+
+        }
+
+        interface XMLDataPointDirectory {
+            String name = "XML Data Point Directory";
+
+        }
+
+        interface DataSourceDirectory {
+            String name = "Data Source Directory";
+
+        }
+
+        interface DriverDirectory {
+            String name = "Driver Directory";
+
+            interface ConverterDriverDirectory {
+                String name = "Converter Driver Directory";
+
+            }
+
+            interface DataSourceDriverDirectory {
+                String name = "Data Source Driver Directory";
+
+            }
+
+            interface ImporterDriverDirectory {
+                String name = "Importer Driver Directory";
+
+            }
+
+            interface ParserDriverDirectory {
+                String name = "Parser Driver Directory";
+
+            }
+        }
+
+        interface ConverterDriverDirectory {
+            String name = "Converter Driver Directory";
+
+        }
+
+        interface DataSourceDriverDirectory {
+            String name = "Data Source Driver Directory";
+
+        }
+
+        interface ImporterDriverDirectory {
+            String name = "Importer Driver Directory";
+
+        }
+
+        interface ParserDriverDirectory {
+            String name = "Parser Driver Directory";
+
+        }
+
+        interface EnumDirectory {
+            String name = "Enum Directory";
+
+        }
+
+        interface EquipmentDirectory {
+            String name = "Equipment Directory";
+
+            interface AirConditionEquipmentDirectory {
+                String name = "Air Condition Equipment Directory";
+
+            }
+
+            interface CompressorEquipmentDirectory {
+                String name = "Compressor Equipment Directory";
+
+            }
+
+            interface CoolingEquipmentDirectory {
+                String name = "Cooling Equipment Directory";
+
+            }
+
+            interface HeatingEquipmentDirectory {
+                String name = "Heating Equipment Directory";
+
+            }
+
+            interface LightingEquipmentDirectory {
+                String name = "Lighting Equipment Directory";
+
+            }
+
+            interface OfficeEquipmentDirectory {
+                String name = "Office Equipment Directory";
+
+            }
+
+            interface PantryEquipmentDirectory {
+                String name = "Pantry Equipment Directory";
+
+            }
+
+            interface ProductionEquipmentDirectory {
+                String name = "Production Equipment Directory";
+
+            }
+
+            interface VentilationEquipmentDirectory {
+                String name = "Ventilation Equipment Directory";
+
+            }
+        }
+
+        interface AirConditionEquipmentDirectory {
+            String name = "Air Condition Equipment Directory";
+
+        }
+
+        interface CompressorEquipmentDirectory {
+            String name = "Compressor Equipment Directory";
+
+        }
+
+        interface CoolingEquipmentDirectory {
+            String name = "Cooling Equipment Directory";
+
+        }
+
+        interface HeatingEquipmentDirectory {
+            String name = "Heating Equipment Directory";
+
+        }
+
+        interface LightingEquipmentDirectory {
+            String name = "Lighting Equipment Directory";
+
+        }
+
+        interface OfficeEquipmentDirectory {
+            String name = "Office Equipment Directory";
+
+        }
+
+        interface PantryEquipmentDirectory {
+            String name = "Pantry Equipment Directory";
+
+        }
+
+        interface ProductionEquipmentDirectory {
+            String name = "Production Equipment Directory";
+
+        }
+
+        interface VentilationEquipmentDirectory {
+            String name = "Ventilation Equipment Directory";
+
+        }
+
+        interface FileDirectory {
+            String name = "File Directory";
+
+            interface DocumentDirectory {
+                String name = "Document Directory";
+
+            }
+        }
+
+        interface DocumentDirectory {
+            String name = "Document Directory";
+
+        }
+
+        interface GroupDirectory {
+            String name = "Group Directory";
+
+        }
+
+        interface MonitoredObjectDirectory {
+            String name = "Monitored Object Directory";
+
+        }
+
+        interface OrganizationDirectory {
+            String name = "Organization Directory";
+
+        }
+
+        interface ReportDirectory {
+            String name = "Report Directory";
+
+        }
+
+        interface ReportLinkDirectory {
+            String name = "Report Link Directory";
+
+        }
+
+        interface ServiceDirectory {
+            String name = "Service Directory";
+
+        }
+
+        interface UserDirectory {
+            String name = "User Directory";
+
+        }
+
+        interface ViewDirectory {
+            String name = "View Directory";
+
+        }
+
+        interface TemplateCalculationDirectory {
+            String name = "Template Calculation Directory";
+
+        }
+
+        interface MeasurementDirectory {
+            String name = "Measurement Directory";
+
+            interface WaterMeasurementDirectory {
+                String name = "Water Measurement Directory";
+
+            }
+
+            interface HeatMeasurementDirectory {
+                String name = "Heat Measurement Directory";
+
+            }
+
+            interface GasMeasurementDirectory {
+                String name = "Gas Measurement Directory";
+
+            }
+
+            interface CompressedAirMeasurementDirectory {
+                String name = "Compressed-Air Measurement Directory";
+
+            }
+
+            interface ElectricityMeasurementDirectory {
+                String name = "Electricity Measurement Directory";
+
+            }
+
+            interface AirMeasurementDirectory {
+                String name = "Air Measurement Directory";
+
+            }
+
+            interface NitrogenMeasurementDirectory {
+                String name = "Nitrogen Measurement Directory";
+
+            }
+        }
+
+        interface WaterMeasurementDirectory {
+            String name = "Water Measurement Directory";
+
+        }
+
+        interface HeatMeasurementDirectory {
+            String name = "Heat Measurement Directory";
+
+        }
+
+        interface GasMeasurementDirectory {
+            String name = "Gas Measurement Directory";
+
+        }
+
+        interface CompressedAirMeasurementDirectory {
+            String name = "Compressed-Air Measurement Directory";
+
+        }
+
+        interface ElectricityMeasurementDirectory {
+            String name = "Electricity Measurement Directory";
+
+        }
+
+        interface AirMeasurementDirectory {
+            String name = "Air Measurement Directory";
+
+        }
+
+        interface NitrogenMeasurementDirectory {
+            String name = "Nitrogen Measurement Directory";
+
+        }
+
+        interface BaseDataDirectory {
+            String name = "Base Data Directory";
+
+        }
+
+        interface CalendarDirectory {
+            String name = "Calendar Directory";
+
+            interface CustomPeriod {
+                String name = "Custom Period";
+
+                String a_Visible = "Visible";
+                String a_StartReferencePoint = "Start Reference Point";
+                String a_StartYears = "Start Years";
+                String a_StartMonths = "Start Months";
+                String a_StartWeeks = "Start Weeks";
+                String a_StartDays = "Start Days";
+                String a_StartHours = "Start Hours";
+                String a_StartMinutes = "Start Minutes";
+                String a_StartReferenceObject = "Start Reference Object";
+                String a_StartInterval = "Start Interval";
+                String a_EndReferencePoint = "End Reference Point";
+                String a_EndYears = "End Years";
+                String a_EndMonths = "End Months";
+                String a_EndWeeks = "End Weeks";
+                String a_EndDays = "End Days";
+                String a_EndHours = "End Hours";
+                String a_EndMinutes = "End Minutes";
+                String a_EndReferenceObject = "End Reference Object";
+                String a_EndInterval = "End Interval";
+            }
+        }
+
+        interface CustomPeriod {
+            String name = "Custom Period";
+
+            String a_Visible = "Visible";
+            String a_StartReferencePoint = "Start Reference Point";
+            String a_StartYears = "Start Years";
+            String a_StartMonths = "Start Months";
+            String a_StartWeeks = "Start Weeks";
+            String a_StartDays = "Start Days";
+            String a_StartHours = "Start Hours";
+            String a_StartMinutes = "Start Minutes";
+            String a_StartReferenceObject = "Start Reference Object";
+            String a_StartInterval = "Start Interval";
+            String a_EndReferencePoint = "End Reference Point";
+            String a_EndYears = "End Years";
+            String a_EndMonths = "End Months";
+            String a_EndWeeks = "End Weeks";
+            String a_EndDays = "End Days";
+            String a_EndHours = "End Hours";
+            String a_EndMinutes = "End Minutes";
+            String a_EndReferenceObject = "End Reference Object";
+            String a_EndInterval = "End Interval";
+        }
+
+        interface UserRoleDirectory {
+            String name = "User Role Directory";
+
+        }
+
+        interface EnergyInvoicesDirectory {
+            String name = "Energy Invoices Directory";
+
+        }
+
+        interface AnalysesDirectory {
+            String name = "Analyses Directory";
+
+        }
+
+        interface CalculationDirectory {
+            String name = "Calculation Directory";
+
+        }
+
+        interface EnergyContractingDirectory {
+            String name = "Energy Contracting Directory";
+
+            interface AccountingConfigurationDirectory {
+                String name = "Accounting Configuration Directory";
+
+            }
+
+            interface EnergyContractorDirectory {
+                String name = "Energy Contractor Directory";
+
+            }
+
+            interface EnergyGridOperationDirectory {
+                String name = "Energy Grid Operation Directory";
+
+            }
+
+            interface EnergyMeteringPointOperationDirectory {
+                String name = "Energy Metering Point Operation Directory";
+
+            }
+
+            interface EnergySupplyDirectory {
+                String name = "Energy Supply Directory";
+
+            }
+
+            interface EnergyGovernmentalDuesDirectory {
+                String name = "Energy Governmental Dues Directory";
+
+            }
+        }
+
+        interface AccountingConfigurationDirectory {
+            String name = "Accounting Configuration Directory";
+
+        }
+
+        interface EnergyContractorDirectory {
+            String name = "Energy Contractor Directory";
+
+        }
+
+        interface EnergyGridOperationDirectory {
+            String name = "Energy Grid Operation Directory";
+
+        }
+
+        interface EnergyMeteringPointOperationDirectory {
+            String name = "Energy Metering Point Operation Directory";
+
+        }
+
+        interface EnergySupplyDirectory {
+            String name = "Energy Supply Directory";
+
+        }
+
+        interface EnergyGovernmentalDuesDirectory {
+            String name = "Energy Governmental Dues Directory";
+
+        }
+    }
+
+    interface Driver {
+        String name = "Driver";
+
+        String a_Enabled = "Enabled";
+        String a_JEVisClass = "JEVis Class";
+        String a_MainClass = "Main Class";
+        String a_SourceFile = "Source File";
+
+        interface ConverterDriver {
+            String name = "Converter Driver";
+
+            String a_Enabled = "Enabled";
+            String a_JEVisClass = "JEVis Class";
+            String a_MainClass = "Main Class";
+            String a_SourceFile = "Source File";
+        }
+
+        interface DataSourceDriver {
+            String name = "Data Source Driver";
+
+            String a_Enabled = "Enabled";
+            String a_JEVisClass = "JEVis Class";
+            String a_MainClass = "Main Class";
+            String a_SourceFile = "Source File";
+        }
+
+        interface ImporterDriver {
+            String name = "Importer Driver";
+
+            String a_Enabled = "Enabled";
+            String a_JEVisClass = "JEVis Class";
+            String a_MainClass = "Main Class";
+            String a_SourceFile = "Source File";
+        }
+
+        interface ParserDriver {
+            String name = "Parser Driver";
+
+            String a_Enabled = "Enabled";
+            String a_JEVisClass = "JEVis Class";
+            String a_MainClass = "Main Class";
+            String a_SourceFile = "Source File";
+        }
+    }
+
+    interface DynamicChannelPath {
+        String name = "Dynamic Channel Path";
+
+        String a_Match = "Match";
+        String a_Element = "Element";
+    }
+
+    interface EnergyContractor {
+        String name = "Energy Contractor";
+
+        String a_VendorNumber = "Vendor Number";
+        String a_EnergyContractorNumber = "Energy Contractor Number";
+        String a_CustomerNumber = "Customer Number";
+        String a_Company = "Company";
+        String a_Address = "Address";
+        String a_ZipCode = "Zip Code";
+        String a_City = "City";
+        String a_ContactName = "Contact Name";
+        String a_ContactPhone = "Contact phone";
+        String a_ContactMobile = "Contact mobile";
+        String a_ContactMail = "Contact mail";
+
+        interface EnergyMeteringPointOperationContractor {
+            String name = "Energy Metering Point Operation Contractor";
+
+            String a_VendorNumber = "Vendor Number";
+            String a_EnergyContractorNumber = "Energy Contractor Number";
+            String a_CustomerNumber = "Customer Number";
+            String a_Company = "Company";
+            String a_Address = "Address";
+            String a_ZipCode = "Zip Code";
+            String a_City = "City";
+            String a_ContactName = "Contact Name";
+            String a_ContactPhone = "Contact phone";
+            String a_ContactMobile = "Contact mobile";
+            String a_ContactMail = "Contact mail";
+        }
+
+        interface EnergyGridOperationContractor {
+            String name = "Energy Grid Operation Contractor";
+
+            String a_VendorNumber = "Vendor Number";
+            String a_EnergyContractorNumber = "Energy Contractor Number";
+            String a_CustomerNumber = "Customer Number";
+            String a_Company = "Company";
+            String a_Address = "Address";
+            String a_ZipCode = "Zip Code";
+            String a_City = "City";
+            String a_ContactName = "Contact Name";
+            String a_ContactPhone = "Contact phone";
+            String a_ContactMobile = "Contact mobile";
+            String a_ContactMail = "Contact mail";
+        }
+
+        interface EnergySupplyContractor {
+            String name = "Energy Supply Contractor";
+
+            String a_VendorNumber = "Vendor Number";
+            String a_EnergyContractorNumber = "Energy Contractor Number";
+            String a_CustomerNumber = "Customer Number";
+            String a_Company = "Company";
+            String a_Address = "Address";
+            String a_ZipCode = "Zip Code";
+            String a_City = "City";
+            String a_ContactName = "Contact Name";
+            String a_ContactPhone = "Contact phone";
+            String a_ContactMobile = "Contact mobile";
+            String a_ContactMail = "Contact mail";
+        }
+    }
+
+    interface EnergyGridOperator {
+        String name = "Energy Grid Operator";
+
+        String a_Contractor = "Contractor";
+        String a_EnergyGridOperatorCodeNumber = "Energy Grid Operator Code Number";
+        String a_FranchiseTax = "Franchise Tax";
+        String a_NetCost = "Net Cost";
+        String a_EnergyPriceGrid = "Energy Price Grid";
+        String a_DemandCharge = "Demand Charge";
+
+        interface CommunityHeatingGridOperator {
+            String name = "Community Heating Grid Operator";
+
+            String a_Contractor = "Contractor";
+            String a_EnergyGridOperatorCodeNumber = "Energy Grid Operator Code Number";
+            String a_FranchiseTax = "Franchise Tax";
+            String a_NetCost = "Net Cost";
+            String a_EnergyPriceGrid = "Energy Price Grid";
+            String a_DemandCharge = "Demand Charge";
+        }
+
+        interface ElectricityGridOperator {
+            String name = "Electricity Grid Operator";
+
+            String a_Contractor = "Contractor";
+            String a_EnergyGridOperatorCodeNumber = "Energy Grid Operator Code Number";
+            String a_FranchiseTax = "Franchise Tax";
+            String a_NetCost = "Net Cost";
+            String a_EnergyPriceGrid = "Energy Price Grid";
+            String a_DemandCharge = "Demand Charge";
+        }
+
+        interface GasGridOperator {
+            String name = "Gas Grid Operator";
+
+            String a_Contractor = "Contractor";
+            String a_EnergyGridOperatorCodeNumber = "Energy Grid Operator Code Number";
+            String a_FranchiseTax = "Franchise Tax";
+            String a_NetCost = "Net Cost";
+            String a_EnergyPriceGrid = "Energy Price Grid";
+            String a_DemandCharge = "Demand Charge";
+        }
+    }
+
+    interface EnergyMeteringPointOperator {
+        String name = "Energy Metering Point Operator";
+
+        String a_Contractor = "Contractor";
+        String a_EnergyMeteringPointOperatorCodeNumber = "Energy Metering Point Operator Code Number";
+        String a_NetCost = "Net Cost";
+        String a_AdditionalRelativeCost = "Additional Relative Cost";
+        String a_AdditionalFixCost = "Additional Fix Cost";
+
+        interface GasMeteringPointOperator {
+            String name = "Gas Metering Point Operator";
+
+            String a_Contractor = "Contractor";
+            String a_EnergyMeteringPointOperatorCodeNumber = "Energy Metering Point Operator Code Number";
+            String a_NetCost = "Net Cost";
+            String a_AdditionalRelativeCost = "Additional Relative Cost";
+            String a_AdditionalFixCost = "Additional Fix Cost";
+        }
+
+        interface CommunityHeatingMeteringPointOperator {
+            String name = "Community Heating Metering Point Operator";
+
+            String a_Contractor = "Contractor";
+            String a_EnergyMeteringPointOperatorCodeNumber = "Energy Metering Point Operator Code Number";
+            String a_NetCost = "Net Cost";
+            String a_AdditionalRelativeCost = "Additional Relative Cost";
+            String a_AdditionalFixCost = "Additional Fix Cost";
+        }
+
+        interface ElectricityMeteringPointOperator {
+            String name = "Electricity Metering Point Operator";
+
+            String a_Contractor = "Contractor";
+            String a_EnergyMeteringPointOperatorCodeNumber = "Energy Metering Point Operator Code Number";
+            String a_NetCost = "Net Cost";
+            String a_AdditionalRelativeCost = "Additional Relative Cost";
+            String a_AdditionalFixCost = "Additional Fix Cost";
+        }
+    }
+
+    interface EnergySupplier {
+        String name = "Energy Supplier";
+
+        String a_Contractor = "Contractor";
+        String a_AdditionalRelativeCost = "Additional Relative Cost";
+        String a_AdditionalFixCost = "Additional Fix Cost";
+
+        interface ElectricitySupplyContractor {
+            String name = "Electricity Supply Contractor";
+
+            String a_Contractor = "Contractor";
+            String a_EnergyPriceHT = "Energy Price HT";
+            String a_EnergyPriceNT = "Energy Price NT";
+            String a_DemandCharge = "Demand Charge";
+            String a_AdditionalRelativeCost = "Additional Relative Cost";
+            String a_AdditionalFixCost = "Additional Fix Cost";
+        }
+
+        interface GasSupplyContractor {
+            String name = "Gas Supply Contractor";
+
+            String a_Contractor = "Contractor";
+            String a_EnergyPrice = "Energy Price";
+            String a_DemandCharge = "Demand Charge";
+            String a_HeatingValue = "Heating Value";
+            String a_StateNumber = "State Number";
+            String a_AdditionalRelativeCost = "Additional Relative Cost";
+            String a_AdditionalFixCost = "Additional Fix Cost";
+        }
+
+        interface CommunityHeatingSupplyContractor {
+            String name = "Community Heating Supply Contractor";
+
+            String a_Contractor = "Contractor";
+            String a_EnergyPrice = "Energy Price";
+            String a_DemandCharge = "Demand Charge";
+            String a_AdditionalRelativeCost = "Additional Relative Cost";
+            String a_AdditionalFixCost = "Additional Fix Cost";
+        }
+    }
+
+    interface Enum {
+        String name = "Enum";
+
+        String a_JEVisClass = "JEVisClass";
+    }
+
+    interface Export {
+        String name = "Export";
+
+        String a_Enabled = "Enabled";
+        String a_TimeZone = "Time Zone";
+
+        interface CSVExport {
+            String name = "CSV Export";
+
+            String a_Separator = "Separator";
+            String a_Enclosed = "Enclosed";
+            String a_FileName = "File Name";
+            String a_Header = "Header";
+            String a_TimestampFormat = "Timestamp Format";
+            String a_ExportDate = "Export Date";
+            String a_StartPeriodOffset = "Start Period Offset";
+            String a_ExportStatus = "Export Status";
+            String a_Enabled = "Enabled";
+            String a_TimeZone = "Time Zone";
+        }
+    }
+
+    interface ExportDirectory {
+        String name = "Export Directory";
+
+    }
+
+    interface ExportEvent {
+        String name = "Export Event";
+
+        interface ExportDataEvent {
+            String name = "Export Data Event";
+
+            String a_Operator = "Operator";
+            String a_JEVisID = "JEVis ID";
+            String a_Limit = "Limit";
+        }
+    }
+
+    interface ExportLink {
+        String name = "Export Link";
+
+        String a_JEVisID = "JEVis ID";
+        String a_Optional = "Optional";
+        String a_TemplateVariableName = "Template Variable Name";
+
+        interface CSVExportLink {
+            String name = "CSV Export Link";
+
+            String a_ColumnID = "Column ID";
+            String a_ValueFormat = "Value Format";
+            String a_JEVisID = "JEVis ID";
+            String a_Optional = "Optional";
+            String a_TemplateVariableName = "Template Variable Name";
+        }
+    }
+
+    interface File {
+        String name = "File";
+
+        String a_File = "File";
+
+        interface Document {
+            String name = "Document";
+
+            String a_File = "File";
+        }
+    }
+
+    interface GovernmentalDues {
+        String name = "Governmental Dues";
+
+        String a_EnergySource = "Energy Source";
+        String a_VAT = "VAT";
+        String a_EnergyTaxGas = "Energy Tax Gas";
+        String a_EnergyTaxElectricity = "Energy Tax Electricity";
+        String a_Allocation01 = "Allocation 01";
+        String a_Allocation02 = "Allocation 02";
+        String a_Allocation03 = "Allocation 03";
+        String a_Allocation04 = "Allocation 04";
+        String a_Allocation05 = "Allocation 05";
+        String a_Allocation06 = "Allocation 06";
+        String a_Allocation07 = "Allocation 07";
+        String a_Allocation08 = "Allocation 08";
+        String a_Allocation09 = "Allocation 09";
+        String a_Allocation10 = "Allocation 10";
+    }
+
+    interface Group {
+        String name = "Group";
+
+    }
+
+    interface ISO50001 {
+        String name = "ISO 50001";
+
+        interface ActionPlanDirectory {
+            String name = "Action Plan Directory";
+
+        }
+
+        interface AnnouncementDirectory {
+            String name = "Announcement Directory";
+
+        }
+
+        interface Audit {
+            String name = "Audit";
+
+            String a_AuditDate = "Audit Date";
+            String a_Auditor = "Auditor";
+
+            interface ExternalAudit {
+                String name = "External Audit";
+
+                String a_Certifier = "Certifier";
+                String a_ReportFile = "Report File";
+                String a_AuditDate = "Audit Date";
+                String a_Auditor = "Auditor";
+            }
+
+            interface InternalAudit {
+                String name = "Internal Audit";
+
+                String a_AuditDate = "Audit Date";
+                String a_Auditor = "Auditor";
+            }
+        }
+
+        interface ExternalAudit {
+            String name = "External Audit";
+
+            String a_Certifier = "Certifier";
+            String a_ReportFile = "Report File";
+            String a_AuditDate = "Audit Date";
+            String a_Auditor = "Auditor";
+        }
+
+        interface InternalAudit {
+            String name = "Internal Audit";
+
+            String a_AuditDate = "Audit Date";
+            String a_Auditor = "Auditor";
+        }
+
+        interface AuditDirectory {
+            String name = "Audit Directory";
+
+        }
+
+        interface AuditQuestion {
+            String name = "Audit Question";
+
+            String a_AuditObservation = "Audit Observation";
+            String a_Evaluation000Points = "Evaluation 000 points";
+            String a_Evaluation025Points = "Evaluation 025 points";
+            String a_Evaluation050Points = "Evaluation 050 points";
+            String a_Evaluation075Points = "Evaluation 075 points";
+            String a_Evaluation100Points = "Evaluation 100 points";
+            String a_NormChapter = "Norm Chapter";
+            String a_ProposedMeasures = "Proposed Measures";
+            String a_Question = "Question";
+        }
+
+        interface Documents {
+            String name = "Documents";
+
+            String a_Content = "Content";
+            String a_CreatedBy = "Created by";
+            String a_DateOfCreation = "Date of Creation";
+            String a_DocumentNumber = "Document Number";
+            String a_ReleaseDate = "Release Date";
+            String a_ReleasedBy = "Released by";
+            String a_Title = "Title";
+            String a_Version = "Version";
+
+            interface ActionPlan {
+                String name = "Action Plan";
+
+                String a_ActionPlanFile = "Action Plan File";
+                String a_Participants = "Participants";
+                String a_Content = "Content";
+                String a_CreatedBy = "Created by";
+                String a_DateOfCreation = "Date of Creation";
+                String a_DocumentNumber = "Document Number";
+                String a_ReleaseDate = "Release Date";
+                String a_ReleasedBy = "Released by";
+                String a_Title = "Title";
+                String a_Version = "Version";
+            }
+
+            interface Announcement {
+                String name = "Announcement";
+
+                String a_AnnouncementFile = "Announcement File";
+                String a_Content = "Content";
+                String a_CreatedBy = "Created by";
+                String a_DateOfCreation = "Date of Creation";
+                String a_DocumentNumber = "Document Number";
+                String a_ReleaseDate = "Release Date";
+                String a_ReleasedBy = "Released by";
+                String a_Title = "Title";
+                String a_Version = "Version";
+            }
+
+            interface ProceduralDocument {
+                String name = "Procedural Document";
+
+                String a_Content = "Content";
+                String a_CreatedBy = "Created by";
+                String a_DateOfCreation = "Date of Creation";
+                String a_DocumentNumber = "Document Number";
+                String a_ReleaseDate = "Release Date";
+                String a_ReleasedBy = "Released by";
+                String a_Title = "Title";
+                String a_Version = "Version";
+            }
+
+            interface TrainingCourse {
+                String name = "Training Course";
+
+                String a_PresentationFile = "Presentation File";
+                String a_Content = "Content";
+                String a_CreatedBy = "Created by";
+                String a_DateOfCreation = "Date of Creation";
+                String a_DocumentNumber = "Document Number";
+                String a_ReleaseDate = "Release Date";
+                String a_ReleasedBy = "Released by";
+                String a_Title = "Title";
+                String a_Version = "Version";
+            }
+        }
+
+        interface ActionPlan {
+            String name = "Action Plan";
+
+            String a_ActionPlanFile = "Action Plan File";
+            String a_Participants = "Participants";
+            String a_Content = "Content";
+            String a_CreatedBy = "Created by";
+            String a_DateOfCreation = "Date of Creation";
+            String a_DocumentNumber = "Document Number";
+            String a_ReleaseDate = "Release Date";
+            String a_ReleasedBy = "Released by";
+            String a_Title = "Title";
+            String a_Version = "Version";
+        }
+
+        interface Announcement {
+            String name = "Announcement";
+
+            String a_AnnouncementFile = "Announcement File";
+            String a_Content = "Content";
+            String a_CreatedBy = "Created by";
+            String a_DateOfCreation = "Date of Creation";
+            String a_DocumentNumber = "Document Number";
+            String a_ReleaseDate = "Release Date";
+            String a_ReleasedBy = "Released by";
+            String a_Title = "Title";
+            String a_Version = "Version";
+        }
+
+        interface ProceduralDocument {
+            String name = "Procedural Document";
+
+            String a_Content = "Content";
+            String a_CreatedBy = "Created by";
+            String a_DateOfCreation = "Date of Creation";
+            String a_DocumentNumber = "Document Number";
+            String a_ReleaseDate = "Release Date";
+            String a_ReleasedBy = "Released by";
+            String a_Title = "Title";
+            String a_Version = "Version";
+        }
+
+        interface TrainingCourse {
+            String name = "Training Course";
+
+            String a_PresentationFile = "Presentation File";
+            String a_Content = "Content";
+            String a_CreatedBy = "Created by";
+            String a_DateOfCreation = "Date of Creation";
+            String a_DocumentNumber = "Document Number";
+            String a_ReleaseDate = "Release Date";
+            String a_ReleasedBy = "Released by";
+            String a_Title = "Title";
+            String a_Version = "Version";
+        }
+
+        interface DocumentsDirectory {
+            String name = "Documents Directory";
+
+        }
+
+        interface EnergyFlowChartDirectory {
+            String name = "Energy Flow Chart Directory";
+
+            interface EnergyFlowChart {
+                String name = "Energy Flow Chart";
+
+                String a_CreatedOn = "Created On";
+                String a_ImageFile = "Image File";
+                String a_OriginalFile = "Original File";
+            }
+        }
+
+        interface EnergyFlowChart {
+            String name = "Energy Flow Chart";
+
+            String a_CreatedOn = "Created On";
+            String a_ImageFile = "Image File";
+            String a_OriginalFile = "Original File";
+        }
+
+        interface EnergyPlanning {
+            String name = "Energy Planning";
+
+        }
+
+        interface EnergySavingAction {
+            String name = "Energy Saving Action";
+
+            String a_InvestmentCosts = "Investment Costs";
+            String a_Measure = "Measure";
+            String a_PaybackTime = "Payback Time";
+            String a_ReponsiblePerson = "Reponsible Person";
+            String a_SavingsPotentialCapital = "Savings Potential Capital";
+            String a_SavingsPotentialCO2 = "Savings Potential CO2";
+            String a_SavingsPotentialEnergy = "Savings Potential Energy";
+        }
+
+        interface EnergySource {
+            String name = "Energy Source";
+
+            String a_CO2EmissionFactor = "CO2 Emission Factor";
+        }
+
+        interface EnergySourcesDirectory {
+            String name = "Energy Sources Directory";
+
+        }
+
+        interface EnergyTeamDirectory {
+            String name = "Energy Team Directory";
+
+        }
+
+        interface EvaluatedOutput {
+            String name = "Evaluated Output";
+
+            String a_01January = "01 January";
+            String a_02February = "02 February";
+            String a_03March = "03 March";
+            String a_04April = "04 April";
+            String a_05May = "05 May";
+            String a_06June = "06 June";
+            String a_07July = "07 July";
+            String a_08August = "08 August";
+            String a_09September = "09 September";
+            String a_10October = "10 October";
+            String a_11November = "11 November";
+            String a_12December = "12 December";
+            String a_Year = "Year";
+        }
+
+        interface ImplementedActionsDirectory {
+            String name = "Implemented Actions Directory";
+
+        }
+
+        interface InitialContact {
+            String name = "Initial Contact";
+
+            String a_Comment = "Comment";
+            String a_ContactDate = "Contact Date";
+            String a_ContactFile = "Contact File";
+        }
+
+        interface ISO50001Directory {
+            String name = "ISO 50001 Directory";
+
+        }
+
+        interface ISO50001MeetingsDirectory {
+            String name = "ISO 50001 Meetings Directory";
+
+        }
+
+        interface LegalRegulation {
+            String name = "Legal Regulation";
+
+            String a_ContentSummary = "Content Summary";
+            String a_DateOfReview = "Date of Review";
+            String a_IssueDate = "Issue Date";
+            String a_LastAmended = "Last Amended";
+            String a_RegulationDesignation = "Regulation Designation";
+            String a_RelevanceToISO50001 = "Relevance to ISO 50001";
+            String a_SignificanceToTheCompany = "Significance to the Company";
+        }
+
+        interface LegalRegulationDirectory {
+            String name = "Legal Regulation Directory";
+
+        }
+
+        interface ManagementManualDirectory {
+            String name = "Management Manual Directory";
+
+        }
+
+        interface ManagementReview {
+            String name = "Management Review";
+
+            String a_Content = "Content";
+            String a_ManagementReviewFile = "Management Review File";
+            String a_ManagementReviewPDF = "Management Review PDF";
+            String a_Participants = "Participants";
+            String a_ReviewDate = "Review Date";
+        }
+
+        interface ManagementReviewDirectory {
+            String name = "Management Review Directory";
+
+        }
+
+        interface Meeting {
+            String name = "Meeting";
+
+            String a_ContentOfMeetingAndResults = "Content of Meeting and Results";
+            String a_MeetingDate = "Meeting Date";
+            String a_MeetingParticipants = "Meeting Participants";
+            String a_MeetingTime = "Meeting Time";
+            String a_MinutesOfMeeting = "Minutes of Meeting";
+        }
+
+        interface MonitoringRegister {
+            String name = "Monitoring Register";
+
+            interface MeasuringPointDirectory {
+                String name = "Measuring Point Directory";
+
+                interface MeasuringPoint {
+                    String name = "Measuring Point";
+
+                    String a_Comment = "Comment";
+                    String a_DataPointAssignment = "Data Point Assignment";
+                    String a_InstallationLocation = "Installation Location";
+                    String a_Meter = "Meter";
+                    String a_MonitoringID = "Monitoring ID";
+                    String a_Name = "Name";
+                    String a_Photo = "Photo";
+                    String a_PhysicalProperty = "Physical Property";
+                    String a_Station = "Station";
+                    String a_Unit = "Unit";
                 }
             }
 
-            public interface Meter {
-                public static String name = "Meter";
+            interface MeasuringPoint {
+                String name = "Measuring Point";
 
-                public static String a_ConversionFactor = "Conversion Factor";
-                public static String a_CurrentTransformer = "Current Transformer";
-                public static String a_InstallationDate = "Installation Date";
-                public static String a_Interface = "Interface";
-                public static String a_Type = "Type";
-                public static String a_VoltageTransformer = "Voltage Transformer";
+                String a_Comment = "Comment";
+                String a_DataPointAssignment = "Data Point Assignment";
+                String a_InstallationLocation = "Installation Location";
+                String a_Meter = "Meter";
+                String a_MonitoringID = "Monitoring ID";
+                String a_Name = "Name";
+                String a_Photo = "Photo";
+                String a_PhysicalProperty = "Physical Property";
+                String a_Station = "Station";
+                String a_Unit = "Unit";
             }
 
-            public interface StationDirectory {
-                public static String name = "Station Directory";
+            interface MeterDirectory {
+                String name = "Meter Directory";
 
-                public interface Station {
-                    public static String name = "Station";
+                interface Meter {
+                    String name = "Meter";
 
-                    public static String a_DeviceID = "Device ID";
-                    public static String a_IPAddress = "IP Address";
-                    public static String a_SubNetMask = "SubNet Mask";
-                    public static String a_Type = "Type";
+                    String a_ConversionFactor = "Conversion Factor";
+                    String a_CurrentTransformer = "Current Transformer";
+                    String a_InstallationDate = "Installation Date";
+                    String a_Interface = "Interface";
+                    String a_Type = "Type";
+                    String a_VoltageTransformer = "Voltage Transformer";
                 }
             }
 
-            public interface Station {
-                public static String name = "Station";
+            interface Meter {
+                String name = "Meter";
 
-                public static String a_DeviceID = "Device ID";
-                public static String a_IPAddress = "IP Address";
-                public static String a_SubNetMask = "SubNet Mask";
-                public static String a_Type = "Type";
-            }
-        }
-
-        public interface MeasuringPointDirectory {
-            public static String name = "Measuring Point Directory";
-
-            public interface MeasuringPoint {
-                public static String name = "Measuring Point";
-
-                public static String a_Comment = "Comment";
-                public static String a_DataPointAssignment = "Data Point Assignment";
-                public static String a_InstallationLocation = "Installation Location";
-                public static String a_Meter = "Meter";
-                public static String a_MonitoringID = "Monitoring ID";
-                public static String a_Name = "Name";
-                public static String a_Photo = "Photo";
-                public static String a_PhysicalProperty = "Physical Property";
-                public static String a_Station = "Station";
-                public static String a_Unit = "Unit";
-            }
-        }
-
-        public interface MeasuringPoint {
-            public static String name = "Measuring Point";
-
-            public static String a_Comment = "Comment";
-            public static String a_DataPointAssignment = "Data Point Assignment";
-            public static String a_InstallationLocation = "Installation Location";
-            public static String a_Meter = "Meter";
-            public static String a_MonitoringID = "Monitoring ID";
-            public static String a_Name = "Name";
-            public static String a_Photo = "Photo";
-            public static String a_PhysicalProperty = "Physical Property";
-            public static String a_Station = "Station";
-            public static String a_Unit = "Unit";
-        }
-
-        public interface MeterDirectory {
-            public static String name = "Meter Directory";
-
-            public interface Meter {
-                public static String name = "Meter";
-
-                public static String a_ConversionFactor = "Conversion Factor";
-                public static String a_CurrentTransformer = "Current Transformer";
-                public static String a_InstallationDate = "Installation Date";
-                public static String a_Interface = "Interface";
-                public static String a_Type = "Type";
-                public static String a_VoltageTransformer = "Voltage Transformer";
-            }
-        }
-
-        public interface Meter {
-            public static String name = "Meter";
-
-            public static String a_ConversionFactor = "Conversion Factor";
-            public static String a_CurrentTransformer = "Current Transformer";
-            public static String a_InstallationDate = "Installation Date";
-            public static String a_Interface = "Interface";
-            public static String a_Type = "Type";
-            public static String a_VoltageTransformer = "Voltage Transformer";
-        }
-
-        public interface StationDirectory {
-            public static String name = "Station Directory";
-
-            public interface Station {
-                public static String name = "Station";
-
-                public static String a_DeviceID = "Device ID";
-                public static String a_IPAddress = "IP Address";
-                public static String a_SubNetMask = "SubNet Mask";
-                public static String a_Type = "Type";
-            }
-        }
-
-        public interface Station {
-            public static String name = "Station";
-
-            public static String a_DeviceID = "Device ID";
-            public static String a_IPAddress = "IP Address";
-            public static String a_SubNetMask = "SubNet Mask";
-            public static String a_Type = "Type";
-        }
-
-        public interface MonthlyValues {
-            public static String name = "Monthly Values";
-
-            public static String a_01January = "01 January";
-            public static String a_02February = "02 February";
-            public static String a_03March = "03 March";
-            public static String a_04April = "04 April";
-            public static String a_05May = "05 May";
-            public static String a_06June = "06 June";
-            public static String a_07July = "07 July";
-            public static String a_08August = "08 August";
-            public static String a_09September = "09 September";
-            public static String a_10October = "10 October";
-            public static String a_11November = "11 November";
-            public static String a_12December = "12 December";
-            public static String a_EnergySupplier = "Energy Supplier";
-            public static String a_Year = "Year";
-
-            public interface EnergyBills {
-                public static String name = "Energy Bills";
-
-                public static String a_01January = "01 January";
-                public static String a_02February = "02 February";
-                public static String a_03March = "03 March";
-                public static String a_04April = "04 April";
-                public static String a_05May = "05 May";
-                public static String a_06June = "06 June";
-                public static String a_07July = "07 July";
-                public static String a_08August = "08 August";
-                public static String a_09September = "09 September";
-                public static String a_10October = "10 October";
-                public static String a_11November = "11 November";
-                public static String a_12December = "12 December";
-                public static String a_EnergySupplier = "Energy Supplier";
-                public static String a_Year = "Year";
+                String a_ConversionFactor = "Conversion Factor";
+                String a_CurrentTransformer = "Current Transformer";
+                String a_InstallationDate = "Installation Date";
+                String a_Interface = "Interface";
+                String a_Type = "Type";
+                String a_VoltageTransformer = "Voltage Transformer";
             }
 
-            public interface EnergyConsumption {
-                public static String name = "Energy Consumption";
+            interface StationDirectory {
+                String name = "Station Directory";
 
-                public static String a_01January = "01 January";
-                public static String a_02February = "02 February";
-                public static String a_03March = "03 March";
-                public static String a_04April = "04 April";
-                public static String a_05May = "05 May";
-                public static String a_06June = "06 June";
-                public static String a_07July = "07 July";
-                public static String a_08August = "08 August";
-                public static String a_09September = "09 September";
-                public static String a_10October = "10 October";
-                public static String a_11November = "11 November";
-                public static String a_12December = "12 December";
-                public static String a_EnergySupplier = "Energy Supplier";
-                public static String a_Year = "Year";
-            }
-        }
+                interface Station {
+                    String name = "Station";
 
-        public interface EnergyBills {
-            public static String name = "Energy Bills";
-
-            public static String a_01January = "01 January";
-            public static String a_02February = "02 February";
-            public static String a_03March = "03 March";
-            public static String a_04April = "04 April";
-            public static String a_05May = "05 May";
-            public static String a_06June = "06 June";
-            public static String a_07July = "07 July";
-            public static String a_08August = "08 August";
-            public static String a_09September = "09 September";
-            public static String a_10October = "10 October";
-            public static String a_11November = "11 November";
-            public static String a_12December = "12 December";
-            public static String a_EnergySupplier = "Energy Supplier";
-            public static String a_Year = "Year";
-        }
-
-        public interface EnergyConsumption {
-            public static String name = "Energy Consumption";
-
-            public static String a_01January = "01 January";
-            public static String a_02February = "02 February";
-            public static String a_03March = "03 March";
-            public static String a_04April = "04 April";
-            public static String a_05May = "05 May";
-            public static String a_06June = "06 June";
-            public static String a_07July = "07 July";
-            public static String a_08August = "08 August";
-            public static String a_09September = "09 September";
-            public static String a_10October = "10 October";
-            public static String a_11November = "11 November";
-            public static String a_12December = "12 December";
-            public static String a_EnergySupplier = "Energy Supplier";
-            public static String a_Year = "Year";
-        }
-
-        public interface PerformanceDirectory {
-            public static String name = "Performance Directory";
-
-        }
-
-        public interface PlannedActionsDirectory {
-            public static String name = "Planned Actions Directory";
-
-        }
-
-        public interface ProceduralDocumentsDirectory {
-            public static String name = "Procedural Documents Directory";
-
-        }
-
-        public interface Responsibilities {
-            public static String name = "Responsibilities";
-
-            public interface EnergyTeam {
-                public static String name = "Energy Team";
-
-                public static String a_EMail = "EMail";
-                public static String a_Function = "Function";
-                public static String a_Name = "Name";
-                public static String a_Phone = "Phone";
-                public static String a_Surname = "Surname";
-
-                public interface EnergyManager {
-                    public static String name = "Energy Manager";
-
-                    public static String a_AppointmentLetter = "Appointment Letter";
-                    public static String a_EMail = "EMail";
-                    public static String a_Function = "Function";
-                    public static String a_Name = "Name";
-                    public static String a_Phone = "Phone";
-                    public static String a_Surname = "Surname";
-                }
-
-                public interface EnergyTeamMember {
-                    public static String name = "Energy Team Member";
-
-                    public static String a_EMail = "EMail";
-                    public static String a_Function = "Function";
-                    public static String a_Name = "Name";
-                    public static String a_Phone = "Phone";
-                    public static String a_Surname = "Surname";
+                    String a_DeviceID = "Device ID";
+                    String a_IPAddress = "IP Address";
+                    String a_SubNetMask = "SubNet Mask";
+                    String a_Type = "Type";
                 }
             }
 
-            public interface EnergyManager {
-                public static String name = "Energy Manager";
+            interface Station {
+                String name = "Station";
 
-                public static String a_AppointmentLetter = "Appointment Letter";
-                public static String a_EMail = "EMail";
-                public static String a_Function = "Function";
-                public static String a_Name = "Name";
-                public static String a_Phone = "Phone";
-                public static String a_Surname = "Surname";
-            }
-
-            public interface EnergyTeamMember {
-                public static String name = "Energy Team Member";
-
-                public static String a_EMail = "EMail";
-                public static String a_Function = "Function";
-                public static String a_Name = "Name";
-                public static String a_Phone = "Phone";
-                public static String a_Surname = "Surname";
+                String a_DeviceID = "Device ID";
+                String a_IPAddress = "IP Address";
+                String a_SubNetMask = "SubNet Mask";
+                String a_Type = "Type";
             }
         }
 
-        public interface EnergyTeam {
-            public static String name = "Energy Team";
+        interface MeasuringPointDirectory {
+            String name = "Measuring Point Directory";
 
-            public static String a_EMail = "EMail";
-            public static String a_Function = "Function";
-            public static String a_Name = "Name";
-            public static String a_Phone = "Phone";
-            public static String a_Surname = "Surname";
+            interface MeasuringPoint {
+                String name = "Measuring Point";
 
-            public interface EnergyManager {
-                public static String name = "Energy Manager";
-
-                public static String a_AppointmentLetter = "Appointment Letter";
-                public static String a_EMail = "EMail";
-                public static String a_Function = "Function";
-                public static String a_Name = "Name";
-                public static String a_Phone = "Phone";
-                public static String a_Surname = "Surname";
-            }
-
-            public interface EnergyTeamMember {
-                public static String name = "Energy Team Member";
-
-                public static String a_EMail = "EMail";
-                public static String a_Function = "Function";
-                public static String a_Name = "Name";
-                public static String a_Phone = "Phone";
-                public static String a_Surname = "Surname";
+                String a_Comment = "Comment";
+                String a_DataPointAssignment = "Data Point Assignment";
+                String a_InstallationLocation = "Installation Location";
+                String a_Meter = "Meter";
+                String a_MonitoringID = "Monitoring ID";
+                String a_Name = "Name";
+                String a_Photo = "Photo";
+                String a_PhysicalProperty = "Physical Property";
+                String a_Station = "Station";
+                String a_Unit = "Unit";
             }
         }
 
-        public interface EnergyManager {
-            public static String name = "Energy Manager";
+        interface MeasuringPoint {
+            String name = "Measuring Point";
 
-            public static String a_AppointmentLetter = "Appointment Letter";
-            public static String a_EMail = "EMail";
-            public static String a_Function = "Function";
-            public static String a_Name = "Name";
-            public static String a_Phone = "Phone";
-            public static String a_Surname = "Surname";
+            String a_Comment = "Comment";
+            String a_DataPointAssignment = "Data Point Assignment";
+            String a_InstallationLocation = "Installation Location";
+            String a_Meter = "Meter";
+            String a_MonitoringID = "Monitoring ID";
+            String a_Name = "Name";
+            String a_Photo = "Photo";
+            String a_PhysicalProperty = "Physical Property";
+            String a_Station = "Station";
+            String a_Unit = "Unit";
         }
 
-        public interface EnergyTeamMember {
-            public static String name = "Energy Team Member";
+        interface MeterDirectory {
+            String name = "Meter Directory";
 
-            public static String a_EMail = "EMail";
-            public static String a_Function = "Function";
-            public static String a_Name = "Name";
-            public static String a_Phone = "Phone";
-            public static String a_Surname = "Surname";
-        }
+            interface Meter {
+                String name = "Meter";
 
-        public interface Site {
-            public static String name = "Site";
-
-        }
-
-        public interface SuperiorLevelMeetingsDirectory {
-            public static String name = "Superior Level Meetings Directory";
-
-        }
-
-        public interface TrainingCourseDirectory {
-            public static String name = "Training Course Directory";
-
-        }
-
-        public interface TrainingDirectory {
-            public static String name = "Training Directory";
-
-            public interface Training {
-                public static String name = "Training";
-
-                public static String a_Participants = "Participants";
-                public static String a_Trainer = "Trainer";
-                public static String a_TrainingCourse = "Training Course";
-                public static String a_TrainingDate = "Training Date";
-                public static String a_TrainingTime = "Training Time";
+                String a_ConversionFactor = "Conversion Factor";
+                String a_CurrentTransformer = "Current Transformer";
+                String a_InstallationDate = "Installation Date";
+                String a_Interface = "Interface";
+                String a_Type = "Type";
+                String a_VoltageTransformer = "Voltage Transformer";
             }
         }
 
-        public interface Training {
-            public static String name = "Training";
+        interface Meter {
+            String name = "Meter";
 
-            public static String a_Participants = "Participants";
-            public static String a_Trainer = "Trainer";
-            public static String a_TrainingCourse = "Training Course";
-            public static String a_TrainingDate = "Training Date";
-            public static String a_TrainingTime = "Training Time";
-        }
-    }
-
-    public interface Input {
-        public static String name = "Input";
-
-        public static String a_Identifier = "Identifier";
-        public static String a_InputData = "Input Data";
-        public static String a_InputDataType = "Input Data Type";
-    }
-
-    public interface JENotifierPlugin {
-        public static String name = "JENotifier Plugin";
-
-        public interface EMailPlugin {
-            public static String name = "EMail Plugin";
-
-            public static String a_Authenticator = "Authenticator";
-            public static String a_Password = "Password";
-            public static String a_Port = "Port";
-            public static String a_SMTPServer = "SMTP Server";
-            public static String a_ServerUserName = "Server User Name";
-            public static String a_TransportSecurity = "Transport Security";
-            public static String a_Default = "Default";
-        }
-    }
-
-    public interface Link {
-        public static String name = "Link";
-
-    }
-
-    public interface MeasurementInstrument {
-        public static String name = "Measurement Instrument";
-
-        public static String a_Location = "Location";
-        public static String a_Company = "Company";
-        public static String a_CostCenter = "Cost Center";
-        public static String a_MeterPoint = "Meter Point";
-        public static String a_Picture = "Picture";
-        public static String a_MeasuringPointID = "Measuring Point ID";
-        public static String a_MeasuringPointName = "Measuring Point Name";
-        public static String a_SerialNumber = "Serial Number";
-        public static String a_Type = "Type";
-        public static String a_Datasheet = "Datasheet";
-        public static String a_Accuracy = "Accuracy";
-        public static String a_ConversionFactor = "Conversion Factor";
-        public static String a_InstallationDate = "Installation Date";
-        public static String a_VerifiedDate = "Verified Date";
-        public static String a_VerificationDate = "Verification Date";
-        public static String a_OnlineID = "Online ID";
-        public static String a_DeviceIP = "Device IP";
-        public static String a_DeviceNumber = "Device Number";
-        public static String a_Connection = "Connection";
-        public static String a_Remarks = "Remarks";
-
-        public interface HeatMeasurementInstrument {
-            public static String name = "Heat Measurement Instrument";
-
-            public static String a_Location = "Location";
-            public static String a_Company = "Company";
-            public static String a_CostCenter = "Cost Center";
-            public static String a_MeterPoint = "Meter Point";
-            public static String a_Picture = "Picture";
-            public static String a_MeasuringPointID = "Measuring Point ID";
-            public static String a_MeasuringPointName = "Measuring Point Name";
-            public static String a_SerialNumber = "Serial Number";
-            public static String a_Type = "Type";
-            public static String a_Datasheet = "Datasheet";
-            public static String a_Accuracy = "Accuracy";
-            public static String a_ConversionFactor = "Conversion Factor";
-            public static String a_InstallationDate = "Installation Date";
-            public static String a_VerifiedDate = "Verified Date";
-            public static String a_VerificationDate = "Verification Date";
-            public static String a_OnlineID = "Online ID";
-            public static String a_DeviceIP = "Device IP";
-            public static String a_DeviceNumber = "Device Number";
-            public static String a_Connection = "Connection";
-            public static String a_Remarks = "Remarks";
-            public static String a_Diameter = "Diameter";
-            public static String a_SensorFl = "Sensor Fl";
-            public static String a_SensorRe = "Sensor Re";
+            String a_ConversionFactor = "Conversion Factor";
+            String a_CurrentTransformer = "Current Transformer";
+            String a_InstallationDate = "Installation Date";
+            String a_Interface = "Interface";
+            String a_Type = "Type";
+            String a_VoltageTransformer = "Voltage Transformer";
         }
 
-        public interface CompressedAirMeasurementInstrument {
-            public static String name = "Compressed-Air Measurement Instrument";
+        interface StationDirectory {
+            String name = "Station Directory";
 
-            public static String a_Location = "Location";
-            public static String a_Company = "Company";
-            public static String a_CostCenter = "Cost Center";
-            public static String a_MeterPoint = "Meter Point";
-            public static String a_Picture = "Picture";
-            public static String a_MeasuringPointID = "Measuring Point ID";
-            public static String a_MeasuringPointName = "Measuring Point Name";
-            public static String a_SerialNumber = "Serial Number";
-            public static String a_Type = "Type";
-            public static String a_Datasheet = "Datasheet";
-            public static String a_Accuracy = "Accuracy";
-            public static String a_ConversionFactor = "Conversion Factor";
-            public static String a_InstallationDate = "Installation Date";
-            public static String a_VerifiedDate = "Verified Date";
-            public static String a_VerificationDate = "Verification Date";
-            public static String a_OnlineID = "Online ID";
-            public static String a_DeviceIP = "Device IP";
-            public static String a_DeviceNumber = "Device Number";
-            public static String a_Connection = "Connection";
-            public static String a_Remarks = "Remarks";
-            public static String a_Diameter = "Diameter";
-        }
+            interface Station {
+                String name = "Station";
 
-        public interface NitrogenMeasurementInstrument {
-            public static String name = "Nitrogen Measurement Instrument";
-
-            public static String a_Location = "Location";
-            public static String a_Company = "Company";
-            public static String a_CostCenter = "Cost Center";
-            public static String a_MeterPoint = "Meter Point";
-            public static String a_Picture = "Picture";
-            public static String a_MeasuringPointID = "Measuring Point ID";
-            public static String a_MeasuringPointName = "Measuring Point Name";
-            public static String a_SerialNumber = "Serial Number";
-            public static String a_Type = "Type";
-            public static String a_Datasheet = "Datasheet";
-            public static String a_Accuracy = "Accuracy";
-            public static String a_ConversionFactor = "Conversion Factor";
-            public static String a_InstallationDate = "Installation Date";
-            public static String a_VerifiedDate = "Verified Date";
-            public static String a_VerificationDate = "Verification Date";
-            public static String a_OnlineID = "Online ID";
-            public static String a_DeviceIP = "Device IP";
-            public static String a_DeviceNumber = "Device Number";
-            public static String a_Connection = "Connection";
-            public static String a_Remarks = "Remarks";
-            public static String a_Diameter = "Diameter";
-        }
-
-        public interface ElectricityMeasurementInstrument {
-            public static String name = "Electricity Measurement Instrument";
-
-            public static String a_Location = "Location";
-            public static String a_Company = "Company";
-            public static String a_CostCenter = "Cost Center";
-            public static String a_MeterPoint = "Meter Point";
-            public static String a_Picture = "Picture";
-            public static String a_MeasuringPointID = "Measuring Point ID";
-            public static String a_MeasuringPointName = "Measuring Point Name";
-            public static String a_SerialNumber = "Serial Number";
-            public static String a_Type = "Type";
-            public static String a_Datasheet = "Datasheet";
-            public static String a_Accuracy = "Accuracy";
-            public static String a_ConversionFactor = "Conversion Factor";
-            public static String a_InstallationDate = "Installation Date";
-            public static String a_VerifiedDate = "Verified Date";
-            public static String a_VerificationDate = "Verification Date";
-            public static String a_OnlineID = "Online ID";
-            public static String a_DeviceIP = "Device IP";
-            public static String a_DeviceNumber = "Device Number";
-            public static String a_Connection = "Connection";
-            public static String a_Remarks = "Remarks";
-            public static String a_CurrentTransformer = "Current Transformer";
-            public static String a_VoltageTransformer = "Voltage Transformer";
-        }
-
-        public interface GasMeasurementInstrument {
-            public static String name = "Gas Measurement Instrument";
-
-            public static String a_Location = "Location";
-            public static String a_Company = "Company";
-            public static String a_CostCenter = "Cost Center";
-            public static String a_MeterPoint = "Meter Point";
-            public static String a_Picture = "Picture";
-            public static String a_MeasuringPointID = "Measuring Point ID";
-            public static String a_MeasuringPointName = "Measuring Point Name";
-            public static String a_SerialNumber = "Serial Number";
-            public static String a_Type = "Type";
-            public static String a_Datasheet = "Datasheet";
-            public static String a_Accuracy = "Accuracy";
-            public static String a_ConversionFactor = "Conversion Factor";
-            public static String a_InstallationDate = "Installation Date";
-            public static String a_VerifiedDate = "Verified Date";
-            public static String a_VerificationDate = "Verification Date";
-            public static String a_OnlineID = "Online ID";
-            public static String a_DeviceIP = "Device IP";
-            public static String a_DeviceNumber = "Device Number";
-            public static String a_Connection = "Connection";
-            public static String a_Remarks = "Remarks";
-            public static String a_Diameter = "Diameter";
-        }
-
-        public interface AirMeasurementInstrument {
-            public static String name = "Air Measurement Instrument";
-
-            public static String a_Location = "Location";
-            public static String a_Company = "Company";
-            public static String a_CostCenter = "Cost Center";
-            public static String a_MeterPoint = "Meter Point";
-            public static String a_Picture = "Picture";
-            public static String a_MeasuringPointID = "Measuring Point ID";
-            public static String a_MeasuringPointName = "Measuring Point Name";
-            public static String a_SerialNumber = "Serial Number";
-            public static String a_Type = "Type";
-            public static String a_Datasheet = "Datasheet";
-            public static String a_Accuracy = "Accuracy";
-            public static String a_ConversionFactor = "Conversion Factor";
-            public static String a_InstallationDate = "Installation Date";
-            public static String a_VerifiedDate = "Verified Date";
-            public static String a_VerificationDate = "Verification Date";
-            public static String a_OnlineID = "Online ID";
-            public static String a_DeviceIP = "Device IP";
-            public static String a_DeviceNumber = "Device Number";
-            public static String a_Connection = "Connection";
-            public static String a_Remarks = "Remarks";
-            public static String a_Diameter = "Diameter";
-        }
-
-        public interface WaterMeasurementInstrument {
-            public static String name = "Water Measurement Instrument";
-
-            public static String a_Location = "Location";
-            public static String a_Company = "Company";
-            public static String a_CostCenter = "Cost Center";
-            public static String a_MeterPoint = "Meter Point";
-            public static String a_Picture = "Picture";
-            public static String a_MeasuringPointID = "Measuring Point ID";
-            public static String a_MeasuringPointName = "Measuring Point Name";
-            public static String a_SerialNumber = "Serial Number";
-            public static String a_Type = "Type";
-            public static String a_Datasheet = "Datasheet";
-            public static String a_Accuracy = "Accuracy";
-            public static String a_ConversionFactor = "Conversion Factor";
-            public static String a_InstallationDate = "Installation Date";
-            public static String a_VerifiedDate = "Verified Date";
-            public static String a_VerificationDate = "Verification Date";
-            public static String a_OnlineID = "Online ID";
-            public static String a_DeviceIP = "Device IP";
-            public static String a_DeviceNumber = "Device Number";
-            public static String a_Connection = "Connection";
-            public static String a_Remarks = "Remarks";
-            public static String a_Diameter = "Diameter";
-        }
-    }
-
-    public interface MonitoredObject {
-        public static String name = "Monitored Object";
-
-        public interface Building {
-            public static String name = "Building";
-
-            public static String a_Address = "Address";
-            public static String a_BuildingArea = "Building Area";
-            public static String a_Location = "Location";
-            public static String a_YearOfConstruction = "Year of Construction";
-            public static String a_WorkdayBeginning = "Workday Beginning";
-            public static String a_WorkdayEnd = "Workday End";
-            public static String a_Timezone = "Timezone";
-            public static String a_Holidays = "Holidays";
-            public static String a_CustomHolidays = "Custom Holidays";
-        }
-    }
-
-    public interface Notification {
-        public static String name = "Notification";
-
-        public static String a_SentTime = "Sent Time";
-
-        public interface EMailNotification {
-            public static String name = "E-Mail Notification";
-
-            public static String a_Attachments = "Attachments";
-            public static String a_BlindCarbonCopys = "Blind Carbon Copys";
-            public static String a_CarbonCopys = "Carbon Copys";
-            public static String a_Enabled = "Enabled";
-            public static String a_HTMLEMail = "HTML E-Mail";
-            public static String a_Message = "Message";
-            public static String a_Recipients = "Recipients";
-            public static String a_Subject = "Subject";
-            public static String a_SentTime = "Sent Time";
-        }
-    }
-
-    public interface Organization {
-        public static String name = "Organization";
-
-        public static String a_Address = "Address";
-        public static String a_Branche = "Branche";
-        public static String a_CompanyLogo = "Company Logo";
-        public static String a_CompanyName = "Company Name";
-        public static String a_Location = "Location";
-        public static String a_Mail = "Mail";
-        public static String a_Members = "Members";
-        public static String a_Phone = "Phone";
-        public static String a_WorkingOrOpeningTime = "Working or Opening Time";
-    }
-
-    public interface Output {
-        public static String name = "Output";
-
-        public static String a_Output = "Output";
-    }
-
-    public interface Parser {
-        public static String name = "Parser";
-
-        public interface CSVParser {
-            public static String name = "CSV Parser";
-
-            public static String a_Charset = "Charset";
-            public static String a_DatapointAlignment = "Datapoint Alignment";
-            public static String a_DatapointIndex = "Datapoint Index";
-            public static String a_DateFormat = "Date Format";
-            public static String a_DateIndex = "Date Index";
-            public static String a_DecimalSeparator = "Decimal Separator";
-            public static String a_Delimiter = "Delimiter";
-            public static String a_NumberOfHeadlines = "Number Of Headlines";
-            public static String a_Quote = "Quote";
-            public static String a_ThousandSeparator = "Thousand Separator";
-            public static String a_TimeFormat = "Time Format";
-            public static String a_TimeIndex = "Time Index";
-
-            public interface XLSParser {
-                public static String name = "XLS Parser";
-
-                public static String a_Charset = "Charset";
-                public static String a_DatapointAlignment = "Datapoint Alignment";
-                public static String a_DatapointIndex = "Datapoint Index";
-                public static String a_DateFormat = "Date Format";
-                public static String a_DateIndex = "Date Index";
-                public static String a_DecimalSeparator = "Decimal Separator";
-                public static String a_Delimiter = "Delimiter";
-                public static String a_NumberOfHeadlines = "Number Of Headlines";
-                public static String a_Quote = "Quote";
-                public static String a_ThousandSeparator = "Thousand Separator";
-                public static String a_TimeFormat = "Time Format";
-                public static String a_TimeIndex = "Time Index";
+                String a_DeviceID = "Device ID";
+                String a_IPAddress = "IP Address";
+                String a_SubNetMask = "SubNet Mask";
+                String a_Type = "Type";
             }
         }
 
-        public interface XLSParser {
-            public static String name = "XLS Parser";
+        interface Station {
+            String name = "Station";
 
-            public static String a_Charset = "Charset";
-            public static String a_DatapointAlignment = "Datapoint Alignment";
-            public static String a_DatapointIndex = "Datapoint Index";
-            public static String a_DateFormat = "Date Format";
-            public static String a_DateIndex = "Date Index";
-            public static String a_DecimalSeparator = "Decimal Separator";
-            public static String a_Delimiter = "Delimiter";
-            public static String a_NumberOfHeadlines = "Number Of Headlines";
-            public static String a_Quote = "Quote";
-            public static String a_ThousandSeparator = "Thousand Separator";
-            public static String a_TimeFormat = "Time Format";
-            public static String a_TimeIndex = "Time Index";
+            String a_DeviceID = "Device ID";
+            String a_IPAddress = "IP Address";
+            String a_SubNetMask = "SubNet Mask";
+            String a_Type = "Type";
         }
 
-        public interface DWDParser {
-            public static String name = "DWD Parser";
+        interface MonthlyValues {
+            String name = "Monthly Values";
 
-            public static String a_Charset = "Charset";
-        }
+            String a_01January = "01 January";
+            String a_02February = "02 February";
+            String a_03March = "03 March";
+            String a_04April = "04 April";
+            String a_05May = "05 May";
+            String a_06June = "06 June";
+            String a_07July = "07 July";
+            String a_08August = "08 August";
+            String a_09September = "09 September";
+            String a_10October = "10 October";
+            String a_11November = "11 November";
+            String a_12December = "12 December";
+            String a_EnergySupplier = "Energy Supplier";
+            String a_Year = "Year";
 
-        public interface DWDHDDParser {
-            public static String name = "DWD HDD Parser";
+            interface EnergyBills {
+                String name = "Energy Bills";
 
-            public static String a_Charset = "Charset";
-        }
+                String a_01January = "01 January";
+                String a_02February = "02 February";
+                String a_03March = "03 March";
+                String a_04April = "04 April";
+                String a_05May = "05 May";
+                String a_06June = "06 June";
+                String a_07July = "07 July";
+                String a_08August = "08 August";
+                String a_09September = "09 September";
+                String a_10October = "10 October";
+                String a_11November = "11 November";
+                String a_12December = "12 December";
+                String a_EnergySupplier = "Energy Supplier";
+                String a_Year = "Year";
+            }
 
-        public interface SQLParser {
-            public static String name = "SQL Parser";
+            interface EnergyConsumption {
+                String name = "Energy Consumption";
 
-        }
-
-        public interface JSONParser{
-            public static String name = "JSON Parser";
-
-            public static String a_dateTimeFormat = "Date Time Format";
-            public static String a_dateTimePath = "Date Time Path";
-        }
-
-        public interface XMLParser {
-            public static String name = "XML Parser";
-
-            public static String a_DateAttribute = "Date Attribute";
-            public static String a_DateElement = "Date Element";
-            public static String a_DateFormat = "Date Format";
-            public static String a_DateInElement = "Date in Element";
-            public static String a_DecimalSeparator = "Decimal Separator";
-            public static String a_MainAttribute = "Main Attribute";
-            public static String a_MainElement = "Main Element";
-            public static String a_ThousandSeparator = "Thousand Separator";
-            public static String a_TimeAttribute = "Time Attribute";
-            public static String a_TimeElement = "Time Element";
-            public static String a_TimeFormat = "Time Format";
-            public static String a_TimeInElement = "Time in Element";
-            public static String a_ValueAttribute = "Value Attribute";
-            public static String a_ValueElement = "Value Element";
-            public static String a_ValueInElement = "Value in Element";
-        }
-    }
-
-    public interface RecycleBin {
-        public static String name = "Recycle Bin";
-
-    }
-
-    public interface Register {
-        public static String name = "Register";
-
-        public interface EquipmentRegister {
-            public static String name = "Equipment Register";
-
-        }
-    }
-
-    public interface Report {
-        public static String name = "Report";
-
-        public static String a_Enabled = "Enabled";
-        public static String a_LastReport = "Last Report";
-        public static String a_LastReportPDF = "Last Report PDF";
-        public static String a_PDF = "PDF";
-        public static String a_PDFPages = "PDF Pages";
-        public static String a_Template = "Template";
-        public static String a_TimeZone = "Time Zone";
-
-        public interface PeriodicReport {
-            public static String name = "Periodic Report";
-
-            public static String a_AttributeName = "Attribute Name";
-            public static String a_ConditionEnabled = "Condition Enabled";
-            public static String a_JEVisID = "JEVis ID";
-            public static String a_Limit = "Limit";
-            public static String a_Operator = "Operator";
-            public static String a_Schedule = "Schedule";
-            public static String a_CustomScheduleObject = "Custom Schedule Object";
-            public static String a_StartRecord = "Start Record";
-            public static String a_Enabled = "Enabled";
-            public static String a_LastReport = "Last Report";
-            public static String a_LastReportPDF = "Last Report PDF";
-            public static String a_PDF = "PDF";
-            public static String a_PDFPages = "PDF Pages";
-            public static String a_Template = "Template";
-            public static String a_TimeZone = "Time Zone";
-
-            public interface AutomatedWorkingSheet {
-                public static String name = "Automated Working Sheet";
-
-                public static String a_AttributeName = "Attribute Name";
-                public static String a_ConditionEnabled = "Condition Enabled";
-                public static String a_JEVisID = "JEVis ID";
-                public static String a_Limit = "Limit";
-                public static String a_Operator = "Operator";
-                public static String a_Schedule = "Schedule";
-                public static String a_CustomScheduleObject = "Custom Schedule Object";
-                public static String a_StartRecord = "Start Record";
-                public static String a_Enabled = "Enabled";
-                public static String a_LastReport = "Last Report";
-                public static String a_LastReportPDF = "Last Report PDF";
-                public static String a_PDF = "PDF";
-                public static String a_PDFPages = "PDF Pages";
-                public static String a_Template = "Template";
-                public static String a_TimeZone = "Time Zone";
+                String a_01January = "01 January";
+                String a_02February = "02 February";
+                String a_03March = "03 March";
+                String a_04April = "04 April";
+                String a_05May = "05 May";
+                String a_06June = "06 June";
+                String a_07July = "07 July";
+                String a_08August = "08 August";
+                String a_09September = "09 September";
+                String a_10October = "10 October";
+                String a_11November = "11 November";
+                String a_12December = "12 December";
+                String a_EnergySupplier = "Energy Supplier";
+                String a_Year = "Year";
             }
         }
 
-        public interface AutomatedWorkingSheet {
-            public static String name = "Automated Working Sheet";
+        interface EnergyBills {
+            String name = "Energy Bills";
 
-            public static String a_AttributeName = "Attribute Name";
-            public static String a_ConditionEnabled = "Condition Enabled";
-            public static String a_JEVisID = "JEVis ID";
-            public static String a_Limit = "Limit";
-            public static String a_Operator = "Operator";
-            public static String a_Schedule = "Schedule";
-            public static String a_CustomScheduleObject = "Custom Schedule Object";
-            public static String a_StartRecord = "Start Record";
-            public static String a_Enabled = "Enabled";
-            public static String a_LastReport = "Last Report";
-            public static String a_LastReportPDF = "Last Report PDF";
-            public static String a_PDF = "PDF";
-            public static String a_PDFPages = "PDF Pages";
-            public static String a_Template = "Template";
-            public static String a_TimeZone = "Time Zone";
+            String a_01January = "01 January";
+            String a_02February = "02 February";
+            String a_03March = "03 March";
+            String a_04April = "04 April";
+            String a_05May = "05 May";
+            String a_06June = "06 June";
+            String a_07July = "07 July";
+            String a_08August = "08 August";
+            String a_09September = "09 September";
+            String a_10October = "10 October";
+            String a_11November = "11 November";
+            String a_12December = "12 December";
+            String a_EnergySupplier = "Energy Supplier";
+            String a_Year = "Year";
+        }
+
+        interface EnergyConsumption {
+            String name = "Energy Consumption";
+
+            String a_01January = "01 January";
+            String a_02February = "02 February";
+            String a_03March = "03 March";
+            String a_04April = "04 April";
+            String a_05May = "05 May";
+            String a_06June = "06 June";
+            String a_07July = "07 July";
+            String a_08August = "08 August";
+            String a_09September = "09 September";
+            String a_10October = "10 October";
+            String a_11November = "11 November";
+            String a_12December = "12 December";
+            String a_EnergySupplier = "Energy Supplier";
+            String a_Year = "Year";
+        }
+
+        interface PerformanceDirectory {
+            String name = "Performance Directory";
+
+        }
+
+        interface PlannedActionsDirectory {
+            String name = "Planned Actions Directory";
+
+        }
+
+        interface ProceduralDocumentsDirectory {
+            String name = "Procedural Documents Directory";
+
+        }
+
+        interface Responsibilities {
+            String name = "Responsibilities";
+
+            interface EnergyTeam {
+                String name = "Energy Team";
+
+                String a_EMail = "EMail";
+                String a_Function = "Function";
+                String a_Name = "Name";
+                String a_Phone = "Phone";
+                String a_Surname = "Surname";
+
+                interface EnergyManager {
+                    String name = "Energy Manager";
+
+                    String a_AppointmentLetter = "Appointment Letter";
+                    String a_EMail = "EMail";
+                    String a_Function = "Function";
+                    String a_Name = "Name";
+                    String a_Phone = "Phone";
+                    String a_Surname = "Surname";
+                }
+
+                interface EnergyTeamMember {
+                    String name = "Energy Team Member";
+
+                    String a_EMail = "EMail";
+                    String a_Function = "Function";
+                    String a_Name = "Name";
+                    String a_Phone = "Phone";
+                    String a_Surname = "Surname";
+                }
+            }
+
+            interface EnergyManager {
+                String name = "Energy Manager";
+
+                String a_AppointmentLetter = "Appointment Letter";
+                String a_EMail = "EMail";
+                String a_Function = "Function";
+                String a_Name = "Name";
+                String a_Phone = "Phone";
+                String a_Surname = "Surname";
+            }
+
+            interface EnergyTeamMember {
+                String name = "Energy Team Member";
+
+                String a_EMail = "EMail";
+                String a_Function = "Function";
+                String a_Name = "Name";
+                String a_Phone = "Phone";
+                String a_Surname = "Surname";
+            }
+        }
+
+        interface EnergyTeam {
+            String name = "Energy Team";
+
+            String a_EMail = "EMail";
+            String a_Function = "Function";
+            String a_Name = "Name";
+            String a_Phone = "Phone";
+            String a_Surname = "Surname";
+
+            interface EnergyManager {
+                String name = "Energy Manager";
+
+                String a_AppointmentLetter = "Appointment Letter";
+                String a_EMail = "EMail";
+                String a_Function = "Function";
+                String a_Name = "Name";
+                String a_Phone = "Phone";
+                String a_Surname = "Surname";
+            }
+
+            interface EnergyTeamMember {
+                String name = "Energy Team Member";
+
+                String a_EMail = "EMail";
+                String a_Function = "Function";
+                String a_Name = "Name";
+                String a_Phone = "Phone";
+                String a_Surname = "Surname";
+            }
+        }
+
+        interface EnergyManager {
+            String name = "Energy Manager";
+
+            String a_AppointmentLetter = "Appointment Letter";
+            String a_EMail = "EMail";
+            String a_Function = "Function";
+            String a_Name = "Name";
+            String a_Phone = "Phone";
+            String a_Surname = "Surname";
+        }
+
+        interface EnergyTeamMember {
+            String name = "Energy Team Member";
+
+            String a_EMail = "EMail";
+            String a_Function = "Function";
+            String a_Name = "Name";
+            String a_Phone = "Phone";
+            String a_Surname = "Surname";
+        }
+
+        interface Site {
+            String name = "Site";
+
+        }
+
+        interface SuperiorLevelMeetingsDirectory {
+            String name = "Superior Level Meetings Directory";
+
+        }
+
+        interface TrainingCourseDirectory {
+            String name = "Training Course Directory";
+
+        }
+
+        interface TrainingDirectory {
+            String name = "Training Directory";
+
+            interface Training {
+                String name = "Training";
+
+                String a_Participants = "Participants";
+                String a_Trainer = "Trainer";
+                String a_TrainingCourse = "Training Course";
+                String a_TrainingDate = "Training Date";
+                String a_TrainingTime = "Training Time";
+            }
+        }
+
+        interface Training {
+            String name = "Training";
+
+            String a_Participants = "Participants";
+            String a_Trainer = "Trainer";
+            String a_TrainingCourse = "Training Course";
+            String a_TrainingDate = "Training Date";
+            String a_TrainingTime = "Training Time";
         }
     }
 
-    public interface ReportAttribute {
-        public static String name = "Report Attribute";
+    interface Input {
+        String name = "Input";
 
-        public static String a_AttributeName = "Attribute Name";
+        String a_Identifier = "Identifier";
+        String a_InputData = "Input Data";
+        String a_InputDataType = "Input Data Type";
     }
 
-    public interface ReportConfiguration {
-        public static String name = "Report Configuration";
+    interface JENotifierPlugin {
+        String name = "JENotifier Plugin";
 
-        public interface ReportPeriodConfiguration {
-            public static String name = "Report Period Configuration";
+        interface EMailPlugin {
+            String name = "EMail Plugin";
 
-            public static String a_Aggregation = "Aggregation";
-            public static String a_Manipulation = "Manipulation";
-            public static String a_Period = "Period";
-            public static String a_FixedPeriod = "Fixed Period";
+            String a_Authenticator = "Authenticator";
+            String a_Password = "Password";
+            String a_Port = "Port";
+            String a_SMTPServer = "SMTP Server";
+            String a_ServerUserName = "Server User Name";
+            String a_TransportSecurity = "Transport Security";
+            String a_Default = "Default";
         }
     }
 
-    public interface ReportLink {
-        public static String name = "Report Link";
+    interface Link {
+        String name = "Link";
 
-        public static String a_JEVisID = "JEVis ID";
-        public static String a_Optional = "Optional";
-        public static String a_Calculation = "Calculation";
-        public static String a_TemplateVariableName = "Template Variable Name";
     }
 
-    public interface ResultCalculationTemplate {
-        public static String name = "Result Calculation Template";
+    interface MeasurementInstrument {
+        String name = "Measurement Instrument";
 
-        public static String a_TemplateFile = "Template File";
+        String a_Location = "Location";
+        String a_Company = "Company";
+        String a_CostCenter = "Cost Center";
+        String a_MeterPoint = "Meter Point";
+        String a_Picture = "Picture";
+        String a_MeasuringPointID = "Measuring Point ID";
+        String a_MeasuringPointName = "Measuring Point Name";
+        String a_SerialNumber = "Serial Number";
+        String a_Type = "Type";
+        String a_Datasheet = "Datasheet";
+        String a_Accuracy = "Accuracy";
+        String a_ConversionFactor = "Conversion Factor";
+        String a_InstallationDate = "Installation Date";
+        String a_VerifiedDate = "Verified Date";
+        String a_VerificationDate = "Verification Date";
+        String a_OnlineID = "Online ID";
+        String a_DeviceIP = "Device IP";
+        String a_DeviceNumber = "Device Number";
+        String a_Connection = "Connection";
+        String a_Remarks = "Remarks";
+
+        interface HeatMeasurementInstrument {
+            String name = "Heat Measurement Instrument";
+
+            String a_Location = "Location";
+            String a_Company = "Company";
+            String a_CostCenter = "Cost Center";
+            String a_MeterPoint = "Meter Point";
+            String a_Picture = "Picture";
+            String a_MeasuringPointID = "Measuring Point ID";
+            String a_MeasuringPointName = "Measuring Point Name";
+            String a_SerialNumber = "Serial Number";
+            String a_Type = "Type";
+            String a_Datasheet = "Datasheet";
+            String a_Accuracy = "Accuracy";
+            String a_ConversionFactor = "Conversion Factor";
+            String a_InstallationDate = "Installation Date";
+            String a_VerifiedDate = "Verified Date";
+            String a_VerificationDate = "Verification Date";
+            String a_OnlineID = "Online ID";
+            String a_DeviceIP = "Device IP";
+            String a_DeviceNumber = "Device Number";
+            String a_Connection = "Connection";
+            String a_Remarks = "Remarks";
+            String a_Diameter = "Diameter";
+            String a_SensorFl = "Sensor Fl";
+            String a_SensorRe = "Sensor Re";
+        }
+
+        interface CompressedAirMeasurementInstrument {
+            String name = "Compressed-Air Measurement Instrument";
+
+            String a_Location = "Location";
+            String a_Company = "Company";
+            String a_CostCenter = "Cost Center";
+            String a_MeterPoint = "Meter Point";
+            String a_Picture = "Picture";
+            String a_MeasuringPointID = "Measuring Point ID";
+            String a_MeasuringPointName = "Measuring Point Name";
+            String a_SerialNumber = "Serial Number";
+            String a_Type = "Type";
+            String a_Datasheet = "Datasheet";
+            String a_Accuracy = "Accuracy";
+            String a_ConversionFactor = "Conversion Factor";
+            String a_InstallationDate = "Installation Date";
+            String a_VerifiedDate = "Verified Date";
+            String a_VerificationDate = "Verification Date";
+            String a_OnlineID = "Online ID";
+            String a_DeviceIP = "Device IP";
+            String a_DeviceNumber = "Device Number";
+            String a_Connection = "Connection";
+            String a_Remarks = "Remarks";
+            String a_Diameter = "Diameter";
+        }
+
+        interface NitrogenMeasurementInstrument {
+            String name = "Nitrogen Measurement Instrument";
+
+            String a_Location = "Location";
+            String a_Company = "Company";
+            String a_CostCenter = "Cost Center";
+            String a_MeterPoint = "Meter Point";
+            String a_Picture = "Picture";
+            String a_MeasuringPointID = "Measuring Point ID";
+            String a_MeasuringPointName = "Measuring Point Name";
+            String a_SerialNumber = "Serial Number";
+            String a_Type = "Type";
+            String a_Datasheet = "Datasheet";
+            String a_Accuracy = "Accuracy";
+            String a_ConversionFactor = "Conversion Factor";
+            String a_InstallationDate = "Installation Date";
+            String a_VerifiedDate = "Verified Date";
+            String a_VerificationDate = "Verification Date";
+            String a_OnlineID = "Online ID";
+            String a_DeviceIP = "Device IP";
+            String a_DeviceNumber = "Device Number";
+            String a_Connection = "Connection";
+            String a_Remarks = "Remarks";
+            String a_Diameter = "Diameter";
+        }
+
+        interface ElectricityMeasurementInstrument {
+            String name = "Electricity Measurement Instrument";
+
+            String a_Location = "Location";
+            String a_Company = "Company";
+            String a_CostCenter = "Cost Center";
+            String a_MeterPoint = "Meter Point";
+            String a_Picture = "Picture";
+            String a_MeasuringPointID = "Measuring Point ID";
+            String a_MeasuringPointName = "Measuring Point Name";
+            String a_SerialNumber = "Serial Number";
+            String a_Type = "Type";
+            String a_Datasheet = "Datasheet";
+            String a_Accuracy = "Accuracy";
+            String a_ConversionFactor = "Conversion Factor";
+            String a_InstallationDate = "Installation Date";
+            String a_VerifiedDate = "Verified Date";
+            String a_VerificationDate = "Verification Date";
+            String a_OnlineID = "Online ID";
+            String a_DeviceIP = "Device IP";
+            String a_DeviceNumber = "Device Number";
+            String a_Connection = "Connection";
+            String a_Remarks = "Remarks";
+            String a_CurrentTransformer = "Current Transformer";
+            String a_VoltageTransformer = "Voltage Transformer";
+        }
+
+        interface GasMeasurementInstrument {
+            String name = "Gas Measurement Instrument";
+
+            String a_Location = "Location";
+            String a_Company = "Company";
+            String a_CostCenter = "Cost Center";
+            String a_MeterPoint = "Meter Point";
+            String a_Picture = "Picture";
+            String a_MeasuringPointID = "Measuring Point ID";
+            String a_MeasuringPointName = "Measuring Point Name";
+            String a_SerialNumber = "Serial Number";
+            String a_Type = "Type";
+            String a_Datasheet = "Datasheet";
+            String a_Accuracy = "Accuracy";
+            String a_ConversionFactor = "Conversion Factor";
+            String a_InstallationDate = "Installation Date";
+            String a_VerifiedDate = "Verified Date";
+            String a_VerificationDate = "Verification Date";
+            String a_OnlineID = "Online ID";
+            String a_DeviceIP = "Device IP";
+            String a_DeviceNumber = "Device Number";
+            String a_Connection = "Connection";
+            String a_Remarks = "Remarks";
+            String a_Diameter = "Diameter";
+        }
+
+        interface AirMeasurementInstrument {
+            String name = "Air Measurement Instrument";
+
+            String a_Location = "Location";
+            String a_Company = "Company";
+            String a_CostCenter = "Cost Center";
+            String a_MeterPoint = "Meter Point";
+            String a_Picture = "Picture";
+            String a_MeasuringPointID = "Measuring Point ID";
+            String a_MeasuringPointName = "Measuring Point Name";
+            String a_SerialNumber = "Serial Number";
+            String a_Type = "Type";
+            String a_Datasheet = "Datasheet";
+            String a_Accuracy = "Accuracy";
+            String a_ConversionFactor = "Conversion Factor";
+            String a_InstallationDate = "Installation Date";
+            String a_VerifiedDate = "Verified Date";
+            String a_VerificationDate = "Verification Date";
+            String a_OnlineID = "Online ID";
+            String a_DeviceIP = "Device IP";
+            String a_DeviceNumber = "Device Number";
+            String a_Connection = "Connection";
+            String a_Remarks = "Remarks";
+            String a_Diameter = "Diameter";
+        }
+
+        interface WaterMeasurementInstrument {
+            String name = "Water Measurement Instrument";
+
+            String a_Location = "Location";
+            String a_Company = "Company";
+            String a_CostCenter = "Cost Center";
+            String a_MeterPoint = "Meter Point";
+            String a_Picture = "Picture";
+            String a_MeasuringPointID = "Measuring Point ID";
+            String a_MeasuringPointName = "Measuring Point Name";
+            String a_SerialNumber = "Serial Number";
+            String a_Type = "Type";
+            String a_Datasheet = "Datasheet";
+            String a_Accuracy = "Accuracy";
+            String a_ConversionFactor = "Conversion Factor";
+            String a_InstallationDate = "Installation Date";
+            String a_VerifiedDate = "Verified Date";
+            String a_VerificationDate = "Verification Date";
+            String a_OnlineID = "Online ID";
+            String a_DeviceIP = "Device IP";
+            String a_DeviceNumber = "Device Number";
+            String a_Connection = "Connection";
+            String a_Remarks = "Remarks";
+            String a_Diameter = "Diameter";
+        }
     }
 
-    public interface Service {
-        public static String name = "Service";
+    interface MonitoredObject {
+        String name = "Monitored Object";
 
-        public interface JEAlarm {
-            public static String name = "JEAlarm";
+        interface Building {
+            String name = "Building";
 
-            public static String a_Enable = "Enable";
-            public static String a_MaxNumberThreads = "Max Number Threads";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_Status = "Status";
-        }
-
-        public interface JECalc {
-            public static String name = "JECalc";
-
-            public static String a_Enable = "Enable";
-            public static String a_MaxNumberThreads = "Max Number Threads";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_Status = "Status";
-        }
-
-        public interface JEDataCollector {
-            public static String name = "JEDataCollector";
-
-            public static String a_DataSourceTimeout = "Data Source Timeout";
-            public static String a_Enable = "Enable";
-            public static String a_MaxNumberThreads = "Max Number Threads";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_Status = "Status";
-        }
-
-        public interface JEReport {
-            public static String name = "JEReport";
-
-            public static String a_NotificationFile = "Notification File";
-            public static String a_NotificationID = "Notification ID";
-            public static String a_Enable = "Enable";
-            public static String a_MaxNumberThreads = "Max Number Threads";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_Status = "Status";
-            public static String a_Template = "Template";
-        }
-
-        public interface JENotifier {
-            public static String name = "JENotifier";
-
-            public static String a_Enable = "Enable";
-            public static String a_MaxNumberThreads = "Max Number Threads";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_Status = "Status";
-        }
-
-        public interface JEOPCUAWriter {
-            public static String name = "JEOPCUAWriter";
-
-            public static String a_Enable = "Enable";
-            public static String a_MaxNumberThreads = "Max Number Threads";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_Status = "Status";
-        }
-
-        public interface JEDataProcessor {
-            public static String name = "JEDataProcessor";
-
-            public static String a_Enable = "Enable";
-            public static String a_MaxNumberThreads = "Max Number Threads";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_Status = "Status";
-            public static String a_ProcessingSize = "Processing Size";
-        }
-
-        public interface JEStatus {
-            public static String name = "JEStatus";
-
-            public static String a_NotificationFile = "Notification File";
-            public static String a_NotificationID = "Notification ID";
-            public static String a_Enable = "Enable";
-            public static String a_MaxNumberThreads = "Max Number Threads";
-            public static String a_User = "User";
-            public static String a_Password = "Password";
-            public static String a_Tariffs = "Tariffs";
-            public static String a_CycleTime = "Cycle Time";
-            public static String a_LastRun = "Last Run";
-            public static String a_StatusEMail = "Status E-Mail";
-            public static String a_StatusLog = "Status Log";
-            public static String a_StatusFileLog = "Status File Log";
-            public static String a_Status = "Status";
-            public static String a_LatestReported = "Latest reported";
+            String a_Address = "Address";
+            String a_BuildingArea = "Building Area";
+            String a_Location = "Location";
+            String a_YearOfConstruction = "Year of Construction";
+            String a_WorkdayBeginning = "Workday Beginning";
+            String a_WorkdayEnd = "Workday End";
+            String a_Timezone = "Timezone";
+            String a_Holidays = "Holidays";
+            String a_CustomHolidays = "Custom Holidays";
         }
     }
 
-    public interface StringData {
-        public static String name = "String Data";
+    interface Notification {
+        String name = "Notification";
 
-        public static String a_Value = "Value";
-        public static String a_Period = "Period";
+        String a_SentTime = "Sent Time";
+
+        interface EMailNotification {
+            String name = "E-Mail Notification";
+
+            String a_Attachments = "Attachments";
+            String a_BlindCarbonCopys = "Blind Carbon Copys";
+            String a_CarbonCopys = "Carbon Copys";
+            String a_Enabled = "Enabled";
+            String a_HTMLEMail = "HTML E-Mail";
+            String a_Message = "Message";
+            String a_Recipients = "Recipients";
+            String a_Subject = "Subject";
+            String a_SentTime = "Sent Time";
+        }
     }
 
-    public interface System {
-        public static String name = "System";
+    interface Organization {
+        String name = "Organization";
 
-        public static String a_DomainName = "Domain Name";
-        public static String a_Hostname = "Hostname";
-        public static String a_Language = "Language";
-        public static String a_LocalIP = "Local IP";
-        public static String a_PublicIP = "Public IP";
-        public static String a_TimeZone = "TimeZone";
+        String a_Address = "Address";
+        String a_Branche = "Branche";
+        String a_CompanyLogo = "Company Logo";
+        String a_CompanyName = "Company Name";
+        String a_Location = "Location";
+        String a_Mail = "Mail";
+        String a_Members = "Members";
+        String a_Phone = "Phone";
+        String a_WorkingOrOpeningTime = "Working or Opening Time";
     }
 
-    public interface User {
-        public static String name = "User";
+    interface Output {
+        String name = "Output";
 
-        public static String a_Enabled = "Enabled";
-        public static String a_SysAdmin = "Sys Admin";
-        public static String a_Password = "Password";
-        public static String a_EMail = "E-Mail";
-        public static String a_LastName = "Last Name";
-        public static String a_FirstName = "First Name";
-        public static String a_Title = "Title";
-        public static String a_Position = "Position";
-        public static String a_Phone = "Phone";
-        public static String a_Timezone = "Timezone";
-        public static String a_StartDashboard = "Start Dashboard";
-        public static String a_AnalysisFile = "Analysis File";
-        public static String a_Activities = "Activities";
+        String a_Output = "Output";
     }
 
-    public interface UserData {
-        public static String name = "User Data";
+    interface Parser {
+        String name = "Parser";
 
-        public static String i_Value = "Value";
-        public static String a_Period = "Period";
+        interface CSVParser {
+            String name = "CSV Parser";
+
+            String a_Charset = "Charset";
+            String a_DatapointAlignment = "Datapoint Alignment";
+            String a_DatapointIndex = "Datapoint Index";
+            String a_DateFormat = "Date Format";
+            String a_DateIndex = "Date Index";
+            String a_DecimalSeparator = "Decimal Separator";
+            String a_Delimiter = "Delimiter";
+            String a_NumberOfHeadlines = "Number Of Headlines";
+            String a_Quote = "Quote";
+            String a_ThousandSeparator = "Thousand Separator";
+            String a_TimeFormat = "Time Format";
+            String a_TimeIndex = "Time Index";
+
+            interface XLSParser {
+                String name = "XLS Parser";
+
+                String a_Charset = "Charset";
+                String a_DatapointAlignment = "Datapoint Alignment";
+                String a_DatapointIndex = "Datapoint Index";
+                String a_DateFormat = "Date Format";
+                String a_DateIndex = "Date Index";
+                String a_DecimalSeparator = "Decimal Separator";
+                String a_Delimiter = "Delimiter";
+                String a_NumberOfHeadlines = "Number Of Headlines";
+                String a_Quote = "Quote";
+                String a_ThousandSeparator = "Thousand Separator";
+                String a_TimeFormat = "Time Format";
+                String a_TimeIndex = "Time Index";
+            }
+        }
+
+        interface XLSParser {
+            String name = "XLS Parser";
+
+            String a_Charset = "Charset";
+            String a_DatapointAlignment = "Datapoint Alignment";
+            String a_DatapointIndex = "Datapoint Index";
+            String a_DateFormat = "Date Format";
+            String a_DateIndex = "Date Index";
+            String a_DecimalSeparator = "Decimal Separator";
+            String a_Delimiter = "Delimiter";
+            String a_NumberOfHeadlines = "Number Of Headlines";
+            String a_Quote = "Quote";
+            String a_ThousandSeparator = "Thousand Separator";
+            String a_TimeFormat = "Time Format";
+            String a_TimeIndex = "Time Index";
+        }
+
+        interface DWDParser {
+            String name = "DWD Parser";
+
+            String a_Charset = "Charset";
+        }
+
+        interface DWDHDDParser {
+            String name = "DWD HDD Parser";
+
+            String a_Charset = "Charset";
+        }
+
+        interface SQLParser {
+            String name = "SQL Parser";
+
+        }
+
+        interface JSONParser {
+            String name = "JSON Parser";
+
+            String a_dateTimeFormat = "Date Time Format";
+            String a_dateTimePath = "Date Time Path";
+        }
+
+        interface XMLParser {
+            String name = "XML Parser";
+
+            String a_DateAttribute = "Date Attribute";
+            String a_DateElement = "Date Element";
+            String a_DateFormat = "Date Format";
+            String a_DateInElement = "Date in Element";
+            String a_DecimalSeparator = "Decimal Separator";
+            String a_MainAttribute = "Main Attribute";
+            String a_MainElement = "Main Element";
+            String a_ThousandSeparator = "Thousand Separator";
+            String a_TimeAttribute = "Time Attribute";
+            String a_TimeElement = "Time Element";
+            String a_TimeFormat = "Time Format";
+            String a_TimeInElement = "Time in Element";
+            String a_ValueAttribute = "Value Attribute";
+            String a_ValueElement = "Value Element";
+            String a_ValueInElement = "Value in Element";
+        }
     }
 
-    public interface UserRole {
-        public static String name = "User Role";
+    interface RecycleBin {
+        String name = "Recycle Bin";
 
-        public static String a_Description = "Description";
-        public static String a_Enabled = "Enabled";
-        public static String a_SysAdmin = "Sys Admin";
-        public static String a_EMail = "E-Mail";
-        public static String a_LastName = "Last Name";
-        public static String a_FirstName = "First Name";
-        public static String a_Title = "Title";
-        public static String a_Position = "Position";
-        public static String a_Phone = "Phone";
-        public static String a_Timezone = "Timezone";
-        public static String a_StartDashboard = "Start Dashboard";
     }
 
-    public interface NonconformitiesPlan {
-        public static String name = "NonconformityPlan";
+    interface Register {
+        String name = "Register";
 
-        public static String a_CustomStatus = "Custom Status";
-        public static String a_CustomFields = "Custom Fields";
-        public static String a_CustomMedium = "Custom Medium";
-        public static String a_EnPI = "EnPI";
+        interface EquipmentRegister {
+            String name = "Equipment Register";
 
-        public interface NonconformityPlanDirectory {
-            public static String name = "NonconformityPlan Directory";
+        }
+    }
 
-            public interface Nonconformity {
-                public static String name = "Nonconformity";
+    interface Report {
+        String name = "Report";
 
-                public static String a_Data = "Data";
+        String a_Enabled = "Enabled";
+        String a_LastReport = "Last Report";
+        String a_LastReportPDF = "Last Report PDF";
+        String a_PDF = "PDF";
+        String a_PDFPages = "PDF Pages";
+        String a_Template = "Template";
+        String a_TimeZone = "Time Zone";
 
-                public interface NonconformityDirectory{
-                    public static String name = "Nonconformities Directory";
+        interface PeriodicReport {
+            String name = "Periodic Report";
+
+            String a_AttributeName = "Attribute Name";
+            String a_ConditionEnabled = "Condition Enabled";
+            String a_JEVisID = "JEVis ID";
+            String a_Limit = "Limit";
+            String a_Operator = "Operator";
+            String a_Schedule = "Schedule";
+            String a_CustomScheduleObject = "Custom Schedule Object";
+            String a_StartRecord = "Start Record";
+            String a_Enabled = "Enabled";
+            String a_LastReport = "Last Report";
+            String a_LastReportPDF = "Last Report PDF";
+            String a_PDF = "PDF";
+            String a_PDFPages = "PDF Pages";
+            String a_Template = "Template";
+            String a_TimeZone = "Time Zone";
+
+            interface AutomatedWorkingSheet {
+                String name = "Automated Working Sheet";
+
+                String a_AttributeName = "Attribute Name";
+                String a_ConditionEnabled = "Condition Enabled";
+                String a_JEVisID = "JEVis ID";
+                String a_Limit = "Limit";
+                String a_Operator = "Operator";
+                String a_Schedule = "Schedule";
+                String a_CustomScheduleObject = "Custom Schedule Object";
+                String a_StartRecord = "Start Record";
+                String a_Enabled = "Enabled";
+                String a_LastReport = "Last Report";
+                String a_LastReportPDF = "Last Report PDF";
+                String a_PDF = "PDF";
+                String a_PDFPages = "PDF Pages";
+                String a_Template = "Template";
+                String a_TimeZone = "Time Zone";
+            }
+        }
+
+        interface AutomatedWorkingSheet {
+            String name = "Automated Working Sheet";
+
+            String a_AttributeName = "Attribute Name";
+            String a_ConditionEnabled = "Condition Enabled";
+            String a_JEVisID = "JEVis ID";
+            String a_Limit = "Limit";
+            String a_Operator = "Operator";
+            String a_Schedule = "Schedule";
+            String a_CustomScheduleObject = "Custom Schedule Object";
+            String a_StartRecord = "Start Record";
+            String a_Enabled = "Enabled";
+            String a_LastReport = "Last Report";
+            String a_LastReportPDF = "Last Report PDF";
+            String a_PDF = "PDF";
+            String a_PDFPages = "PDF Pages";
+            String a_Template = "Template";
+            String a_TimeZone = "Time Zone";
+        }
+    }
+
+    interface ReportAttribute {
+        String name = "Report Attribute";
+
+        String a_AttributeName = "Attribute Name";
+    }
+
+    interface ReportConfiguration {
+        String name = "Report Configuration";
+
+        interface ReportPeriodConfiguration {
+            String name = "Report Period Configuration";
+
+            String a_Aggregation = "Aggregation";
+            String a_Manipulation = "Manipulation";
+            String a_Period = "Period";
+            String a_FixedPeriod = "Fixed Period";
+        }
+    }
+
+    interface ReportLink {
+        String name = "Report Link";
+
+        String a_JEVisID = "JEVis ID";
+        String a_Optional = "Optional";
+        String a_Calculation = "Calculation";
+        String a_TemplateVariableName = "Template Variable Name";
+    }
+
+    interface ResultCalculationTemplate {
+        String name = "Result Calculation Template";
+
+        String a_TemplateFile = "Template File";
+    }
+
+    interface Service {
+        String name = "Service";
+
+        interface JEAlarm {
+            String name = "JEAlarm";
+
+            String a_Enable = "Enable";
+            String a_MaxNumberThreads = "Max Number Threads";
+            String a_CycleTime = "Cycle Time";
+            String a_Status = "Status";
+        }
+
+        interface JECalc {
+            String name = "JECalc";
+
+            String a_Enable = "Enable";
+            String a_MaxNumberThreads = "Max Number Threads";
+            String a_CycleTime = "Cycle Time";
+            String a_Status = "Status";
+        }
+
+        interface JEDataCollector {
+            String name = "JEDataCollector";
+
+            String a_DataSourceTimeout = "Data Source Timeout";
+            String a_Enable = "Enable";
+            String a_MaxNumberThreads = "Max Number Threads";
+            String a_CycleTime = "Cycle Time";
+            String a_Status = "Status";
+        }
+
+        interface JEReport {
+            String name = "JEReport";
+
+            String a_NotificationFile = "Notification File";
+            String a_NotificationID = "Notification ID";
+            String a_Enable = "Enable";
+            String a_MaxNumberThreads = "Max Number Threads";
+            String a_CycleTime = "Cycle Time";
+            String a_Status = "Status";
+            String a_Template = "Template";
+        }
+
+        interface JENotifier {
+            String name = "JENotifier";
+
+            String a_Enable = "Enable";
+            String a_MaxNumberThreads = "Max Number Threads";
+            String a_CycleTime = "Cycle Time";
+            String a_Status = "Status";
+        }
+
+        interface JEOPCUAWriter {
+            String name = "JEOPCUAWriter";
+
+            String a_Enable = "Enable";
+            String a_MaxNumberThreads = "Max Number Threads";
+            String a_CycleTime = "Cycle Time";
+            String a_Status = "Status";
+        }
+
+        interface JEDataProcessor {
+            String name = "JEDataProcessor";
+
+            String a_Enable = "Enable";
+            String a_MaxNumberThreads = "Max Number Threads";
+            String a_CycleTime = "Cycle Time";
+            String a_Status = "Status";
+            String a_ProcessingSize = "Processing Size";
+        }
+
+        interface JEStatus {
+            String name = "JEStatus";
+
+            String a_NotificationFile = "Notification File";
+            String a_NotificationID = "Notification ID";
+            String a_Enable = "Enable";
+            String a_MaxNumberThreads = "Max Number Threads";
+            String a_User = "User";
+            String a_Password = "Password";
+            String a_Tariffs = "Tariffs";
+            String a_CycleTime = "Cycle Time";
+            String a_LastRun = "Last Run";
+            String a_StatusEMail = "Status E-Mail";
+            String a_StatusLog = "Status Log";
+            String a_StatusFileLog = "Status File Log";
+            String a_Status = "Status";
+            String a_LatestReported = "Latest reported";
+        }
+    }
+
+    interface StringData {
+        String name = "String Data";
+
+        String a_Value = "Value";
+        String a_Period = "Period";
+    }
+
+    interface System {
+        String name = "System";
+
+        String a_DomainName = "Domain Name";
+        String a_Hostname = "Hostname";
+        String a_Language = "Language";
+        String a_LocalIP = "Local IP";
+        String a_PublicIP = "Public IP";
+        String a_TimeZone = "TimeZone";
+    }
+
+    interface User {
+        String name = "User";
+
+        String a_Enabled = "Enabled";
+        String a_SysAdmin = "Sys Admin";
+        String a_Password = "Password";
+        String a_EMail = "E-Mail";
+        String a_LastName = "Last Name";
+        String a_FirstName = "First Name";
+        String a_Title = "Title";
+        String a_Position = "Position";
+        String a_Phone = "Phone";
+        String a_Timezone = "Timezone";
+        String a_StartDashboard = "Start Dashboard";
+        String a_AnalysisFile = "Analysis File";
+        String a_Activities = "Activities";
+    }
+
+    interface UserData {
+        String name = "User Data";
+
+        String i_Value = "Value";
+        String a_Period = "Period";
+    }
+
+    interface UserRole {
+        String name = "User Role";
+
+        String a_Description = "Description";
+        String a_Enabled = "Enabled";
+        String a_SysAdmin = "Sys Admin";
+        String a_EMail = "E-Mail";
+        String a_LastName = "Last Name";
+        String a_FirstName = "First Name";
+        String a_Title = "Title";
+        String a_Position = "Position";
+        String a_Phone = "Phone";
+        String a_Timezone = "Timezone";
+        String a_StartDashboard = "Start Dashboard";
+    }
+
+    interface NonconformitiesPlan {
+        String name = "NonconformityPlan";
+
+        String a_CustomStatus = "Custom Status";
+        String a_CustomFields = "Custom Fields";
+        String a_CustomMedium = "Custom Medium";
+        String a_EnPI = "EnPI";
+
+        interface NonconformityPlanDirectory {
+            String name = "NonconformityPlan Directory";
+
+            interface Nonconformity {
+                String name = "Nonconformity";
+
+                String a_Data = "Data";
+
+                interface NonconformityDirectory {
+                    String name = "Nonconformities Directory";
                 }
 
 
             }
         }
     }
-    public interface IndexofLegalProvisions {
-        public static String name = "Index of Legal Provisions";
+
+    interface IndexofLegalProvisions {
+        String name = "Index of Legal Provisions";
 
         String a_CustomMedium = "Custom Medium";
         String a_category = "category";
         String a_scope = "scope";
+
         interface IndexofLegalProvionsDirectory {
             String name = "Index of Legal Provisions Directory";
+
             interface Obligation {
                 String name = "Obligation";
 
                 String a_Data = "Data";
 
-                public interface ObligationDirectory{
-                    public static String name = "Index of Legal Provisions Directory";
+                interface ObligationDirectory {
+                    String name = "Index of Legal Provisions Directory";
                 }
             }
 
