@@ -56,6 +56,25 @@
       }
     },
     {
+      "type": "Include Limits In Notification",
+      "descriptions": {
+        "de": "Die Ergebnisse der Grenzwertkontrolle werden in der Benachrichtigung berücksichtigt.",
+        "ru": "Результаты контроля предельного значения учитываются в уведомлении.",
+        "uk": "Результати контролю граничних значень враховуються в повідомленні.",
+        "th": "ผลลัพธ์ของการควบคุมค่าขีดจำกัดจะถูกนำมาพิจารณาในการแจ้งเตือน",
+        "en": "Include Limits In Notification for automatic report.",
+        "ar": "يتم أخذ نتائج التحكم في القيمة الحدية في الاعتبار في الإخطار."
+      },
+      "names": {
+        "de": "Grenzwertkontrolle in Benachrichtigung",
+        "ru": "Ограничить контроль в уведомлении",
+        "th": "จำกัดการควบคุมในการแจ้งเตือน",
+        "uk": "Обмеження контролю в повідомленні",
+        "en": "Include Limits In Notification",
+        "ar": "الحد من التحكم في الإخطار"
+      }
+    },
+    {
       "type": "Alarm Scope",
       "descriptions": {
         "de": "Definiert den Rahmen der beinhalteten Alarme; alle, ausgewählte, alle außer die ausgewählten oder keine. In jedem Fall werden die L1/L2 Grenzen protokolliert.",
