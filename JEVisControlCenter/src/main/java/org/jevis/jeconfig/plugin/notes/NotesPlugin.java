@@ -777,6 +777,7 @@ public class NotesPlugin implements Plugin {
 
         ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, 18, 18));
         newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.add")));
+        newB.setDisable(true);
         ToggleButton save = new ToggleButton("", JEConfig.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
         save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.save")));
         ToggleButton delete = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
@@ -823,6 +824,9 @@ public class NotesPlugin implements Plugin {
         tableView.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                if (event.isPrimaryButtonDown() && event.getClickCount() == 1) {
+                    Platform.runLater(() -> newB.setDisable(false));
+                }
                 if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
                     addNote();
                 }
