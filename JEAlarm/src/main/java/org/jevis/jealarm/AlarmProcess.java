@@ -209,12 +209,21 @@ public class AlarmProcess {
 
             try {
                 sb.append(alarmTable.getAlarmTable());
+                sb.append("<br>");
+                sb.append("<br>");
             } catch (Exception e) {
                 logger.error("Could not get alarm table string.");
             }
 
-            sb.append("<br>");
-            sb.append("<br>");
+            if (alarmConfiguration.includeLimits()) {
+                try {
+                    sb.append(alarmTable.getTableString());
+                    sb.append("<br>");
+                    sb.append("<br>");
+                } catch (Exception e) {
+                    logger.error("Could not get limit table string.");
+                }
+            }
 
             sb.append("</html>");
 
