@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class NoteTag {
@@ -34,6 +33,7 @@ public class NoteTag {
         this.id = id;
     }
 
+    public static NoteTag TAG_NONE = new NoteTag(I18n.getInstance().getString("plugin.alarm.table.translation.none"), "0");
     public static NoteTag TAG_AUDIT = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.audit"), "1");
 
     @Override
@@ -64,7 +64,10 @@ public class NoteTag {
         for (String tString : tagString.split(";")) {
             try {
 
-                if (tString.equals(TAG_AUDIT.getName())) {
+                if (tString.equals(TAG_NONE.getName())) {
+                    tags.add(TAG_NONE);
+                    continue;
+                } else if (tString.equals(TAG_AUDIT.getName())) {
                     tags.add(TAG_AUDIT);
                     continue;
                 } else if (tString.equals(TAG_TASK.getName())) {
@@ -104,6 +107,10 @@ public class NoteTag {
 
 
                 switch (tString) {
+                    default:
+                    case "0":
+                        tags.add(TAG_NONE);
+                        break;
                     case "1":
                         tags.add(TAG_AUDIT);
                         break;
@@ -143,13 +150,6 @@ public class NoteTag {
                     case "13":
                         tags.add(TAG_MAINTENANCE);
                         break;
-                    default:
-                        logger.error("not parsable Tag: " + tString);
-                        if (!tagString.isEmpty()) {
-                            //makes trouble
-                            // tags.add(new NoteTag(tagString, tagString));
-                        }
-
                 }
 
             } catch (Exception ex) {
@@ -157,11 +157,12 @@ public class NoteTag {
             }
         }
 
-        return new ArrayList<>(new HashSet<>(tags));
+        return tags;
     }
 
     public static List<NoteTag> getAllTags() {
         ArrayList<NoteTag> arrayList = new ArrayList<>();
+        arrayList.add(TAG_NONE);
         arrayList.add(TAG_AUDIT);
         arrayList.add(TAG_TASK);
         arrayList.add(TAG_REPORT);
