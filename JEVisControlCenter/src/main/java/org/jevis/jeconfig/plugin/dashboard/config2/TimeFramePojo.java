@@ -88,6 +88,9 @@ public class TimeFramePojo {
             }
             if (jsonNode.has("format")) {
                 parser = jsonNode.get("format").asText("yyyy.MM.dd HH:mm");
+                System.out.println(jsonNode.get("format"));
+                System.out.println(this);
+                System.out.println(parser);
             }
 
 
@@ -217,20 +220,13 @@ public class TimeFramePojo {
         dataNode.put("format", parser);
         logger.debug(dataNode);
 
-        ObjectNode dataNode1 = dataNode.putObject("selectedWidget");
+
         if (getSelectedTimeFarmeObjectWidget().isPresent()) {
+            ObjectNode dataNode1 = dataNode.putObject("selectedWidget");
             dataNode1.put("start", getSelectedTimeFarmeObjectWidget().get().getStartObjectProperty().toString());
-        }
-        if (getSelectedTimeFarmeObjectWidget().isPresent()) {
-
             dataNode1.put("end", getSelectedTimeFarmeObjectWidget().get().getEndObjectProperty().toString());
-        }
-        if (getSelectedWidget().isPresent()) {
             dataNode1.put("id", getSelectedWidget().get().getConfig().getUuid());
-        }
-        if (getSelectedTimeFarmeObjectWidget().isPresent()) {
             dataNode1.put("count", getSelectedTimeFarmeObjectWidget().get().countOfSamplesProperty().getValue().toString());
-
         }
 
 
