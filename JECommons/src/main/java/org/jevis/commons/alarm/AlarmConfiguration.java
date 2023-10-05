@@ -25,6 +25,7 @@ public class AlarmConfiguration {
     private static final String LOG = "Log";
     private final String ENABLED_NAME = "Enabled";
     private final String DISABLE_LINK = "Disable Link";
+    private final String INCLUDE_LIMITS_IN_NOTIFICATION = "Include Limits In Notification";
     private final String ALARM_SCOPE = "Alarm Scope";
     private final String ALARM_PERIOD = "Alarm Period";
     private final String ALARM_OBJECTS = "Alarm Objects";
@@ -70,7 +71,23 @@ public class AlarmConfiguration {
                 }
             }
         } catch (JEVisException e) {
-            logger.error("Could not get Link status for object {}:{}", object.getName(), object.getID(), e);
+            logger.error("Could not get Link disabled status for object {}:{}", object.getName(), object.getID(), e);
+        }
+
+        return false;
+    }
+
+    public Boolean includeLimits() {
+        try {
+            JEVisAttribute includeLimitsAttribute = object.getAttribute(INCLUDE_LIMITS_IN_NOTIFICATION);
+            if (includeLimitsAttribute != null) {
+                JEVisSample latestSample = includeLimitsAttribute.getLatestSample();
+                if (latestSample != null) {
+                    return latestSample.getValueAsBoolean();
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get include limits status for object {}:{}", object.getName(), object.getID(), e);
         }
 
         return false;
