@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.plugin.metersv2.cells.*;
 import org.jevis.jeconfig.plugin.metersv2.data.*;
@@ -26,10 +27,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 
 public class MeterPlanTable extends TableView<MeterData> {
@@ -108,7 +107,7 @@ public class MeterPlanTable extends TableView<MeterData> {
             e.printStackTrace();
 
         }
-        List<JEVisTypeWrapper> jeVisTypes = data.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().keySet()).flatMap(jeVisTypes1 -> jeVisTypes1.stream()).distinct().collect(Collectors.toList());
+        List<JEVisTypeWrapper> jeVisTypes = meterPlan.getAllAvailbleTypes();
 
 
         try {

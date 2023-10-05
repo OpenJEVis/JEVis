@@ -229,7 +229,6 @@ public class MeterPlanTab extends Tab {
             List<String> stringValues = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper))
                     .filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent()).map(optionalJEVisSample -> {
                         try {
-                            System.out.println(optionalJEVisSample.get());
                             return optionalJEVisSample.get().getValueAsString();
                         } catch (JEVisException e) {
                             e.printStackTrace();
@@ -248,7 +247,6 @@ public class MeterPlanTab extends Tab {
                 public void onChanged(Change<? extends String> c) {
                     logger.debug("List Changed: {}", c);
                     while (c.next()) {
-                        System.out.println(c.getList());
                         function.apply((ObservableList<String>) c.getList());
                         meterPlanTable.filter();
                     }

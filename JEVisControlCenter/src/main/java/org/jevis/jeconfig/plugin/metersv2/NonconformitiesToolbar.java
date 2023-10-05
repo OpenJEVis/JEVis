@@ -2,10 +2,17 @@ package org.jevis.jeconfig.plugin.metersv2;
 
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
+import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.metersv2.export.MetersPlanExport;
+
+import java.awt.event.ActionEvent;
+import java.beans.EventHandler;
+import java.io.File;
+import java.io.IOException;
 
 public class NonconformitiesToolbar extends ToolBar {
     private static final Logger logger = LogManager.getLogger(MeterController.class);
@@ -29,51 +36,26 @@ public class NonconformitiesToolbar extends ToolBar {
     public NonconformitiesToolbar(MeterController meterController) {
 
         getItems().add(add);
+        getItems().add(exportPDF);
 
         add.setOnAction(actionEvent -> meterController.addMeter());
-//        this.nonconformitiesController = nonconformitiesController;
-//
-//        Separator sep1 = new Separator();
-//        Separator sep2 = new Separator();
-//        getItems().setAll(newNonconformityPlan, nonconformityPlanConfig, deletePlan, reloadButton,
-//                sep1, newNonconformity, deleteNonconformity, openForm,
-//                sep2, exportPDF);
-//
-//
-//        nonconformityPlanConfig.setOnAction(event -> nonconformitiesController.openPlanSettings());
-//        openForm.setOnAction(event -> nonconformitiesController.openDataForm(false));
-//        newNonconformityPlan.setOnAction(event -> nonconformitiesController.createNewNonconformityPlan());
-//        newNonconformity.setOnAction(event -> nonconformitiesController.createNonconformity());
-//        deleteNonconformity.setOnAction(event -> nonconformitiesController.deleteNonconformity());
-//        deletePlan.setOnAction(event -> nonconformitiesController.deletePlan());
-//
-//        setOverview(nonconformitiesController.isOverviewTabProperty().get());
-//        nonconformitiesController.isOverviewTabProperty().addListener((observable, oldValue, newValue) -> {
-//            logger.debug(newValue);
-//            setOverview(newValue);
-//        });
-//
-//
-//       // reloadButton.setOnAction(event ->nonconformitiesController.relo );
-//        //calender.setOnAction(event -> actionCalendar.showAndWait());
-//
-//        getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel",".xlsx"));
+
+        //Adding action on the menu item
+        exportPDF.setOnAction(actionEvent -> {
+            File file = fileChooser.showSaveDialog(meterController.getContent().getScene().getWindow());
+            MetersPlanExport metersPlanExport = new MetersPlanExport(meterController.getActiveTab().getPlan());
+            metersPlanExport.export();
+            try {
+                metersPlanExport.save(file);
+            } catch (IOException ioException) {
+                logger.error(ioException);
+            }
+        });
+
 
 
     }
-    private void setOverview(boolean isOverview) {
-
-        nonconformityPlanConfig.setDisable(isOverview);
-        newNonconformity.setDisable(isOverview);
-        deleteNonconformity.setDisable(isOverview);
-        deletePlan.setDisable(isOverview);
-        exportPDF.setDisable(true);//Disabled because implementation is missing
-        reloadButton.setDisable(true); //Disabled because implementation is missing
-        //newPlan.setDisable(isOverview);
-        //openForm.setDisable(isOverview);
-        //reloadButton.setDisable(isOverview);
-
-    }
-
-
 }

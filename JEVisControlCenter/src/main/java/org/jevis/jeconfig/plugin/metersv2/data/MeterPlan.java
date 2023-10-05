@@ -2,17 +2,20 @@ package org.jevis.jeconfig.plugin.metersv2.data;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.JC;
+import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTable;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Observable;
+import java.util.stream.Collectors;
 
 public class MeterPlan {
+    private static final Logger logger = LogManager.getLogger(MeterPlan.class);
     private JEVisObject jeVisObject;
     private String name;
     ObservableList<MeterData> meterDataList = FXCollections.observableArrayList();
@@ -40,20 +43,7 @@ public class MeterPlan {
         }
 
 
-//        if (!actionsLoaded.get()) {
-//            actionsLoaded.set(true);
-//            try {
-//
-//                JEVisClass measurementClass =  object.getDataSource().getJEVisClass(JC.MeasurementInstrument.name);
-//                for (JEVisObject measurementObject : getObject().getChildren(measurementClass, true)) {
-//
-//                    System.out.println(measurementObject);
-//                }
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//            nonconformityList.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
-//        }
+
 
 
     }
@@ -98,5 +88,25 @@ public class MeterPlan {
 
     public JEVisObject getJeVisObject() {
         return jeVisObject;
+    }
+
+    public List<JEVisTypeWrapper> getAllAvailbleTypes(){
+       return meterDataList.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().keySet()).flatMap(jeVisTypes1 -> jeVisTypes1.stream()).distinct().collect(Collectors.toList());
+    }
+
+    public List<JEVisTypeWrapper> getAllAvailbleTypesOfClass(String classname){
+        return meterDataList.stream().filter(meterData -> {
+            try {
+                return meterData.getJeVisClass().getName().equals(classname);
+            } catch (JEVisException e) {
+                logger.error(e);
+                throw new RuntimeException(e);
+            }
+        }).map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().keySet()).flatMap(jeVisTypes1 -> jeVisTypes1.stream()).distinct().collect(Collectors.toList());
+
+    }
+
+    public List<MeterData> getMeterDataOfClass(String classname){
+       return meterDataList.stream().filter(meterData -> meterData.getjEVisClassName().equals(classname)).collect(Collectors.toList());
     }
 }
