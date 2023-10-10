@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.plugin.metersv2.cells.*;
 import org.jevis.jeconfig.plugin.metersv2.data.*;
@@ -148,6 +149,7 @@ public class MeterPlanTable extends TableView<MeterData> {
                 }
             }
             this.getColumns().add(new JumpColumn("", onlineIdType, BIG_WIDTH, ds));
+            this.getColumns().add(new PathColumnColumn(new ObjectRelations(ds),BIG_WIDTH,"Path"));
 
 
         } catch (Exception e) {

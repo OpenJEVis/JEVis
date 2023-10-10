@@ -291,6 +291,7 @@ public class MeterController {
     public void openDataForm(Optional<MeterData> meterData) {
         MeterData data = meterData.orElse(getSelectedData());
         MeterForm meterForm = new MeterForm(data,ds);
+
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         meterForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
