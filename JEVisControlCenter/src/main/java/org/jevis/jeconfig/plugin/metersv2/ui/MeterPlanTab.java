@@ -97,13 +97,13 @@ public class MeterPlanTab extends Tab {
 
         GridPane.setRowSpan(vSep1, 2);
         GridPane.setRowSpan(vSep2, 2);
-        gridPane.addColumn(0, new Label("Search"), buildSearch(meterPlanTable));
+        gridPane.addColumn(0, new Label(I18n.getInstance().getString("plugin.meters.search")), buildSearch(meterPlanTable));
         gridPane.addColumn(1, vSep1);
         //gridPane.addColumn(2, new Label("Relevant"), relevantFilter);
         gridPane.addColumn(3, new Region(), buildClassFilterButton(meterPlanTable));
-        gridPane.addColumn(4, new Region(), buildTypeFilterButton(meterPlanTable, "Type", meterPlanTable::setType, typeWrapper));
-        gridPane.addColumn(5, new Region(), buildTypeFilterButton(meterPlanTable, "Location", meterPlanTable::setLocation, locationWrapper));
-        gridPane.addColumn(6,new Label("Overdue"),jfxToggleButton);
+        gridPane.addColumn(4, new Region(), buildTypeFilterButton(meterPlanTable, I18n.getInstance().getString("plugin.meters.type"), meterPlanTable::setType, typeWrapper));
+        gridPane.addColumn(5, new Region(), buildTypeFilterButton(meterPlanTable, I18n.getInstance().getString("plugin.meters.location"), meterPlanTable::setLocation, locationWrapper));
+        gridPane.addColumn(6,new Label(I18n.getInstance().getString("plugin.meters.overdue")),jfxToggleButton);
 
 
         jfxToggleButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
@@ -132,12 +132,10 @@ public class MeterPlanTab extends Tab {
                 ObservableMap<TableColumn, StringProperty> summeryRow = FXCollections.observableHashMap();
 
                 if (jeVisClasses.size() > i) {
-                    summeryRow.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals("Medium")).findAny().orElseThrow(RuntimeException::new), statistics.getAllOfMedium(jeVisClasses.get(i).getName(), jeVisClasses.get(i).getName()));
+                    summeryRow.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals(I18n.getInstance().getString("plugin.meters.medium"))).findAny().orElseThrow(RuntimeException::new), statistics.getAllOfMedium(jeVisClasses.get(i).getName(), jeVisClasses.get(i).getName()));
                 }
 
                 if (type.size() > i) {
-
-                  //  System.out.println(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals("Type")).findAny());
                     summeryRow.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> {
                         try {
                             return meterDataTableColumn.getText().equals(I18nWS.getInstance().getTypeName(typeWrapper.getJeVisType()));
@@ -153,7 +151,7 @@ public class MeterPlanTab extends Tab {
                         } catch (JEVisException e) {
                             throw new RuntimeException(e);
                         }
-                    }).findAny().orElseThrow(RuntimeException::new), statistics.getOverdue(verificationDateWrapper,"Overdue"));
+                    }).findAny().orElseThrow(RuntimeException::new), statistics.getOverdue(verificationDateWrapper,I18n.getInstance().getString("plugin.meters.overdue")));
                 }
                summeryData.add(new SummeryData(summeryRow));
             } catch (JEVisException jeVisException) {

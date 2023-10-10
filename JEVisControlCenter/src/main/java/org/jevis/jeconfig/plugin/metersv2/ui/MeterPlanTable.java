@@ -98,7 +98,7 @@ public class MeterPlanTable extends TableView<MeterData> {
 
         this.setTableMenuButtonVisible(true);
 
-        this.getColumns().add(new MediumColumn("Medium", BIG_WIDTH));
+        this.getColumns().add(new MediumColumn(I18n.getInstance().getString("plugin.meters.medium"), BIG_WIDTH));
         JEVisType onlineIdType = null;
         JEVisType pointName = null;
         try {
@@ -124,7 +124,7 @@ public class MeterPlanTable extends TableView<MeterData> {
                         break;
                     case JEVisConstants.PrimitiveType.STRING:
                         if (jeVisType.getName().equals(JC.MeasurementInstrument.a_OnlineID)) {
-                            col = new LastRawValue("Last Raw Value", ds, jeVisType,BIG_WIDTH,integerProperty);
+                            col = new LastRawValue(I18n.getInstance().getString("plugin.meters.lastrawvalue"), ds, jeVisType,BIG_WIDTH,integerProperty);
                             i = 2;
                             this.getSortOrder().add(col);
 
@@ -163,11 +163,10 @@ public class MeterPlanTable extends TableView<MeterData> {
                 }
             }
             this.getColumns().add(new JumpColumn("", onlineIdType, BIG_WIDTH, ds));
-            this.getColumns().add(2,new PathColumnColumn(new ObjectRelations(ds),BIG_WIDTH,"Path"));
+            this.getColumns().add(2,new PathColumnColumn(new ObjectRelations(ds),BIG_WIDTH,I18n.getInstance().getString("plugin.meters.path")));
 
 
         } catch (Exception e) {
-            System.out.println("col");
             e.printStackTrace();
         }
         sortedData = new SortedList<>(filteredData);
