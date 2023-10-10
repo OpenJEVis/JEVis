@@ -23,6 +23,7 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.DataTypeBox;
 import org.jevis.jeconfig.application.control.DayBox;
 import org.jevis.jeconfig.application.control.MonthBox;
@@ -289,7 +290,7 @@ public class MeterForm extends Dialog {
         Label label = null;
         JFXTextField textField = null;
         try {
-            label = new Label(jeVisType.getName());
+            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
             textField = optionalJEVisSample.isPresent() ? new JFXTextField(optionalJEVisSample.get().getValueAsString()) : new JFXTextField();
 
             textField.textProperty().addListener((observableValue, s, t1) -> {
@@ -352,7 +353,7 @@ public class MeterForm extends Dialog {
             Label fileName = new Label();
             fileName.setText(optionalJEVisSample.isPresent() ? optionalJEVisSample.get().getValueAsString() : "");
             uploadButton = new JFXButton("", JEConfig.getSVGImage(Icon.CLOUD_UPLOAD, 20, 20));
-            label = new Label(jeVisType.getName());
+            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
             hBox = new HBox(uploadButton, fileName);
             hBox.setSpacing(5);
 
@@ -385,7 +386,7 @@ public class MeterForm extends Dialog {
         JFXDatePicker jfxDatePicker = new JFXDatePicker();
         JEVisObject jeVisObject = meterData.getJeVisObject();
         try {
-            label = new Label(jeVisType.getName());
+            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
             DateTime dateTime = DatabaseHelper.getObjectAsDate(jeVisObject, jeVisType);
 //            System.out.println(DatabaseHelper.getObjectAsLocaleDate(jeVisObject, entry.getKey()).toLocalDate());
             jfxDatePicker.setValue(toLocalDate(dateTime));
@@ -437,7 +438,7 @@ public class MeterForm extends Dialog {
         JFXButton jfxButton = null;
         try {
             jfxButton = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 20, 20));
-            label = new Label(jeVisType.getName());
+            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
 
             JEVisSample latestSample = meterData.getJeVisObject().getAttribute(jeVisType).getLatestSample();
 

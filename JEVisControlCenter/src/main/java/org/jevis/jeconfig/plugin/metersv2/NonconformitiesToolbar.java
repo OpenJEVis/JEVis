@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.plugin.metersv2;
 
+import com.jfoenix.controls.JFXComboBox;
+import javafx.collections.FXCollections;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.stage.FileChooser;
@@ -31,19 +33,21 @@ public class NonconformitiesToolbar extends ToolBar {
     private final ToggleButton calender = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, this.iconSize, this.iconSize));
 
     private final ToggleButton add = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
+    private final ToggleButton increasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
+    private final ToggleButton decreasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.MINUS_CIRCLE, iconSize, iconSize));
+
+  //  private final JFXComboBox<Integer> comboPrecision = new JFXComboBox(FXCollections.observableArrayList(1,2,3,4,5));
     private MeterController meterController;
 
     public NonconformitiesToolbar(MeterController meterController) {
 
-        getItems().add(add);
-        getItems().add(exportPDF);
+        getItems().addAll(add,exportPDF, increasePrecision,decreasePrecision);
 
         add.setOnAction(actionEvent -> meterController.addMeter());
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel",".xlsx"));
 
-        //Adding action on the menu item
         exportPDF.setOnAction(actionEvent -> {
             File file = fileChooser.showSaveDialog(meterController.getContent().getScene().getWindow());
             MetersPlanExport metersPlanExport = new MetersPlanExport(meterController.getActiveTab().getPlan());
@@ -54,6 +58,24 @@ public class NonconformitiesToolbar extends ToolBar {
                 logger.error(ioException);
             }
         });
+
+        increasePrecision.setOnAction(actionEvent -> {
+            if (meterController.getLastRawValuePrecision() < 12) {
+                meterController.setLastRawValuePrecision(meterController.getLastRawValuePrecision() + 1);
+            }
+        });
+
+        decreasePrecision.setOnAction(actionEvent -> {
+            if ((meterController.getLastRawValuePrecision() >= 1)) {
+                meterController.setLastRawValuePrecision(meterController.getLastRawValuePrecision()-1);
+            }
+        });
+
+
+
+
+
+
 
 
 

@@ -134,4 +134,6 @@ public class Icon {
     public static final String BALANCE = "/icons/MaterialDesignSVG/outlined/balance.svg";
 
     public static final String CLOUD_UPLOAD = "/icons/MaterialDesignSVG/outlined/cloud_upload.svg";
+
+
 }

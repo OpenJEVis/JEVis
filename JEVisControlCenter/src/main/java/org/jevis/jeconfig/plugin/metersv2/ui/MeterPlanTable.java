@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -14,6 +15,7 @@ import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.plugin.metersv2.cells.*;
 import org.jevis.jeconfig.plugin.metersv2.data.*;
@@ -82,7 +84,7 @@ public class MeterPlanTable extends TableView<MeterData> {
     // Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
 
 
-    public MeterPlanTable(MeterPlan meterPlan, ObservableList<MeterData> data, JEVisDataSource ds) {
+    public MeterPlanTable(MeterPlan meterPlan, ObservableList<MeterData> data, JEVisDataSource ds, IntegerProperty integerProperty) {
 
         this.ds = ds;
         this.data = data;
@@ -113,43 +115,55 @@ public class MeterPlanTable extends TableView<MeterData> {
 
         try {
             for (JEVisTypeWrapper jeVisTypeWrapper : jeVisTypes) {
+                int i = 0;
                 JEVisType jeVisType = jeVisTypeWrapper.getJeVisType();
                 TableColumn<MeterData, ?> col = null;
                 switch (jeVisType.getPrimitiveType()) {
                     case JEVisConstants.PrimitiveType.LONG:
-                        col = new DoubleColumn(jeVisType, BIG_WIDTH, jeVisType.getName());
+                        col = new DoubleColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
                         break;
                     case JEVisConstants.PrimitiveType.STRING:
-
-                        if (jeVisType.equals(onlineIdType)) {
-                            col = new LastRawValue("Last Raw Value", ds, jeVisType, BIG_WIDTH);
+                        if (jeVisType.getName().equals(JC.MeasurementInstrument.a_OnlineID)) {
+                            col = new LastRawValue("Last Raw Value", ds, jeVisType,BIG_WIDTH,integerProperty);
+                            i = 2;
                             this.getSortOrder().add(col);
+
                         } else {
-                            col = new ShortCellColumn(jeVisType, BIG_WIDTH, jeVisType.getName());
-                            if (jeVisType.equals(pointName)) col.setVisible(true);
-
-
+                            col = new ShortCellColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
+                            if (jeVisType.getName().equals(JC.MeasurementInstrument.a_MeasuringPointName)){
+                                col.setVisible(true);
+                                i = 1;
+                            } else if (jeVisType.getName().equals(JC.MeasurementInstrument.a_Type)) {
+                                col.setVisible(true);
+                                i = 3;
+                            }
                         }
                         break;
                     case JEVisConstants.PrimitiveType.FILE:
-                        col = new FileColumn(jeVisType, BIG_WIDTH, jeVisType.getName());
+                        col = new FileColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
                         break;
                     default:
 
                         if ((jeVisType.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || jeVisType.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId()))) {
-                            col = new DateColumn(jeVisType.getName(), jeVisType, BIG_WIDTH);
+
+                            col = new DateColumn(I18nWS.getInstance().getTypeName(jeVisType), jeVisType, BIG_WIDTH);
                         } else {
 
-                            col = new ShortCellColumn(jeVisType, BIG_WIDTH, jeVisType.getName());
+                            col = new ShortCellColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
                         }
                         break;
                 }
                 if (col != null) {
-                    this.getColumns().add(col);
+                    if (i == 0) {
+                        this.getColumns().add(col);
+
+                    } else {
+                        this.getColumns().add(i, col);
+                    }
                 }
             }
             this.getColumns().add(new JumpColumn("", onlineIdType, BIG_WIDTH, ds));
-            this.getColumns().add(new PathColumnColumn(new ObjectRelations(ds),BIG_WIDTH,"Path"));
+            this.getColumns().add(2,new PathColumnColumn(new ObjectRelations(ds),BIG_WIDTH,"Path"));
 
 
         } catch (Exception e) {
