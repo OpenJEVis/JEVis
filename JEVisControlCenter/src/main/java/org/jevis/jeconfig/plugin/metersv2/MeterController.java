@@ -18,6 +18,7 @@ import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
 import org.jevis.jeconfig.plugin.metersv2.ui.MeterForm;
 import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTab;
+import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTable;
 import org.jevis.jeconfig.plugin.metersv2.ui.NewMeterDialog;
 
 import java.util.List;
@@ -156,5 +157,13 @@ public class MeterController {
 
     public void setLastRawValuePrecision(int lastRawValuePrecision) {
         this.lastRawValuePrecision.set(lastRawValuePrecision);
+    }
+
+    public MeterData getSelectedItem(){
+       return getActiveTab().getMeterPlanTable().getSelectedItem();
+    }
+
+    public MeterPlanTable getActiveTable(){
+        return getActiveTab().getMeterPlanTable();
     }
 }

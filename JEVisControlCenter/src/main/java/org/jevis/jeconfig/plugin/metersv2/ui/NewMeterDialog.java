@@ -59,6 +59,10 @@ public class NewMeterDialog extends Dialog {
         stage.setAlwaysOnTop(false);
 
         GridPane gridPane = new GridPane();
+        gridPane.setPrefWidth(400);
+        gridPane.setPrefHeight(400);
+        gridPane.setVgap(10);
+        gridPane.setHgap(10);
 
         JFXButton jfxButton = new JFXButton("", JEConfig.getSVGImage(Icon.TREE,20,20));
 

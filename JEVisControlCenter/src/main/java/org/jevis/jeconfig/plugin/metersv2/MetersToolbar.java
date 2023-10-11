@@ -1,22 +1,27 @@
 package org.jevis.jeconfig.plugin.metersv2;
 
-import com.jfoenix.controls.JFXComboBox;
-import javafx.collections.FXCollections;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.dialog.LocalNameDialog;
+import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.jevis.jeconfig.plugin.metersv2.export.MetersPlanExport;
+import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTable;
 
-import java.awt.event.ActionEvent;
-import java.beans.EventHandler;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
-public class NonconformitiesToolbar extends ToolBar {
+public class MetersToolbar extends ToolBar {
     private static final Logger logger = LogManager.getLogger(MeterController.class);
 
 
@@ -27,21 +32,22 @@ public class NonconformitiesToolbar extends ToolBar {
     private final ToggleButton newNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_ADD, iconSize, iconSize));
     private final ToggleButton newNonconformityPlan = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
     private final ToggleButton deleteNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_REMOVE, iconSize, iconSize));
-    private final ToggleButton deletePlan = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
+    private final ToggleButton deleteItem = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
-    private final ToggleButton exportPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.PDF, this.iconSize, this.iconSize));
-    private final ToggleButton calender = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, this.iconSize, this.iconSize));
+    private final ToggleButton exportPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.EXCEL, this.iconSize, this.iconSize));
+    private final ToggleButton rename = new ToggleButton("", JEConfig.getSVGImage(Icon.TRANSLATE, this.iconSize, this.iconSize));
 
     private final ToggleButton add = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
-    private final ToggleButton increasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
-    private final ToggleButton decreasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.MINUS_CIRCLE, iconSize, iconSize));
+    private final ToggleButton increasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_INCREASE, iconSize, iconSize));
+    private final ToggleButton decreasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_DECREASE, iconSize, iconSize));
 
   //  private final JFXComboBox<Integer> comboPrecision = new JFXComboBox(FXCollections.observableArrayList(1,2,3,4,5));
     private MeterController meterController;
 
-    public NonconformitiesToolbar(MeterController meterController) {
+    public MetersToolbar(MeterController meterController) {
 
-        getItems().addAll(add,exportPDF, increasePrecision,decreasePrecision);
+        getItems().addAll(add,exportPDF, increasePrecision,decreasePrecision, rename, deleteItem);
+        getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
 
         add.setOnAction(actionEvent -> meterController.addMeter());
         FileChooser fileChooser = new FileChooser();
@@ -69,6 +75,35 @@ public class NonconformitiesToolbar extends ToolBar {
             if ((meterController.getLastRawValuePrecision() >= 1)) {
                 meterController.setLastRawValuePrecision(meterController.getLastRawValuePrecision()-1);
             }
+        });
+
+        rename.setOnAction(actionEvent -> {
+            MeterData meterData = meterController.getSelectedItem();
+            LocalNameDialog localNameDialog = new LocalNameDialog(meterData.getJeVisObject());
+            LocalNameDialog.Response response =  localNameDialog.show();
+            if (response.equals(LocalNameDialog.Response.YES)) {
+
+              MeterPlanTable meterPlanTable = meterController.getActiveTable();
+              meterPlanTable.replaceItem(meterData);
+              meterPlanTable.refresh();
+            }
+        });
+
+        deleteItem.setOnAction(actionEvent -> {
+            MeterData meterData = meterController.getSelectedItem();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,I18n.getInstance().getString("plugin.meters.delete.title"), ButtonType.OK,ButtonType.CANCEL);
+
+            alert.setTitle(I18n.getInstance().getString("plugin.meters.delete.title"));
+            alert.setContentText(String.format(I18n.getInstance().getString("plugin.meters.delete.body"),meterData.getName()));
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+            try {
+                meterController.getActiveTable().removeItem(meterData);
+                meterData.getJeVisObject().delete();
+            } catch (JEVisException jeVisException) {
+                logger.error(jeVisException);
+            }
+            meterController.getActiveTable().refresh();
         });
 
 

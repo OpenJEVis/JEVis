@@ -7,6 +7,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import org.apache.logging.log4j.LogManager;
@@ -17,6 +19,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.type.GUIConstants;
+import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.plugin.metersv2.cells.*;
 import org.jevis.jeconfig.plugin.metersv2.data.*;
 import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEvent;
@@ -164,6 +167,7 @@ public class MeterPlanTable extends TableView<MeterData> {
             }
             this.getColumns().add(new JumpColumn("", onlineIdType, BIG_WIDTH, ds));
             this.getColumns().add(2,new PathColumnColumn(new ObjectRelations(ds),BIG_WIDTH,I18n.getInstance().getString("plugin.meters.path")));
+            this.getColumns().add(3,new ObjectNameColumn(I18n.getInstance().getString("plugin.meters.jevisname"),BIG_WIDTH ));
 
 
         } catch (Exception e) {
@@ -181,10 +185,18 @@ public class MeterPlanTable extends TableView<MeterData> {
 
 
     public void replaceItem(MeterData meterData) {
+        System.out.println("old");
+        System.out.println(meterData);
         this.data.remove(meterData);
         meterData.load();
+        System.out.println("new");
+        System.out.println(meterData);
         this.data.add(meterData);
         notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.UPDATE));
+    }
+    public void removeItem(MeterData meterData){
+        this.data.remove(meterData);
+        notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.REMOVE));
     }
 
     public void setItems(List<MeterData> meterDatas) {
@@ -355,5 +367,9 @@ public class MeterPlanTable extends TableView<MeterData> {
 
     public void setShowOnlyOvedue(boolean showOnlyOvedue) {
         this.showOnlyOvedue = showOnlyOvedue;
+    }
+
+    public MeterData getSelectedItem(){
+      return this.getSelectionModel().getSelectedItem();
     }
 }

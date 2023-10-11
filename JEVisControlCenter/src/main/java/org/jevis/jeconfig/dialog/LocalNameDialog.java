@@ -35,7 +35,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-public class LocalNameDialog {
+public class LocalNameDialog{
 
     private static final Logger logger = LogManager.getLogger(NewObjectDialog.class);
     public static String ICON = "translate.png";

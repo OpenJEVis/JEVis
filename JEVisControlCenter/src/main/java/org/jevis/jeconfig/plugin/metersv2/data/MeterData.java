@@ -14,6 +14,16 @@ public class MeterData {
 
     private String jEVisClassName;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private String name;
+
     public MeterData(JEVisObject jeVisObject) {
             this.jeVisObject = jeVisObject;
             load();
@@ -21,6 +31,7 @@ public class MeterData {
 
     public void load() {
         try {
+            name = jeVisObject.getName();
             jeVisClass = jeVisObject.getJEVisClass();
             jEVisClassName = jeVisClass.getName();
             for (JEVisAttribute jeVisAttribute : jeVisObject.getAttributes()) {
@@ -61,14 +72,15 @@ public class MeterData {
         this.jeVisObject = jeVisObject;
     }
 
+    public String getjEVisClassName() {
+        return jEVisClassName;
+    }
+
     @Override
     public String toString() {
         return "MeterData{" +
-                "jeVisObject=" + jeVisObject.getName() +
+                "jeVisObject=" + jeVisObject +
+                ", name='" + name + '\'' +
                 '}';
-    }
-
-    public String getjEVisClassName() {
-        return jEVisClassName;
     }
 }

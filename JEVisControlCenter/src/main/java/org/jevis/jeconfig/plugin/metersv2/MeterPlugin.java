@@ -20,7 +20,7 @@ public class MeterPlugin implements Plugin {
     private SimpleStringProperty nameProperty = new SimpleStringProperty(I18n.getInstance().getString("plugin.nonconformities.name"));
     private JEVisDataSource ds;
     private boolean isInit = false;
-    private NonconformitiesToolbar toolbar;
+    private MetersToolbar toolbar;
     public static final String PLUGIN_NAME = "Meter Plugin v2";
 
 
@@ -30,7 +30,7 @@ public class MeterPlugin implements Plugin {
 
         meterController = new MeterController(this,ds);
         rootPane.setCenter(meterController.getContent());
-        toolbar = new NonconformitiesToolbar(meterController);
+        toolbar = new MetersToolbar(meterController);
     }
 
     private void initGUI() {

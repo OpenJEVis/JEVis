@@ -93,10 +93,23 @@ public class MeterForm extends Dialog {
     private JEVisSample oldMeterSample;
     private JEVisSample newMeterSample;
 
+    private JFXTextField newName = new JFXTextField();
+
     private static final Logger logger = LogManager.getLogger(MeterForm.class);
 
     public MeterForm(MeterData meterData, JEVisDataSource ds) {
         long startTime = System.nanoTime();
+
+
+        gridPane.setVgap(10);
+        gridPane.setHgap(10);
+
+
+
+        innerGridPane.setVgap(10);
+        innerGridPane.setHgap(10);
+
+        gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.meters.jevisname")), newName);
 
 
 
@@ -152,8 +165,7 @@ public class MeterForm extends Dialog {
 //            }
         }
 
-        gridPane.setVgap(10);
-        gridPane.setHgap(10);
+
 
         scrollPane.setContent(gridPane);
         BorderPane borderPane = new BorderPane();
@@ -179,7 +191,7 @@ public class MeterForm extends Dialog {
 
     private void buildReplaceMeterDialog() {
 
-        gridPane.setPrefHeight(800);
+        gridPane.setPrefHeight(900);
         gridPane.setPrefWidth(800);
         int rowcount = getMaxRow();
         rowcount++;
@@ -202,7 +214,7 @@ public class MeterForm extends Dialog {
 
         TargetHelper targetHelper = createTargetHelper();
 
-        gridPane.addRow(rowcount,innerGridPane);
+        gridPane.add(innerGridPane,0,rowcount,4,1);
         innerGridPane.addRow(0 ,dataTypeBox);
         innerGridPane.addRow(4,oldMeter_Label,oldMeter_Value);
         innerGridPane.addRow(5,newMeter_Label,newMeter_Value);
@@ -261,6 +273,11 @@ public class MeterForm extends Dialog {
     }
 
     public void commit(){
+
+//        if (newName.getText() != null && !newName.getText().isEmpty()) {
+//            meterData.getJeVisObject().
+//        }
+
         try {
             for (Map.Entry<JEVisType, JEVisSample> entry : newSamples.entrySet()) {
                 entry.getValue().commit();
