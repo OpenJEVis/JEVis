@@ -93,8 +93,6 @@ public class MeterForm extends Dialog {
     private JEVisSample oldMeterSample;
     private JEVisSample newMeterSample;
 
-    private JFXTextField newName = new JFXTextField();
-
     private static final Logger logger = LogManager.getLogger(MeterForm.class);
 
     public MeterForm(MeterData meterData, JEVisDataSource ds) {
@@ -109,12 +107,9 @@ public class MeterForm extends Dialog {
         innerGridPane.setVgap(10);
         innerGridPane.setHgap(10);
 
-        gridPane.addRow(0,new Label(I18n.getInstance().getString("plugin.meters.jevisname")), newName);
-
-
-
         this.ds = ds;
         this.meterData = meterData;
+        this.setHeaderText(meterData.getName());
         targetType = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_OnlineID));
 
         initializeMap();
@@ -318,24 +313,25 @@ public class MeterForm extends Dialog {
                     logger.error(e);
                     return;
                 }
+                if(t1.isEmpty())return;
 
 
                 try {
                     switch (primitiveType) {
                         case JEVisConstants.PrimitiveType.STRING:
-                            String str = s;
+                            String str = t1;
                             newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), str));
                             break;
                         case JEVisConstants.PrimitiveType.LONG:
-                            Long l = Long.valueOf(s);
+                            Long l = Long.valueOf(t1);
                             newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), l));
                             break;
                         case JEVisConstants.PrimitiveType.BOOLEAN:
-                            Boolean b = Boolean.valueOf(s);
+                            Boolean b = Boolean.valueOf(t1);
                             newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), b));
                             break;
                         case JEVisConstants.PrimitiveType.DOUBLE:
-                            Double d = Double.valueOf(s);
+                            Double d = Double.valueOf(t1);
                             newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), d));
                             break;
                     }
@@ -369,7 +365,7 @@ public class MeterForm extends Dialog {
         try {
             Label fileName = new Label();
             fileName.setText(optionalJEVisSample.isPresent() ? optionalJEVisSample.get().getValueAsString() : "");
-            uploadButton = new JFXButton("", JEConfig.getSVGImage(Icon.CLOUD_UPLOAD, 20, 20));
+            uploadButton = new JFXButton("", JEConfig.getSVGImage(Icon.CLOUD_UPLOAD, 18, 18));
             label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
             hBox = new HBox(uploadButton, fileName);
             hBox.setSpacing(5);
@@ -454,7 +450,7 @@ public class MeterForm extends Dialog {
         Label label = null;
         JFXButton jfxButton = null;
         try {
-            jfxButton = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 20, 20));
+            jfxButton = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 18, 18));
             label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
 
             JEVisSample latestSample = meterData.getJeVisObject().getAttribute(jeVisType).getLatestSample();

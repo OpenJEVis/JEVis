@@ -78,15 +78,6 @@
       "jevisClass": "Measurement Instrument"
     },
     {
-      "name": "Measuring Point Name",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
       "name": "Serial Number",
       "primitiveType": 0,
       "guiType": "Text",
@@ -208,6 +199,15 @@
       "primitiveType": 0,
       "guiType": "Text Area",
       "guiposition": 99,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Decimal Places",
+      "primitiveType": 2,
+      "guiType": "Text",
+      "guiposition": 7,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"

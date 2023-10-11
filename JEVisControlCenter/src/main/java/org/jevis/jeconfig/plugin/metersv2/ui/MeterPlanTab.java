@@ -47,6 +47,7 @@ public class MeterPlanTab extends Tab {
     JEVisTypeWrapper typeWrapper;
     JEVisTypeWrapper locationWrapper;
     JEVisTypeWrapper verificationDateWrapper;
+
     JFXToggleButton jfxToggleButton = new JFXToggleButton();
 
 
@@ -61,6 +62,7 @@ public class MeterPlanTab extends Tab {
         typeWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Type));
         locationWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Location));
         verificationDateWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_VerificationDate));
+
 
 
         setText(plan.getName());

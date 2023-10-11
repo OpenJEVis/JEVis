@@ -3211,6 +3211,8 @@ public interface JC {
     public interface MeasurementInstrument {
         public static String name = "Measurement Instrument";
 
+
+        public static String a_DecimalPlaces ="Decimal Places";
         public static String a_Location = "Location";
         public static String a_Company = "Company";
         public static String a_CostCenter = "Cost Center";

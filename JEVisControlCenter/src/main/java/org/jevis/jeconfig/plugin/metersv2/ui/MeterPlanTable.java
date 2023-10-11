@@ -81,7 +81,11 @@ public class MeterPlanTable extends TableView<MeterData> {
     JEVisTypeWrapper typeWrapper;
     JEVisTypeWrapper locationWrapper;
     JEVisTypeWrapper pointNameWrapper;
+
+    JEVisTypeWrapper decimalPlacesWrapper;
     JEVisTypeWrapper verficationDateWrapper;
+
+
 
 
     // Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
@@ -97,6 +101,8 @@ public class MeterPlanTable extends TableView<MeterData> {
         locationWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Location));
         pointNameWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_MeasuringPointName));
         verficationDateWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_VerificationDate));
+
+        decimalPlacesWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_DecimalPlaces));
         //this.jeVisTypeJEVisTypeWrapperMap = jeVisTypeJEVisTypeWrapperMap;
 
         this.setTableMenuButtonVisible(true);
@@ -127,7 +133,7 @@ public class MeterPlanTable extends TableView<MeterData> {
                         break;
                     case JEVisConstants.PrimitiveType.STRING:
                         if (jeVisType.getName().equals(JC.MeasurementInstrument.a_OnlineID)) {
-                            col = new LastRawValue(I18n.getInstance().getString("plugin.meters.lastrawvalue"), ds, jeVisType,BIG_WIDTH,integerProperty);
+                            col = new LastRawValue(I18n.getInstance().getString("plugin.meters.lastrawvalue"), ds, jeVisType,BIG_WIDTH, decimalPlacesWrapper);
                             i = 2;
                             this.getSortOrder().add(col);
 
@@ -166,8 +172,8 @@ public class MeterPlanTable extends TableView<MeterData> {
                 }
             }
             this.getColumns().add(new JumpColumn("", onlineIdType, BIG_WIDTH, ds));
-            this.getColumns().add(2,new PathColumnColumn(new ObjectRelations(ds),BIG_WIDTH,I18n.getInstance().getString("plugin.meters.path")));
-            this.getColumns().add(3,new ObjectNameColumn(I18n.getInstance().getString("plugin.meters.jevisname"),BIG_WIDTH ));
+            this.getColumns().add(2,new ObjectNameColumn(I18n.getInstance().getString("plugin.meters.jevisname"),BIG_WIDTH ));
+            this.getColumns().add(3,new PathColumnColumn(new ObjectRelations(ds),BIG_WIDTH,I18n.getInstance().getString("plugin.meters.path")));
 
 
         } catch (Exception e) {

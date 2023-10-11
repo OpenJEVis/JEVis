@@ -2,13 +2,13 @@ package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
-import javafx.beans.property.StringProperty;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
@@ -29,25 +29,30 @@ public class NewMeterDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(NewMeterDialog.class);
 
     private JEVisDataSource jeVisDataSource;
-    private Optional<JEVisObject> parent= Optional.empty();
+    private Optional<JEVisObject> parent = Optional.empty();
 
     private final MeterPlan meterPlan;
 
-    public String getNameProperty() {
-        return nameProperty.get();
-    }
-
-    public StringProperty namePropertyProperty() {
-        return nameProperty;
-    }
-
-    private StringProperty nameProperty;
 
     public SingleSelectionModel<JEVisClassWrapper> getJeVisClassSingleSelectionModel() {
         return jeVisClassSingleSelectionModel;
     }
 
     private SingleSelectionModel<JEVisClassWrapper> jeVisClassSingleSelectionModel;
+
+    private JEVisClassWrapper air;
+    private JEVisClassWrapper compressedAir;
+    private JEVisClassWrapper electricity;
+    private JEVisClassWrapper gas;
+    private JEVisClassWrapper heat;
+    private JEVisClassWrapper nitrogen;
+    private JEVisClassWrapper water;
+
+    ComboBox<JEVisClassWrapper> comboBox = new ComboBox<>();
+    JFXTextField jfxTextFieldName = new JFXTextField();
+
+    JFXButton jfxButtonTarget = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 20, 20));
+
 
     public NewMeterDialog(JEVisDataSource jeVisDataSource, MeterPlan meterPlan) {
         this.jeVisDataSource = jeVisDataSource;
@@ -64,37 +69,25 @@ public class NewMeterDialog extends Dialog {
         gridPane.setVgap(10);
         gridPane.setHgap(10);
 
-        JFXButton jfxButton = new JFXButton("", JEConfig.getSVGImage(Icon.TREE,20,20));
 
-        JFXTextField jfxTextField = new JFXTextField();
+        try {
+            air = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Air Measurement Instrument"));
+            compressedAir = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Compressed-Air Measurement Instrument"));
+            electricity = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Electricity Measurement Instrument"));
+            gas = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Gas Measurement Instrument"));
+            heat = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Heat Measurement Instrument"));
+            nitrogen = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Nitrogen Measurement Instrument"));
+            water = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Water Measurement Instrument"));
 
-        nameProperty = jfxTextField.textProperty();
-
-
-
-
-        ComboBox<JEVisClassWrapper> comboBox = new ComboBox<>();
-
-        try{
-            JEVisClassWrapper air = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Air Measurement Instrument"));
-            JEVisClassWrapper compressedAir = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Compressed-Air Measurement Instrument"));
-            JEVisClassWrapper electricity = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Electricity Measurement Instrument"));
-            JEVisClassWrapper gas = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Gas Measurement Instrument"));
-            JEVisClassWrapper heat = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Heat Measurement Instrument"));
-            JEVisClassWrapper nitrogen = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Nitrogen Measurement Instrument"));
-            JEVisClassWrapper water = new JEVisClassWrapper(jeVisDataSource.getJEVisClass("Water Measurement Instrument"));
-
-            comboBox.getItems().addAll(air,compressedAir,electricity,gas,heat,nitrogen,water);
+            comboBox.getItems().addAll(air, compressedAir, electricity, gas, heat, nitrogen, water);
 
             jeVisClassSingleSelectionModel = comboBox.getSelectionModel();
-        }catch (JEVisException jeVisException){
+        } catch (JEVisException jeVisException) {
             logger.error(jeVisException);
         }
 
 
-
-
-        jfxButton.setOnAction(actionEvent -> {
+        jfxButtonTarget.setOnAction(actionEvent -> {
             TargetHelper th = null;
 
             th = new TargetHelper(jeVisDataSource, "");
@@ -123,7 +116,7 @@ public class NewMeterDialog extends Dialog {
 
                         List<UserSelection> selections = selectTargetDialog.getUserSelection();
                         for (UserSelection us : selections) {
-                           parent = Optional.of(us.getSelectedObject());
+                            parent = Optional.of(us.getSelectedObject());
                         }
 
                     }
@@ -137,9 +130,9 @@ public class NewMeterDialog extends Dialog {
             selectTargetDialog.showAndWait();
         });
 
-        gridPane.addRow(0,new Label("Name"),jfxTextField);
-        gridPane.addRow(1,new Label("Typ"),comboBox);
-        gridPane.addRow(2,new Label("Target"),jfxButton);
+        gridPane.addRow(0, new Label("Name"), jfxTextFieldName);
+        gridPane.addRow(1, new Label("Typ"), comboBox);
+        gridPane.addRow(2, new Label("Target"), jfxButtonTarget);
 
         getDialogPane().setContent(gridPane);
     }
@@ -148,7 +141,92 @@ public class NewMeterDialog extends Dialog {
         return parent;
     }
 
+    public JEVisObject commit() {
+
+        try {
+            JEVisObject parent = getParent().orElse(getDirectory(meterPlan.getJeVisObject(), comboBox.getValue().getJeVisClass()));
+            JEVisObject jeVisObject = parent.buildObject(jfxTextFieldName.getText(), comboBox.getValue().getJeVisClass());
+            if (jeVisObject.isAllowedUnder(parent)) {
+                jeVisObject.commit();
+                return jeVisObject;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return null;
+
+
+    }
+
+
     public MeterPlan getMeterPlan() {
         return meterPlan;
     }
+
+    private JEVisObject getDirectory(JEVisObject rootDirectory, JEVisClass jeVisClass) throws JEVisException {
+
+        List<JEVisObject> jeVisObjects = rootDirectory.getChildren(jeVisClass, false);
+
+        if (jeVisObjects.size() == 0) {
+            return createDirectory(rootDirectory, jeVisClass);
+
+        } else {
+            return jeVisObjects.get(0);
+        }
+
+    }
+
+    private JEVisObject createDirectory(JEVisObject rootDirectory, JEVisClass jeVisClass) throws JEVisException {
+        JEVisClass air = this.air.getJeVisClass();
+        JEVisClass compressedAir = this.air.getJeVisClass();
+        JEVisClass electricity = this.electricity.getJeVisClass();
+        JEVisClass gas = this.gas.getJeVisClass();
+        JEVisClass heat = this.heat.getJeVisClass();
+        JEVisClass nitrogen = this.nitrogen.getJeVisClass();
+        JEVisClass water = this.water.getJeVisClass();
+
+
+
+
+
+
+
+
+        JEVisObject newDirectory = null;
+        if (jeVisClass.equals(air)) {
+            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.AirMeasurementDirectory.name);
+            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+        } else if (jeVisClass.equals(compressedAir)) {
+            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.CompressedAirMeasurementDirectory.name);
+            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+        } else if (jeVisClass.equals(electricity)) {
+            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.ElectricityMeasurementDirectory.name);
+            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+        } else if (jeVisClass.equals(gas)) {
+            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.GasMeasurementDirectory.name);
+            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+        } else if (jeVisClass.equals(heat)) {
+            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.HeatingEquipmentDirectory.name);
+            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+        } else if (jeVisClass.equals(nitrogen)) {
+            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.NitrogenMeasurementDirectory.name);
+            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+        } else if (jeVisClass.equals(water)) {
+            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.WaterMeasurementDirectory.name);
+            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+        } else {
+            return null;
+        }
+        if (newDirectory != null) {
+            newDirectory.commit();
+        }
+        return newDirectory;
+
+
+    }
+
+
 }
+

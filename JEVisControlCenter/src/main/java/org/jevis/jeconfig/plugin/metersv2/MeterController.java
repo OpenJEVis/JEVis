@@ -112,7 +112,6 @@ public class MeterController {
             }
 
         });
-
         meterForm.show();
 
     }
@@ -125,19 +124,15 @@ public class MeterController {
         final Button btOk = (Button) newMeterDialog.getDialogPane().lookupButton(buttonTypeOne);
 
         btOk.setOnAction(actionEvent -> {
-
-            try{
-
-                JEVisObject parent = newMeterDialog.getParent().orElse(newMeterDialog.getMeterPlan().getJeVisObject());
-                JEVisObject jeVisObject = parent.buildObject(newMeterDialog.getNameProperty(),newMeterDialog.getJeVisClassSingleSelectionModel().getSelectedItem().getJeVisClass());
-                if(jeVisObject.isAllowedUnder(parent)){
-                    jeVisObject.commit();
+                JEVisObject jeVisObject = newMeterDialog.commit();
+                if(jeVisObject == null) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Object Could not Created");
+                    alert.showAndWait();
+                }else {
                     MeterData meterData = new MeterData(jeVisObject);
                     openDataForm(Optional.of(meterData));
                 }
-            }catch (Exception e){
-                logger.error(e);
-            }
         });
 
 
@@ -166,4 +161,10 @@ public class MeterController {
     public MeterPlanTable getActiveTable(){
         return getActiveTab().getMeterPlanTable();
     }
+
+
+
+
+
+
 }
