@@ -401,7 +401,8 @@ public class ChartDataRow extends ChartData {
                                         List<JsonGapFillingConfig> gapFillingConfig = cleanDataObject.getGapFillingConfig();
 
                                         for (JsonGapFillingConfig jsonGapFillingConfig : gapFillingConfig) {
-                                            if (gapFillingConfig.indexOf(jsonGapFillingConfig) == 1 && jsonGapFillingConfig.getType().equals(GapFillingType.DEFAULT_VALUE.toString())) {
+                                            GapFillingType fillingType = GapFillingType.parse(jsonGapFillingConfig.getType());
+                                            if (gapFillingConfig.indexOf(jsonGapFillingConfig) == 1 && fillingType.equals(GapFillingType.DEFAULT_VALUE)) {
                                                 String defaultValue = jsonGapFillingConfig.getDefaultvalue();
                                                 try {
                                                     replacementValue = Double.parseDouble(defaultValue);
