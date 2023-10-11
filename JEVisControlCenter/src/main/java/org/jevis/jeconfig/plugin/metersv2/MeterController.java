@@ -104,12 +104,14 @@ public class MeterController {
         btOk.setOnAction(actionEvent -> {
             meterForm.commit();
             if(meterData.isPresent()){
-                loadNonconformityPlans();
+                getActiveTab().getMeterPlanTable().addItem(data);
+                getActiveTab().getMeterPlanTable().sort();
             }else {
                 getActiveTab().getMeterPlanTable().replaceItem(data);
                 getActiveTab().getMeterPlanTable().sort();
-                getActiveTab().getMeterPlanTable().refresh();
+
             }
+            getActiveTab().getMeterPlanTable().refresh();
 
         });
         meterForm.show();

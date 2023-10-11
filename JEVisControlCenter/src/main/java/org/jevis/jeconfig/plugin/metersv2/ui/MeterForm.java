@@ -268,10 +268,9 @@ public class MeterForm extends Dialog {
     }
 
     public void commit(){
-
-//        if (newName.getText() != null && !newName.getText().isEmpty()) {
-//            meterData.getJeVisObject().
-//        }
+        newSamples.entrySet().forEach(jeVisTypeJEVisSampleEntry ->  {
+            System.out.println(jeVisTypeJEVisSampleEntry);
+        });
 
         try {
             for (Map.Entry<JEVisType, JEVisSample> entry : newSamples.entrySet()) {
@@ -401,14 +400,12 @@ public class MeterForm extends Dialog {
         try {
             label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
             DateTime dateTime = DatabaseHelper.getObjectAsDate(jeVisObject, jeVisType);
-//            System.out.println(DatabaseHelper.getObjectAsLocaleDate(jeVisObject, entry.getKey()).toLocalDate());
             jfxDatePicker.setValue(toLocalDate(dateTime));
             jfxDatePicker.valueProperty().addListener((observableValue, localDate, t1) -> {
 
                 try {
                     newSamples.put(jeVisType, jeVisObject.getAttribute(
-                            jeVisType).buildSample(DateTime.now(), toDateTime(localDate)));
-                    System.out.println(newSamples.get(jeVisType));
+                            jeVisType).buildSample(DateTime.now(), toDateTime(t1)));
                 } catch (JEVisException e) {
                     logger.error(e);
                     Alert alert = new Alert(Alert.AlertType.ERROR, "Could not create Sample", ButtonType.OK);

@@ -205,6 +205,11 @@ public class MeterPlanTable extends TableView<MeterData> {
         notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.REMOVE));
     }
 
+    public void addItem(MeterData meterData) {
+        this.data.add(meterData);
+        notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.ADD));
+    }
+
     public void setItems(List<MeterData> meterDatas) {
         this.data.setAll(meterDatas);
     }

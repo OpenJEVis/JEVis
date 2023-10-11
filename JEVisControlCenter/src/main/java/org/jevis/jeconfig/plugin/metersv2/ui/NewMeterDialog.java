@@ -167,7 +167,7 @@ public class NewMeterDialog extends Dialog {
 
     private JEVisObject getDirectory(JEVisObject rootDirectory, JEVisClass jeVisClass) throws JEVisException {
 
-        List<JEVisObject> jeVisObjects = rootDirectory.getChildren(jeVisClass, false);
+        List<JEVisObject> jeVisObjects = rootDirectory.getChildren(getDirectoryClass(jeVisClass), false);
 
         if (jeVisObjects.size() == 0) {
             return createDirectory(rootDirectory, jeVisClass);
@@ -179,6 +179,19 @@ public class NewMeterDialog extends Dialog {
     }
 
     private JEVisObject createDirectory(JEVisObject rootDirectory, JEVisClass jeVisClass) throws JEVisException {
+
+        JEVisClass directory = getDirectoryClass(jeVisClass);
+
+        if(directory == null) return null;
+        JEVisObject newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+
+
+        return newDirectory;
+
+
+    }
+
+    private JEVisClass getDirectoryClass(JEVisClass jeVisClass) throws JEVisException {
         JEVisClass air = this.air.getJeVisClass();
         JEVisClass compressedAir = this.air.getJeVisClass();
         JEVisClass electricity = this.electricity.getJeVisClass();
@@ -187,42 +200,27 @@ public class NewMeterDialog extends Dialog {
         JEVisClass nitrogen = this.nitrogen.getJeVisClass();
         JEVisClass water = this.water.getJeVisClass();
 
+        JEVisClass directory = null;
 
 
-
-
-
-
-
-        JEVisObject newDirectory = null;
         if (jeVisClass.equals(air)) {
-            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.AirMeasurementDirectory.name);
-            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+            directory = jeVisDataSource.getJEVisClass(JC.Directory.AirMeasurementDirectory.name);
         } else if (jeVisClass.equals(compressedAir)) {
-            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.CompressedAirMeasurementDirectory.name);
-            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+            directory = jeVisDataSource.getJEVisClass(JC.Directory.CompressedAirMeasurementDirectory.name);
         } else if (jeVisClass.equals(electricity)) {
-            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.ElectricityMeasurementDirectory.name);
-            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+           directory = jeVisDataSource.getJEVisClass(JC.Directory.ElectricityMeasurementDirectory.name);
         } else if (jeVisClass.equals(gas)) {
-            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.GasMeasurementDirectory.name);
-            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+          directory = jeVisDataSource.getJEVisClass(JC.Directory.GasMeasurementDirectory.name);
         } else if (jeVisClass.equals(heat)) {
-            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.HeatingEquipmentDirectory.name);
-            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+         directory = jeVisDataSource.getJEVisClass(JC.Directory.HeatingEquipmentDirectory.name);
         } else if (jeVisClass.equals(nitrogen)) {
-            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.NitrogenMeasurementDirectory.name);
-            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+           directory = jeVisDataSource.getJEVisClass(JC.Directory.NitrogenMeasurementDirectory.name);
         } else if (jeVisClass.equals(water)) {
-            JEVisClass directory = jeVisDataSource.getJEVisClass(JC.Directory.WaterMeasurementDirectory.name);
-            newDirectory = rootDirectory.buildObject(directory.getName(), directory);
-        } else {
-            return null;
+           directory = jeVisDataSource.getJEVisClass(JC.Directory.WaterMeasurementDirectory.name);
         }
-        if (newDirectory != null) {
-            newDirectory.commit();
-        }
-        return newDirectory;
+
+        return directory;
+
 
 
     }
