@@ -39,10 +39,10 @@ import java.util.prefs.Preferences;
 public class MeterPlanTable extends TableView<MeterData> {
 
     private static final Logger logger = LogManager.getLogger(MeterPlanTable.class);
-    private static Method columnToFitMethod;
     private static final int DATE_TIME_WIDTH = 120;
     private static final int BIG_WIDTH = 200;
     private static final int SMALL_WIDTH = 60;
+    private static Method columnToFitMethod;
 
     static {
         try {
@@ -55,6 +55,11 @@ public class MeterPlanTable extends TableView<MeterData> {
 
     private final EventListenerList listeners = new EventListenerList();
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
+    private final JEVisDataSource ds;
+    private final Map<JEVisType, JEVisTypeWrapper> map = new HashMap<>();
+    private final boolean showSumRow = false;
+    private final ObservableList<String> fields = FXCollections.observableArrayList();
+    private final ObservableList<String> seu = FXCollections.observableArrayList();
     FilteredList<MeterData> filteredData;
     SortedList<MeterData> sortedData;
     ObservableList<MeterData> data;
@@ -63,15 +68,10 @@ public class MeterPlanTable extends TableView<MeterData> {
     JEVisTypeWrapper pointNameWrapper;
     JEVisTypeWrapper decimalPlacesWrapper;
     JEVisTypeWrapper verficationDateWrapper;
-    private final JEVisDataSource ds;
-    private final Map<JEVisType, JEVisTypeWrapper> map = new HashMap<>();
-    private final boolean showSumRow = false;
     private String containsTextFilter = "";
     private ObservableList<String> medium = FXCollections.observableArrayList();
     private ObservableList<String> type = FXCollections.observableArrayList();
     private ObservableList<String> location = FXCollections.observableArrayList();
-    private final ObservableList<String> fields = FXCollections.observableArrayList();
-    private final ObservableList<String> seu = FXCollections.observableArrayList();
     private boolean showOnlyOvedue;
 
 
@@ -118,11 +118,21 @@ public class MeterPlanTable extends TableView<MeterData> {
                     case JEVisConstants.PrimitiveType.LONG:
                         col = new DoubleColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
                         break;
-                    case JEVisConstants.PrimitiveType.STRING:
+                    case JEVisConstants.PrimitiveType.FILE:
+                        col = new FileColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
+                        break;
+                    default:
+                        if ((jeVisType.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || jeVisType.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId()))) {
+                            System.out.println(jeVisTypeWrapper);
+
+                            col = new DateColumn(I18nWS.getInstance().getTypeName(jeVisType), jeVisType, BIG_WIDTH);
+                            break;
+                        }
                         if (jeVisType.getName().equals(JC.MeasurementInstrument.a_OnlineID)) {
                             col = new LastRawValue(I18n.getInstance().getString("plugin.meters.lastrawvalue"), ds, jeVisType, BIG_WIDTH, decimalPlacesWrapper);
                             i = 2;
                             this.getSortOrder().add(col);
+                            break;
 
                         } else {
                             col = new ShortCellColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
@@ -133,22 +143,9 @@ public class MeterPlanTable extends TableView<MeterData> {
                                 col.setVisible(true);
                                 i = 3;
                             }
+                            break;
                         }
-                        break;
-                    case JEVisConstants.PrimitiveType.FILE:
-                        col = new FileColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
-                        break;
-                    default:
 
-                        if ((jeVisType.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || jeVisType.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId()))) {
-                            System.out.println(jeVisTypeWrapper);
-
-                            col = new DateColumn(I18nWS.getInstance().getTypeName(jeVisType), jeVisType, BIG_WIDTH);
-                        } else {
-
-                            col = new ShortCellColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
-                        }
-                        break;
                 }
                 col.setVisible(pref.getBoolean(jeVisType.getName(), true));
                 col.visibleProperty().addListener((observable, oldValue, newValue) -> {

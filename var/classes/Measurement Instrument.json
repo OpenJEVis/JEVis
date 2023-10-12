@@ -124,7 +124,7 @@
     },
     {
       "name": "Installation Date",
-      "primitiveType": 9,
+      "primitiveType": 0,
       "guiType": "Date",
       "guiposition": 50,
       "validity": 0,
