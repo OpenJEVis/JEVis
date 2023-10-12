@@ -7,6 +7,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
@@ -44,8 +46,10 @@ public class MetersPlanExport {
 
     private XSSFSheet loadHeader(XSSFSheet xssfSheet, List<JEVisTypeWrapper> types) {
         XSSFRow xssfRow = xssfSheet.createRow(0);
-        for (int i = 0; i < types.size(); i++) {
-            XSSFCell xssfCell = xssfRow.createCell(i, CellType.STRING);
+        XSSFCell xssfCellName = xssfRow.createCell(0, CellType.STRING);
+        xssfCellName.setCellValue(I18n.getInstance().getString("plugin.meters.name"));
+        for (int i = 0 ; i < types.size(); i++) {
+            XSSFCell xssfCell = xssfRow.createCell(i+1, CellType.STRING);
             xssfCell.setCellValue(types.get(i).getName());
         }
 
@@ -58,9 +62,11 @@ public class MetersPlanExport {
 
         for (int i = 0; i < meterData.size(); i++) {
             XSSFRow xssfRow = xssfSheet.createRow(i + 1);
+            XSSFCell xssfCellName = xssfRow.createCell(0, CellType.STRING);
+            xssfCellName.setCellValue(meterData.get(i).getName());
             for (int j = 0; j < types.size(); j++) {
                 String value = getValue(meterData.get(i).getJeVisAttributeJEVisSampleMap().get(types.get(j)).getOptionalJEVisSample());
-                XSSFCell xssfCell = xssfRow.createCell(j, CellType.STRING);
+                XSSFCell xssfCell = xssfRow.createCell(j+1, CellType.STRING);
                 xssfCell.setCellValue(value);
             }
 
