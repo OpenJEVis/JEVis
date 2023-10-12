@@ -173,7 +173,7 @@ public class MeterPlanTable extends TableView<MeterData> {
             pathColumn.visibleProperty().addListener((observable, oldValue, newValue) -> {
                 pref.putBoolean("Path", newValue);
             });
-            TableColumn<MeterData, ?> nameColumn = new ObjectNameColumn(I18n.getInstance().getString("plugin.meters.jevisname"), BIG_WIDTH);
+            TableColumn<MeterData, ?> nameColumn = new ObjectNameColumn(I18n.getInstance().getString("plugin.meters.name"), BIG_WIDTH);
 
 
             nameColumn.setVisible(pref.getBoolean("nameColumn", true));
@@ -182,8 +182,8 @@ public class MeterPlanTable extends TableView<MeterData> {
             });
 
             this.getColumns().add(jumpColumn);
-            this.getColumns().add(2, nameColumn);
-            this.getColumns().add(3, pathColumn);
+            this.getColumns().add(1, nameColumn);
+            this.getColumns().add(2, pathColumn);
 
 
         } catch (Exception e) {
