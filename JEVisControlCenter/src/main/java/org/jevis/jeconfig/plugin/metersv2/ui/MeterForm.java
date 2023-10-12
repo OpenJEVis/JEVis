@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import com.jfoenix.controls.*;
-import com.jfoenix.validation.DoubleValidator;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -39,40 +38,28 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.File;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 public class MeterForm extends Dialog {
 
-    private MeterData meterData;
-
-    ScrollPane scrollPane = new ScrollPane();
-
-    GridPane gridPane = new GridPane();
-
-    private JEVisDataSource ds;
-
-    private JEVisTypeWrapper targetType;
-
-    private final JFXCheckBox enterCounterValues = new JFXCheckBox(I18n.getInstance().getString("plugin.meters.meterdialog.entercountervalues"));
+    private static final Logger logger = LogManager.getLogger(MeterForm.class);
     private final DataTypeBox dataTypeBox = new DataTypeBox();
-
     private final YearBox yearBox = new YearBox(null);
     private final DayBox dayBox = new DayBox();
     private final MonthBox monthBox = new MonthBox();
-
     private final GridPane innerGridPane = new GridPane();
-
     private final Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
-    private final Label oldCounterValueLabel = new Label(I18n.getInstance().getString("plugin.meters.meterdialog.oldcountervalue"));
-    private final Label newCounterValueLabel = new Label(I18n.getInstance().getString("plugin.meters.meterdialog.newcountervalue"));
-
     private final JFXDatePicker datePicker = new JFXDatePicker(LocalDate.now());
     private final JFXTimePicker timePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
-
-
-
-    private  Map<Integer,List<Node>> fields = new TreeMap<>(new Comparator<Integer>() {
+    ScrollPane scrollPane = new ScrollPane();
+    GridPane gridPane = new GridPane();
+    Map<JEVisType, JEVisSample> newSamples = new HashMap<>();
+    private final MeterData meterData;
+    private final JEVisDataSource ds;
+    private final JEVisTypeWrapper targetType;
+    private final Map<Integer, List<Node>> fields = new TreeMap<>(new Comparator<Integer>() {
         @Override
         public int compare(Integer o1, Integer o2) {
             if (o1 == o2) {
@@ -81,19 +68,14 @@ public class MeterForm extends Dialog {
             if (o1 == null) {
                 return -1;
             }
-            if (o2== null) {
+            if (o2 == null) {
                 return 1;
             }
             return o1.compareTo(o2);
         }
     });
-
-    Map<JEVisType, JEVisSample> newSamples = new HashMap<>();
-
     private JEVisSample oldMeterSample;
     private JEVisSample newMeterSample;
-
-    private static final Logger logger = LogManager.getLogger(MeterForm.class);
 
     public MeterForm(MeterData meterData, JEVisDataSource ds) {
         long startTime = System.nanoTime();
@@ -101,7 +83,6 @@ public class MeterForm extends Dialog {
 
         gridPane.setVgap(10);
         gridPane.setHgap(10);
-
 
 
         innerGridPane.setVgap(10);
@@ -120,17 +101,17 @@ public class MeterForm extends Dialog {
 
 
         for (Map.Entry<JEVisTypeWrapper, SampleData> entry : meterData.getJeVisAttributeJEVisSampleMap().entrySet()) {
-            JEVisType jeVisType =entry.getKey().getJeVisType();
+            JEVisType jeVisType = entry.getKey().getJeVisType();
 
             try {
                 if (jeVisType.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
-                    buildFileChooser(meterData, jeVisType,entry.getValue().getOptionalJEVisSample());
+                    buildFileChooser(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
                 } else if (jeVisType.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || jeVisType.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
-                    buildCal(meterData, jeVisType,entry.getValue().getOptionalJEVisSample());
+                    buildCal(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
                 } else if (jeVisType.getName().equals("Online ID")) {
-                    buildTargetSelect(meterData,jeVisType,entry.getValue().getOptionalJEVisSample());
+                    buildTargetSelect(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
                 } else {
-                    buildTextField(meterData, jeVisType,entry.getValue().getOptionalJEVisSample());
+                    buildTextField(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
                 }
             } catch (JEVisException e) {
                 logger.error(e);
@@ -141,25 +122,23 @@ public class MeterForm extends Dialog {
         }
 
 
-
-        boolean firstRow =true;
-        for(Map.Entry<Integer, List<Node>> entryMap : fields.entrySet()){
+        boolean firstRow = true;
+        for (Map.Entry<Integer, List<Node>> entryMap : fields.entrySet()) {
             int rowcount = getMaxRow();
-            if(entryMap.getKey() % 10 == 0 && entryMap.getKey() != 0){
-             gridPane.add(new Separator(),0, rowcount+1,4,1);
-             rowcount++;
-             firstRow = true;
-         }
-                if(firstRow){
-                    gridPane.addRow(rowcount + 1, entryMap.getValue().get(0), entryMap.getValue().get(1));
-                    firstRow = false;
-                }else {
-                    gridPane.addRow(rowcount, entryMap.getValue().get(0),entryMap.getValue().get(1));
-                    firstRow = true;
-                }
+            if (entryMap.getKey() % 10 == 0 && entryMap.getKey() != 0) {
+                gridPane.add(new Separator(), 0, rowcount + 1, 4, 1);
+                rowcount++;
+                firstRow = true;
+            }
+            if (firstRow) {
+                gridPane.addRow(rowcount + 1, entryMap.getValue().get(0), entryMap.getValue().get(1));
+                firstRow = false;
+            } else {
+                gridPane.addRow(rowcount, entryMap.getValue().get(0), entryMap.getValue().get(1));
+                firstRow = true;
+            }
 //            }
         }
-
 
 
         scrollPane.setContent(gridPane);
@@ -168,9 +147,7 @@ public class MeterForm extends Dialog {
 
         getDialogPane().setContent(borderPane);
 
-       buildReplaceMeterDialog();
-
-
+        buildReplaceMeterDialog();
 
 
     }
@@ -192,8 +169,8 @@ public class MeterForm extends Dialog {
         rowcount++;
 
         JFXCheckBox checkEnterCounter = new JFXCheckBox();
-        gridPane.add(new Separator(),0, rowcount++,4,1);
-        gridPane.addRow(rowcount++,new Label("Zählerstand eingeben"), checkEnterCounter);
+        gridPane.add(new Separator(), 0, rowcount++, 4, 1);
+        gridPane.addRow(rowcount++, new Label("Zählerstand eingeben"), checkEnterCounter);
 
         Label oldMeter_Label = new Label("Alter Zählerstand");
 
@@ -209,10 +186,10 @@ public class MeterForm extends Dialog {
 
         TargetHelper targetHelper = createTargetHelper();
 
-        gridPane.add(innerGridPane,0,rowcount,4,1);
-        innerGridPane.addRow(0 ,dataTypeBox);
-        innerGridPane.addRow(4,oldMeter_Label,oldMeter_Value);
-        innerGridPane.addRow(5,newMeter_Label,newMeter_Value);
+        gridPane.add(innerGridPane, 0, rowcount, 4, 1);
+        innerGridPane.addRow(0, dataTypeBox);
+        innerGridPane.addRow(4, oldMeter_Label, oldMeter_Value);
+        innerGridPane.addRow(5, newMeter_Label, newMeter_Value);
 
         setMeterValueTimeIntervall(dataTypeBox.getValue());
         replacementGridPane(false);
@@ -222,7 +199,7 @@ public class MeterForm extends Dialog {
 
         });
         checkEnterCounter.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
-         replacementGridPane(t1);
+            replacementGridPane(t1);
 
         });
 
@@ -267,11 +244,7 @@ public class MeterForm extends Dialog {
         }
     }
 
-    public void commit(){
-        newSamples.entrySet().forEach(jeVisTypeJEVisSampleEntry ->  {
-            System.out.println(jeVisTypeJEVisSampleEntry);
-        });
-
+    public void commit() {
         try {
             for (Map.Entry<JEVisType, JEVisSample> entry : newSamples.entrySet()) {
                 entry.getValue().commit();
@@ -312,7 +285,7 @@ public class MeterForm extends Dialog {
                     logger.error(e);
                     return;
                 }
-                if(t1.isEmpty())return;
+                if (t1.isEmpty()) return;
 
 
                 try {
@@ -389,11 +362,11 @@ public class MeterForm extends Dialog {
             Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis error", ButtonType.OK);
             alert.showAndWait();
         }
-        fields.put(getGuiPosition(jeVisType),Arrays.asList(label,hBox));
+        fields.put(getGuiPosition(jeVisType), Arrays.asList(label, hBox));
 
     }
 
-    private void buildCal(MeterData meterData,JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
+    private void buildCal(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
         Label label = null;
         JFXDatePicker jfxDatePicker = new JFXDatePicker();
         JEVisObject jeVisObject = meterData.getJeVisObject();
@@ -418,7 +391,7 @@ public class MeterForm extends Dialog {
             logger.error(e);
         }
 
-        fields.put(getGuiPosition(jeVisType),Arrays.asList(label,jfxDatePicker));
+        fields.put(getGuiPosition(jeVisType), Arrays.asList(label, jfxDatePicker));
 
 
     }
@@ -455,7 +428,7 @@ public class MeterForm extends Dialog {
             jfxButton.setOnAction(actionEvent -> {
                 TargetHelper th = null;
                 try {
-                    th = new TargetHelper(ds,meterData.getJeVisObject().getAttribute(targetType.getJeVisType()));
+                    th = new TargetHelper(ds, meterData.getJeVisObject().getAttribute(targetType.getJeVisType()));
                 } catch (JEVisException e) {
                     logger.error(e);
                 }
@@ -512,7 +485,7 @@ public class MeterForm extends Dialog {
             Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis Exception", ButtonType.OK);
             alert.showAndWait();
         }
-        fields.put(getGuiPosition(jeVisType),Arrays.asList(label,jfxButton));
+        fields.put(getGuiPosition(jeVisType), Arrays.asList(label, jfxButton));
     }
 
     private int getGuiPosition(JEVisType jeVisType) {
@@ -523,13 +496,14 @@ public class MeterForm extends Dialog {
         }
         return 0;
     }
-    private JEVisType getJEVisType(String string){
-        try{
+
+    private JEVisType getJEVisType(String string) {
+        try {
             JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
             JEVisType jeVisType = jeVisClass.getType(string);
             return jeVisType;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e);
         }
         return null;
@@ -538,15 +512,16 @@ public class MeterForm extends Dialog {
     }
 
     private void replacementGridPane(boolean visible) {
-        if(visible){
+        if (visible) {
             innerGridPane.setVisible(true);
-        }else {
+        } else {
             innerGridPane.setVisible(false);
             oldMeterSample = null;
             newMeterSample = null;
         }
     }
-    private void setMeterValueTimeIntervall(EnterDataTypes enterDataTypes){
+
+    private void setMeterValueTimeIntervall(EnterDataTypes enterDataTypes) {
         switch (enterDataTypes) {
             case YEAR:
                 Platform.runLater(() -> innerGridPane.getChildren().removeAll(dateLabel, datePicker, timePicker, yearBox, monthBox, dayBox));
@@ -570,7 +545,7 @@ public class MeterForm extends Dialog {
         }
     }
 
-    private DateTime getDate(EnterDataTypes enterDataTypes){
+    private DateTime getDate(EnterDataTypes enterDataTypes) {
         DateTime ts = null;
         Integer year = yearBox.getSelectionModel().getSelectedItem();
         Integer month = monthBox.getSelectionModel().getSelectedIndex() + 1;
@@ -609,11 +584,11 @@ public class MeterForm extends Dialog {
     }
 
     private JEVisSample buildSample(double value, int offsetSecond, JEVisAttribute jeVisAttribute, String note) throws JEVisException {
-            return jeVisAttribute.buildSample(getDate(dataTypeBox.getValue()).minusSeconds(offsetSecond),value,note);
+        return jeVisAttribute.buildSample(getDate(dataTypeBox.getValue()).minusSeconds(offsetSecond), value, note);
     }
 
 
-    private void createMeterCounterSamples(double value){
+    private void createMeterCounterSamples(double value) {
 
     }
 }

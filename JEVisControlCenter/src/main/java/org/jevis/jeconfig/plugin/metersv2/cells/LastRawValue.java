@@ -1,32 +1,25 @@
 package org.jevis.jeconfig.plugin.metersv2.cells;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TableColumn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
-import org.jevis.commons.driver.DataSource;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisType;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.application.table.ShortColumnCell;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
-import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTab;
-import org.jevis.jeconfig.tool.DragResizeMod;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 public class LastRawValue extends TableColumn<MeterData, String> {
 
     private static final Logger logger = LogManager.getLogger(LastRawValue.class);
 
-    private JEVisTypeWrapper jeVisTypeWrapperDecimalPlaces;
+    private final JEVisTypeWrapper jeVisTypeWrapperDecimalPlaces;
 
     public LastRawValue(String s, JEVisDataSource ds, JEVisType jeVisType, int width, JEVisTypeWrapper jeVisTypeWrapperDecimalPlaces) {
         super(s);
@@ -54,9 +47,7 @@ public class LastRawValue extends TableColumn<MeterData, String> {
 
                 return stringProperty;
             } catch (Exception e) {
-
                 logger.error(e);
-                e.printStackTrace();
             }
 
 
@@ -64,9 +55,7 @@ public class LastRawValue extends TableColumn<MeterData, String> {
         });
 
         this.setCellFactory(new ShortColumnCell<MeterData>());
-        //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
-
 
 
     }

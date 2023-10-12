@@ -41,18 +41,18 @@ public class MetersToolbar extends ToolBar {
 //    private final ToggleButton increasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_INCREASE, iconSize, iconSize));
 //    private final ToggleButton decreasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_DECREASE, iconSize, iconSize));
 
-  //  private final JFXComboBox<Integer> comboPrecision = new JFXComboBox(FXCollections.observableArrayList(1,2,3,4,5));
+    //  private final JFXComboBox<Integer> comboPrecision = new JFXComboBox(FXCollections.observableArrayList(1,2,3,4,5));
     private MeterController meterController;
 
     public MetersToolbar(MeterController meterController) {
 
-        getItems().addAll(add,exportPDF, rename, deleteItem);
+        getItems().addAll(add, exportPDF, rename, deleteItem);
         getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
 
         add.setOnAction(actionEvent -> meterController.addMeter());
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save");
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel",".xlsx"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel", ".xlsx"));
 
         exportPDF.setOnAction(actionEvent -> {
             File file = fileChooser.showSaveDialog(meterController.getContent().getScene().getWindow());
@@ -80,21 +80,21 @@ public class MetersToolbar extends ToolBar {
         rename.setOnAction(actionEvent -> {
             MeterData meterData = meterController.getSelectedItem();
             LocalNameDialog localNameDialog = new LocalNameDialog(meterData.getJeVisObject());
-            LocalNameDialog.Response response =  localNameDialog.show();
+            LocalNameDialog.Response response = localNameDialog.show();
             if (response.equals(LocalNameDialog.Response.YES)) {
 
-              MeterPlanTable meterPlanTable = meterController.getActiveTable();
-              meterPlanTable.replaceItem(meterData);
-              meterPlanTable.refresh();
+                MeterPlanTable meterPlanTable = meterController.getActiveTable();
+                meterPlanTable.replaceItem(meterData);
+                meterPlanTable.refresh();
             }
         });
 
         deleteItem.setOnAction(actionEvent -> {
             MeterData meterData = meterController.getSelectedItem();
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,I18n.getInstance().getString("plugin.meters.delete.title"), ButtonType.OK,ButtonType.CANCEL);
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.meters.delete.title"), ButtonType.OK, ButtonType.CANCEL);
 
             alert.setTitle(I18n.getInstance().getString("plugin.meters.delete.title"));
-            alert.setContentText(String.format(I18n.getInstance().getString("plugin.meters.delete.body"),meterData.getName()));
+            alert.setContentText(String.format(I18n.getInstance().getString("plugin.meters.delete.body"), meterData.getName()));
             Optional<ButtonType> result = alert.showAndWait();
             if (result.orElse(ButtonType.CANCEL) != ButtonType.OK) return;
             try {
@@ -105,13 +105,6 @@ public class MetersToolbar extends ToolBar {
             }
             meterController.getActiveTable().refresh();
         });
-
-
-
-
-
-
-
 
 
     }

@@ -29,7 +29,7 @@ public class TagButton extends Button {
     HashMap<String, BooleanProperty> activeTags = new HashMap<>();
     ObservableList<String> allTags = FXCollections.observableArrayList();
 
-    private List<JFXCheckBox> boxes = new ArrayList<>();
+    private final List<JFXCheckBox> boxes = new ArrayList<>();
 
     public TagButton(String text, ObservableList<String> entry, ObservableList<String> selected) {
         super(text);
@@ -104,11 +104,11 @@ public class TagButton extends Button {
             if (jfxCheckBox.isSelected()) selected.add(jfxCheckBox.getText());
 
         });
-        logger.debug("## selectedBoxes: {}",selected);
+        logger.debug("## selectedBoxes: {}", selected);
 
         if (selected.isEmpty()) {
             selectedTags.clear();
-        }else if(!(selected.size() == allTags.size())) {
+        } else if (!(selected.size() == allTags.size())) {
             selectedTags.setAll(selected);
         } else if (selected.size() == allTags.size()) {
             selectedTags.clear();
@@ -118,7 +118,7 @@ public class TagButton extends Button {
 
     }
 
-    private void updateButton( List<String> selected) {
+    private void updateButton(List<String> selected) {
         Platform.runLater(() -> {
             if (selected.size() == allTags.size()) {
                 setStyle("-fx-border-color: #51aaa5;");

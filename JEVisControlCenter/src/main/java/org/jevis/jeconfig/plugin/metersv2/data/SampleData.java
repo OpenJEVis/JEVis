@@ -6,8 +6,8 @@ import org.jevis.api.JEVisSample;
 import java.util.Optional;
 
 public class SampleData {
-    private JEVisAttribute jeVisAttribute;
-    private Optional<JEVisSample> optionalJEVisSample;
+    private final JEVisAttribute jeVisAttribute;
+    private final Optional<JEVisSample> optionalJEVisSample;
 
     public SampleData(JEVisAttribute jeVisAttribute) {
         this.jeVisAttribute = jeVisAttribute;

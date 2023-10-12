@@ -1,26 +1,28 @@
 package org.jevis.jeconfig.plugin.metersv2.data;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisType;
 
-import java.util.Objects;
-
 public class JEVisTypeWrapper {
-    public JEVisType getJeVisType() {
-        return jeVisType;
-    }
 
+    private static final Logger logger = LogManager.getLogger(JEVisTypeWrapper.class);
     private final JEVisType jeVisType;
-
     private String name;
 
     public JEVisTypeWrapper(JEVisType jeVisType) {
         this.jeVisType = jeVisType;
+        if (jeVisType == null) return;
         try {
             this.name = jeVisType.getName();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
+    }
+
+    public JEVisType getJeVisType() {
+        return jeVisType;
     }
 
     public String getName() {
@@ -29,9 +31,8 @@ public class JEVisTypeWrapper {
 
     @Override
     public boolean equals(Object o) {
-        if(o.getClass() != this.getClass()) return false;
-        if(((JEVisTypeWrapper) o).getName().equals(name)) return true;
-        return false;
+        if (o.getClass() != this.getClass()) return false;
+        return ((JEVisTypeWrapper) o).getName().equals(name);
     }
 
     @Override

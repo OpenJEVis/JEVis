@@ -40,7 +40,7 @@ public class DateColumn extends TableColumn<MeterData, DateTime > {
         });
 
         this.setCellFactory(new DateTimeColumnCell<>());
-        //this.setStyle("-fx-alignment: LEFT;");
+        this.setStyle("-fx-alignment: CENTER;");
         this.setMinWidth(width);
 
     }

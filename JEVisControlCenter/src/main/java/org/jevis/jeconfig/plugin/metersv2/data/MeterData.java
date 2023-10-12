@@ -1,10 +1,11 @@
 package org.jevis.jeconfig.plugin.metersv2.data;
 
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisObject;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class MeterData {
     JEVisObject jeVisObject;
@@ -13,6 +14,12 @@ public class MeterData {
     private JEVisClass jeVisClass;
 
     private String jEVisClassName;
+    private String name;
+
+    public MeterData(JEVisObject jeVisObject) {
+        this.jeVisObject = jeVisObject;
+        load();
+    }
 
     public String getName() {
         return name;
@@ -20,13 +27,6 @@ public class MeterData {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    private String name;
-
-    public MeterData(JEVisObject jeVisObject) {
-            this.jeVisObject = jeVisObject;
-            load();
     }
 
     public void load() {
@@ -37,7 +37,7 @@ public class MeterData {
             for (JEVisAttribute jeVisAttribute : jeVisObject.getAttributes()) {
                 if (jeVisAttribute.hasSample()) {
                     jeVisAttributeJEVisSampleMap.put(new JEVisTypeWrapper(jeVisAttribute.getType()), new SampleData(jeVisAttribute));
-                }else {
+                } else {
                     jeVisAttributeJEVisSampleMap.put(new JEVisTypeWrapper(jeVisAttribute.getType()), new SampleData(jeVisAttribute));
                 }
 

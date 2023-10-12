@@ -8,7 +8,7 @@ import org.jevis.jeconfig.application.table.ShortColumnCell;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 
-public class DoubleColumn extends TableColumn<MeterData,String> {
+public class DoubleColumn extends TableColumn<MeterData, String> {
     public DoubleColumn(JEVisType jeVisType, int width, String name) {
         super(name);
         try {
@@ -21,7 +21,7 @@ public class DoubleColumn extends TableColumn<MeterData,String> {
             if (param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)) != null && param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).getOptionalJEVisSample().isPresent()) {
                 try {
                     JEVisSample jeVisSample = param.getValue().getJeVisAttributeJEVisSampleMap().get(new JEVisTypeWrapper(jeVisType)).getOptionalJEVisSample().get();
-                    return new SimpleStringProperty(String.format("%.2f",jeVisSample.getValueAsDouble()));
+                    return new SimpleStringProperty(String.format("%.2f", jeVisSample.getValueAsDouble()));
                 } catch (Exception e) {
                     e.printStackTrace();
                     return new SimpleStringProperty();
@@ -32,7 +32,6 @@ public class DoubleColumn extends TableColumn<MeterData,String> {
         });
 
         this.setCellFactory(new ShortColumnCell<MeterData>());
-        //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
 
 

@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.metersv2;
 
-import javafx.beans.property.*;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -10,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
@@ -31,16 +31,17 @@ public class MeterController {
 
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
-    private ObservableList<MeterPlan> meterPlans = FXCollections.observableArrayList();
+    private final ObservableList<MeterPlan> meterPlans = FXCollections.observableArrayList();
     private TabPane tabPane;
-    private JEVisDataSource ds;
+    private final JEVisDataSource ds;
 
-    private IntegerProperty lastRawValuePrecision = new SimpleIntegerProperty(2);
+    private final IntegerProperty lastRawValuePrecision = new SimpleIntegerProperty(2);
 
-    public MeterController(MeterPlugin plugin,JEVisDataSource ds) {
+    public MeterController(MeterPlugin plugin, JEVisDataSource ds) {
         this.ds = ds;
         this.plugin = plugin;
     }
+
     public void loadNonconformityPlans() {
         tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
@@ -63,7 +64,6 @@ public class MeterController {
             });
 
 
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,10 +75,9 @@ public class MeterController {
     }
 
     public Node getContent() {
-        System.out.println(contentPane);
-        System.out.println(contentPane.getChildren());
         return contentPane;
     }
+
     public MeterData getSelectedData() {
         MeterPlanTab tab = getActiveTab();
         if (tab.getMeterPlanTable().getSelectionModel().getSelectedItem() != null) {
@@ -96,7 +95,7 @@ public class MeterController {
 
     public void openDataForm(Optional<MeterData> meterData) {
         MeterData data = meterData.orElse(getSelectedData());
-        MeterForm meterForm = new MeterForm(data,ds);
+        MeterForm meterForm = new MeterForm(data, ds);
 
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -104,10 +103,10 @@ public class MeterController {
         final Button btOk = (Button) meterForm.getDialogPane().lookupButton(buttonTypeOne);
         btOk.setOnAction(actionEvent -> {
             meterForm.commit();
-            if(meterData.isPresent()){
+            if (meterData.isPresent()) {
                 getActiveTab().getMeterPlanTable().addItem(data);
                 getActiveTab().getMeterPlanTable().sort();
-            }else {
+            } else {
                 getActiveTab().getMeterPlanTable().replaceItem(data);
                 getActiveTab().getMeterPlanTable().sort();
 
@@ -119,28 +118,27 @@ public class MeterController {
 
     }
 
-    public void addMeter(){
-        NewMeterDialog newMeterDialog = new NewMeterDialog(ds,getActiveTab().getPlan());
+    public void addMeter() {
+        NewMeterDialog newMeterDialog = new NewMeterDialog(ds, getActiveTab().getPlan());
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         newMeterDialog.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
         final Button btOk = (Button) newMeterDialog.getDialogPane().lookupButton(buttonTypeOne);
 
         btOk.setOnAction(actionEvent -> {
-                JEVisObject jeVisObject = newMeterDialog.commit();
-                if(jeVisObject == null) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Object Could not Created");
-                    alert.showAndWait();
-                }else {
-                    MeterData meterData = new MeterData(jeVisObject);
-                    openDataForm(Optional.of(meterData));
-                }
+            JEVisObject jeVisObject = newMeterDialog.commit();
+            if (jeVisObject == null) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Object Could not Created");
+                alert.showAndWait();
+            } else {
+                MeterData meterData = new MeterData(jeVisObject);
+                openDataForm(Optional.of(meterData));
+            }
         });
 
 
         newMeterDialog.showAndWait();
-
 
 
     }
@@ -149,25 +147,21 @@ public class MeterController {
         return lastRawValuePrecision.get();
     }
 
-    public IntegerProperty lastRawValuePrecisionProperty() {
-        return lastRawValuePrecision;
-    }
-
     public void setLastRawValuePrecision(int lastRawValuePrecision) {
         this.lastRawValuePrecision.set(lastRawValuePrecision);
     }
 
-    public MeterData getSelectedItem(){
-       return getActiveTab().getMeterPlanTable().getSelectedItem();
+    public IntegerProperty lastRawValuePrecisionProperty() {
+        return lastRawValuePrecision;
     }
 
-    public MeterPlanTable getActiveTable(){
+    public MeterData getSelectedItem() {
+        return getActiveTab().getMeterPlanTable().getSelectedItem();
+    }
+
+    public MeterPlanTable getActiveTable() {
         return getActiveTab().getMeterPlanTable();
     }
-
-
-
-
 
 
 }

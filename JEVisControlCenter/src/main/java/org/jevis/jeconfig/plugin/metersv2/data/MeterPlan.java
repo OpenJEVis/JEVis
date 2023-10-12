@@ -37,7 +37,6 @@ public class MeterPlan {
         List<JEVisObject> directory = new ArrayList<>();
         directory.add(jeVisObject);
         for (JEVisObject jeVisObject1 : load(directory)) {
-            System.out.println(jeVisObject1);
             MeterData meterData = new MeterData(jeVisObject1);
             meterDataList.add(meterData);
         }

@@ -5,7 +5,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 
-public class ObjectNameColumn  extends TableColumn<MeterData, String> {
+public class ObjectNameColumn extends TableColumn<MeterData, String> {
     public ObjectNameColumn(String name, int width) {
         super(name);
         this.setCellValueFactory(meterDataStringCellDataFeatures -> {

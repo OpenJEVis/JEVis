@@ -123,7 +123,7 @@ public class MeterPlugin implements Plugin {
 
     @Override
     public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.MINUS_CIRCLE, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
+        return JEConfig.getSVGImage(Icon.GAUGE, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
     @Override

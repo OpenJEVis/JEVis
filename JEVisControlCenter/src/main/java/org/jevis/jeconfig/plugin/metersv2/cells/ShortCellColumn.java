@@ -2,14 +2,13 @@ package org.jevis.jeconfig.plugin.metersv2.cells;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisType;
 import org.jevis.jeconfig.application.table.ShortColumnCell;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 
-public class ShortCellColumn extends TableColumn<MeterData,String>{
+public class ShortCellColumn extends TableColumn<MeterData, String> {
 
     public ShortCellColumn(JEVisType jeVisType, int width, String name) {
         super(name);
@@ -34,10 +33,7 @@ public class ShortCellColumn extends TableColumn<MeterData,String>{
         });
 
         this.setCellFactory(new ShortColumnCell<MeterData>());
-        //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
-
-
 
 
     }
