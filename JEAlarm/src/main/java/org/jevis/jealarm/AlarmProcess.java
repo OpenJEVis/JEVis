@@ -360,15 +360,15 @@ public class AlarmProcess {
                             || note.contains(NoteConstants.Limits.LIMIT_MEDIAN) || note.contains(NoteConstants.Limits.LIMIT_INTERPOLATION)
                             || note.contains(NoteConstants.Limits.LIMIT_MIN) || note.contains(NoteConstants.Limits.LIMIT_MAX))) {
                         if (shouldBeValue2Min != null && sample.getValueAsDouble() < shouldBeValue2Min) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue2Min, AlarmType.L2, null));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue2Min, AlarmType.L2, 0));
                         } else if (shouldBeValue2Max != null && sample.getValueAsDouble() > shouldBeValue2Max) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue2Max, AlarmType.L2, null));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue2Max, AlarmType.L2, 0));
                         }
                     } else if (note.contains(NoteConstants.Limits.LIMIT_STEP1)) {
                         if (shouldBeValue1Min != null && sample.getValueAsDouble() < shouldBeValue1Min) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue1Min, AlarmType.L1, null));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue1Min, AlarmType.L1, 0));
                         } else if (shouldBeValue1Max != null && sample.getValueAsDouble() > shouldBeValue1Max) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue1Max, AlarmType.L1, null));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue1Max, AlarmType.L1, 0));
                         }
                     }
 
@@ -388,7 +388,7 @@ public class AlarmProcess {
                                     String deltaValueString = subtext.substring(subtext.indexOf(",") + 1, length);
                                     Double deltaValue = Double.parseDouble(deltaValueString);
 
-                                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D2, null));
+                                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D2, 0));
                                 } catch (Exception e) {
                                     logger.error("Could not parse delta step 2 values from object {}:{} and sample {}", cleanData.getName(), cleanData.getID(), sample, e);
                                 }
@@ -406,7 +406,7 @@ public class AlarmProcess {
                                     String deltaValueString = subtext.substring(subtext.indexOf(",") + 1, length);
                                     Double deltaValue = Double.parseDouble(deltaValueString);
 
-                                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D1, null));
+                                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D1, 0));
                                 } catch (Exception e) {
                                     logger.error("Could not parse delta step 1 values from object {}:{} and sample {}", cleanData.getName(), cleanData.getID(), sample, e);
                                 }
@@ -416,7 +416,7 @@ public class AlarmProcess {
 
                     if (!gapFillingConfig.isEmpty()) {
                         if (note.contains(NoteConstants.Gap.GAP)) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "", null, AlarmType.GAP, null));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "", null, AlarmType.GAP, 0));
                         }
                     }
                 }
