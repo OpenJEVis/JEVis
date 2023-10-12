@@ -360,15 +360,15 @@ public class AlarmProcess {
                             || note.contains(NoteConstants.Limits.LIMIT_MEDIAN) || note.contains(NoteConstants.Limits.LIMIT_INTERPOLATION)
                             || note.contains(NoteConstants.Limits.LIMIT_MIN) || note.contains(NoteConstants.Limits.LIMIT_MAX))) {
                         if (shouldBeValue2Min != null && sample.getValueAsDouble() < shouldBeValue2Min) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue2Min, AlarmType.L2, 0));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue2Min, AlarmType.L2, null));
                         } else if (shouldBeValue2Max != null && sample.getValueAsDouble() > shouldBeValue2Max) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue2Max, AlarmType.L2, 0));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue2Max, AlarmType.L2, null));
                         }
                     } else if (note.contains(NoteConstants.Limits.LIMIT_STEP1)) {
                         if (shouldBeValue1Min != null && sample.getValueAsDouble() < shouldBeValue1Min) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue1Min, AlarmType.L1, 0));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "<", shouldBeValue1Min, AlarmType.L1, null));
                         } else if (shouldBeValue1Max != null && sample.getValueAsDouble() > shouldBeValue1Max) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue1Max, AlarmType.L1, 0));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), ">", shouldBeValue1Max, AlarmType.L1, null));
                         }
                     }
 
@@ -388,7 +388,7 @@ public class AlarmProcess {
                                     String deltaValueString = subtext.substring(subtext.indexOf(",") + 1, length);
                                     Double deltaValue = Double.parseDouble(deltaValueString);
 
-                                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D2, 0));
+                                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D2, null));
                                 } catch (Exception e) {
                                     logger.error("Could not parse delta step 2 values from object {}:{} and sample {}", cleanData.getName(), cleanData.getID(), sample, e);
                                 }
@@ -406,7 +406,7 @@ public class AlarmProcess {
                                     String deltaValueString = subtext.substring(subtext.indexOf(",") + 1, length);
                                     Double deltaValue = Double.parseDouble(deltaValueString);
 
-                                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D1, 0));
+                                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), dValueString, deltaValue, AlarmType.D1, null));
                                 } catch (Exception e) {
                                     logger.error("Could not parse delta step 1 values from object {}:{} and sample {}", cleanData.getName(), cleanData.getID(), sample, e);
                                 }
@@ -416,7 +416,7 @@ public class AlarmProcess {
 
                     if (!gapFillingConfig.isEmpty()) {
                         if (note.contains(NoteConstants.Gap.GAP)) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), AlarmConstants.Operator.NOT_EQUALS.toString(), 0d, AlarmType.GAP, 0));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "", null, AlarmType.GAP, null));
                         }
                     }
                 }
@@ -591,26 +591,22 @@ public class AlarmProcess {
     }
 
     private List<JEVisObject> filterForEnabled(List<JEVisObject> completeList) {
-        List<JEVisObject> enabledOjects = new ArrayList<>();
+        List<JEVisObject> enabledObjects = new ArrayList<>();
         completeList.forEach(jeVisObject -> {
-            JEVisAttribute alarmEnabledAttribute = null;
             try {
-                alarmEnabledAttribute = jeVisObject.getAttribute(ALARM_ENABLED_ATTRIBUTE);
-            } catch (JEVisException e) {
+
+                JEVisAttribute alarmEnabledAttribute = jeVisObject.getAttribute(ALARM_ENABLED_ATTRIBUTE);
+
+                JEVisSample lastSampleAlarmEnabled = alarmEnabledAttribute.getLatestSample();
+                if (lastSampleAlarmEnabled != null) {
+                    boolean alarmEnabled = lastSampleAlarmEnabled.getValueAsBoolean();
+                    if (alarmEnabled) enabledObjects.add(jeVisObject);
+                }
+            } catch (Exception e) {
                 logger.error("Could not get Attribute.");
             }
-            JEVisSample lastSampleAlarmEnabled = alarmEnabledAttribute.getLatestSample();
-            boolean alarmEnabled = false;
-            if (lastSampleAlarmEnabled != null) {
-                try {
-                    alarmEnabled = lastSampleAlarmEnabled.getValueAsBoolean();
-                } catch (JEVisException e) {
-                    logger.error("could not get last Value as boolean.");
-                }
-            }
-            if (alarmEnabled) enabledOjects.add(jeVisObject);
         });
-        return enabledOjects;
+        return enabledObjects;
     }
 
     private List<JEVisObject> getListFromSelectedObjects() {
