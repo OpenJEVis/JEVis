@@ -438,6 +438,7 @@ public class AlarmPlugin implements Plugin {
                 return I18n.getInstance().getString("plugin.alarm.table.alarm.standby");
             case (1):
                 return I18n.getInstance().getString("plugin.alarm.table.alarm.normal");
+            case (0):
             default:
                 return I18n.getInstance().getString("plugin.alarm.table.alarm.system");
         }
