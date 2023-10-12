@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -12,37 +13,35 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.plugin.metersv2.cells.*;
-import org.jevis.jeconfig.plugin.metersv2.data.*;
+import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
+import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
+import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
+import org.jevis.jeconfig.plugin.metersv2.data.SampleData;
 import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEvent;
 import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEventListener;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import javax.swing.event.EventListenerList;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.prefs.Preferences;
 
 
 public class MeterPlanTable extends TableView<MeterData> {
 
-    private JEVisDataSource ds;
-
-    private Map<JEVisType, JEVisTypeWrapper> map = new HashMap<>();
-
     private static final Logger logger = LogManager.getLogger(MeterPlanTable.class);
-
-    private final EventListenerList listeners = new EventListenerList();
-
-
+    private static final int DATE_TIME_WIDTH = 120;
+    private static final int BIG_WIDTH = 200;
+    private static final int SMALL_WIDTH = 60;
     private static Method columnToFitMethod;
 
     static {
@@ -53,36 +52,31 @@ public class MeterPlanTable extends TableView<MeterData> {
             e.printStackTrace();
         }
     }
-    FilteredList<MeterData> filteredData;
 
+    private final EventListenerList listeners = new EventListenerList();
+    private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
+    private final JEVisDataSource ds;
+    private final Map<JEVisType, JEVisTypeWrapper> map = new HashMap<>();
+    private final boolean showSumRow = false;
+    private final ObservableList<String> fields = FXCollections.observableArrayList();
+    private final ObservableList<String> seu = FXCollections.observableArrayList();
+    FilteredList<MeterData> filteredData;
     SortedList<MeterData> sortedData;
-    private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private boolean showSumRow = false;
+    ObservableList<MeterData> data;
+    JEVisTypeWrapper typeWrapper;
+    JEVisTypeWrapper locationWrapper;
+    JEVisTypeWrapper pointNameWrapper;
+    JEVisTypeWrapper decimalPlacesWrapper;
+    JEVisTypeWrapper verficationDateWrapper;
     private String containsTextFilter = "";
     private ObservableList<String> medium = FXCollections.observableArrayList();
     private ObservableList<String> type = FXCollections.observableArrayList();
     private ObservableList<String> location = FXCollections.observableArrayList();
-    private ObservableList<String> fields = FXCollections.observableArrayList();
-    private ObservableList<String> seu = FXCollections.observableArrayList();
-
     private boolean showOnlyOvedue;
 
-    private static int DATE_TIME_WIDTH = 120;
-    private static int BIG_WIDTH = 200;
-    private static int SMALL_WIDTH = 60;
-
-    ObservableList<MeterData> data;
-
-    JEVisTypeWrapper typeWrapper;
-    JEVisTypeWrapper locationWrapper;
-    JEVisTypeWrapper pointNameWrapper;
-    JEVisTypeWrapper verficationDateWrapper;
 
 
-    // Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
-
-
-    public MeterPlanTable(MeterPlan meterPlan, ObservableList<MeterData> data, JEVisDataSource ds) {
+    public MeterPlanTable(MeterPlan meterPlan, ObservableList<MeterData> data, JEVisDataSource ds, IntegerProperty integerProperty) {
 
         this.ds = ds;
         this.data = data;
@@ -92,67 +86,107 @@ public class MeterPlanTable extends TableView<MeterData> {
         locationWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Location));
         pointNameWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_MeasuringPointName));
         verficationDateWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_VerificationDate));
-        //this.jeVisTypeJEVisTypeWrapperMap = jeVisTypeJEVisTypeWrapperMap;
+
+        decimalPlacesWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_DecimalPlaces));
 
         this.setTableMenuButtonVisible(true);
 
-        this.getColumns().add(new MediumColumn("Medium", BIG_WIDTH));
+        this.getColumns().add(new MediumColumn(I18n.getInstance().getString("plugin.meters.medium"), BIG_WIDTH));
         JEVisType onlineIdType = null;
-        JEVisType pointName = null;
         try {
             JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
             onlineIdType = jeVisClass.getType("Online ID");
-            pointName = jeVisClass.getType(JC.MeasurementInstrument.a_MeasuringPointName);
 
         } catch (Exception e) {
             e.printStackTrace();
 
         }
-        List<JEVisTypeWrapper> jeVisTypes = data.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().keySet()).flatMap(jeVisTypes1 -> jeVisTypes1.stream()).distinct().collect(Collectors.toList());
+        List<JEVisTypeWrapper> jeVisTypes = meterPlan.getAllAvailbleTypes();
 
 
         try {
             for (JEVisTypeWrapper jeVisTypeWrapper : jeVisTypes) {
+                int i = 0;
                 JEVisType jeVisType = jeVisTypeWrapper.getJeVisType();
                 TableColumn<MeterData, ?> col = null;
                 switch (jeVisType.getPrimitiveType()) {
                     case JEVisConstants.PrimitiveType.LONG:
-                        col = new DoubleColumn(jeVisType, BIG_WIDTH, jeVisType.getName());
-                        break;
-                    case JEVisConstants.PrimitiveType.STRING:
-
-                        if (jeVisType.equals(onlineIdType)) {
-                            col = new LastRawValue("Last Raw Value", ds, jeVisType, BIG_WIDTH);
-                            this.getSortOrder().add(col);
-                        } else {
-                            col = new ShortCellColumn(jeVisType, BIG_WIDTH, jeVisType.getName());
-                            if (jeVisType.equals(pointName)) col.setVisible(true);
-
-
-                        }
+                        col = new DoubleColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
                         break;
                     case JEVisConstants.PrimitiveType.FILE:
-                        col = new FileColumn(jeVisType, BIG_WIDTH, jeVisType.getName());
+                        col = new FileColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
                         break;
                     default:
-
                         if ((jeVisType.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || jeVisType.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId()))) {
-                            col = new DateColumn(jeVisType.getName(), jeVisType, BIG_WIDTH);
-                        } else {
+                            System.out.println(jeVisTypeWrapper);
 
-                            col = new ShortCellColumn(jeVisType, BIG_WIDTH, jeVisType.getName());
+                            col = new DateColumn(I18nWS.getInstance().getTypeName(jeVisType), jeVisType, BIG_WIDTH);
+                            break;
                         }
-                        break;
+                        if (jeVisType.getName().equals(JC.MeasurementInstrument.a_OnlineID)) {
+                            col = new LastRawValue(I18n.getInstance().getString("plugin.meters.lastrawvalue"), ds, jeVisType, BIG_WIDTH, decimalPlacesWrapper);
+                            i = 2;
+                            this.getSortOrder().add(col);
+                            break;
+
+                        } else {
+                            col = new ShortCellColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
+                            if (jeVisType.getName().equals(JC.MeasurementInstrument.a_MeasuringPointName)) {
+                                col.setVisible(true);
+                                i = 1;
+                            } else if (jeVisType.getName().equals(JC.MeasurementInstrument.a_Type)) {
+                                col.setVisible(true);
+                                i = 3;
+                            }
+                            break;
+                        }
+
                 }
+                col.setVisible(pref.getBoolean(jeVisType.getName(), true));
+                col.visibleProperty().addListener((observable, oldValue, newValue) -> {
+                    try {
+                        pref.putBoolean(jeVisType.getName(), newValue);
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                });
                 if (col != null) {
-                    this.getColumns().add(col);
+                    if (i == 0) {
+                        this.getColumns().add(col);
+
+                    } else {
+                        this.getColumns().add(i, col);
+                    }
                 }
             }
-            this.getColumns().add(new JumpColumn("", onlineIdType, BIG_WIDTH, ds));
+            TableColumn<MeterData, ?> jumpColumn = new JumpColumn("", onlineIdType, BIG_WIDTH, ds);
+            jumpColumn.setVisible(pref.getBoolean("Jump", true));
+            jumpColumn.visibleProperty().addListener((observable, oldValue, newValue) -> {
+                pref.putBoolean("Jump", newValue);
+            });
+
+
+            TableColumn<MeterData, ?> pathColumn = new PathColumnColumn(new ObjectRelations(ds), BIG_WIDTH, I18n.getInstance().getString("plugin.meters.path"));
+
+
+            pathColumn.setVisible(pref.getBoolean("Path", true));
+            pathColumn.visibleProperty().addListener((observable, oldValue, newValue) -> {
+                pref.putBoolean("Path", newValue);
+            });
+            TableColumn<MeterData, ?> nameColumn = new ObjectNameColumn(I18n.getInstance().getString("plugin.meters.jevisname"), BIG_WIDTH);
+
+
+            nameColumn.setVisible(pref.getBoolean("nameColumn", true));
+            nameColumn.visibleProperty().addListener((observable, oldValue, newValue) -> {
+                pref.putBoolean("nameColumn", newValue);
+            });
+
+            this.getColumns().add(jumpColumn);
+            this.getColumns().add(2, nameColumn);
+            this.getColumns().add(3, pathColumn);
 
 
         } catch (Exception e) {
-            System.out.println("col");
             e.printStackTrace();
         }
         sortedData = new SortedList<>(filteredData);
@@ -173,6 +207,16 @@ public class MeterPlanTable extends TableView<MeterData> {
         notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.UPDATE));
     }
 
+    public void removeItem(MeterData meterData) {
+        this.data.remove(meterData);
+        notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.REMOVE));
+    }
+
+    public void addItem(MeterData meterData) {
+        this.data.add(meterData);
+        notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.ADD));
+    }
+
     public void setItems(List<MeterData> meterDatas) {
         this.data.setAll(meterDatas);
     }
@@ -186,8 +230,6 @@ public class MeterPlanTable extends TableView<MeterData> {
         this.type = type;
         return null;
     }
-
-
 
 
     public void filter() {
@@ -213,7 +255,7 @@ public class MeterPlanTable extends TableView<MeterData> {
                             if (!filter(typeWrapper, type, meterData)) return false;
                             if (!filter(locationWrapper, location, meterData)) return false;
                             AtomicBoolean overdueMatch = new AtomicBoolean(false);
-                            if (showOnlyOvedue == true) {
+                            if (showOnlyOvedue) {
                                 SampleData sampleData = meterData.getJeVisAttributeJEVisSampleMap().get(verficationDateWrapper);
                                 if (sampleData != null && sampleData.getOptionalJEVisSample().isPresent()) {
                                     JEVisSample jeVisSample = sampleData.getOptionalJEVisSample().get();
@@ -223,8 +265,6 @@ public class MeterPlanTable extends TableView<MeterData> {
                                 }
                                 if (!overdueMatch.get()) return false;
                             }
-
-
 
 
                             AtomicBoolean containString = new AtomicBoolean(false);
@@ -243,7 +283,7 @@ public class MeterPlanTable extends TableView<MeterData> {
                                 }
 
                                 //TODO: may also check if column is visible
-                                if (!containString.get()) return false;
+                                return containString.get();
                             }
 
                             return true;
@@ -291,7 +331,6 @@ public class MeterPlanTable extends TableView<MeterData> {
 
     public Void setLocation(ObservableList<String> location) {
         this.location = location;
-        System.out.println(location);
         return null;
     }
 
@@ -341,5 +380,9 @@ public class MeterPlanTable extends TableView<MeterData> {
 
     public void setShowOnlyOvedue(boolean showOnlyOvedue) {
         this.showOnlyOvedue = showOnlyOvedue;
+    }
+
+    public MeterData getSelectedItem() {
+        return this.getSelectionModel().getSelectedItem();
     }
 }

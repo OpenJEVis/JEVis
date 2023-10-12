@@ -134,4 +134,7 @@ public class Icon {
     public static final String BALANCE = "/icons/MaterialDesignSVG/outlined/balance.svg";
 
     public static final String CLOUD_UPLOAD = "/icons/MaterialDesignSVG/outlined/cloud_upload.svg";
+    public static final String DECIMAL_INCREASE= "/icons/MaterialDesignSVG/outlined/decimal_increase.svg";
+    public static final String DECIMAL_DECREASE= "/icons/MaterialDesignSVG/outlined/decimal_decrease.svg";
+
 }

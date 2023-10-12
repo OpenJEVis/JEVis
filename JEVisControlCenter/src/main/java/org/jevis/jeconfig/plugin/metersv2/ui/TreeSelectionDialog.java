@@ -58,11 +58,10 @@ public class TreeSelectionDialog extends Dialog {
     private final List<JEVisClass> allReportClasses = new ArrayList<>();
 
     private final JEVisTreeView treeView;
-    private Response response = Response.CANCEL;
     private final JFXTextField filterTextField = new JFXTextField();
-
     public ButtonType buttonOK = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.APPLY);
     public ButtonType buttonCancel = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+    private final Response response = Response.CANCEL;
 
     public TreeSelectionDialog(JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode, List<UserSelection> selection, boolean showAttributes) {
         super();
@@ -152,7 +151,6 @@ public class TreeSelectionDialog extends Dialog {
                 }
 
                 if (correctChoice) {
-                    System.out.println("Set result: " + buttonOK);
                     setResult(buttonOK);
                     this.close();
                 } else {
@@ -197,6 +195,10 @@ public class TreeSelectionDialog extends Dialog {
 
         getDialogPane().setContent(box);
 
+    }
+
+    private static String getItemText(Cell<JEVisObject> cell) {
+        return (DataMethods.getObjectName(cell.getItem()));
     }
 
     private void buildClasses(JEVisDataSource ds) {
@@ -255,10 +257,6 @@ public class TreeSelectionDialog extends Dialog {
         } catch (Exception e) {
             logger.error("Could not create class filter", e);
         }
-    }
-
-    private static String getItemText(Cell<JEVisObject> cell) {
-        return (DataMethods.getObjectName(cell.getItem()));
     }
 
     private void updateFilter(List<JEVisClass> classFilter) {

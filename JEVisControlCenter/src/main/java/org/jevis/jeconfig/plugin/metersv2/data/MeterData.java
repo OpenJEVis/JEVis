@@ -1,10 +1,11 @@
 package org.jevis.jeconfig.plugin.metersv2.data;
 
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisObject;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class MeterData {
     JEVisObject jeVisObject;
@@ -13,20 +14,30 @@ public class MeterData {
     private JEVisClass jeVisClass;
 
     private String jEVisClassName;
+    private String name;
 
     public MeterData(JEVisObject jeVisObject) {
-            this.jeVisObject = jeVisObject;
-            load();
+        this.jeVisObject = jeVisObject;
+        load();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void load() {
         try {
+            name = jeVisObject.getName();
             jeVisClass = jeVisObject.getJEVisClass();
             jEVisClassName = jeVisClass.getName();
             for (JEVisAttribute jeVisAttribute : jeVisObject.getAttributes()) {
                 if (jeVisAttribute.hasSample()) {
                     jeVisAttributeJEVisSampleMap.put(new JEVisTypeWrapper(jeVisAttribute.getType()), new SampleData(jeVisAttribute));
-                }else {
+                } else {
                     jeVisAttributeJEVisSampleMap.put(new JEVisTypeWrapper(jeVisAttribute.getType()), new SampleData(jeVisAttribute));
                 }
 
@@ -61,14 +72,15 @@ public class MeterData {
         this.jeVisObject = jeVisObject;
     }
 
+    public String getjEVisClassName() {
+        return jEVisClassName;
+    }
+
     @Override
     public String toString() {
         return "MeterData{" +
-                "jeVisObject=" + jeVisObject.getName() +
+                "jeVisObject=" + jeVisObject +
+                ", name='" + name + '\'' +
                 '}';
-    }
-
-    public String getjEVisClassName() {
-        return jEVisClassName;
     }
 }

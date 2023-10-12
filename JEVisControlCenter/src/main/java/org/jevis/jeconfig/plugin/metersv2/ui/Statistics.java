@@ -7,7 +7,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import org.jevis.api.JEVisException;
-import org.jevis.commons.DatabaseHelper;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.joda.time.DateTime;
@@ -24,9 +25,6 @@ public class Statistics {
         this.meterDatas = nonconformityDataObservableList;
         this.meterPlanTable = meterPlanTable;
 
-        updateTrigger.addListener((observableValue, aBoolean, t1) -> {
-            System.out.println(t1);
-        });
 
         meterPlanTable.addEventListener(event -> {
             System.out.println(event);
@@ -42,7 +40,7 @@ public class Statistics {
                 case FILTER:
                     System.out.println(meterDatas);
                     updateTrigger.set(true);
-                   break;
+                    break;
                 case REMOVE:
                     System.out.println(meterDatas);
                     updateTrigger.set(true);
@@ -51,11 +49,12 @@ public class Statistics {
             updateTrigger.set(false);
         });
     }
+
     public StringProperty getType(JEVisTypeWrapper jeVisTypeWrapper, String name) {
 
 
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(() -> name+": "+ meterDatas.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper))
+        stringProperty.bind(Bindings.createStringBinding(() -> name + ": " + meterDatas.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper))
                 .filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent())
                 .map(optionalJEVisSample -> {
                     try {
@@ -63,38 +62,38 @@ public class Statistics {
                     } catch (JEVisException e) {
                         throw new RuntimeException(e);
                     }
-                }).filter(s -> s.equals(name)).count(),updateTrigger));
+                }).filter(s -> s.equals(name)).count(), updateTrigger));
         return stringProperty;
 
     }
 
 
-    public StringProperty getAllOfMedium(String jeVisClass, String name) {
+    public StringProperty getAllOfMedium(String jeVisClass) {
 
 
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(() ->name+": "+String.valueOf(meterDatas.stream().filter(meterData -> {
+        stringProperty.bind(Bindings.createStringBinding(() -> I18nWS.getInstance().getClassName(jeVisClass) + ": " + String.valueOf(meterDatas.stream().filter(meterData -> {
             try {
                 return meterData.getJeVisClass().getName().equals(jeVisClass);
             } catch (JEVisException e) {
                 throw new RuntimeException(e);
             }
-        }).count()),updateTrigger));
+        }).count()), updateTrigger));
         return stringProperty;
 
     }
 
     public StringProperty getOverdue(JEVisTypeWrapper jeVisTypeWrapper, String name) {
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(()-> name +": "+ meterDatas.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap()
-                .get(jeVisTypeWrapper)).filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent())
+        stringProperty.bind(Bindings.createStringBinding(() -> name + ": " + meterDatas.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap()
+                        .get(jeVisTypeWrapper)).filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent())
                 .map(optionalJEVisSample -> {
                     try {
                         return new DateTime(optionalJEVisSample.get().getValueAsString());
                     } catch (JEVisException e) {
                         throw new RuntimeException(e);
                     }
-                }).filter(dateTime -> dateTime.isBeforeNow()).count(),updateTrigger));
+                }).filter(dateTime -> dateTime.isBeforeNow()).count(), updateTrigger));
 
         return stringProperty;
     }

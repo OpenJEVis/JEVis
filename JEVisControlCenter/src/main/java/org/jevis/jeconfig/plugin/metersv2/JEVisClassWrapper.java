@@ -14,7 +14,7 @@ public class JEVisClassWrapper {
         try {
             return jeVisClass.getName();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "N/A";
