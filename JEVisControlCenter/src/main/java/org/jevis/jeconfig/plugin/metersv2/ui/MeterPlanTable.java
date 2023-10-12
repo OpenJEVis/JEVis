@@ -75,8 +75,6 @@ public class MeterPlanTable extends TableView<MeterData> {
     private boolean showOnlyOvedue;
 
 
-    // Map<JEVisType, JEVisTypeWrapper> jeVisTypeJEVisTypeWrapperMap;
-
 
     public MeterPlanTable(MeterPlan meterPlan, ObservableList<MeterData> data, JEVisDataSource ds, IntegerProperty integerProperty) {
 
@@ -90,17 +88,14 @@ public class MeterPlanTable extends TableView<MeterData> {
         verficationDateWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_VerificationDate));
 
         decimalPlacesWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_DecimalPlaces));
-        //this.jeVisTypeJEVisTypeWrapperMap = jeVisTypeJEVisTypeWrapperMap;
 
         this.setTableMenuButtonVisible(true);
 
         this.getColumns().add(new MediumColumn(I18n.getInstance().getString("plugin.meters.medium"), BIG_WIDTH));
         JEVisType onlineIdType = null;
-        JEVisType pointName = null;
         try {
             JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
             onlineIdType = jeVisClass.getType("Online ID");
-            pointName = jeVisClass.getType(JC.MeasurementInstrument.a_MeasuringPointName);
 
         } catch (Exception e) {
             e.printStackTrace();

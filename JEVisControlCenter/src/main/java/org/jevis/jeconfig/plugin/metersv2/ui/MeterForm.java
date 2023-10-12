@@ -110,7 +110,10 @@ public class MeterForm extends Dialog {
                     buildCal(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
                 } else if (jeVisType.getName().equals("Online ID")) {
                     buildTargetSelect(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
-                } else {
+                } else if (jeVisType.getName().equals("Remarks")) {
+                    buildTextArea(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
+                }
+                else {
                     buildTextField(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
                 }
             } catch (JEVisException e) {
@@ -270,12 +273,70 @@ public class MeterForm extends Dialog {
 
     }
 
-    private void buildTextField(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
+    private void buildTextField(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample ) {
         Label label = null;
         JFXTextField textField = null;
         try {
             label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
             textField = optionalJEVisSample.isPresent() ? new JFXTextField(optionalJEVisSample.get().getValueAsString()) : new JFXTextField();
+            textField.setPrefWidth(200);
+
+            textField.textProperty().addListener((observableValue, s, t1) -> {
+                int primitiveType = 0;
+                try {
+                    primitiveType = jeVisType.getPrimitiveType();
+                } catch (JEVisException e) {
+                    logger.error(e);
+                    return;
+                }
+                if (t1.isEmpty()) return;
+
+
+                try {
+                    switch (primitiveType) {
+                        case JEVisConstants.PrimitiveType.STRING:
+                            String str = t1;
+                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), str));
+                            break;
+                        case JEVisConstants.PrimitiveType.LONG:
+                            Long l = Long.valueOf(t1);
+                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), l));
+                            break;
+                        case JEVisConstants.PrimitiveType.BOOLEAN:
+                            Boolean b = Boolean.valueOf(t1);
+                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), b));
+                            break;
+                        case JEVisConstants.PrimitiveType.DOUBLE:
+                            Double d = Double.valueOf(t1);
+                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(DateTime.now(), d));
+                            break;
+                    }
+                } catch (NumberFormatException e) {
+                    logger.error(e);
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Number Format Mismatch", ButtonType.OK);
+                    alert.showAndWait();
+                } catch (JEVisException e) {
+                    logger.error(e);
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis error", ButtonType.OK);
+                    alert.showAndWait();
+                }
+
+            });
+
+
+        } catch (JEVisException e) {
+            logger.error(e);
+            return;
+        }
+        fields.put(getGuiPosition(jeVisType), Arrays.asList(label, textField));
+    }
+    private void buildTextArea(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample ) {
+        Label label = null;
+        JFXTextArea textField = null;
+        try {
+            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
+            textField = optionalJEVisSample.isPresent() ? new JFXTextArea(optionalJEVisSample.get().getValueAsString()) : new JFXTextArea();
+            textField.setPrefWidth(200);
 
             textField.textProperty().addListener((observableValue, s, t1) -> {
                 int primitiveType = 0;

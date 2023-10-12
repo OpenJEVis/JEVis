@@ -7,6 +7,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.joda.time.DateTime;
@@ -66,11 +68,11 @@ public class Statistics {
     }
 
 
-    public StringProperty getAllOfMedium(String jeVisClass, String name) {
+    public StringProperty getAllOfMedium(String jeVisClass) {
 
 
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(() -> name + ": " + String.valueOf(meterDatas.stream().filter(meterData -> {
+        stringProperty.bind(Bindings.createStringBinding(() -> I18nWS.getInstance().getClassName(jeVisClass) + ": " + String.valueOf(meterDatas.stream().filter(meterData -> {
             try {
                 return meterData.getJeVisClass().getName().equals(jeVisClass);
             } catch (JEVisException e) {

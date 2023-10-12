@@ -132,7 +132,7 @@ public class MeterPlanTab extends Tab {
                 ObservableMap<TableColumn, StringProperty> summeryRow = FXCollections.observableHashMap();
 
                 if (jeVisClasses.size() > i) {
-                    summeryRow.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals(I18n.getInstance().getString("plugin.meters.medium"))).findAny().orElseThrow(RuntimeException::new), statistics.getAllOfMedium(jeVisClasses.get(i).getName(), jeVisClasses.get(i).getName()));
+                    summeryRow.put(meterPlanTable.getColumns().stream().filter(meterDataTableColumn -> meterDataTableColumn.getId().equals(I18n.getInstance().getString("plugin.meters.medium"))).findAny().orElseThrow(RuntimeException::new), statistics.getAllOfMedium(jeVisClasses.get(i).getName()));
                 }
 
                 if (type.size() > i) {
