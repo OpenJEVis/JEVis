@@ -437,8 +437,9 @@ public class AlarmPlugin implements Plugin {
             case (2):
                 return I18n.getInstance().getString("plugin.alarm.table.alarm.standby");
             case (1):
-            default:
                 return I18n.getInstance().getString("plugin.alarm.table.alarm.normal");
+            default:
+                return I18n.getInstance().getString("plugin.alarm.table.alarm.system");
         }
     }
 
@@ -773,9 +774,7 @@ public class AlarmPlugin implements Plugin {
                         super.updateItem(item, empty);
                         setGraphic(null);
                         setText(null);
-                        if (item == null && !empty) {
-                            setText("± 0%");
-                        } else if (item != null && !empty) {
+                        if (item != null && !empty) {
                             setText("± " + numberFormat.format(item) + "%");
                         }
                     }
