@@ -94,7 +94,7 @@ public class NotesRow {
         return hasChanged;
     }
 
-    public void setNode(String note) {
+    public void setNote(String note) {
         this.note = note;
     }
 
@@ -144,7 +144,7 @@ public class NotesRow {
                 ", object=" + object +
                 ", user='" + user + '\'' +
                 ", tag='" + tag + '\'' +
-                ", noteTags=" + noteTags.size() +
+                //", noteTags=" + noteTags.size() +
                 '}';
     }
 }
