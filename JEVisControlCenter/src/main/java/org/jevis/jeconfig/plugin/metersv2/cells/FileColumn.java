@@ -45,7 +45,7 @@ int width;
         this.setCellFactory(new FileCell<>());
         //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
-        this.setVisible(false);
+
 
     }
 }

@@ -13,6 +13,6 @@ public class ObjectNameColumn  extends TableColumn<MeterData, String> {
         });
         this.setCellFactory(TextFieldTableCell.forTableColumn());
         this.setPrefWidth(width);
-        this.setVisible(true);
+
     }
 }

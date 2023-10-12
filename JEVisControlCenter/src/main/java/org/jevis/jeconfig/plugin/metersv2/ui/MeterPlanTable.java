@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
+import java.util.prefs.Preferences;
 
 
 public class MeterPlanTable extends TableView<MeterData> {
@@ -46,6 +47,8 @@ public class MeterPlanTable extends TableView<MeterData> {
     private static final Logger logger = LogManager.getLogger(MeterPlanTable.class);
 
     private final EventListenerList listeners = new EventListenerList();
+
+    private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
 
 
     private static Method columnToFitMethod;
@@ -162,6 +165,14 @@ public class MeterPlanTable extends TableView<MeterData> {
                         }
                         break;
                 }
+                col.setVisible(pref.getBoolean(jeVisType.getName(), true));
+                col.visibleProperty().addListener((observable, oldValue, newValue) -> {
+                    try {
+                        pref.putBoolean(jeVisType.getName(), newValue);
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                });
                 if (col != null) {
                     if (i == 0) {
                         this.getColumns().add(col);
@@ -171,9 +182,34 @@ public class MeterPlanTable extends TableView<MeterData> {
                     }
                 }
             }
-            this.getColumns().add(new JumpColumn("", onlineIdType, BIG_WIDTH, ds));
-            this.getColumns().add(2,new ObjectNameColumn(I18n.getInstance().getString("plugin.meters.jevisname"),BIG_WIDTH ));
-            this.getColumns().add(3,new PathColumnColumn(new ObjectRelations(ds),BIG_WIDTH,I18n.getInstance().getString("plugin.meters.path")));
+            TableColumn<MeterData, ?> jumpColumn = new JumpColumn("", onlineIdType, BIG_WIDTH, ds);
+            jumpColumn.setVisible(pref.getBoolean("Jump", true));
+            jumpColumn.visibleProperty().addListener((observable, oldValue, newValue) -> {
+                pref.putBoolean("Jump", newValue);
+            });
+
+
+
+
+
+            TableColumn<MeterData, ?> pathColumn = new PathColumnColumn(new ObjectRelations(ds),BIG_WIDTH,I18n.getInstance().getString("plugin.meters.path"));
+
+
+            pathColumn.setVisible(pref.getBoolean("Path", true));
+            pathColumn.visibleProperty().addListener((observable, oldValue, newValue) -> {
+                pref.putBoolean("Path", newValue);
+            });
+            TableColumn<MeterData, ?> nameColumn = new ObjectNameColumn(I18n.getInstance().getString("plugin.meters.jevisname"),BIG_WIDTH);
+
+
+                    nameColumn.setVisible(pref.getBoolean("nameColumn", true));
+            nameColumn.visibleProperty().addListener((observable, oldValue, newValue) -> {
+                pref.putBoolean("nameColumn", newValue);
+            });
+
+            this.getColumns().add(jumpColumn);
+            this.getColumns().add(2,nameColumn);
+            this.getColumns().add(3,pathColumn);
 
 
         } catch (Exception e) {

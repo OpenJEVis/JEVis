@@ -32,6 +32,6 @@ public class JumpColumn extends TableColumn<MeterData, SampleData> {
         this.setCellFactory(new JumpCell<>(ds));
         //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
-        this.setVisible(true);
+
     }
 }

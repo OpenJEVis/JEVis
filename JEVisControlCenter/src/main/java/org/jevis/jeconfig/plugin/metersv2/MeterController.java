@@ -43,6 +43,7 @@ public class MeterController {
     }
     public void loadNonconformityPlans() {
         tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         AnchorPane.setBottomAnchor(tabPane, 0.0);
         AnchorPane.setTopAnchor(tabPane, 0.0);
         AnchorPane.setRightAnchor(tabPane, 0.0);

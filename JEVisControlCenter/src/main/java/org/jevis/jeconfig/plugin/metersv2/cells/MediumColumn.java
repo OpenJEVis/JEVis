@@ -28,6 +28,6 @@ public class MediumColumn extends TableColumn<MeterData,String> {
         });
         //this.setStyle("-fx-alignment: LEFT;");
         this.setMinWidth(width);
-        this.setVisible(true);
+
     }
 }
