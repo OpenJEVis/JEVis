@@ -13,10 +13,7 @@ import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
-import org.jevis.commons.json.JsonAlarm;
-import org.jevis.commons.json.JsonDeltaConfig;
-import org.jevis.commons.json.JsonLimitsConfig;
-import org.jevis.commons.json.JsonTools;
+import org.jevis.commons.json.*;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
@@ -353,6 +350,8 @@ public class AlarmProcess {
                     }
                 }
 
+                List<JsonGapFillingConfig> gapFillingConfig = cleanDataObject.getGapFillingConfig();
+
                 for (JEVisSample sample : valueSamples) {
                     String note = sample.getNote();
 
@@ -414,7 +413,14 @@ public class AlarmProcess {
                             }
                         }
                     }
+
+                    if (!gapFillingConfig.isEmpty()) {
+                        if (note.contains(NoteConstants.Gap.GAP)) {
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), sample.getValueAsDouble(), "", null, AlarmType.GAP, 0));
+                        }
+                    }
                 }
+
 
                 CleanDataAlarm cleanDataAlarm = new CleanDataAlarm(cleanData);
                 if (cleanDataAlarm.isValidAlarmConfiguration()) {
@@ -585,26 +591,22 @@ public class AlarmProcess {
     }
 
     private List<JEVisObject> filterForEnabled(List<JEVisObject> completeList) {
-        List<JEVisObject> enabledOjects = new ArrayList<>();
+        List<JEVisObject> enabledObjects = new ArrayList<>();
         completeList.forEach(jeVisObject -> {
-            JEVisAttribute alarmEnabledAttribute = null;
             try {
-                alarmEnabledAttribute = jeVisObject.getAttribute(ALARM_ENABLED_ATTRIBUTE);
-            } catch (JEVisException e) {
+
+                JEVisAttribute alarmEnabledAttribute = jeVisObject.getAttribute(ALARM_ENABLED_ATTRIBUTE);
+
+                JEVisSample lastSampleAlarmEnabled = alarmEnabledAttribute.getLatestSample();
+                if (lastSampleAlarmEnabled != null) {
+                    boolean alarmEnabled = lastSampleAlarmEnabled.getValueAsBoolean();
+                    if (alarmEnabled) enabledObjects.add(jeVisObject);
+                }
+            } catch (Exception e) {
                 logger.error("Could not get Attribute.");
             }
-            JEVisSample lastSampleAlarmEnabled = alarmEnabledAttribute.getLatestSample();
-            boolean alarmEnabled = false;
-            if (lastSampleAlarmEnabled != null) {
-                try {
-                    alarmEnabled = lastSampleAlarmEnabled.getValueAsBoolean();
-                } catch (JEVisException e) {
-                    logger.error("could not get last Value as boolean.");
-                }
-            }
-            if (alarmEnabled) enabledOjects.add(jeVisObject);
         });
-        return enabledOjects;
+        return enabledObjects;
     }
 
     private List<JEVisObject> getListFromSelectedObjects() {
