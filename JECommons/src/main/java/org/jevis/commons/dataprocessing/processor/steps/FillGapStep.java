@@ -16,8 +16,11 @@ import org.jevis.commons.dataprocessing.processor.GapsAndLimits;
 import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
@@ -43,8 +46,11 @@ public class FillGapStep implements ProcessStep {
         List<JEVisSample> rawSamples = resourceManager.getRawSamplesDown();
         List<DifferentialRule> differentialRules = cleanDataObject.getDifferentialRules();
 
+        WorkDays workDays = new WorkDays(cleanDataObject.getCleanObject());
+        DateTimeZone timeZone = workDays.getDateTimeZone();
+
         //identify gaps, gaps holds intervals
-        List<Gap> gaps = identifyGaps(rawSamples, cleanDataObject, differentialRules);
+        List<Gap> gaps = identifyGaps(rawSamples, cleanDataObject, differentialRules, timeZone);
         logger.info("{} gaps identified", gaps.size());
         if (gaps.isEmpty()) { //no gap filling when there are no gaps
             return;
@@ -138,7 +144,7 @@ public class FillGapStep implements ProcessStep {
         return l;
     }
 
-    private List<Gap> identifyGaps(List<JEVisSample> rawSamples, CleanDataObject cleanDataObject, List<DifferentialRule> differentialRules) throws Exception {
+    private List<Gap> identifyGaps(List<JEVisSample> rawSamples, CleanDataObject cleanDataObject, List<DifferentialRule> differentialRules, DateTimeZone timeZone) throws Exception {
         List<Gap> gaps = new ArrayList<>();
 
         Double lastValue = cleanDataObject.getLastCleanValue();
@@ -148,9 +154,10 @@ public class FillGapStep implements ProcessStep {
 
         for (JEVisSample rawSample : rawSamples) {
             int i = rawSamples.indexOf(rawSample);
-            DateTime rawSampleTS = rawSample.getTimestamp();
+            DateTime rawSampleTSUTC = rawSample.getTimestamp();
+            DateTime rawSampleTS = rawSampleTSUTC.withZone(timeZone);
 
-            Period periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSampleTS);
+            Period periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSampleTSUTC);
             if (i < rawSamples.size() - 1) {
                 periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSamples.get(i + 1).getTimestamp());
             }
@@ -162,7 +169,7 @@ public class FillGapStep implements ProcessStep {
             }
 
             if (i == 0) {
-                expectedDateTime = rawSampleTS.plus(periodForDate);
+                expectedDateTime = PeriodHelper.getNextPeriod(rawSampleTS, periodForDate, 1, true, timeZone).withZone(timeZone);
                 lastValue = rawSample.getValueAsDouble();
                 lastNote = rawSample.getNote();
                 continue;
@@ -176,12 +183,12 @@ public class FillGapStep implements ProcessStep {
                 currentGap.setStartNote(lastNote);
 
                 while (expectedDateTime != null && expectedDateTime.isBefore(rawSampleTS)) {
-                    currentGap.addDateTime(expectedDateTime);
+                    currentGap.addDateTime(expectedDateTime.withZone(DateTimeZone.UTC));
                     periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), expectedDateTime);
                     if (i < rawSamples.size() - 1) {
                         periodForDate = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), rawSamples.get(i + 1).getTimestamp());
                     }
-                    expectedDateTime = expectedDateTime.plus(periodForDate);
+                    expectedDateTime = PeriodHelper.getNextPeriod(expectedDateTime, periodForDate, 1, true, timeZone).withZone(timeZone);
 
                     if (periodForDate.equals(Period.ZERO)) {
                         logger.error("No raw and no clean data period, gap filling not possible");
@@ -196,7 +203,7 @@ public class FillGapStep implements ProcessStep {
             }
 
             if (expectedDateTime != null) {
-                expectedDateTime = expectedDateTime.plus(periodForDate);
+                expectedDateTime = PeriodHelper.getNextPeriod(expectedDateTime, periodForDate, 1, true, timeZone).withZone(timeZone);
             }
         }
 
