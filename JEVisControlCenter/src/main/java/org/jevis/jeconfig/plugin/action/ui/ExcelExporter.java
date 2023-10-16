@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 public class ExcelExporter {
 
@@ -238,35 +237,42 @@ public class ExcelExporter {
                             valueCell.getCellStyle().setBorderTop(BorderStyle.THIN);
                             tableCellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
 
+
                             if (data.nr.get() == lastElement.nr.get()) {
                                 Cell sumCell = getOrCreateCell(sheet, row + 2, colldx);
                                 sumCell.setCellValue(I18n.getInstance().getString("plugin.action.export.sum"));
                             }
-
+                            sheet.setColumnWidth(colldx, toSize(15));
+                            //sheet.autoSizeColumn(colldx);
 
                         }
 
                         if (actionDataTableColumn.getText().equals(I18n.getInstance().getString("plugin.action.filter.plan"))) {
                             valueCell.setCellValue(data.getActionPlan().getName().get());
+                            sheet.autoSizeColumn(colldx);
 
                         }
 
 
                         if (actionDataTableColumn.getText().equals(fakeForName.fromUserProperty().getName())) {
                             valueCell.setCellValue(data.fromUser.get());
+                            sheet.autoSizeColumn(colldx);
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.desciptionProperty().getName())) {
                             valueCell.setCellValue(data.desciptionProperty().get());
+                            sheet.autoSizeColumn(colldx);
                         }
 
 
                         if (actionDataTableColumn.getText().equals(fakeForName.noteProperty().getName())) {
                             valueCell.setCellValue(data.noteProperty().get());
+                            sheet.autoSizeColumn(colldx);
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.mediaTagsProperty().getName())) {
                             valueCell.setCellValue(data.mediaTagsProperty().get());
+                            sheet.autoSizeColumn(colldx);
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.statusTagsProperty().getName())) {
@@ -285,34 +291,42 @@ public class ExcelExporter {
                                     statusSumCell.setCellStyle(statusSumStyle);
                                 }
                             }
+                            sheet.autoSizeColumn(colldx);
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.title.getName())) {
                             valueCell.setCellValue(data.title.get());
+
                             if (data.nr.get() == lastElement.nr.get()) {
                                 Cell sumCell = getOrCreateCell(sheet, row + 2, colldx);
                                 sumCell.setCellValue(statistics.getSumSinceStrImplementation());
                                 //einsparung seint umsetzung
                             }
+                            //sheet.autoSizeColumn(colldx);
+                            sheet.setColumnWidth(colldx, toSize(50));
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.responsible.getName())) {
                             valueCell.setCellValue(data.responsible.get());
+                            sheet.autoSizeColumn(colldx);
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.createDate.getName())) {
                             valueCell.setCellStyle(dateStyle);
                             valueCell.setCellValue(DateTimeToLocal(data.createDate.get()));
+                            sheet.autoSizeColumn(colldx);
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.doneDate.getName())) {
                             valueCell.setCellStyle(dateStyle);
                             valueCell.setCellValue(DateTimeToLocal(data.doneDate.get()));
+                            sheet.autoSizeColumn(colldx);
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.plannedDate.getName())) {
                             valueCell.setCellStyle(dateStyle);
                             valueCell.setCellValue(DateTimeToLocal(data.plannedDate.get()));
+                            sheet.autoSizeColumn(colldx);
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.npv.get().investmentProperty().getName())) {
@@ -328,6 +342,7 @@ public class ExcelExporter {
                                 sumCell.setCellFormula(formula);
                                 sumCell.setCellStyle(sumCurrencyStyle);
                             }
+                            sheet.autoSizeColumn(colldx);
 
                         }
 
@@ -344,6 +359,7 @@ public class ExcelExporter {
                                 sumCell.setCellFormula(formula);
                                 sumCell.setCellStyle(sumCurrencyStyle);
                             }
+                            sheet.autoSizeColumn(colldx);
                         }
 
                         if (actionDataTableColumn.getText().equals(I18n.getInstance().getString("plugin.action.consumption.diff"))) {
@@ -370,15 +386,17 @@ public class ExcelExporter {
                                     mediumSumCell.setCellValue(statistics.getMediumSum(s).getValue());
                                 }
                             }
+                            sheet.autoSizeColumn(colldx);
 
                         }
 
 
+                        /*
                         sheet.autoSizeColumn(colldx);
                         if (sheet.getColumnWidth(colldx) > 8000) {
-                            //System.out.println("ColW: " + sheet.getColumnWidth(colldx));
                             sheet.setColumnWidth(colldx, 8000);
                         }
+                        */
 
                     } catch (Exception ex) {
                         logger.error("Error in cell: {}:{}", colldx, row, ex);
@@ -392,8 +410,8 @@ public class ExcelExporter {
         //sheet.setAutoFilter(new CellRangeAddress(firstRow, lastRow, firstCol, lastCol));
 
 
-        IntStream.rangeClosed(0, 1).forEach(sheet::autoSizeColumn);
-        IntStream.rangeClosed(3, 15).forEach(sheet::autoSizeColumn);
+        // IntStream.rangeClosed(0, 1).forEach(sheet::autoSizeColumn);
+        // IntStream.rangeClosed(3, 15).forEach(sheet::autoSizeColumn);
 
         //IntStream.rangeClosed(0, colldx).forEach(sheet::autoSizeColumn);
 
