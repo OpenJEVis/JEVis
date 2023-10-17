@@ -173,7 +173,7 @@ public class SaveAnalysisDialog extends Dialog {
                 boolean createOk = true;
                 try {
                     createOk = ds.getCurrentUser().canCreate(currentAnalysisDirectory.getID());
-                    if (createOk) {
+                    if (!createOk) {
                         Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.object.permission.create.denied"));
                         alert.initOwner(JEConfig.getStage());
                         alert.initModality(Modality.APPLICATION_MODAL);
