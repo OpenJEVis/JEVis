@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import org.apache.logging.log4j.LogManager;
@@ -22,8 +23,10 @@ import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
 import org.jevis.jeconfig.plugin.metersv2.data.SampleData;
+import org.jevis.jeconfig.plugin.metersv2.event.MeterEventHandler;
 import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEvent;
 import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEventListener;
+import org.jevis.jeconfig.plugin.metersv2.event.PrecisionEventHandler;
 import org.joda.time.DateTime;
 
 import javax.swing.event.EventListenerList;
@@ -53,7 +56,6 @@ public class MeterPlanTable extends TableView<MeterData> {
         }
     }
 
-    private final EventListenerList listeners = new EventListenerList();
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
     private final JEVisDataSource ds;
     private final Map<JEVisType, JEVisTypeWrapper> map = new HashMap<>();
@@ -74,6 +76,9 @@ public class MeterPlanTable extends TableView<MeterData> {
     private ObservableList<String> location = FXCollections.observableArrayList();
     private boolean showOnlyOvedue;
 
+    private MeterEventHandler meterEventHandler = new MeterEventHandler();
+    private PrecisionEventHandler precisionEventHandler = new PrecisionEventHandler();
+
 
 
     public MeterPlanTable(MeterPlan meterPlan, ObservableList<MeterData> data, JEVisDataSource ds, IntegerProperty integerProperty) {
@@ -81,6 +86,7 @@ public class MeterPlanTable extends TableView<MeterData> {
         this.ds = ds;
         this.data = data;
         this.filteredData = new FilteredList<>(this.data);
+        this.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         typeWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Type));
         locationWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Location));
@@ -124,7 +130,7 @@ public class MeterPlanTable extends TableView<MeterData> {
                             break;
                         }
                         if (jeVisType.getName().equals(JC.MeasurementInstrument.a_OnlineID)) {
-                            col = new LastRawValue(I18n.getInstance().getString("plugin.meters.lastrawvalue"), ds, jeVisType, BIG_WIDTH, decimalPlacesWrapper);
+                            col = new LastRawValue(I18n.getInstance().getString("plugin.meters.lastrawvalue"), ds, jeVisType, BIG_WIDTH, decimalPlacesWrapper,precisionEventHandler);
                             i = 2;
                             this.getSortOrder().add(col);
                             break;
@@ -204,17 +210,17 @@ public class MeterPlanTable extends TableView<MeterData> {
         this.data.remove(meterData);
         meterData.load();
         this.data.add(meterData);
-        notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.UPDATE));
+        getMeterEventHandler().fireEvent(new MeterPlanEvent(this, MeterPlanEvent.TYPE.UPDATE));
     }
 
     public void removeItem(MeterData meterData) {
         this.data.remove(meterData);
-        notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.REMOVE));
+        getMeterEventHandler().fireEvent(new MeterPlanEvent(this, MeterPlanEvent.TYPE.REMOVE));
     }
 
     public void addItem(MeterData meterData) {
         this.data.add(meterData);
-        notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.ADD));
+        getMeterEventHandler().fireEvent(new MeterPlanEvent(this, MeterPlanEvent.TYPE.ADD));
     }
 
     public void setItems(List<MeterData> meterDatas) {
@@ -297,7 +303,7 @@ public class MeterPlanTable extends TableView<MeterData> {
                 });
         Platform.runLater(() -> {
             sort();
-            notifyListeners(new MeterPlanEvent(this, MeterPlanEvent.TYPE.FILTER));
+            getMeterEventHandler().fireEvent(new MeterPlanEvent(this, MeterPlanEvent.TYPE.FILTER));
         });
 
 
@@ -350,30 +356,6 @@ public class MeterPlanTable extends TableView<MeterData> {
         return false;
     }
 
-    public void addEventListener(MeterPlanEventListener listener) {
-
-        if (this.listeners.getListeners(JEVisEventListener.class).length > 0) {
-        }
-
-        this.listeners.add(MeterPlanEventListener.class, listener);
-    }
-
-    public void removeEventListener(MeterPlanEventListener listener) {
-        this.listeners.remove(MeterPlanEventListener.class, listener);
-    }
-
-    public MeterPlanEventListener[] getEventListener() {
-        return this.listeners.getListeners(MeterPlanEventListener.class);
-    }
-
-    private synchronized void notifyListeners(MeterPlanEvent event) {
-        logger.error("SampleHandlerEvent: {}", event);
-        for (MeterPlanEventListener l : this.listeners.getListeners(MeterPlanEventListener.class)) {
-            l.fireEvent(event);
-        }
-    }
-
-
     public boolean isShowOnlyOvedue() {
         return showOnlyOvedue;
     }
@@ -384,5 +366,16 @@ public class MeterPlanTable extends TableView<MeterData> {
 
     public MeterData getSelectedItem() {
         return this.getSelectionModel().getSelectedItem();
+    }
+    public List<MeterData> getSelectedItems(){
+        return this.getSelectionModel().getSelectedItems();
+    }
+
+    public MeterEventHandler getMeterEventHandler() {
+        return meterEventHandler;
+    }
+
+    public PrecisionEventHandler getPrecisionEventHandler() {
+        return precisionEventHandler;
     }
 }

@@ -26,7 +26,7 @@ public class Statistics {
         this.meterPlanTable = meterPlanTable;
 
 
-        meterPlanTable.addEventListener(event -> {
+        meterPlanTable.getMeterEventHandler().addEventListener(event -> {
             System.out.println(event);
             switch (event.getType()) {
                 case UPDATE:
