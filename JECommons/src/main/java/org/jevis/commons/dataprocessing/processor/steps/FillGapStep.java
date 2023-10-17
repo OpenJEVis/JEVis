@@ -152,6 +152,7 @@ public class FillGapStep implements ProcessStep {
         DateTime lastDateTime = null;
         String lastNote = null;
 
+
         for (JEVisSample rawSample : rawSamples) {
             int i = rawSamples.indexOf(rawSample);
             DateTime rawSampleTSUTC = rawSample.getTimestamp();
