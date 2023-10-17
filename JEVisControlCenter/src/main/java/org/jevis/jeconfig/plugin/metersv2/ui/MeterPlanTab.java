@@ -76,7 +76,7 @@ public class MeterPlanTab extends Tab {
             @Override
             public void handle(MouseEvent event) {
                 if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-                    controller.openDataForm(Optional.empty());//actionTable.getSelectionModel().getSelectedItem()
+                    controller.openDataForm(controller.getSelectedItem(),false,false);//actionTable.getSelectionModel().getSelectedItem()
                 }
             }
         });

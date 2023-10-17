@@ -93,9 +93,9 @@ public class MeterController {
         }
     }
 
-    public void openDataForm(Optional<MeterData> meterData) {
-        MeterData data = meterData.orElse(getSelectedData());
-        MeterForm meterForm = new MeterForm(data, ds);
+    public void openDataForm(MeterData meterData, boolean switchMeter, boolean isNew) {
+
+        MeterForm meterForm = new MeterForm(meterData, ds, switchMeter);
 
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -103,11 +103,11 @@ public class MeterController {
         final Button btOk = (Button) meterForm.getDialogPane().lookupButton(buttonTypeOne);
         btOk.setOnAction(actionEvent -> {
             meterForm.commit();
-            if (meterData.isPresent()) {
-                getActiveTab().getMeterPlanTable().addItem(data);
+            if (isNew) {
+                getActiveTab().getMeterPlanTable().addItem(meterData);
                 getActiveTab().getMeterPlanTable().sort();
             } else {
-                getActiveTab().getMeterPlanTable().replaceItem(data);
+                getActiveTab().getMeterPlanTable().replaceItem(meterData);
                 getActiveTab().getMeterPlanTable().sort();
 
             }
@@ -133,7 +133,7 @@ public class MeterController {
                 alert.showAndWait();
             } else {
                 MeterData meterData = new MeterData(jeVisObject);
-                openDataForm(Optional.of(meterData));
+                openDataForm(meterData,false,true);
             }
         });
 

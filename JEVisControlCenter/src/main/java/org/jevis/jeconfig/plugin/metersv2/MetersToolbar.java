@@ -38,6 +38,7 @@ public class MetersToolbar extends ToolBar {
     private final ToggleButton rename = new ToggleButton("", JEConfig.getSVGImage(Icon.TRANSLATE, this.iconSize, this.iconSize));
 
     private final ToggleButton add = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
+    private final ToggleButton switchButton = new ToggleButton("", JEConfig.getSVGImage(Icon.SWITCH, iconSize, iconSize));
 //    private final ToggleButton increasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_INCREASE, iconSize, iconSize));
 //    private final ToggleButton decreasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_DECREASE, iconSize, iconSize));
 
@@ -46,7 +47,7 @@ public class MetersToolbar extends ToolBar {
 
     public MetersToolbar(MeterController meterController) {
 
-        getItems().addAll(add, exportPDF, rename, deleteItem);
+        getItems().addAll(add, exportPDF, rename, deleteItem,switchButton);
         getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
 
         add.setOnAction(actionEvent -> meterController.addMeter());
@@ -64,6 +65,15 @@ public class MetersToolbar extends ToolBar {
                 logger.error(ioException);
             }
         });
+
+        switchButton.setOnAction(actionEvent -> {
+            System.out.println(meterController.getSelectedItem());
+
+           meterController.openDataForm(meterController.getSelectedItem(),true,false);
+        });
+
+
+
 
 //        increasePrecision.setOnAction(actionEvent -> {
 //            if (meterController.getLastRawValuePrecision() < 12) {
