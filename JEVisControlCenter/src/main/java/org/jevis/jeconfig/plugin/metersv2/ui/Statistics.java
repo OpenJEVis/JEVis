@@ -26,27 +26,26 @@ public class Statistics {
         this.meterPlanTable = meterPlanTable;
 
 
-        meterPlanTable.addEventListener(event -> {
+        meterPlanTable.getMeterEventHandler().addEventListener(event -> {
             System.out.println(event);
             switch (event.getType()) {
                 case UPDATE:
-                    updateTrigger.set(true);
+                    updateTrigger.set(!updateTrigger.get());
                     System.out.println(meterDatas);
                     break;
                 case ADD:
                     System.out.println(meterDatas);
-                    updateTrigger.set(true);
+                    updateTrigger.set(!updateTrigger.get());
                     break;
                 case FILTER:
                     System.out.println(meterDatas);
-                    updateTrigger.set(true);
+                    updateTrigger.set(!updateTrigger.get());
                     break;
                 case REMOVE:
                     System.out.println(meterDatas);
-                    updateTrigger.set(true);
+                    updateTrigger.set(!updateTrigger.get());
                     break;
             }
-            updateTrigger.set(false);
         });
     }
 
@@ -79,6 +78,8 @@ public class Statistics {
                 throw new RuntimeException(e);
             }
         }).count()), updateTrigger));
+
+
         return stringProperty;
 
     }

@@ -14,6 +14,7 @@ import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
+import org.jevis.jeconfig.plugin.metersv2.event.PrecisionEvent;
 import org.jevis.jeconfig.plugin.metersv2.export.MetersPlanExport;
 import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTable;
 
@@ -38,15 +39,16 @@ public class MetersToolbar extends ToolBar {
     private final ToggleButton rename = new ToggleButton("", JEConfig.getSVGImage(Icon.TRANSLATE, this.iconSize, this.iconSize));
 
     private final ToggleButton add = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
-//    private final ToggleButton increasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_INCREASE, iconSize, iconSize));
-//    private final ToggleButton decreasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_DECREASE, iconSize, iconSize));
+    private final ToggleButton switchButton = new ToggleButton("", JEConfig.getSVGImage(Icon.SWITCH, iconSize, iconSize));
+    private final ToggleButton increasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_INCREASE, iconSize, iconSize));
+    private final ToggleButton decreasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_DECREASE, iconSize, iconSize));
 
     //  private final JFXComboBox<Integer> comboPrecision = new JFXComboBox(FXCollections.observableArrayList(1,2,3,4,5));
     private MeterController meterController;
 
     public MetersToolbar(MeterController meterController) {
 
-        getItems().addAll(add, exportPDF, rename, deleteItem);
+        getItems().addAll(add, exportPDF, rename, deleteItem,switchButton,increasePrecision,decreasePrecision);
         getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
 
         add.setOnAction(actionEvent -> meterController.addMeter());
@@ -65,17 +67,28 @@ public class MetersToolbar extends ToolBar {
             }
         });
 
-//        increasePrecision.setOnAction(actionEvent -> {
-//            if (meterController.getLastRawValuePrecision() < 12) {
-//                meterController.setLastRawValuePrecision(meterController.getLastRawValuePrecision() + 1);
-//            }
-//        });
-//
-//        decreasePrecision.setOnAction(actionEvent -> {
-//            if ((meterController.getLastRawValuePrecision() >= 1)) {
-//                meterController.setLastRawValuePrecision(meterController.getLastRawValuePrecision()-1);
-//            }
-//        });
+        switchButton.setOnAction(actionEvent -> {
+            System.out.println(meterController.getSelectedItem());
+
+           meterController.openDataForm(meterController.getSelectedItem(),true,false);
+        });
+
+
+
+
+        increasePrecision.setOnAction(actionEvent -> {
+            meterController.getActiveTable().getSelectedItems().forEach(meterData -> {
+                meterController.getActiveTable().getPrecisionEventHandler().fireEvent(new PrecisionEvent(meterData, PrecisionEvent.TYPE.INCREASE));
+            });
+        });
+
+        decreasePrecision.setOnAction(actionEvent -> {
+
+            meterController.getActiveTable().getSelectedItems().forEach(meterData -> {
+                meterController.getActiveTable().getPrecisionEventHandler().fireEvent(new PrecisionEvent(meterData, PrecisionEvent.TYPE.DECREASE));
+            });
+
+        });
 
         rename.setOnAction(actionEvent -> {
             MeterData meterData = meterController.getSelectedItem();

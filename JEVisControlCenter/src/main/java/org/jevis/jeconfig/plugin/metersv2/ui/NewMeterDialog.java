@@ -12,6 +12,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.JC;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
@@ -55,10 +56,10 @@ public class NewMeterDialog extends Dialog {
         stage.setAlwaysOnTop(false);
 
         GridPane gridPane = new GridPane();
-        gridPane.setPrefWidth(400);
+        gridPane.setPrefWidth(600);
         gridPane.setPrefHeight(400);
         gridPane.setVgap(10);
-        gridPane.setHgap(10);
+        gridPane.setHgap(25);
 
 
         try {
@@ -121,9 +122,12 @@ public class NewMeterDialog extends Dialog {
             selectTargetDialog.showAndWait();
         });
 
-        gridPane.addRow(0, new Label("Name"), jfxTextFieldName);
-        gridPane.addRow(1, new Label("Typ"), comboBox);
-        gridPane.addRow(2, new Label("Target"), jfxButtonTarget);
+
+        jfxTextFieldName.setPrefWidth(350);
+        comboBox.setPrefWidth(350);
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.meters.name")), jfxTextFieldName);
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.meters.medium")), comboBox);
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.meters.parent")), jfxButtonTarget);
 
         getDialogPane().setContent(gridPane);
     }
@@ -174,6 +178,7 @@ public class NewMeterDialog extends Dialog {
 
         if (directory == null) return null;
         JEVisObject newDirectory = rootDirectory.buildObject(directory.getName(), directory);
+        newDirectory.commit();
 
 
         return newDirectory;
@@ -183,7 +188,7 @@ public class NewMeterDialog extends Dialog {
 
     private JEVisClass getDirectoryClass(JEVisClass jeVisClass) throws JEVisException {
         JEVisClass air = this.air.getJeVisClass();
-        JEVisClass compressedAir = this.air.getJeVisClass();
+        JEVisClass compressedAir = this.compressedAir.getJeVisClass();
         JEVisClass electricity = this.electricity.getJeVisClass();
         JEVisClass gas = this.gas.getJeVisClass();
         JEVisClass heat = this.heat.getJeVisClass();
@@ -193,9 +198,14 @@ public class NewMeterDialog extends Dialog {
         JEVisClass directory = null;
 
 
+        System.out.println(jeVisClass.getName());
+        System.out.println(compressedAir.getName());
+
+        System.out.println(jeVisClass.equals(compressedAir));
+
         if (jeVisClass.equals(air)) {
             directory = jeVisDataSource.getJEVisClass(JC.Directory.AirMeasurementDirectory.name);
-        } else if (jeVisClass.equals(compressedAir)) {
+        } else if (jeVisClass.getName().equals(compressedAir.getName())) {
             directory = jeVisDataSource.getJEVisClass(JC.Directory.CompressedAirMeasurementDirectory.name);
         } else if (jeVisClass.equals(electricity)) {
             directory = jeVisDataSource.getJEVisClass(JC.Directory.ElectricityMeasurementDirectory.name);

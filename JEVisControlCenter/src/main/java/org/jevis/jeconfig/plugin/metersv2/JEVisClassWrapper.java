@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.metersv2;
 
 import org.jevis.api.JEVisClass;
+import org.jevis.jeconfig.application.application.I18nWS;
 
 public class JEVisClassWrapper {
     JEVisClass jeVisClass;
@@ -12,7 +13,7 @@ public class JEVisClassWrapper {
     @Override
     public String toString() {
         try {
-            return jeVisClass.getName();
+            return I18nWS.getInstance().getClassName(jeVisClass);
 
         } catch (Exception e) {
             e.printStackTrace();
