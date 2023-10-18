@@ -3,13 +3,15 @@ package org.jevis.jeconfig.plugin.metersv2.ui;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -17,6 +19,7 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.table.TableFindScrollbar;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.plugin.metersv2.cells.*;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
@@ -25,21 +28,21 @@ import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
 import org.jevis.jeconfig.plugin.metersv2.data.SampleData;
 import org.jevis.jeconfig.plugin.metersv2.event.MeterEventHandler;
 import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEvent;
-import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEventListener;
 import org.jevis.jeconfig.plugin.metersv2.event.PrecisionEventHandler;
 import org.joda.time.DateTime;
 
-import javax.swing.event.EventListenerList;
+import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.prefs.Preferences;
 
 
-public class MeterPlanTable extends TableView<MeterData> {
+public class MeterPlanTable extends TableView<MeterData> implements TableFindScrollbar {
 
     private static final Logger logger = LogManager.getLogger(MeterPlanTable.class);
     private static final int DATE_TIME_WIDTH = 120;
@@ -80,13 +83,28 @@ public class MeterPlanTable extends TableView<MeterData> {
     private PrecisionEventHandler precisionEventHandler = new PrecisionEventHandler();
 
 
-
     public MeterPlanTable(MeterPlan meterPlan, ObservableList<MeterData> data, JEVisDataSource ds, IntegerProperty integerProperty) {
 
         this.ds = ds;
         this.data = data;
         this.filteredData = new FilteredList<>(this.data);
         this.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        this.onScrollToProperty().addListener((observableValue, scrollToEventEventHandler, t1) -> {
+            System.out.println("onScrollToProperty");
+            System.out.println(t1);
+        });
+
+        this.onScrollProperty().addListener((observableValue, eventHandler, t1) -> {
+            System.out.println("onScrollProperty");
+            System.out.println(t1);
+        });
+
+
+
+
+
+
 
         typeWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Type));
         locationWrapper = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_Location));
@@ -130,7 +148,7 @@ public class MeterPlanTable extends TableView<MeterData> {
                             break;
                         }
                         if (jeVisType.getName().equals(JC.MeasurementInstrument.a_OnlineID)) {
-                            col = new LastRawValue(I18n.getInstance().getString("plugin.meters.lastrawvalue"), ds, jeVisType, BIG_WIDTH, decimalPlacesWrapper,precisionEventHandler);
+                            col = new LastRawValue(I18n.getInstance().getString("plugin.meters.lastrawvalue"), ds, jeVisType, BIG_WIDTH, decimalPlacesWrapper, precisionEventHandler);
                             i = 2;
                             this.getSortOrder().add(col);
                             break;
@@ -203,6 +221,20 @@ public class MeterPlanTable extends TableView<MeterData> {
         });
 
 
+        //findScrollBar(this,Orientation.HORIZONTAL);
+//        try {
+//            scrollbar.valueProperty().addListener((observableValue, number, t1) -> {
+//                System.out.println("scroll detected");
+//                System.out.println(t1);
+//            });
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+    }
+
+    public ObjectProperty<EventHandler<ScrollToEvent<Integer>>> getScrollToProperty() {
+        return this.getScrollToProperty();
     }
 
 
@@ -367,7 +399,8 @@ public class MeterPlanTable extends TableView<MeterData> {
     public MeterData getSelectedItem() {
         return this.getSelectionModel().getSelectedItem();
     }
-    public List<MeterData> getSelectedItems(){
+
+    public List<MeterData> getSelectedItems() {
         return this.getSelectionModel().getSelectedItems();
     }
 
@@ -378,4 +411,5 @@ public class MeterPlanTable extends TableView<MeterData> {
     public PrecisionEventHandler getPrecisionEventHandler() {
         return precisionEventHandler;
     }
+
 }

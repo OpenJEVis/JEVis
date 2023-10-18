@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
+import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -20,6 +21,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -52,6 +54,10 @@ public class MeterPlanTab extends Tab {
     JFXToggleButton jfxToggleButton = new JFXToggleButton();
     private MeterPlanTable meterPlanTable;
 
+    private SummeryTable summeryTable;
+    private List<String> type;
+    private List<JEVisClass> jeVisClasses;
+
 
     public MeterPlanTab(MeterPlan plan, MeterController controller, JEVisDataSource ds) {
         super();
@@ -69,7 +75,7 @@ public class MeterPlanTab extends Tab {
 
         this.meterPlanTable = new MeterPlanTable(plan, plan.getMeterDataList(), ds, controller.lastRawValuePrecisionProperty());
 
-        Statistics statistics = new Statistics(meterPlanTable.filteredData, meterPlanTable);
+        Statistics statistics = new Statistics(meterPlanTable.data, meterPlanTable);
 
 
         meterPlanTable.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -116,15 +122,37 @@ public class MeterPlanTab extends Tab {
         borderPane.setTop(gridPane);
         borderPane.setCenter(meterPlanTable);
 
+        summeryTable = new SummeryTable(meterPlanTable);
+//        meterPlanTable.onScrollToProperty().addListener((observableValue, scrollToEventEventHandler, t1) -> {
+//            System.out.println(t1);
+//        });
 
-        List<JEVisClass> jeVisClasses = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisClass()).distinct().collect(Collectors.toList());
-        List<String> type = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(typeWrapper)).filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent()).map(optionalJEVisSample -> {
-            try {
-                return optionalJEVisSample.get().getValueAsString();
-            } catch (JEVisException e) {
-                throw new RuntimeException(e);
+
+        meterPlanTable.getMeterEventHandler().addEventListener(event -> {
+
+            if (jeVisClasses.size() != getClasses(plan).size() || type.size() != getTypes(plan).size()) {
+                updateStatisics(plan, statistics, borderPane);
             }
-        }).distinct().collect(Collectors.toList());
+
+
+
+
+        });
+
+
+        updateStatisics(plan, statistics, borderPane);
+
+
+    }
+
+    private void updateStatisics(MeterPlan plan, Statistics statistics, BorderPane borderPane) {
+
+
+
+
+        summeryData.clear();
+        jeVisClasses = getClasses(plan);
+        type = getTypes(plan);
         int j = type.size() > jeVisClasses.size() ? type.size() : jeVisClasses.size();
 
         for (int i = 0; i < j; i++) {
@@ -162,14 +190,33 @@ public class MeterPlanTab extends Tab {
         }
 
 
-        SummeryTable summeryTable = new SummeryTable(meterPlanTable);
+
         summeryTable.setItems(summeryData);
+
+        Platform.runLater(() -> {
+            this.meterPlanTable.findScrollBar(meterPlanTable,Orientation.HORIZONTAL).valueProperty().bindBidirectional(summeryTable.findScrollBar(summeryTable,Orientation.HORIZONTAL).valueProperty());
+        });
+       // this.meterPlanTable.getScrollToProperty().bindBidirectional(summeryTable.getScrollToProperty());
 
 
         borderPane.setBottom(summeryTable);
         setContent(borderPane);
+    }
 
+    @NotNull
+    private static List<JEVisClass> getClasses(MeterPlan plan) {
+        return plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisClass()).distinct().collect(Collectors.toList());
+    }
 
+    @NotNull
+    private List<String> getTypes(MeterPlan plan) {
+        return plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(typeWrapper)).filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent()).map(optionalJEVisSample -> {
+            try {
+                return optionalJEVisSample.get().getValueAsString();
+            } catch (JEVisException e) {
+                throw new RuntimeException(e);
+            }
+        }).distinct().sorted(String::compareTo).collect(Collectors.toList());
     }
 
     private JFXTextField buildSearch(MeterPlanTable meterPlanTable) {
