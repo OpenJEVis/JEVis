@@ -12,6 +12,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.JC;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
@@ -55,10 +56,10 @@ public class NewMeterDialog extends Dialog {
         stage.setAlwaysOnTop(false);
 
         GridPane gridPane = new GridPane();
-        gridPane.setPrefWidth(400);
+        gridPane.setPrefWidth(600);
         gridPane.setPrefHeight(400);
         gridPane.setVgap(10);
-        gridPane.setHgap(10);
+        gridPane.setHgap(25);
 
 
         try {
@@ -121,9 +122,12 @@ public class NewMeterDialog extends Dialog {
             selectTargetDialog.showAndWait();
         });
 
-        gridPane.addRow(0, new Label("Name"), jfxTextFieldName);
-        gridPane.addRow(1, new Label("Typ"), comboBox);
-        gridPane.addRow(2, new Label("Target"), jfxButtonTarget);
+
+        jfxTextFieldName.setPrefWidth(350);
+        comboBox.setPrefWidth(350);
+        gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.meters.name")), jfxTextFieldName);
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.meters.medium")), comboBox);
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.meters.parent")), jfxButtonTarget);
 
         getDialogPane().setContent(gridPane);
     }

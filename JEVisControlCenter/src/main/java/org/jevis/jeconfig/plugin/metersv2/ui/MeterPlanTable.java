@@ -115,7 +115,7 @@ public class MeterPlanTable extends TableView<MeterData> implements TableFindScr
 
         this.setTableMenuButtonVisible(true);
 
-        this.getColumns().add(new MediumColumn(I18n.getInstance().getString("plugin.meters.medium"), BIG_WIDTH));
+        this.getColumns().add(new MediumColumn(I18n.getInstance().getString("plugin.meters.medium"), BIG_WIDTH,ds));
         JEVisType onlineIdType = null;
         try {
             JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
