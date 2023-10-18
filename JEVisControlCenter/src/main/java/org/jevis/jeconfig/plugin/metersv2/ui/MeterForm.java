@@ -32,6 +32,8 @@ public class MeterForm extends Dialog {
     public MeterForm(MeterData meterData, JEVisDataSource ds, boolean switchMeter) {
         this.meterData = meterData;
         this.ds = ds;
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+
 
         Stage stage = (Stage) this.getDialogPane().getScene().getWindow();
         TopMenu.applyActiveTheme(stage.getScene());

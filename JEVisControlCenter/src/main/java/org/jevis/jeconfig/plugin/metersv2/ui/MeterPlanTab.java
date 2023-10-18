@@ -196,7 +196,6 @@ public class MeterPlanTab extends Tab {
         Platform.runLater(() -> {
             this.meterPlanTable.findScrollBar(meterPlanTable,Orientation.HORIZONTAL).valueProperty().bindBidirectional(summeryTable.findScrollBar(summeryTable,Orientation.HORIZONTAL).valueProperty());
         });
-       // this.meterPlanTable.getScrollToProperty().bindBidirectional(summeryTable.getScrollToProperty());
 
 
         borderPane.setBottom(summeryTable);
