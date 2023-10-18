@@ -33,6 +33,7 @@ public class ShortCellColumn extends TableColumn<MeterData, String> {
         });
 
         this.setCellFactory(new ShortColumnCell<MeterData>());
+        this.setStyle("-fx-alignment: CENTER;");
         this.setMinWidth(width);
 
 

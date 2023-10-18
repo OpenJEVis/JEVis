@@ -2,6 +2,7 @@ package org.jevis.jeconfig.application.table;
 
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.HBox;
@@ -36,13 +37,14 @@ public class JumpCell<T> implements Callback<TableColumn<T, SampleData>, TableCe
     public TableCell<T, SampleData> call(TableColumn<T, SampleData> param) {
         return new TableCell<T,SampleData>() {
             HBox hBox = new HBox();
+
             JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 20, 20));
             JFXButton analysisLinkButton = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 20, 20));
 
             @Override
             protected void updateItem(SampleData item, boolean empty) {
                 super.updateItem(item, empty);
-
+                hBox.setAlignment(Pos.CENTER);
                 hBox.getChildren().setAll(manSampleButton, analysisLinkButton);
 
 
