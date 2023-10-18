@@ -1166,7 +1166,7 @@ public class CleanDataObject {
                     firstDate,
                     lastDate);
 
-            if (rawSamplesDown.size() == 1) {
+            if (rawSamplesDown.size() == 1 && !maxPeriod.equals(Period.ZERO)) {
                 DateTime timestampFromFirstSample = rawAttribute.getTimestampFromFirstSample();
 
                 while (timestampFromFirstSample.isBefore(firstDate) && rawSamplesDown.size() < 2) {
