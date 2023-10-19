@@ -1,10 +1,21 @@
 package org.jevis.jeconfig.plugin.metersv2.cells;
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisType;
+import org.jevis.commons.classes.JC;
+import org.jevis.jeconfig.plugin.metersv2.MeterController;
+import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
+import org.joda.time.DateTime;
 
 
 public class LastRawValuePojo {
+    private static final Logger logger = LogManager.getLogger(LastRawValuePojo.class);
 
     private MeterData meterData;
 
@@ -54,6 +65,7 @@ public class LastRawValuePojo {
 
     public void setPrecision(int precision) {
         this.precision = precision;
+        setPrecisionInJEVisObject(precision);
     }
 
     @Override
@@ -64,5 +76,16 @@ public class LastRawValuePojo {
                 ", unitLabel='" + unitLabel + '\'' +
                 ", precision=" + precision +
                 '}';
+    }
+
+    private void setPrecisionInJEVisObject(int decimalPlaces) {
+        try {
+            JEVisSample jeVisSample = meterData.getJeVisObject().getAttribute(JC.MeasurementInstrument.a_DecimalPlaces).buildSample(DateTime.now(), decimalPlaces);
+            jeVisSample.commit();
+            meterData.load();
+
+        } catch (Exception e) {
+            logger.error(e);
+        }
     }
 }

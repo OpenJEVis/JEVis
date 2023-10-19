@@ -3213,6 +3213,7 @@ public interface JC {
 
 
         public static String a_DecimalPlaces ="Decimal Places";
+        public static String a_VerificationDocumentation = "Verification Documentation";
         public static String a_Location = "Location";
         public static String a_Company = "Company";
         public static String a_CostCenter = "Cost Center";

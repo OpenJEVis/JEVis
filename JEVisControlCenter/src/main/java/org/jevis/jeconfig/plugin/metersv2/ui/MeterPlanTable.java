@@ -45,7 +45,7 @@ import java.util.prefs.Preferences;
 public class MeterPlanTable extends TableView<MeterData> implements TableFindScrollbar {
 
     private static final Logger logger = LogManager.getLogger(MeterPlanTable.class);
-    private static final int DATE_TIME_WIDTH = 120;
+    private static final int MEDIUM_WIDTH = 120;
     private static final int BIG_WIDTH = 200;
     private static final int SMALL_WIDTH = 60;
     private static Method columnToFitMethod;
@@ -131,6 +131,7 @@ public class MeterPlanTable extends TableView<MeterData> implements TableFindScr
         try {
             for (JEVisTypeWrapper jeVisTypeWrapper : jeVisTypes) {
                 int i = 0;
+                int width = SMALL_WIDTH;
                 JEVisType jeVisType = jeVisTypeWrapper.getJeVisType();
                 TableColumn<MeterData, ?> col = null;
                 switch (jeVisType.getPrimitiveType()) {
@@ -138,7 +139,10 @@ public class MeterPlanTable extends TableView<MeterData> implements TableFindScr
                         col = new DoubleColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
                         break;
                     case JEVisConstants.PrimitiveType.FILE:
-                        col = new FileColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
+                        if (jeVisType.getName().equals(JC.MeasurementInstrument.a_VerificationDocumentation)) {
+                            width = BIG_WIDTH;
+                        }
+                        col = new FileColumn(jeVisType, width, I18nWS.getInstance().getTypeName(jeVisType));
                         break;
                     default:
                         if ((jeVisType.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || jeVisType.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId()))) {
@@ -154,7 +158,14 @@ public class MeterPlanTable extends TableView<MeterData> implements TableFindScr
                             break;
 
                         } else {
-                            col = new ShortCellColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
+                             width = BIG_WIDTH;
+                            if (
+                                    jeVisType.getName().equals(JC.MeasurementInstrument.ElectricityMeasurementInstrument.a_CurrentTransformer) ||
+                                            jeVisType.getName().equals(JC.MeasurementInstrument.ElectricityMeasurementInstrument.a_VoltageTransformer)
+                            ) {
+                                width = SMALL_WIDTH;                            }
+
+                            col = new ShortCellColumn(jeVisType, width, I18nWS.getInstance().getTypeName(jeVisType));
                             if (jeVisType.getName().equals(JC.MeasurementInstrument.a_MeasuringPointName)) {
                                 col.setVisible(true);
                                 i = 1;
