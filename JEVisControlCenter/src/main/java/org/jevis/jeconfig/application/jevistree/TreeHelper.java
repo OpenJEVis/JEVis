@@ -551,14 +551,13 @@ public class TreeHelper {
                                         timePickerFrom.valueProperty().get().getMinute(),
                                         timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
+
                                 for (SelectableObject dependency : objects) {
                                     if (dependency.isSelected()) {
                                         logger.info("deleting samples from {}:{} starting with {}", dependency.getObject().getName(), dependency.getObject().getID(), dateTimeFrom.toString());
 
                                         try {
-                                            JEVisAttribute value = dependency.getObject().getAttribute("Value");
-                                            DateTime lastSampleTS = value.getTimestampFromLastSample();
-                                            value.deleteSamplesBetween(dateTimeFrom, lastSampleTS);
+                                            org.jevis.commons.utils.CommonMethods.deleteAllSamples(dependency.getObject(), dateTimeFrom, new DateTime(), true, true);
                                         } catch (Exception e) {
                                             logger.error("Could not delete samples from {}:{}:Value", dependency.getObject().getName(), dependency.getObject().getID());
                                         }
