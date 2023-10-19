@@ -3,6 +3,7 @@ package org.jevis.commons.utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
@@ -368,7 +369,7 @@ public class CommonMethods {
         }
     }
 
-    private static Map<JEVisObject, List<JEVisObject>> createCalculationMap(JEVisDataSource ds) throws JEVisException {
+    public static Map<JEVisObject, List<JEVisObject>> createCalculationMap(JEVisDataSource ds) throws JEVisException {
         Map<JEVisObject, List<JEVisObject>> map = new HashMap<>();
 
         JEVisClass calculation = ds.getJEVisClass("Calculation");
@@ -423,13 +424,19 @@ public class CommonMethods {
         return map;
     }
 
-    private static List<JEVisObject> getAllDependentObjects(Map<JEVisObject, List<JEVisObject>> calculationMap, List<JEVisObject> objects) {
+    public static List<JEVisObject> getAllDependentObjects(Map<JEVisObject, List<JEVisObject>> calculationMap, List<JEVisObject> objects) {
         List<JEVisObject> dependentObjects = new ArrayList<>();
 
         for (JEVisObject object : objects) {
 
             try {
-                dependentObjects.addAll(getAllChildrenRecursive(object));
+                List<String> classes = new ArrayList<>();
+                classes.add(JC.Data.name);
+                classes.add(JC.Data.CleanData.name);
+                classes.add(JC.Data.MathData.name);
+                classes.add(JC.Data.MathData.name);
+
+                dependentObjects.addAll(getAllChildrenRecursive(object, classes));
             } catch (Exception e) {
                 logger.error(e);
             }
@@ -471,6 +478,25 @@ public class CommonMethods {
         list.add(firstObject);
         for (JEVisObject child : firstObject.getChildren()) {
             list.add(child);
+
+            for (JEVisObject secondChild : child.getChildren()) {
+                list.addAll(getAllChildrenRecursive(secondChild));
+            }
+        }
+
+        return list;
+    }
+
+    public static List<JEVisObject> getAllChildrenRecursive(JEVisObject firstObject, List<String> classNames) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+        if (classNames.contains(firstObject.getJEVisClassName())) {
+            list.add(firstObject);
+        }
+
+        for (JEVisObject child : firstObject.getChildren()) {
+            if (classNames.contains(child.getJEVisClassName())) {
+                list.add(child);
+            }
 
             for (JEVisObject secondChild : child.getChildren()) {
                 list.addAll(getAllChildrenRecursive(secondChild));

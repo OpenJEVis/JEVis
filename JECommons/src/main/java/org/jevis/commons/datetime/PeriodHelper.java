@@ -125,53 +125,54 @@ public class PeriodHelper {
     public static DateTime getNextPeriod(DateTime start, org.joda.time.Period period, int count, boolean aligned, DateTimeZone timeZone) {
         DateTime resultDate = start.withZone(timeZone);
         boolean wasLastDay = resultDate.getDayOfMonth() == resultDate.dayOfMonth().getMaximumValue();
-        if (org.joda.time.Period.minutes(1).equals(period)) {
-            resultDate = resultDate.plusMinutes(count);
-            if (aligned) {
-                resultDate = resultDate.withSecondOfMinute(0).withMillisOfSecond(0);
-            }
-        } else if (org.joda.time.Period.minutes(15).equals(period)) {
-            resultDate = resultDate.plusMinutes(15 * count);
-            if (aligned) {
-                resultDate = resultDate.withSecondOfMinute(0).withMillisOfSecond(0);
-            }
-        } else if (org.joda.time.Period.hours(1).equals(period)) {
-            resultDate = resultDate.plusHours(count);
-            if (aligned) {
-                resultDate = resultDate.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            }
-        } else if (org.joda.time.Period.days(1).equals(period)) {
-            resultDate = resultDate.plusDays(count);
-            if (aligned) {
-                resultDate = resultDate.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            }
-        } else if (org.joda.time.Period.weeks(1).equals(period)) {
-            resultDate = resultDate.plusWeeks(count);
-            if (aligned) {
-                resultDate = resultDate.withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            }
-        } else if (org.joda.time.Period.months(1).equals(period)) {
-            resultDate = resultDate.plusMonths(count);
-            if (wasLastDay) {
-                resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
-            } else if (aligned) {
-                resultDate = resultDate.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            }
-        } else if (org.joda.time.Period.months(3).equals(period)) {
-            resultDate = resultDate.plusMonths(3 * count);
-            if (wasLastDay) {
-                resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
-            } else if (aligned) {
-                resultDate = resultDate.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            }
-        } else if (org.joda.time.Period.years(1).equals(period)) {
-            resultDate = resultDate.plusYears(count);
+
+        if (period.getYears() > 0) {
+            resultDate = resultDate.plusYears(period.getYears() * count);
             if (wasLastDay) {
                 resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
             } else if (aligned) {
                 resultDate = resultDate.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
             }
         }
+
+        if (period.getMonths() > 0) {
+            resultDate = resultDate.plusMonths(period.getMonths() * count);
+            if (wasLastDay) {
+                resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+            } else if (aligned) {
+                resultDate = resultDate.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+        if (period.getWeeks() > 0) {
+            resultDate = resultDate.plusWeeks(period.getWeeks() * count);
+            if (aligned) {
+                resultDate = resultDate.withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+        if (period.getDays() > 0) {
+            resultDate = resultDate.plusDays(period.getDays() * count);
+            if (aligned) {
+                resultDate = resultDate.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+        if (period.getHours() > 0) {
+            resultDate = resultDate.plusHours(period.getHours() * count);
+            if (aligned) {
+                resultDate = resultDate.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+        if (period.getMinutes() > 0) {
+            resultDate = resultDate.plusMinutes(period.getMinutes() * count);
+            if (aligned) {
+                resultDate = resultDate.withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+
         return resultDate.withZone(DateTimeZone.UTC);
     }
 
