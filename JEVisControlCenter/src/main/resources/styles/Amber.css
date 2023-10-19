@@ -1,17 +1,21 @@
 .root {
-    -fx-accent: 	#ff9a00;
+    -fx-accent: 	#ff9a00 !important;
     -fx-focus-color: -fx-accent;
-    -fx-base: #ffc100;
+    -fx-base: #ffc100 !important;
     -fx-text-color: black;
     -fx-control-inner-background: derive(-fx-base, 35%);
     -fx-control-inner-background-alt: -fx-control-inner-background ;
-    -tab-text-color: black;
+    -tab-text-color: black !important;
     -fx-box-border: derive(-fx-base, 75%);
-    -fx-border: white;
+    -fx-border: white !important;
 
     -fx-default-button-background: #ffc100;
     -fx-default-button-text-fill: black;
     -fx-tree-background: transparent;
+
+    -toolbarSVG-background-color: -fx-base;
+    -pluginSVG-background-color: -fx-accent;
+    -ToolBarDatePicker-default-color: -fx-base;
 }
 
 .label{
