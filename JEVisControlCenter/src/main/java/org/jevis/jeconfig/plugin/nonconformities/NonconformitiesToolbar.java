@@ -20,7 +20,7 @@ public class NonconformitiesToolbar extends ToolBar {
     private final ToggleButton newNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_ADD, iconSize, iconSize));
     private final ToggleButton newNonconformityPlan = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
     private final ToggleButton deleteNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_REMOVE, iconSize, iconSize));
-    private final ToggleButton deletePlan = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
+    //private final ToggleButton deletePlan = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
     private final ToggleButton exportPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.PDF, this.iconSize, this.iconSize));
     private final ToggleButton calender = new ToggleButton("", JEConfig.getSVGImage(Icon.CALENDAR, this.iconSize, this.iconSize));
@@ -31,7 +31,7 @@ public class NonconformitiesToolbar extends ToolBar {
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
-        getItems().setAll(newNonconformityPlan, nonconformityPlanConfig, deletePlan, reloadButton,
+        getItems().setAll(newNonconformityPlan, nonconformityPlanConfig, reloadButton,
                 sep1, newNonconformity, deleteNonconformity, openForm,
                 sep2, exportPDF);
 
@@ -41,7 +41,7 @@ public class NonconformitiesToolbar extends ToolBar {
         newNonconformityPlan.setOnAction(event -> nonconformitiesController.createNewNonconformityPlan());
         newNonconformity.setOnAction(event -> nonconformitiesController.createNonconformity());
         deleteNonconformity.setOnAction(event -> nonconformitiesController.deleteNonconformity());
-        deletePlan.setOnAction(event -> nonconformitiesController.deletePlan());
+       // deletePlan.setOnAction(event -> nonconformitiesController.deletePlan());
 
         setOverview(nonconformitiesController.isOverviewTabProperty().get());
         nonconformitiesController.isOverviewTabProperty().addListener((observable, oldValue, newValue) -> {
@@ -62,7 +62,7 @@ public class NonconformitiesToolbar extends ToolBar {
         nonconformityPlanConfig.setDisable(isOverview);
         newNonconformity.setDisable(isOverview);
         deleteNonconformity.setDisable(isOverview);
-        deletePlan.setDisable(isOverview);
+       // deletePlan.setDisable(isOverview);
         exportPDF.setDisable(true);//Disabled because implementation is missing
         reloadButton.setDisable(true); //Disabled because implementation is missing
         //newPlan.setDisable(isOverview);
