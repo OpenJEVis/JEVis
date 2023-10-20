@@ -118,10 +118,10 @@ public class ConsumptionData {
 
     public void update() {
         actual.addListener((observableValue, number, t1) -> diff.setValue(calcDiff(actual.getValue(), after.getValue())));
-        actual.addListener((observableValue, number, t1) -> diff.setValue(calcDiff(actual.getValue(), after.getValue())));
+        after.addListener((observableValue, number, t1) -> diff.setValue(calcDiff(actual.getValue(), after.getValue())));
 
         if (isEnPI) {
-            System.out.println("jevisLink.get(): " + jevisLink.get());
+            // System.out.println("jevisLink.get(): " + jevisLink.get());
             //updateEnPIData();
         } else {
 
