@@ -186,7 +186,7 @@ public class MeterPlanTab extends Tab {
                         } catch (JEVisException e) {
                             throw new RuntimeException(e);
                         }
-                    }).findAny().orElseThrow(RuntimeException::new), statistics.getOverdue(verificationDateWrapper, I18n.getInstance().getString("plugin.meters.overdue")));
+                    }).findAny().orElseThrow(RuntimeException::new), statistics.getOverdue(verificationDateWrapper, I18n.getInstance().getString("plugin.meters.overdue"),yearComboBox.valueProperty()));
                 }
                 summeryData.add(new SummeryData(summeryRow));
             } catch (JEVisException jeVisException) {

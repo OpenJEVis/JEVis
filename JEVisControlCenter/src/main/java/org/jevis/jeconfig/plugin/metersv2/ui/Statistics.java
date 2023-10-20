@@ -1,10 +1,7 @@
 package org.jevis.jeconfig.plugin.metersv2.ui;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.i18n.I18n;
@@ -12,6 +9,7 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 public class Statistics {
 
@@ -84,7 +82,7 @@ public class Statistics {
 
     }
 
-    public StringProperty getOverdue(JEVisTypeWrapper jeVisTypeWrapper, String name) {
+    public StringProperty getOverdue(JEVisTypeWrapper jeVisTypeWrapper, String name, ObjectProperty<Integer> yearProperty) {
         StringProperty stringProperty = new SimpleStringProperty();
         stringProperty.bind(Bindings.createStringBinding(() -> name + ": " + meterDatas.stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap()
                         .get(jeVisTypeWrapper)).filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent())
@@ -94,7 +92,7 @@ public class Statistics {
                     } catch (JEVisException e) {
                         throw new RuntimeException(e);
                     }
-                }).filter(dateTime -> dateTime.isBeforeNow()).count(), updateTrigger));
+                }).filter(dateTime -> dateTime.isBefore(new DateTime(yearProperty.get()+1,1,1,0,0,0, DateTimeZone.UTC))).count(), updateTrigger,yearProperty));
 
         return stringProperty;
     }
