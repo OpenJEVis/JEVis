@@ -12,6 +12,8 @@ import org.jevis.api.*;
 import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.jeconfig.plugin.action.ui.ActionTab;
+import org.jevis.jeconfig.plugin.action.ui.ActionTable;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
@@ -53,6 +55,8 @@ public class ActionPlanData {
     private String initCustomFields = "";
     private String initCustomMedium = "";
     private String initCustomSEU = "";
+    private ActionTable tableView = null;
+    private ActionTab actionTab = null;
 
     public ActionPlanData() {
     }
@@ -141,7 +145,7 @@ public class ActionPlanData {
                     //System.out.println("!!!!!! Plan: " + c);
                     if (c.wasAdded() || c.wasRemoved()) {
                         Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
-                        //System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
+                        System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
                         biggestActionNr.set(maxNr.get().nrProperty().get());
                     }
 
@@ -185,6 +189,22 @@ public class ActionPlanData {
             }
         }
         return string;
+    }
+
+    public ActionTab getActionTab() {
+        return actionTab;
+    }
+
+    public void setActionTab(ActionTab actionTab) {
+        this.actionTab = actionTab;
+    }
+
+    public ActionTable getTableView() {
+        return tableView;
+    }
+
+    public void setTableView(ActionTable tableView) {
+        this.tableView = tableView;
     }
 
     /**
