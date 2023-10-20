@@ -62,13 +62,13 @@ public class TimeFramePojo {
 
     private String parser = "yyyy.MM.dd HH:mm";
 
-    private String start;
+    private String start = "";
 
-    private String end;
+    private String end = "";
 
-    private int selectedId;
+    private int selectedId = -1;
 
-    private boolean countOfSamples;
+    private boolean countOfSamples = false;
 
     public TimeFramePojo(DashboardControl control) {
         this(control, null);
@@ -84,7 +84,7 @@ public class TimeFramePojo {
                 selectedId = jsonNode.get("selectedWidget").get("id").asInt();
                 start = jsonNode.get("selectedWidget").get("start").asText();
                 end = jsonNode.get("selectedWidget").get("end").asText();
-                countOfSamples = jsonNode.get("selectedWidget").get("count").asBoolean(false);
+                countOfSamples = jsonNode.get("selectedWidget").get("isCount").asBoolean(false);
             }
             if (jsonNode.has("format")) {
                 parser = jsonNode.get("format").asText("yyyy.MM.dd HH:mm");
@@ -97,7 +97,7 @@ public class TimeFramePojo {
 
     public Optional<TimeFrameWidgetObject>  getSelectedTimeFarmeObjectWidget() {
         Optional<TimeFrameWidgetObject> optionalTimeFrameWidgetObject = widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.isSelected()).findFirst();
-       return optionalTimeFrameWidgetObject;
+        return optionalTimeFrameWidgetObject;
     }
 
     public Optional<Widget> getSelectedWidget() {
@@ -216,22 +216,19 @@ public class TimeFramePojo {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
         dataNode.put("format", parser);
         logger.debug(dataNode);
+        Optional<TimeFrameWidgetObject> selectedWidget = getSelectedTimeFarmeObjectWidget();
+        if (selectedWidget.isPresent()) {
+            start = selectedWidget.get().getStartObjectProperty().toString();
+            end = selectedWidget.get().getEndObjectProperty().toString();
+            selectedId =selectedWidget.get().getConfig().getUuid();
+            countOfSamples =getSelectedTimeFarmeObjectWidget().get().countOfSamplesProperty().getValue();
+        }
+            ObjectNode dataNode1 = dataNode.putObject("selectedWidget");
+            dataNode1.put("start", start);
+            dataNode1.put("end", end);
+            dataNode1.put("id", selectedId);
+            dataNode1.put("isCount", countOfSamples);
 
-        ObjectNode dataNode1 = dataNode.putObject("selectedWidget");
-        if (getSelectedTimeFarmeObjectWidget().isPresent()) {
-            dataNode1.put("start", getSelectedTimeFarmeObjectWidget().get().getStartObjectProperty().toString());
-        }
-        if (getSelectedTimeFarmeObjectWidget().isPresent()) {
-
-            dataNode1.put("end", getSelectedTimeFarmeObjectWidget().get().getEndObjectProperty().toString());
-        }
-        if (getSelectedWidget().isPresent()) {
-            dataNode1.put("id", getSelectedWidget().get().getConfig().getUuid());
-        }
-        if (getSelectedTimeFarmeObjectWidget().isPresent()) {
-            dataNode1.put("count", getSelectedTimeFarmeObjectWidget().get().countOfSamplesProperty().getValue().toString());
-
-        }
 
 
         return dataNode;

@@ -45,6 +45,8 @@ public class CleanDataObject {
     private static final Logger logger = LogManager.getLogger(CleanDataObject.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final JEVisObject cleanObject;
+    private final SampleHandler sampleHandler;
+    private final boolean isFirstRunPeriod = true;
     private JEVisObject rawDataObject;
     //attributes
     private List<PeriodRule> periodCleanData;
@@ -62,11 +64,8 @@ public class CleanDataObject {
     private DateTime firstDate;
     private DateTime lastDate;
     private List<JEVisSample> rawSamplesDown;
-    private final SampleHandler sampleHandler;
-
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
     private JsonDeltaConfig jsonDeltaConfig;
-
     private Boolean limitsEnabled;
     private Boolean deltaEnabled;
     private Boolean gapFillingEnabled;
@@ -74,7 +73,6 @@ public class CleanDataObject {
     private List<JEVisSample> counterOverflow;
     private Double lastDiffValue;
     private Double lastCleanValue;
-    private final boolean isFirstRunPeriod = true;
     private JEVisAttribute rawAttribute;
 
     private JEVisAttribute valueAttribute;
@@ -161,6 +159,118 @@ public class CleanDataObject {
         }
 
         return multiplier;
+    }
+
+    public static Period getPeriodForDate(JEVisObject object, DateTime dateTime) {
+        List<PeriodRule> periodRules = getPeriodAlignmentForObject(object);
+        for (PeriodRule periodRule : periodRules) {
+            PeriodRule nextRule = null;
+            if (periodRules.size() > periodRules.indexOf(periodRule) + 1) {
+                nextRule = periodRules.get(periodRules.indexOf(periodRule) + 1);
+            }
+
+            DateTime ts = periodRule.getStartOfPeriod();
+            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
+                return periodRule.getPeriod();
+            }
+        }
+        return Period.ZERO;
+    }
+
+    public static Period getPeriodForDate(List<PeriodRule> periodRules, DateTime dateTime) {
+        for (PeriodRule periodRule : periodRules) {
+            PeriodRule nextRule = null;
+            if (periodRules.size() > periodRules.indexOf(periodRule) + 1) {
+                nextRule = periodRules.get(periodRules.indexOf(periodRule) + 1);
+            }
+
+            DateTime ts = periodRule.getStartOfPeriod();
+            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
+                return periodRule.getPeriod();
+            }
+        }
+        return Period.ZERO;
+    }
+
+    public static DateTime getDateForPeriodForDate(List<PeriodRule> periodRules, DateTime dateTime) {
+        for (PeriodRule periodRule : periodRules) {
+            PeriodRule nextRule = null;
+            if (periodRules.size() > periodRules.indexOf(periodRule) + 1) {
+                nextRule = periodRules.get(periodRules.indexOf(periodRule) + 1);
+            }
+
+            DateTime ts = periodRule.getStartOfPeriod();
+            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
+                return periodRule.getStartOfPeriod();
+            }
+        }
+        return new DateTime(1990, 1, 1, 0, 0, 0, 0);
+    }
+
+    public static List<PeriodRule> getPeriodAlignmentForObject(JEVisObject object) {
+        List<PeriodRule> periodList = new ArrayList<>();
+        List<JEVisSample> allSamples = new SampleHandler().getAllSamples(object, PERIOD.getAttributeName());
+
+        for (JEVisSample jeVisSample : allSamples) {
+
+            try {
+                DateTime startOfPeriod = jeVisSample.getTimestamp();
+                String periodString = jeVisSample.getValueAsString();
+                Period p = new Period(periodString);
+                periodList.add(new PeriodRule(startOfPeriod, p));
+            } catch (Exception e) {
+                logger.error("Could not create Period rule for sample {}", jeVisSample, e);
+            }
+        }
+
+        if (allSamples.isEmpty()) {
+            periodList.add(new PeriodRule(
+                    new DateTime(1990, 1, 1, 0, 0, 0, 0),
+                    Period.ZERO));
+        }
+        return periodList;
+    }
+
+    public static Boolean isDifferentialForDate(List<DifferentialRule> differentialRules, DateTime dateTime) {
+        for (DifferentialRule differentialRule : differentialRules) {
+            DifferentialRule nextRule = null;
+            if (differentialRules.size() > differentialRules.indexOf(differentialRule) + 1) {
+                nextRule = differentialRules.get(differentialRules.indexOf(differentialRule) + 1);
+            }
+            DateTime ts = differentialRule.getStartOfPeriod();
+            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
+                return differentialRule.isDifferential();
+            }
+        }
+        return false;
+    }
+
+    public static boolean isCounter(JEVisObject object, JEVisSample latestSample) {
+        boolean isCounter = false;
+        try {
+            JEVisDataSource ds = null;
+            if (object == null && latestSample != null && latestSample.getDataSource() != null) {
+                ds = latestSample.getDataSource();
+                object = latestSample.getAttribute().getObject();
+            } else if (object != null) {
+                ds = object.getDataSource();
+            } else return false;
+
+            JEVisClass dataClass = ds.getJEVisClass("Data");
+            JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
+            if (object != null && object.getJEVisClass().equals(dataClass)) {
+                JEVisObject cleanDataObject = CommonMethods.getFirstCleanObject(object);
+                CleanDataObject cdo = new CleanDataObject(cleanDataObject);
+                isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
+            } else if (object != null && object.getJEVisClass().equals(cleanDataClass)) {
+                CleanDataObject cdo = new CleanDataObject(object);
+                isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
+            }
+        } catch (Exception e) {
+            logger.error("Could not determine diff or not", e);
+        }
+
+        return isCounter;
     }
 
     /**
@@ -307,128 +417,16 @@ public class CleanDataObject {
         }
     }
 
-    public static Period getPeriodForDate(JEVisObject object, DateTime dateTime) {
-        List<PeriodRule> periodRules = getPeriodAlignmentForObject(object);
-        for (PeriodRule periodRule : periodRules) {
-            PeriodRule nextRule = null;
-            if (periodRules.size() > periodRules.indexOf(periodRule) + 1) {
-                nextRule = periodRules.get(periodRules.indexOf(periodRule) + 1);
-            }
-
-            DateTime ts = periodRule.getStartOfPeriod();
-            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
-                return periodRule.getPeriod();
-            }
-        }
-        return Period.ZERO;
-    }
-
-    public static Period getPeriodForDate(List<PeriodRule> periodRules, DateTime dateTime) {
-        for (PeriodRule periodRule : periodRules) {
-            PeriodRule nextRule = null;
-            if (periodRules.size() > periodRules.indexOf(periodRule) + 1) {
-                nextRule = periodRules.get(periodRules.indexOf(periodRule) + 1);
-            }
-
-            DateTime ts = periodRule.getStartOfPeriod();
-            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
-                return periodRule.getPeriod();
-            }
-        }
-        return Period.ZERO;
-    }
-
-    public static DateTime getDateForPeriodForDate(List<PeriodRule> periodRules, DateTime dateTime) {
-        for (PeriodRule periodRule : periodRules) {
-            PeriodRule nextRule = null;
-            if (periodRules.size() > periodRules.indexOf(periodRule) + 1) {
-                nextRule = periodRules.get(periodRules.indexOf(periodRule) + 1);
-            }
-
-            DateTime ts = periodRule.getStartOfPeriod();
-            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
-                return periodRule.getStartOfPeriod();
-            }
-        }
-        return new DateTime(1990, 1, 1, 0, 0, 0, 0);
-    }
-
     public Boolean getEnabled() {
         if (enabled == null)
             enabled = sampleHandler.getLastSample(getCleanObject(), ENABLED.getAttributeName(), false);
         return enabled;
     }
 
-    public static List<PeriodRule> getPeriodAlignmentForObject(JEVisObject object) {
-        List<PeriodRule> periodList = new ArrayList<>();
-        List<JEVisSample> allSamples = new SampleHandler().getAllSamples(object, PERIOD.getAttributeName());
-
-        for (JEVisSample jeVisSample : allSamples) {
-
-            try {
-                DateTime startOfPeriod = jeVisSample.getTimestamp();
-                String periodString = jeVisSample.getValueAsString();
-                Period p = new Period(periodString);
-                periodList.add(new PeriodRule(startOfPeriod, p));
-            } catch (Exception e) {
-                logger.error("Could not create Period rule for sample {}", jeVisSample, e);
-            }
-        }
-
-        if (allSamples.isEmpty()) {
-            periodList.add(new PeriodRule(
-                    new DateTime(1990, 1, 1, 0, 0, 0, 0),
-                    Period.ZERO));
-        }
-        return periodList;
-    }
-
     public Boolean getIsPeriodAligned() {
         if (isPeriodAligned == null)
             isPeriodAligned = sampleHandler.getLastSample(getCleanObject(), PERIOD_ALIGNMENT.getAttributeName(), false);
         return isPeriodAligned;
-    }
-
-    public static Boolean isDifferentialForDate(List<DifferentialRule> differentialRules, DateTime dateTime) {
-        for (DifferentialRule differentialRule : differentialRules) {
-            DifferentialRule nextRule = null;
-            if (differentialRules.size() > differentialRules.indexOf(differentialRule) + 1) {
-                nextRule = differentialRules.get(differentialRules.indexOf(differentialRule) + 1);
-            }
-            DateTime ts = differentialRule.getStartOfPeriod();
-            if (dateTime.equals(ts) || dateTime.isAfter(ts) && (nextRule == null || dateTime.isBefore(nextRule.getStartOfPeriod()))) {
-                return differentialRule.isDifferential();
-            }
-        }
-        return false;
-    }
-
-    public static boolean isCounter(JEVisObject object, JEVisSample latestSample) {
-        boolean isCounter = false;
-        try {
-            JEVisDataSource ds = null;
-            if (object == null && latestSample != null && latestSample.getDataSource() != null) {
-                ds = latestSample.getDataSource();
-                object = latestSample.getAttribute().getObject();
-            } else if (object != null) {
-                ds = object.getDataSource();
-            } else return false;
-
-            JEVisClass dataClass = ds.getJEVisClass("Data");
-            JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
-            if (object != null && object.getJEVisClass().equals(dataClass)) {
-                JEVisObject cleanDataObject = CommonMethods.getFirstCleanObject(object);
-                CleanDataObject cdo = new CleanDataObject(cleanDataObject);
-                isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
-            } else if (object != null && object.getJEVisClass().equals(cleanDataClass)) {
-                CleanDataObject cdo = new CleanDataObject(object);
-                isCounter = CleanDataObject.isDifferentialForDate(cdo.getDifferentialRules(), latestSample.getTimestamp());
-            }
-        } catch (Exception e) {
-            logger.error("Could not determine diff or not", e);
-        }
-
-        return isCounter;
     }
 
     public void reloadAttributes() throws JEVisException {
@@ -1167,8 +1165,30 @@ public class CleanDataObject {
                     VALUE_ATTRIBUTE_NAME,
                     firstDate,
                     lastDate);
+
+            if (rawSamplesDown.size() == 1 && !maxPeriod.equals(Period.ZERO)) {
+                DateTime timestampFromFirstSample = rawAttribute.getTimestampFromFirstSample();
+
+                while (timestampFromFirstSample.isBefore(firstDate) && rawSamplesDown.size() < 2) {
+                    firstDate = firstDate.minus(maxPeriod);
+                    rawSamplesDown = sampleHandler.getSamplesInPeriod(
+                            rawDataObject,
+                            VALUE_ATTRIBUTE_NAME,
+                            firstDate,
+                            lastDate);
+                }
+            }
         }
         return rawSamplesDown;
+    }
+
+    public DateTime getLastRawDate() {
+        if (lastRawDate == null) {
+            Period lastPeriod = getCleanDataPeriodAlignment().get(getCleanDataPeriodAlignment().size() - 1).getPeriod();
+            lastRawDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(lastPeriod);
+        }
+
+        return lastRawDate;
     }
 
     public enum AttributeName {
@@ -1203,14 +1223,5 @@ public class CleanDataObject {
         public String getAttributeName() {
             return attributeName;
         }
-    }
-
-    public DateTime getLastRawDate() {
-        if (lastRawDate == null) {
-            Period lastPeriod = getCleanDataPeriodAlignment().get(getCleanDataPeriodAlignment().size() - 1).getPeriod();
-            lastRawDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(lastPeriod);
-        }
-
-        return lastRawDate;
     }
 }
