@@ -48,26 +48,26 @@ public class DataModelDataHandler {
     private final JEVisDataSource jeVisDataSource;
     private final DashboardControl dashboardControl;
     private final String widgetType;
-    public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
     private final Map<String, JEVisAttribute> attributeMap = new HashMap<>();
     private final BooleanProperty enableMultiSelect = new SimpleBooleanProperty(false);
     private final StringProperty unitProperty = new SimpleStringProperty("");
     private final SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
     private final List<ChartDataRow> chartDataRows = new ArrayList<>();
     private final ObjectProperty<Interval> durationProperty = new SimpleObjectProperty<>();
+    private final TimeFrameFactory timeFrameFactory;
+    private final List<TimeFrame> timeFrameFactories = new ArrayList<>();
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final PeriodComparator periodComparator = new PeriodComparator();
+    private final EventListenerList listeners = new EventListenerList();
+    private final List<AggregationPeriod> initialAggregation = new ArrayList<>();
+    public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
     private DataModelNode dataModelNode = new DataModelNode();
     private boolean autoAggregation = false;
     private boolean forcedInterval = false;
-    private final TimeFrameFactory timeFrameFactory;
-    private final List<TimeFrame> timeFrameFactories = new ArrayList<>();
     private String forcedPeriod;
-    private final ObjectMapper mapper = new ObjectMapper();
     private TimeFrame timeFrame;
-    private final PeriodComparator periodComparator = new PeriodComparator();
     private WorkDays wd;
     private Interval forcedZeroInterval;
-
-    private final EventListenerList listeners = new EventListenerList();
 
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, DashboardControl dashboardControl, JsonNode configNode, String id) {
         this.jeVisDataSource = jeVisDataSource;
@@ -164,6 +164,24 @@ public class DataModelDataHandler {
 
     }
 
+    public static String generateValueKey(JEVisAttribute attribute) {
+        return attribute.getObjectID() + ":" + attribute.getName();
+    }
+
+    private static DataPointNode getDataPointNodeForChartDataRow(DataModelNode dataModelNode, ChartDataRow dataModel) {
+        for (DataPointNode dataPointNode : dataModelNode.getData()) {
+            long objectId = dataPointNode.getObjectID();
+            if (dataPointNode.getCleanObjectID() != null) {
+                objectId = dataPointNode.getCleanObjectID();
+            }
+            if (objectId == dataModel.getId()
+                    && dataPointNode.getAttribute().equals(dataModel.getAttributeString())) {
+                return dataPointNode;
+            }
+        }
+        return null;
+    }
+
     /**
      * Set if the date in the interval will use the auto aggregation
      * [if -> then]
@@ -195,8 +213,6 @@ public class DataModelDataHandler {
         }
         return aggregationPeriod;
     }
-
-    private final List<AggregationPeriod> initialAggregation = new ArrayList<>();
 
     public void debug() {
         System.out.println("----------------------------------------");
@@ -251,12 +267,6 @@ public class DataModelDataHandler {
         }
         return dateTimes;
     }
-
-
-    public static String generateValueKey(JEVisAttribute attribute) {
-        return attribute.getObjectID() + ":" + attribute.getName();
-    }
-
 
     public JEVisDataSource getJeVisDataSource() {
         return this.jeVisDataSource;
@@ -474,7 +484,6 @@ public class DataModelDataHandler {
         this.listeners.add(SampleHandlerEventListener.class, listener);
     }
 
-
     public void removeEventListener(SampleHandlerEventListener listener) {
         this.listeners.remove(SampleHandlerEventListener.class, listener);
     }
@@ -484,7 +493,7 @@ public class DataModelDataHandler {
     }
 
     private synchronized void notifyListeners(SampleHandlerEvent event) {
-        logger.error("SampleHandlerEvent: {}",event);
+        logger.debug("SampleHandlerEvent: {}", event);
         for (SampleHandlerEventListener l : this.listeners.getListeners(SampleHandlerEventListener.class)) {
             l.fireEvent(event);
         }
@@ -533,7 +542,6 @@ public class DataModelDataHandler {
         this.enableMultiSelect.set(enable);
     }
 
-
     public StringProperty getUnitProperty() {
         return this.unitProperty;
     }
@@ -557,20 +565,6 @@ public class DataModelDataHandler {
     public void setForcedPeriod(TimeFrame forcedPeriod) {
         this.forcedPeriod = forcedPeriod.getID();
         setForcedInterval(true);
-    }
-
-    private static DataPointNode getDataPointNodeForChartDataRow(DataModelNode dataModelNode, ChartDataRow dataModel) {
-        for (DataPointNode dataPointNode : dataModelNode.getData()) {
-            long objectId = dataPointNode.getObjectID();
-            if (dataPointNode.getCleanObjectID() != null) {
-                objectId = dataPointNode.getCleanObjectID();
-            }
-            if (objectId == dataModel.getId()
-                    && dataPointNode.getAttribute().equals(dataModel.getAttributeString())) {
-                return dataPointNode;
-            }
-        }
-        return null;
     }
 
     public void setData(List<DataPointNode> data) {
@@ -709,10 +703,6 @@ public class DataModelDataHandler {
         return chartModel;
     }
 
-    public DashboardControl getDashboardControl() {
-        return dashboardControl;
-    }
-
     public void setChartModel(ChartModel chartModel) {
         List<DataPointNode> dataPointNodes = new ArrayList<>();
         chartModel.getChartData().forEach(chartData -> {
@@ -826,5 +816,9 @@ public class DataModelDataHandler {
             }
 
         }
+    }
+
+    public DashboardControl getDashboardControl() {
+        return dashboardControl;
     }
 }

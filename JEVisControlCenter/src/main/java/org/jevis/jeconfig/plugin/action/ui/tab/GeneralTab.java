@@ -26,6 +26,7 @@ import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class GeneralTab extends Tab {
 
@@ -90,6 +91,20 @@ public class GeneralTab extends Tab {
         /* Readable if the workaround is not needed */
         f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
         f_ActionNr.setEditable(false);
+        f_ActionNr.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.isAltDown() && mouseEvent.isControlDown()) {
+                TextInputDialog textInputDialog = new TextInputDialog(data.nrProperty().get() + "");
+                textInputDialog.setHeaderText("Set Nr");
+                textInputDialog.setContentText("Set Nr");
+                Optional<String> value = textInputDialog.showAndWait();
+                try {
+                    data.nr.set(Integer.parseInt(value.get()));
+                    f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
+                } catch (Exception ex) {
+
+                }
+            }
+        });
         /* allow editing NR */
         // StringConverter sdfs = new IntegerStringConverter();
         //Bindings.bindBidirectional(f_ActionNr.textProperty(), data.nr, sdfs);
