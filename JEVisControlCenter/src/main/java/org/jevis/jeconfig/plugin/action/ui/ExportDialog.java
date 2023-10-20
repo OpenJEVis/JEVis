@@ -90,6 +90,8 @@ public class ExportDialog extends Dialog {
         boolean exportPlan = true;
         boolean exportDetail = true;
 
+        ActionTable table = null;
+
         public Selection(ActionPlanData plan) {
             this.plan = plan;
         }
@@ -100,6 +102,14 @@ public class ExportDialog extends Dialog {
 
         public void setExportDetail(boolean exportDetail) {
             this.exportDetail = exportDetail;
+        }
+
+        public ActionTable getTable() {
+            return table;
+        }
+
+        public void setTable(ActionTable table) {
+            this.table = table;
         }
     }
 }

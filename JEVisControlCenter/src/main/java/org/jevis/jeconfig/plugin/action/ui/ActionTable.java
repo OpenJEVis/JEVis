@@ -65,12 +65,13 @@ public class ActionTable extends TableView<ActionData> {
     private ObservableList<String> planFilters = FXCollections.observableArrayList();
     private DateFilter dateFilter;
     private String containsTextFilter = "";
-
     public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data, Statistics statistic) {
         this.data = data;
         this.actionPlanData = actionPlanData;
         this.filteredData = new FilteredList<>(this.data);
         this.statistic = statistic;
+        actionPlanData.setTableView(this);
+
         SortedList sortedList = new SortedList(this.filteredData);
         setItems(sortedList);
         sortedList.comparatorProperty().bind(this.comparatorProperty());
@@ -82,7 +83,7 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> fromUserCol = new TableColumn(fakeForName.fromUserProperty().getName());
         fromUserCol.setCellValueFactory(param -> param.getValue().fromUserProperty());
         fromUserCol.setCellFactory(buildShotTextFactory());
-        
+
         TableColumn<ActionData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsibleProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsibleProperty());
 
@@ -313,6 +314,10 @@ public class ActionTable extends TableView<ActionData> {
             }
             updateStatusSummery(statusTagsPropertyCol);
         });
+    }
+
+    public Statistics getStatistic() {
+        return statistic;
     }
 
     private void updateMediumConsumptionSum(TableColumn tableColumn) {

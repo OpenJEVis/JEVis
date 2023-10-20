@@ -48,7 +48,7 @@ public class ExcelExporter {
     private final short textBoxHeight = (short) 4000;
 
 
-    public ExcelExporter(ActionController actionController, List<ExportDialog.Selection> selection) {
+    public ExcelExporter(ActionController actionController, List<ExportDialog.Selection> selections) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("XLSX File Destination");
         FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", ".xlsx");
@@ -63,11 +63,34 @@ public class ExcelExporter {
             // createExcelFile(selectedFile);
             XSSFWorkbook workbook = new XSSFWorkbook(); //create workbook
             addStyles(workbook);
+
+            selections.stream().filter(selection -> selection.exportPlan).forEach(selection -> {
+                System.out.println(selection.plan);
+                addActionPlanSheet(workbook, selection.plan, selection.plan.getTableView(), selection.plan.getTableView().getStatistic(), selection.exportDetail);
+            });
+
+            selections.stream().filter(selection -> selection.exportDetail).forEach(selection -> {
+                System.out.println(selection.plan);
+                if (!selection.plan.getName().get().equals("Übersicht")) {
+                    selection.plan.getActionData().sorted(Comparator.comparingInt(o -> o.nr.get())).forEach(actionData -> {
+                        try {
+                            addActionDetailsSheet(workbook, actionData);
+                        } catch (Exception ex) {
+                            logger.error(ex, ex);
+                        }
+                    });
+                }
+            });
+
+            /*
             actionController.getTabPane().getTabs().forEach(tab -> {
                 ActionTab actionTab = (ActionTab) tab;
                 addActionPlanSheet(workbook, actionTab.getActionPlan(), actionTab.getActionTable(), actionTab.getStatistics());
             });
 
+
+             */
+            /*
             actionController.getTabPane().getTabs().forEach(tab -> {
                 ActionTab actionTab = (ActionTab) tab;
                 if (!actionTab.getActionPlan().getName().get().equals("Übersicht")) {
@@ -82,9 +105,11 @@ public class ExcelExporter {
                 }
             });
 
+             */
+
 
             try {
-                //faster delvelopment workaround, remove
+                //faster development workaround, remove
                 Desktop desktop = Desktop.getDesktop();
 
 
@@ -109,7 +134,7 @@ public class ExcelExporter {
         return Character.toUpperCase(letter) - 64;
     }
 
-    private Sheet addActionPlanSheet(XSSFWorkbook workbook, ActionPlanData actionPlanData, ActionTable table, Statistics statistics) {
+    private Sheet addActionPlanSheet(XSSFWorkbook workbook, ActionPlanData actionPlanData, ActionTable table, Statistics statistics, boolean exportDetails) {
 
         ActionData fakeForName = new ActionData();
 
