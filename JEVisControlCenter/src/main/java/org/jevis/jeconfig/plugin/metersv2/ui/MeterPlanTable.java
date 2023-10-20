@@ -30,6 +30,7 @@ import org.jevis.jeconfig.plugin.metersv2.event.MeterEventHandler;
 import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEvent;
 import org.jevis.jeconfig.plugin.metersv2.event.PrecisionEventHandler;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.awt.*;
 import java.lang.reflect.Method;
@@ -77,6 +78,8 @@ public class MeterPlanTable extends TableView<MeterData> implements TableFindScr
     private ObservableList<String> medium = FXCollections.observableArrayList();
     private ObservableList<String> type = FXCollections.observableArrayList();
     private ObservableList<String> location = FXCollections.observableArrayList();
+
+    private int year;
     private boolean showOnlyOvedue;
 
     private MeterEventHandler meterEventHandler = new MeterEventHandler();
@@ -305,10 +308,11 @@ public class MeterPlanTable extends TableView<MeterData> implements TableFindScr
                             if (!filter(locationWrapper, location, meterData)) return false;
                             AtomicBoolean overdueMatch = new AtomicBoolean(false);
                             if (showOnlyOvedue) {
+                                DateTime dateTime = new DateTime(getYear()+1, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC);
                                 SampleData sampleData = meterData.getJeVisAttributeJEVisSampleMap().get(verficationDateWrapper);
                                 if (sampleData != null && sampleData.getOptionalJEVisSample().isPresent()) {
                                     JEVisSample jeVisSample = sampleData.getOptionalJEVisSample().get();
-                                    if (new DateTime(jeVisSample.getValueAsString()).isBeforeNow()) {
+                                    if (new DateTime(jeVisSample.getValueAsString()).isBefore(dateTime.toInstant())) {
                                         overdueMatch.set(true);
                                     }
                                 }
@@ -423,4 +427,11 @@ public class MeterPlanTable extends TableView<MeterData> implements TableFindScr
         return precisionEventHandler;
     }
 
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
 }
