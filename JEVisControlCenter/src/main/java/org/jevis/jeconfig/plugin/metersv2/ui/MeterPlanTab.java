@@ -12,7 +12,10 @@ import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TableColumn;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -35,8 +38,6 @@ import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -84,7 +85,7 @@ public class MeterPlanTab extends Tab {
             @Override
             public void handle(MouseEvent event) {
                 if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-                    controller.openDataForm(controller.getSelectedItem(),false,false);//actionTable.getSelectionModel().getSelectedItem()
+                    controller.openDataForm(controller.getSelectedItem(), false, false);//actionTable.getSelectionModel().getSelectedItem()
                 }
             }
         });
@@ -116,8 +117,7 @@ public class MeterPlanTab extends Tab {
         yearComboBox = new JFXComboBox<>(getYearList());
 
 
-
-        gridPane.addColumn(7,new Region(),yearComboBox);
+        gridPane.addColumn(7, new Region(), yearComboBox);
 
         yearComboBox.valueProperty().addListener((observableValue, integer, t1) -> {
             meterPlanTable.setYear(t1);
@@ -152,9 +152,12 @@ public class MeterPlanTab extends Tab {
 
     }
 
+    @NotNull
+    private static List<JEVisClass> getClasses(MeterPlan plan) {
+        return plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisClass()).distinct().collect(Collectors.toList());
+    }
+
     private void updateStatisics(MeterPlan plan, Statistics statistics, BorderPane borderPane) {
-
-
 
 
         summeryData.clear();
@@ -186,7 +189,7 @@ public class MeterPlanTab extends Tab {
                         } catch (JEVisException e) {
                             throw new RuntimeException(e);
                         }
-                    }).findAny().orElseThrow(RuntimeException::new), statistics.getOverdue(verificationDateWrapper, I18n.getInstance().getString("plugin.meters.overdue"),yearComboBox.valueProperty()));
+                    }).findAny().orElseThrow(RuntimeException::new), statistics.getOverdue(verificationDateWrapper, I18n.getInstance().getString("plugin.meters.overdue"), yearComboBox.valueProperty()));
                 }
                 summeryData.add(new SummeryData(summeryRow));
             } catch (JEVisException jeVisException) {
@@ -197,21 +200,15 @@ public class MeterPlanTab extends Tab {
         }
 
 
-
         summeryTable.setItems(summeryData);
 
         Platform.runLater(() -> {
-            this.meterPlanTable.findScrollBar(meterPlanTable,Orientation.HORIZONTAL).valueProperty().bindBidirectional(summeryTable.findScrollBar(summeryTable,Orientation.HORIZONTAL).valueProperty());
+            this.meterPlanTable.findScrollBar(meterPlanTable, Orientation.HORIZONTAL).valueProperty().bindBidirectional(summeryTable.findScrollBar(summeryTable, Orientation.HORIZONTAL).valueProperty());
         });
 
 
         borderPane.setBottom(summeryTable);
         setContent(borderPane);
-    }
-
-    @NotNull
-    private static List<JEVisClass> getClasses(MeterPlan plan) {
-        return plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisClass()).distinct().collect(Collectors.toList());
     }
 
     @NotNull
@@ -331,12 +328,13 @@ public class MeterPlanTab extends Tab {
     public MeterPlan getPlan() {
         return plan;
     }
-    private ObservableList<Integer> getYearList(){
+
+    private ObservableList<Integer> getYearList() {
         LocalDate localDate = LocalDate.now();
 
         ObservableList<Integer> years = FXCollections.observableArrayList();
 
-        for (int i = localDate.getYear()-10; i < localDate.getYear() + 10; i++) {
+        for (int i = localDate.getYear() - 10; i < localDate.getYear() + 10; i++) {
             years.add(i);
         }
 

@@ -1,7 +1,9 @@
 package org.jevis.jeconfig.plugin.metersv2.ui;
 
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTextField;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -32,7 +34,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.*;
 
-public class MeterFormAttributeTab extends Tab implements MeterFormTab{
+public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
     private static final Logger logger = LogManager.getLogger(MeterForm.class);
     private final MeterData meterData;
@@ -59,7 +61,7 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab{
     Map<JEVisType, JEVisSample> newSamples = new HashMap<>();
 
 
-    public MeterFormAttributeTab(MeterData meterData, JEVisDataSource ds,String name) {
+    public MeterFormAttributeTab(MeterData meterData, JEVisDataSource ds, String name) {
         super(name);
         this.meterData = meterData;
         this.ds = ds;
@@ -75,8 +77,6 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab{
 
 
         initializeMap();
-
-
 
 
         for (Map.Entry<JEVisTypeWrapper, SampleData> entry : meterData.getJeVisAttributeJEVisSampleMap().entrySet()) {
@@ -108,8 +108,8 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab{
             int rowcount = getMaxRow();
 
             if (entryMap.getValue().get(1) instanceof TextArea) {
-                gridPane.add( entryMap.getValue().get(0),0,++rowcount,1,1);
-                gridPane.add( entryMap.getValue().get(1),0,++rowcount,4,1);
+                gridPane.add(entryMap.getValue().get(0), 0, ++rowcount, 1, 1);
+                gridPane.add(entryMap.getValue().get(1), 0, ++rowcount, 4, 1);
                 firstRow = true;
                 continue;
             }

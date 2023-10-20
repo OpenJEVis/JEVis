@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.metersv2.cells;
 
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Pos;
 import javafx.scene.control.TableColumn;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisType;

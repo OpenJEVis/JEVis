@@ -4,17 +4,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.table.ShortColumnCell;
-import org.jevis.jeconfig.plugin.metersv2.JEVisClassWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 
 public class MediumColumn extends TableColumn<MeterData, String> {
-    private int width;
     private final JEVisDataSource dataSource;
+    private int width;
 
 
     public MediumColumn(String s, int width, JEVisDataSource dataSource) {

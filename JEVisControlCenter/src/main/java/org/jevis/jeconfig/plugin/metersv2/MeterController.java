@@ -22,7 +22,6 @@ import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTable;
 import org.jevis.jeconfig.plugin.metersv2.ui.NewMeterDialog;
 
 import java.util.List;
-import java.util.Optional;
 
 public class MeterController {
     private static final Logger logger = LogManager.getLogger(MeterController.class);
@@ -32,10 +31,9 @@ public class MeterController {
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
     private final ObservableList<MeterPlan> meterPlans = FXCollections.observableArrayList();
-    private TabPane tabPane;
     private final JEVisDataSource ds;
-
     private final IntegerProperty lastRawValuePrecision = new SimpleIntegerProperty(2);
+    private TabPane tabPane;
 
     public MeterController(MeterPlugin plugin, JEVisDataSource ds) {
         this.ds = ds;
@@ -133,7 +131,7 @@ public class MeterController {
                 alert.showAndWait();
             } else {
                 MeterData meterData = new MeterData(jeVisObject);
-                openDataForm(meterData,false,true);
+                openDataForm(meterData, false, true);
             }
         });
 

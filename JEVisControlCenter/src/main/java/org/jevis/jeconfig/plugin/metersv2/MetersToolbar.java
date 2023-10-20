@@ -48,7 +48,7 @@ public class MetersToolbar extends ToolBar {
 
     public MetersToolbar(MeterController meterController) {
 
-        getItems().addAll(add, exportPDF, rename, deleteItem,switchButton,increasePrecision,decreasePrecision);
+        getItems().addAll(add, exportPDF, rename, deleteItem, switchButton, increasePrecision, decreasePrecision);
         getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
 
         add.setOnAction(actionEvent -> meterController.addMeter());
@@ -70,10 +70,8 @@ public class MetersToolbar extends ToolBar {
         switchButton.setOnAction(actionEvent -> {
             System.out.println(meterController.getSelectedItem());
 
-           meterController.openDataForm(meterController.getSelectedItem(),true,false);
+            meterController.openDataForm(meterController.getSelectedItem(), true, false);
         });
-
-
 
 
         increasePrecision.setOnAction(actionEvent -> {

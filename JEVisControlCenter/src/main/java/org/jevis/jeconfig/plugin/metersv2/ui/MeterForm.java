@@ -1,23 +1,18 @@
 package org.jevis.jeconfig.plugin.metersv2.ui;
 
-import com.jfoenix.controls.*;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.TopMenu;
-import org.jevis.jeconfig.application.control.DataTypeBox;
-import org.jevis.jeconfig.application.control.DayBox;
-import org.jevis.jeconfig.application.control.MonthBox;
-import org.jevis.jeconfig.application.control.YearBox;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MeterForm extends Dialog {
 
@@ -25,7 +20,7 @@ public class MeterForm extends Dialog {
 
     private final MeterData meterData;
     private final JEVisDataSource ds;
-   List<Tab> tabs;
+    List<Tab> tabs;
 
     private TabPane tabPane = new TabPane();
 
@@ -54,7 +49,6 @@ public class MeterForm extends Dialog {
         }
 
 
-
         tabPane.getTabs().addAll(tabs);
         setHeaderText(meterData.getName());
 
@@ -64,17 +58,14 @@ public class MeterForm extends Dialog {
     }
 
 
-    public JEVisObject commit(){
+    public JEVisObject commit() {
         tabs.forEach(tab -> {
-           MeterFormTab meterFormTab = (MeterFormTab) tab;
-           meterFormTab.commit();
+            MeterFormTab meterFormTab = (MeterFormTab) tab;
+            meterFormTab.commit();
         });
 
         return null;
-        }
-
-
-
+    }
 
 
 }

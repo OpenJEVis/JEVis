@@ -7,8 +7,8 @@ import org.jevis.api.JEVisEventListener;
 import javax.swing.event.EventListenerList;
 
 public class PrecisionEventHandler {
-    private final EventListenerList listeners = new EventListenerList();
     private static final Logger logger = LogManager.getLogger(PrecisionEventHandler.class);
+    private final EventListenerList listeners = new EventListenerList();
 
     public void addEventListener(PrecisionEventListener listener) {
 
@@ -33,7 +33,7 @@ public class PrecisionEventHandler {
         }
     }
 
-    public void fireEvent(PrecisionEvent event){
+    public void fireEvent(PrecisionEvent event) {
         notifyListeners(event);
     }
 }
