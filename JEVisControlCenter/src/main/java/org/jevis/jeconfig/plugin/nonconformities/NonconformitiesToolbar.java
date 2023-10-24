@@ -70,7 +70,7 @@ public class NonconformitiesToolbar extends ToolBar {
 
 
         getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
-        Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(LegalCatasdrePlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
+        Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(NonconformitiesPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
 
 
     }
