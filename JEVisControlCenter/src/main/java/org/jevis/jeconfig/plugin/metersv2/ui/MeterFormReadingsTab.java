@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
@@ -161,6 +162,7 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
         gridPane.setPrefWidth(800);
         gridPane.setHgap(10);
         gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(30,30,30,30));
 
         Label oldMeter_Label = new Label("Alter Zählerstand");
 

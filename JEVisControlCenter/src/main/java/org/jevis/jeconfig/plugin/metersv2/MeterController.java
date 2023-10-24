@@ -119,6 +119,8 @@ public class MeterController {
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         meterForm.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);
         final Button btOk = (Button) meterForm.getDialogPane().lookupButton(buttonTypeOne);
+
+        disableSaveIfUserCannotWrite(meterData, btOk);
         btOk.setOnAction(actionEvent -> {
             meterForm.commit();
             if (isNew) {
@@ -133,6 +135,15 @@ public class MeterController {
 
         });
         meterForm.show();
+
+    }
+
+    private void disableSaveIfUserCannotWrite(MeterData meterData, Button btOk) {
+        try {
+            if (!ds.getCurrentUser().canWrite(meterData.getJeVisObject().getID())) btOk.setDisable(true);
+        } catch (Exception e) {
+            logger.error(e);
+        }
 
     }
 

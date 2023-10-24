@@ -4,6 +4,7 @@ package org.jevis.jeconfig.plugin.metersv2.ui;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -69,10 +70,7 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
         this.targetType = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_OnlineID));
         this.commitDateTime = DateTime.now();
 
-
-        long startTime = System.nanoTime();
-
-
+        gridPane.setPadding(new Insets(30,30,30,30));
         gridPane.setVgap(10);
         gridPane.setHgap(10);
 
@@ -116,14 +114,15 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             }
 
             if (entryMap.getKey() % 10 == 0 && entryMap.getKey() != 0) {
-                gridPane.add(new Separator(), 0, rowcount + 1, 5, 1);
-                rowcount++;
+                gridPane.add(new Region(), 0, ++rowcount, 5, 1);
+                gridPane.add(new Separator(), 0, ++rowcount, 5, 1);
+                gridPane.add(new Region(), 0, ++rowcount, 5, 1);
                 firstRow = true;
             }
             if (firstRow) {
                 Region region = new Region();
                 region.setMinWidth(40);
-                gridPane.addRow(rowcount + 1, entryMap.getValue().get(0), entryMap.getValue().get(1), region);
+                gridPane.addRow(++rowcount, entryMap.getValue().get(0), entryMap.getValue().get(1), region);
                 firstRow = false;
             } else {
                 gridPane.addRow(rowcount, entryMap.getValue().get(0), entryMap.getValue().get(1));
