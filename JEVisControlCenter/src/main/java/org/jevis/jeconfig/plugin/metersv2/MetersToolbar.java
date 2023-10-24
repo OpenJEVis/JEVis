@@ -1,9 +1,7 @@
 package org.jevis.jeconfig.plugin.metersv2;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToolBar;
+import javafx.application.Platform;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,11 +10,13 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterData;
 import org.jevis.jeconfig.plugin.metersv2.event.PrecisionEvent;
 import org.jevis.jeconfig.plugin.metersv2.export.MetersPlanExport;
 import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTable;
+import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesPlugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,14 +28,8 @@ public class MetersToolbar extends ToolBar {
 
     private final double iconSize = 20;
 
-    private final ToggleButton nonconformityPlanConfig = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
-    private final ToggleButton openForm = new ToggleButton("", JEConfig.getSVGImage(Icon.PREVIEW, iconSize, iconSize));
-    private final ToggleButton newNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_ADD, iconSize, iconSize));
-    private final ToggleButton newNonconformityPlan = new ToggleButton("", JEConfig.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
-    private final ToggleButton deleteNonconformity = new ToggleButton("", JEConfig.getSVGImage(Icon.PLAYLIST_REMOVE, iconSize, iconSize));
     private final ToggleButton deleteItem = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, iconSize, iconSize));
-    private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
-    private final ToggleButton exportPDF = new ToggleButton("", JEConfig.getSVGImage(Icon.EXCEL, this.iconSize, this.iconSize));
+    private final ToggleButton exportxlsx = new ToggleButton("", JEConfig.getSVGImage(Icon.EXCEL, this.iconSize, this.iconSize));
     private final ToggleButton rename = new ToggleButton("", JEConfig.getSVGImage(Icon.TRANSLATE, this.iconSize, this.iconSize));
 
     private final ToggleButton add = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS_CIRCLE, iconSize, iconSize));
@@ -43,21 +37,32 @@ public class MetersToolbar extends ToolBar {
     private final ToggleButton increasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_INCREASE, iconSize, iconSize));
     private final ToggleButton decreasePrecision = new ToggleButton("", JEConfig.getSVGImage(Icon.DECIMAL_DECREASE, iconSize, iconSize));
 
-    //  private final JFXComboBox<Integer> comboPrecision = new JFXComboBox(FXCollections.observableArrayList(1,2,3,4,5));
+    private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+    private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+
     private MeterController meterController;
 
     public MetersToolbar(MeterController meterController) {
         this.meterController = meterController;
 
-        getItems().addAll(add, exportPDF, rename, deleteItem, switchButton, increasePrecision, decreasePrecision);
-        getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
+        getItems().addAll(add, exportxlsx, rename, deleteItem, switchButton, increasePrecision, decreasePrecision);
+
+
+
+        add.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.tooltip.add")));
+        exportxlsx.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.tooltip.exportxlsx")));
+        rename.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.tooltip.rename")));
+        deleteItem.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.tooltip.delete")));
+        switchButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.tooltip.switchmeter")));
+        increasePrecision.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.tooltip.increaseprecision")));
+        decreasePrecision.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.tooltip.decreaseprecision")));
 
         add.setOnAction(actionEvent -> meterController.addMeter());
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel", ".xlsx"));
 
-        exportPDF.setOnAction(actionEvent -> {
+        exportxlsx.setOnAction(actionEvent -> {
             File file = fileChooser.showSaveDialog(meterController.getContent().getScene().getWindow());
             MetersPlanExport metersPlanExport = new MetersPlanExport(meterController.getActiveTab().getPlan());
             metersPlanExport.export();
@@ -132,6 +137,12 @@ public class MetersToolbar extends ToolBar {
 
         add.setDisable(!meterController.isCanWrite());
         deleteItem.setDisable(!meterController.isCanDelete());
+
+        getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
+
+
+        getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+        Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(NonconformitiesPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
 
 
     }
