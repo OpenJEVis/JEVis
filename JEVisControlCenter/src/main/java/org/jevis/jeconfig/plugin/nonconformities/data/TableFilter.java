@@ -19,7 +19,6 @@ public class TableFilter {
         if (!plannedDateFilter.isEmpty()) {
             DateTime now = new DateTime();
             if (plannedDateComp == DATE_COMPARE.EQUALS) {
-                System.out.println("Is bigger than");
                 boolean isBigger = false;
 
 
@@ -40,7 +39,6 @@ public class TableFilter {
                 }
             }
         }
-        System.out.println("Filter: " + isOneTrue);
 
         return isOneTrue;
     }

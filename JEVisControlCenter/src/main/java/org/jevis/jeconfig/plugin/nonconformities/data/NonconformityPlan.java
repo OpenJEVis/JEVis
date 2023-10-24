@@ -192,7 +192,6 @@ public class NonconformityPlan {
             JEVisClass actionClass = object.getDataSource().getJEVisClass("Nonconformity");
             for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
                 dirObj.getChildren(actionClass, false).forEach(actionObj -> {
-                    System.out.println("new Action from JEVis: " + actionObj);
                     try {
                         nonconformityList.add(loadNonconformties(actionObj));
                     } catch (Exception e) {

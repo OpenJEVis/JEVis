@@ -259,7 +259,7 @@ public class GeneralTab extends Tab {
             @Override
             public void onChanged(Change<? extends String> change) {
                 while (change.next()) {
-                    System.out.println(change.getList());
+               //     System.out.println(change.getList());
                 }
             }
         });
