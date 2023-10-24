@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin.metersv2.event;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisEventListener;
-import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTable;
 
 import javax.swing.event.EventListenerList;
 
@@ -33,7 +32,8 @@ public class MeterEventHandler {
             l.fireEvent(event);
         }
     }
-    public void fireEvent(MeterPlanEvent event){
+
+    public void fireEvent(MeterPlanEvent event) {
         notifyListeners(event);
     }
 }

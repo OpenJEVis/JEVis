@@ -1,15 +1,15 @@
 package org.jevis.jeconfig.plugin.metersv2.ui;
 
-import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.constants.EnterDataTypes;
@@ -47,7 +47,7 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
     private JEVisSample oldMeterSample;
     private JEVisSample newMeterSample;
 
-    public MeterFormReadingsTab(MeterData meterData, JEVisDataSource ds,String name) throws JEVisException {
+    public MeterFormReadingsTab(MeterData meterData, JEVisDataSource ds, String name) throws JEVisException {
 
         super(name);
         this.meterData = meterData;
@@ -56,10 +56,8 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
         setContent(gridPane);
 
 
-            JEVisTypeWrapper targetType = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_OnlineID));
-            this.targetHelper = createTargetHelper(targetType);
-
-
+        JEVisTypeWrapper targetType = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_OnlineID));
+        this.targetHelper = createTargetHelper(targetType);
 
 
         gridPane.addRow(0, dataTypeBox);
@@ -109,6 +107,7 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
         }
         return ts;
     }
+
     private void setMeterValueTimeIntervall(EnterDataTypes enterDataTypes) {
         switch (enterDataTypes) {
             case YEAR:
@@ -136,6 +135,7 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
     private JEVisSample buildSample(double value, int offsetSecond, JEVisAttribute jeVisAttribute, String note) throws JEVisException {
         return jeVisAttribute.buildSample(getDate(dataTypeBox.getValue()).minusSeconds(offsetSecond), value, note);
     }
+
     private void replacementGridPane(boolean visible) {
         if (visible) {
             gridPane.setVisible(true);
@@ -145,16 +145,16 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
             newMeterSample = null;
         }
     }
+
     private JEVisType getJEVisType(String string) throws JEVisException {
 
-            JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
-            JEVisType jeVisType = jeVisClass.getType(string);
-            return jeVisType;
-
-
+        JEVisClass jeVisClass = ds.getJEVisClass(JC.MeasurementInstrument.name);
+        JEVisType jeVisType = jeVisClass.getType(string);
+        return jeVisType;
 
 
     }
+
     private void buildReplaceMeterDialog() {
 
         gridPane.setPrefHeight(900);
@@ -167,15 +167,12 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
         Label newMeter_Label = new Label("Neuer Zählerstand");
 
 
-
         TextField oldMeter_Value = new JFXTextField();
 
         TextField newMeter_Value = new JFXTextField();
 
 
-
-       // gridPane.add(gridPane, 0, rowcount, 4, 1);
-
+        // gridPane.add(gridPane, 0, rowcount, 4, 1);
 
 
         gridPane.addRow(4, oldMeter_Label, oldMeter_Value);
@@ -224,11 +221,12 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
         }).max().orElse(-1);
         return rowcount;
     }
+
     private TargetHelper createTargetHelper(JEVisTypeWrapper jeVisTypeWrapper) throws JEVisException {
 
-            JEVisAttribute onlineIdAttribute = meterData.getJeVisObject().getAttribute(jeVisTypeWrapper.getJeVisType());
-            TargetHelper targetHelper = new TargetHelper(ds, onlineIdAttribute);
-            return targetHelper;
+        JEVisAttribute onlineIdAttribute = meterData.getJeVisObject().getAttribute(jeVisTypeWrapper.getJeVisType());
+        TargetHelper targetHelper = new TargetHelper(ds, onlineIdAttribute);
+        return targetHelper;
 
     }
 

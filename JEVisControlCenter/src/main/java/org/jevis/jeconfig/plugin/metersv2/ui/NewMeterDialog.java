@@ -32,10 +32,10 @@ public class NewMeterDialog extends Dialog {
 
     private static final Logger logger = LogManager.getLogger(NewMeterDialog.class);
     private final MeterPlan meterPlan;
+    private final JEVisDataSource jeVisDataSource;
     ComboBox<JEVisClassWrapper> comboBox = new ComboBox<>();
     JFXTextField jfxTextFieldName = new JFXTextField();
     JFXButton jfxButtonTarget = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 20, 20));
-    private final JEVisDataSource jeVisDataSource;
     private Optional<JEVisObject> parent = Optional.empty();
     private SingleSelectionModel<JEVisClassWrapper> jeVisClassSingleSelectionModel;
     private JEVisClassWrapper air;

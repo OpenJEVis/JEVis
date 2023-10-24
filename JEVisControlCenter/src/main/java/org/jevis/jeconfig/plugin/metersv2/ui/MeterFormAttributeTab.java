@@ -1,11 +1,14 @@
 package org.jevis.jeconfig.plugin.metersv2.ui;
 
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTextField;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +35,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.*;
 
-public class MeterFormAttributeTab extends Tab implements MeterFormTab{
+public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
     private static final Logger logger = LogManager.getLogger(MeterForm.class);
     private final MeterData meterData;
@@ -59,7 +62,7 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab{
     Map<JEVisType, JEVisSample> newSamples = new HashMap<>();
 
 
-    public MeterFormAttributeTab(MeterData meterData, JEVisDataSource ds,String name) {
+    public MeterFormAttributeTab(MeterData meterData, JEVisDataSource ds, String name) {
         super(name);
         this.meterData = meterData;
         this.ds = ds;
@@ -75,8 +78,6 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab{
 
 
         initializeMap();
-
-
 
 
         for (Map.Entry<JEVisTypeWrapper, SampleData> entry : meterData.getJeVisAttributeJEVisSampleMap().entrySet()) {
@@ -108,19 +109,21 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab{
             int rowcount = getMaxRow();
 
             if (entryMap.getValue().get(1) instanceof TextArea) {
-                gridPane.add( entryMap.getValue().get(0),0,++rowcount,1,1);
-                gridPane.add( entryMap.getValue().get(1),0,++rowcount,4,1);
+                gridPane.add(entryMap.getValue().get(0), 0, ++rowcount, 1, 1);
+                gridPane.add(entryMap.getValue().get(1), 0, ++rowcount, 5, 1);
                 firstRow = true;
                 continue;
             }
 
             if (entryMap.getKey() % 10 == 0 && entryMap.getKey() != 0) {
-                gridPane.add(new Separator(), 0, rowcount + 1, 4, 1);
+                gridPane.add(new Separator(), 0, rowcount + 1, 5, 1);
                 rowcount++;
                 firstRow = true;
             }
             if (firstRow) {
-                gridPane.addRow(rowcount + 1, entryMap.getValue().get(0), entryMap.getValue().get(1));
+                Region region = new Region();
+                region.setMinWidth(40);
+                gridPane.addRow(rowcount + 1, entryMap.getValue().get(0), entryMap.getValue().get(1), region);
                 firstRow = false;
             } else {
                 gridPane.addRow(rowcount, entryMap.getValue().get(0), entryMap.getValue().get(1));
@@ -128,8 +131,9 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab{
             }
         }
 
-
-        setContent(gridPane);
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(gridPane);
+        setContent(scrollPane);
 
 
     }

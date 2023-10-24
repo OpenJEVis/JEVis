@@ -23,13 +23,10 @@ import java.util.List;
 
 public class TagButton extends Button {
     private static final Logger logger = LogManager.getLogger(TagButton.class);
-
-
+    private final List<JFXCheckBox> boxes = new ArrayList<>();
     ObservableList<String> selectedTags = FXCollections.observableArrayList();
     HashMap<String, BooleanProperty> activeTags = new HashMap<>();
     ObservableList<String> allTags = FXCollections.observableArrayList();
-
-    private final List<JFXCheckBox> boxes = new ArrayList<>();
 
     public TagButton(String text, ObservableList<String> entry, ObservableList<String> selected) {
         super(text);

@@ -2,13 +2,10 @@ package org.jevis.jeconfig.plugin.metersv2.event;
 
 import java.util.EventObject;
 
-public class PrecisionEvent extends EventObject{
-
-    public TYPE getType() {
-        return type;
-    }
+public class PrecisionEvent extends EventObject {
 
     private TYPE type;
+
     /**
      * Constructs a prototypical Event.
      *
@@ -18,6 +15,10 @@ public class PrecisionEvent extends EventObject{
     public PrecisionEvent(Object source, TYPE type) {
         super(source);
         this.type = type;
+    }
+
+    public TYPE getType() {
+        return type;
     }
 
     public enum TYPE {

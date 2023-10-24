@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.metersv2.ui;
 
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
@@ -35,8 +36,8 @@ import org.jevis.jeconfig.plugin.metersv2.MeterController;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -57,6 +58,8 @@ public class MeterPlanTab extends Tab {
     private SummeryTable summeryTable;
     private List<String> type;
     private List<JEVisClass> jeVisClasses;
+
+    private JFXComboBox<Integer> yearComboBox;
 
 
     public MeterPlanTab(MeterPlan plan, MeterController controller, JEVisDataSource ds) {
@@ -82,7 +85,7 @@ public class MeterPlanTab extends Tab {
             @Override
             public void handle(MouseEvent event) {
                 if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-                    controller.openDataForm(controller.getSelectedItem(),false,false);//actionTable.getSelectionModel().getSelectedItem()
+                    controller.openDataForm(controller.getSelectedItem(), false, false);//actionTable.getSelectionModel().getSelectedItem()
                 }
             }
         });
@@ -106,10 +109,21 @@ public class MeterPlanTab extends Tab {
         gridPane.addColumn(0, new Label(I18n.getInstance().getString("plugin.meters.search")), buildSearch(meterPlanTable));
         gridPane.addColumn(1, vSep1);
         //gridPane.addColumn(2, new Label("Relevant"), relevantFilter);
-        gridPane.addColumn(3, new Region(), buildClassFilterButton(meterPlanTable));
+        gridPane.addColumn(3, new Label(I18n.getInstance().getString("plugin.meters.filter")), buildClassFilterButton(meterPlanTable));
         gridPane.addColumn(4, new Region(), buildTypeFilterButton(meterPlanTable, I18n.getInstance().getString("plugin.meters.type"), meterPlanTable::setType, typeWrapper));
         gridPane.addColumn(5, new Region(), buildTypeFilterButton(meterPlanTable, I18n.getInstance().getString("plugin.meters.location"), meterPlanTable::setLocation, locationWrapper));
         gridPane.addColumn(6, new Label(I18n.getInstance().getString("plugin.meters.overdue")), jfxToggleButton);
+
+        yearComboBox = new JFXComboBox<>(getYearList());
+
+
+        gridPane.addColumn(7, new Region(), yearComboBox);
+
+        yearComboBox.valueProperty().addListener((observableValue, integer, t1) -> {
+            meterPlanTable.setYear(t1);
+            meterPlanTable.filter();
+        });
+        yearComboBox.setValue(LocalDate.now().getYear());
 
 
         jfxToggleButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
@@ -123,9 +137,6 @@ public class MeterPlanTab extends Tab {
         borderPane.setCenter(meterPlanTable);
 
         summeryTable = new SummeryTable(meterPlanTable);
-//        meterPlanTable.onScrollToProperty().addListener((observableValue, scrollToEventEventHandler, t1) -> {
-//            System.out.println(t1);
-//        });
 
 
         meterPlanTable.getMeterEventHandler().addEventListener(event -> {
@@ -133,10 +144,6 @@ public class MeterPlanTab extends Tab {
             if (jeVisClasses.size() != getClasses(plan).size() || type.size() != getTypes(plan).size()) {
                 updateStatisics(plan, statistics, borderPane);
             }
-
-
-
-
         });
 
 
@@ -145,9 +152,12 @@ public class MeterPlanTab extends Tab {
 
     }
 
+    @NotNull
+    private static List<JEVisClass> getClasses(MeterPlan plan) {
+        return plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisClass()).distinct().collect(Collectors.toList());
+    }
+
     private void updateStatisics(MeterPlan plan, Statistics statistics, BorderPane borderPane) {
-
-
 
 
         summeryData.clear();
@@ -179,7 +189,7 @@ public class MeterPlanTab extends Tab {
                         } catch (JEVisException e) {
                             throw new RuntimeException(e);
                         }
-                    }).findAny().orElseThrow(RuntimeException::new), statistics.getOverdue(verificationDateWrapper, I18n.getInstance().getString("plugin.meters.overdue")));
+                    }).findAny().orElseThrow(RuntimeException::new), statistics.getOverdue(verificationDateWrapper, I18n.getInstance().getString("plugin.meters.overdue"), yearComboBox.valueProperty()));
                 }
                 summeryData.add(new SummeryData(summeryRow));
             } catch (JEVisException jeVisException) {
@@ -190,21 +200,15 @@ public class MeterPlanTab extends Tab {
         }
 
 
-
         summeryTable.setItems(summeryData);
 
         Platform.runLater(() -> {
-            this.meterPlanTable.findScrollBar(meterPlanTable,Orientation.HORIZONTAL).valueProperty().bindBidirectional(summeryTable.findScrollBar(summeryTable,Orientation.HORIZONTAL).valueProperty());
+            this.meterPlanTable.findScrollBar(meterPlanTable, Orientation.HORIZONTAL).valueProperty().bindBidirectional(summeryTable.findScrollBar(summeryTable, Orientation.HORIZONTAL).valueProperty());
         });
 
 
         borderPane.setBottom(summeryTable);
         setContent(borderPane);
-    }
-
-    @NotNull
-    private static List<JEVisClass> getClasses(MeterPlan plan) {
-        return plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisClass()).distinct().collect(Collectors.toList());
     }
 
     @NotNull
@@ -264,8 +268,12 @@ public class MeterPlanTab extends Tab {
     private TagButton buildTypeFilterButton(MeterPlanTable meterPlanTable, String name, Function<ObservableList<String>, Void> function, JEVisTypeWrapper jeVisTypeWrapper) {
         TagButton button = null;
         try {
-            List<String> stringValues = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper))
-                    .filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent()).map(optionalJEVisSample -> {
+            List<String> stringValues = plan.getMeterDataList().stream()
+                    .map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper))
+                    .filter(sampleData -> sampleData != null)
+                    .map(sampleData -> sampleData.getOptionalJEVisSample())
+                    .filter(optionalJEVisSample -> optionalJEVisSample.isPresent())
+                    .map(optionalJEVisSample -> {
                         try {
                             return optionalJEVisSample.get().getValueAsString();
                         } catch (JEVisException e) {
@@ -323,5 +331,17 @@ public class MeterPlanTab extends Tab {
 
     public MeterPlan getPlan() {
         return plan;
+    }
+
+    private ObservableList<Integer> getYearList() {
+        LocalDate localDate = LocalDate.now();
+
+        ObservableList<Integer> years = FXCollections.observableArrayList();
+
+        for (int i = localDate.getYear() - 10; i < localDate.getYear() + 10; i++) {
+            years.add(i);
+        }
+
+        return years;
     }
 }

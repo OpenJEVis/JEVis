@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.metersv2.cells;
 
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TableColumn;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +28,7 @@ public class LastRawValue extends TableColumn<MeterData, LastRawValuePojo> {
 
         this.jeVisTypeWrapperDecimalPlaces = jeVisTypeWrapperDecimalPlaces;
         this.precisionEventHandler = precisionEventHandler;
+
         try {
 
             setId(jeVisType.getName());
@@ -36,30 +36,44 @@ public class LastRawValue extends TableColumn<MeterData, LastRawValuePojo> {
             e.printStackTrace();
         }
         this.setCellValueFactory(meterDataJEVisSampleCellDataFeatures -> {
-            long precsion = getPrecsion(meterDataJEVisSampleCellDataFeatures.getValue());
 
-            double value = 0.0;
-            String unit = "";
             try {
+                long precsion = getPrecsion(meterDataJEVisSampleCellDataFeatures.getValue());
                 TargetHelper th = new TargetHelper(ds, meterDataJEVisSampleCellDataFeatures.getValue().getJeVisObject().getAttribute(jeVisType));
-                value = th.getAttribute().get(0).getLatestSample().getValueAsDouble();
-                unit = th.getAttribute().get(0).getLatestSample().getUnit().getLabel();
-                StringProperty stringProperty = new SimpleStringProperty();
-                setStringProperty(stringProperty, value, precsion, unit);
+                double value = getValueAs(th).orElse(0.0);
+                String unit = getUnit(th).orElse("");
+                LastRawValuePojo lastRawValuePojo = new LastRawValuePojo(meterDataJEVisSampleCellDataFeatures.getValue(), value, unit, (int) precsion);
 
+
+                return new SimpleObjectProperty<LastRawValuePojo>(lastRawValuePojo);
             } catch (Exception e) {
                 logger.error(e);
             }
-            LastRawValuePojo lastRawValuePojo = new LastRawValuePojo(meterDataJEVisSampleCellDataFeatures.getValue(),value,unit,(int)precsion);
 
-
-            return new SimpleObjectProperty<LastRawValuePojo>(lastRawValuePojo);
+            return new SimpleObjectProperty<>();
         });
 
         this.setCellFactory(new LastRawValueCell<>(precisionEventHandler));
         this.setMinWidth(width);
 
 
+    }
+
+    private static Optional<String> getUnit(TargetHelper th) {
+        try {
+            return Optional.of(th.getAttribute().get(0).getLatestSample().getUnit().getLabel());
+
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    private static Optional<Double> getValueAs(TargetHelper th) {
+        try {
+            return Optional.of(th.getAttribute().get(0).getLatestSample().getValueAsDouble());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     private void setStringProperty(StringProperty stringProperty, double value, long precision, String unitLabel) {

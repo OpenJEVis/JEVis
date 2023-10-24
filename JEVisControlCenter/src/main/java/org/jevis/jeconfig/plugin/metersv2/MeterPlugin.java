@@ -14,6 +14,7 @@ import org.jevis.jeconfig.Plugin;
 
 public class MeterPlugin implements Plugin {
 
+    public static final String PLUGIN_NAME = "Meter Plugin v2";
     private final BorderPane rootPane = new BorderPane();
     private final StringProperty uuidProperty = new SimpleStringProperty("Nonconformity");
     MeterController meterController;
@@ -21,14 +22,13 @@ public class MeterPlugin implements Plugin {
     private JEVisDataSource ds;
     private boolean isInit = false;
     private MetersToolbar toolbar;
-    public static final String PLUGIN_NAME = "Meter Plugin v2";
 
 
     public MeterPlugin(JEVisDataSource ds, String name) {
         this.ds = ds;
         this.nameProperty.set(name);
 
-        meterController = new MeterController(this,ds);
+        meterController = new MeterController(this, ds);
         rootPane.setCenter(meterController.getContent());
         toolbar = new MetersToolbar(meterController);
     }

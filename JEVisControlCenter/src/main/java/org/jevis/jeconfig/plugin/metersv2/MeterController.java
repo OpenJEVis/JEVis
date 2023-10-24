@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.plugin.metersv2;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
@@ -22,7 +25,6 @@ import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTable;
 import org.jevis.jeconfig.plugin.metersv2.ui.NewMeterDialog;
 
 import java.util.List;
-import java.util.Optional;
 
 public class MeterController {
     private static final Logger logger = LogManager.getLogger(MeterController.class);
@@ -32,10 +34,13 @@ public class MeterController {
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
     private final ObservableList<MeterPlan> meterPlans = FXCollections.observableArrayList();
-    private TabPane tabPane;
     private final JEVisDataSource ds;
-
     private final IntegerProperty lastRawValuePrecision = new SimpleIntegerProperty(2);
+    private TabPane tabPane;
+
+    private BooleanProperty canWrite = new SimpleBooleanProperty(false);
+
+    private BooleanProperty canDelete = new SimpleBooleanProperty(false);
 
     public MeterController(MeterPlugin plugin, JEVisDataSource ds) {
         this.ds = ds;
@@ -62,6 +67,19 @@ public class MeterController {
                 tabPane.getTabs().add(meterPlanTab);
 
             });
+
+            tabPane.getSelectionModel().selectedItemProperty().addListener((observableValue, tab, t1) -> {
+                try {
+                    checkRights((MeterPlanTab) t1);
+
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+
+
+
+            });
+            checkRights(getActiveTab());
 
 
         } catch (Exception e) {
@@ -133,7 +151,7 @@ public class MeterController {
                 alert.showAndWait();
             } else {
                 MeterData meterData = new MeterData(jeVisObject);
-                openDataForm(meterData,false,true);
+                openDataForm(meterData, false, true);
             }
         });
 
@@ -163,5 +181,34 @@ public class MeterController {
         return getActiveTab().getMeterPlanTable();
     }
 
+    public void checkRights(MeterPlanTab meterPlanTab) throws JEVisException {
+        canWrite.set(ds.getCurrentUser().canCreate(meterPlanTab.getPlan().getJeVisObject().getID()));
+        canDelete.set(ds.getCurrentUser().canDelete(meterPlanTab.getPlan().getJeVisObject().getID()));
 
+    }
+
+
+    public boolean isCanWrite() {
+        return canWrite.get();
+    }
+
+    public BooleanProperty canWriteProperty() {
+        return canWrite;
+    }
+
+    public void setCanWrite(boolean canWrite) {
+        this.canWrite.set(canWrite);
+    }
+
+    public boolean isCanDelete() {
+        return canDelete.get();
+    }
+
+    public BooleanProperty canDeleteProperty() {
+        return canDelete;
+    }
+
+    public void setCanDelete(boolean canDelete) {
+        this.canDelete.set(canDelete);
+    }
 }

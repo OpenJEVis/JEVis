@@ -6,11 +6,10 @@ import javafx.util.Callback;
 import org.jevis.jeconfig.plugin.metersv2.event.PrecisionEvent;
 import org.jevis.jeconfig.plugin.metersv2.event.PrecisionEventHandler;
 
-public class LastRawValueCell <T> implements Callback<TableColumn<T, LastRawValuePojo>, TableCell<T, LastRawValuePojo>> {
+public class LastRawValueCell<T> implements Callback<TableColumn<T, LastRawValuePojo>, TableCell<T, LastRawValuePojo>> {
 
 
-
-  private final PrecisionEventHandler precisionEventHandler;
+    private final PrecisionEventHandler precisionEventHandler;
 
     public LastRawValueCell(PrecisionEventHandler precisionEventHandler) {
         this.precisionEventHandler = precisionEventHandler;
@@ -26,10 +25,9 @@ public class LastRawValueCell <T> implements Callback<TableColumn<T, LastRawValu
                 super.updateItem(item, empty);
                 if (item == null || empty) {
                     setText(null);
-                }
-                else {
+                } else {
                     System.out.println(item);
-                    String content = getString(item.getValue(),item.getPrecision(),item.getUnitLabel());
+                    String content = getString(item.getValue(), item.getPrecision(), item.getUnitLabel());
                     setText(content);
 
                     precisionEventHandler.addEventListener(event -> {
@@ -41,15 +39,9 @@ public class LastRawValueCell <T> implements Callback<TableColumn<T, LastRawValu
                                 item.setPrecision(item.getPrecision() - 1);
                             }
                         }
-                        setText(getString(item.getValue(),item.getPrecision(),item.getUnitLabel()));
+                        setText(getString(item.getValue(), item.getPrecision(), item.getUnitLabel()));
                     });
                 }
-
-
-
-
-
-
 
 
             }
@@ -61,6 +53,6 @@ public class LastRawValueCell <T> implements Callback<TableColumn<T, LastRawValu
     }
 
     private String getString(double value, int precision, String unitLabel) {
-       return  (String.format("%.0" + precision + "f", value) + " " + unitLabel);
+        return (String.format("%.0" + precision + "f", value) + " " + unitLabel);
     }
 }

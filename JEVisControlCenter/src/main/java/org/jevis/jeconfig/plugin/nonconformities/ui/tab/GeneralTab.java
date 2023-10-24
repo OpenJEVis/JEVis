@@ -16,14 +16,22 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.CheckComboBox;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesController;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jeconfig.plugin.nonconformities.data.NonconformityPlan;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GeneralTab extends Tab {
+
+    private static final Logger logger = LogManager.getLogger(GeneralTab.class);
     private final JFXDatePicker f_deadlineDate = new JFXDatePicker();
     private final JFXDatePicker f_doneDate = new JFXDatePicker();
 
@@ -185,7 +193,7 @@ public class GeneralTab extends Tab {
 
 
 
-        f_Nr.setEditable(false);
+        f_Nr.setEditable(JEConfig.getExpert());
 
 
         //scrollPane.setContent(gridPane);
@@ -253,6 +261,20 @@ public class GeneralTab extends Tab {
                 while (change.next()) {
                     System.out.println(change.getList());
                 }
+            }
+        });
+
+        f_Nr.textProperty().addListener((observableValue, s, t1) -> {
+            try {
+                Pattern pattern = Pattern.compile("\\d+", Pattern.CASE_INSENSITIVE);
+                Matcher matcher = pattern.matcher(t1);
+                while (matcher.find()) {
+                    int i = Integer.valueOf(matcher.group());
+                    data.nrProperty().set(i);
+                    break;
+                }
+            } catch (NumberFormatException numberFormatException) {
+                logger.error(numberFormatException);
             }
         });
 
