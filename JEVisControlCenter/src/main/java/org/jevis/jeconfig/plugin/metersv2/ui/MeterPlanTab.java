@@ -268,8 +268,12 @@ public class MeterPlanTab extends Tab {
     private TagButton buildTypeFilterButton(MeterPlanTable meterPlanTable, String name, Function<ObservableList<String>, Void> function, JEVisTypeWrapper jeVisTypeWrapper) {
         TagButton button = null;
         try {
-            List<String> stringValues = plan.getMeterDataList().stream().map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper))
-                    .filter(sampleData -> sampleData != null).map(sampleData -> sampleData.getOptionalJEVisSample()).filter(optionalJEVisSample -> optionalJEVisSample.isPresent()).map(optionalJEVisSample -> {
+            List<String> stringValues = plan.getMeterDataList().stream()
+                    .map(meterData -> meterData.getJeVisAttributeJEVisSampleMap().get(jeVisTypeWrapper))
+                    .filter(sampleData -> sampleData != null)
+                    .map(sampleData -> sampleData.getOptionalJEVisSample())
+                    .filter(optionalJEVisSample -> optionalJEVisSample.isPresent())
+                    .map(optionalJEVisSample -> {
                         try {
                             return optionalJEVisSample.get().getValueAsString();
                         } catch (JEVisException e) {

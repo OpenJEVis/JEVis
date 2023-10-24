@@ -47,6 +47,7 @@ public class MetersToolbar extends ToolBar {
     private MeterController meterController;
 
     public MetersToolbar(MeterController meterController) {
+        this.meterController = meterController;
 
         getItems().addAll(add, exportPDF, rename, deleteItem, switchButton, increasePrecision, decreasePrecision);
         getItems().stream().filter(node -> node instanceof ToggleButton).forEach(node -> GlobalToolBar.changeBackgroundOnHoverUsingBinding(node));
@@ -100,6 +101,9 @@ public class MetersToolbar extends ToolBar {
             }
         });
 
+
+
+
         deleteItem.setOnAction(actionEvent -> {
             MeterData meterData = meterController.getSelectedItem();
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.meters.delete.title"), ButtonType.OK, ButtonType.CANCEL);
@@ -116,6 +120,18 @@ public class MetersToolbar extends ToolBar {
             }
             meterController.getActiveTable().refresh();
         });
+
+
+        this.meterController.canDeleteProperty().addListener((observableValue, aBoolean, t1) -> {
+            deleteItem.setDisable(!t1);
+        });
+
+        this.meterController.canWriteProperty().addListener((observableValue, aBoolean, t1) -> {
+            add.setDisable(!t1);
+        });
+
+        add.setDisable(!meterController.isCanWrite());
+        deleteItem.setDisable(!meterController.isCanDelete());
 
 
     }

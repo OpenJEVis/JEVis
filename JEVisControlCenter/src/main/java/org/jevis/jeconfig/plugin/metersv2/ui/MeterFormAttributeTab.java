@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -109,18 +110,20 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
             if (entryMap.getValue().get(1) instanceof TextArea) {
                 gridPane.add(entryMap.getValue().get(0), 0, ++rowcount, 1, 1);
-                gridPane.add(entryMap.getValue().get(1), 0, ++rowcount, 4, 1);
+                gridPane.add(entryMap.getValue().get(1), 0, ++rowcount, 5, 1);
                 firstRow = true;
                 continue;
             }
 
             if (entryMap.getKey() % 10 == 0 && entryMap.getKey() != 0) {
-                gridPane.add(new Separator(), 0, rowcount + 1, 4, 1);
+                gridPane.add(new Separator(), 0, rowcount + 1, 5, 1);
                 rowcount++;
                 firstRow = true;
             }
             if (firstRow) {
-                gridPane.addRow(rowcount + 1, entryMap.getValue().get(0), entryMap.getValue().get(1));
+                Region region = new Region();
+                region.setMinWidth(40);
+                gridPane.addRow(rowcount + 1, entryMap.getValue().get(0), entryMap.getValue().get(1), region);
                 firstRow = false;
             } else {
                 gridPane.addRow(rowcount, entryMap.getValue().get(0), entryMap.getValue().get(1));
@@ -128,8 +131,9 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             }
         }
 
-
-        setContent(gridPane);
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(gridPane);
+        setContent(scrollPane);
 
 
     }
