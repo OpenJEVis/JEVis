@@ -88,10 +88,13 @@ public class JEVisHTTPDataSource implements DataSource {
 
                     }
                 }else {
-                    channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
-                    if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusHours(1))) {
-                        runParser(channel);
+                    if ((_httpdatasource.getEndDateTime().isBefore(DateTime.now()))) {
+                        channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
+                        if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusHours(1))) {
+                            runParser(channel);
+                        }
                     }
+
                 }
             } catch (
                     MalformedURLException ex) {
