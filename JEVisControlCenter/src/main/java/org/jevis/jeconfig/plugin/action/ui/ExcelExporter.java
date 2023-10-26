@@ -324,7 +324,7 @@ public class ExcelExporter {
 
                             if (data.nr.get() == lastElement.nr.get()) {
                                 Cell sumCell = getOrCreateCell(sheet, row + 2, colldx);
-                                sumCell.setCellValue(statistics.getSumSinceStrImplementation());
+                                sumCell.setCellValue(statistics.getTextSumSinceImplementation());
                                 //einsparung seint umsetzung
                             }
                             //sheet.autoSizeColumn(colldx);
