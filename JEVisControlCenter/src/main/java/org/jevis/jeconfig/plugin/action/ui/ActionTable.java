@@ -65,6 +65,7 @@ public class ActionTable extends TableView<ActionData> {
     private ObservableList<String> planFilters = FXCollections.observableArrayList();
     private DateFilter dateFilter;
     private String containsTextFilter = "";
+
     public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data, Statistics statistic) {
         this.data = data;
         this.actionPlanData = actionPlanData;
@@ -296,7 +297,8 @@ public class ActionTable extends TableView<ActionData> {
         summeryRow1.put(savingYearPropertyCol, statistic.sumSavingsStrPropertyProperty());
         summeryRow1.put(consumptionDevelopmentPropertyCol, statistic.sumNPVResultStrPropertyProperty());
 
-        summeryRow1.put(titlePropertyCol, statistic.sumSinceStrImplementationProperty());
+        summeryRow1.put(titlePropertyCol, statistic.textSumSinceImplementationProperty());
+        summeryRow2.put(titlePropertyCol, statistic.textSumConsumptionSinceImplementationProperty());
         summeryRow2.put(consumptionDevelopmentPropertyCol, statistic.sumSavingsByMediumProperty());
 
 
