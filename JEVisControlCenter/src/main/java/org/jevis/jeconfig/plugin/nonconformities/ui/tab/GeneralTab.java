@@ -9,7 +9,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.SkinBase;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -28,49 +27,39 @@ public class GeneralTab extends Tab {
     private final JFXDatePicker f_doneDate = new JFXDatePicker();
 
     private final JFXDatePicker f_createDate = new JFXDatePicker();
-
+    private final TextArea f_Description = new TextArea();
+    private final TextArea f_Cause = new TextArea();
+    private final JFXDatePicker f_CreateDate = new JFXDatePicker();
+    private final JFXTextField f_Nr = new JFXTextField();
+    private final JFXTextField f_Title = new JFXTextField();
+    private final JFXTextField f_action = new JFXTextField();
+    private final JFXTextField f_Creator = new JFXTextField();
+    private final JFXTextField f_Attachment = new JFXTextField();
+    private final JFXTextField f_Responsible = new JFXTextField();
+    private final TextArea f_ImmediateMeasures = new TextArea();
+    private final TextArea f_CorrectiveActions = new TextArea();
+    private final Label l_Description = new Label();
+    private final Label l_SEU = new Label();
+    private final Label l_Nr = new Label();
+    private final Label l_Responsible = new Label();
+    private final Label l_NoteBewertet = new Label();
+    private final Label l_Attachment = new Label();
+    private final Label l_Title = new Label();
+    private final Label l_NoteEnergiefluss = new Label();
+    private final Label l_doneDate = new Label();
+    private final Label l_deadLine = new Label();
+    private final Label l_Cause = new Label();
+    private final Label l_ImmediateMeasures = new Label();
+    private final Label l_CorrectiveActions = new Label();
+    private final Label l_Creator = new Label();
+    private final Label l_CreateDate = new Label();
+    private final Label l_Medium = new Label();
+    private final Label l_mediaTags = new Label();
+    private final Label l_fieldTags = new Label();
+    private final Label l_action = new Label();
     private JFXComboBox<String> f_mediaTags;
     private JFXComboBox<String> f_SEU;
-
-    private TextArea f_Description = new TextArea();
-    private TextArea f_Cause = new TextArea();
-    private JFXDatePicker f_CreateDate = new JFXDatePicker();
-    private JFXTextField f_Nr = new JFXTextField();
-    private JFXTextField f_Title = new JFXTextField();
-    private JFXTextField f_action = new JFXTextField();
-    private JFXTextField f_Creator = new JFXTextField();
-
-    private JFXTextField f_Attachment = new JFXTextField();
-
-    private JFXTextField f_Responsible = new JFXTextField();
-
-    private TextArea f_ImmediateMeasures = new TextArea();
-
-    private TextArea f_CorrectiveActions = new TextArea();
-
     private CheckComboBox<String> f_fieldTags;
-
-    private Label l_Description = new Label();
-    private Label l_SEU = new Label();
-    private Label l_Nr = new Label();
-    private Label l_Responsible = new Label();
-    private Label l_NoteBewertet = new Label();
-    private Label l_Attachment = new Label();
-    private Label l_Title = new Label();
-    private Label l_NoteEnergiefluss = new Label();
-    private Label l_doneDate = new Label();
-    private Label l_deadLine = new Label();
-    private Label l_Cause = new Label();
-    private Label l_ImmediateMeasures = new Label();
-    private Label l_CorrectiveActions = new Label();
-    private Label l_Creator = new Label();
-    private Label l_CreateDate = new Label();
-    private Label l_Medium = new Label();
-    private Label l_mediaTags = new Label();
-
-    private Label l_fieldTags = new Label();
-
-    private Label l_action = new Label();
 
     public GeneralTab(String s) {
         super(s);
@@ -109,13 +98,9 @@ public class GeneralTab extends Tab {
         //gridPane.gridLinesVisibleProperty().set(true);
 
 
-
-
         Region col3Spacer = new Region();
 
         col3Spacer.setMinWidth(25);
-
-
 
 
         add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_Nr);
@@ -124,8 +109,6 @@ public class GeneralTab extends Tab {
         add(gridPane, 1, 4, 1, 1, Priority.NEVER, l_CreateDate);
         add(gridPane, 1, 5, 1, 1, Priority.NEVER, l_deadLine);
         add(gridPane, 1, 6, 1, 1, Priority.NEVER, l_doneDate);
-
-
 
 
         add(gridPane, 2, 1, 1, 1, Priority.SOMETIMES, f_Nr);
@@ -152,15 +135,14 @@ public class GeneralTab extends Tab {
         add(gridPane, 1, 7, 2, 1, Priority.SOMETIMES, l_Description);
         add(gridPane, 1, 8, 2, 1, Priority.SOMETIMES, f_Description);
 
-        add(gridPane,3,7,2,1,Priority.SOMETIMES,l_Cause);
-        add(gridPane,3,8,2,1,Priority.SOMETIMES,f_Cause);
+        add(gridPane, 3, 7, 2, 1, Priority.SOMETIMES, l_Cause);
+        add(gridPane, 3, 8, 2, 1, Priority.SOMETIMES, f_Cause);
 
         add(gridPane, 1, 9, 2, 1, Priority.SOMETIMES, l_ImmediateMeasures);
         add(gridPane, 1, 10, 2, 1, Priority.SOMETIMES, f_ImmediateMeasures);
 
         add(gridPane, 3, 9, 2, 1, Priority.SOMETIMES, l_CorrectiveActions);
         add(gridPane, 3, 10, 2, 1, Priority.SOMETIMES, f_CorrectiveActions);
-
 
 
         //gridPane.add(col3Spacer, 3, 1);
@@ -184,7 +166,6 @@ public class GeneralTab extends Tab {
         l_NoteEnergiefluss.setPadding(new Insets(15, 0, 0, 0));
 
 
-
         f_Nr.setEditable(false);
 
 
@@ -192,27 +173,6 @@ public class GeneralTab extends Tab {
         this.setContent(notificationPane);
 
 
-
-
-
-
-
-
-    }
-
-    private void addTabEvent(TextArea f_Cause) {
-        f_Cause.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                if (keyEvent.getCode() == KeyCode.TAB) {
-                    Node node = (Node) keyEvent.getSource();
-                    if (node instanceof TextArea) {
-                        TextAreaSkin skin = (TextAreaSkin) ((TextArea) node).getSkin();
-                        skin.getBehavior().traverseNext();
-                    }
-                }
-            }
-        });
     }
 
     @Override
@@ -292,36 +252,60 @@ public class GeneralTab extends Tab {
 
         data.fieldTagsProperty().get().stream();
         if (data.deadLineProperty().isNotNull().get()) {
-            f_deadlineDate.setValue(LocalDate.of(data.getDeadLine().getYear(),data.getDeadLine().getMonthOfYear(),data.getDeadLine().getDayOfMonth()));
+            f_deadlineDate.setValue(LocalDate.of(data.getDeadLine().getYear(), data.getDeadLine().getMonthOfYear(), data.getDeadLine().getDayOfMonth()));
         }
         if (data.doneDateProperty().isNotNull().get()) {
-            f_doneDate.setValue(LocalDate.of(data.getDoneDate().getYear(),data.getDoneDate().getMonthOfYear(),data.getDoneDate().getDayOfMonth()));
+            f_doneDate.setValue(LocalDate.of(data.getDoneDate().getYear(), data.getDoneDate().getMonthOfYear(), data.getDoneDate().getDayOfMonth()));
         }
 
         if (data.createDateProperty().isNotNull().get()) {
-            f_createDate.setValue(LocalDate.of(data.getCreateDate().getYear(),data.getCreateDate().getMonthOfYear(),data.getCreateDate().getDayOfMonth()));
+            f_createDate.setValue(LocalDate.of(data.getCreateDate().getYear(), data.getCreateDate().getMonthOfYear(), data.getCreateDate().getDayOfMonth()));
         }
 
-
         f_deadlineDate.valueProperty().addListener((observableValue, localDate, newValue) -> {
-            data.deadLineProperty().set(new DateTime(newValue.getYear(),newValue.getMonthValue(),newValue.getDayOfMonth(),0,0));
+            if (newValue != null) {
+                data.deadLineProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            } else {
+                data.deadLineProperty().set(null);
+            }
         });
 
 
         f_doneDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            if (newValue != null) {
+                data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            } else {
+                data.doneDateProperty().set(null);
+            }
 
         });
 
         f_createDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.createDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
-
+            if (newValue != null) {
+                data.createDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            } else {
+                data.createDateProperty().set(null);
+            }
         });
 
         f_Nr.setText(data.getPrefix() + data.nrProperty().get());
 
     }
 
+    private void addTabEvent(TextArea f_Cause) {
+        f_Cause.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode() == KeyCode.TAB) {
+                    Node node = (Node) keyEvent.getSource();
+                    if (node instanceof TextArea) {
+                        TextAreaSkin skin = (TextAreaSkin) ((TextArea) node).getSkin();
+                        skin.getBehavior().traverseNext();
+                    }
+                }
+            }
+        });
+    }
 
     public JFXTextField getF_action() {
         return f_action;

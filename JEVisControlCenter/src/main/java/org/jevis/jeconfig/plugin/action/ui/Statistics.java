@@ -193,15 +193,13 @@ public class Statistics {
         DoubleProperty sum = new SimpleDoubleProperty(0);
         data.forEach(actionData -> {
             if (actionData.doneDate.get() != null && actionData.doneDate.get().isAfter(dateFilter.get().getFromDate())) {
-                int yearsRunning = dateFilter.get().until.getYear() - actionData.doneDate.get().getYear();
-
                 int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), dateFilter.get().until.withTimeAtStartOfDay()).getDays();
                 sum.set(sum.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
             }
         });
         sumConsumptionSinceImplementation.setValue(sum.get());
         textSumConsumptionSinceImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceConsumptionImp")
-                + ":\t" + NumerFormating.getInstance().getCurrencyFormat().format(sum.get()) + "       ");
+                + ":\t" + NumerFormating.getInstance().getCurrencyFormat().format(sum.get()));
     }
 
     private void updateSumConsumptionSinceImplementation() {
