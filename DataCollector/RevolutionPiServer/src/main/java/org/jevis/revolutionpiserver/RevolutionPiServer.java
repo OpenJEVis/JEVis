@@ -90,13 +90,13 @@ public class RevolutionPiServer implements DataSource {
                 }
                 resource += prefix + "id" + "=" + sourceId;
                 try (InputStream inputStream = this.con.getInputStreamRequest(resource)) {
-                    if (inputStream == null) return;
+                    if (inputStream == null) continue;
                     String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 
                     RevPiResult[] revPiResults = objectMapper.readValue(result, RevPiResult[].class);
                     List<RevPiResult> revPiResultList = Arrays.asList(revPiResults);
                     Collections.reverse(revPiResultList);
-                    if (revPiResults == null || revPiResults.length == 0) return;
+                    if (revPiResults == null || revPiResults.length == 0) continue;
 
                     for (RevPiResult sample : revPiResultList) {
                         try {
