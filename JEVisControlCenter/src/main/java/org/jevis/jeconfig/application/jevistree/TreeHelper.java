@@ -51,6 +51,7 @@ import org.jevis.commons.CommonObjectTasks;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.datasource.ChannelTools;
 import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
@@ -449,7 +450,14 @@ public class TreeHelper {
                     try {
                         List<JEVisObject> jeVisObjects = listTask.get();
                         List<SelectableObject> objects = new ArrayList<>();
-                        jeVisObjects.forEach(object -> objects.add(new SelectableObject(object, true)));
+                        ChannelTools channelTools = new ChannelTools();
+                        channelTools.createChannelMaps(ds);
+
+                        jeVisObjects.forEach(object -> {
+                            Long target = tree.getTargetAndChannel().get(object.getID());
+                            boolean selected = target != null && target != -1L;
+                            objects.add(new SelectableObject(object, !selected));
+                        });
 
                         TableView<SelectableObject> tableView = new TableView<>();
 
