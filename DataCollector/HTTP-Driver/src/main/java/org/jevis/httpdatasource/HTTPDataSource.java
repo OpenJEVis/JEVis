@@ -280,15 +280,21 @@ public class HTTPDataSource {
         try {
 
             if (channel.getAttribute("Chunk Size(s)").hasSample()) {
-               return lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue());
+                if (DateTime.now().isBefore(lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue()))) {
+                    System.out.println("now");
+                    return DateTime.now().withZone(getDateTimeZone());
+                }else {
+                    System.out.println("plusSeconds(channel.getAttribute(\"Chunk Size(s)\").getLatestSample().getValueAsDouble().intValue()");
+                    return lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue());
+                }
             }else {
-                DateTime.now();
+                DateTime.now().withZone(getDateTimeZone());
             }
         } catch (Exception e) {
             logger.error(e);
         }
 
-        return DateTime.now();
+        return DateTime.now().withZone(getDateTimeZone());
     }
 
 

@@ -56,11 +56,8 @@ public class JEVisHTTPDataSource implements DataSource {
 
             try {
                 List<InputStream> input = this.sendSampleRequest(channel);
-                if (this._httpdatasource.getStatusLine().getStatusCode()>= 400) {
-                    channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
-                    if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusHours(1))) {
-                        runParser(channel);
-                    }
+                if (this._httpdatasource.getStatusLine().getStatusCode()!= 200) {
+                    return;
                 }
 
                 if (!input.isEmpty()) {
@@ -69,9 +66,6 @@ public class JEVisHTTPDataSource implements DataSource {
 
 
                 if (!_result.isEmpty()) {
-//                    this.importResult();
-//
-//                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
                     JEVisImporterAdapter.importResultsWithOffset(_result, _importer, channel, 1);
                     for (InputStream inputStream : input) {
                         try {
@@ -82,13 +76,13 @@ public class JEVisHTTPDataSource implements DataSource {
                     }
                     Optional<Result> lastAnswerDate = _result.stream().max(Comparator.comparing(Result::getDate));
                     if (lastAnswerDate.isPresent()) {
-                        if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusHours(1))) {
+                        if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusMinutes(1))) {
                             runParser(channel);
                         }
 
                     }
                 }else {
-                        if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusHours(1))) {
+                        if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusMinutes(1))) {
                             channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
                             runParser(channel);
                         }
