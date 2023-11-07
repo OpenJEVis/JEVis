@@ -42,6 +42,10 @@ public class HTTPDataSource {
     private DateTimeZone timeZone;
     private Boolean ssl = false;
 
+    public DateTime getLastReadout() {
+        return lastReadout;
+    }
+
     private DateTime lastReadout;
     private DateTime endDateTime;
 
@@ -282,13 +286,13 @@ public class HTTPDataSource {
             if (channel.getAttribute("Chunk Size(s)").hasSample()) {
                 if (DateTime.now().isBefore(lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue()))) {
                     System.out.println("now");
-                    return DateTime.now().withZone(getDateTimeZone());
+                    return DateTime.now();
                 }else {
                     System.out.println("plusSeconds(channel.getAttribute(\"Chunk Size(s)\").getLatestSample().getValueAsDouble().intValue()");
                     return lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue());
                 }
             }else {
-                DateTime.now().withZone(getDateTimeZone());
+                DateTime.now();
             }
         } catch (Exception e) {
             logger.error(e);

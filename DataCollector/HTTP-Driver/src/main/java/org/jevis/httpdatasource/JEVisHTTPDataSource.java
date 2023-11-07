@@ -56,9 +56,19 @@ public class JEVisHTTPDataSource implements DataSource {
 
             try {
                 List<InputStream> input = this.sendSampleRequest(channel);
+
+                if (_httpdatasource.getEndDateTime().isAfterNow() || _httpdatasource.getLastReadout().isAfterNow()) {
+                    return;
+                }
+                if (_httpdatasource.getLastReadout().plusMinutes(20).isAfter(_httpdatasource.getEndDateTime())) {
+                    return;
+                }
+
+
                 if (this._httpdatasource.getStatusLine().getStatusCode()!= 200) {
                     return;
                 }
+
 
                 if (!input.isEmpty()) {
                     this.parse(input);
@@ -81,7 +91,8 @@ public class JEVisHTTPDataSource implements DataSource {
                         }
 
                     }
-                }else {
+                }
+                else {
                         if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusMinutes(1))) {
                             channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
                             runParser(channel);
