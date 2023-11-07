@@ -18,7 +18,6 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
     private NonconformitiesController controller;
 
     public NonconformtiesOverviewData(NonconformitiesController controller) {
-        System.out.println("New OverVieData from Object: " + controller);
         this.controller = controller;
         name.set("Übersicht");
 

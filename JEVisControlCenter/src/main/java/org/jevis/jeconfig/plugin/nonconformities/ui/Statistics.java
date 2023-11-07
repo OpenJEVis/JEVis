@@ -16,11 +16,6 @@ public class Statistics {
     public Statistics(ObservableList<NonconformityData> nonconformityDataObservableList, BooleanProperty updateTrigger) {
         this.nonconformityDataObservableList = nonconformityDataObservableList;
         this.updateTrigger = updateTrigger;
-
-        updateTrigger.addListener(observable -> {
-            System.out.println("update trigger changed to state");
-            System.out.println(observable);
-        });
     }
 
     public StringProperty getAll(String text) {

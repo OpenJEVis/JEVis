@@ -185,9 +185,8 @@ public class PluginManager {
                                 } else if (plugObj.getJEVisClassName().equals(NotesPlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new NotesPlugin(this._ds, I18n.getInstance().getString("plugin.notes.title")));
                                 } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
-                                    enabledPlugins.add(new org.jevis.jeconfig.plugin.metersv2.MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.new.title")));
-                                } else if (plugObj.getJEVisClassName().equals(org.jevis.jeconfig.plugin.metersv2.MeterPlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
+                                    enabledPlugins.add(new org.jevis.jeconfig.plugin.metersv2.MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.new.title")));
                                 } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
                                 } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
