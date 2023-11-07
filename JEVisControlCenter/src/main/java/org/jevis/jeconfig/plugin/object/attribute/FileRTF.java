@@ -19,7 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,12 +28,25 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.fxmisc.richtext.model.Codec;
+import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
+import org.fxmisc.richtext.model.StyledDocument;
+import org.fxmisc.richtext.model.StyledSegment;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.RtfField;
+import org.jevis.jeconfig.application.control.rtf.LinkedImage;
+import org.jevis.jeconfig.application.control.rtf.ParStyle;
+import org.jevis.jeconfig.application.control.rtf.TextStyle;
+import org.joda.time.DateTime;
+import org.reactfx.util.Either;
+import org.reactfx.util.Tuple2;
+
+import java.io.*;
 
 
 /**
@@ -88,11 +100,35 @@ public class FileRTF implements AttributeEditor {
 //    }
     @Override
     public void commit() throws JEVisException {
-        if (hasChanged() && _newSample != null) {
 
-            //TODO: check if tpye is ok, maybe better at imput time
-            _newSample.commit();
-        }
+        RtfField.FoldableStyledArea area = _field.getArea();
+        StyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> doc = area.getDocument();
+
+        // Use the Codec to save the document in a binary format
+        area.getStyleCodecs().ifPresent(codecs -> {
+            Codec<StyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle>> codec =
+                    ReadOnlyStyledDocument.codec(codecs._1, codecs._2, area.getSegOps());
+            try {
+                DateTime now = DateTime.now();
+                String dateString = now.toString("yyyy-MM-dd") + "_" + now.toString("HHmmss");
+                String fileName = _attribute.getObject().getID() + "_" + _attribute.getName() + dateString;
+                File tmpFile = File.createTempFile(fileName, "tmp");
+
+                FileOutputStream fos = new FileOutputStream(tmpFile);
+                DataOutputStream dos = new DataOutputStream(fos);
+                codec.encode(dos, doc);
+                fos.close();
+
+                JEVisFile file = new JEVisFileImp(fileName, tmpFile);
+                _newSample = _attribute.buildSample(now, file);
+                _newSample.commit();
+            } catch (IOException fnfe) {
+                logger.error("IOException while saving file", fnfe);
+            } catch (JEVisException e) {
+                logger.error("Could not save file to JEVis", e);
+            }
+        });
+
     }
 
     @Override
@@ -115,9 +151,32 @@ public class FileRTF implements AttributeEditor {
             box.getChildren().clear();
             _field = new RtfField();
 
+            RtfField.FoldableStyledArea area = _field.getArea();
             if (_attribute.getLatestSample() != null) {
 //                _field.setText(_attribute.getLatestSample().getValueAsString());
                 _lastSample = _attribute.getLatestSample();
+
+                if (area.getStyleCodecs().isPresent()) {
+                    Tuple2<Codec<ParStyle>, Codec<StyledSegment<Either<String, LinkedImage>, TextStyle>>> codecs = area.getStyleCodecs().get();
+                    Codec<StyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle>>
+                            codec = ReadOnlyStyledDocument.codec(codecs._1, codecs._2, area.getSegOps());
+
+                    try {
+                        JEVisFile jeVisFile = _lastSample.getValueAsFile();
+                        File tmpFile = File.createTempFile(jeVisFile.getFilename(), "tmp");
+                        jeVisFile.saveToFile(tmpFile);
+                        FileInputStream fis = new FileInputStream(tmpFile);
+                        DataInputStream dis = new DataInputStream(fis);
+                        StyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> doc = codec.decode(dis);
+                        fis.close();
+
+                        if (doc != null) {
+                            area.replaceSelection(doc);
+                        }
+                    } catch (IOException e) {
+                        logger.error("IOException while loading file", e);
+                    }
+                }
             } else {
 //                _field.setText("");
             }
@@ -151,25 +210,8 @@ public class FileRTF implements AttributeEditor {
                 }
             }
 
-            box.getChildren().add(_field.getArea());
-            HBox.setHgrow(_field.getArea(), Priority.ALWAYS);
-
-            try {
-                if (_attribute.getType().getValidity() == JEVisConstants.Validity.AT_DATE) {
-                    JFXButton chartView = new JFXButton();
-                    chartView.setGraphic(JEConfig.getImage("1394566386_Graph.png", 20, 20));
-                    chartView.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
-
-                    chartView.setMaxHeight(_field.getArea().getHeight());
-                    chartView.setMaxWidth(20);
-
-                    box.getChildren().add(chartView);
-                    HBox.setHgrow(chartView, Priority.NEVER);
-
-                }
-            } catch (Exception ex) {
-                logger.fatal(ex);
-            }
+            box.getChildren().add(_field.start());
+            HBox.setHgrow(area, Priority.ALWAYS);
 
             initialized = true;
         }
