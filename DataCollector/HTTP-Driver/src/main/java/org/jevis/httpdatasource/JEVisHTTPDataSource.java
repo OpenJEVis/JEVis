@@ -58,14 +58,17 @@ public class JEVisHTTPDataSource implements DataSource {
                 List<InputStream> input = this.sendSampleRequest(channel);
 
                 if (_httpdatasource.getEndDateTime().isAfterNow() || _httpdatasource.getLastReadout().isAfterNow()) {
+                    logger.error("Start or End Date in Future Stop from trying to fetching Data from API");
                     return;
                 }
                 if (_httpdatasource.getLastReadout().plusMinutes(20).isAfter(_httpdatasource.getEndDateTime())) {
+                    logger.error("Start Date is Less than 20 Minutes Before End Date Stop from trying to fetch Data from API");
                     return;
                 }
 
 
-                if (this._httpdatasource.getStatusLine().getStatusCode()!= 200) {
+                if (this._httpdatasource.getStatusLine().getStatusCode()>= 400) {
+                    logger.error("API Returned Error Code :{}",this._httpdatasource.getStatusLine().getStatusCode());
                     return;
                 }
 
@@ -84,20 +87,12 @@ public class JEVisHTTPDataSource implements DataSource {
                             logger.warn("could not close input stream: {}", ex.getMessage());
                         }
                     }
-                    Optional<Result> lastAnswerDate = _result.stream().max(Comparator.comparing(Result::getDate));
-                    if (lastAnswerDate.isPresent()) {
-                        if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusMinutes(1))) {
                             runParser(channel);
-                        }
-
-                    }
                 }
                 else {
-                        if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusMinutes(1))) {
+                            logger.info("Result List is empty set Last Readout to: ",_httpdatasource.getEndDateTime());
                             channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
                             runParser(channel);
-                        }
-
                 }
             } catch (
                     MalformedURLException ex) {
