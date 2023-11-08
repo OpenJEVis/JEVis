@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.application.control;
 
+import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -12,7 +12,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.richtext.StyledTextArea;
@@ -56,7 +55,7 @@ public class RtfField {
         return area;
     }
 
-    public void start(Stage primaryStage) {
+    public VBox start() {
         // mainStage = primaryStage;
 
         Button loadBtn = createButton("loadfile", this::loadDocument,
@@ -250,7 +249,7 @@ public class RtfField {
         });
 
         ToolBar toolBar1 = new ToolBar(
-                loadBtn, saveBtn, new Separator(Orientation.VERTICAL),
+//                loadBtn, saveBtn, new Separator(Orientation.VERTICAL),
                 wrapToggle, new Separator(Orientation.VERTICAL),
                 undoBtn, redoBtn, new Separator(Orientation.VERTICAL),
                 cutBtn, copyBtn, pasteBtn, new Separator(Orientation.VERTICAL),
@@ -264,15 +263,19 @@ public class RtfField {
 
         VirtualizedScrollPane<GenericStyledArea<ParStyle, Either<String, LinkedImage>, TextStyle>> vsPane = new VirtualizedScrollPane<>(area);
         VBox vbox = new VBox();
+        vbox.setMinSize(600, 400);
         VBox.setVgrow(vsPane, Priority.ALWAYS);
         vbox.getChildren().addAll(toolBar1, toolBar2, vsPane);
 
-        Scene scene = new Scene(vbox, 600, 400);
-        scene.getStylesheets().add(RtfField.class.getResource("rich-text.css").toExternalForm());
-        primaryStage.setScene(scene);
-        area.requestFocus();
-        primaryStage.setTitle("Rich Text Demo");
-        primaryStage.show();
+
+//        Scene scene = new Scene(vbox, 600, 400);
+//        JEConfig.getStage().getScene().getStylesheets().add(RtfField.class.getResource("/rtf/richtext/rich-text.css").toExternalForm());
+//        primaryStage.setScene(scene);
+        Platform.runLater(area::requestFocus);
+//        primaryStage.setTitle("Rich Text Editor");
+//        primaryStage.show();
+
+        return vbox;
     }
 
     private Button createButton(String styleClass, Runnable action, String toolTip) {
