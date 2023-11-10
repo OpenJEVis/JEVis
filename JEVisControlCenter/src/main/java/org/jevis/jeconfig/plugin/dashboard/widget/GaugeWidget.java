@@ -237,6 +237,13 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                     gauge.setUnit(displayedUnit.getValue());
                 }
                 List<Section> sections = gaugeSettings.getSections().stream().map(gaugeSection -> new Section(gaugeSection.getStart(), gaugeSection.getEnd(), gaugeSection.getColor())).collect(Collectors.toList());
+                if (gaugeSettings.getMaximum() > gaugeSettings.getMinimum()) {
+                    sections.get(0).setStart(Double.MIN_VALUE);
+                    sections.get(sections.size() - 1).setStop(Double.MAX_VALUE);
+                } else {
+                    sections.get(0).setStart(Double.MAX_VALUE);
+                    sections.get(sections.size() - 1).setStop(Double.MIN_VALUE);
+                }
                 gauge.setSections(sections);
             } else {
                 init();
