@@ -498,7 +498,7 @@ public class OutputView extends Tab {
                     }
 
                     if (fixedTimeFrame != null && reducingTimeFrame != null && !fixedTimeFrame.equals(TimeFrameFactory.NONE)) {
-                        start = fixedTimeFrame.getInterval(getStart()).getStart();
+                        start = fixedTimeFrame.getInterval(getStart(), false).getStart();
                         end = getEnd();
 
                         Period p = null;
@@ -541,7 +541,7 @@ public class OutputView extends Tab {
 
                                 previousEndDate = minusPeriodToDate;
                             } else {
-                                previousEndDate = end.minus(reducingTimeFrame.getInterval(getStart()).toDuration());
+                                previousEndDate = end.minus(reducingTimeFrame.getInterval(getStart(), false).toDuration());
                             }
                         }
 

@@ -23,7 +23,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
@@ -57,10 +56,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private Interval lastInterval = null;
     private Boolean customWorkday = true;
 
-    private double borderWidth = 0;
-
-
- ;
+    private final double borderWidth = 0;
 
 
     public ShapeWidget(DashboardControl control, WidgetPojo config) {
@@ -316,7 +312,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     @Override
     public void init() {
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(false);
 
 

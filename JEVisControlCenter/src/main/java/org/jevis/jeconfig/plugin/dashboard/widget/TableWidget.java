@@ -23,7 +23,6 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
@@ -185,7 +184,7 @@ public class TableWidget extends Widget implements DataModelWidget {
     @Override
     public void init() {
         nf = NumberFormat.getInstance();
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
 
         this.table = new TableView<>();

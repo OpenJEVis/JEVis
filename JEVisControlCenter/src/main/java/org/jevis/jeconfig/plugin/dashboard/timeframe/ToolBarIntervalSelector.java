@@ -55,8 +55,10 @@ public class ToolBarIntervalSelector extends HBox {
 //        dateButton.setTooltip(new Tooltipcontroller.getInterval().toString()));
 
         this.timeFrameEditor = new TimeFrameEditor(controller.getActiveTimeFrame(), controller.getInterval());
-        this.timeFrameEditor.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
-            if (disableEventListener) return;
+        this.timeFrameEditor.intervalProperty().addListener((observable, oldValue, newValue) -> {
+            if (disableEventListener) {
+                return;
+            }
             controller.setInterval(newValue);
         });
 
@@ -109,7 +111,7 @@ public class ToolBarIntervalSelector extends HBox {
 
         timeFactoryBox.selectValue(controller.getActiveTimeFrame());
         timeFrameEditor.setTimeFrame(controller.getActiveTimeFrame());
-        timeFrameEditor.setIntervalProperty(controller.getInterval());
+        timeFrameEditor.setInterval(controller.getInterval());
         timeFrameEditor.setDate(controller.getInterval().getEnd());
 
 

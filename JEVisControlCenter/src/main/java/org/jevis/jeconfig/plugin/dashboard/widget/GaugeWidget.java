@@ -37,7 +37,6 @@ import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
@@ -267,7 +266,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         gauge.setPrefWidth(25);
         gauge.setPrefHeight(25);
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(false);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
