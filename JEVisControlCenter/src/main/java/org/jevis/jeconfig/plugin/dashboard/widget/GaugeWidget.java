@@ -392,7 +392,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             dashBoardNode
                     .set(GAUGE_DESIGN_NODE_NAME, gaugeSettings.toJSON());
         }
-
+        System.out.println(dashBoardNode);
 
         return dashBoardNode;
     }

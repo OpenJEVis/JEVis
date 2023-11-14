@@ -232,11 +232,8 @@ public class NonconformityData {
     }
 
     public void commit() {
-
-        System.out.println(this);
-
-
         try {
+            getObject().setName(getPrefixPlusNumber().get());
             //if (!valueChanged.getValue()) return;
 
             Task task = new Task() {

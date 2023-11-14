@@ -56,12 +56,22 @@ public class JEVisHTTPDataSource implements DataSource {
 
             try {
                 List<InputStream> input = this.sendSampleRequest(channel);
-                if (this._httpdatasource.getStatusLine().getStatusCode()>= 400) {
-                    channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
-                    if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusHours(1))) {
-                        runParser(channel);
-                    }
+
+                if (_httpdatasource.getEndDateTime().isAfterNow() || _httpdatasource.getLastReadout().isAfterNow()) {
+                    logger.error("Start or End Date in Future Stop from trying to fetching Data from API");
+                    return;
                 }
+                if (_httpdatasource.getLastReadout().plusMinutes(20).isAfter(_httpdatasource.getEndDateTime())) {
+                    logger.error("Start Date is Less than 20 Minutes Before End Date Stop from trying to fetch Data from API");
+                    return;
+                }
+
+
+                if (this._httpdatasource.getStatusLine().getStatusCode()>= 400) {
+                    logger.error("API Returned Error Code :{}",this._httpdatasource.getStatusLine().getStatusCode());
+                    return;
+                }
+
 
                 if (!input.isEmpty()) {
                     this.parse(input);
@@ -69,9 +79,6 @@ public class JEVisHTTPDataSource implements DataSource {
 
 
                 if (!_result.isEmpty()) {
-//                    this.importResult();
-//
-//                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
                     JEVisImporterAdapter.importResultsWithOffset(_result, _importer, channel, 1);
                     for (InputStream inputStream : input) {
                         try {
@@ -80,18 +87,12 @@ public class JEVisHTTPDataSource implements DataSource {
                             logger.warn("could not close input stream: {}", ex.getMessage());
                         }
                     }
-                    Optional<Result> lastAnswerDate = _result.stream().max(Comparator.comparing(Result::getDate));
-                    if (lastAnswerDate.isPresent()) {
-                        if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusHours(1))) {
                             runParser(channel);
-                        }
-
-                    }
-                }else {
-                    channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
-                    if (_httpdatasource.getEndDateTime().isBefore(DateTime.now().minusHours(1))) {
-                        runParser(channel);
-                    }
+                }
+                else {
+                            logger.info("Result List is empty set Last Readout to: ",_httpdatasource.getEndDateTime());
+                            channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
+                            runParser(channel);
                 }
             } catch (
                     MalformedURLException ex) {

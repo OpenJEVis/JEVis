@@ -476,10 +476,14 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                                 if (getItems().get(index).getNr() >= getItems().size()) return;
                                 ObligationData swap = getItems().get(index + 1);
 
-                                item.setNr(item.getNr() + 1);
-                                swap.setNr(swap.getNr() - 1);
+                                if (item.getNr() + 1 == swap.getNr()) {
+                                    item.setNr(item.getNr() + 1);
+                                    swap.setNr(swap.getNr() - 1);
+                                    swap.commit();
+                                } else {
+                                    item.setNr(item.getNr()+1);
+                                }
                                 item.commit();
-                                swap.commit();
                                 this.getTableView().getSortOrder().set(0, getColumns().get(0));
                                 getItems().sorted();
                                 refresh();
@@ -492,11 +496,14 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                                 int index = getItems().indexOf(item);
                                 if (getItems().get(index).getNr() < 2) return;
                                 ObligationData swap = getItems().get(index - 1);
-
-                                item.setNr(item.getNr() - 1);
+                                if (item.getNr() - 1 == swap.getNr()) {
+                                    item.setNr(item.getNr() - 1);
+                                    swap.setNr(swap.getNr() + 1);
+                                    swap.commit();
+                                } else {
+                                    item.setNr(item.getNr()-1);
+                                }
                                 item.commit();
-                                swap.commit();
-                                swap.setNr(swap.getNr() + 1);
                                 this.getTableView().getSortOrder().set(0, getColumns().get(0));
                                 getItems().sorted();
                                 refresh();
