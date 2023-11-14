@@ -26,6 +26,7 @@ import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class GeneralTab extends Tab {
 
@@ -90,6 +91,20 @@ public class GeneralTab extends Tab {
         /* Readable if the workaround is not needed */
         f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
         f_ActionNr.setEditable(false);
+        f_ActionNr.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.isAltDown() && mouseEvent.isControlDown()) {
+                TextInputDialog textInputDialog = new TextInputDialog(data.nrProperty().get() + "");
+                textInputDialog.setHeaderText("Set Nr");
+                textInputDialog.setContentText("Set Nr");
+                Optional<String> value = textInputDialog.showAndWait();
+                try {
+                    data.nr.set(Integer.parseInt(value.get()));
+                    f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
+                } catch (Exception ex) {
+
+                }
+            }
+        });
         /* allow editing NR */
         // StringConverter sdfs = new IntegerStringConverter();
         //Bindings.bindBidirectional(f_ActionNr.textProperty(), data.nr, sdfs);
@@ -157,13 +172,15 @@ public class GeneralTab extends Tab {
             }
         });
 
-        data.doneDateProperty().addListener((observable, oldValue, newValue) -> {
-            f_doneDate.setValue(LocalDate.of(newValue.getYear(), newValue.getMonthOfYear(), newValue.getDayOfMonth()));
-        });
+
+        if (data.doneDateProperty().getValue() != null) {
+            DateTime end = data.doneDateProperty().get();
+            f_doneDate.valueProperty().setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+        }
 
         f_doneDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.isAfter(LocalDate.now())) {
-                data.doneDateProperty().set(new DateTime());
+            if (newValue == null) {
+                data.doneDate.setValue(null);
             } else {
                 data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
             }
@@ -171,21 +188,16 @@ public class GeneralTab extends Tab {
         });
 
 
-        if (data.doneDateProperty().getValue() != null) {
-            DateTime end = data.doneDateProperty().get();
-            f_doneDate.valueProperty().setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+        DateTime planDate = data.plannedDateProperty().get();
+        if (planDate != null) {
+            f_plannedDate.valueProperty().setValue(LocalDate.of(planDate.getYear(), planDate.getMonthOfYear(), planDate.getDayOfMonth()));
         }
-
-
-        DateTime plan = data.plannedDateProperty().get();
-        f_plannedDate.valueProperty().setValue(LocalDate.of(plan.getYear(), plan.getMonthOfYear(), plan.getDayOfMonth()));
         f_plannedDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
-        });
-
-        f_plannedDate.valueProperty().setValue(LocalDate.of(plan.getYear(), plan.getMonthOfYear(), plan.getDayOfMonth()));
-        f_plannedDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.plannedDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            if (newValue == null) {
+                data.plannedDateProperty().set(null);
+            } else {
+                data.plannedDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            }
         });
 
 
@@ -231,9 +243,17 @@ public class GeneralTab extends Tab {
         f_FromUser.textProperty().bindBidirectional(data.fromUserProperty());
 
         DateTime start = data.createDateProperty().get();
-        f_CreateDate.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        if (start != null) {
+            f_CreateDate.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        }
         f_CreateDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.createDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            System.out.println("newValue: " + newValue);
+            if (newValue == null) {
+                data.createDateProperty().set(null);
+            } else {
+                data.createDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            }
+
         });
 
         add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_ActionNr);

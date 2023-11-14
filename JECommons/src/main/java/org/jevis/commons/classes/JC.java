@@ -3032,9 +3032,9 @@ public interface JC {
         }
 
         public interface Responsibilities {
-            public static String name = "Responsibilities";
+            String name = "Responsibilities";
 
-            public interface EnergyTeam {
+            interface EnergyTeam {
                 public static String name = "Energy Team";
 
                 public static String a_EMail = "EMail";
@@ -3878,8 +3878,10 @@ public interface JC {
         String a_CustomMedium = "Custom Medium";
         String a_category = "category";
         String a_scope = "scope";
+
         interface IndexofLegalProvionsDirectory {
             String name = "Index of Legal Provisions Directory";
+
             interface Obligation {
                 String name = "Obligation";
 

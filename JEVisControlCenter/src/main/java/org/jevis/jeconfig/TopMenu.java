@@ -554,13 +554,14 @@ public class TopMenu extends MenuBar {
                     String note = String.format("Password set by %s", getActivePlugin().getDataSource().getCurrentUser().getAccountName());
 
                     JEVisSample sample;
+                    /*
                     if (getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").hasSample()) {
                         sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").getLatestSample();
                         sample.setValue(dia.getPassword());
-                    } else {
-                        sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").buildSample(new DateTime(), dia.getPassword(), note);
+                    } else {*/
+                    sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").buildSample(new DateTime(), dia.getPassword(), note);
 
-                    }
+                    // }
                     sample.commit();
 
 
@@ -756,8 +757,14 @@ public class TopMenu extends MenuBar {
                 event.consume();
             });
 
+            MenuItem deleteDependencies = new MenuItem(I18n.getInstance().getString("plugin.objects.dialog.deletedependencies.title"));
+            deleteDependencies.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            deleteDependencies.setOnAction(actionEvent -> {
+                getActivePlugin().handleRequest(Constants.Plugin.Command.DELETE_DEPENDENCIES);
+                actionEvent.consume();
+            });
 
-            menuEdit.getItems().addAll(new SeparatorMenuItem(), deleteAllCleanAndRaw, setLimits, setSubstitutionSettings, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation);
+            menuEdit.getItems().addAll(new SeparatorMenuItem(), deleteAllCleanAndRaw, setLimits, setSubstitutionSettings, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation, deleteDependencies);
         }
 
         return menuEdit;

@@ -153,6 +153,7 @@ public class ActionData {
         //System.out.println("-ActionData.update: " + this);
         nr.addListener((observable, oldValue, newValue) -> updateNrText());
         originalSettings = gson.toJson(this);
+        System.out.println("Update Consumption: " + getNrText());
         consumption.get().update();
         enpi.get().setEnPI(true);
         enpi.get().update();
@@ -215,6 +216,10 @@ public class ActionData {
                             // System.out.println("Json:\n" + ActionData.this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataNode));
 
                             if (object != null) {
+                                String titleShort = (title.get().length() < 50) ? title.get() : title.get().substring(0, 50) + "..";
+                                object.setName(getNrText() + " - " + titleShort);
+                                object.commit();
+
                                 JEVisAttribute dataModel = object.getAttribute("Data");
 
                                 JEVisFileImp jsonFile = new JEVisFileImp(

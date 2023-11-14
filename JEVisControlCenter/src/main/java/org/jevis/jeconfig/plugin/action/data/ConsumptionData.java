@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.action.data;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,11 +64,16 @@ public class ConsumptionData {
     public ConsumptionData() {
     }
 
-    public static String getObjectName(JEVisDataSource ds, ConsumptionData consumptionData) {
+    /**
+     * TODO Move this function to some better place
+     *
+     * @param ds
+     * @param consumptionData
+     * @return
+     */
+    public static JEVisObject getSourceObject(JEVisDataSource ds, ConsumptionData consumptionData) {
+        JEVisObject obj = EmptyObject.getInstance();
         try {
-            JEVisObject obj = EmptyObject.getInstance();
-
-
             try {
                 if (consumptionData.jevisLinkProperty().get().isEmpty()) {
                 } else {
@@ -87,13 +91,17 @@ public class ConsumptionData {
                 exception.printStackTrace();
             }
 
-            return obj.getName();
+            return obj;
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        return obj;
+    }
 
-        return "";
+    public static String getObjectName(JEVisDataSource ds, ConsumptionData consumptionData) {
+        return getSourceObject(ds, consumptionData).getName();
+
     }
 
     private boolean isManual() {
@@ -109,25 +117,26 @@ public class ConsumptionData {
     }
 
     public void update() {
+        actual.addListener((observableValue, number, t1) -> diff.setValue(calcDiff(actual.getValue(), after.getValue())));
+        after.addListener((observableValue, number, t1) -> diff.setValue(calcDiff(actual.getValue(), after.getValue())));
+
         if (isEnPI) {
-            diff.bind(Bindings.subtract(after, actual));
+            // System.out.println("jevisLink.get(): " + jevisLink.get());
+            //updateEnPIData();
         } else {
-            diff.bind(Bindings.subtract(after, actual).multiply(-1));
+
         }
-        //diff.bind(Bindings.subtract(after, actual).multiply(-1));
     }
 
     public void updateEnPIData() {
         try {
-            if (jevisLink.get().isEmpty()) {
-                //System.out.println("Update manual Consumption");
-                diff.bind(Bindings.subtract(after, actual));
-
-            } else {
+            if (getSourceObject(actionData.getObject().getDataSource(), this).getID() > 0) {
+                System.out.println("this.calcObject:" + this.calcObject);
+                System.out.println("this.dataObject:" + this.dataObject);
                 //System.out.println("Update EnPI Consumption");
                 JEVisObject dataObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.dataObject.get());
                 JEVisObject calcObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.calcObject.get());
-                diff.bind(Bindings.subtract(after, actual));
+
 
                 try {
                     unit.setValue(dataObj.getAttribute("Unit").getLatestSample().getValueAsString());
@@ -152,6 +161,10 @@ public class ConsumptionData {
         } catch (Exception ex) {
             logger.error(ex, ex);
         }
+    }
+
+    private double calcDiff(double before, double after) {
+        return before - after;
     }
 
     private Double calcEnpi(JEVisObject dataObj, JEVisObject calcObj, JEVisUnit unit, DateTime from, DateTime until) {

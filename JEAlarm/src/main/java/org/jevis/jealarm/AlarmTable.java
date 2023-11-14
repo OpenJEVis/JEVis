@@ -1,9 +1,13 @@
 package org.jevis.jealarm;
 
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.*;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmType;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
@@ -20,7 +24,6 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(AlarmTable.class);
     private final JEVisDataSource ds;
     private final List<Alarm> alarms;
-    private boolean hasRawDataObject;
 
     public AlarmTable(JEVisDataSource ds, List<Alarm> alarms) {
         super(ds);
@@ -62,10 +65,6 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.alarmtype")).append("</th>");
         sb.append("  </tr>");//border=\"0\"
 
-        JEVisClass organizationClass = ds.getJEVisClass("Organization");
-        JEVisClass buildingClass = ds.getJEVisClass("Monitored Object");
-        JEVisClass rawDataClass = ds.getJEVisClass("Data");
-
         boolean odd = false;
         boolean empty = true;
         for (Alarm currentAlarm : alarms) {
@@ -74,6 +73,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 String name = currentAlarm.getObject().getName() + ":" + currentAlarm.getObject().getID().toString();
                 String nameRaw = "";
 
+                boolean hasRawDataObject = false;
                 JEVisObject currentRawDataObject = CommonMethods.getFirstParentalDataObject(currentAlarm.getObject());
 
                 String currentUnit = null;
@@ -85,8 +85,9 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                     logger.error("Could not parse Unit.");
                 }
 
-                if (hasRawDataObject && currentRawDataObject != null) {
+                if (!currentRawDataObject.equals(currentAlarm.getObject())) {
                     nameRaw = currentRawDataObject.getName() + ":" + currentRawDataObject.getID().toString();
+                    hasRawDataObject = true;
                 }
 
                 String css = rowCss;
@@ -102,7 +103,10 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 sb.append("<td style=\"");
                 sb.append(css);
                 sb.append("\">");
-                sb.append(getParentName(currentAlarm.getObject(), organizationClass));
+                JEVisObject organization = CommonMethods.getFirstParentalObjectOfClass(currentAlarm.getObject(), JC.Organization.name);
+                if (organization != null) {
+                    sb.append(organization.getName());
+                }
                 sb.append("</td>");
                 /**
                  * Building Column
@@ -110,7 +114,10 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 sb.append("<td style=\"");
                 sb.append(css);
                 sb.append("\">");
-                sb.append(getParentName(currentAlarm.getObject(), buildingClass));
+                JEVisObject building = CommonMethods.getFirstParentalObjectOfClass(currentAlarm.getObject(), "Building");
+                if (building != null) {
+                    sb.append(building.getName());
+                }
                 sb.append("</td>");
                 /**
                  * Raw Datapoint Column
@@ -119,7 +126,10 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 sb.append(css);
                 sb.append("\">");
                 if (hasRawDataObject) {
-                    sb.append(nameRaw);
+                    JEVisObject dataObject = CommonMethods.getFirstParentalObjectOfClass(currentAlarm.getObject(), JC.Data.name);
+                    if (dataObject != null) {
+                        sb.append(dataObject.getName());
+                    }
                 }
                 sb.append("</td>");
                 /**
@@ -285,10 +295,6 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("<br>");
         sb.append("<br>");
 
-        JEVisClass organizationClass = ds.getJEVisClass("Organization");
-        JEVisClass buildingClass = ds.getJEVisClass("Monitored Object");
-        JEVisClass rawDataClass = ds.getJEVisClass("Data");
-
         sb.append("<h2>").append(I18n.getInstance().getString("alarms.table.title.alarms")).append("</h2>");
 
         sb.append("<table style=\"");
@@ -321,11 +327,12 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 String name = currentAlarm.getObject().getName() + ":" + currentAlarm.getObject().getID().toString();
                 String nameRaw = "";
 
-                hasRawDataObject = false;
-                JEVisObject currentRawDataObject = getRawDataObject(currentAlarm.getObject(), rawDataClass);
+                boolean hasRawDataObject = false;
+                JEVisObject currentRawDataObject = CommonMethods.getFirstParentalDataObject(currentAlarm.getObject());
 
-                if (hasRawDataObject && currentRawDataObject != null) {
+                if (!currentRawDataObject.equals(currentAlarm.getObject())) {
                     nameRaw = currentRawDataObject.getName() + ":" + currentRawDataObject.getID().toString();
+                    hasRawDataObject = true;
                 }
 
                 String css = rowCss;
@@ -341,7 +348,10 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 sb.append("<td style=\"");
                 sb.append(css);
                 sb.append("\">");
-                sb.append(getParentName(currentAlarm.getObject(), organizationClass));
+                JEVisObject organization = CommonMethods.getFirstParentalObjectOfClass(currentAlarm.getObject(), JC.Organization.name);
+                if (organization != null) {
+                    sb.append(organization.getName());
+                }
                 sb.append("</td>");
                 /**
                  * Building Column
@@ -349,7 +359,10 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 sb.append("<td style=\"");
                 sb.append(css);
                 sb.append("\">");
-                sb.append(getParentName(currentAlarm.getObject(), buildingClass));
+                JEVisObject building = CommonMethods.getFirstParentalObjectOfClass(currentAlarm.getObject(), "Building");
+                if (building != null) {
+                    sb.append(building.getName());
+                }
                 sb.append("</td>");
                 /**
                  * Raw Datapoint Column
@@ -437,20 +450,4 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
             return sb.toString();
         }
     }
-
-    private JEVisObject getRawDataObject(JEVisObject object, JEVisClass rawDataClass) throws JEVisException {
-        for (JEVisObject parent : object.getParents()) {
-            JEVisClass parentClass = parent.getJEVisClass();
-            if (parentClass != null && parentClass.equals(rawDataClass)) {
-                hasRawDataObject = true;
-                return parent;
-            } else {
-                getRawDataObject(parent, rawDataClass);
-            }
-        }
-
-        return null;
-    }
-
-
 }

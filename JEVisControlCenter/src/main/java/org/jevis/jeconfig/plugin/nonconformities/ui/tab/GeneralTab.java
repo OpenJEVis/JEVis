@@ -259,7 +259,7 @@ public class GeneralTab extends Tab {
             @Override
             public void onChanged(Change<? extends String> change) {
                 while (change.next()) {
-               //     System.out.println(change.getList());
+                    System.out.println(change.getList());
                 }
             }
         });
@@ -343,7 +343,6 @@ public class GeneralTab extends Tab {
         f_Nr.setText(data.getPrefix() + data.nrProperty().get());
 
     }
-
 
     public JFXTextField getF_action() {
         return f_action;

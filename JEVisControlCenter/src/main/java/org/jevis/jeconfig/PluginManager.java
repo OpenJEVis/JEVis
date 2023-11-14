@@ -250,7 +250,6 @@ public class PluginManager {
 //        AnchorPane.setBottomAnchor(toolbar, 0.0);
 
         for (Plugin plugin : this._plugins) {
-            System.out.println(plugin);
             try {
                 DraggableTab pluginTab = new DraggableTab(plugin.getName(), plugin.getIcon(), plugin);
                 //Tab pluginTab = new Tab(plugin.getName());
@@ -260,7 +259,7 @@ public class PluginManager {
 
                 pluginTab.setContent(plugin.getContentNode());
 
-                /**
+                /*
                  * Special case Alarming beginning
                  */
                 if (plugin instanceof AlarmPlugin) {

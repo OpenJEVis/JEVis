@@ -29,6 +29,15 @@
       "jevisClass": "Alarm Configuration"
     },
     {
+      "name": "Include Limits In Notification",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Alarm Configuration"
+    },
+    {
       "name": "Alarm Scope",
       "primitiveType": 0,
       "guiType": "Dynamic Enum",

@@ -54,6 +54,7 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.object.attribute.AlarmEditor;
+import org.jevis.jeconfig.plugin.object.attribute.GapFillingEditor;
 import org.jevis.jeconfig.plugin.object.attribute.LimitEditor;
 import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
@@ -69,8 +70,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.ALARM_CONFIG;
-import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.LIMITS_CONFIGURATION;
+import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.*;
 
 public class AlarmPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(AlarmPlugin.class);
@@ -437,8 +437,10 @@ public class AlarmPlugin implements Plugin {
             case (2):
                 return I18n.getInstance().getString("plugin.alarm.table.alarm.standby");
             case (1):
-            default:
                 return I18n.getInstance().getString("plugin.alarm.table.alarm.normal");
+            case (0):
+            default:
+                return I18n.getInstance().getString("plugin.alarm.table.alarm.system");
         }
     }
 
@@ -773,9 +775,7 @@ public class AlarmPlugin implements Plugin {
                         super.updateItem(item, empty);
                         setGraphic(null);
                         setText(null);
-                        if (item == null && !empty) {
-                            setText("± 0%");
-                        } else if (item != null && !empty) {
+                        if (item != null && !empty) {
                             setText("± " + numberFormat.format(item) + "%");
                         }
                     }
@@ -918,6 +918,16 @@ public class AlarmPlugin implements Plugin {
                                     limitEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(limitConfigAttribute.getObjectID()));
 
                                     setGraphic(limitEditor.getEditor());
+                                } else if (item.getAlarmType().equals(AlarmType.GAP)) {
+                                    JEVisAttribute gapFillingConfiguration = item.getObject().getAttribute(GAP_FILLING_CONFIG.getAttributeName());
+
+                                    GapFillingEditor gapFillingEditor = new GapFillingEditor(gapFillingConfiguration);
+                                    HBox hbox = (HBox) gapFillingEditor.getEditor();
+                                    JFXButton jfxButton = (JFXButton) hbox.getChildren().get(0);
+                                    jfxButton.setText(I18nWS.getInstance().getTypeName(gapFillingConfiguration.getType()));
+                                    gapFillingEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(gapFillingConfiguration.getObjectID()));
+
+                                    setGraphic(gapFillingEditor.getEditor());
                                 } else {
 
                                     JEVisAttribute alarmConfigAttribute = item.getObject().getAttribute(ALARM_CONFIG.getAttributeName());

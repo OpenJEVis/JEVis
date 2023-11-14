@@ -56,6 +56,7 @@ public interface Constants {
             int ENABLE_ALL = 107;
             int DISABLE_ALL = 108;
             int RESET_CALCULATION = 109;
+            int DELETE_DEPENDENCIES = 110;
         }
     }
 

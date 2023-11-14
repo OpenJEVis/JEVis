@@ -180,7 +180,7 @@ public class PeriodAlignmentStep implements ProcessStep {
                 isGreaterThenDays = true;
             } else if (periodForRawSample.getMonths() == 1) {
                 int halfHoursOfMonth = rawSampleTS.dayOfMonth().getMaximumValue() * 12;
-                lowerTS = rawSampleTS.minusHours(halfHoursOfMonth).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                lowerTS = rawSampleTS.minusHours(halfHoursOfMonth).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(1);
                 higherTS = rawSampleTS.plusHours(halfHoursOfMonth).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 isGreaterThenDays = true;
             } else if (periodForRawSample.getMonths() == 3) {
