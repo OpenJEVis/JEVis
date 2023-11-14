@@ -19,18 +19,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.EmptyObject;
 import org.jevis.jeconfig.plugin.action.data.FreeObject;
 import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 import org.jevis.jeconfig.plugin.action.ui.TimeRangeDialog;
 import org.jevis.jeconfig.plugin.action.ui.control.TextFieldWithUnit;
+import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.util.Optional;
 
@@ -50,7 +52,7 @@ public class DetailsTab extends Tab {
     private final Button afterDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
     private final Button diffDateButton = new Button("", JEConfig.getSVGImage(Icon.CALENDAR, 14, 14));
     private final JFXButton buttonOpenAnalysisBefore = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
-    private final Button buttonOpenAnalysisafter = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
+    private final Button buttonOpenAnalysisAfter = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
     private final Button buttonOpenAnalysisaDiff = new Button("", JEConfig.getSVGImage(Icon.GRAPH, 14, 14));
     private final JFXComboBox<JEVisObject> f_EnpiSelection;
     private final Label l_EnpiSelection = new Label(I18n.getInstance().getString("plugin.action.enpi"));//"EnPI"
@@ -140,9 +142,17 @@ public class DetailsTab extends Tab {
                     data.enpiProperty().get().jevisLinkProperty().set("");
                 } else {
                     data.enpiProperty().get().jevisLinkProperty().set(newValue.getID().toString());
+
+                    DateTime now = new DateTime();
+                    if (data.enpiProperty().get().afterFromDate.get() == null) {
+                        data.enpiProperty().get().afterFromDate.set(new DateTime(now.getYear(), 1, 1, 0, 0));
+                        data.enpiProperty().get().afterUntilDate.set(new DateTime(now.getYear(), 12, 31, 23, 59));
+                    }
+                    if (data.enpiProperty().get().beforeFromDate.get() == null) {
+                        data.enpiProperty().get().beforeFromDate.set(new DateTime(now.getYear() - 1, 1, 1, 0, 0));
+                        data.enpiProperty().get().beforeUntilDate.set(new DateTime(now.getYear() - 1, 12, 31, 23, 59));
+                    }
                 }
-
-
             }
         });
 
@@ -163,36 +173,39 @@ public class DetailsTab extends Tab {
         HBox.setHgrow(spacerEnpiAfter, Priority.ALWAYS);
         HBox.setHgrow(spacerEnpiDiff, Priority.ALWAYS);
 
+        HBox box_EnpiBefore = new HBox(buttonOpenAnalysisBefore, beforeDateButton, spacerEnpiBefore, f_enpiBefore);
+        HBox box_EnpiAfter = new HBox(buttonOpenAnalysisAfter, afterDateButton, spacerEnpiBefore, f_enpiAfter);
+        HBox box_EnpiDiff = new HBox(new Region(), new Region(), spacerEnpiBefore, f_enpiDiff);
 
-        HBox box_EnpiAfter = new HBox(buttonOpenAnalysisBefore, afterDateButton, spacerEnpiBefore, f_enpiAfter);
-        HBox box_EnpiBefore = new HBox(buttonOpenAnalysisafter, beforeDateButton, spacerEnpiBefore, f_enpiBefore);
-        HBox box_EnpiDiff = new HBox(buttonOpenAnalysisaDiff, diffDateButton, spacerEnpiBefore, f_enpiDiff);
+        f_enpiAfter.widthProperty().addListener((observableValue, number, t1) -> f_enpiDiff.setMinWidth(t1.doubleValue()));
+
         box_EnpiAfter.setSpacing(8);
         box_EnpiBefore.setSpacing(8);
         box_EnpiDiff.setSpacing(8);
         HBox.setHgrow(f_enpiAfter, Priority.SOMETIMES);
         HBox.setHgrow(f_enpiBefore, Priority.SOMETIMES);
 
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
         beforeDateButton.setOnAction(event -> {
             TimeRangeDialog timeRangeDialog = new TimeRangeDialog(
-                    new DateTime(2022, 8, 1, 0, 0),
-                    new DateTime(2022, 8, 1, 0, 0));
+                    data.enpiProperty().get().beforeFromDate.get(),
+                    data.enpiProperty().get().beforeUntilDate.get());
 
             Optional<ButtonType> result = timeRangeDialog.showAndWait();
             if (result.get() == ButtonType.OK) {
-                /* ToDo was macht das */
-                //data.enpi.get().actualProperty().set(fmt.print(timeRangeDialog.getFromDate()) + "&" + fmt.print(timeRangeDialog.getUntilDate()));
+                data.enpiProperty().get().beforeFromDate.set(timeRangeDialog.getFromDate());
+                data.enpiProperty().get().beforeUntilDate.set(timeRangeDialog.getUntilDate());
+                data.enpiProperty().get().updateEnPIData();
             }
         });
         afterDateButton.setOnAction(event -> {
             TimeRangeDialog timeRangeDialog = new TimeRangeDialog(
-                    new DateTime(2022, 8, 1, 0, 0),
-                    new DateTime(2022, 8, 1, 0, 0));
+                    data.enpiProperty().get().afterFromDate.get(),
+                    data.enpiProperty().get().afterFromDate.get());
             Optional<ButtonType> result = timeRangeDialog.showAndWait();
             if (result.get() == ButtonType.OK) {
-                /* ToDo was macht das */
-                //data.enpiAfterProperty().set(fmt.print(timeRangeDialog.getFromDate()) + "&" + fmt.print(timeRangeDialog.getUntilDate()));
+                data.enpiProperty().get().afterFromDate.set(timeRangeDialog.getFromDate());
+                data.enpiProperty().get().afterFromDate.set(timeRangeDialog.getUntilDate());
+                data.enpiProperty().get().updateEnPIData();
             }
 
         });
@@ -200,22 +213,24 @@ public class DetailsTab extends Tab {
 
         buttonOpenAnalysisBefore.setOnAction(event -> {
             try {
-                Long enpiData = Long.parseLong(data.enpiProperty().get().jevisLinkProperty().get().replace(";", ""));
-                JEVisAttribute attribute = data.getObject().getDataSource().getObject(enpiData).getAttribute("Value");
-
-                /**
-                 AnalysisRequest analysisRequest = new AnalysisRequest(attribute.getObject(),
-                 AggregationPeriod.NONE,
-                 ManipulationMode.NONE,
-                 startDateFromSampleRate, timestampFromLastSample);
-                 analysisRequest.setAttribute(attribute);
-                 JEConfig.openObjectInPlugin(ChartPlugin.PLUGIN_NAME, analysisRequest)
-                 */
+                DateTime from = data.enpiProperty().get().beforeFromDate.get();
+                DateTime until = data.enpiProperty().get().beforeUntilDate.get();
+                openAnalysis(data, from, until);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-
         });
+
+        buttonOpenAnalysisAfter.setOnAction(actionEvent -> {
+            try {
+                DateTime from = data.enpiProperty().get().afterFromDate.get();
+                DateTime until = data.enpiProperty().get().afterUntilDate.get();
+                openAnalysis(data, from, until);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
 
         NumberStringConverter nsc = NumerFormating.getInstance().getCurrencyConverter();
         NumberStringConverter nscNoUnit = NumerFormating.getInstance().getDoubleConverter();
@@ -287,6 +302,18 @@ public class DetailsTab extends Tab {
 
         setContent(scrollPane);
 
+    }
+
+    private void openAnalysis(ActionData data, DateTime from, DateTime until) throws Exception {
+        Long enpiData = Long.parseLong(data.enpiProperty().get().jevisLinkProperty().get().replace(";", ""));
+        JEVisAttribute attribute = data.getObject().getDataSource().getObject(enpiData).getAttribute("Value");
+
+        AnalysisRequest analysisRequest = new AnalysisRequest(attribute.getObject(),
+                AggregationPeriod.NONE,
+                ManipulationMode.NONE,
+                from, until);
+        analysisRequest.setAttribute(attribute);
+        JEConfig.openObjectInPlugin(ChartPlugin.PLUGIN_NAME, analysisRequest);
     }
 
 }
