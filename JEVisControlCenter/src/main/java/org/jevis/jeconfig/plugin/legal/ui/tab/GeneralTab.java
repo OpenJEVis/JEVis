@@ -15,11 +15,16 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.jevis.api.JEVisException;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GeneralTab extends Tab {
     private final JFXDatePicker f_issueDate = new JFXDatePicker();
@@ -126,7 +131,7 @@ public class GeneralTab extends Tab {
         int textFieldWeight = 400;
 
 
-        f_Nr.setEditable(false);
+        f_Nr.setEditable(JEConfig.getExpert());
 
 
         //scrollPane.setContent(gridPane);
@@ -213,6 +218,10 @@ public class GeneralTab extends Tab {
         });
 
         f_Nr.setText(String.valueOf(data.nrProperty().get()));
+        f_Nr.textProperty().addListener((observableValue, s, t1) -> {
+            Integer i = Integer.valueOf(t1);
+            data.nrProperty().set(i);
+        });
     }
 
 

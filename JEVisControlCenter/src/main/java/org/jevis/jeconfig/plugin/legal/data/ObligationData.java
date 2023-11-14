@@ -13,13 +13,14 @@ import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesPlugin;
-import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -41,8 +42,7 @@ public class ObligationData {
     @Expose
     @SerializedName("Designation")
     public final SimpleStringProperty designation = new SimpleStringProperty("Designation", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.designation"), "");
-
-
+    public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     @Expose
     @SerializedName("Nr")
     private final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.nr"), 0);
@@ -52,54 +52,38 @@ public class ObligationData {
     @Expose
     @SerializedName("issue date")
     private final SimpleObjectProperty<DateTime> issueDate = new SimpleObjectProperty<>("issue date", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.issuedate"), null);
-
     @Expose
     @SerializedName("current version date")
     private final SimpleObjectProperty<DateTime> currentVersionDate = new SimpleObjectProperty<>("current version date", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.currentversiondate"), null);
-
     @Expose
     @SerializedName("Relevance 50001")
     private final BooleanProperty relevant = new SimpleBooleanProperty("Relevance 50001", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.relevance"), false);
-
     @Expose
     @SerializedName("Date of Examination")
     private final SimpleObjectProperty<DateTime> dateOfExamination = new SimpleObjectProperty<>("Date of Examination", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.dateofexamination"), null);
-
-
     @Expose
     @SerializedName("importance for the company")
     private final SimpleStringProperty importanceForTheCompany = new SimpleStringProperty("importance for the company", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.importanceforthecompany"), "");
-
     @Expose
     @SerializedName("link")
     private final SimpleStringProperty linkToVersion = new SimpleStringProperty("link", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.link"), "");
-
     @Expose
     @SerializedName("category")
     private final SimpleStringProperty category = new SimpleStringProperty("category", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.category"), "");
-
     @Expose
     @SerializedName("scope")
     private final SimpleStringProperty scope = new SimpleStringProperty("scope", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.scope"), "");
-
-
     @Expose
     @SerializedName("Deleted")
     private final SimpleBooleanProperty deleted = new SimpleBooleanProperty("Deleted", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.deleted"), false);
-
-
     @Expose
     @SerializedName("Attachment")
     private final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.attachment"), "");
-
     private IndexOfLegalProvisions indexOfLegalProvisions;
-
-    public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     private ChangeListener changeListener;
     private JEVisObject object;
 
     private List<ReadOnlyProperty> propertyList = new ArrayList<>();
-
 
 
     public ObligationData(JEVisObject obj, IndexOfLegalProvisions indexOfLegalProvisions) {
@@ -110,10 +94,6 @@ public class ObligationData {
 
     public ObligationData() {
         reload();
-    }
-
-    public void setObject(JEVisObject object) {
-        this.object = object;
     }
 
     public void reload() {
@@ -153,9 +133,12 @@ public class ObligationData {
 
     }
 
-
     public JEVisObject getObject() {
         return object;
+    }
+
+    public void setObject(JEVisObject object) {
+        this.object = object;
     }
 
     private void registerChanges(Object propertyObj) {
@@ -174,10 +157,21 @@ public class ObligationData {
     }
 
 
-
     public void commit() {
+        try {
+            this.getObject().setName(String.valueOf(nr.getValue()));
+            //Map<String, String> commitLangMap = new HashMap<>();
+            // commitLangMap.put(I18n.getInstance().getLocale().getLanguage(), String.valueOf(nr.getValue()));
 
-        System.out.println(this);
+
+            //this.getObject().setLocalNames(commitLangMap);
+            this.getObject().commit();
+
+        } catch (JEVisException jeVisException) {
+            jeVisException.printStackTrace();
+        } catch (NumberFormatException numberFormatException) {
+            numberFormatException.printStackTrace();
+        }
 
 
         try {
@@ -231,121 +225,120 @@ public class ObligationData {
         return title.get();
     }
 
-    public SimpleStringProperty titleProperty() {
-        return title;
-    }
-
     public void setTitle(String title) {
         this.title.set(title);
+    }
+
+    public SimpleStringProperty titleProperty() {
+        return title;
     }
 
     public String getDesignation() {
         return designation.get();
     }
 
-    public SimpleStringProperty designationProperty() {
-        return designation;
-    }
-
     public void setDesignation(String designation) {
         this.designation.set(designation);
+    }
+
+    public SimpleStringProperty designationProperty() {
+        return designation;
     }
 
     public int getNr() {
         return nr.get();
     }
 
-    public SimpleIntegerProperty nrProperty() {
-        return nr;
-    }
-
     public void setNr(int nr) {
         this.nr.set(nr);
+    }
+
+    public SimpleIntegerProperty nrProperty() {
+        return nr;
     }
 
     public String getDescription() {
         return description.get();
     }
 
-    public SimpleStringProperty descriptionProperty() {
-        return description;
-    }
-
     public void setDescription(String description) {
         this.description.set(description);
+    }
+
+    public SimpleStringProperty descriptionProperty() {
+        return description;
     }
 
     public DateTime getIssueDate() {
         return issueDate.get();
     }
 
-    public SimpleObjectProperty<DateTime> issueDateProperty() {
-        return issueDate;
-    }
-
     public void setIssueDate(DateTime issueDate) {
         this.issueDate.set(issueDate);
+    }
+
+    public SimpleObjectProperty<DateTime> issueDateProperty() {
+        return issueDate;
     }
 
     public DateTime getCurrentVersionDate() {
         return currentVersionDate.get();
     }
 
-    public SimpleObjectProperty<DateTime> currentVersionDateProperty() {
-        return currentVersionDate;
-    }
-
     public void setCurrentVersionDate(DateTime currentVersionDate) {
         this.currentVersionDate.set(currentVersionDate);
+    }
+
+    public SimpleObjectProperty<DateTime> currentVersionDateProperty() {
+        return currentVersionDate;
     }
 
     public boolean getRelevant() {
         return relevant.get();
     }
 
-    public BooleanProperty relevantProperty() {
-        return relevant;
-    }
-
     public void setRelevant(boolean relevant) {
         this.relevant.set(relevant);
+    }
+
+    public BooleanProperty relevantProperty() {
+        return relevant;
     }
 
     public DateTime getDateOfExamination() {
         return dateOfExamination.get();
     }
 
-    public SimpleObjectProperty<DateTime> dateOfExaminationProperty() {
-        return dateOfExamination;
-    }
-
     public void setDateOfExamination(DateTime dateOfExamination) {
         this.dateOfExamination.set(dateOfExamination);
     }
 
+    public SimpleObjectProperty<DateTime> dateOfExaminationProperty() {
+        return dateOfExamination;
+    }
 
     public boolean isDeleted() {
         return deleted.get();
-    }
-
-    public SimpleBooleanProperty deletedProperty() {
-        return deleted;
     }
 
     public void setDeleted(boolean deleted) {
         this.deleted.set(deleted);
     }
 
+    public SimpleBooleanProperty deletedProperty() {
+        return deleted;
+    }
+
     public String getAttachment() {
         return attachment.get();
     }
 
-    public SimpleStringProperty attachmentProperty() {
-        return attachment;
-    }
-
     public void setAttachment(String attachment) {
         this.attachment.set(attachment);
+    }
+
+    public SimpleStringProperty attachmentProperty() {
+        return attachment;
     }
 
     public IndexOfLegalProvisions getLegalCadastre() {
@@ -360,24 +353,24 @@ public class ObligationData {
         return importanceForTheCompany.get();
     }
 
-    public SimpleStringProperty importanceForTheCompanyProperty() {
-        return importanceForTheCompany;
-    }
-
     public void setImportanceForTheCompany(String importanceForTheCompany) {
         this.importanceForTheCompany.set(importanceForTheCompany);
+    }
+
+    public SimpleStringProperty importanceForTheCompanyProperty() {
+        return importanceForTheCompany;
     }
 
     public String getLinkToVersion() {
         return linkToVersion.get();
     }
 
-    public SimpleStringProperty linkToVersionProperty() {
-        return linkToVersion;
-    }
-
     public void setLinkToVersion(String linkToVersion) {
         this.linkToVersion.set(linkToVersion);
+    }
+
+    public SimpleStringProperty linkToVersionProperty() {
+        return linkToVersion;
     }
 
     @Override
@@ -396,29 +389,29 @@ public class ObligationData {
         return category.get();
     }
 
-    public SimpleStringProperty categoryProperty() {
-        return category;
-    }
-
     public void setCategory(String category) {
         this.category.set(category);
+    }
+
+    public SimpleStringProperty categoryProperty() {
+        return category;
     }
 
     public String getScope() {
         return scope.get();
     }
 
-    public SimpleStringProperty scopeProperty() {
-        return scope;
-    }
-
     public void setScope(String scope) {
         this.scope.set(scope);
     }
 
+    public SimpleStringProperty scopeProperty() {
+        return scope;
+    }
+
     public StringProperty getNrAsStringProperty() {
         StringProperty stringProperty = new SimpleStringProperty();
-        stringProperty.bind(Bindings.createStringBinding(() -> String.format("%02d", nrProperty().get()),nrProperty()));
+        stringProperty.bind(Bindings.createStringBinding(() -> String.format("%02d", nrProperty().get()), nrProperty()));
 
         return stringProperty;
     }

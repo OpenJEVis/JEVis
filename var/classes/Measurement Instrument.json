@@ -18,7 +18,7 @@
       "name": "Location",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 0,
+      "guiposition": 10,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -27,7 +27,7 @@
       "name": "Installation Location",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 1,
+      "guiposition": 11,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -36,7 +36,7 @@
       "name": "Company",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 2,
+      "guiposition": 22,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -45,7 +45,7 @@
       "name": "Cost Center",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 3,
+      "guiposition": 12,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -54,7 +54,7 @@
       "name": "Meter Point",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 4,
+      "guiposition": 1,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -63,7 +63,7 @@
       "name": "Picture",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "guiposition": 5,
+      "guiposition": 34,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -72,16 +72,7 @@
       "name": "Measuring Point ID",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 6,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
-      "name": "Measuring Point Name",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 7,
+      "guiposition": 2,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -90,7 +81,7 @@
       "name": "Serial Number",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 8,
+      "guiposition": 22,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -99,7 +90,7 @@
       "name": "Type",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 9,
+      "guiposition": 20,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -108,7 +99,7 @@
       "name": "Datasheet",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "guiposition": 10,
+      "guiposition": 30,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -117,7 +108,7 @@
       "name": "Accuracy",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 11,
+      "guiposition": 40,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -126,16 +117,16 @@
       "name": "Conversion Factor",
       "primitiveType": 8,
       "guiType": "Text",
-      "guiposition": 12,
+      "guiposition": 41,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
     },
     {
       "name": "Installation Date",
-      "primitiveType": 9,
+      "primitiveType": 0,
       "guiType": "Date",
-      "guiposition": 13,
+      "guiposition": 50,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -144,7 +135,7 @@
       "name": "Verified Date",
       "primitiveType": 0,
       "guiType": "Date",
-      "guiposition": 14,
+      "guiposition": 51,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -153,7 +144,7 @@
       "name": "Verification Date",
       "primitiveType": 0,
       "guiType": "Date",
-      "guiposition": 15,
+      "guiposition": 52,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -162,7 +153,7 @@
       "name": "Verification Documentation",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "guiposition": 16,
+      "guiposition": 32,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -171,7 +162,7 @@
       "name": "Online ID",
       "primitiveType": 0,
       "guiType": "Object Target",
-      "guiposition": 17,
+      "guiposition": 5,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -180,7 +171,7 @@
       "name": "Device IP",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 18,
+      "guiposition": 25,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -189,7 +180,7 @@
       "name": "Device Number",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 19,
+      "guiposition": 6,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -198,7 +189,7 @@
       "name": "Connection",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 20,
+      "guiposition": 21,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -207,7 +198,16 @@
       "name": "Remarks",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "guiposition": 21,
+      "guiposition": 99,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Decimal Places",
+      "primitiveType": 2,
+      "guiType": "Text",
+      "guiposition": 7,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"

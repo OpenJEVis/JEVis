@@ -270,6 +270,20 @@
       }
     },
     {
+      "type": "Decimal Places",
+      "descriptions": {
+        "de": "",
+        "en": "",
+        "ar": "رقم الجهاز"
+      },
+      "names": {
+        "de": "Dezimalstellen",
+        "en": "Decimal Places",
+        "ar": "رقم الجهاز"
+      }
+    },
+
+    {
       "type": "Connection",
       "descriptions": {
         "de": "",
