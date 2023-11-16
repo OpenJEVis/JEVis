@@ -12,6 +12,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.TextAlignment;
 import javafx.util.converter.NumberStringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.ui.NPVTableView;
@@ -20,6 +22,7 @@ import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 import java.text.DecimalFormat;
 
 public class CapitalTab extends Tab {
+    private static final Logger logger = LogManager.getLogger(CapitalTab.class);
     Label l_investition = new Label("Investition");
     JFXTextField f_investition = new JFXTextField();
     Label l_investitionUnit = new Label("€");
@@ -71,8 +74,8 @@ public class CapitalTab extends Tab {
         l_nettoGesamt.setAlignment(Pos.CENTER);
         JFXTextField f_nettoGesamt = new JFXTextField();
         Label l_gesamt = new Label("Gesamt");
-        System.out.println("-------------");
-        System.out.println("data.npv.get().overXYear: " + data.npv.get().amoutYear.get());
+        logger.debug("-------------");
+        logger.debug("data.npv.get().overXYear: " + data.npv.get().amoutYear.get());
 
         ChoiceBox<Integer> f_period = new ChoiceBox<>();
         f_period.getItems().addAll(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); // only 15 years by lore
@@ -117,7 +120,7 @@ public class CapitalTab extends Tab {
         NumberStringConverter nscNoUnit = NumerFormating.getInstance().getDoubleConverter();
 
         data.npv.get().amoutYear.addListener(observable -> {
-            System.out.println("Debug: new Years amount: " + observable);
+            logger.debug("Debug: new Years amount: " + observable);
         });
         data.npv.get().overXYear.addListener((observable, oldValue, newValue) -> updateRunOverXText(data.npv.get().overXYear.intValue()));
         data.npv.get().amoutYear.addListener((observable, oldValue, newValue) -> updateRunOverXText(data.npv.get().overXYear.intValue()));

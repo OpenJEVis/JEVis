@@ -323,7 +323,7 @@ public class ActionController {
     }
 
     public void openDataForm() {
-        System.out.println("openDataForm()");
+        logger.debug("openDataForm()");
         ActionData data = getSelectedData();
         ActionForm actionForm = new ActionForm(getActiveActionPlan(), data);
 
