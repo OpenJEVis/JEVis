@@ -152,7 +152,6 @@ public class TreeSelectionDialog extends Dialog {
                 }
 
                 if (correctChoice) {
-                    System.out.println("Set result: " + buttonOK);
                     setResult(buttonOK);
                     this.close();
                 } else {

@@ -506,7 +506,7 @@ public class DataModelDataHandler {
     }
 
     private synchronized void notifyListeners(SampleHandlerEvent event) {
-        logger.error("SampleHandlerEvent: {}", event);
+        logger.debug("SampleHandlerEvent: {}", event);
         for (SampleHandlerEventListener l : this.listeners.getListeners(SampleHandlerEventListener.class)) {
             l.fireEvent(event);
         }

@@ -2,14 +2,17 @@ package org.jevis.jeconfig.application.table;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.ListChangeListener;
+import javafx.event.EventHandler;
+import javafx.scene.control.ScrollToEvent;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SummeryTable extends TableView<SummeryData> {
+public class SummeryTable extends TableView<SummeryData> implements TableFindScrollbar {
 
     private static Method columnToFitMethod;
 
@@ -104,6 +107,10 @@ public class SummeryTable extends TableView<SummeryData> {
             } catch (Exception e) {
             }
         }
+    }
+
+    public ObjectProperty<EventHandler<ScrollToEvent<Integer>>> getScrollToProperty() {
+        return this.getScrollToProperty();
     }
 
 

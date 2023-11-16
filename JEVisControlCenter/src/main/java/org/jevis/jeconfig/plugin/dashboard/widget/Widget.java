@@ -40,49 +40,24 @@ import java.util.List;
 
 public abstract class Widget extends Region {
     private static final Logger logger = LogManager.getLogger(Widget.class);
+    public final DashboardControl control;
     private final String TYPE = "type";
     private final org.jevis.api.JEVisDataSource jeVisDataSource;
-    public WidgetPojo config;
-    public Size previewSize = new Size(28, 28);
     private final Size size = new Size(100, 150);
     private final AnchorPane contentRoot = new AnchorPane();
     private final AnchorPane editPane = new AnchorPane();
     private final AnchorPane alertPane = new AnchorPane();
     private final StackPane loadingPane = new StackPane();
-    public final DashboardControl control;
     private final BooleanProperty editable = new SimpleBooleanProperty(false);
     private final ProgressIndicator progressIndicator = new ProgressIndicator();
     private final Label label = new Label();
     private final Tooltip tt = new Tooltip("");
-
-    protected DataModelDataHandler sampleHandler;
-
-
     private final DragResizeMod.OnDragResizeEventListener onDragResizeEventListener = DragResizeMod.defaultListener;
-
+    public WidgetPojo config;
+    public Size previewSize = new Size(28, 28);
+    protected DataModelDataHandler sampleHandler;
     double widthCache;
     double heightCache;
-
-    @Override
-    protected double computePrefWidth(double height) {
-        return widthCache != 0 ? widthCache : super.computePrefWidth(height);
-    }
-
-    @Override
-    protected double computePrefHeight(double width) {
-        return heightCache != 0 ? heightCache : super.computePrefHeight(width);
-
-    }
-
-/*
-    public Widget() {
-        super();
-        this.config = new WidgetPojo();
-        this.config.setUuid(-1);
-        this.control = null;
-        this.jeVisDataSource = null;
-    }
-*/
 
     public Widget(DashboardControl control, WidgetPojo config) {
         super();
@@ -100,6 +75,27 @@ public abstract class Widget extends Region {
         initLayout();
         setCacheHint(CacheHint.QUALITY);
         setCache(true);
+    }
+
+    @Override
+    protected double computePrefWidth(double height) {
+        return widthCache != 0 ? widthCache : super.computePrefWidth(height);
+    }
+
+/*
+    public Widget() {
+        super();
+        this.config = new WidgetPojo();
+        this.config.setUuid(-1);
+        this.control = null;
+        this.jeVisDataSource = null;
+    }
+*/
+
+    @Override
+    protected double computePrefHeight(double width) {
+        return heightCache != 0 ? heightCache : super.computePrefHeight(width);
+
     }
 
     /**
@@ -593,6 +589,22 @@ public abstract class Widget extends Region {
         return dashBoardNode;
     }
 
+    public Tooltip getTt() {
+        return tt;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Widget) {
+            Widget otherObject = (Widget) object;
+            if (otherObject.getConfig() != null && this.getConfig() != null) {
+                return (otherObject.getConfig().getUuid() == this.getConfig().getUuid());
+            }
+        }
+
+        return false;
+    }
+
     @Override
     public Widget clone() {
         try {
@@ -614,22 +626,6 @@ public abstract class Widget extends Region {
         }
 
         return null;
-    }
-
-    public Tooltip getTt() {
-        return tt;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object instanceof Widget) {
-            Widget otherObject = (Widget) object;
-            if (otherObject.getConfig() != null && this.getConfig() != null) {
-                return (otherObject.getConfig().getUuid() == this.getConfig().getUuid());
-            }
-        }
-
-        return false;
     }
 
     public Interval getCurrentInterval(Interval interval) {

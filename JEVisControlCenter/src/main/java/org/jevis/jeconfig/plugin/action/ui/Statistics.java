@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import java.util.Comparator;
@@ -20,24 +21,22 @@ import java.util.stream.Collectors;
 public class Statistics {
     private static final Logger logger = LogManager.getLogger(Statistics.class);
     private final DoubleProperty sumSinceImplementation = new SimpleDoubleProperty(0.0);
-    private final StringProperty sumSinceStrImplementation = new SimpleStringProperty();
+    private final DoubleProperty sumConsumptionSinceImplementation = new SimpleDoubleProperty(0.0);
+    private final StringProperty textSumSinceImplementation = new SimpleStringProperty();
+    private final StringProperty textSumConsumptionSinceImplementation = new SimpleStringProperty();
     private final ActionPlanData actionPlan;
     private final SimpleObjectProperty<DateFilter> dateFilter;
     private final DoubleProperty sumInvestProperty = new SimpleDoubleProperty(0.0);
     private final StringProperty sumInvestStrProperty = new SimpleStringProperty();
-
     private final DoubleProperty sumSavingsProperty = new SimpleDoubleProperty(0.0);
     private final StringProperty sumSavingsStrProperty = new SimpleStringProperty();
     private final StringProperty sumSavingsCombinedProperty = new SimpleStringProperty();
-
     private final DoubleProperty sumNPVResultProperty = new SimpleDoubleProperty(0.0);
     private final StringProperty sumNPVResultStrProperty = new SimpleStringProperty();
     private final ObservableMap<String, StringProperty> sumNPVResultPerMediumStrList = FXCollections.observableHashMap();
     private final StringProperty sumStrProperty = new SimpleStringProperty();
     private final StringProperty sumSavingsByMedium = new SimpleStringProperty();
-
     private final StringProperty statusStrProperty = new SimpleStringProperty("\n\n\n\n");
-
     private final ObservableMap<String, StringProperty> statusMap = FXCollections.observableHashMap();
     private ObservableList<ActionData> data;
 
@@ -54,6 +53,13 @@ public class Statistics {
 
     }
 
+    public String getTextSumConsumptionSinceImplementation() {
+        return textSumConsumptionSinceImplementation.get();
+    }
+
+    public StringProperty textSumConsumptionSinceImplementationProperty() {
+        return textSumConsumptionSinceImplementation;
+    }
 
     public void setData(ObservableList<ActionData> data) {
         this.data = data;
@@ -70,6 +76,7 @@ public class Statistics {
         logger.debug("Update Statistics for plan: {}", actionPlan.getName());
         try {
             updateSumSinceImplementation();
+            updateSumConsumptionSinceImplementation();
             updateSums();
         } catch (Exception ex) {
             logger.error("Error while update Statistics", ex);
@@ -175,18 +182,50 @@ public class Statistics {
         return sumNPVResultPerMediumStrList;
     }
 
+    public double getSumConsumptionSinceImplementation() {
+        return sumConsumptionSinceImplementation.get();
+    }
+
+    public DoubleProperty sumConsumptionSinceImplementationProperty() {
+        return sumConsumptionSinceImplementation;
+    }
+
     private void updateSumSinceImplementation() {
+        System.out.println("------------------------\nCalculate € Sum"); // actionData.npv.get().einsparung.get()
         DoubleProperty sum = new SimpleDoubleProperty(0);
         data.forEach(actionData -> {
             if (actionData.doneDate.get() != null && actionData.doneDate.get().isAfter(dateFilter.get().getFromDate())) {
-                int yearsRunning = dateFilter.get().until.getYear() - actionData.doneDate.get().getYear();
-                //int monthRunning = dateFilter.get().until.timeminus(actionData.doneDate.get());
-                int monthRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), dateFilter.get().until.withTimeAtStartOfDay()).getDays();
-                sum.set(sum.get() + ((monthRunning) * (actionData.npv.get().einsparung.get() / 365)));
+                int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
+                sum.set(sum.get() + ((daysRunning) * (actionData.npv.get().einsparung.get() / 365)));
+
+                System.out.println("Action Nr: " + actionData.nr.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
+                System.out.println("Sum: " + ((daysRunning) * (actionData.npv.get().einsparung.get() / 365)) + "= " + daysRunning + "*(" + actionData.npv.get().einsparung.get() + "/365)");
+
             }
         });
+        System.out.println("Total Sum: " + sum.get());
+        sumConsumptionSinceImplementation.setValue(sum.get());
+        textSumConsumptionSinceImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceConsumptionImp")
+                + ":\t" + NumerFormating.getInstance().getCurrencyFormat().format(sum.get()));
+    }
+
+    private void updateSumConsumptionSinceImplementation() {
+        System.out.println("------------------------\nCalculate kwh Sum");
+        DoubleProperty sum = new SimpleDoubleProperty(0);
+        data.forEach(actionData -> {
+            if (actionData.doneDate.get() != null && actionData.doneDate.get().isAfter(dateFilter.get().getFromDate())) {
+                int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
+                sum.set(sum.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
+
+                System.out.println("Action Nr: " + actionData.nr.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
+                System.out.println("Sum: " + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)) + "= " + daysRunning + "*(" + actionData.consumption.get().diff.get() + "/365)");
+
+            }
+        });
+        System.out.println("Total Sum: " + sum.get());
         sumSinceImplementation.setValue(sum.get());
-        sumSinceStrImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceImp") + ": " + NumerFormating.getInstance().getCurrencyFormat().format(sum.get()));
+        textSumSinceImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceImp")
+                + ":\t" + NumerFormating.getInstance().getDoubleFormate().format(sum.get()) + " kWh");
     }
 
     public double getSumSavingsProperty() {
@@ -229,8 +268,8 @@ public class Statistics {
         return sumInvestStrProperty;
     }
 
-    public String getSumSinceStrImplementation() {
-        return sumSinceStrImplementation.get();
+    public String getTextSumSinceImplementation() {
+        return textSumSinceImplementation.get();
     }
 
     public String getStatusStrProperty() {
@@ -241,8 +280,8 @@ public class Statistics {
         return statusStrProperty;
     }
 
-    public StringProperty sumSinceStrImplementationProperty() {
-        return sumSinceStrImplementation;
+    public StringProperty textSumSinceImplementationProperty() {
+        return textSumSinceImplementation;
     }
 
     public String getSumSavingsCombinedProperty() {

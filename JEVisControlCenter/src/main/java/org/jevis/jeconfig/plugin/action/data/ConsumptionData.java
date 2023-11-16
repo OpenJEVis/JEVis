@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.action.data;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +12,8 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 
@@ -65,11 +66,16 @@ public class ConsumptionData {
     public ConsumptionData() {
     }
 
-    public static String getObjectName(JEVisDataSource ds, ConsumptionData consumptionData) {
+    /**
+     * TODO Move this function to some better place
+     *
+     * @param ds
+     * @param consumptionData
+     * @return
+     */
+    public static JEVisObject getSourceObject(JEVisDataSource ds, ConsumptionData consumptionData) {
+        JEVisObject obj = EmptyObject.getInstance();
         try {
-            JEVisObject obj = EmptyObject.getInstance();
-
-
             try {
                 if (consumptionData.jevisLinkProperty().get().isEmpty()) {
                 } else {
@@ -87,13 +93,17 @@ public class ConsumptionData {
                 exception.printStackTrace();
             }
 
-            return obj.getName();
+            return obj;
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        return obj;
+    }
 
-        return "";
+    public static String getObjectName(JEVisDataSource ds, ConsumptionData consumptionData) {
+        return getSourceObject(ds, consumptionData).getName();
+
     }
 
     private boolean isManual() {
@@ -109,38 +119,41 @@ public class ConsumptionData {
     }
 
     public void update() {
+        actual.addListener((observableValue, number, t1) -> diff.setValue(calcDiff(actual.getValue(), after.getValue())));
+        after.addListener((observableValue, number, t1) -> diff.setValue(calcDiff(actual.getValue(), after.getValue())));
+
         if (isEnPI) {
-            diff.bind(Bindings.subtract(after, actual));
+            // System.out.println("jevisLink.get(): " + jevisLink.get());
+            //updateEnPIData();
         } else {
-            diff.bind(Bindings.subtract(after, actual).multiply(-1));
+
         }
-        //diff.bind(Bindings.subtract(after, actual).multiply(-1));
     }
 
     public void updateEnPIData() {
         try {
-            if (jevisLink.get().isEmpty()) {
-                //System.out.println("Update manual Consumption");
-                diff.bind(Bindings.subtract(after, actual));
+            System.out.println("updateEnPIData");
 
-            } else {
-                //System.out.println("Update EnPI Consumption");
-                JEVisObject dataObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.dataObject.get());
-                JEVisObject calcObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.calcObject.get());
-                diff.bind(Bindings.subtract(after, actual));
+            JEVisDataSource ds = JEConfig.getDataSource();
+
+            if (getSourceObject(ds, this).getID() > 0) {
+                JEVisObject targetObj = getSourceObject(ds, this);
+
+                System.out.println("this.targetObj:" + targetObj);
+
 
                 try {
-                    unit.setValue(dataObj.getAttribute("Unit").getLatestSample().getValueAsString());
+                    unit.setValue(targetObj.getAttribute("Unit").getLatestSample().getValueAsString());
                 } catch (Exception ex) {
                     logger.error("no Unit set in Data Object", ex, ex);
                 }
 
-                JEVisUnit unit = dataObj.getAttribute("Value").getDisplayUnit();
-                double before = calcEnpi(dataObj, calcObj, unit,
+                JEVisUnit unit = targetObj.getAttribute("Value").getDisplayUnit();
+                double before = calcEnpi(targetObj, unit,
                         beforeFromDate.get(),
                         beforeUntilDate.get());
 
-                double after = calcEnpi(dataObj, calcObj, unit,
+                double after = calcEnpi(targetObj, unit,
                         afterFromDate.get(),
                         afterUntilDate.get());
 
@@ -154,13 +167,17 @@ public class ConsumptionData {
         }
     }
 
-    private Double calcEnpi(JEVisObject dataObj, JEVisObject calcObj, JEVisUnit unit, DateTime from, DateTime until) {
+    private double calcDiff(double before, double after) {
+        return before - after;
+    }
+
+    private Double calcEnpi(JEVisObject dataObj, JEVisUnit unit, DateTime from, DateTime until) {
         try {
             //System.out.println("ENPI changed: " + dataObj);
-            ChartDataRow chartDataRow = new ChartDataRow(actionData.getActionPlan().getObject().getDataSource());
+            ChartDataRow chartDataRow = new ChartDataRow(JEConfig.getDataSource());
             chartDataRow.setId(dataObj.getID());
+            chartDataRow.setCalculationId(ChartTools.isObjectCalculated(dataObj));
             chartDataRow.setCalculation(true);
-            chartDataRow.setCalculationId(calcObj.getID());
             chartDataRow.setSelectedStart(from);
             chartDataRow.setSelectedEnd(until);
             chartDataRow.setAggregationPeriod(AggregationPeriod.NONE);

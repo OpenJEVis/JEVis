@@ -341,10 +341,15 @@ public class ActionController {
             getActiveTab().updateStatistics();
         } else {
             if (data.isNew()) {
-                data.getActionPlan().removeAction(data);
+                // data.getActionPlan().removeAction(data);
             } else {
                 try {
+                    int index = getActiveTab().getActionTable().getSelectionModel().getSelectedIndex();
                     getActiveActionPlan().reloadAction(data);
+                    Platform.runLater(() -> {
+                        getActiveTab().getActionTable().getSelectionModel().select(index);
+                    });
+
                 } catch (Exception ex) {
                     logger.error(ex, ex);
                 }

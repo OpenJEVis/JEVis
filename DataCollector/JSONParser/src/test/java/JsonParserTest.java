@@ -16,9 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static javolution.testing.TestContext.assertEquals;
 import static javolution.testing.TestContext.assertTrue;
@@ -126,7 +124,7 @@ public class JsonParserTest {
 
 
     @Test
-    void checkSizeOfArray1() {
+    void jsonResultSizeTest1_should100() {
         try {
             Mockito.when(date_timeSample.getValueAsString()).thenReturn("date_time");
             Mockito.when(dateTimeFormatSample.getValueAsString()).thenReturn("yyyy-MM-dd HH:mm:ss");
@@ -147,7 +145,7 @@ public class JsonParserTest {
     }
 
     @Test
-    void checkSizeOfArray2() {
+    void jsonResultSizeTest2_should383() {
         try {
             Mockito.when(date_timeSample.getValueAsString()).thenReturn("5344.data.ts");
             Mockito.when(dataPointPathSample.getValueAsString()).thenReturn("5344.data.v");
@@ -168,7 +166,7 @@ public class JsonParserTest {
     }
 
     @Test
-    void checkSizeOfArray3() throws JEVisException, FileNotFoundException {
+    void jsonResultSizeTest3_should383() throws JEVisException, FileNotFoundException {
         try {
             Mockito.when(date_timeSample.getValueAsString()).thenReturn("timestamp");
             Mockito.when(dataPointPathSample.getValueAsString()).thenReturn("value");
@@ -189,7 +187,7 @@ public class JsonParserTest {
     }
 
     @Test
-    void isBetween() {
+    void JsonResult_hasResultAtDateBetween() {
         try {
         Mockito.when(date_timeSample.getValueAsString()).thenReturn("timestamp");
         Mockito.when(dataPointPathSample.getValueAsString()).thenReturn("value");
@@ -211,9 +209,8 @@ public class JsonParserTest {
             e.printStackTrace();
         }
     }
-
     @Test
-    void containsValues() {
+    void JsonResult_hasValue_1_83() {
 
 
         try {
@@ -227,9 +224,95 @@ public class JsonParserTest {
             inputStreams.add(inputStream);
             jsonParser.parse(inputStreams, DateTimeZone.UTC);
             assertTrue(jsonParser.getResult().stream().map(result -> result.getValue()).collect(Collectors.toList()).contains(1.1833333333333376));
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    void JsonResult_hasValue_1_41() {
+
+
+        try {
+            Mockito.when(date_timeSample.getValueAsString()).thenReturn("timestamp");
+            Mockito.when(dataPointPathSample.getValueAsString()).thenReturn("value");
+            Mockito.when(dateTimeFormatSample.getValueAsString()).thenReturn("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+            jsonParser.initialize(parserJEVisObject);
+            InputStream inputStream = new FileInputStream(new File("src/test/resources/test3.json"));
+            List<InputStream> inputStreams = new ArrayList<>();
+            inputStreams.add(inputStream);
+            jsonParser.parse(inputStreams, DateTimeZone.UTC);
+
             assertTrue(jsonParser.getResult().stream().map(result -> result.getValue()).collect(Collectors.toList()).contains(1.41013888888889));
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    void JsonResult_hasValue_1_00() {
+
+
+        try {
+            Mockito.when(date_timeSample.getValueAsString()).thenReturn("timestamp");
+            Mockito.when(dataPointPathSample.getValueAsString()).thenReturn("value");
+            Mockito.when(dateTimeFormatSample.getValueAsString()).thenReturn("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+            jsonParser.initialize(parserJEVisObject);
+            InputStream inputStream = new FileInputStream(new File("src/test/resources/test3.json"));
+            List<InputStream> inputStreams = new ArrayList<>();
+            inputStreams.add(inputStream);
+            jsonParser.parse(inputStreams, DateTimeZone.UTC);
+
             assertTrue(jsonParser.getResult().stream().map(result -> result.getValue()).collect(Collectors.toList()).contains(1.0097222222222224));
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    void JsonResult_hasValue_0_25() {
+
+
+        try {
+            Mockito.when(date_timeSample.getValueAsString()).thenReturn("timestamp");
+            Mockito.when(dataPointPathSample.getValueAsString()).thenReturn("value");
+            Mockito.when(dateTimeFormatSample.getValueAsString()).thenReturn("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+            jsonParser.initialize(parserJEVisObject);
+            InputStream inputStream = new FileInputStream(new File("src/test/resources/test3.json"));
+            List<InputStream> inputStreams = new ArrayList<>();
+            inputStreams.add(inputStream);
+            jsonParser.parse(inputStreams, DateTimeZone.UTC);
+
+
             assertTrue(jsonParser.getResult().stream().map(result -> result.getValue()).collect(Collectors.toList()).contains(0.25));
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    void JsonResult_hasValue_1_07() {
+
+
+        try {
+            Mockito.when(date_timeSample.getValueAsString()).thenReturn("timestamp");
+            Mockito.when(dataPointPathSample.getValueAsString()).thenReturn("value");
+            Mockito.when(dateTimeFormatSample.getValueAsString()).thenReturn("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+            jsonParser.initialize(parserJEVisObject);
+            InputStream inputStream = new FileInputStream(new File("src/test/resources/test3.json"));
+            List<InputStream> inputStreams = new ArrayList<>();
+            inputStreams.add(inputStream);
+            jsonParser.parse(inputStreams, DateTimeZone.UTC);
+
+
             assertTrue(jsonParser.getResult().stream().map(result -> result.getValue()).collect(Collectors.toList()).contains(1.0733333333333326));
 
         } catch (Exception e) {

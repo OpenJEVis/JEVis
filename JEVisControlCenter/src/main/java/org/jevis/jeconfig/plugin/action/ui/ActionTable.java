@@ -71,6 +71,8 @@ public class ActionTable extends TableView<ActionData> {
         this.actionPlanData = actionPlanData;
         this.filteredData = new FilteredList<>(this.data);
         this.statistic = statistic;
+        actionPlanData.setTableView(this);
+
         SortedList sortedList = new SortedList(this.filteredData);
         setItems(sortedList);
         sortedList.comparatorProperty().bind(this.comparatorProperty());
@@ -82,7 +84,7 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> fromUserCol = new TableColumn(fakeForName.fromUserProperty().getName());
         fromUserCol.setCellValueFactory(param -> param.getValue().fromUserProperty());
         fromUserCol.setCellFactory(buildShotTextFactory());
-        
+
         TableColumn<ActionData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsibleProperty().getName());
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsibleProperty());
 
@@ -295,7 +297,8 @@ public class ActionTable extends TableView<ActionData> {
         summeryRow1.put(savingYearPropertyCol, statistic.sumSavingsStrPropertyProperty());
         summeryRow1.put(consumptionDevelopmentPropertyCol, statistic.sumNPVResultStrPropertyProperty());
 
-        summeryRow1.put(titlePropertyCol, statistic.sumSinceStrImplementationProperty());
+        summeryRow1.put(titlePropertyCol, statistic.textSumSinceImplementationProperty());
+        summeryRow2.put(titlePropertyCol, statistic.textSumConsumptionSinceImplementationProperty());
         summeryRow2.put(consumptionDevelopmentPropertyCol, statistic.sumSavingsByMediumProperty());
 
 
@@ -313,6 +316,10 @@ public class ActionTable extends TableView<ActionData> {
             }
             updateStatusSummery(statusTagsPropertyCol);
         });
+    }
+
+    public Statistics getStatistic() {
+        return statistic;
     }
 
     private void updateMediumConsumptionSum(TableColumn tableColumn) {
