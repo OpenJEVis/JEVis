@@ -112,6 +112,12 @@ public class ChartPlugin implements Plugin {
     private final HashMap<Integer, Chart> allCharts = new HashMap<>();
     private final Image taskImage = JEConfig.getImage("Analysis.png");
     private final DataSettings dataSettings;
+    Map<Chart, List<ChartDataRow>> dataRowMap = new TreeMap<Chart, List<ChartDataRow>>() {
+        @Override
+        public Comparator<? super Chart> comparator() {
+            return new ChartComparator();
+        }
+    };
     private JEVisDataSource ds;
     private ToolBar toolBar;
     private boolean firstStart = true;
@@ -326,7 +332,6 @@ public class ChartPlugin implements Plugin {
         return id;
     }
 
-
     @Override
     public Node getMenu() {
         return null;
@@ -418,7 +423,6 @@ public class ChartPlugin implements Plugin {
         JEVisHelp.getInstance().setActiveSubModule(LoadAnalysisDialog.class.getSimpleName());
 
     }
-
 
     @Override
     public void fireCloseEvent() {
@@ -787,13 +791,6 @@ public class ChartPlugin implements Plugin {
 //        });
     }
 
-    Map<Chart, List<ChartDataRow>> dataRowMap = new TreeMap<Chart, List<ChartDataRow>>() {
-        @Override
-        public Comparator<? super Chart> comparator() {
-            return new ChartComparator();
-        }
-    };
-
     private void finalUpdates() throws InterruptedException {
 
         AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
@@ -941,7 +938,10 @@ public class ChartPlugin implements Plugin {
                             double x = leftAxisWidth + 4 + spacer + pixelWidth / 2;
 
                             for (DateTime dateTime : xAxisList) {
-                                String ts = dateTime.toString(X_FORMAT);
+                                String ts = "";
+                                if (!X_FORMAT.isEmpty()) {
+                                    ts = dateTime.toString(X_FORMAT);
+                                }
                                 Text text = new Text(ts);
                                 Font helvetica = Font.font("Helvetica", 12);
                                 text.setFont(helvetica);
@@ -1018,7 +1018,7 @@ public class ChartPlugin implements Plugin {
                                                             try {
                                                                 tp.setText(nf.format(finalValue) + " " + chart.getUnit());
                                                                 tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY());
-                                                            } catch (NullPointerException np) {
+                                                            } catch (Exception np) {
                                                                 logger.warn(np);
                                                             }
                                                         });

@@ -24,7 +24,6 @@ import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
@@ -276,7 +275,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
 
         GridPane gridPane = new GridPane();

@@ -57,6 +57,5 @@ public class RegressionBox extends JFXComboBox<RegressionType> {
         setButtonCell(cellFactory.call(null));
 
         getSelectionModel().select(RegressionType.POLY);
-        setDisable(true);
     }
 }
