@@ -65,12 +65,12 @@ public class ExcelExporter {
             addStyles(workbook);
 
             selections.stream().filter(selection -> selection.exportPlan).forEach(selection -> {
-                System.out.println(selection.plan);
+                logger.debug(selection.plan);
                 addActionPlanSheet(workbook, selection.plan, selection.plan.getTableView(), selection.plan.getTableView().getStatistic(), selection.exportDetail);
             });
 
             selections.stream().filter(selection -> selection.exportDetail).forEach(selection -> {
-                System.out.println(selection.plan);
+                logger.debug(selection.plan);
                 if (!selection.plan.getName().get().equals("Übersicht")) {
                     selection.plan.getActionData().sorted(Comparator.comparingInt(o -> o.nr.get())).forEach(actionData -> {
                         try {
@@ -446,7 +446,7 @@ public class ExcelExporter {
     }
 
     private Sheet addActionDetailsSheet(XSSFWorkbook workbook, ActionData actionData) {
-        System.out.println("Export Tab: " + actionData.nr.get() + " Name: " + actionData.title.get());
+        logger.debug("Export Tab: " + actionData.nr.get() + " Name: " + actionData.title.get());
         CellStyle currencyStyle = getCurrencyStyle(workbook);//workbook.createCellStyle();;
         CellStyle dateStyle = workbook.createCellStyle();//getDateStyle(workbook);
         CellStyle stringStyle = workbook.createCellStyle();//getStringTableStyle(workbook);

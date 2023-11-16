@@ -1,12 +1,14 @@
 package org.jevis.jeconfig.plugin.action.ui;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 
 /**
  * Use case specific data fixer. Can be deleted in the future.
  */
 public class FixerDialog {
-
+    private static final Logger logger = LogManager.getLogger(FixerDialog.class);
 
 
     /*
@@ -56,7 +58,7 @@ public class FixerDialog {
                 String oldMaßnahme = actionData.noteEnergieflussProperty().get();
                 String oldDescription = actionData.desciptionProperty().get();//Prozess
 
-                System.out.println("Nr: " + actionData.nr.get() + " oldTitle: " + oldTitle + "  oldMaßnahme: " + oldMaßnahme);
+                logger.debug("Nr: " + actionData.nr.get() + " oldTitle: " + oldTitle + "  oldMaßnahme: " + oldMaßnahme);
                 actionData.desciptionProperty().set(oldTitle);
                 actionData.title.set(oldMaßnahme);
                 //actionData.commit();
