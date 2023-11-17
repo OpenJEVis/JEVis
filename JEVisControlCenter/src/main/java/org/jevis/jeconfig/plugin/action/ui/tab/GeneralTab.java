@@ -17,6 +17,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.CheckComboBox;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
@@ -29,7 +31,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public class GeneralTab extends Tab {
-
+    private static final Logger logger = LogManager.getLogger(GeneralTab.class);
     private final JFXDatePicker f_plannedDate = new JFXDatePicker();
     private final JFXDatePicker f_doneDate = new JFXDatePicker();
     //private ActionData names = new ActionData();
@@ -218,8 +220,8 @@ public class GeneralTab extends Tab {
         f_NoteEnergiefluss.setWrapText(true);
 
 
-        System.out.println("Investment: " + data.npv.get().investment.get());
-        System.out.println("InvestText: " + f_Investment.textProperty().get());
+        logger.debug("Investment: " + data.npv.get().investment.get());
+        logger.debug("InvestText: " + f_Investment.textProperty().get());
 
 
         // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
@@ -247,7 +249,7 @@ public class GeneralTab extends Tab {
             f_CreateDate.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
         }
         f_CreateDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("newValue: " + newValue);
+            logger.debug("newValue: " + newValue);
             if (newValue == null) {
                 data.createDateProperty().set(null);
             } else {

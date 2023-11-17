@@ -13,15 +13,12 @@ public class ElectricMeterCounter extends Template {
 
     @Override
     public String getName() {
-        return I18n.getInstance().getString("datarow.template.electiccounter");
+        return I18n.getInstance().getString("datarow.template.electriccounter");
     }
 
     @Override
     public boolean supportsClass(JEVisClass jclass) throws JEVisException {
-        if (jclass.getName().equals("Data")) {
-            return true;
-        }
-        return false;
+        return jclass.getName().equals("Data");
     }
 
     @Override

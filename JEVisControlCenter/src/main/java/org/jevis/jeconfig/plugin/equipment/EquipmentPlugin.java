@@ -30,10 +30,8 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.dialog.EquipmentDialog;
 import org.jevis.jeconfig.dialog.Response;
+import org.jevis.jeconfig.plugin.RegisterTableRow;
 import org.jevis.jeconfig.plugin.TablePlugin;
-import org.jevis.jeconfig.plugin.meters.AttributeValueChange;
-import org.jevis.jeconfig.plugin.meters.JEVisClassTab;
-import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;

@@ -20,7 +20,6 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
@@ -45,14 +44,14 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
     public static String SHAPE_DESIGN_NODE_NAME = "minMax";
     private final NumberFormat nf = NumberFormat.getInstance();
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
-    private Interval lastInterval = null;
+    private final Interval lastInterval = null;
     private final boolean forceLastValue = true;
     private JEVisSample lastSample = null;
 
     private IncrementPojo incrementPojo;
     private Boolean customWorkday = true;
 
-    private Tile minusPlus;
+    private final Tile minusPlus;
 
 
     public PlusMinusWidget(DashboardControl control, WidgetPojo config) {
@@ -62,7 +61,7 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
             try {
                 if (tileEvent.getEventType().equals(TileEvent.EventType.FINISHED)) {
                     System.out.println(tileEvent.getEventType().toString());
-                    BigDecimal bd = new BigDecimal(minusPlus.getValue());
+                    BigDecimal bd = BigDecimal.valueOf(minusPlus.getValue());
                     bd = bd.setScale(config.getDecimals(), RoundingMode.HALF_UP);
                     setData(bd.doubleValue());
                 }
@@ -169,7 +168,7 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(false);
         initData();
 

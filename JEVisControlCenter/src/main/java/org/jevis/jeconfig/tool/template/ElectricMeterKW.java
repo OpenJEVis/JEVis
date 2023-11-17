@@ -13,7 +13,7 @@ public class ElectricMeterKW extends Template {
 
     @Override
     public String getName() {
-        return I18n.getInstance().getString("datarow.template.electicKW");
+        return I18n.getInstance().getString("datarow.template.electrickw");
     }
 
     @Override

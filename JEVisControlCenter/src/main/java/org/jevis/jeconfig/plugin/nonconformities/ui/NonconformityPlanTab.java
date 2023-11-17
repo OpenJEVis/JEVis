@@ -54,7 +54,7 @@ public class NonconformityPlanTab extends Tab {
 
         TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), plan.getMediumTags(), plan.getMediumTags());
         TagButton fieldButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.field"), plan.getFieldsTags(), plan.getFieldsTags());
-        TagButton stausButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus"),plan.getStausTags(),plan.getStausTags());
+        TagButton stausButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus"), plan.getStatusTags(), plan.getStatusTags());
         TagButton seuButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.seu"),plan.getSignificantEnergyUseTags(),plan.getSignificantEnergyUseTags());
 
 
@@ -77,7 +77,6 @@ public class NonconformityPlanTab extends Tab {
 
         Separator vSep1 = new Separator(Orientation.VERTICAL);
         Separator vSep2 = new Separator(Orientation.VERTICAL);
-        ;
 
         GridPane.setRowSpan(vSep1, 2);
         GridPane.setRowSpan(vSep2, 2);

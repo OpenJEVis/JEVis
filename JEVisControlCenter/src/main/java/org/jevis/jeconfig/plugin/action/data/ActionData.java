@@ -153,7 +153,7 @@ public class ActionData {
         //System.out.println("-ActionData.update: " + this);
         nr.addListener((observable, oldValue, newValue) -> updateNrText());
         originalSettings = gson.toJson(this);
-        System.out.println("Update Consumption: " + getNrText());
+        logger.debug("Update Consumption: " + getNrText());
         consumption.get().update();
         enpi.get().setEnPI(true);
         enpi.get().update();
@@ -195,7 +195,7 @@ public class ActionData {
         // if (valueChanged.getValue()) return true;
 
         if (isDeletedProperty().get() || originalSettings == null || !gson.toJson(this).equals(originalSettings)) {
-            System.out.println("gson change");
+            logger.debug("gson change");
             return true;
         }
 
@@ -205,7 +205,7 @@ public class ActionData {
 
     public void commit() {
         try {
-            System.out.println("ActonData.commit: " + nr.get() + " changes: " + valueChanged.getValue());
+            logger.debug("ActonData.commit: " + nr.get() + " changes: " + valueChanged.getValue());
             // if (!hasChanged()) return;
 
             Task task = new Task() {
@@ -225,7 +225,7 @@ public class ActionData {
                                 JEVisFileImp jsonFile = new JEVisFileImp(
                                         "DataModel_v2" + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
                                         , gson.toJson(ActionData.this).getBytes(StandardCharsets.UTF_8));
-                                System.out.println("Json to commit: " + gson.toJson(ActionData.this));
+                                logger.debug("Json to commit: " + gson.toJson(ActionData.this));
 
                                 JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
                                 newSample.commit();

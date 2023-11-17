@@ -22,7 +22,6 @@ import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
@@ -47,7 +46,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     private final Pane borderPane = new Pane();
     private Interval lastInterval = null;
     private final BorderPane bottomBorderPane = new BorderPane();
-    private List<JEVisPlotItem> plotItems = new ArrayList<>();
+    private final List<JEVisPlotItem> plotItems = new ArrayList<>();
     private Boolean customWorkday = true;
 
     private SankeyPojo sankeyPojo;
@@ -56,7 +55,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
     private boolean error = false;
 
-    private List<JEVisObject> sankeyDataRowsWithMultipleParents = new ArrayList<>();
+    private final List<JEVisObject> sankeyDataRowsWithMultipleParents = new ArrayList<>();
 
 
     public SankeyWidget(DashboardControl control, WidgetPojo config) {
@@ -325,9 +324,9 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 //                error = true;
 //                return;
 //            }
-                BigDecimal value = new BigDecimal(jeVisPlotItem.getValue());
+                BigDecimal value = BigDecimal.valueOf(jeVisPlotItem.getValue());
                 value = value.setScale(config.getDecimals(), RoundingMode.HALF_UP);
-                BigDecimal outgoing = new BigDecimal(jeVisPlotItem.getSumOfOutgoing());
+                BigDecimal outgoing = BigDecimal.valueOf(jeVisPlotItem.getSumOfOutgoing());
                 outgoing = outgoing.setScale(config.getDecimals(), RoundingMode.HALF_UP);
                 if (value.doubleValue() * (1 + sankeyPojo.getErrorTolerance()) < outgoing.doubleValue()) {
                     jeVisPlotItem.setFill(Color.RED);
@@ -364,13 +363,12 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     private void createNamesRefersToRoot(JEVisPlotItem jeVisPlotItem) {
         List<PlotItem> roots = plotItems.stream().filter(jeVisPlotItem1 -> jeVisPlotItem1.isRoot() && jeVisPlotItem1.getValue() != 0).collect(Collectors.toList());
         if (roots.size() > 0) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(jeVisPlotItem.getName());
-            stringBuilder.append("\n");
-            stringBuilder.append("(");
-            stringBuilder.append(inPercent(roots.get(0).getValue(), jeVisPlotItem.getValue()));
-            stringBuilder.append("%)");
-            jeVisPlotItem.setName(stringBuilder.toString());
+            String stringBuilder = jeVisPlotItem.getName() +
+                    "\n" +
+                    "(" +
+                    inPercent(roots.get(0).getValue(), jeVisPlotItem.getValue()) +
+                    "%)";
+            jeVisPlotItem.setName(stringBuilder);
         }
     }
 
@@ -395,7 +393,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     }
 
     private String createNameWithUnit(JEVisPlotItem jeVisPlotItem) {
-        BigDecimal bigDecimal = new BigDecimal(jeVisPlotItem.getValue());
+        BigDecimal bigDecimal = BigDecimal.valueOf(jeVisPlotItem.getValue());
         bigDecimal = bigDecimal.setScale(config.getDecimals(), RoundingMode.HALF_UP);
         return jeVisPlotItem.getName() + "\n" + bigDecimal.doubleValue() + " " + jeVisPlotItem.getJeVisUnit().getLabel();
     }
@@ -439,7 +437,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
     private String inPercent(double in, double out) {
         try {
-            BigDecimal bd = new BigDecimal((out / in) * 100);
+            BigDecimal bd = BigDecimal.valueOf((out / in) * 100);
             bd = bd.setScale(config.getDecimals(), RoundingMode.HALF_UP);
             return bd.toString();
         } catch (Exception e) {
@@ -524,7 +522,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
         this.sampleHandler.setMultiSelect(true);
 
         this.legend.setAlignment(Pos.CENTER);
