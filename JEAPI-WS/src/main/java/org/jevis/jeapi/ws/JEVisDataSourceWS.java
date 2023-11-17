@@ -831,6 +831,51 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     @Override
+    public void reloadObjects() {
+
+        try {
+            logger.info("Start reload");
+            Benchmark benchmark = new Benchmark();
+
+            this.objectNullCache.clear();
+            this.objectRelMapCache.clear();
+            this.objectCache.clear();
+            this.attributeCache.clear();
+
+            this.allAttributesPreloaded = false;
+            this.objectLoaded = false;
+            this.orLoaded = false;
+            this.hasPreloaded = false;
+
+            System.gc();
+            Optimization.getInstance().clearCache();
+
+            benchmark.printBenchmarkDetail("Reload - Cleared Cache");
+
+            this.getRelationships();
+
+            benchmark.printBenchmarkDetail("Reload - Relationships");
+
+            if (!this.objectCache.isEmpty()) {
+                this.objectNullCache.clear();
+                this.objectCache.clear();
+            }
+            getObjects();
+            benchmark.printBenchmarkDetail("Reload - Objects");
+            Optimization.getInstance().printStatistics();
+
+            if (!this.attributeCache.isEmpty()) this.attributeCache.clear();
+            getAttributes();
+            benchmark.printBenchmarkDetail("Reload - Attributes");
+            Optimization.getInstance().printStatistics();
+            logger.info("Reload Done");
+            this.hasPreloaded = true;
+        } catch (Exception ex) {
+            logger.error("Error while preloading data source", ex);
+        }
+    }
+
+    @Override
     public void reloadAttributes() throws JEVisException {
         logger.debug("Complete attribute reload");
 //        attributeCache.clear();

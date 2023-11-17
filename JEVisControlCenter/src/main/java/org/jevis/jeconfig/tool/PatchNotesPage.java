@@ -50,7 +50,61 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.69------\n" +
+            "------Version 3.9.70------\n" +
+                    "JECC - ActionPlugin - Add access to the table view\n" +
+                    "JECC - ActionPlugin - Add internal helper\n" +
+                    "JECC - ActionPlugin - Add new consumption since implementation\n" +
+                    "JECC - ActionPlugin - Add new tree root function which is not in use for now. Reformation\n" +
+                    "JECC - ActionPlugin - CSV Export now respects user selection\n" +
+                    "JECC - ActionPlugin - Fixed EnPI form\n" +
+                    "JECC - ActionPlugin - Fixed a bug where Consumption after would not trigger the result calculation\n" +
+                    "JECC - ActionPlugin - Fixed a bug where a value binding was lost\n" +
+                    "JECC - ActionPlugin - Fixed a bug where the dates could not set to null\n" +
+                    "JECC - ActionPlugin - Fixed a bug where the wrong element was selected after a change\n" +
+                    "JECC - ActionPlugin - Fixed savings calculation\n" +
+                    "JECC - ActionPlugin - Removed the layout workaround which had some trouble\n" +
+                    "JECC - ActionPlugin - removed system.outs \n" +
+                    "JECC - ChartPlugin - HeatMapChart - shows daily values, even if the aggregation is set to NONE in the sample editor\n" +
+                    "JECC - ChartPlugin - XYChart - fixed regression not working\n" +
+                    "JECC - Chartplugin - HeatMapChart - seems to work only with 15 minute\n" +
+                    "JECC - DashboardPlugin - GaugeWidget - fix if value > max same color as maximum area / if value < min value same color as smallest area\n" +
+                    "JECC - DashboardPlugin - Load dialog has wrong dimensions\n" +
+                    "JECC - DashboardPlugin - added new checkbox for fixed time range on custom period objects\n" +
+                    "JECC - DashboardPlugin - timefactory - create \"interval\" setting\n" +
+                    "JECC - LegalCadastre - add Info, Help Buttons to Toolbar, add Tooltips\n" +
+                    "JECC - LegalCadastre - id is editable if expert mode is on, name will be set nr\n" +
+                    "JECC - LegalCadastre - removed delete plan Button\n" +
+                    "JECC - MeterPlugin - add Tooltips\n" +
+                    "JECC - MeterPlugin - clean up System.outs\n" +
+                    "JECC - MeterPlugin - fix Plugin manger mismatch\n" +
+                    "JECC - MeterPlugin - fixed some null pointers\n" +
+                    "JECC - MeterPlugin - if you increase th decimal places the new number will be stored in JEVis Object\n" +
+                    "JECC - MeterPlugin - removed system.outs\n" +
+                    "JECC - MeterPlugin - small fixes\n" +
+                    "JECC - MeterPlugin - spell checks\n" +
+                    "JECC - MeterPlugin - the overdue filter filters for specific year\n" +
+                    "JECC - MeterPlugin - the overdue in the overview table shows the number based on the year selected\n" +
+                    "JECC - MeterPlugin - tooltip fix translation\n" +
+                    "JECC - MeterPlugin - use same plugin object as old meters plugin\n" +
+                    "JECC - NonconformityPlugin - Fixed a bug where the dates could not set to null\n" +
+                    "JECC - NonconformityPlugin - add Tooltips\n" +
+                    "JECC - NonconformityPlugin - in expert mode you can change id\n" +
+                    "JECC - NonconformityPlugin - removed delete plan button\n" +
+                    "JECC - ObjectPlugin - added GUI type for rtf files\n" +
+                    "JECC - ObjectPlugin - attribute editor for rtf files\n" +
+                    "JECC - ObjectPlugin - delete dependencies checking for channel\n" +
+                    "JECC - ObjectPlugin - delete dependencies using correct math data cleanup\n" +
+                    "JECC - Templates - added KW Meter\n" +
+                    "JECC - Templates - fixed I18n\n" +
+                    "JECC - Translation fixes\n" +
+                    "JECC - disable add / delete Buttons if User does not have rights\n" +
+                    "\n" +
+                    "DataCollector - HTTPDataSource - add logging\n" +
+                    "DataCollector - HTTPDataSource - fix for Last Timestamp in future\n" +
+                    "DataCollector - HTTPDataSource - fix for setting last readout to the future\n" +
+                    "\n" +
+                    "JECommons - WorkDays - added fallback for jsc user\n\n" +
+                    "------Version 3.9.69------\n" +
                     "JECC - Accounting - Changing the name of a supplier will now take immediate effect\n" +
                     "JECC - Accounting - The new energy price will now be displayed after changing it\n" +
                     "JECC - AccountingPlugin - changed editor for double/long values to normal enter data dialog\n" +
@@ -566,7 +620,7 @@ public class PatchNotesPage {
                     "JEWebservice - Toolbar will now be limited for the overview tab\n" +
                     "JEWebservice - add new plan translation\n" +
                     "JEWebservice - moved toolbar to gui package\n\n" +
-            "------Version 3.9.67------\n" +
+                    "------Version 3.9.67------\n" +
                     "JECC - AccountingPlugin - Data are not updated after changing the period \n" +
                     "JECC - AccountingPlugin - OutputView - fixed sort order for multi formula input formulas\n" +
                     "JECC - AccountingPlugin - added ranging values\n" +
@@ -827,11 +881,9 @@ public class PatchNotesPage {
                     "JEWebService - ResourceSample - fixed exception permissions for alarm status \n" +
                     "JEWebService - ResourceSample - fixed wrong read file check\n" +
                     "JEWebservice - ResourceSample - fixed user exception for files\n\n";
-
-
-    JFXCheckBox remember = new JFXCheckBox(I18n.getInstance().getString("welcome.dontshow"));
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
     private final boolean isLoading = true;
+    JFXCheckBox remember = new JFXCheckBox(I18n.getInstance().getString("welcome.dontshow"));
 
     public PatchNotesPage() {
 
