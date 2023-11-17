@@ -317,14 +317,11 @@ public class MeterPlanTable extends TableView<MeterData> implements TableFindScr
 
                             AtomicBoolean containString = new AtomicBoolean(false);
                             if (containsTextFilter != null && !containsTextFilter.isEmpty()) {
-                                //Optional<JEVisSample> meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample();
                                 try {
-                                    String meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(pointNameWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
-                                    //String meteringIP = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
-                                    //String meteringPoint = meterData.getJeVisAttributeJEVisSampleMap().get(meteringPointWrapper).getOptionalJEVisSample().orElseThrow(RuntimeException::new).getValueAsString();
-                                    if (meteringPoint.toLowerCase().contains(containsTextFilter.toLowerCase())) {
+                                    if (meterData.getName().contains(containsTextFilter.toLowerCase())) {
                                         containString.set(true);
                                     }
+
 
                                 } catch (Exception e) {
                                     logger.error(e);

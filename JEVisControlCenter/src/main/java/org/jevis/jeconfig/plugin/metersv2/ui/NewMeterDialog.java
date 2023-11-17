@@ -212,7 +212,7 @@ public class NewMeterDialog extends Dialog {
         } else if (jeVisClass.equals(gas)) {
             directory = jeVisDataSource.getJEVisClass(JC.Directory.GasMeasurementDirectory.name);
         } else if (jeVisClass.equals(heat)) {
-            directory = jeVisDataSource.getJEVisClass(JC.Directory.HeatingEquipmentDirectory.name);
+            directory = jeVisDataSource.getJEVisClass(JC.Directory.HeatMeasurementDirectory.name);
         } else if (jeVisClass.equals(nitrogen)) {
             directory = jeVisDataSource.getJEVisClass(JC.Directory.NitrogenMeasurementDirectory.name);
         } else if (jeVisClass.equals(water)) {

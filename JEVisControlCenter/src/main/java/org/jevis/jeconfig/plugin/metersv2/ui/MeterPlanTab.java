@@ -35,6 +35,7 @@ import org.jevis.jeconfig.application.table.SummeryTable;
 import org.jevis.jeconfig.plugin.metersv2.MeterController;
 import org.jevis.jeconfig.plugin.metersv2.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.metersv2.data.MeterPlan;
+import org.jevis.jeconfig.plugin.metersv2.event.MeterPlanEvent;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -78,7 +79,7 @@ public class MeterPlanTab extends Tab {
 
         this.meterPlanTable = new MeterPlanTable(plan, plan.getMeterDataList(), ds, controller.lastRawValuePrecisionProperty());
 
-        Statistics statistics = new Statistics(meterPlanTable.data, meterPlanTable);
+        Statistics statistics = new Statistics(meterPlanTable.filteredData, meterPlanTable);
 
 
         meterPlanTable.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -140,6 +141,9 @@ public class MeterPlanTab extends Tab {
 
 
         meterPlanTable.getMeterEventHandler().addEventListener(event -> {
+//            if (event.getType() == MeterPlanEvent.TYPE.FILTER || event.getType() == MeterPlanEvent.TYPE.ADD || event.getType() == MeterPlanEvent.TYPE.REMOVE) {
+//                updateStatisics(plan, statistics, borderPane);
+//            }
 
             if (jeVisClasses.size() != getClasses(plan).size() || type.size() != getTypes(plan).size()) {
                 updateStatisics(plan, statistics, borderPane);
@@ -202,9 +206,9 @@ public class MeterPlanTab extends Tab {
 
         summeryTable.setItems(summeryData);
 
-        Platform.runLater(() -> {
-            this.meterPlanTable.findScrollBar(meterPlanTable, Orientation.HORIZONTAL).valueProperty().bindBidirectional(summeryTable.findScrollBar(summeryTable, Orientation.HORIZONTAL).valueProperty());
-        });
+//        Platform.runLater(() -> {
+//            this.meterPlanTable.findScrollBar(meterPlanTable, Orientation.HORIZONTAL).valueProperty().bindBidirectional(summeryTable.findScrollBar(summeryTable, Orientation.HORIZONTAL).valueProperty());
+//        });
 
 
         borderPane.setBottom(summeryTable);
