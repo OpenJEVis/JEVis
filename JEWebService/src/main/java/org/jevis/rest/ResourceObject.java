@@ -88,13 +88,13 @@ public class ResourceObject {
             @DefaultValue("") @QueryParam("name") String name,
             @DefaultValue("false") @QueryParam("detail") boolean detailed,
             @DefaultValue("true") @QueryParam("rel") boolean rel,
-            @DefaultValue("false") @QueryParam("deleted") boolean deleteObjects,
+            @DefaultValue("false") @QueryParam("deleted") boolean deletedObjects,
             @QueryParam("parent") long parent,
             @QueryParam("child") long child) {
 
         try {
             this.ds = new SQLDataSource(httpHeaders, request, url);
-            if (!deleteObjects) this.ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
+            if (!deletedObjects) this.ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
             this.ds.preload(SQLDataSource.PRELOAD.ALL_REL);
 
 
@@ -104,7 +104,7 @@ public class ResourceObject {
                 this.returnList = this.ds.getUserManager().filterList(this.ds.getObjects());
             }
 
-            if (!deleteObjects) {
+            if (!deletedObjects) {
                 this.returnList = returnList.stream().filter(jsonObject -> jsonObject.getDeleteTS() == null).collect(Collectors.toList());
             }
 
