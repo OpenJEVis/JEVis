@@ -78,7 +78,7 @@ public class MeterListTab extends Tab {
 
         this.meterTable = new MeterTable(plan, plan.getMeterDataList(), ds, controller.lastRawValuePrecisionProperty());
 
-        Statistics statistics = new Statistics(meterTable.data, meterTable);
+        Statistics statistics = new Statistics(meterTable.filteredData, meterTable);
 
 
         meterTable.setOnMousePressed(new EventHandler<MouseEvent>() {
