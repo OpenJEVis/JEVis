@@ -18,7 +18,7 @@ public interface TimeFrame {
 
     String format(Interval interval);
 
-    Interval getInterval(DateTime dateTime);
+    Interval getInterval(DateTime dateTime, Boolean fixed);
 
     String getID();
 

@@ -19,7 +19,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.Layouts;
@@ -97,7 +96,8 @@ public class TimeFrameWidget extends Widget {
             e.printStackTrace();
         }
         Platform.runLater(() -> {
-            if (!this.timeFramePojo.getSelectedWidget().isPresent()) return;
+            if (!this.timeFramePojo.getSelectedWidget().isPresent()) {
+            }
                 else {
                 try {
                     logger.debug(this.timeFramePojo.getSelectedWidget().get().getCurrentInterval(control.getInterval()));
@@ -285,7 +285,7 @@ public class TimeFrameWidget extends Widget {
     @Override
     public void init() {
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
 
         this.label.setPadding(new Insets(0, 8, 0, 8));
         anchorPane.setBackground(null);

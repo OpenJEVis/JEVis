@@ -158,8 +158,7 @@ public class PluginManager {
                         new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")),
                         new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")),
                         new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.Legalcadastre.name")),
-                        new TRCPlugin(this._ds),
-                        new org.jevis.jeconfig.plugin.metersv2.MeterPlugin(this._ds,I18n.getInstance().getString("plugin.meters.new.title"))
+                        new TRCPlugin(this._ds)
                 ));
                 return;
             } else {
@@ -186,7 +185,6 @@ public class PluginManager {
                                     enabledPlugins.add(new NotesPlugin(this._ds, I18n.getInstance().getString("plugin.notes.title")));
                                 } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
-                                    enabledPlugins.add(new org.jevis.jeconfig.plugin.metersv2.MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.new.title")));
                                 } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
                                 } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
@@ -203,7 +201,7 @@ public class PluginManager {
                                     enabledPlugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.indexoflegalprovisions.name")));
                                 } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new TRCPlugin(this._ds));
-                                } else if (plugObj.getJEVisClassName().equals(org.jevis.jeconfig.plugin.metersv2.MeterPlugin.PLUGIN_NAME)) {
+                                } else if (plugObj.getJEVisClassName().equals(org.jevis.jeconfig.plugin.meters.MeterPlugin.PLUGIN_NAME)) {
 
                                 }
                             }

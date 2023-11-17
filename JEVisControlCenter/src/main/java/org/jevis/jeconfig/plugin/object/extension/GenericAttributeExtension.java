@@ -156,6 +156,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     editor = new FileEditor(att);
                 } else if (guiDisplayType.equals(GUIConstants.BASIC_FILER.getId())) {
                     editor = new FileEditor(att);
+                } else if (guiDisplayType.equals(GUIConstants.RICH_TEXT_FORMAT.getId())) {
+                    editor = new FileRTF(att);
                 } else {
                     editor = new StringEditor(att);
                 }

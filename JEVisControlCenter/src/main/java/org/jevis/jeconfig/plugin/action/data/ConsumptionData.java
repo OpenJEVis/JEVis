@@ -132,15 +132,14 @@ public class ConsumptionData {
 
     public void updateEnPIData() {
         try {
-            System.out.println("updateEnPIData");
+            logger.debug("updateEnPIData");
 
             JEVisDataSource ds = JEConfig.getDataSource();
 
             if (getSourceObject(ds, this).getID() > 0) {
                 JEVisObject targetObj = getSourceObject(ds, this);
 
-                System.out.println("this.targetObj:" + targetObj);
-
+                logger.debug("this.targetObj:" + targetObj);
 
                 try {
                     unit.setValue(targetObj.getAttribute("Unit").getLatestSample().getValueAsString());

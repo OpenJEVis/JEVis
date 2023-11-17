@@ -28,11 +28,11 @@ import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.*;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.plugin.RegisterTableRow;
 import org.jevis.jeconfig.plugin.TablePlugin;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
-import org.jevis.jeconfig.plugin.meters.JEVisClassTab;
+import org.jevis.jeconfig.plugin.equipment.JEVisClassTab;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
-import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 

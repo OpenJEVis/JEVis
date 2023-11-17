@@ -81,8 +81,8 @@
   "types": [
     {
       "name": "Content",
-      "primitiveType": 0,
-      "guiType": "Text Area",
+      "primitiveType": 3,
+      "guiType": "RTF",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,

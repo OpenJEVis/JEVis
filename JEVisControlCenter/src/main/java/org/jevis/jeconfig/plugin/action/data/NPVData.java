@@ -113,7 +113,7 @@ public class NPVData {
             amoutYear.addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    System.out.println("NPV Data: Amount Year changed: " + newValue);
+                    logger.debug("NPV Data: Amount Year changed: " + newValue);
                     npvYears.clear();
                     List<NPVYearData> tmp = new ArrayList<>();
                     for (int i = 1; i <= newValue.intValue(); i++) {

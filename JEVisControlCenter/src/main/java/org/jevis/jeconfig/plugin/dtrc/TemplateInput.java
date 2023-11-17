@@ -183,7 +183,7 @@ public class TemplateInput extends TemplateSelected {
                 }
 
                 if (fixedTimeFrame != null && reducingTimeFrame != null && !fixedTimeFrame.equals(TimeFrameFactory.NONE)) {
-                    start = fixedTimeFrame.getInterval(start).getStart();
+                    start = fixedTimeFrame.getInterval(start, false).getStart();
                     end = end;
 
                     Period p = null;
@@ -197,7 +197,7 @@ public class TemplateInput extends TemplateSelected {
                         if (p != null) {
                             previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
                         } else {
-                            previousEndDate = end.minus(reducingTimeFrame.getInterval(start).toDuration());
+                            previousEndDate = end.minus(reducingTimeFrame.getInterval(start, false).toDuration());
                         }
                     }
 

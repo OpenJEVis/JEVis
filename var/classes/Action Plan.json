@@ -1,0 +1,46 @@
+{
+  "name": "Action Plan",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Action Plan",
+      "end": "Action Plan Directory",
+      "type": 3
+    },
+    {
+      "start": "Action Plan",
+      "end": "Documents",
+      "type": 0
+    },
+    {
+      "start": "Implemented Actions Directory",
+      "end": "Action Plan",
+      "type": 3
+    },
+    {
+      "start": "Planned Actions Directory",
+      "end": "Action Plan",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Action Plan File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action Plan"
+    },
+    {
+      "name": "Participants",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Action Plan"
+    }
+  ]
+}

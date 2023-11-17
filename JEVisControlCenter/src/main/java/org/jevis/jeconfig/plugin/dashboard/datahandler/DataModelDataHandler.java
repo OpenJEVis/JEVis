@@ -28,6 +28,8 @@ import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.DataModelNode;
 import org.jevis.jeconfig.plugin.dashboard.config.DataPointNode;
+import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.LastPeriod;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
@@ -61,6 +63,7 @@ public class DataModelDataHandler {
     private final EventListenerList listeners = new EventListenerList();
     private final List<AggregationPeriod> initialAggregation = new ArrayList<>();
     public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
+    private boolean fixedTimeFrame = false;
     private DataModelNode dataModelNode = new DataModelNode();
     private boolean autoAggregation = false;
     private boolean forcedInterval = false;
@@ -69,7 +72,7 @@ public class DataModelDataHandler {
     private WorkDays wd;
     private Interval forcedZeroInterval;
 
-    public DataModelDataHandler(JEVisDataSource jeVisDataSource, DashboardControl dashboardControl, JsonNode configNode, String id) {
+    public DataModelDataHandler(JEVisDataSource jeVisDataSource, DashboardControl dashboardControl, WidgetPojo config, String id) {
         this.jeVisDataSource = jeVisDataSource;
         this.dashboardControl = dashboardControl;
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -77,8 +80,15 @@ public class DataModelDataHandler {
         this.widgetType = id;
 
         try {
-            if (configNode != null) {
-                this.dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
+            if (config != null) {
+                JsonNode configNode = config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE);
+                if (configNode != null) {
+                    this.dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
+                } else {
+                    this.dataModelNode = new DataModelNode();
+                }
+
+                this.fixedTimeFrame = config.isFixedTimeframe();
             } else {
                 this.dataModelNode = new DataModelNode();
             }
@@ -310,10 +320,10 @@ public class DataModelDataHandler {
 
             TimeFrame timeFrame = getTimeFrameFactory();
             if (timeFrame != null) {
-                interval = timeFrame.getInterval(interval.getEnd());
+                interval = timeFrame.getInterval(interval.getEnd(), this.fixedTimeFrame);
                 if (interval.getEndMillis() - interval.getStartMillis() == 0) {
                     this.setForcedZeroInterval(interval);
-                    interval = dashboardControl.getActiveTimeFrame().getInterval(interval.getEnd());
+                    interval = dashboardControl.getActiveTimeFrame().getInterval(interval.getEnd(), this.fixedTimeFrame);
                 }
             } else {
                 logger.error("Widget DataModel is not configured, using selected.");
@@ -327,7 +337,10 @@ public class DataModelDataHandler {
                 int i = getDataModel().indexOf(chartDataRow);
                 AggregationPeriod initialAggregation = this.initialAggregation.get(i);
 
-                /** we may need this for meter changes usecase**/
+                /**
+                 * we may need this for meter changes usecase
+                 * **/
+
                 //CleanDataObject.getPeriodForDate(, )
 
                 Period objectPeriod = new Period(chartDataRow.getAttribute().getObject().getAttribute("Period").getLatestSample().getValueAsString());
