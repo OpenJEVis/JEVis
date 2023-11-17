@@ -78,7 +78,7 @@ public class MeterListTab extends Tab {
 
         this.meterTable = new MeterTable(plan, plan.getMeterDataList(), ds, controller.lastRawValuePrecisionProperty());
 
-        Statistics statistics = new Statistics(meterPlanTable.filteredData, meterPlanTable);
+        Statistics statistics = new Statistics(meterTable.filteredData, meterTable);
 
 
         meterTable.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -203,7 +203,7 @@ public class MeterListTab extends Tab {
         summeryTable.setItems(summeryData);
 
         Platform.runLater(() -> {
-            this.meterPlanTable.findScrollBar(meterPlanTable, Orientation.HORIZONTAL).valueProperty().bindBidirectional(summeryTable.findScrollBar(summeryTable, Orientation.HORIZONTAL).valueProperty());
+            this.meterTable.findScrollBar(meterTable, Orientation.HORIZONTAL).valueProperty().bindBidirectional(summeryTable.findScrollBar(summeryTable, Orientation.HORIZONTAL).valueProperty());
         });
 
 
