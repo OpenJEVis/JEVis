@@ -9,12 +9,13 @@ import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,7 +33,7 @@ public class NonconformityPlan {
     protected ObservableList<NonconformityData> nonconformityList = FXCollections.observableArrayList();
     protected ObservableList<String> fieldsTags;
 
-    protected ObservableList<String> stausTags = FXCollections.observableArrayList(OPEN,CLOSE);
+    protected ObservableList<String> statusTags = FXCollections.observableArrayList(OPEN, CLOSE);
 
     protected ObservableList<String> significantEnergyUseTags;
     private String initCustomMedium = "";
@@ -40,17 +41,17 @@ public class NonconformityPlan {
 
     private String initCustomFields = "";
     private String initCustomSEU = "";
-    private AtomicInteger biggestActionNr = new AtomicInteger(0);
+    private final AtomicInteger biggestActionNr = new AtomicInteger(0);
 
 
 
-    private String ATTRIBUTE_CMEDIUM = "Custom Medium";
-    private String ATTRIBUTE_EnPI = "EnPI";
+    private final String ATTRIBUTE_CMEDIUM = "Custom Medium";
+    private final String ATTRIBUTE_EnPI = "EnPI";
 
-    private String ATTRIBUTE_PREFIX = "prefix";
+    private final String ATTRIBUTE_PREFIX = "prefix";
 
-    private String ATTRIBUTE_CFIELD = "Custom Fields";
-    private String ATTRIBUTE_SEU = "Custom SEU";
+    private final String ATTRIBUTE_CFIELD = "Custom Fields";
+    private final String ATTRIBUTE_SEU = "Custom SEU";
 
 
 
@@ -60,7 +61,7 @@ public class NonconformityPlan {
 
 
 
-    private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
+    private final AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
     public NonconformityPlan(JEVisObject obj) {
 
@@ -90,9 +91,7 @@ public class NonconformityPlan {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomMedium = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    mediumTags.add(s);
-                }
+                Collections.addAll(mediumTags, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -106,9 +105,7 @@ public class NonconformityPlan {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomFields = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    fieldsTags.add(s);
-                }
+                Collections.addAll(fieldsTags, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -121,9 +118,7 @@ public class NonconformityPlan {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomSEU = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    significantEnergyUseTags.add(s);
-                }
+                Collections.addAll(significantEnergyUseTags, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -209,7 +204,7 @@ public class NonconformityPlan {
     }
 
     public NonconformityData loadNonconformties(JEVisObject actionObj) throws JEVisException, NullPointerException {
-        JEVisAttribute att = actionObj.getAttribute("Data");;
+        JEVisAttribute att = actionObj.getAttribute("Data");
         JEVisSample sample = att.getLatestSample();
         JEVisFile file = sample.getValueAsFile();
         String s = new String(file.getBytes(), StandardCharsets.UTF_8);
@@ -379,12 +374,12 @@ public class NonconformityPlan {
         this.significantEnergyUseTags = significantEnergyUseTags;
     }
 
-    public ObservableList<String> getStausTags() {
-        return stausTags;
+    public ObservableList<String> getStatusTags() {
+        return statusTags;
     }
 
-    public void setStausTags(ObservableList<String> stausTags) {
-        this.stausTags = stausTags;
+    public void setStatusTags(ObservableList<String> statusTags) {
+        this.statusTags = statusTags;
     }
 
     @Override
@@ -395,7 +390,7 @@ public class NonconformityPlan {
                 ", name=" + name +
                 ", nonconformityList=" + nonconformityList +
                 ", fieldsTags=" + fieldsTags +
-                ", stausTags=" + stausTags +
+                ", stausTags=" + statusTags +
                 ", significantEnergyUseTags=" + significantEnergyUseTags +
                 '}';
     }

@@ -74,6 +74,13 @@ public class WorkDays {
                             setStartAndEndForSite(site);
                         } else {
                             logger.warn("Could not get site object parent for object {}:{}.", currentObject.getName(), currentObject.getID());
+
+                            for (JEVisObject foundSite : currentObject.getDataSource().getObjects(siteClass, false)) {
+                                logger.warn("Falling back to first visible site {}:{}.", foundSite.getName(), foundSite.getID());
+                                setStartAndEndForSite(foundSite);
+                                break;
+                            }
+
                         }
                     } else {
                         logger.warn("Could not get site object parent for object {}:{}.", currentObject.getName(), currentObject.getID());

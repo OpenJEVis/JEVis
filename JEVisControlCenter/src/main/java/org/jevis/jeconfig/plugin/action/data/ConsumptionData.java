@@ -12,6 +12,8 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 
@@ -130,26 +132,27 @@ public class ConsumptionData {
 
     public void updateEnPIData() {
         try {
-            if (getSourceObject(actionData.getObject().getDataSource(), this).getID() > 0) {
-                System.out.println("this.calcObject:" + this.calcObject);
-                System.out.println("this.dataObject:" + this.dataObject);
-                //System.out.println("Update EnPI Consumption");
-                JEVisObject dataObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.dataObject.get());
-                JEVisObject calcObj = actionData.getActionPlan().getObject().getDataSource().getObject(this.calcObject.get());
+            logger.debug("updateEnPIData");
 
+            JEVisDataSource ds = JEConfig.getDataSource();
+
+            if (getSourceObject(ds, this).getID() > 0) {
+                JEVisObject targetObj = getSourceObject(ds, this);
+
+                logger.debug("this.targetObj:" + targetObj);
 
                 try {
-                    unit.setValue(dataObj.getAttribute("Unit").getLatestSample().getValueAsString());
+                    unit.setValue(targetObj.getAttribute("Unit").getLatestSample().getValueAsString());
                 } catch (Exception ex) {
                     logger.error("no Unit set in Data Object", ex, ex);
                 }
 
-                JEVisUnit unit = dataObj.getAttribute("Value").getDisplayUnit();
-                double before = calcEnpi(dataObj, calcObj, unit,
+                JEVisUnit unit = targetObj.getAttribute("Value").getDisplayUnit();
+                double before = calcEnpi(targetObj, unit,
                         beforeFromDate.get(),
                         beforeUntilDate.get());
 
-                double after = calcEnpi(dataObj, calcObj, unit,
+                double after = calcEnpi(targetObj, unit,
                         afterFromDate.get(),
                         afterUntilDate.get());
 
@@ -167,13 +170,13 @@ public class ConsumptionData {
         return before - after;
     }
 
-    private Double calcEnpi(JEVisObject dataObj, JEVisObject calcObj, JEVisUnit unit, DateTime from, DateTime until) {
+    private Double calcEnpi(JEVisObject dataObj, JEVisUnit unit, DateTime from, DateTime until) {
         try {
             //System.out.println("ENPI changed: " + dataObj);
-            ChartDataRow chartDataRow = new ChartDataRow(actionData.getActionPlan().getObject().getDataSource());
+            ChartDataRow chartDataRow = new ChartDataRow(JEConfig.getDataSource());
             chartDataRow.setId(dataObj.getID());
+            chartDataRow.setCalculationId(ChartTools.isObjectCalculated(dataObj));
             chartDataRow.setCalculation(true);
-            chartDataRow.setCalculationId(calcObj.getID());
             chartDataRow.setSelectedStart(from);
             chartDataRow.setSelectedEnd(until);
             chartDataRow.setAggregationPeriod(AggregationPeriod.NONE);

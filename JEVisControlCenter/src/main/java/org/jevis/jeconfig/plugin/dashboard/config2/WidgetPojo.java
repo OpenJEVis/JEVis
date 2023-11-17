@@ -38,6 +38,7 @@ public class WidgetPojo {
     private String type = "";
     private Integer layer = 1;
     private boolean showValue = true;
+    private boolean fixedTimeframe = false;
 
     private JsonNode dataHandlerJson;
     private static final Logger logger = LogManager.getLogger(WidgetPojo.class);
@@ -85,9 +86,9 @@ public class WidgetPojo {
                  * Fallback, existing dashboards have only left,right,center
                  * but the POJO expects an Pos with center_right and so on.
                  **/
-                if (jsonNode.get(TITLE_POSITION).asText().toLowerCase().equals("left")) {
+                if (jsonNode.get(TITLE_POSITION).asText().equalsIgnoreCase("left")) {
                     this.titlePosition = Pos.CENTER_LEFT;
-                } else if (jsonNode.get(TITLE_POSITION).asText().toLowerCase().equals("right")) {
+                } else if (jsonNode.get(TITLE_POSITION).asText().equalsIgnoreCase("right")) {
                     this.titlePosition = Pos.CENTER_RIGHT;
                 } else {
                     //correct implementation
@@ -185,6 +186,11 @@ public class WidgetPojo {
                 logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
             }
 
+            try {
+                this.fixedTimeframe = jsonNode.get(FIXED_TIMEFRAME).asBoolean(false);
+            } catch (Exception ex) {
+                logger.debug("Could not parse fixed timeframe: {}", BORDER_SIZE, ex.getMessage());
+            }
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
                 this.dataHandlerJson = jsonNode.get(DATA_HANDLER_NODE);
@@ -371,6 +377,14 @@ public class WidgetPojo {
         this.layer = layer;
     }
 
+    public boolean isFixedTimeframe() {
+        return fixedTimeframe;
+    }
+
+    public void setFixedTimeframe(boolean fixedTimeframe) {
+        this.fixedTimeframe = fixedTimeframe;
+    }
+
     public WidgetPojo copy() {
 
         WidgetPojo copy = new WidgetPojo();
@@ -393,6 +407,7 @@ public class WidgetPojo {
         copy.setType(this.getType());
         copy.setyPosition(this.getyPosition());
         copy.setLayer(this.getLayer());
+        copy.setFixedTimeframe(this.isFixedTimeframe());
 
         return copy;
     }

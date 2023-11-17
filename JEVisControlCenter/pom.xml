@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.9.69</version>
+    <version>3.9.70</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -81,6 +81,21 @@
         <dependency>
             <groupId>org.jevis.commons</groupId>
             <artifactId>JECommons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fxmisc.richtext</groupId>
+            <artifactId>richtextfx</artifactId>
+            <version>0.10.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.reactfx</groupId>
+            <artifactId>reactfx</artifactId>
+            <version>2.0-M5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fxmisc.flowless</groupId>
+            <artifactId>flowless</artifactId>
+            <version>0.6.4</version>
         </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>

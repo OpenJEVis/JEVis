@@ -62,7 +62,7 @@ public class ActionPlanData {
     }
 
     public ActionPlanData(JEVisObject obj) {
-        System.out.println("New ActionPlan from Object: " + obj);
+        logger.debug("New ActionPlan from Object: " + obj);
         this.object = obj;
 
         name.set(obj.getName());
@@ -145,7 +145,7 @@ public class ActionPlanData {
                     //System.out.println("!!!!!! Plan: " + c);
                     if (c.wasAdded() || c.wasRemoved()) {
                         Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
-                        System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
+                        logger.debug("New Action Nr Max: " + maxNr.get().nrProperty().get());
                         biggestActionNr.set(maxNr.get().nrProperty().get());
                     }
 

@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
@@ -181,7 +180,7 @@ public class WebPieWidget extends Widget {
     public void init() {
 
         try {
-            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
             this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -249,7 +248,7 @@ public class WebPieWidget extends Widget {
                         "var pie = new d3pie(\"pieChart\", {" +
                         "\"header\": {" +
                         "\"title\": {" +
-                        "\"text\": \"" + "" + "\"," +
+                        "\"text\": \"" + "\"," +
                         "\"fontSize\": 18," +
                         "\"font\": \"courier\"" +
                         "},\n" +
@@ -340,7 +339,6 @@ public class WebPieWidget extends Widget {
                         "}" +
                         "});" +
                         "</script>" +
-                        "" +
                         "</body>" +
                         "</html>"
         );
@@ -375,11 +373,9 @@ public class WebPieWidget extends Widget {
         sb.append("var myChart = echarts.init(document.getElementById('main'));");
 
         sb.append("option = {" +
-                "" +
                 "    backgroundColor: '#FFFFFF'," +
                 "    calculable : true," +
                 "    series : [" +
-                "" +
                 "        {" +
                 "            name:'Pie'," +
                 "            type:'sunburst'," +
@@ -446,11 +442,9 @@ public class WebPieWidget extends Widget {
         sb.append("var myChart = echarts.init(document.getElementById('main'));");
 
         sb.append("option = {" +
-                "" +
                 "    backgroundColor: '#FFFFFF'," +
                 "    calculable : true," +
                 "    series : [" +
-                "" +
                 "        {" +
                 "            name:'Pie'," +
                 "            type:'pie'," +

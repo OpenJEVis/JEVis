@@ -31,7 +31,7 @@ public class LastPeriod implements TimeFrame {
 
     @Override
     public String getListName() {
-        return (this.listName.isEmpty() == true)
+        return (this.listName.isEmpty())
                 ? this.period.toString()
                 : this.listName;
     }
@@ -57,7 +57,7 @@ public class LastPeriod implements TimeFrame {
     }
 
     @Override
-    public Interval getInterval(DateTime dateTime) {
+    public Interval getInterval(DateTime dateTime, Boolean fixed) {
         if (dateTime.isAfterNow()) {
             dateTime = DateTime.now();
         }

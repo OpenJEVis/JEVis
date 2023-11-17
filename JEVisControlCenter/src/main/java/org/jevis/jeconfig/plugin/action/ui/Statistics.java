@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import java.util.Comparator;
@@ -190,26 +191,38 @@ public class Statistics {
     }
 
     private void updateSumSinceImplementation() {
+        logger.debug("------------------------\nCalculate € Sum"); // actionData.npv.get().einsparung.get()
         DoubleProperty sum = new SimpleDoubleProperty(0);
         data.forEach(actionData -> {
             if (actionData.doneDate.get() != null && actionData.doneDate.get().isAfter(dateFilter.get().getFromDate())) {
-                int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), dateFilter.get().until.withTimeAtStartOfDay()).getDays();
-                sum.set(sum.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
+                int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
+                sum.set(sum.get() + ((daysRunning) * (actionData.npv.get().einsparung.get() / 365)));
+
+                logger.debug("Action Nr: " + actionData.nr.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
+                logger.debug("Sum: " + ((daysRunning) * (actionData.npv.get().einsparung.get() / 365)) + "= " + daysRunning + "*(" + actionData.npv.get().einsparung.get() + "/365)");
+
             }
         });
+        logger.debug("Total Sum: " + sum.get());
         sumConsumptionSinceImplementation.setValue(sum.get());
         textSumConsumptionSinceImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceConsumptionImp")
                 + ":\t" + NumerFormating.getInstance().getCurrencyFormat().format(sum.get()));
     }
 
     private void updateSumConsumptionSinceImplementation() {
+        logger.debug("------------------------\nCalculate kwh Sum");
         DoubleProperty sum = new SimpleDoubleProperty(0);
         data.forEach(actionData -> {
             if (actionData.doneDate.get() != null && actionData.doneDate.get().isAfter(dateFilter.get().getFromDate())) {
-                int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), dateFilter.get().until.withTimeAtStartOfDay()).getDays();
-                sum.set(sum.get() + ((daysRunning) * (actionData.npv.get().einsparung.get() / 365)));
+                int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
+                sum.set(sum.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
+
+                logger.debug("Action Nr: " + actionData.nr.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
+                logger.debug("Sum: " + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)) + "= " + daysRunning + "*(" + actionData.consumption.get().diff.get() + "/365)");
+
             }
         });
+        logger.debug("Total Sum: " + sum.get());
         sumSinceImplementation.setValue(sum.get());
         textSumSinceImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceImp")
                 + ":\t" + NumerFormating.getInstance().getDoubleFormate().format(sum.get()) + " kWh");

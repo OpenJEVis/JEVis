@@ -1,4 +1,15 @@
 
+.toolbarSVG{
+    -fx-background-color: -toolbarSVG-background-color;
+}
+.pluginSVG{
+    -fx-background-color: -pluginSVG-background-color;
+}
+
+.ToolBarDatePicker.jfx-date-picker {
+    -jfx-default-color: -ToolBarDatePicker-default-color;
+}
+
 .jfx-tab-pane .tab-header-background {
     -fx-background-color: linear-gradient(-fx-base, -fx-control-inner-background);
 }

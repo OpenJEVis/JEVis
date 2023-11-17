@@ -76,6 +76,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             AtomicBoolean foundTarget = new AtomicBoolean(false);
             JEVisDataSource ds = obj.getDataSource();
 
+
             if (tree.getCalculationIDs().get(obj.getID()) != null) {
                 logger.info("target is a calculation");
                 try {
@@ -108,6 +109,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
             } else {
                 logger.info("target is not a calculation");
                 try {
+
+
                     if (tree.getTargetAndChannel().get(obj.getID()) != null) {
                         JEVisObject object = ds.getObject(tree.getTargetAndChannel().get(obj.getID()));
                         logger.info("found target");
@@ -161,10 +164,50 @@ public class JEVisTreeContextMenu extends ContextMenu {
         }
     }
 
+    public static void exportAction(JEVisTree tree) {
+        TreeExporterDelux exportMaster = new TreeExporterDelux();
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JEVis Export", "*.jex"));
+        File file = fileChooser.showSaveDialog(JEConfig.getStage());
+
+        if (file != null) {
+            List<JEVisObject> objects = new ArrayList<>();
+            tree.getSelectionModel().getSelectedItems().forEach(o -> {
+                JEVisTreeItem jeVisTreeItem = (JEVisTreeItem) o;
+                objects.add(jeVisTreeItem.getValue().getJEVisObject());
+            });
+
+            Task<Void> exportTask = exportMaster.exportToFileTask(file, objects);
+            JEConfig.getStatusBar().addTask("Tree Exporter", exportTask, JEConfig.getImage("save.gif"), true);
+
+        }
+    }
+
+    public static void importAction(JEVisObject obj) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open JEVis File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("JEVis Export", "*.jex"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            try {
+                TreeExporterDelux exportMaster = new TreeExporterDelux();
+                Task<Void> exportTask = exportMaster.importFromFile(selectedFile, obj);
+                JEConfig.getStatusBar().addTask("Tree Importer", exportTask, JEConfig.getImage("save.gif"), true);
+                //List<DimpexObject> objects = DimpEX.readFile(selectedFile);
+                //DimpEX.importALL(obj.getDataSource(), objects, obj);
+            } catch (Exception ex) {
+                logger.fatal(ex);
+            }
+        }
+    }
+
     private JEVisObject getObject() {
         return ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
     }
-
 
     private MenuItem buildGoToSource() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.gotosrc"), JEConfig.getSVGImage(Icon.GO_TO_SOURCE, 20, 20));
@@ -228,6 +271,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     } else if (obj.getJEVisClassName().equals("Data") || obj.getJEVisClassName().equals("Base Data")) {
                         getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
                         getItems().add(buildReCalcClean());
+                    } else if (obj.getJEVisClassName().equals("String Data")) {
+                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
                     } else if (obj.getJEVisClassName().equals("Clean Data") || obj.getJEVisClassName().equals("Math Data")) {
                         getItems().add(new SeparatorMenuItem());
                         getItems().add(buildReCalcClean());
@@ -247,7 +292,6 @@ public class JEVisTreeContextMenu extends ContextMenu {
 
         });
     }
-
 
     private MenuItem buildReCalcClean() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.recalculate"), JEConfig.getSVGImage(Icon.CALCULATOR, 20, 20));
@@ -323,7 +367,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     private MenuItem buildKPIWizard() {
         MenuItem menu = new MenuItem("KPI Wizard", JEConfig.getSVGImage(Icon.WIZARD_WAND, 20, 20));
         menu.setOnAction(t -> {
-            KPIWizard wizard = new KPIWizard(obj);
+                    KPIWizard wizard = new KPIWizard(obj);
                     wizard.show();
                 }
         );
@@ -339,53 +383,11 @@ public class JEVisTreeContextMenu extends ContextMenu {
         return menu;
     }
 
-    public static void exportAction(JEVisTree tree) {
-        TreeExporterDelux exportMaster = new TreeExporterDelux();
-
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save");
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("JEVis Export", "*.jex"));
-        File file = fileChooser.showSaveDialog(JEConfig.getStage());
-
-        if (file != null) {
-            List<JEVisObject> objects = new ArrayList<>();
-            tree.getSelectionModel().getSelectedItems().forEach(o -> {
-                JEVisTreeItem jeVisTreeItem = (JEVisTreeItem) o;
-                objects.add(jeVisTreeItem.getValue().getJEVisObject());
-            });
-
-            Task<Void> exportTask = exportMaster.exportToFileTask(file, objects);
-            JEConfig.getStatusBar().addTask("Tree Exporter", exportTask, JEConfig.getImage("save.gif"), true);
-
-        }
-    }
-
-
     private MenuItem buildImport() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.import"), JEConfig.getSVGImage(Icon.IMPORT, 20, 20));
         menu.setOnAction(event -> importAction(obj)
         );
         return menu;
-    }
-
-    public static void importAction(JEVisObject obj) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open JEVis File");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("JEVis Export", "*.jex"),
-                new FileChooser.ExtensionFilter("All Files", "*.*"));
-        File selectedFile = fileChooser.showOpenDialog(null);
-        if (selectedFile != null) {
-            try {
-                TreeExporterDelux exportMaster = new TreeExporterDelux();
-                Task<Void> exportTask = exportMaster.importFromFile(selectedFile, obj);
-                JEConfig.getStatusBar().addTask("Tree Importer", exportTask, JEConfig.getImage("save.gif"), true);
-                //List<DimpexObject> objects = DimpEX.readFile(selectedFile);
-                //DimpEX.importALL(obj.getDataSource(), objects, obj);
-            } catch (Exception ex) {
-                logger.fatal(ex);
-            }
-        }
     }
 
     public List<MenuItem> buildMenuNewContent() {

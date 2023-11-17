@@ -1,13 +1,11 @@
 package org.jevis.jeconfig.application.table;
 
 import com.jfoenix.controls.JFXButton;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -17,16 +15,11 @@ import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.AnalysisLinkButton;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
-import org.jevis.jeconfig.dialog.ImageViewerDialog;
-import org.jevis.jeconfig.dialog.PDFViewerDialog;
-import org.jevis.jeconfig.plugin.metersv2.data.SampleData;
-import org.jevis.jeconfig.plugin.metersv2.ui.MeterPlanTable;
-import org.joda.time.DateTime;
-
-import java.util.Optional;
+import org.jevis.jeconfig.plugin.meters.data.SampleData;
+import org.jevis.jeconfig.plugin.meters.ui.MeterTable;
 
 public class JumpCell<T> implements Callback<TableColumn<T, SampleData>, TableCell<T, SampleData>> {
-    private static final Logger logger = LogManager.getLogger(MeterPlanTable.class);
+    private static final Logger logger = LogManager.getLogger(MeterTable.class);
     JEVisDataSource ds;
 
     public JumpCell(JEVisDataSource ds) {
@@ -36,9 +29,9 @@ public class JumpCell<T> implements Callback<TableColumn<T, SampleData>, TableCe
     @Override
     public TableCell<T, SampleData> call(TableColumn<T, SampleData> param) {
         return new TableCell<T,SampleData>() {
-            HBox hBox = new HBox();
+            final HBox hBox = new HBox();
 
-            JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 20, 20));
+            final JFXButton manSampleButton = new JFXButton("", JEConfig.getSVGImage(Icon.MANUAL_DATA_ENTRY, 20, 20));
             JFXButton analysisLinkButton = new JFXButton("", JEConfig.getSVGImage(Icon.GRAPH, 20, 20));
 
             @Override
@@ -116,4 +109,4 @@ public class JumpCell<T> implements Callback<TableColumn<T, SampleData>, TableCe
         };
     }
 
-};
+}

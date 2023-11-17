@@ -4,10 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.jevis.commons.utils.CommonMethods.getChildrenRecursive;
 
@@ -17,6 +14,7 @@ public class ChannelTools {
     protected final String VALUE_ATTRIBUTE_NAME = "Value";
     protected final String STANDARD_TARGET_ATTRIBUTE_NAME = "Target";
     private final Map<Long, Long> targetAndChannel = new HashMap<>();
+    private final List<JEVisClass> targetAttChannels = new ArrayList<>();
     private JEVisClass vida350ChannelClass;
     private JEVisClass loytecXMLDLChannelClass;
     private JEVisClass loytecOPCUAChannelClass;
@@ -26,18 +24,20 @@ public class ChannelTools {
     private JEVisClass xmlDataPointClass;
     private JEVisClass dataPointClass;
     private JEVisClass channelClass;
+    private JEVisClass sqlRequestClass;
 
     public void createChannelMaps(JEVisDataSource ds) {
 
+        Date start = new Date();
         try {
             for (JEVisObject channel : getChannelObjects(ds)) {
                 JEVisAttribute targetAtt = null;
                 JEVisSample lastSampleTarget = null;
 
-                if (channel.getJEVisClass().equals(loytecXMLDLChannelClass) || channel.getJEVisClass().equals(loytecOPCUAChannelClass) || channel.getJEVisClass().equals(vida350ChannelClass)) {
+                if (targetAttChannels.contains(channel.getJEVisClass())) {
                     if (channel.getJEVisClass().equals(loytecXMLDLChannelClass) || channel.getJEVisClass().equals(loytecOPCUAChannelClass))
                         targetAtt = channel.getAttribute("Target ID");
-                    else if (channel.getJEVisClass().equals(vida350ChannelClass)) {
+                    else if (channel.getJEVisClass().equals(vida350ChannelClass) || channel.getJEVisClass().equals(sqlRequestClass)) {
                         targetAtt = channel.getAttribute("Target");
                     }
 
@@ -60,6 +60,8 @@ public class ChannelTools {
         } catch (Exception e) {
             logger.error(e);
         }
+        Date now = new Date();
+        System.out.println("Time to fill target: " + (now.getTime() - start.getTime()));
     }
 
     private void getOtherChannelsTarget(JEVisDataSource ds, JEVisObject channel, Map<Long, Long> targetAndChannel) throws JEVisException {
@@ -165,6 +167,7 @@ public class ChannelTools {
 
     private void createChannelClasses(JEVisDataSource ds) {
         try {
+            channelClass = ds.getJEVisClass("Channel");
             loytecXMLDLChannelClass = ds.getJEVisClass("Loytec XML-DL Channel");
             loytecOPCUAChannelClass = ds.getJEVisClass("OPC UA Channel");
             vida350ChannelClass = ds.getJEVisClass("VIDA350 Channel");
@@ -173,7 +176,14 @@ public class ChannelTools {
             dwdDataPointClass = ds.getJEVisClass("DWD Data Point");
             xmlDataPointClass = ds.getJEVisClass("XML Data Point");
             dataPointClass = ds.getJEVisClass("Data Point");
-            channelClass = ds.getJEVisClass("Channel");
+            sqlRequestClass = ds.getJEVisClass("SQL Request");
+
+            targetAttChannels.add(loytecXMLDLChannelClass);
+            targetAttChannels.add(loytecOPCUAChannelClass);
+            targetAttChannels.add(vida350ChannelClass);
+            targetAttChannels.add(sqlRequestClass);
+
+
         } catch (JEVisException e) {
             e.printStackTrace();
         }

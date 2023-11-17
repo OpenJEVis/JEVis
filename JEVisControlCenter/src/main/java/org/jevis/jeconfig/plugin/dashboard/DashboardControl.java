@@ -636,7 +636,7 @@ public class DashboardControl {
             start = start.plusDays(1);
         }
 
-        this.setInterval(activeTimeFrame.getInterval(start));
+        this.setInterval(activeTimeFrame.getInterval(start, false));
         this.toolBar.updateView(activeDashboard);
     }
 
@@ -796,7 +796,7 @@ public class DashboardControl {
                 try {
                     logger.debug("addWidgetUpdateTask: '{}'  - Interval: {}", widget.getConfig().getTitle(), interval);
                     Platform.runLater(() -> this.updateTitle(I18n.getInstance().getString("plugin.dashboard.message.updatingwidget")
-                            + " [" + widget.typeID() + "" + widget.getConfig().getUuid() + "] " + widget.getConfig().getTitle() + "'"));
+                            + " [" + widget.typeID() + widget.getConfig().getUuid() + "] " + widget.getConfig().getTitle() + "'"));
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
                         logger.debug("updateData done: '{}:{}'", widget.getConfig().getTitle(), widget.getConfig().getUuid());

@@ -18,7 +18,6 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
@@ -42,12 +41,12 @@ public class ToogleSwitchWidget extends Widget implements DataModelWidget {
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     private final NumberFormat nf = NumberFormat.getInstance();
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
-    private Interval lastInterval = null;
+    private final Interval lastInterval = null;
     private final boolean forceLastValue = true;
     private JEVisSample lastSample = null;
     private Boolean customWorkday = true;
 
-    private Tile toogleSwitch;
+    private final Tile toogleSwitch;
 
 
     public ToogleSwitchWidget(DashboardControl control, WidgetPojo config) {
@@ -159,7 +158,7 @@ public class ToogleSwitchWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(false);
         initData();
         Platform.runLater(() -> {
@@ -257,12 +256,7 @@ public class ToogleSwitchWidget extends Widget implements DataModelWidget {
  **/
     }
     private boolean getValueAsBool(double value){
-        if (value == 1) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return value == 1;
     }
     private void setData(double value) throws JEVisException {
        JEVisAttribute jeVisAttribute = sampleHandler.getDataModel().get(0).getObject().getAttribute(JC.Data.a_Value);
