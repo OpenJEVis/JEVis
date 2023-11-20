@@ -49,9 +49,9 @@ public abstract class BasicEditor implements AttributeEditor {
     private final double maxWidth = GenericAttributeExtension.editorWidth.getValue();
     private final HBox editorNode = new HBox();
     private final JEVisSample orgSample;
+    private final BooleanProperty isValid = new SimpleBooleanProperty(false);
     private boolean readonly = false;
     private Object finalNewValue;
-    private final BooleanProperty isValid = new SimpleBooleanProperty(false);
     private boolean initialized = false;
 
     /**
@@ -61,18 +61,6 @@ public abstract class BasicEditor implements AttributeEditor {
         this.attribute = att;
         this.orgSample = att.getLatestSample();
     }
-
-
-    @Override
-    public void update() {
-        logger.trace("Update()");
-        Platform.runLater(() -> {
-            this.editorNode.getChildren().clear();
-            this.editorNode.getChildren().add(buildGui(this.attribute));
-            initialized = true;
-        });
-    }
-
 
     private Node buildGui(JEVisAttribute att) {
         HBox hbox = new HBox(6);
@@ -88,7 +76,8 @@ public abstract class BasicEditor implements AttributeEditor {
                 valueField.setText(formatSample(this.orgSample));
                 this.isValid.setValue(true);
 
-                Tooltip tt = new Tooltip("TimeStamp: " + this.orgSample.getTimestamp().toString(DateTimeFormat.patternForStyle("MS", I18n.getInstance().getLocale())));
+                Tooltip tt = new Tooltip("TimeStamp: " +
+                        this.orgSample.getTimestamp().toString(DateTimeFormat.patternForStyle("MS", I18n.getInstance().getLocale())));
                 tt.setOpacity(0.5);
                 valueField.setTooltip(tt);
             }
@@ -98,22 +87,23 @@ public abstract class BasicEditor implements AttributeEditor {
         }
 
         hbox.getChildren().addAll(valueField);
-        try {
-            JEVisUnit selectedUnit = new JEVisUnitImp(Dimensionless.UNIT, "", "");
-            if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
-                selectedUnit = this.attribute.getDisplayUnit();
-            } else {
-                selectedUnit = this.attribute.getInputUnit();
-            }
-            FavUnitList favUnitList = new FavUnitList(this.attribute, selectedUnit, true);
-            hbox.getChildren().add(favUnitList);
-        } catch (Exception ex) {
-            logger.error(ex, ex);
-        }
 
 
         if (attribute.getName().equals("Value") || attribute.getName().equals("value")) {
             hbox.getChildren().add(new AnalysisLinkButton(att));
+
+            try {
+                JEVisUnit selectedUnit = new JEVisUnitImp(Dimensionless.UNIT, "", "");
+                if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
+                    selectedUnit = this.attribute.getDisplayUnit();
+                } else {
+                    selectedUnit = this.attribute.getInputUnit();
+                }
+                FavUnitList favUnitList = new FavUnitList(this.attribute, selectedUnit, true);
+                hbox.getChildren().add(favUnitList);
+            } catch (Exception ex) {
+                logger.error(ex, ex);
+            }
         }
 
         valueField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -141,7 +131,6 @@ public abstract class BasicEditor implements AttributeEditor {
 
         return hbox;
     }
-
 
     public boolean isOtherUnit(JEVisUnit unit) {
         return unit.getLabel().equals("other");
@@ -218,6 +207,20 @@ public abstract class BasicEditor implements AttributeEditor {
         return this.attribute;
     }
 
+    @Override
+    public boolean isValid() {
+        return this.isValid.getValue();
+    }
+
+    @Override
+    public void update() {
+        logger.trace("Update()");
+        Platform.runLater(() -> {
+            this.editorNode.getChildren().clear();
+            this.editorNode.getChildren().add(buildGui(this.attribute));
+            initialized = true;
+        });
+    }
 
     public abstract ValidatorBase getValidator();
 
@@ -234,10 +237,5 @@ public abstract class BasicEditor implements AttributeEditor {
      * @return
      */
     public abstract boolean validateEmptyValue();
-
-    @Override
-    public boolean isValid() {
-        return this.isValid.getValue();
-    }
 
 }
