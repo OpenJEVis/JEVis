@@ -25,6 +25,7 @@ public class CalculationViewController {
     private MFXButton buttonLog;
     @FXML
     private MFXButton buttonDot;
+
     @FXML
     private MFXButton buttonSeven;
     @FXML
