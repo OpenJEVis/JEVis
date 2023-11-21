@@ -8,23 +8,22 @@ import javafx.event.EventHandler;
 import javafx.scene.control.ScrollToEvent;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.skin.TableViewSkin;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SummeryTable extends TableView<SummeryData> implements TableFindScrollbar {
 
-    private static Method columnToFitMethod;
+    //TODO JFX17
+    // private static Method columnToFitMethod;
 
-    static {
-        try {
-            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
-            columnToFitMethod.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
+    // static {
+//        try {
+//            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
+//            columnToFitMethod.setAccessible(true);
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private final TableView dataTable;
 
@@ -93,21 +92,22 @@ public class SummeryTable extends TableView<SummeryData> implements TableFindScr
     }
 
     public void autoFitTable() {
-        if (true) return;
-        for (TableColumn<?, ?> column : this.getColumns()) {
-            try {
-                if (column.getId().equals("Note") || column.getId().equals("Title") || column.getId().equals("Desciption")) {
-                    /*ignore this columns for now, there are to big to autoresize*/
-                } else {
-                    if (getSkin() != null) {
-                        columnToFitMethod.invoke(getSkin(), column, -1);
-                    }
-                }
-
-
-            } catch (Exception e) {
-            }
+        if (true) {
         }
+//        for (TableColumn<?, ?> column : this.getColumns()) {
+//            try {
+//                if (column.getId().equals("Note") || column.getId().equals("Title") || column.getId().equals("Desciption")) {
+//                    /*ignore this columns for now, there are to big to autoresize*/
+//                } else {
+//                    if (getSkin() != null) {
+//                        columnToFitMethod.invoke(getSkin(), column, -1);
+//                    }
+//                }
+//
+//
+//            } catch (Exception e) {
+//            }
+//        }
     }
 
     public ObjectProperty<EventHandler<ScrollToEvent<Integer>>> getScrollToProperty() {

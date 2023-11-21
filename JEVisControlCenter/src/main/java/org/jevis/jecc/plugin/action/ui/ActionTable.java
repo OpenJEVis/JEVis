@@ -12,7 +12,6 @@ import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.skin.TableViewSkin;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +27,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
@@ -38,16 +36,17 @@ public class ActionTable extends TableView<ActionData> {
 
     private static final Logger logger = LogManager.getLogger(ActionTable.class);
 
-    private static Method columnToFitMethod;
+    //TODO JFX17
+//    private static Method columnToFitMethod;
 
-    static {
-        try {
-            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
-            columnToFitMethod.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
+//    static {
+//        try {
+//            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
+//            columnToFitMethod.setAccessible(true);
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     private final TableFilter tableFilter = new TableFilter();
@@ -371,20 +370,20 @@ public class ActionTable extends TableView<ActionData> {
 
 
     public void autoFitTable() {
-        for (TableColumn<ActionData, ?> column : this.getColumns()) {
-            try {
-                if (column.getId().equals("Note") || column.getId().equals("Title") || column.getId().equals("Desciption")) {
-                    /*ignore this columns for now, there are to big to autoresize*/
-                } else {
-                    if (getSkin() != null) {
-                        columnToFitMethod.invoke(getSkin(), column, -1);
-                    }
-                }
-
-
-            } catch (Exception e) {
-            }
-        }
+//        for (TableColumn<ActionData, ?> column : this.getColumns()) {
+//            try {
+//                if (column.getId().equals("Note") || column.getId().equals("Title") || column.getId().equals("Desciption")) {
+//                    /*ignore this columns for now, there are to big to autoresize*/
+//                } else {
+//                    if (getSkin() != null) {
+//                        columnToFitMethod.invoke(getSkin(), column, -1);
+//                    }
+//                }
+//
+//
+//            } catch (Exception e) {
+//            }
+//        }
     }
 
     private Callback<TableColumn<ActionData, String>, TableCell<ActionData, String>> buildShotTextFactory() {

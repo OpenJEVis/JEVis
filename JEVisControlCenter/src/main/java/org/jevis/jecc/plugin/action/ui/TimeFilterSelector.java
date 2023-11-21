@@ -189,7 +189,7 @@ public class TimeFilterSelector extends GridPane {
         months.add(Month.NOVEMBER);
         months.add(Month.DECEMBER);
 
-        MFXComboBox<Month> field = new MFXComboBox(months);
+        MFXComboBox<Month> field = new MFXComboBox<>(months);
         field.setConverter(new StringConverter<Month>() {
             @Override
             public String toString(Month object) {
@@ -230,7 +230,7 @@ public class TimeFilterSelector extends GridPane {
             years.add(year);
             year++;
         }
-        MFXComboBox<Integer> field = new MFXComboBox(years);
+        MFXComboBox<Integer> field = new MFXComboBox<>(years);
         field.setConverter(new StringConverter<Integer>() {
             @Override
             public String toString(Integer object) {
