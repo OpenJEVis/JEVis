@@ -298,7 +298,8 @@ public class ActionTable extends TableView<ActionData> {
         summeryRow1.put(consumptionDevelopmentPropertyCol, statistic.sumNPVResultStrPropertyProperty());
 
         summeryRow1.put(titlePropertyCol, statistic.textSumSinceImplementationProperty());
-        summeryRow2.put(titlePropertyCol, statistic.textSumConsumptionSinceImplementationProperty());
+        summeryRow2.put(titlePropertyCol, statistic.textSumSinceImplementationGrossProperty());
+        //summeryRow2.put(titlePropertyCol, statistic.textSumConsumptionSinceImplementationProperty());
         summeryRow2.put(consumptionDevelopmentPropertyCol, statistic.sumSavingsByMediumProperty());
 
 
