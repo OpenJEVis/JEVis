@@ -23,12 +23,14 @@ public class Statistics {
     private final DoubleProperty sumSinceImplementation = new SimpleDoubleProperty(0.0);
     private final DoubleProperty sumConsumptionSinceImplementation = new SimpleDoubleProperty(0.0);
     private final StringProperty textSumSinceImplementation = new SimpleStringProperty();
+    private final StringProperty textSumSinceImplementationGross = new SimpleStringProperty();
     private final StringProperty textSumConsumptionSinceImplementation = new SimpleStringProperty();
     private final ActionPlanData actionPlan;
     private final SimpleObjectProperty<DateFilter> dateFilter;
     private final DoubleProperty sumInvestProperty = new SimpleDoubleProperty(0.0);
     private final StringProperty sumInvestStrProperty = new SimpleStringProperty();
     private final DoubleProperty sumSavingsProperty = new SimpleDoubleProperty(0.0);
+    private final DoubleProperty sumSavingsGross = new SimpleDoubleProperty(0.0);
     private final StringProperty sumSavingsStrProperty = new SimpleStringProperty();
     private final StringProperty sumSavingsCombinedProperty = new SimpleStringProperty();
     private final DoubleProperty sumNPVResultProperty = new SimpleDoubleProperty(0.0);
@@ -87,6 +89,7 @@ public class Statistics {
         double sumInvest = 0;
         double sumSavings = 0.0;
         double sumImprovement = 0.0;
+        double sumSavingsGrossD = 0.0;
         Map<String, Double> nvpresultMap = new HashMap<>();
         Double zero = new Double(0.0);
         actionPlan.getMediumTags().forEach(s -> {
@@ -98,6 +101,8 @@ public class Statistics {
                 sumInvest += o.npv.get().getInvestment();
                 sumSavings += o.npv.get().einsparung.get();
                 sumImprovement += o.getConsumption().diff.get();
+                if (o.npv.get().einsparung.get() > 0) sumSavingsGrossD += o.npv.get().einsparung.get();
+
 
                 if (!o.mediaTags.get().isEmpty() && !nvpresultMap.isEmpty()) {
                     try {
@@ -115,6 +120,7 @@ public class Statistics {
         sumInvestStrProperty.set(NumerFormating.getInstance().getCurrencyFormat().format(sumInvest));
         sumSavingsProperty.set(sumSavings);
         sumSavingsStrProperty.set(NumerFormating.getInstance().getCurrencyFormat().format(sumSavings));
+        sumSavingsGross.set(sumSavingsGrossD);
         sumNPVResultProperty.set(sumImprovement);
         sumNPVResultStrProperty.set(NumerFormating.getInstance().getDoubleFormate().format(sumImprovement) + " kWh");
 
@@ -211,25 +217,49 @@ public class Statistics {
 
     private void updateSumConsumptionSinceImplementation() {
         logger.debug("------------------------\nCalculate kwh Sum");
-        DoubleProperty sum = new SimpleDoubleProperty(0);
+        DoubleProperty sumNet = new SimpleDoubleProperty(0);
+        DoubleProperty sumGross = new SimpleDoubleProperty(0);
         data.forEach(actionData -> {
             if (actionData.doneDate.get() != null && actionData.doneDate.get().isAfter(dateFilter.get().getFromDate())) {
                 int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
-                sum.set(sum.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
+                sumNet.set(sumNet.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
+
+                if (actionData.consumption.get().diff.get() > 0) {
+                    sumGross.set(sumGross.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
+                }
 
                 logger.debug("Action Nr: " + actionData.nr.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
                 logger.debug("Sum: " + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)) + "= " + daysRunning + "*(" + actionData.consumption.get().diff.get() + "/365)");
 
             }
         });
-        logger.debug("Total Sum: " + sum.get());
-        sumSinceImplementation.setValue(sum.get());
+        logger.debug("Total Sum: " + sumNet.get());
+        sumSinceImplementation.setValue(sumNet.get());
         textSumSinceImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceImp")
-                + ":\t" + NumerFormating.getInstance().getDoubleFormate().format(sum.get()) + " kWh");
+                + ":\t" + NumerFormating.getInstance().getDoubleFormate().format(sumNet.get()) + " kWh");
+        textSumSinceImplementationGross.set(I18n.getInstance().getString("plugin.action.statistics.saveGrossSinceImp")
+                + ":\t" + NumerFormating.getInstance().getDoubleFormate().format(sumGross.get()) + " kWh");
+
     }
 
     public double getSumSavingsProperty() {
         return sumSavingsProperty.get();
+    }
+
+    public String getTextSumSinceImplementationGross() {
+        return textSumSinceImplementationGross.get();
+    }
+
+    public StringProperty textSumSinceImplementationGrossProperty() {
+        return textSumSinceImplementationGross;
+    }
+
+    public double getSumSavingsGross() {
+        return sumSavingsGross.get();
+    }
+
+    public DoubleProperty sumSavingsGrossProperty() {
+        return sumSavingsGross;
     }
 
     public DoubleProperty sumSavingsPropertyProperty() {
