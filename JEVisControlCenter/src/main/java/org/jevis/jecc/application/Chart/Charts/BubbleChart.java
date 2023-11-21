@@ -1,5 +1,6 @@
 package org.jevis.jecc.application.Chart.Charts;
 
+import com.ibm.icu.text.NumberFormat;
 import de.gsi.chart.marker.DefaultMarker;
 import de.gsi.chart.renderer.ErrorStyle;
 import de.gsi.chart.renderer.LineStyle;
@@ -36,11 +37,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BubbleChart extends XYChart {
-    private final List<Color> hexColors = new ArrayList<>();
     private final List<Integer> noOfBubbles = new ArrayList<>();
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private final Map<Double, Double> modifiedX = new HashMap<>();
     private final Map<Double, Double> modifiedY = new HashMap<>();
+    private final Map<Double, List<Boolean>> visibleSamples = new HashMap<>();
     private final TreeMap<Double, Double> sampleTreeMap = new TreeMap<>();
     private final Double nearest = 0d;
     private final List<Bubble> bubbles = new ArrayList<>();
@@ -139,7 +140,7 @@ public class BubbleChart extends XYChart {
                             hexColors.add(model.getColor());
                         }
                     }
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -178,8 +179,16 @@ public class BubbleChart extends XYChart {
                             double old = modifiedX.get(i);
                             modifiedX.remove(i);
                             modifiedX.put(i, old + 1);
+
+                            List<Boolean> oldBool = visibleSamples.get(i);
+                            visibleSamples.remove(i);
+                            oldBool.add(Boolean.TRUE);
+                            visibleSamples.put(i, oldBool);
                         } else {
                             modifiedX.put(i, 1.0);
+                            List<Boolean> list = new ArrayList<>();
+                            list.add(Boolean.TRUE);
+                            visibleSamples.put(i, list);
                         }
 
                         if (xWithSamples.get(i) != null) {
@@ -222,7 +231,7 @@ public class BubbleChart extends XYChart {
                             yWithSamples.put(i, newList);
                         }
                     }
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -238,10 +247,10 @@ public class BubbleChart extends XYChart {
             for (DateTime dt : entry.getValue()) {
 
                 for (DateTime dateTime : entry.getValue()) {
-                    if (firstBeforeDate == null && yList.size() > 0) {
+                    if (firstBeforeDate == null && !yList.isEmpty()) {
                         try {
                             firstBeforeDate = yList.get(0).getTimestamp();
-                        } catch (JEVisException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     } else if (dateTime.isBefore(dt) && dateTime.isAfter(firstBeforeDate)) {
@@ -264,12 +273,12 @@ public class BubbleChart extends XYChart {
                                     size++;
                                 }
                             }
-                        } catch (JEVisException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                 } else {
-                    if (entry.getValue().size() > 0) {
+                    if (!entry.getValue().isEmpty()) {
                         lastDate = entry.getValue().get(entry.getValue().size() - 1);
                     }
                 }
@@ -292,7 +301,7 @@ public class BubbleChart extends XYChart {
                         value = results.get(0).getValueAsDouble();
                     }
 
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -307,7 +316,7 @@ public class BubbleChart extends XYChart {
             minY.set(Math.min(minY.get(), modifiedY.get(aInteger)));
             maxY.set(Math.max(maxY.get(), modifiedY.get(aInteger)));
             maxSize.set(Math.max(maxSize.get(), aInteger2.doubleValue()));
-            bubbles.add(new Bubble(xWithSamples.get(aInteger), yWithSamples.get(aInteger), aInteger.doubleValue(), modifiedY.get(aInteger), aInteger2.doubleValue()));
+            bubbles.add(new Bubble(xWithSamples.get(aInteger), yWithSamples.get(aInteger), aInteger.doubleValue(), modifiedY.get(aInteger), aInteger2.doubleValue(), visibleSamples.get(aInteger)));
             sampleTreeMap.put(aInteger.doubleValue(), modifiedY.get(aInteger));
             arrayList.add(modifiedY.get(aInteger));
         });
@@ -504,5 +513,13 @@ public class BubbleChart extends XYChart {
 
     public List<Bubble> getBubbles() {
         return bubbles;
+    }
+
+    public NumberFormat getNf() {
+        return nf;
+    }
+
+    public Map<Double, List<Boolean>> getVisibleSamples() {
+        return visibleSamples;
     }
 }

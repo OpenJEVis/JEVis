@@ -35,7 +35,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 public class LocalNameDialog {
 
@@ -128,7 +127,7 @@ public class LocalNameDialog {
                 } else {
                     try {
                         if (item == null) {
-                            TranslationRow rowItem = (TranslationRow) getTableRow().getItem();
+                            TranslationRow rowItem = getTableRow().getItem();
                             MFXComboBox<Locale> langBox = buildLangBox(null);
                             langBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
@@ -141,7 +140,7 @@ public class LocalNameDialog {
                             });
                             setGraphic(langBox);
                         } else {
-                            TranslationRow rowItem = (TranslationRow) getTableRow().getItem();
+                            TranslationRow rowItem = getTableRow().getItem();
                             MFXComboBox<Locale> langBox = buildLangBox(new Locale(item));
                             langBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
@@ -213,16 +212,7 @@ public class LocalNameDialog {
                                 commitLangMap.put(I18n.getInstance().getLocale().getLanguage(), newName);
                             }
                             object.setLocalNames(commitLangMap);
-                            if (!object.getLocalName("en").isEmpty()) {
-                                object.setName(object.getLocalName("en"));
-                            } else if (!object.getLocalName("de").isEmpty()) {
-                                object.setName(object.getLocalName("de"));
-                            } else {
-                                Optional<String> firstKey = object.getLocalNameList().keySet().stream().findFirst();
-                                if (firstKey.isPresent()) {
-                                    object.setName(object.getLocalName(firstKey.get()));
-                                }
-                            }
+                            object.setName(newName);
                             object.commit();
 
                         } catch (Exception ex) {

@@ -469,7 +469,7 @@ public class CSVColumnHeader {
                         //TODO reimplement unit
 //                        Unit kwh = SI.KILO(SI.WATT.times(NonSI.HOUR));
 //                        UnitChooserDialog dia = new UnitChooserDialog();
-//                        dia.showSelector(JEConfig.getStage(), kwh, "");
+//                        dia.showSelector(ControlCenter.getStage(), kwh, "");
                     }
 
                 } catch (JEVisException ex) {

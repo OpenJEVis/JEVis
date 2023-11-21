@@ -76,6 +76,7 @@ public class TopMenu extends MenuBar {
     private static final Logger logger = LogManager.getLogger(TopMenu.class);
     private static final String stylesString = "/styles/Styles.css";
     private static final String chartString = "/styles/charts.css";
+    private static final String rtfString = "rtf/richtext/rich-text.css";
     private static final String standardString = "/styles/Standard.css";
     private static final String darkString = "/styles/Dark.css";
     private static final String amberString = "/styles/Amber.css";
@@ -83,7 +84,7 @@ public class TopMenu extends MenuBar {
     private static final String indigoString = "/styles/Indigo.css";
     private static final String redString = "/styles/Red.css";
     private static final String whiteString = "/styles/White.css";
-    private static final List<String> allThemes = Arrays.asList(stylesString, chartString, standardString, darkString, amberString,
+    private static final List<String> allThemes = Arrays.asList(stylesString, chartString, rtfString, standardString, darkString, amberString,
             greenString, indigoString, redString, whiteString);
     private static String activeTheme;
     private final List<MenuItem> items = new ArrayList<>();
@@ -101,6 +102,7 @@ public class TopMenu extends MenuBar {
         scene.getStylesheets().removeAll(allThemes);
         scene.getStylesheets().add(stylesString);
         scene.getStylesheets().add(chartString);
+        scene.getStylesheets().add(rtfString);
         scene.getStylesheets().add(activeTheme);
     }
 
@@ -134,15 +136,14 @@ public class TopMenu extends MenuBar {
     private Menu createPluginMenu() {
         Menu pluginMenu = new Menu(I18n.getInstance().getString("menu.plugins.chart.favorites"));
 
-        if (getActivePlugin() != null && getActivePlugin() instanceof ChartPlugin) {
-            ChartPlugin chartPlugin = (ChartPlugin) getActivePlugin();
+        if (getActivePlugin() != null && getActivePlugin() instanceof ChartPlugin chartPlugin) {
             FavoriteAnalysisHandler favoriteAnalysisHandler = chartPlugin.getFavoriteAnalysisHandler();
             favoriteAnalysisHandler.loadDataModel();
 
             MenuItem addAnalysisToFavorites = new MenuItem(I18n.getInstance().getString("menu.plugins.chart.addfavorite"));
 
             addAnalysisToFavorites.setOnAction(event -> {
-                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectedAnalysis();
+                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectionModel().getSelectedItem();
                 DataSettings dataSettings = chartPlugin.getDataSettings();
 
                 if (selectedAnalysis != null) {
@@ -206,7 +207,7 @@ public class TopMenu extends MenuBar {
             MenuItem removeAnalysisFromFavorites = new MenuItem(I18n.getInstance().getString("menu.plugins.chart.removefavorite"));
 
             removeAnalysisFromFavorites.setOnAction(event -> {
-                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectedAnalysis();
+                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectionModel().getSelectedItem();
                 DataSettings dataSettings = chartPlugin.getDataSettings();
                 List<FavoriteAnalysis> toBeRemoved = new ArrayList<>();
                 favoriteAnalysisHandler.getFavoriteAnalysesList().forEach(favoriteAnalysis -> {
@@ -556,13 +557,14 @@ public class TopMenu extends MenuBar {
                     String note = String.format("Password set by %s", getActivePlugin().getDataSource().getCurrentUser().getAccountName());
 
                     JEVisSample sample;
+                    /*
                     if (getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").hasSample()) {
                         sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").getLatestSample();
                         sample.setValue(dia.getPassword());
-                    } else {
-                        sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").buildSample(new DateTime(), dia.getPassword(), note);
+                    } else {*/
+                    sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").buildSample(new DateTime(), dia.getPassword(), note);
 
-                    }
+                    // }
                     sample.commit();
 
 
@@ -596,8 +598,7 @@ public class TopMenu extends MenuBar {
                 if (newValue) {
                     ControlCenter.getStatusBar().setParallelProcesses(finalI);
                     for (MenuItem menuItem : threadCount.getItems()) {
-                        if (menuItem instanceof CheckMenuItem) {
-                            CheckMenuItem otherItem = (CheckMenuItem) menuItem;
+                        if (menuItem instanceof CheckMenuItem otherItem) {
                             if (!otherItem.equals(cmi)) {
                                 otherItem.setSelected(false);
                             }
@@ -758,8 +759,14 @@ public class TopMenu extends MenuBar {
                 event.consume();
             });
 
+            MenuItem deleteDependencies = new MenuItem(I18n.getInstance().getString("plugin.objects.dialog.deletedependencies.title"));
+            deleteDependencies.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            deleteDependencies.setOnAction(actionEvent -> {
+                getActivePlugin().handleRequest(Constants.Plugin.Command.DELETE_DEPENDENCIES);
+                actionEvent.consume();
+            });
 
-            menuEdit.getItems().addAll(new SeparatorMenuItem(), deleteAllCleanAndRaw, setLimits, setSubstitutionSettings, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation);
+            menuEdit.getItems().addAll(new SeparatorMenuItem(), deleteAllCleanAndRaw, setLimits, setSubstitutionSettings, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation, deleteDependencies);
         }
 
         return menuEdit;
@@ -816,6 +823,7 @@ public class TopMenu extends MenuBar {
             ControlCenter.getStage().getScene().getStylesheets().removeAll(allThemes);
             ControlCenter.getStage().getScene().getStylesheets().add(stylesString);
             ControlCenter.getStage().getScene().getStylesheets().add(chartString);
+            ControlCenter.getStage().getScene().getStylesheets().add(rtfString);
             ControlCenter.getStage().getScene().getStylesheets().add(themeString);
         });
 

@@ -1,16 +1,20 @@
 {
   "jevisclass": "User Role Directory",
   "names": {
-    "de": "Benutzerverzeichniss",
-    "ru": "Каталог пользователей",
-    "en": "User directory",
-    "ar": "دليل دور المستخدم"
+    "de": "Benutzerrollen",
+    "ru": "роли пользователей",
+    "th": "บทบาทของผู้ใช้",
+    "en": "User role directory",
+    "uk": "ролі користувачів",
+    "ar": "أدوار المستخدمين"
   },
   "descriptions": {
-    "de": "Die Klasse Benutzerverzeichniss stellt ein Benutzerverzeichniss für die Strukturierung des Systems dar.",
-    "ru": "The class Directory represents a user directory directory for the structuring of the system.",
-    "en": "The class Directory represents a user directory directory for the structuring of the system.",
-    "ar": "تمثل فئة دليل المستخدم دليل مستخدم لهيكلة النظام"
+    "de": "Die Klasse Benutzerrollen stellt ein Verzeichnis für die Strukturierung der Benutzerrollen des Systems dar.",
+    "ru": "Класс User Roles представляет каталог для структурирования ролей пользователей системы.",
+    "en": "The User Roles directory class represents a directory for structuring the system's user roles.",
+    "th": "คลาส User Roles แสดงถึงไดเร็กทอรีสำหรับจัดโครงสร้างบทบาทผู้ใช้ของระบบ",
+    "uk": "Клас User Roles представляє каталог для структурування ролей користувачів системи.",
+    "ar": "تمثل فئة أدوار المستخدم دليلًا لهيكلة أدوار مستخدم النظام."
   },
   "types": []
 }

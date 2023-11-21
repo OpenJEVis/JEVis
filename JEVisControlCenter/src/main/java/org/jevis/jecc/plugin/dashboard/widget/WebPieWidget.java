@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.JsonNames;
 import org.jevis.jecc.plugin.dashboard.config2.Size;
 import org.jevis.jecc.plugin.dashboard.config2.WidgetPojo;
@@ -51,17 +50,12 @@ public class WebPieWidget extends Widget {
         super(control, config);
     }
 
-    public static String toRGBCode(Color color) {
-        return String.format("#%02X%02X%02X",
-                (int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255),
-                (int) (color.getBlue() * 255));
-    }
 
     @Override
     public void debug() {
 
     }
+
 
     @Override
     public WidgetPojo createDefaultConfig() {
@@ -73,6 +67,7 @@ public class WebPieWidget extends Widget {
 
         return widgetPojo;
     }
+
 
     @Override
     public void updateData(Interval interval) {
@@ -174,16 +169,43 @@ public class WebPieWidget extends Widget {
         return false;
     }
 
+
     @Override
     public List<DateTime> getMaxTimeStamps() {
         return sampleHandler.getMaxTimeStamps();
+    }
+
+
+    public static String toRGBCode(Color color) {
+        return String.format("#%02X%02X%02X",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
+    }
+
+    @Override
+    public String typeID() {
+        return WIDGET_ID;
+    }
+
+    @Override
+    public ObjectNode toNode() {
+        ObjectNode dashBoardNode = super.createDefaultNode();
+        dashBoardNode
+                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
+        return dashBoardNode;
+    }
+
+    @Override
+    public ImageView getImagePreview() {
+        return ControlCenter.getImage("widget/DonutWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
     @Override
     public void init() {
 
         try {
-            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
             this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -210,22 +232,140 @@ public class WebPieWidget extends Widget {
 
     }
 
-    @Override
-    public String typeID() {
-        return WIDGET_ID;
+    private String buildHTMLPie3(List<PieData> pieDataList) {
+        StringBuilder sb = new StringBuilder();
+
+        String unit = "";
+        for (PieData pieData : pieDataList) {
+            unit = pieData.getUnit();
+            break;
+        }
+
+        sb.append("<html>");
+        sb.append("<head>");
+        sb.append("<meta charset=\"utf-8\">");
+        sb.append("<script src=\"");
+        sb.append(getClass().getResource("/html/echarts/echarts.min2.js"));
+        sb.append("\"></script>");
+        sb.append("</head>");
+        sb.append("<body bgcolor=\"#FFFFFF\" >");
+        sb.append("<div id=\"main\" style=\"width:");
+        sb.append(this.borderPane.getWidth() - 20);
+        sb.append("px;height:");
+        sb.append(this.borderPane.getHeight() - 20);
+        sb.append("px;\"></div>");
+        sb.append("<script type=\"text/javascript\">");
+        sb.append("var myChart = echarts.init(document.getElementById('main'));");
+
+        sb.append("option = {" +
+                "    backgroundColor: '#FFFFFF'," +
+                "    calculable : true," +
+                "    series : [" +
+                "        {" +
+                "            name:'Pie'," +
+                "            type:'sunburst'," +
+                "            radius : [10, 60]," +
+                "            center : ['50%', '50%']," +
+//                "            roseType : 'area'," +
+                "            animation: false," +
+                "            hoverAnimation: true," +
+                "            label:{ " +
+                "                   formatter: '{b}: \\n{@1} " + unit + " ({d}%)'," +
+                "                   color: '#000000'" +
+                "            }," +
+                "            data:[");
+
+
+        boolean firstElement = true;
+        for (PieData pieData : pieDataList) {
+            if (!firstElement) {
+                sb.append(",");
+            }
+            sb.append(String.format("{value:%s, name:'%s',itemStyle: {color: '%s'}}"
+                    , pieData.getRealValue(), pieData.getLineName(), toRGBCode(pieData.getColor())));
+            firstElement = false;
+        }
+        sb.append("]");
+        sb.append("}");
+        sb.append("]");
+        sb.append("};");
+
+
+        sb.append("myChart.setOption(option)");
+        sb.append(" </script>");
+        sb.append("</body>");
+        sb.append("</html>");
+
+
+        return sb.toString();
     }
 
-    @Override
-    public ObjectNode toNode() {
-        ObjectNode dashBoardNode = super.createDefaultNode();
-        dashBoardNode
-                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
-        return dashBoardNode;
-    }
+    private String buildHTMLPie(List<PieData> pieDataList) {
+        StringBuilder sb = new StringBuilder();
 
-    @Override
-    public ImageView getImagePreview() {
-        return ControlCenter.getImage("widget/DonutWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+        String unit = "";
+        for (PieData pieData : pieDataList) {
+            unit = pieData.getUnit();
+            break;
+        }
+
+        sb.append("<html>");
+        sb.append("<head>");
+        sb.append("<meta charset=\"utf-8\">");
+        sb.append("<script src=\"");
+        sb.append(getClass().getResource("/html/echarts/echarts.min.js"));
+        sb.append("\"></script>");
+        sb.append("</head>");
+        sb.append("<body bgcolor=\"#FFFFFF\" >");
+        sb.append("<div id=\"main\" style=\"width:");
+        sb.append(this.borderPane.getWidth() - 20);
+        sb.append("px;height:");
+        sb.append(this.borderPane.getHeight() - 20);
+        sb.append("px;\"></div>");
+        sb.append("<script type=\"text/javascript\">");
+        sb.append("var myChart = echarts.init(document.getElementById('main'));");
+
+        sb.append("option = {" +
+                "    backgroundColor: '#FFFFFF'," +
+                "    calculable : true," +
+                "    series : [" +
+                "        {" +
+                "            name:'Pie'," +
+                "            type:'pie'," +
+                "            radius : [10, 60]," +
+                "            center : ['50%', '50%']," +
+                "            roseType : 'area'," +
+                "            animation: false," +
+                "            hoverAnimation: true," +
+                "            label:{ " +
+                "                   formatter: '{b}: \\n{@1} " + unit + " ({d}%)'," +
+                "                   color: '#000000'" +
+                "            }," +
+                "            data:[");
+
+
+        boolean firstElement = true;
+        for (PieData pieData : pieDataList) {
+            if (!firstElement) {
+                sb.append(",");
+            }
+            sb.append(String.format("{value:%s, name:'%s',itemStyle: {color: '%s'}}"
+                    , pieData.getRealValue(), pieData.getLineName(), toRGBCode(pieData.getColor())));
+            firstElement = false;
+        }
+        sb.append("]");
+        sb.append("}");
+        sb.append("]");
+        sb.append("};");
+
+
+        sb.append("myChart.setOption(option)");
+        sb.append(" </script>");
+        sb.append("</body>");
+        sb.append("</html>");
+
+
+        return sb.toString();
     }
 
     private String buildHTMLPie2(List<PieData> pieDataList) {
@@ -249,7 +389,7 @@ public class WebPieWidget extends Widget {
                         "var pie = new d3pie(\"pieChart\", {" +
                         "\"header\": {" +
                         "\"title\": {" +
-                        "\"text\": \"" + "" + "\"," +
+                        "\"text\": \"" + "\"," +
                         "\"fontSize\": 18," +
                         "\"font\": \"courier\"" +
                         "},\n" +
@@ -340,150 +480,9 @@ public class WebPieWidget extends Widget {
                         "}" +
                         "});" +
                         "</script>" +
-                        "" +
                         "</body>" +
                         "</html>"
         );
-
-
-        return sb.toString();
-    }
-
-    private String buildHTMLPie3(List<PieData> pieDataList) {
-        StringBuilder sb = new StringBuilder();
-
-        String unit = "";
-        for (PieData pieData : pieDataList) {
-            unit = pieData.getUnit();
-            break;
-        }
-
-        sb.append("<html>");
-        sb.append("<head>");
-        sb.append("<meta charset=\"utf-8\">");
-        sb.append("<script src=\"");
-        sb.append(getClass().getResource("/html/echarts/echarts.min2.js"));
-        sb.append("\"></script>");
-        sb.append("</head>");
-        sb.append("<body bgcolor=\"#FFFFFF\" >");
-        sb.append("<div id=\"main\" style=\"width:");
-        sb.append(this.borderPane.getWidth() - 20);
-        sb.append("px;height:");
-        sb.append(this.borderPane.getHeight() - 20);
-        sb.append("px;\"></div>");
-        sb.append("<script type=\"text/javascript\">");
-        sb.append("var myChart = echarts.init(document.getElementById('main'));");
-
-        sb.append("option = {" +
-                "" +
-                "    backgroundColor: '#FFFFFF'," +
-                "    calculable : true," +
-                "    series : [" +
-                "" +
-                "        {" +
-                "            name:'Pie'," +
-                "            type:'sunburst'," +
-                "            radius : [10, 60]," +
-                "            center : ['50%', '50%']," +
-//                "            roseType : 'area'," +
-                "            animation: false," +
-                "            hoverAnimation: true," +
-                "            label:{ " +
-                "                   formatter: '{b}: \\n{@1} " + unit + " ({d}%)'," +
-                "                   color: '#000000'" +
-                "            }," +
-                "            data:[");
-
-
-        boolean firstElement = true;
-        for (PieData pieData : pieDataList) {
-            if (!firstElement) {
-                sb.append(",");
-            }
-            sb.append(String.format("{value:%s, name:'%s',itemStyle: {color: '%s'}}"
-                    , pieData.getRealValue(), pieData.getLineName(), toRGBCode(pieData.getColor())));
-            firstElement = false;
-        }
-        sb.append("]");
-        sb.append("}");
-        sb.append("]");
-        sb.append("};");
-
-
-        sb.append("myChart.setOption(option)");
-        sb.append(" </script>");
-        sb.append("</body>");
-        sb.append("</html>");
-
-
-        return sb.toString();
-    }
-
-    private String buildHTMLPie(List<PieData> pieDataList) {
-        StringBuilder sb = new StringBuilder();
-
-        String unit = "";
-        for (PieData pieData : pieDataList) {
-            unit = pieData.getUnit();
-            break;
-        }
-
-        sb.append("<html>");
-        sb.append("<head>");
-        sb.append("<meta charset=\"utf-8\">");
-        sb.append("<script src=\"");
-        sb.append(getClass().getResource("/html/echarts/echarts.min.js"));
-        sb.append("\"></script>");
-        sb.append("</head>");
-        sb.append("<body bgcolor=\"#FFFFFF\" >");
-        sb.append("<div id=\"main\" style=\"width:");
-        sb.append(this.borderPane.getWidth() - 20);
-        sb.append("px;height:");
-        sb.append(this.borderPane.getHeight() - 20);
-        sb.append("px;\"></div>");
-        sb.append("<script type=\"text/javascript\">");
-        sb.append("var myChart = echarts.init(document.getElementById('main'));");
-
-        sb.append("option = {" +
-                "" +
-                "    backgroundColor: '#FFFFFF'," +
-                "    calculable : true," +
-                "    series : [" +
-                "" +
-                "        {" +
-                "            name:'Pie'," +
-                "            type:'pie'," +
-                "            radius : [10, 60]," +
-                "            center : ['50%', '50%']," +
-                "            roseType : 'area'," +
-                "            animation: false," +
-                "            hoverAnimation: true," +
-                "            label:{ " +
-                "                   formatter: '{b}: \\n{@1} " + unit + " ({d}%)'," +
-                "                   color: '#000000'" +
-                "            }," +
-                "            data:[");
-
-
-        boolean firstElement = true;
-        for (PieData pieData : pieDataList) {
-            if (!firstElement) {
-                sb.append(",");
-            }
-            sb.append(String.format("{value:%s, name:'%s',itemStyle: {color: '%s'}}"
-                    , pieData.getRealValue(), pieData.getLineName(), toRGBCode(pieData.getColor())));
-            firstElement = false;
-        }
-        sb.append("]");
-        sb.append("}");
-        sb.append("]");
-        sb.append("};");
-
-
-        sb.append("myChart.setOption(option)");
-        sb.append(" </script>");
-        sb.append("</body>");
-        sb.append("</html>");
 
 
         return sb.toString();
@@ -506,10 +505,6 @@ public class WebPieWidget extends Widget {
 
         public Color getColor() {
             return this.color;
-        }
-
-        public void setColor(Color color) {
-            this.color = color;
         }
 
         public double getRealValue() {
@@ -550,6 +545,10 @@ public class WebPieWidget extends Widget {
 
         public void setUnit(String unit) {
             this.unit = unit;
+        }
+
+        public void setColor(Color color) {
+            this.color = color;
         }
     }
 }

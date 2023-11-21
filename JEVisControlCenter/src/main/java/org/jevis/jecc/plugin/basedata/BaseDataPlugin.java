@@ -28,11 +28,11 @@ import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jecc.*;
 import org.jevis.jecc.application.application.I18nWS;
 import org.jevis.jecc.application.tools.JEVisHelp;
+import org.jevis.jecc.plugin.RegisterTableRow;
 import org.jevis.jecc.plugin.TablePlugin;
 import org.jevis.jecc.plugin.charts.TableViewContextMenuHelper;
-import org.jevis.jecc.plugin.meters.JEVisClassTab;
+import org.jevis.jecc.plugin.equipment.JEVisClassTab;
 import org.jevis.jecc.plugin.meters.MeterPlugin;
-import org.jevis.jecc.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -140,7 +140,7 @@ public class BaseDataPlugin extends TablePlugin {
                                         setText(null);
                                         setGraphic(null);
                                     } else {
-                                        RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
+                                        RegisterTableRow registerTableRow = getTableRow().getItem();
                                         JEVisAttribute att = registerTableRow.getAttributeMap().get(type);
                                         MFXButton manSampleButton = new MFXButton("", ControlCenter.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
                                         manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));

@@ -197,30 +197,9 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                         DoubleValidator validator = new DoubleValidator();
                         Double newVal = validator.validate(doubleField.getText(), I18n.getInstance().getLocale());
 
+
                         if (newVal != null) {
 
-                            JEVisAttribute valueAttribute = null;
-                            JEVisAttribute periodAttribute = null;
-                            JEVisAttribute diffAttribute = null;
-                            Map<JsonLimitsConfig, JEVisObject> limitsConfigs = new HashMap<>();
-                            try {
-                                valueAttribute = selectedObject.getAttribute("Value");
-
-                                if (selectedObject != null && selectedObject.getJEVisClass().equals(baseDataClass)) {
-                                    diffAttribute = selectedObject.getAttribute(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
-                                }
-
-                                for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
-                                    diffAttribute = jeVisObject.getAttribute(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
-                                    CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject);
-                                    if (cleanDataObject.getLimitsConfig().size() > 0) {
-                                        limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
-                                    }
-                                }
-                                periodAttribute = selectedObject.getAttribute("Period");
-                            } catch (Exception e) {
-                                logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
-                            }
                             DateTime ts = null;
 
                             Integer year = yearBox.getSelectionModel().getSelectedItem();
@@ -256,73 +235,157 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                                     break;
                             }
 
-                            if (valueAttribute != null) {
 
-                                JEVisSample diffSample = null;
-                                Boolean isDiff = false;
-                                if (diffAttribute != null && diffAttribute.hasSample()) {
-                                    diffSample = diffAttribute.getLatestSample();
-                                    try {
-                                        isDiff = diffSample.getValueAsBoolean();
-                                    } catch (JEVisException e) {
-                                        e.printStackTrace();
+                            /** Generic attribute sample **/
+                            if (target != null && !target.getName().equals("Value")) {
+                                /*
+                                List<JEVisSample> oldSample = target.getSamples(ts, ts);
+                                JEVisSample newSample = null;
+                                if (oldSample.isEmpty()) {
+                                    newSample = target.buildSample(ts, newVal);
+                                } else {
+                                    newSample = oldSample.get(oldSample.size() - 1);
+                                    newSample.setValue(newVal);
+                                }
+                                newSample.commit();
+                                */
+                                buildSample(target, ts, newVal);
+
+
+                            } else { /** Value attribute sample with limit and other checks**/
+
+                                JEVisAttribute valueAttribute = null;
+                                JEVisAttribute periodAttribute = null;
+                                JEVisAttribute diffAttribute = null;
+                                Map<JsonLimitsConfig, JEVisObject> limitsConfigs = new HashMap<>();
+                                try {
+                                    valueAttribute = selectedObject.getAttribute("Value");
+
+                                    if (selectedObject != null && selectedObject.getJEVisClass().equals(baseDataClass)) {
+                                        diffAttribute = selectedObject.getAttribute(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
                                     }
+
+                                    for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
+                                        diffAttribute = jeVisObject.getAttribute(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
+                                        CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject);
+                                        if (cleanDataObject.getLimitsConfig().size() > 0) {
+                                            limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
+                                        }
+                                    }
+                                    periodAttribute = selectedObject.getAttribute("Period");
+                                } catch (Exception e) {
+                                    logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
                                 }
 
-                                if (isDiff) {
-                                    if (lastValue != null && lastValue > newVal) {
-                                        Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.differror"));
-                                        warning.setResizable(true);
-                                        JEVisAttribute finalValueAttribute = valueAttribute;
-                                        DateTime finalTs = ts;
-                                        warning.showAndWait().ifPresent(response -> {
-                                            if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                buildSample(finalValueAttribute, finalTs, newVal);
-                                                close();
-                                            } else {
 
-                                            }
-                                        });
+                                if (valueAttribute != null) {
 
-                                    } else {
-                                        boolean hasError = false;
-                                        Period periodForDate = CleanDataObject.getPeriodForDate(periodAttribute.getObject(), ts);
-                                        DateTime prevTs = ts.minus(periodForDate);
-                                        List<JEVisSample> previousSample = valueAttribute.getSamples(prevTs, prevTs);
-                                        Double prevValue = newVal;
+                                    JEVisSample diffSample = null;
+                                    Boolean isDiff = false;
+                                    if (diffAttribute != null && diffAttribute.hasSample()) {
+                                        diffSample = diffAttribute.getLatestSample();
                                         try {
-                                            prevValue = previousSample.get(previousSample.size() - 1).getValueAsDouble();
-                                        } catch (Exception e) {
+                                            isDiff = diffSample.getValueAsBoolean();
+                                        } catch (JEVisException e) {
                                             e.printStackTrace();
                                         }
+                                    }
+
+                                    if (isDiff) {
+                                        if (lastValue != null && lastValue > newVal) {
+                                            Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.differror"));
+                                            warning.setResizable(true);
+                                            JEVisAttribute finalValueAttribute = valueAttribute;
+                                            DateTime finalTs = ts;
+                                            warning.showAndWait().ifPresent(response -> {
+                                                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                    buildSample(finalValueAttribute, finalTs, newVal);
+                                                    close();
+                                                } else {
+
+                                                }
+                                            });
+
+                                        } else {
+                                            boolean hasError = false;
+                                            Period periodForDate = CleanDataObject.getPeriodForDate(periodAttribute.getObject(), ts);
+                                            DateTime prevTs = ts.minus(periodForDate);
+                                            List<JEVisSample> previousSample = valueAttribute.getSamples(prevTs, prevTs);
+                                            Double prevValue = newVal;
+                                            try {
+                                                prevValue = previousSample.get(previousSample.size() - 1).getValueAsDouble();
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
+                                                double newDiff = newVal - prevValue;
+                                                if (newDiff < Double.parseDouble(c.getKey().getMin())) {
+                                                    hasError = true;
+
+                                                    Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.smaller") + " " +
+                                                            newDiff + " < " + Double.parseDouble(c.getKey().getMin()));
+                                                    warning.setResizable(true);
+                                                    JEVisAttribute finalValueAttribute = valueAttribute;
+                                                    DateTime finalTs1 = ts;
+                                                    warning.showAndWait().ifPresent(response -> {
+                                                        if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                            buildSample(finalValueAttribute, finalTs1, newVal);
+                                                        } else {
+
+                                                        }
+                                                    });
+                                                } else if (newDiff > Double.parseDouble(c.getKey().getMax())) {
+                                                    hasError = true;
+
+                                                    Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.bigger") + " " +
+                                                            newDiff + " > " + Double.parseDouble(c.getKey().getMax()));
+                                                    warning.setResizable(true);
+                                                    JEVisAttribute finalValueAttribute = valueAttribute;
+                                                    DateTime finalTs2 = ts;
+                                                    warning.showAndWait().ifPresent(response -> {
+                                                        if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                            buildSample(finalValueAttribute, finalTs2, newVal);
+                                                        } else {
+
+                                                        }
+                                                    });
+                                                }
+                                            }
+
+                                            if (!hasError) {
+                                                buildSample(valueAttribute, ts, newVal);
+                                                close();
+                                            }
+                                        }
+                                    } else {
+                                        boolean hasError = false;
                                         for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
-                                            double newDiff = newVal - prevValue;
-                                            if (newDiff < Double.parseDouble(c.getKey().getMin())) {
+                                            if (newVal < Double.parseDouble(c.getKey().getMin())) {
                                                 hasError = true;
 
-                                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.smaller") + " " +
-                                                        newDiff + " < " + Double.parseDouble(c.getKey().getMin()));
+                                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.smaller") + " " +
+                                                        newVal + " < " + Double.parseDouble(c.getKey().getMin()));
                                                 warning.setResizable(true);
                                                 JEVisAttribute finalValueAttribute = valueAttribute;
-                                                DateTime finalTs1 = ts;
+                                                DateTime finalTs3 = ts;
                                                 warning.showAndWait().ifPresent(response -> {
                                                     if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                        buildSample(finalValueAttribute, finalTs1, newVal);
+                                                        buildSample(finalValueAttribute, finalTs3, newVal);
                                                     } else {
 
                                                     }
                                                 });
-                                            } else if (newDiff > Double.parseDouble(c.getKey().getMax())) {
+                                            } else if (newVal > Double.parseDouble(c.getKey().getMax())) {
                                                 hasError = true;
 
-                                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.bigger") + " " +
-                                                        newDiff + " > " + Double.parseDouble(c.getKey().getMax()));
+                                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.bigger") + " " +
+                                                        newVal + " > " + Double.parseDouble(c.getKey().getMax()));
                                                 warning.setResizable(true);
                                                 JEVisAttribute finalValueAttribute = valueAttribute;
-                                                DateTime finalTs2 = ts;
+                                                DateTime finalTs4 = ts;
                                                 warning.showAndWait().ifPresent(response -> {
                                                     if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                        buildSample(finalValueAttribute, finalTs2, newVal);
+                                                        buildSample(finalValueAttribute, finalTs4, newVal);
                                                     } else {
 
                                                     }
@@ -335,49 +398,12 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                                             close();
                                         }
                                     }
-                                } else {
-                                    boolean hasError = false;
-                                    for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
-                                        if (newVal < Double.parseDouble(c.getKey().getMin())) {
-                                            hasError = true;
 
-                                            Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.smaller") + " " +
-                                                    newVal + " < " + Double.parseDouble(c.getKey().getMin()));
-                                            warning.setResizable(true);
-                                            JEVisAttribute finalValueAttribute = valueAttribute;
-                                            DateTime finalTs3 = ts;
-                                            warning.showAndWait().ifPresent(response -> {
-                                                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                    buildSample(finalValueAttribute, finalTs3, newVal);
-                                                } else {
-
-                                                }
-                                            });
-                                        } else if (newVal > Double.parseDouble(c.getKey().getMax())) {
-                                            hasError = true;
-
-                                            Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.bigger") + " " +
-                                                    newVal + " > " + Double.parseDouble(c.getKey().getMax()));
-                                            warning.setResizable(true);
-                                            JEVisAttribute finalValueAttribute = valueAttribute;
-                                            DateTime finalTs4 = ts;
-                                            warning.showAndWait().ifPresent(response -> {
-                                                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                    buildSample(finalValueAttribute, finalTs4, newVal);
-                                                } else {
-
-                                                }
-                                            });
-                                        }
-                                    }
-
-                                    if (!hasError) {
-                                        buildSample(valueAttribute, ts, newVal);
-                                        close();
-                                    }
                                 }
 
+
                             }
+
 
                         } else {
                             Alert warning = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("plugin.object.dialog.data.error.number"));
@@ -400,7 +426,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         showMoreButton.setOnAction(actionEvent -> {
             JEVisAttribute value = null;
             try {
-                value = selectedObject.getAttribute("Value");
+                value = initSample.getAttribute();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -451,6 +477,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                     }
 
                 } else {
+                    dataTypeBox.setVisible(true);
                     dateTypeLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.datetype.valid"));
                     valueLabel.setText(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
                     lastRawValueLabel.setText(I18n.getInstance().getString("status.table.captions.lastrawvalue"));
@@ -725,7 +752,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
             WorkDays workDays = new WorkDays(selectedObject);
             String unitString = "";
             try {
-                valueAttribute = selectedObject.getAttribute("Value");
+                valueAttribute = selectedObject.getAttribute(target.getType());
 
                 JEVisUnit displayUnit = valueAttribute.getDisplayUnit();
                 unitString = UnitManager.getInstance().format(displayUnit);

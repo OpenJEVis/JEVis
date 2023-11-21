@@ -56,6 +56,7 @@ public class ConfigManager {
         this.objectRelations = new ObjectRelations(jeVisDataSource);
         this.timeFrameFactory = new TimeFrameFactory(this.jeVisDataSource);
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
         this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -84,8 +85,11 @@ public class ConfigManager {
         logger.debug("---------\n {} \n-----------------", this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode));
         if (this.dashboardObject != null) {
             JEVisAttribute dataModel = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE);
+
+            String filenameStr = filename.replaceAll("[^A-Za-z0-9]", "") + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json";
+            
             JEVisFileImp jsonFile = new JEVisFileImp(
-                    filename + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
+                    filename.replaceAll("[^A-Za-z0-9]", "") + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
                     , this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode).getBytes(StandardCharsets.UTF_8));
             JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
             newSample.commit();
@@ -508,7 +512,7 @@ public class ConfigManager {
          newAnalysis.getDialogPane().setContent(gridLayout);
          newAnalysis.getDialogPane().getButtonTypes().addAll(ok, cancel);
          newAnalysis.getDialogPane().setPrefWidth(450d);
-         newAnalysis.initOwner(JEConfig.getStage());
+         newAnalysis.initOwner(ControlCenter.getStage());
 
          /**
          *

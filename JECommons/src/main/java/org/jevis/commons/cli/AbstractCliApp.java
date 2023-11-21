@@ -289,7 +289,7 @@ public abstract class AbstractCliApp {
     }
 
     protected void checkLastJob() {
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+        if (plannedJobs.isEmpty() && runningJobs.isEmpty()) {
             logger.info("Last job. Clearing cache.");
             setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
 //            ds.clearCache();

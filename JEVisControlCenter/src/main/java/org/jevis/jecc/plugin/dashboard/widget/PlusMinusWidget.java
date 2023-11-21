@@ -20,7 +20,6 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.*;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
@@ -39,19 +38,20 @@ import java.util.Optional;
 public class PlusMinusWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(PlusMinusWidget.class);
-    private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     public static String WIDGET_ID = "PlusMinus";
+    private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+
     public static String SHAPE_DESIGN_NODE_NAME = "minMax";
     private final NumberFormat nf = NumberFormat.getInstance();
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
+    private final Interval lastInterval = null;
     private final boolean forceLastValue = true;
-    private Interval lastInterval = null;
     private JEVisSample lastSample = null;
 
     private IncrementPojo incrementPojo;
     private Boolean customWorkday = true;
 
-    private Tile minusPlus;
+    private final Tile minusPlus;
 
 
     public PlusMinusWidget(DashboardControl control, WidgetPojo config) {
@@ -61,8 +61,8 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
             try {
                 if (tileEvent.getEventType().equals(SwitchEvent.SWITCH_RELEASED)) {
                     //TODO JFX17 check working
-                    System.out.println(tileEvent.getEventType().toString());
-                    BigDecimal bd = new BigDecimal(minusPlus.getValue());
+                    logger.debug(tileEvent.getEventType().toString());
+                    BigDecimal bd = BigDecimal.valueOf(minusPlus.getValue());
                     bd = bd.setScale(config.getDecimals(), RoundingMode.HALF_UP);
                     setData(bd.doubleValue());
                 }
@@ -169,7 +169,7 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(false);
         initData();
 

@@ -23,17 +23,18 @@
       "jevisClass": "JSON Data Point"
     },
     {
-      "name": "Value Format",
+      "name": "Target",
       "primitiveType": 0,
+      "guiType": "Object Target",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JSON Data Point"
     },
     {
-      "name": "Target",
+      "name": "Value Format",
       "primitiveType": 0,
-      "guiType": "Object Target",
+      "guiType": "Dynamic Enum",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,

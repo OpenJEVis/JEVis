@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXCheckBox;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import javafx.beans.property.DoubleProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -15,7 +17,6 @@ import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TableView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -28,26 +29,38 @@ import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class GaugePojo {
 
 
     private static final Logger logger = LogManager.getLogger(GaugePojo.class);
-    final DashboardControl dashboardControl;
+
     private final double iconSize = 20;
-    private final MFXButton MFXButtonDelete = new MFXButton("", ControlCenter.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
-    private final MFXButton MFXButtonAdd = new MFXButton("", ControlCenter.getImage("list-add.png", this.iconSize, this.iconSize));
-    private final ActionEvent actionEvent = new ActionEvent();
+
+    final DashboardControl dashboardControl;
+    private final MFXButton mfxButtonDelete = new MFXButton("", ControlCenter.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+
     int gaugeWidgetID = -1;
-    ObservableList<String> skins = FXCollections.observableArrayList();
+
     private double maximum = 0;
+
     private double minimum = 0;
+
     private boolean inPercent = false;
-    private List<GaugeSectionPojo> sections = new ArrayList();
+    private final MFXButton mfxButtonAdd = new MFXButton("", ControlCenter.getImage("list-add.png", this.iconSize, this.iconSize));
+    private final ActionEvent actionEvent = new ActionEvent();
+    ObservableList<String> skins = FXCollections.observableArrayList();
+    private final ObservableList<GaugeSectionPojo> sections = FXCollections.observableArrayList();
+
     private boolean showTitle = true;
+
     private boolean showUnit = true;
+
     private boolean showValue = true;
+    private final List<GaugeSectionPojo> sectionsComitted = new ArrayList<>();
+
     private JFXCheckBox jfxCheckBoxShowTitle;
 
     private JFXCheckBox jfxCheckBoxShowValue;
@@ -59,14 +72,9 @@ public class GaugePojo {
     private MFXTextField minTextField;
 
     private MFXTextField maxTextField;
-
-    private TableView tableViewSections;
+    private GaugeSectionTableView tableViewSections;
 
     private GridPane gridPane;
-
-    public GaugePojo(DashboardControl control) {
-        this(control, null);
-    }
 
     public GaugePojo(DashboardControl control, JsonNode jsonNode) {
 
@@ -99,7 +107,13 @@ public class GaugePojo {
                 double sectionEnd = jsonNode.get("sections").get(i).get("end").asDouble();
                 double sectionStart = jsonNode.get("sections").get(i).get("start").asDouble();
                 Color sectionColor = Color.valueOf(jsonNode.get("sections").get(i).get("color").asText());
-                sections.add(new GaugeSectionPojo(sectionStart, sectionEnd, sectionColor));
+                if (sections.size() > 0) {
+                    sections.add(new GaugeSectionPojo(sectionEnd, sectionColor, sections.get(i - 1).endProperty()));
+                } else {
+                    sections.add(new GaugeSectionPojo(sectionStart, sectionEnd, sectionColor));
+                }
+
+
             }
 
 
@@ -120,6 +134,11 @@ public class GaugePojo {
         return minimum;
     }
 
+
+    public GaugePojo(DashboardControl control) {
+        this(control, null);
+    }
+
     public void setMinimum(Double minimum) {
         this.minimum = minimum;
     }
@@ -128,13 +147,14 @@ public class GaugePojo {
         return gaugeWidgetID;
     }
 
+
     public List<GaugeSectionPojo> getSections() {
         return sections;
     }
 
-    public void setSections(List<GaugeSectionPojo> sections) {
-        this.sections = sections;
-    }
+//    public void setSections(List<GaugeSectionPojo> sections) {
+//        this.sections = sections;
+//    }
 
 
     public boolean isInPercent() {
@@ -184,6 +204,7 @@ public class GaugePojo {
 
     public Tab getConfigTab() {
 
+
         GaugeDesignTab tab = new GaugeDesignTab(I18n.getInstance().getString("plugin.dashboard.gaugewidget.tab")
                 , this);
         gridPane = new GridPane();
@@ -200,25 +221,58 @@ public class GaugePojo {
 
         createMaxMin();
 
-        GaugeSectionTableFactory gaugeSectionTableFactory = new GaugeSectionTableFactory();
+//        tableViewSections = new GaugeSectionTableFactory();
+
+        if (sections.size() > 0) {
+            maxTextField.setDisable(true);
+            minTextField.setDisable(true);
+        }
+        tableViewSections = new GaugeSectionTableView(sections);
 
 
-        tableViewSections = gaugeSectionTableFactory.buildTable();
-        tableViewSections.getItems().addAll(sections);
+        tableViewSections.getItems().addListener(new ListChangeListener() {
+            @Override
+            public void onChanged(Change change) {
+                while (change.next()) {
+                    System.out.println(change.getList());
+                    if (change.getList().size() > 0) {
+                        maxTextField.setText(String.valueOf(sections.stream().max(Comparator.comparing(GaugeSectionPojo::getEnd)).get().getEnd()));
+                        minTextField.setText(String.valueOf(sections.stream().min(Comparator.comparing(GaugeSectionPojo::getStart)).get().getStart()));
 
 
-        MFXButtonAdd.setOnAction(event -> {
-            tableViewSections.getItems().add(new GaugeSectionPojo());
+                        maxTextField.setDisable(true);
+                        minTextField.setDisable(true);
+
+                    } else {
+                        maxTextField.setDisable(false);
+                        minTextField.setDisable(false);
+                    }
+                }
+            }
         });
 
-        MFXButtonDelete.setOnAction(event -> {
+
+        //tableViewSections.getItems().addAll(sections);
+
+
+        mfxButtonAdd.setOnAction(event -> {
+            if (sections.size() > 0) {
+                DoubleProperty doubleProperty = sections.get(sections.size() - 1).endProperty();
+                sections.add(new GaugeSectionPojo(doubleProperty));
+            } else {
+                sections.add(new GaugeSectionPojo());
+            }
+
+        });
+
+        mfxButtonDelete.setOnAction(event -> {
             tableViewSections.getItems().remove(tableViewSections.getSelectionModel().getSelectedItem());
         });
 
         HBox hBox = new HBox();
         hBox.setPadding(new Insets(5, 8, 5, 8));
         hBox.setSpacing(10);
-        hBox.getChildren().addAll(MFXButtonAdd, MFXButtonDelete);
+        hBox.getChildren().addAll(mfxButtonAdd, mfxButtonDelete);
         gridPane.add(hBox, 0, 7, 3, 1);
 
 
@@ -309,12 +363,16 @@ public class GaugePojo {
                 showUnit = jfxCheckBoxShowUnit.isSelected();
                 showTitle = jfxCheckBoxShowTitle.isSelected();
                 inPercent = jfxCheckBoxInPercent.isSelected();
-                minimum = Double.parseDouble(minTextField.getText());
-                maximum = Double.parseDouble(maxTextField.getText());
-
+                if (sections.size() > 0) {
+                    minimum = sections.stream().min(Comparator.comparing(GaugeSectionPojo::getStart)).get().getStart();
+                    maximum = sections.stream().max(Comparator.comparing(GaugeSectionPojo::getEnd)).get().getEnd();
+                } else {
+                    minimum = Double.parseDouble(minTextField.getText());
+                    maximum = Double.parseDouble(maxTextField.getText());
+                }
                 tableViewSections.getItems().forEach(x -> logger.debug(x));
-                sections.clear();
-                sections.addAll(tableViewSections.getItems());
+//                sectionsComitted.clear();
+//                sectionsComitted.addAll(sections);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -322,6 +380,7 @@ public class GaugePojo {
 
 
         }
+
     }
 
 }

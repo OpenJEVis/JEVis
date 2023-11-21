@@ -10,10 +10,10 @@ public class ToolBarSettings {
     private final SimpleBooleanProperty showRawData = new SimpleBooleanProperty(this, "showRawData", false);
     private final SimpleBooleanProperty showSum = new SimpleBooleanProperty(this, "showSum", false);
     private final SimpleBooleanProperty showL1L2 = new SimpleBooleanProperty(this, "ShowL1L2", false);
-    private final SimpleObjectProperty<RegressionType> regressionType = new SimpleObjectProperty<>(this, "regressionType", RegressionType.NONE);
+    private final SimpleObjectProperty<RegressionType> regressionType = new SimpleObjectProperty<>(this, "regressionType", RegressionType.POLY);
     private final SimpleBooleanProperty showIcons = new SimpleBooleanProperty(this, "showIcons", true);
     private final SimpleBooleanProperty calculateRegression = new SimpleBooleanProperty(this, "calculateRegression", false);
-    private final SimpleIntegerProperty polyRegressionDegree = new SimpleIntegerProperty(this, "polyRegressionDegree", -1);
+    private final SimpleIntegerProperty polyRegressionDegree = new SimpleIntegerProperty(this, "polyRegressionDegree", 1);
     private final SimpleBooleanProperty autoResize = new SimpleBooleanProperty(this, "autoResize", true);
     private final SimpleBooleanProperty customWorkday = new SimpleBooleanProperty(this, "customWorkday", true);
     private final SimpleBooleanProperty runUpdate = new SimpleBooleanProperty(this, "runUpdate", false);

@@ -19,7 +19,6 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.*;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
@@ -39,20 +38,21 @@ import java.util.Optional;
 public class SliderWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(SliderWidget.class);
-    private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     public static String WIDGET_ID = "Slider";
+    private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     //private DataModelDataHandler sampleHandler;
+
     public static String SHAPE_DESIGN_NODE_NAME = "minMax";
     private final NumberFormat nf = new DecimalFormat("#,##0.##");//NumberFormat.getInstance();
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
+    private final Interval lastInterval = null;
     private final boolean forceLastValue = true;
-    private Interval lastInterval = null;
     private JEVisSample lastSample = null;
 
     private MinMaxPojo minMaxPojo;
     private Boolean customWorkday = true;
 
-    private Tile slider;
+    private final Tile slider;
 
 
     public SliderWidget(DashboardControl control, WidgetPojo config) {
@@ -61,7 +61,7 @@ public class SliderWidget extends Widget implements DataModelWidget {
         slider.setOnMouseReleased(mouseEvent -> {
             System.out.println(nf.format(slider.getValue()));
             try {
-                BigDecimal bd = new BigDecimal(slider.getValue());
+                BigDecimal bd = BigDecimal.valueOf(slider.getValue());
                 bd = bd.setScale(config.getDecimals(), RoundingMode.HALF_UP);
                 setData(bd.doubleValue());
             } catch (JEVisException e) {
@@ -172,7 +172,7 @@ public class SliderWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(false);
         initData();
 

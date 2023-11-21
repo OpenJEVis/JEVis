@@ -38,7 +38,6 @@ import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.TopMenu;
 import org.jevis.jecc.application.Chart.data.ChartDataRow;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.*;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
@@ -59,13 +58,13 @@ public class BatteryWidget extends Widget implements DataModelWidget {
     private final Gauge battery;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
+    private BatteryPojo batteryGaugePojo;
+    private Interval lastInterval = null;
     private final ChangeListener<Number> limitListener = null;
     private final ChangeListener<Number> percentListener = null;
     private final BatteryWidget limitWidget = null;
     private final BatteryWidget percentWidget = null;
     private final String percentText = "";
-    private BatteryPojo batteryGaugePojo;
-    private Interval lastInterval = null;
     private Percent percent;
     private Boolean customWorkday = true;
 
@@ -272,7 +271,7 @@ public class BatteryWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(false);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));

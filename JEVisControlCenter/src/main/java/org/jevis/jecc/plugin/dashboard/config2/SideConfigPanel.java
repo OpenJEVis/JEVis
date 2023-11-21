@@ -28,7 +28,6 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.application.control.ColorPickerAdv;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.controls.FontPostureBox;
 import org.jevis.jecc.plugin.dashboard.controls.FontWeightBox;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelDataHandler;
@@ -167,7 +166,7 @@ public class SideConfigPanel extends GridPane {
             try {
                 DataModelDataHandler sampleHandler = new DataModelDataHandler(
                         this.control.getDataSource(), this.control,
-                        widget.getConfig().getConfigNode(WidgetConfig.DATA_HANDLER_NODE), widget.getId());
+                        widget.getConfig(), widget.getId());
 
                 sampleHandler.getDataModel().forEach(chartDataRow -> {
 
@@ -749,7 +748,7 @@ public class SideConfigPanel extends GridPane {
                 DataModelDataHandler sampleHandler = new DataModelDataHandler(
                         this.control.getDataSource(),
                         this.control,
-                        this.selectedWidget.getConfig().getConfigNode(WidgetConfig.DATA_HANDLER_NODE),
+                        this.selectedWidget.getConfig(),
                         this.selectedWidget.getId());
 
 

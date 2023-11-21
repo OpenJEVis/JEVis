@@ -10,11 +10,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
+import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jecc.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,20 +25,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class IndexOfLegalProvisions {
 
     protected static final Logger logger = LogManager.getLogger(IndexOfLegalProvisions.class);
+    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.relevant"), I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.notrrelevant"));
     protected SimpleStringProperty prefix = new SimpleStringProperty();
     protected StringProperty name = new SimpleStringProperty("name", "name", "");
+
     protected ObservableList<ObligationData> obligationDataList = FXCollections.observableArrayList();
-    protected ObservableList<String> relevanzTags = FXCollections.observableArrayList(I18n.getInstance().getString("plugin.indexoflegalprovisions.legislation.relvant"), I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"));
-    private JEVisObject object;
+
     private ObservableList<String> scopes;
     private ObservableList<String> categories;
+    private JEVisObject object;
+
+
     private String initCustomCategory = "";
     private String initCustomValidity = "";
 
 
-    private AtomicInteger biggestActionNr = new AtomicInteger(0);
-    private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
+    private final AtomicInteger biggestActionNr = new AtomicInteger(0);
 
+    public void removeLegislation(ObligationData nonconformityData) {
+        this.obligationDataList.remove(nonconformityData);
+    }
+
+
+    private final AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
     public IndexOfLegalProvisions(JEVisObject obj) {
 
@@ -64,9 +74,7 @@ public class IndexOfLegalProvisions {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomValidity = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    scopes.add(s);
-                }
+                Collections.addAll(scopes, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -78,9 +86,7 @@ public class IndexOfLegalProvisions {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomCategory = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    categories.add(s);
-                }
+                Collections.addAll(categories, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -107,27 +113,23 @@ public class IndexOfLegalProvisions {
         return string;
     }
 
-    public void removeLegislation(ObligationData nonconformityData) {
-        this.obligationDataList.remove(nonconformityData);
-    }
-
     public void reloadActionList() {
         actionsLoaded.set(false);
-        loadNonconformityList();
+        loadLegalList();
     }
 
-    public void loadNonconformityList() {
+    public void loadLegalList() {
         if (!actionsLoaded.get()) {
             actionsLoaded.set(true);
             try {
 
-                JEVisClass actionDirClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.name);
-                JEVisClass actionClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.Obligation.name);
+                JEVisClass actionDirClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.IndexofLegalProvionsDirectory.Obligation.ObligationDirectory.name);
+                JEVisClass actionClass = object.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.IndexofLegalProvionsDirectory.Obligation.name);
                 for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
                     dirObj.getChildren(actionClass, false).forEach(actionObj -> {
                         System.out.println("new Action from JEVis: " + actionObj);
                         try {
-                            obligationDataList.add(loadNonconformties(actionObj));
+                            obligationDataList.add(loadObligations(actionObj));
                         } catch (Exception e) {
                             logger.error("Could not load Action: {},{},{}", actionObj, e, e);
                         }
@@ -142,9 +144,8 @@ public class IndexOfLegalProvisions {
 
     }
 
-    public ObligationData loadNonconformties(JEVisObject actionObj) throws JEVisException, NullPointerException {
+    public ObligationData loadObligations(JEVisObject actionObj) throws JEVisException, NullPointerException {
         JEVisAttribute att = actionObj.getAttribute("Data");
-        ;
         JEVisSample sample = att.getLatestSample();
         JEVisFile file = sample.getValueAsFile();
         String s = new String(file.getBytes(), StandardCharsets.UTF_8);
@@ -198,7 +199,7 @@ public class IndexOfLegalProvisions {
     }
 
 
-    public Integer getNextNonconformityNr() {
+    public Integer getNextLegalNr() {
         biggestActionNr.set(biggestActionNr.get() + 1);
         return biggestActionNr.get();
     }
@@ -222,12 +223,12 @@ public class IndexOfLegalProvisions {
         return prefix.get();
     }
 
-    public void setPrefix(String prefix) {
-        this.prefix.set(prefix);
-    }
-
     public SimpleStringProperty prefixProperty() {
         return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix.set(prefix);
     }
 
     public ObservableList<ObligationData> getLegislationDataList() {

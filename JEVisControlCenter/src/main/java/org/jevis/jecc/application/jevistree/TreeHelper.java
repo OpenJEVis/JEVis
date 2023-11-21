@@ -34,12 +34,18 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.skin.VirtualFlow;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import jfxtras.scene.control.LocalTimePicker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,6 +55,7 @@ import org.jevis.commons.CommonObjectTasks;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.datasource.ChannelTools;
 import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
@@ -70,6 +77,7 @@ import org.jevis.jecc.application.jevistree.methods.DataMethods;
 import org.jevis.jecc.application.tools.CalculationNameFormatter;
 import org.jevis.jecc.dialog.*;
 import org.jevis.jecc.plugin.object.attribute.GapFillingEditor;
+import org.jevis.jecc.plugin.object.classes.SelectableObject;
 import org.jevis.jecc.plugin.object.extension.calculation.FormulaBox;
 import org.jevis.jecc.plugin.object.extension.calculation.VariablesBox;
 import org.jevis.jecc.plugin.unit.SamplingRateUI;
@@ -85,6 +93,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
@@ -411,6 +420,191 @@ public class TreeHelper {
             }
         } catch (JEVisException e) {
             logger.error("Could not get JEVis data source.", e);
+        }
+    }
+
+    public static void EventDeleteAllDependencies(JEVisTree tree) {
+        logger.debug("EventDeleteAllDependencies");
+        try {
+            if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
+                JEVisDataSource ds = tree.getJEVisDataSource();
+                Task<List<JEVisObject>> listTask = new Task<List<JEVisObject>>() {
+                    @Override
+                    protected List<JEVisObject> call() {
+
+                        List<JEVisObject> dependentObjects = new ArrayList<>();
+
+                        try {
+                            Map<JEVisObject, List<JEVisObject>> calculationMap = org.jevis.commons.utils.CommonMethods.createCalculationMap(ds);
+
+                            List<JEVisObject> selectedItems = new ArrayList<>();
+                            ObservableList<JEVisTreeItem> items = tree.getSelectionModel().getSelectedItems();
+                            items.forEach(jeVisTreeItem -> selectedItems.add(jeVisTreeItem.getValue().getJEVisObject()));
+                            dependentObjects = org.jevis.commons.utils.CommonMethods.getAllDependentObjects(calculationMap, selectedItems);
+                        } catch (Exception e) {
+
+                        }
+
+                        return dependentObjects;
+                    }
+                };
+
+                listTask.setOnSucceeded(workerStateEvent -> {
+                    try {
+                        List<JEVisObject> jeVisObjects = listTask.get();
+                        List<SelectableObject> objects = new ArrayList<>();
+                        ChannelTools channelTools = new ChannelTools();
+                        channelTools.createChannelMaps(ds);
+
+                        jeVisObjects.forEach(object -> {
+                            Long target = tree.getTargetAndChannel().get(object.getID());
+                            boolean selected = target != null && target != -1L;
+                            objects.add(new SelectableObject(object, !selected));
+                        });
+
+                        TableView<SelectableObject> tableView = new TableView<>();
+
+                        TableColumn<SelectableObject, Boolean> selectionColumn = new TableColumn<>();
+                        selectionColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectionColumn));
+                        selectionColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
+
+                        TableColumn<SelectableObject, JEVisObject> objectColumn = new TableColumn<>();
+                        StringConverter<JEVisObject> converter = new StringConverter<JEVisObject>() {
+                            @Override
+                            public String toString(JEVisObject object) {
+                                String s = "";
+                                if (object != null) {
+
+                                    try {
+                                        if (object.getJEVisClassName().equals(JC.Data.CleanData.name) || object.getJEVisClassName().equals(JC.Data.ForecastData.name)
+                                                || object.getJEVisClassName().equals(JC.Data.MathData.name)) {
+                                            JEVisObject firstParentalDataObject = CommonMethods.getFirstParentalDataObject(object);
+                                            s += firstParentalDataObject.getName() + " \\ ";
+                                        }
+                                    } catch (Exception ignored) {
+                                    }
+
+                                    s += object.getName() + " : " + object.getID();
+                                }
+                                return s;
+                            }
+
+                            @Override
+                            public JEVisObject fromString(String s) {
+                                if (s != null) {
+                                    int i = s.indexOf(";");
+                                    String idString = s.substring(i + 1);
+                                    Long id = Long.parseLong(idString);
+
+                                    try {
+                                        return ds.getObject(id);
+                                    } catch (Exception e) {
+                                        logger.error("Exception: ", e);
+                                    }
+                                }
+                                return null;
+                            }
+                        };
+                        objectColumn.setCellFactory(TextFieldTableCell.forTableColumn(converter));
+                        objectColumn.setCellValueFactory(new PropertyValueFactory<>("object"));
+
+                        tableView.getColumns().setAll(selectionColumn, objectColumn);
+
+                        tableView.setItems(FXCollections.observableArrayList(objects));
+
+                        Dialog<ButtonType> confirm = new Dialog<>();
+                        confirm.setTitle(I18n.getInstance().getString("plugin.objects.dialog.deletedependencies.title"));
+                        confirm.setHeaderText(I18n.getInstance().getString("plugin.objects.dialog.deletedependencies.header"));
+                        confirm.setResizable(true);
+                        confirm.initOwner(ControlCenter.getStage());
+                        confirm.initModality(Modality.APPLICATION_MODAL);
+                        Stage stage = (Stage) confirm.getDialogPane().getScene().getWindow();
+                        TopMenu.applyActiveTheme(stage.getScene());
+                        stage.setAlwaysOnTop(true);
+
+                        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+                        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                        confirm.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+                        Button okButton = (Button) confirm.getDialogPane().lookupButton(okType);
+                        okButton.setDefaultButton(true);
+
+                        Button cancelButton = (Button) confirm.getDialogPane().lookupButton(cancelType);
+                        cancelButton.setCancelButton(true);
+
+                        Label dateLabelFrom = new Label(I18n.getInstance().getString("tree.treehelper.from"));
+                        MFXDatePicker datePickerFrom = new MFXDatePicker();
+                        LocalTimePicker timePickerFrom = new LocalTimePicker();
+                        // timePickerFrom.set24HourView(true);
+                        // timePickerFrom.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+                        AtomicBoolean changedFrom = new AtomicBoolean(false);
+
+                        datePickerFrom.valueProperty().addListener((observable, oldValue, newValue) -> {
+                            if (newValue != oldValue) {
+                                changedFrom.set(true);
+                            }
+                        });
+
+                        timePickerFrom.localTimeProperty().addListener((observable, oldValue, newValue) -> {
+                            if (newValue != oldValue) {
+                                changedFrom.set(true);
+                            }
+                        });
+
+                        okButton.setOnAction(event -> {
+                            try {
+                                DateTime dateTimeFrom = new DateTime(
+                                        datePickerFrom.valueProperty().get().getYear(),
+                                        datePickerFrom.valueProperty().get().getMonthValue(),
+                                        datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                        timePickerFrom.localTimeProperty().get().getHour(),
+                                        timePickerFrom.localTimeProperty().get().getMinute(),
+                                        timePickerFrom.localTimeProperty().get().getSecond(), DateTimeZone.getDefault());
+
+
+                                for (SelectableObject dependency : objects) {
+                                    if (dependency.isSelected()) {
+                                        logger.info("deleting samples from {}:{} starting with {}", dependency.getObject().getName(), dependency.getObject().getID(), dateTimeFrom.toString());
+
+                                        try {
+                                            org.jevis.commons.utils.CommonMethods.deleteAllSamples(dependency.getObject(), dateTimeFrom, new DateTime(), true, true);
+                                        } catch (Exception e) {
+                                            logger.error("Could not delete samples from {}:{}:Value", dependency.getObject().getName(), dependency.getObject().getID());
+                                        }
+                                    }
+                                }
+
+                                confirm.close();
+                            } catch (Exception e) {
+
+                            }
+                        });
+
+                        cancelButton.setOnAction(event -> {
+                            confirm.close();
+                        });
+
+                        HBox dateSelectionBox = new HBox(6, dateLabelFrom, datePickerFrom, timePickerFrom);
+
+                        VBox contentPane = new VBox(8, dateSelectionBox, tableView);
+
+                        confirm.getDialogPane().setContent(contentPane);
+                        confirm.show();
+
+                    } catch (InterruptedException e) {
+                        logger.error("InterruptedException: ", e);
+                    } catch (ExecutionException e) {
+                        logger.error("ExecutionException: ", e);
+                    }
+
+                });
+
+                ControlCenter.getStatusBar().addTask(TreeHelper.class.getName(), listTask, null, true);
+            }
+
+        } catch (Exception e) {
+
         }
     }
 

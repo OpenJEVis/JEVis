@@ -1,6 +1,7 @@
 package org.jevis.jecc.plugin.legal.ui;
 
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -19,6 +20,7 @@ import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jecc.application.table.SummeryTable;
 import org.jevis.jecc.plugin.legal.LegalCadastreController;
 import org.jevis.jecc.plugin.legal.data.IndexOfLegalProvisions;
 
@@ -29,14 +31,14 @@ public class LegalCadastreTab extends Tab {
     private IndexOfLegalProvisions indexOfLegalProvisions;
     private IndexOfLegalProvisionsTable indexOfLegalProvisionsTable;
 
-    public LegalCadastreTab(IndexOfLegalProvisions indexOfLegalProvisions, LegalCadastreController controller) {
+    public LegalCadastreTab(IndexOfLegalProvisions indexOfLegalProvisions, LegalCadastreController controller, BooleanProperty update) {
         super();
         this.indexOfLegalProvisions = indexOfLegalProvisions;
 
         if (indexOfLegalProvisions == null) return;
         textProperty().bind(this.indexOfLegalProvisions.getName());
         this.indexOfLegalProvisions = indexOfLegalProvisions;
-        this.indexOfLegalProvisionsTable = new IndexOfLegalProvisionsTable(this.indexOfLegalProvisions, this.indexOfLegalProvisions.getLegislationDataList());
+        this.indexOfLegalProvisionsTable = new IndexOfLegalProvisionsTable(this.indexOfLegalProvisions, this.indexOfLegalProvisions.getLegislationDataList(), update);
 
 
         GridPane gridPane = new GridPane();
@@ -132,6 +134,12 @@ public class LegalCadastreTab extends Tab {
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
         borderPane.setCenter(indexOfLegalProvisionsTable);
+
+
+        SummeryTable summeryTable = new SummeryTable(indexOfLegalProvisionsTable);
+        summeryTable.setItems(indexOfLegalProvisionsTable.getSummeryData());
+
+        borderPane.setBottom(summeryTable);
 
 
         indexOfLegalProvisionsTable.setOnMousePressed(new EventHandler<MouseEvent>() {

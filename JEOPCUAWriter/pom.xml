@@ -41,6 +41,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <version>32.0.0-jre</version>
         </dependency>
     </dependencies>
 
@@ -61,7 +62,7 @@
                     <archive>
                         <manifestEntries>
                             <Permissions>all-permissions</Permissions>
-                            <JavaFX-Version>20.0.1</JavaFX-Version>
+                            <JavaFX-Version>21.0.1</JavaFX-Version>
                             <url>${project.parent.url}</url>
                             <implementation-vendor>${project.organization.name}</implementation-vendor>
                             <implementation-title>${project.name}</implementation-title>

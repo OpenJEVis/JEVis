@@ -1,22 +1,20 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
+import com.ibm.icu.text.NumberFormat;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
-import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.application.Chart.data.ValueWithDateTime;
 import org.joda.time.DateTime;
 
-import java.text.NumberFormat;
-
 public class ValueWithDateTimeBox extends HBox {
-    private final static NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
 
     public ValueWithDateTimeBox(ValueWithDateTime value) {
         this.setSpacing(6);
+        NumberFormat nf = value.getNumberFormat();
 
         MFXTextField valueField = new MFXTextField();
 
@@ -56,7 +54,7 @@ public class ValueWithDateTimeBox extends HBox {
             String text = "-";
 
             if (cell.getItem() != null && cell.getItem().getValue() != Double.MAX_VALUE && cell.getItem().getValue() != -Double.MAX_VALUE) {
-                text = nf.format(cell.getItem().getValue());
+                text = cell.getItem().getNumberFormat().format(cell.getItem().getValue());
             }
 
             if (cell.getItem().getUnit() != null && !cell.getItem().getUnit().getLabel().equals("")) {

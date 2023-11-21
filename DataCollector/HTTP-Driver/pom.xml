@@ -26,6 +26,10 @@
             <artifactId>JEAPI-WS</artifactId>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.jevis.commons</groupId>
+            <artifactId>JECommons</artifactId>
+        </dependency>
     </dependencies>
     <parent>
         <groupId>org.jevis.datacollector</groupId>

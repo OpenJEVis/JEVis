@@ -51,7 +51,7 @@ public class Login {
         logger.info("Connect as: " + txUserName.getText() + "/" + txPassword.getText());
         _ds.connect(txUserName.getText(), txPassword.getText());
 
-        logger.info("Object: " + _ds.getObject(1l));
+        logger.info("Object: " + _ds.getObject(1L));
         return _ds;
     }
 
@@ -96,7 +96,7 @@ public class Login {
 //                .message("Please log in")
 //                .showConfirm();
 //
-//        DialogResponse resp = Dialogs.showCustomDialog(JEConfig.getStage(), grid, "Please log in", "Login", DialogOptions.OK_CANCEL, myCallback);
+//        DialogResponse resp = Dialogs.showCustomDialog(ControlCenter.getStage(), grid, "Please log in", "Login", DialogOptions.OK_CANCEL, myCallback);
 //        if (resp == DialogResponse.OK) {
 //            try {
 //                _ds.connect(usernameResult, passwordResult);

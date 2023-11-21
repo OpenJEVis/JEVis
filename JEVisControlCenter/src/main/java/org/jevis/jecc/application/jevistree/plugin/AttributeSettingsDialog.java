@@ -168,7 +168,7 @@ public class AttributeSettingsDialog {
                 alert.showAndWait();
 
 //                    InfoDialog id = new InfoDialog();
-//                    id.show(JEConfig.getStage(), "Waring", "Unit error", "The display Unit '" + upDisplay.getSelectedUnit() + "' is not compatible with the input unit '" + upInput.getSelectedUnit() + "'.");
+//                    id.show(ControlCenter.getStage(), "Waring", "Unit error", "The display Unit '" + upDisplay.getSelectedUnit() + "' is not compatible with the input unit '" + upInput.getSelectedUnit() + "'.");
             }
 
         });

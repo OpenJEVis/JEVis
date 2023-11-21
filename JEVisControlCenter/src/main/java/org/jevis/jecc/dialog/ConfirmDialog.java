@@ -20,7 +20,6 @@
  */
 package org.jevis.jecc.dialog;
 
-import com.jfoenix.controls.JFXTextArea;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -33,6 +32,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -124,7 +124,7 @@ public class ConfirmDialog {
         HBox messagePanel = new HBox();
         messagePanel.setPadding(new Insets(30, 0, 30, 30));
 
-        JFXTextArea messageLabel = new JFXTextArea(message);
+        TextArea messageLabel = new TextArea(message);
         messageLabel.getStylesheets().add(ConfirmDialog.class.getResource("/styles/TransparentTextArea.css").toExternalForm());
 //        messagePanel.getChildren().add(messageLabel);
         messageLabel.setPrefRowCount(5);

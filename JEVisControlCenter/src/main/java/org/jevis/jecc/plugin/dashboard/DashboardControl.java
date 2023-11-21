@@ -220,8 +220,7 @@ public class DashboardControl {
         toolBar.updateView(activeDashboard);
 
         getWidgets().forEach(widget -> {
-            if (widget instanceof DataModelWidget) {
-                DataModelWidget dataModelWidget = (DataModelWidget) widget;
+            if (widget instanceof DataModelWidget dataModelWidget) {
                 dataModelWidget.setCustomWorkday(customWorkdayProperty.get());
             }
             //widget.updateData(activeInterval);
@@ -631,7 +630,7 @@ public class DashboardControl {
             start = start.plusDays(1);
         }
 
-        this.setInterval(activeTimeFrame.getInterval(start));
+        this.setInterval(activeTimeFrame.getInterval(start, false));
         this.toolBar.updateView(activeDashboard);
     }
 
@@ -797,7 +796,7 @@ public class DashboardControl {
                 try {
                     logger.debug("addWidgetUpdateTask: '{}'  - Interval: {}", widget.getConfig().getTitle(), interval);
                     Platform.runLater(() -> this.updateTitle(I18n.getInstance().getString("plugin.dashboard.message.updatingwidget")
-                            + " [" + widget.typeID() + "" + widget.getConfig().getUuid() + "] " + widget.getConfig().getTitle() + "'"));
+                            + " [" + widget.typeID() + widget.getConfig().getUuid() + "] " + widget.getConfig().getTitle() + "'"));
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
                         logger.debug("updateData done: '{}:{}'", widget.getConfig().getTitle(), widget.getConfig().getUuid());
@@ -841,8 +840,7 @@ public class DashboardControl {
         try {
             widget.init();
             widget.updateConfig(widget.getConfig());
-            if (widget instanceof DataModelWidget) {
-                DataModelWidget dataModelWidget = (DataModelWidget) widget;
+            if (widget instanceof DataModelWidget dataModelWidget) {
                 dataModelWidget.setCustomWorkday(customWorkdayProperty.get());
             }
             this.widgetList.add(widget);

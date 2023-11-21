@@ -55,7 +55,7 @@ public class AttachmentTab extends Tab {
         this.setContent(notificationPane);
 
 
-        //ToggleButton renameFileButton = new ToggleButton("", JEConfig.getSVGImage(Icon.R, iconSize, iconSize));
+        //ToggleButton renameFileButton = new ToggleButton("", ControlCenter.getSVGImage(Icon.R, iconSize, iconSize));
         ObservableList<FileData> fileData = FXCollections.observableArrayList();
         FileTableView fileTableView = new FileTableView(fileData);
         double iconSize = 12;

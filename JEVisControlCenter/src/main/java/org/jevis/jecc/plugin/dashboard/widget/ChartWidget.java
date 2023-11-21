@@ -3,6 +3,8 @@ package org.jevis.jecc.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
@@ -12,6 +14,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisObject;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.application.Chart.ChartElements.CustomNumericAxis;
 import org.jevis.jecc.application.Chart.ChartElements.TableHeaderTable;
@@ -25,7 +28,6 @@ import org.jevis.jecc.application.tools.ColorHelper;
 import org.jevis.jecc.plugin.charts.DataSettings;
 import org.jevis.jecc.plugin.charts.ToolBarSettings;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.JsonNames;
 import org.jevis.jecc.plugin.dashboard.config2.Size;
 import org.jevis.jecc.plugin.dashboard.config2.WidgetConfigDialog;
@@ -43,12 +45,18 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ChartWidget.class);
     public static String WIDGET_ID = "Chart";
-    // private final WidgetLegend legend = new WidgetLegend();
-    private final BorderPane borderPane = new BorderPane();
-    private final BorderPane bottomBorderPane = new BorderPane();
+
     private XYChart xyChart;
     private HeatMapChart heatMapChart;
+
+    /**
+     * TODO: JFX17
+     * legend
+     */
+    // private final WidgetLegend legend = new WidgetLegend();
+    private final BorderPane borderPane = new BorderPane();
     private Interval lastInterval = null;
+    private final BorderPane bottomBorderPane = new BorderPane();
     private Boolean customWorkDay = true;
 
     public ChartWidget(DashboardControl control, WidgetPojo config) {
@@ -94,15 +102,15 @@ public class ChartWidget extends Widget implements DataModelWidget {
                 this.borderPane.setCenter(null);
                 this.xyChart = null;
                 this.heatMapChart = null;
-                //         this.legend.getItems().clear();
+                //        this.legend.getItems().clear();
             });
 
             this.sampleHandler.getDataModel().forEach(chartDataModel -> {
                 try {
-                    //            Platform.runLater(() -> this.legend.getItems().add(
-                    //                  this.legend.buildHorizontalLegendItem(chartDataModel.getName(), chartDataModel.getColor(),
-                    //                        this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
-                    //                      chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata"), false)));
+                    //          Platform.runLater(() -> this.legend.getItems().add(
+                    //                this.legend.buildHorizontalLegendItem(chartDataModel.getName(), chartDataModel.getColor(),
+                    //                      this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
+                    //                    chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata"), false)));
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
@@ -115,7 +123,9 @@ public class ChartWidget extends Widget implements DataModelWidget {
             toolBarSettings.setShowIcons(false);
             toolBarSettings.setCustomWorkday(customWorkDay);
 
+            ObjectProperty<JEVisObject> currentAnalysis = new SimpleObjectProperty<>();
             DataSettings dataSettings = new DataSettings();
+            dataSettings.setCurrentAnalysisProperty(currentAnalysis);
             dataSettings.setCurrentAnalysis(control.getActiveDashboard().getDashboardObject());
 
             ChartModel chartModel = this.sampleHandler.getChartModel();
@@ -154,7 +164,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     VBox.setVgrow(hBox, Priority.NEVER);
                     VBox.setVgrow(tableHeaderTable, Priority.ALWAYS);
                     this.borderPane.setCenter(vBox);
-                    //           this.legend.getItems().clear();
+                    //      this.legend.getItems().clear();
                 });
             } else {
                 boolean isHeatMap = this.sampleHandler.getDataModel().stream().anyMatch(chartDataRow -> chartDataRow.getChartType() == ChartType.HEAT_MAP);
@@ -214,10 +224,10 @@ public class ChartWidget extends Widget implements DataModelWidget {
             try {
 
                 this.setBackground(bgColorTrans);
-                //          if (this.legend != null) {
-                //            this.legend.setBackground(bgColorTrans);
-                //          this.legend.setStyle("-fx-background-color: transparent; -fx-text-color: " + fontColor + ";");
-                //          }
+//                if (this.legend != null) {
+//                    this.legend.setBackground(bgColorTrans);
+//                    this.legend.setStyle("-fx-background-color: transparent; -fx-text-color: " + fontColor + ";");
+//                }
                 this.borderPane.setBackground(bgColor);
 
                 try {
@@ -229,8 +239,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
                         xyChart.getChart().setStyle("-fx-background-color: " + cssBGColor + ";");
 
                         this.xyChart.getChart().getAxes().forEach(axis -> {
-                            if (axis instanceof CustomNumericAxis) {
-                                CustomNumericAxis defaultNumericAxis = (CustomNumericAxis) axis;
+                            if (axis instanceof CustomNumericAxis defaultNumericAxis) {
                                 defaultNumericAxis.getAxisLabel().setVisible(false);
                                 defaultNumericAxis.setStyle("-fx-tick-label-fill: " + fontColor + ";");
                             }
@@ -281,17 +290,17 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
         this.sampleHandler.setMultiSelect(true);
 
-        //      this.legend.setAlignment(Pos.CENTER);
+//        this.legend.setAlignment(Pos.CENTER);
 
 
 //        bottomBorderPane.heightProperty().addListener((observable, oldValue, newValue) -> {
 //            System.out.println("bottomBorderPane: " + newValue);
 //        });
         this.borderPane.setBottom(bottomBorderPane);
-        //  this.borderPane.setBottom(this.legend);
+//        this.borderPane.setBottom(this.legend);
         setGraphic(this.borderPane);
 
 

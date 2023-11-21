@@ -3,9 +3,10 @@ package org.jevis.jecc.plugin.action.ui;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Region;
+import javafx.scene.control.Separator;
 import jfxtras.scene.layout.GridPane;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
@@ -22,22 +23,29 @@ public class ExportDialog extends Dialog {
         this.initOwner(ControlCenter.getStage());
 
         setTitle(I18n.getInstance().getString("action.export.title"));
-        setHeaderText("Select Actions to Export");
+        setHeaderText(I18n.getInstance().getString("plugin.action.export.message"));
         setResizable(true);
+        setHeight(200);
 
         jfxtras.scene.layout.GridPane gridPane = new jfxtras.scene.layout.GridPane();
         gridPane.setVgap(8);
-        gridPane.setHgap(8);
+        gridPane.setHgap(15);
 
-        Label headPlanLabel = new Label("Tabelle");
-        Label headPDeteilsLabel = new Label("Deteils");
+        Label headPlanLabel = new Label();//I18n.getInstance().getString("plugin.action.name"));
+        Label headTableLabel = new Label(I18n.getInstance().getString("plugin.action.table"));
+        Label headPDeteilsLabel = new Label(I18n.getInstance().getString("plugin.action.export.actions"));
+        headPlanLabel.setStyle("-fx-font-weight: bold");
+        headTableLabel.setStyle("-fx-font-weight: bold");
+        headPDeteilsLabel.setStyle("-fx-font-weight: bold");
 
-        gridPane.add(new Region(), new GridPane.C().col(0).row(0).halignment(HPos.LEFT));
-        gridPane.add(headPlanLabel, new GridPane.C().col(1).row(0).halignment(HPos.LEFT));
-        gridPane.add(headPDeteilsLabel, new GridPane.C().col(2).row(0).halignment(HPos.LEFT));
+
+        gridPane.add(headPlanLabel, new GridPane.C().col(0).row(0).halignment(HPos.LEFT));
+        gridPane.add(headTableLabel, new GridPane.C().col(1).row(0).halignment(HPos.CENTER));
+        gridPane.add(headPDeteilsLabel, new GridPane.C().col(2).row(0).halignment(HPos.CENTER));
+        gridPane.add(new Separator(Orientation.HORIZONTAL), new GridPane.C().col(0).row(1).halignment(HPos.CENTER).colSpan(3));
 
 
-        int row = 0;
+        int row = 1;
         for (ActionPlanData actionPlan : actionPlanData) {
             row++;
             Label planName = new Label(actionPlan.getName().get());
@@ -50,8 +58,10 @@ public class ExportDialog extends Dialog {
             actionCheck.setOnAction(event -> selection.setExportDetail(actionCheck.isSelected()));
             planCheck.setOnAction(event -> {
                 selection.setExportPlan(planCheck.isSelected());
-                selection.setExportDetail(planCheck.isSelected());
-                actionCheck.setSelected(planCheck.isSelected());
+            });
+
+            actionCheck.setOnAction(event -> {
+                selection.setExportDetail(actionCheck.isSelected());
             });
 
 
@@ -59,8 +69,8 @@ public class ExportDialog extends Dialog {
             actionCheck.setSelected(true);
 
             gridPane.add(planName, new GridPane.C().col(0).row(row).halignment(HPos.LEFT));
-            gridPane.add(planCheck, new GridPane.C().col(1).row(row).halignment(HPos.LEFT));
-            gridPane.add(actionCheck, new GridPane.C().col(2).row(row).halignment(HPos.LEFT));
+            gridPane.add(planCheck, new GridPane.C().col(1).row(row).halignment(HPos.CENTER));
+            gridPane.add(actionCheck, new GridPane.C().col(2).row(row).halignment(HPos.CENTER));
 
         }
 
@@ -80,6 +90,8 @@ public class ExportDialog extends Dialog {
         boolean exportPlan = true;
         boolean exportDetail = true;
 
+        ActionTable table = null;
+
         public Selection(ActionPlanData plan) {
             this.plan = plan;
         }
@@ -90,6 +102,14 @@ public class ExportDialog extends Dialog {
 
         public void setExportDetail(boolean exportDetail) {
             this.exportDetail = exportDetail;
+        }
+
+        public ActionTable getTable() {
+            return table;
+        }
+
+        public void setTable(ActionTable table) {
+            this.table = table;
         }
     }
 }

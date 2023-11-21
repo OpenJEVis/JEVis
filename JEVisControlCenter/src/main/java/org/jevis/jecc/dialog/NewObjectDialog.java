@@ -54,7 +54,7 @@ import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.application.application.I18nWS;
 import org.jevis.jecc.application.resource.ImageConverter;
 import org.jevis.jecc.application.resource.ResourceLoader;
-import org.jevis.jecc.application.tools.NumberSpinner;
+import org.jevis.jecc.tool.NumberSpinner;
 import org.jevis.jecc.tool.template.NullTemplate;
 import org.jevis.jecc.tool.template.Template;
 import org.jevis.jecc.tool.template.Templates;
@@ -426,10 +426,6 @@ public class NewObjectDialog {
         return createClass;
     }
 
-    public boolean isWithCleanData() {
-        return withCleanData;
-    }
-
     public enum Type {
 
         NEW, RENAME
@@ -438,5 +434,9 @@ public class NewObjectDialog {
     public enum Response {
 
         NO, YES, CANCEL
+    }
+
+    public boolean isWithCleanData() {
+        return withCleanData;
     }
 }

@@ -61,24 +61,6 @@ public class PasswordEditor implements AttributeEditor {
         return _hasChanged;
     }
 
-    @Override
-    public void update() {
-        Platform.runLater(() -> {
-            box.getChildren().clear();
-            buildTextField();
-        });
-    }
-
-    @Override
-    public BooleanProperty getValueChangedProperty() {
-        return _changed;
-    }
-
-    @Override
-    public void setReadOnly(boolean canRead) {
-        _readOnly = canRead;
-    }
-
     //    @Override
 //    public void setAttribute(JEVisAttribute att) {
 //        attribute = att;
@@ -106,6 +88,35 @@ public class PasswordEditor implements AttributeEditor {
 //        return _field;
     }
 
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _readOnly = canRead;
+    }
+
+    @Override
+    public JEVisAttribute getAttribute() {
+        return _attribute;
+    }
+
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            box.getChildren().clear();
+            buildTextField();
+        });
+    }
+
     private void buildTextField() {
         if (_setPW == null) {
             _setPW = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.password.button"),
@@ -122,14 +133,15 @@ public class PasswordEditor implements AttributeEditor {
                             String note = String.format("Password set by %s", _attribute.getDataSource().getCurrentUser().getAccountName());
 
                             JEVisSample sample;
+                            /*
                             if (_attribute.hasSample()) {
                                 sample = _attribute.getLatestSample();
                                 sample.setValue(dia.getPassword());
                                 sample.setNote(note);
-                            } else {
-                                sample = _attribute.buildSample(new DateTime(), dia.getPassword(), note);
+                            } else {*/
+                            sample = _attribute.buildSample(new DateTime(), dia.getPassword(), note);
 
-                            }
+                            //}
                             sample.commit();
                             _hasChanged = true;
 
@@ -145,16 +157,5 @@ public class PasswordEditor implements AttributeEditor {
             initialized = true;
         }
 
-    }
-
-    @Override
-    public JEVisAttribute getAttribute() {
-        return _attribute;
-    }
-
-    @Override
-    public boolean isValid() {
-        //TODO: implement validation
-        return true;
     }
 }

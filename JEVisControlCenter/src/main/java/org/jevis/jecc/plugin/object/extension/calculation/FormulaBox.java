@@ -1,6 +1,5 @@
 package org.jevis.jecc.plugin.object.extension.calculation;
 
-import com.jfoenix.controls.JFXTextArea;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
@@ -36,8 +35,8 @@ public class FormulaBox extends HBox {
     private static final Logger logger = LogManager.getLogger(FormulaBox.class);
     private final List<String> variables = new ArrayList<>();
     Label errorArea = new Label();
-    //    JFXTextArea textArea = new TextArea();
-    JFXTextArea textArea = new JFXTextArea();
+    //    TextArea textArea = new TextArea();
+    TextArea textArea = new TextArea();
     private JEVisObject calcObj;
     private MFXButton outputButton;
 

@@ -66,7 +66,7 @@ public class NewlegalCadastreDialog {
      * @return
      */
     public Response show(Stage owner, JEVisDataSource ds) throws JEVisException {
-        JEVisClass actionPlanDirClass = ds.getJEVisClass(JC.IndexofLegalProvisions.LegalCadastreDirectory.name);
+        JEVisClass actionPlanDirClass = ds.getJEVisClass(JC.IndexofLegalProvisions.IndexofLegalProvionsDirectory.name);
         List<JEVisObject> anaylsisDirs = ds.getObjects(actionPlanDirClass, true);
         boolean canWrite = true;
 

@@ -582,10 +582,26 @@ public abstract class Widget extends Region {
                 .put(JsonNames.Widget.DECIMALS, this.config.getDecimals())
                 .put(JsonNames.Widget.SHOW_VALUE, this.config.getShowValue())
                 .put(JsonNames.Widget.X_POS, this.config.getxPosition())
-                .put(JsonNames.Widget.Y_POS, this.config.getyPosition());
+                .put(JsonNames.Widget.Y_POS, this.config.getyPosition())
+                .put(JsonNames.Widget.FIXED_TIMEFRAME, this.config.isFixedTimeframe());
 
 
         return dashBoardNode;
+    }
+
+    public Tooltip getTt() {
+        return tt;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Widget otherObject) {
+            if (otherObject.getConfig() != null && this.getConfig() != null) {
+                return (otherObject.getConfig().getUuid() == this.getConfig().getUuid());
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -609,22 +625,6 @@ public abstract class Widget extends Region {
         }
 
         return null;
-    }
-
-    public Tooltip getTt() {
-        return tt;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object instanceof Widget) {
-            Widget otherObject = (Widget) object;
-            if (otherObject.getConfig() != null && this.getConfig() != null) {
-                return (otherObject.getConfig().getUuid() == this.getConfig().getUuid());
-            }
-        }
-
-        return false;
     }
 
     public Interval getCurrentInterval(Interval interval) {

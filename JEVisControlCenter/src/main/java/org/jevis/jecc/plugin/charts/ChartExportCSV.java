@@ -60,7 +60,7 @@ public class ChartExportCSV {
     private final String UNIT;
     private final String ID;
     private final String DATA_NOTES = "Data Notes";
-    private final String USER_NOTES = "User Notes";
+    private final String USER_NOTES = "Value";
     private final String LINE_SEPARATOR = "line.separator";
     private final String COL_SEP = ";";
     private final String SPACE = " ";

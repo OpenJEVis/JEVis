@@ -19,10 +19,10 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.plugin.nonconformities.NonconformitiesPlugin;
-import org.jevis.jecc.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -35,24 +35,17 @@ import java.util.List;
 
 public class NonconformityData {
 
-    public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.immediatemeasures");
-    public static final String DONE_DATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.donedate");
-    public static final String DONE_DATE_AFTER_NOW = I18n.getInstance().getString("plugin.nonconformities.error.donedateafter");
-    public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.ok");
     //private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(NonconformityData.class);
-    private static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     @Expose
     @SerializedName("Title")
     public final SimpleStringProperty title = new SimpleStringProperty("Title", I18n.getInstance().getString("plugin.nonconformities.title"), "");
     @Expose
     @SerializedName("Creator")
     public final SimpleStringProperty creator = new SimpleStringProperty("Creator", I18n.getInstance().getString("plugin.nonconformities.creator"), "");
-    @Expose
-    @SerializedName("Medium")
-    public final SimpleStringProperty medium = new SimpleStringProperty("Medium Tags",
-            I18n.getInstance().getString("plugin.nonconformities.medium"), "Strom");
-    public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
+
+
     @Expose
     @SerializedName("Nr")
     private final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr", I18n.getInstance().getString("plugin.nonconformities.nr"), 0);
@@ -62,49 +55,78 @@ public class NonconformityData {
     @Expose
     @SerializedName("Cause")
     private final SimpleStringProperty cause = new SimpleStringProperty("Cause", I18n.getInstance().getString("plugin.nonconformities.cause"), "");
+
     @Expose
     @SerializedName("Immediate Measures")
     private final SimpleStringProperty immediateMeasures = new SimpleStringProperty("Immediate Measures", I18n.getInstance().getString("plugin.nonconformities.immediatemeasures"), "");
+
     @Expose
     @SerializedName("Corrective Actions")
     private final SimpleStringProperty correctiveActions = new SimpleStringProperty("Corrective Actions", I18n.getInstance().getString("plugin.nonconformities.correctiveactions"), "");
+
     @Expose
     @SerializedName("Responsible Person")
     private final SimpleStringProperty responsiblePerson = new SimpleStringProperty("Responsible Person", I18n.getInstance().getString("plugin.nonconformities.responsibleperson"), "");
+
+
     @Expose
     @SerializedName("Check List")
     private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
+
     @Expose
     @SerializedName("Create Date")
     private final SimpleObjectProperty<DateTime> createDate = new SimpleObjectProperty<>("Create Date", I18n.getInstance().getString("plugin.nonconformities.createdate"), new DateTime());
+
     @Expose
     @SerializedName("Planned Date")
     private final SimpleObjectProperty<DateTime> deadLine = new SimpleObjectProperty<>("deadline", I18n.getInstance().getString("plugin.nonconformities.planneddate"), null);
+
+
     @Expose
     @SerializedName("Done Date")
     private final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date", I18n.getInstance().getString("plugin.nonconformities.donedate"), null);
+
     @Expose
     @SerializedName("Deleted")
     private final SimpleBooleanProperty deleted = new SimpleBooleanProperty("Deleted", I18n.getInstance().getString("plugin.nonconformities.donedate"), false);
+
+
     @Expose
     @SerializedName("Attachment")
     private final SimpleStringProperty attachment = new SimpleStringProperty("Attachment", I18n.getInstance().getString("plugin.nonconformities.attachment"), "");
+
+
+    public static final String IMMEDIATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.immediatemeasures");
+
     @Expose
     @SerializedName("Field Tags")
     private final ListProperty<String> fieldTags = new SimpleListProperty<>("Field Tags",
             I18n.getInstance().getString("plugin.nonconformities.field"), FXCollections.observableArrayList());
+
+
     @Expose
     @SerializedName("Action")
     private final SimpleStringProperty action = new SimpleStringProperty("Field Tags",
             I18n.getInstance().getString("plugin.nonconformities.action"), "");
+
     @Expose
     @SerializedName("SEU")
     private final SimpleStringProperty seu = new SimpleStringProperty("Field Tags",
             I18n.getInstance().getString("plugin.nonconformities.seu"), "");
+    public static final String DONE_DATE_ACTION = I18n.getInstance().getString("plugin.nonconformities.error.donedate");
     private ChangeListener changeListener;
     private JEVisObject object;
+
     private List<ReadOnlyProperty> propertyList = new ArrayList<>();
+
     private NonconformityPlan nonconformityPlan;
+    public static final String DONE_DATE_AFTER_NOW = I18n.getInstance().getString("plugin.nonconformities.error.donedateafter");
+    public static final String REQUIREMENTS_MET = I18n.getInstance().getString("plugin.nonconforrmities.error.ok");
+    @Expose
+    @SerializedName("Medium")
+    public final SimpleStringProperty medium = new SimpleStringProperty("Medium Tags",
+            I18n.getInstance().getString("plugin.nonconformities.medium"), "Strom");
+    public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
 
     public NonconformityData(JEVisObject obj, NonconformityPlan nonconformityPlan) {
         this.nonconformityPlan = nonconformityPlan;
@@ -114,6 +136,10 @@ public class NonconformityData {
 
     public NonconformityData() {
         reload();
+    }
+
+    public void setObject(JEVisObject object) {
+        this.object = object;
     }
 
     public void reload() {
@@ -170,12 +196,9 @@ public class NonconformityData {
 
     }
 
+
     public JEVisObject getObject() {
         return object;
-    }
-
-    public void setObject(JEVisObject object) {
-        this.object = object;
     }
 
     private void registerChanges(Object propertyObj) {
@@ -206,11 +229,8 @@ public class NonconformityData {
     }
 
     public void commit() {
-
-        System.out.println(this);
-
-
         try {
+            getObject().setName(getPrefixPlusNumber().get());
             //if (!valueChanged.getValue()) return;
 
             Task task = new Task() {
@@ -333,48 +353,48 @@ public class NonconformityData {
         return cause.get();
     }
 
-    public void setCause(String cause) {
-        this.cause.set(cause);
-    }
-
     public SimpleStringProperty causeProperty() {
         return cause;
+    }
+
+    public void setCause(String cause) {
+        this.cause.set(cause);
     }
 
     public String getImmediateMeasures() {
         return immediateMeasures.get();
     }
 
-    public void setImmediateMeasures(String immediateMeasures) {
-        this.immediateMeasures.set(immediateMeasures);
-    }
-
     public SimpleStringProperty immediateMeasuresProperty() {
         return immediateMeasures;
+    }
+
+    public void setImmediateMeasures(String immediateMeasures) {
+        this.immediateMeasures.set(immediateMeasures);
     }
 
     public String getCorrectiveActions() {
         return correctiveActions.get();
     }
 
-    public void setCorrectiveActions(String correctiveActions) {
-        this.correctiveActions.set(correctiveActions);
-    }
-
     public SimpleStringProperty correctiveActionsProperty() {
         return correctiveActions;
+    }
+
+    public void setCorrectiveActions(String correctiveActions) {
+        this.correctiveActions.set(correctiveActions);
     }
 
     public String getResponsiblePerson() {
         return responsiblePerson.get();
     }
 
-    public void setResponsiblePerson(String responsiblePerson) {
-        this.responsiblePerson.set(responsiblePerson);
-    }
-
     public SimpleStringProperty responsiblePersonProperty() {
         return responsiblePerson;
+    }
+
+    public void setResponsiblePerson(String responsiblePerson) {
+        this.responsiblePerson.set(responsiblePerson);
     }
 
     public DateTime getCreateDate() {
@@ -413,24 +433,25 @@ public class NonconformityData {
         return valueChanged.get();
     }
 
+    public SimpleBooleanProperty valueChangedProperty() {
+        return valueChanged;
+    }
+
     public void setValueChanged(boolean valueChanged) {
         this.valueChanged.set(valueChanged);
     }
 
-    public SimpleBooleanProperty valueChangedProperty() {
-        return valueChanged;
-    }
 
     public String getMedium() {
         return medium.get();
     }
 
-    public void setMedium(String medium) {
-        this.medium.set(medium);
-    }
-
     public SimpleStringProperty mediumProperty() {
         return medium;
+    }
+
+    public void setMedium(String medium) {
+        this.medium.set(medium);
     }
 
     public NonconformityPlan getNonconformityPlan() {
@@ -445,24 +466,24 @@ public class NonconformityData {
         return checkListData.get();
     }
 
-    public void setCheckListData(CheckListData checkListData) {
-        this.checkListData.set(checkListData);
-    }
-
     public SimpleObjectProperty<CheckListData> checkListDataProperty() {
         return checkListData;
+    }
+
+    public void setCheckListData(CheckListData checkListData) {
+        this.checkListData.set(checkListData);
     }
 
     public boolean isDeleted() {
         return deleted.get();
     }
 
-    public void setDeleted(boolean deleted) {
-        this.deleted.set(deleted);
-    }
-
     public SimpleBooleanProperty deletedProperty() {
         return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted.set(deleted);
     }
 
     public String getPrefix() {
@@ -483,24 +504,24 @@ public class NonconformityData {
         return action.get();
     }
 
-    public void setAction(String action) {
-        this.action.set(action);
-    }
-
     public SimpleStringProperty actionProperty() {
         return action;
+    }
+
+    public void setAction(String action) {
+        this.action.set(action);
     }
 
     public String getSeu() {
         return seu.get();
     }
 
-    public void setSeu(String seu) {
-        this.seu.set(seu);
-    }
-
     public SimpleStringProperty seuProperty() {
         return seu;
+    }
+
+    public void setSeu(String seu) {
+        this.seu.set(seu);
     }
 
     public SimpleStringProperty getPrefixProperty() {

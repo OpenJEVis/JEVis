@@ -49,7 +49,7 @@ public class DashboardPojo {
         }
 
         @Override
-        public Interval getInterval(DateTime dateTime) {
+        public Interval getInterval(DateTime dateTime, Boolean fixed) {
             return new Interval(dateTime, dateTime);
         }
 

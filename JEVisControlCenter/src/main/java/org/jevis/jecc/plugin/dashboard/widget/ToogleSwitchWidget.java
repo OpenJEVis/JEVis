@@ -18,7 +18,6 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.JsonNames;
 import org.jevis.jecc.plugin.dashboard.config2.Size;
 import org.jevis.jecc.plugin.dashboard.config2.WidgetConfigDialog;
@@ -38,16 +37,16 @@ import java.util.Optional;
 public class ToogleSwitchWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ToogleSwitchWidget.class);
-    private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     public static String WIDGET_ID = "Toggle Switch";
+    private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     private final NumberFormat nf = NumberFormat.getInstance();
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
+    private final Interval lastInterval = null;
     private final boolean forceLastValue = true;
-    private Interval lastInterval = null;
     private JEVisSample lastSample = null;
     private Boolean customWorkday = true;
 
-    private Tile toogleSwitch;
+    private final Tile toogleSwitch;
 
 
     public ToogleSwitchWidget(DashboardControl control, WidgetPojo config) {
@@ -159,7 +158,7 @@ public class ToogleSwitchWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(false);
         initData();
         Platform.runLater(() -> {
@@ -258,16 +257,12 @@ public class ToogleSwitchWidget extends Widget implements DataModelWidget {
     }
 
     private boolean getValueAsBool(double value) {
-        if (value == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return value == 1;
     }
 
     private void setData(double value) throws JEVisException {
         JEVisAttribute jeVisAttribute = sampleHandler.getDataModel().get(0).getObject().getAttribute(JC.Data.a_Value);
-        logger.info("set data {} to objekt {}", value, jeVisAttribute.getObject().getID());
+        logger.info("set data {} to object {}", value, jeVisAttribute.getObject().getID());
         JEVisSample jeVisSample = jeVisAttribute.buildSample(new DateTime(), value);
         jeVisSample.commit();
 

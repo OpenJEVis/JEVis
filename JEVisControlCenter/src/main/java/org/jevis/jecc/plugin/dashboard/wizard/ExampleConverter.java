@@ -37,7 +37,7 @@ public class ExampleConverter {
 
     public void sampleHandlerToValue(DataModelNode dataModelNode) throws IOException {
 
-        StringBuilder stringBuilder = new StringBuilder();
+        String stringBuilder = "";
 
 //        stringBuilder.append("{\n" +
 //                "  \"Dash Board Color\": \"0x00000000\",\n" +
@@ -77,7 +77,7 @@ public class ExampleConverter {
 //        System.out.println(stringBuilder.toString());
 //        System.out.println("--------------------------------------------");
         BufferedWriter writer = new BufferedWriter(new FileWriter("/tmp/DasNeue.json", true));
-        writer.write(stringBuilder.toString());
+        writer.write(stringBuilder);
         writer.close();
 
 //        StringBuilder stringBuilder = new StringBuilder();
@@ -123,9 +123,6 @@ public class ExampleConverter {
 
         try {
             long calcID = 0;
-            if (dataPointNode.getCalculationID() != null) {
-                calcID = dataPointNode.getCalculationID();
-            }
 
             stringBuilder.append(dataConterter(dataPointNode.getObjectID(),
                     dataPointNode.getCleanObjectID(),
@@ -144,29 +141,28 @@ public class ExampleConverter {
     }
 
     public String dataConterter(long objectid, long cleanID, long calcID, boolean enpi, String aggergation, String color) {
-        StringBuilder stringBuilder = new StringBuilder();
 
 
-        stringBuilder.append("\"objectID\":" + objectid);
-        stringBuilder.append(",\n");
-        stringBuilder.append("\"cleanObjectID\":" + cleanID);
-        stringBuilder.append(",\n");
-        stringBuilder.append("\"calculationID\":" + calcID);
-        stringBuilder.append(",\n");
-        stringBuilder.append("\"attribute\":" + "\"Value\"");
-        stringBuilder.append(",\n");
-        stringBuilder.append("\"aggregationPeriod\":" + "\"" + aggergation + "\"");
-        stringBuilder.append(",\n");
-        stringBuilder.append("\"manipulationMode\":" + "\"NONE\"");
-        stringBuilder.append(",\n");
-        stringBuilder.append("\"enpi\":" + enpi);
-        stringBuilder.append(",\n");
-        stringBuilder.append("\"color\":" + "\"" + color + "\"");
-        stringBuilder.append(",\n");
-        stringBuilder.append("\"absolute\": false");
+        String stringBuilder = "\"objectID\":" + objectid +
+                ",\n" +
+                "\"cleanObjectID\":" + cleanID +
+                ",\n" +
+                "\"calculationID\":" + calcID +
+                ",\n" +
+                "\"attribute\":" + "\"Value\"" +
+                ",\n" +
+                "\"aggregationPeriod\":" + "\"" + aggergation + "\"" +
+                ",\n" +
+                "\"manipulationMode\":" + "\"NONE\"" +
+                ",\n" +
+                "\"enpi\":" + enpi +
+                ",\n" +
+                "\"color\":" + "\"" + color + "\"" +
+                ",\n" +
+                "\"absolute\": false";
 
 
-        return stringBuilder.toString();
+        return stringBuilder;
     }
 
 

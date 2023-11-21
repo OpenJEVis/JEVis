@@ -121,7 +121,7 @@ public class ObjectEditor {
 //                    @Override
 //                    public void run() {
 //                        ConfirmDialog dia = new ConfirmDialog();
-//                        ConfirmDialog.Response re = dia.show(JEConfig.getStage(), "Save", "Save Attribute Changes", "Changes will be lost if not saved, do you want to save now?");
+//                        ConfirmDialog.Response re = dia.show(ControlCenter.getStage(), "Save", "Save Attribute Changes", "Changes will be lost if not saved, do you want to save now?");
 //                        if (re == ConfirmDialog.Response.YES) {
 //                            commitAll();
 //                        } else {
@@ -175,6 +175,7 @@ public class ObjectEditor {
                     installedExtensions.add(new CalculationExtension(obj));
                     installedExtensions.add(new CleanDataExtension(obj));
                     installedExtensions.add(new RoleExtention(obj));
+                    installedExtensions.add(new HttpChanelExtension(obj));
 
                     //Generic Extensions every Class has
                     //TODO: make an better logic to decide/configure the extension order

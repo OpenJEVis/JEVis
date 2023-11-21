@@ -19,12 +19,12 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXTextArea;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -47,7 +47,7 @@ public class StringMultiLine implements AttributeEditor {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final HBox box = new HBox();
     public JEVisAttribute _attribute;
-    private JFXTextArea _field;
+    private TextArea _field;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private boolean _readOnly = true;
@@ -114,7 +114,7 @@ public class StringMultiLine implements AttributeEditor {
     private void buildEditor() throws JEVisException {
         if (_field == null) {
             box.getChildren().clear();
-            _field = new JFXTextArea();
+            _field = new TextArea();
             _field.setPrefWidth(GenericAttributeExtension.editorWidth.doubleValue());
 //            _field.setPrefWidth(500);//TODO: remove this workaround
             _field.setPrefRowCount(10);

@@ -53,10 +53,10 @@ public class XYChartSerie {
     TreeMap<DateTime, JEVisSample> sampleMap;
     DateTime timeStampFromFirstSample = DateTime.now();
     DateTime timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
-    ValueWithDateTime minValue = new ValueWithDateTime(Double.MAX_VALUE);
+    ValueWithDateTime minValue;
     ChartModel chartModel;
     Axis xAxis;
-    ValueWithDateTime maxValue = new ValueWithDateTime(-Double.MAX_VALUE);
+    ValueWithDateTime maxValue;
     private double sortCriteria;
     private double avg;
     private boolean aggregated = false;
@@ -77,6 +77,13 @@ public class XYChartSerie {
         this.forecast = forecast;
         this.nf.setMinimumFractionDigits(chartModel.getMinFractionDigits());
         this.nf.setMaximumFractionDigits(chartModel.getMaxFractionDigits());
+        if (singleRow.getDecimalDigits() > -1) {
+            this.nf.setMinimumFractionDigits(singleRow.getDecimalDigits());
+            this.nf.setMaximumFractionDigits(singleRow.getDecimalDigits());
+        }
+        minValue = new ValueWithDateTime(Double.MAX_VALUE, nf);
+        maxValue = new ValueWithDateTime(-Double.MAX_VALUE, nf);
+
         this.aggregated = singleRow.getAggregationPeriod() != AggregationPeriod.NONE;
 
         generateSeriesFromSamples();
@@ -443,7 +450,7 @@ public class XYChartSerie {
 
     public String getUnit() {
 
-        String unit = "" + singleRow.getUnit();
+        String unit = String.valueOf(singleRow.getUnit());
 
         if (unit.equals("")) unit = singleRow.getUnit().getLabel();
 
@@ -541,5 +548,9 @@ public class XYChartSerie {
 
     public Renderer getNoteDataSetRenderer() {
         return noteDataSetRenderer;
+    }
+
+    public NumberFormat getNf() {
+        return nf;
     }
 }

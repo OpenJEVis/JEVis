@@ -20,7 +20,6 @@ import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.application.Chart.data.ChartData;
 import org.jevis.jecc.application.Chart.data.ChartDataRow;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.*;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
@@ -40,11 +39,17 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
     public static String Sankey_DESIGN_NODE_NAME = "Sankey";
     private final NumberFormat nf = NumberFormat.getInstance();
-    private final Pane borderPane = new Pane();
-    private final BorderPane bottomBorderPane = new BorderPane();
     private SankeyPlot sankeyPlot;
+    /**
+     * TODO: JFX17
+     * Widget Legend
+     */
+
+    //private final WidgetLegend legend = new WidgetLegend();
+    private final Pane borderPane = new Pane();
     private Interval lastInterval = null;
-    private List<JEVisPlotItem> plotItems = new ArrayList<>();
+    private final BorderPane bottomBorderPane = new BorderPane();
+    private final List<JEVisPlotItem> plotItems = new ArrayList<>();
     private Boolean customWorkday = true;
 
     private SankeyPojo sankeyPojo;
@@ -53,7 +58,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
     private boolean error = false;
 
-    private List<JEVisObject> sankeyDataRowsWithMultipleParents = new ArrayList<>();
+    private final List<JEVisObject> sankeyDataRowsWithMultipleParents = new ArrayList<>();
 
 
     public SankeyWidget(DashboardControl control, WidgetPojo config) {
@@ -147,7 +152,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
                 this.setBackground(bgColorTrans);
-
+                //        this.legend.setBackground(bgColorTrans);
                 this.borderPane.setBackground(bgColor);
 
 
@@ -221,7 +226,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
                 createPlotNames();
 
                 addSpacing(plotItems.stream().max(Comparator.comparing(JEVisPlotItem::getLevel)).orElseThrow(NoSuchElementException::new).getLevel(), true);
-                addSpacing(plotItems.stream().max(Comparator.comparing(JEVisPlotItem::getLevel)).orElseThrow(NoSuchElementException::new).getLevel(), false);
+                addSpacing(plotItems.stream().max(Comparator.comparing(JEVisPlotItem::getLevel)).orElseThrow(NoSuchElementException::new).getLevel(),false);
             } catch (Exception e) {
                 logger.error(e);
             }
@@ -322,9 +327,9 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 //                error = true;
 //                return;
 //            }
-            BigDecimal value = new BigDecimal(jeVisPlotItem.getValue());
+            BigDecimal value = BigDecimal.valueOf(jeVisPlotItem.getValue());
             value = value.setScale(config.getDecimals(), RoundingMode.HALF_UP);
-            BigDecimal outgoing = new BigDecimal(jeVisPlotItem.getSumOfOutgoing());
+            BigDecimal outgoing = BigDecimal.valueOf(jeVisPlotItem.getSumOfOutgoing());
             outgoing = outgoing.setScale(config.getDecimals(), RoundingMode.HALF_UP);
             if (value.doubleValue() * (1 + sankeyPojo.getErrorTolerance()) < outgoing.doubleValue()) {
                 jeVisPlotItem.setFill(Color.RED);
@@ -336,6 +341,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
         });
     }
+
 
 
     private void createPlotNames() {
@@ -360,13 +366,12 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     private void createNamesRefersToRoot(JEVisPlotItem jeVisPlotItem) {
         List<PlotItem> roots = plotItems.stream().filter(jeVisPlotItem1 -> jeVisPlotItem1.isRoot() && jeVisPlotItem1.getValue() != 0).collect(Collectors.toList());
         if (roots.size() > 0) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(jeVisPlotItem.getName());
-            stringBuilder.append("\n");
-            stringBuilder.append("(");
-            stringBuilder.append(inPercent(roots.get(0).getValue(), jeVisPlotItem.getValue()));
-            stringBuilder.append("%)");
-            jeVisPlotItem.setName(stringBuilder.toString());
+            String stringBuilder = jeVisPlotItem.getName() +
+                    "\n" +
+                    "(" +
+                    inPercent(roots.get(0).getValue(), jeVisPlotItem.getValue()) +
+                    "%)";
+            jeVisPlotItem.setName(stringBuilder);
         }
     }
 
@@ -391,7 +396,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     }
 
     private String createNameWithUnit(JEVisPlotItem jeVisPlotItem) {
-        BigDecimal bigDecimal = new BigDecimal(jeVisPlotItem.getValue());
+        BigDecimal bigDecimal = BigDecimal.valueOf(jeVisPlotItem.getValue());
         bigDecimal = bigDecimal.setScale(config.getDecimals(), RoundingMode.HALF_UP);
         return jeVisPlotItem.getName() + "\n" + bigDecimal.doubleValue() + " " + jeVisPlotItem.getJeVisUnit().getLabel();
     }
@@ -402,7 +407,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
             JEVisPlotItem jeVisPlotItem = new JEVisPlotItem("", Color.AQUA, null, 0, null);
             if (toTop) {
                 plotItems.add(0, jeVisPlotItem);
-            } else {
+            }else {
                 plotItems.add(jeVisPlotItem);
             }
             for (int i = 0; i < level; i++) {
@@ -410,7 +415,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
                     jeVisPlotItem = addSpacingObject(jeVisPlotItem, true);
                 } else {
-                    jeVisPlotItem = addSpacingObject(jeVisPlotItem, false);
+                    jeVisPlotItem = addSpacingObject(jeVisPlotItem,false);
 
                 }
             }
@@ -426,7 +431,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
         if (toTop) {
 
             plotItems.add(0, jeVisPlotItemNew);
-        } else {
+        }else {
 
             plotItems.add(jeVisPlotItemNew);
         }
@@ -435,7 +440,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
     private String inPercent(double in, double out) {
         try {
-            BigDecimal bd = new BigDecimal((out / in) * 100);
+            BigDecimal bd = BigDecimal.valueOf((out / in) * 100);
             bd = bd.setScale(config.getDecimals(), RoundingMode.HALF_UP);
             return bd.toString();
         } catch (Exception e) {
@@ -520,9 +525,9 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
         this.sampleHandler.setMultiSelect(true);
-//TODO JFX17 Testen
+
         //   this.legend.setAlignment(Pos.CENTER);
 
         try {
@@ -594,54 +599,6 @@ public class SankeyWidget extends Widget implements DataModelWidget {
         ROOT,
     }
 
-    public enum SHOW_VALUE_IN {
-        PERCENT,
-        UNIT,
-    }
-
-    public class JEVisPlotItem extends PlotItem {
-
-
-        private JEVisObject object;
-
-        private JEVisUnit jeVisUnit;
-
-
-        public JEVisPlotItem(String NAME, Color FILL, JEVisObject object, double value, JEVisUnit jeVisUnit) {
-            super(NAME, 0, "", FILL);
-            setValue(value);
-            this.object = object;
-            this.jeVisUnit = jeVisUnit;
-        }
-
-        @Override
-        public String toString() {
-            return "JEVisPlotItem{" +
-                    "object=" + this.getName() +
-                    "value=" + this.getValue() +
-                    "outgoingSum=" + this.getSumOfOutgoing() +
-                    "incomingSum=" + this.getSumOfIncoming() +
-                    '}';
-        }
-
-        public JEVisObject getObject() {
-            return object;
-        }
-
-        public void setObject(JEVisObject object) {
-            this.object = object;
-        }
-
-
-        public JEVisUnit getJeVisUnit() {
-            return jeVisUnit;
-        }
-
-        public void setJeVisUnit(JEVisUnit jeVisUnit) {
-            this.jeVisUnit = jeVisUnit;
-        }
-    }
-
     private class JEVisValueUnitPair {
         private double value;
 
@@ -676,6 +633,54 @@ public class SankeyWidget extends Widget implements DataModelWidget {
         }
 
 
+    }
+
+    public enum SHOW_VALUE_IN {
+        PERCENT,
+        UNIT,
+    }
+
+    public class JEVisPlotItem extends PlotItem {
+
+
+        private JEVisObject object;
+
+        private JEVisUnit jeVisUnit;
+
+
+        @Override
+        public String toString() {
+            return "JEVisPlotItem{" +
+                    "object=" + this.getName() +
+                    "value=" + this.getValue() +
+                    "outgoingSum=" + this.getSumOfOutgoing() +
+                    "incomingSum=" + this.getSumOfIncoming() +
+                    '}';
+        }
+
+        public JEVisPlotItem(String NAME, Color FILL, JEVisObject object, double value, JEVisUnit jeVisUnit) {
+            super(NAME, 0, "", FILL);
+            setValue(value);
+            this.object = object;
+            this.jeVisUnit = jeVisUnit;
+        }
+
+        public JEVisObject getObject() {
+            return object;
+        }
+
+        public void setObject(JEVisObject object) {
+            this.object = object;
+        }
+
+
+        public JEVisUnit getJeVisUnit() {
+            return jeVisUnit;
+        }
+
+        public void setJeVisUnit(JEVisUnit jeVisUnit) {
+            this.jeVisUnit = jeVisUnit;
+        }
     }
 
 }

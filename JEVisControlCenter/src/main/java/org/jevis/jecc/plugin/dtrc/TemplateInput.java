@@ -183,7 +183,7 @@ public class TemplateInput extends TemplateSelected {
                 }
 
                 if (fixedTimeFrame != null && reducingTimeFrame != null && !fixedTimeFrame.equals(TimeFrameFactory.NONE)) {
-                    start = fixedTimeFrame.getInterval(start).getStart();
+                    start = fixedTimeFrame.getInterval(start, false).getStart();
                     end = end;
 
                     Period p = null;
@@ -197,7 +197,7 @@ public class TemplateInput extends TemplateSelected {
                         if (p != null) {
                             previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
                         } else {
-                            previousEndDate = end.minus(reducingTimeFrame.getInterval(start).toDuration());
+                            previousEndDate = end.minus(reducingTimeFrame.getInterval(start, false).toDuration());
                         }
                     }
 
@@ -382,8 +382,7 @@ public class TemplateInput extends TemplateSelected {
     @Override
     public boolean equals(Object obj) {
 
-        if (obj instanceof TemplateInput) {
-            TemplateInput otherObj = (TemplateInput) obj;
+        if (obj instanceof TemplateInput otherObj) {
             return this.getId().equals(otherObj.getId());
         }
 

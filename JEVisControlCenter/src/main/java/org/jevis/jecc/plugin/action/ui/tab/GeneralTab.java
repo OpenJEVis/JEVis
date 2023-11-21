@@ -12,14 +12,13 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.CheckComboBox;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.plugin.action.data.ActionData;
@@ -29,49 +28,49 @@ import org.jevis.jecc.plugin.action.ui.NumerFormating;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class GeneralTab extends Tab {
-
+    private static final Logger logger = LogManager.getLogger(GeneralTab.class);
     private final MFXDatePicker f_plannedDate = new MFXDatePicker();
     private final MFXDatePicker f_doneDate = new MFXDatePicker();
     //private ActionData names = new ActionData();
-    private Label l_Note = new Label();
-    private Label l_Description = new Label();
-    private Label l_ActionNr = new Label();
-    private Label l_Investment = new Label(I18n.getInstance().getString("actionform.editor.tab.general.investment"));
-    private Label l_changeKost = new Label(I18n.getInstance().getString("actionform.editor.tab.general.yearsaving"));
-    private Label l_Responsible = new Label();
-    private Label l_NoteBewertet = new Label();
-    private Label l_Attachment = new Label();
-    private Label l_Title = new Label();
-    private Label l_NoteEnergiefluss = new Label();
-    private Label l_doneDate = new Label();
-    private Label l_plannedDate = new Label();
-    private Label l_statusTags = new Label();
-    private Label l_fieldTags = new Label();
-    private Region col3Spacer = new Region();
-    private MFXTextField f_savingYear = new MFXTextField();
-    private MFXTextField f_Investment = new MFXTextField();
-    private MFXTextField f_ActionNr = new MFXTextField();
-    private MFXTextField f_Title = new MFXTextField();
-    private MFXTextField f_Responsible = new MFXTextField();
-    private TextArea f_Description = new TextArea();
-    private TextArea f_NoteBewertet = new TextArea();
-    private MFXComboBox<String> f_statusTags;
-    private CheckComboBox<String> f_fieldTags;
-    //private MFXCheckbox f_fieldTags2;
-    private MFXTextField f_Attachment = new MFXTextField();
-    private TextArea f_Note = new TextArea();
-    private TextArea f_NoteEnergiefluss = new TextArea();
-    private Label l_seu = new Label(I18n.getInstance().getString("actionform.editor.tab.general.seu"));
+    private final Label l_Note = new Label();
+    private final Label l_Description = new Label();
+    private final Label l_ActionNr = new Label();
+    private final Label l_Investment = new Label(I18n.getInstance().getString("actionform.editor.tab.general.investment"));
+    private final Label l_changeKost = new Label(I18n.getInstance().getString("actionform.editor.tab.general.yearsaving"));
+    private final Label l_Responsible = new Label();
+    private final Label l_NoteBewertet = new Label();
+    private final Label l_Attachment = new Label();
+    private final Label l_Title = new Label();
+    private final Label l_NoteEnergiefluss = new Label();
+    private final Label l_doneDate = new Label();
+    private final Label l_plannedDate = new Label();
+    private final Label l_statusTags = new Label();
+    private final Label l_fieldTags = new Label();
+    private final Region col3Spacer = new Region();
+    private final MFXTextField f_savingYear = new MFXTextField();
+    private final MFXTextField f_Investment = new MFXTextField();
+    private final MFXTextField f_ActionNr = new MFXTextField();
+    private final MFXTextField f_Title = new MFXTextField();
+    private final MFXTextField f_Responsible = new MFXTextField();
+    private final TextArea f_Description = new TextArea();
+    private final TextArea f_NoteBewertet = new TextArea();
+    private final MFXComboBox<String> f_statusTags;
+    private final CheckComboBox<String> f_fieldTags;
+    //private JFXCheckComboBox f_fieldTags2;
+    private final MFXTextField f_Attachment = new MFXTextField();
+    private final TextArea f_Note = new TextArea();
+    private final TextArea f_NoteEnergiefluss = new TextArea();
+    private final Label l_seu = new Label(I18n.getInstance().getString("actionform.editor.tab.general.seu"));
+    private final Label l_FromUser = new Label(I18n.getInstance().getString("plugin.action.fromuser"));
+    private final MFXTextField f_FromUser = new MFXTextField();
+    private final Label l_CreateDate = new Label(I18n.getInstance().getString("plugin.action.created"));  //
+    private final MFXDatePicker f_CreateDate = new MFXDatePicker();
+    private final Label l_distributor = new Label(I18n.getInstance().getString("plugin.action.distributor"));
+    private final MFXTextField f_distributor = new MFXTextField();
     private MFXComboBox<String> f_sueTags = new MFXComboBox<>();
-    private Label l_FromUser = new Label(I18n.getInstance().getString("plugin.action.fromuser"));
-    private MFXTextField f_FromUser = new MFXTextField();
-    private Label l_CreateDate = new Label("Erstellt");
-    private MFXDatePicker f_CreateDate = new MFXDatePicker();
-    private Label l_distributor = new Label(I18n.getInstance().getString("plugin.action.distributor"));
-    private MFXTextField f_distributor = new MFXTextField();
-
 
     {
         f_NoteBewertet.setWrapText(true);
@@ -91,7 +90,26 @@ public class GeneralTab extends Tab {
 
         col3Spacer.setMinWidth(25);
 
+        /* Readable if the workaround is not needed */
         f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
+        f_ActionNr.setEditable(false);
+        f_ActionNr.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.isAltDown() && mouseEvent.isControlDown()) {
+                TextInputDialog textInputDialog = new TextInputDialog(data.nrProperty().get() + "");
+                textInputDialog.setHeaderText("Set Nr");
+                textInputDialog.setContentText("Set Nr");
+                Optional<String> value = textInputDialog.showAndWait();
+                try {
+                    data.nr.set(Integer.parseInt(value.get()));
+                    f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
+                } catch (Exception ex) {
+
+                }
+            }
+        });
+        /* allow editing NR */
+        // StringConverter sdfs = new IntegerStringConverter();
+        //Bindings.bindBidirectional(f_ActionNr.textProperty(), data.nr, sdfs);
 
 
         f_statusTags = new MFXComboBox<>(actionPlan.getStatustags());
@@ -156,13 +174,15 @@ public class GeneralTab extends Tab {
             }
         });
 
-        data.doneDateProperty().addListener((observable, oldValue, newValue) -> {
-            f_doneDate.setValue(LocalDate.of(newValue.getYear(), newValue.getMonthOfYear(), newValue.getDayOfMonth()));
-        });
+
+        if (data.doneDateProperty().getValue() != null) {
+            DateTime end = data.doneDateProperty().get();
+            f_doneDate.valueProperty().setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+        }
 
         f_doneDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.isAfter(LocalDate.now())) {
-                data.doneDateProperty().set(new DateTime());
+            if (newValue == null) {
+                data.doneDate.setValue(null);
             } else {
                 data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
             }
@@ -170,25 +190,22 @@ public class GeneralTab extends Tab {
         });
 
 
-        if (data.doneDateProperty().getValue() != null) {
-            DateTime end = data.doneDateProperty().get();
-            f_doneDate.valueProperty().setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+        DateTime planDate = data.plannedDateProperty().get();
+        if (planDate != null) {
+            f_plannedDate.valueProperty().setValue(LocalDate.of(planDate.getYear(), planDate.getMonthOfYear(), planDate.getDayOfMonth()));
         }
-
-
-        DateTime plan = data.plannedDateProperty().get();
-        f_plannedDate.valueProperty().setValue(LocalDate.of(plan.getYear(), plan.getMonthOfYear(), plan.getDayOfMonth()));
         f_plannedDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.doneDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
-        });
-
-        f_plannedDate.valueProperty().setValue(LocalDate.of(plan.getYear(), plan.getMonthOfYear(), plan.getDayOfMonth()));
-        f_plannedDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.plannedDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            if (newValue == null) {
+                data.plannedDateProperty().set(null);
+            } else {
+                data.plannedDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            }
         });
 
 
+        f_Investment.setTextFormatter(new TextFormatter<>(NumerFormating.getInstance().getDoubleConverter()));
         Bindings.bindBidirectional(f_Investment.textProperty(), data.npv.get().investment, NumerFormating.getInstance().getDoubleConverter());
+        f_savingYear.setTextFormatter(new TextFormatter<>(NumerFormating.getInstance().getDoubleConverter()));
         Bindings.bindBidirectional(f_savingYear.textProperty(), data.npv.get().einsparung, NumerFormating.getInstance().getDoubleConverter());
 
         f_savingYear.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -196,6 +213,15 @@ public class GeneralTab extends Tab {
                 f_savingYear.textProperty().set(NumerFormating.getInstance().getDoubleFormate().format(data.npv.get().einsparung.get()));
             }
         });
+
+        f_Description.setWrapText(true);
+        f_NoteBewertet.setWrapText(true);
+        f_Note.setWrapText(true);
+        f_NoteEnergiefluss.setWrapText(true);
+
+
+        logger.debug("Investment: " + data.npv.get().investment.get());
+        logger.debug("InvestText: " + f_Investment.textProperty().get());
 
 
         // f_savingYear.setTextFormatter(new TextFormatter(new UnitDoubleConverter()));
@@ -219,9 +245,17 @@ public class GeneralTab extends Tab {
         f_FromUser.textProperty().bindBidirectional(data.fromUserProperty());
 
         DateTime start = data.createDateProperty().get();
-        f_CreateDate.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        if (start != null) {
+            f_CreateDate.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        }
         f_CreateDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            data.createDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            logger.debug("newValue: " + newValue);
+            if (newValue == null) {
+                data.createDateProperty().set(null);
+            } else {
+                data.createDateProperty().set(new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0));
+            }
+
         });
 
         add(gridPane, 1, 1, 1, 1, Priority.NEVER, l_ActionNr);
@@ -289,7 +323,6 @@ public class GeneralTab extends Tab {
         l_NoteBewertet.setPadding(new Insets(15, 0, 0, 0));
         l_NoteEnergiefluss.setPadding(new Insets(15, 0, 0, 0));
 
-        f_ActionNr.setEditable(false);
 
         GridPane.setHgrow(f_statusTags, Priority.ALWAYS);
 
@@ -309,7 +342,7 @@ public class GeneralTab extends Tab {
 
         l_Title.setText(I18n.getInstance().getString("plugin.action.affectedprocess"));
         l_NoteBewertet.setText(I18n.getInstance().getString("plugin.action.noteBewertet"));
-        l_NoteEnergiefluss.setText("Maßnahmenbeschreibung");
+        l_NoteEnergiefluss.setText(I18n.getInstance().getString("plugin.action.measureDescription"));
 
         l_Title.setWrapText(true);
         l_NoteBewertet.setWrapText(true);

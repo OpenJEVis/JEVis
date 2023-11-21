@@ -46,6 +46,7 @@ public interface JsonNames {
         String LAYER = "layer";
         String DECIMALS = "decimals";
         String SHOW_VALUE = "showValue";
+        String FIXED_TIMEFRAME = "fixedTimeframe";
 
     }
 

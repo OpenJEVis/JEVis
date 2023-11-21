@@ -201,6 +201,8 @@ public class PluginManager {
                                     enabledPlugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.indexoflegalprovisions.name")));
                                 } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new TRCPlugin(this._ds));
+                                } else if (plugObj.getJEVisClassName().equals(org.jevis.jecc.plugin.meters.MeterPlugin.PLUGIN_NAME)) {
+
                                 }
                             }
                         }
@@ -208,6 +210,7 @@ public class PluginManager {
                         ex.printStackTrace();
                     }
                 }
+
 
                 this._plugins.addAll(enabledPlugins);
             }
@@ -254,11 +257,10 @@ public class PluginManager {
 
                 pluginTab.setContent(plugin.getContentNode());
 
-                /**
+                /*
                  * Special case Alarming beginning
                  */
-                if (plugin instanceof AlarmPlugin) {
-                    AlarmPlugin alarmPlugin = (AlarmPlugin) plugin;
+                if (plugin instanceof AlarmPlugin alarmPlugin) {
                     Timeline flasher = new Timeline(
 
                             new KeyFrame(Duration.seconds(0.5), e -> {
@@ -325,11 +327,12 @@ public class PluginManager {
                     JEVisHelp.getInstance().showHelpTooltips(false);
                     JEVisHelp.getInstance().showInfoTooltips(false);
                     JEVisHelp.getInstance().setActivePlugin(newValue.getClass().getSimpleName());
+                    menu.setPlugin(newValue);
                 } catch (Exception ex) {
                     logger.error("Error while switching plugin: {}", ex, ex);
                 }
 
-                menu.setPlugin(newValue);
+
             }
 
         }));

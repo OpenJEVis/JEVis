@@ -5,26 +5,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class NoteTag {
     private static final Logger logger = LogManager.getLogger(NoteTag.class);
-    public static NoteTag TAG_AUDIT = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.audit"), "1");
-    public static NoteTag TAG_TASK = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.task"), "2");
-    public static NoteTag TAG_REPORT = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.report"), "3");
-    public static NoteTag TAG_EVENT = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.event"), "4");
-    public static NoteTag TAG_REMINDER = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.reminder"), "5");
-    public static NoteTag TAG_ERROR = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.error"), "6");
-    public static NoteTag TAG_QUESTION = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.question"), "7");
-    public static NoteTag TAG_SERVICE = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.service"), "8");
-    public static NoteTag TAG_CHARACTERISTIC = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.characteristic"), "9");
-    public static NoteTag TAG_COMMENT = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.comment"), "10");
-    public static NoteTag TAG_MEASURE = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.measure"), "11");
-    public static NoteTag TAG_DISTURBANCE = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.disturbance"), "12");
-    public static NoteTag TAG_MAINTENANCE = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.maintenance"), "13");
+    public static NoteTag TAG_NONE = new NoteTag(I18n.getInstance().getString("plugin.alarm.table.translation.none"), "0");
     String name = "";
     String id = "";
+
     public NoteTag(String name, String id) {
         this.name = name;
         this.id = id;
@@ -37,7 +25,10 @@ public class NoteTag {
         for (String tString : tagString.split(";")) {
             try {
 
-                if (tString.equals(TAG_AUDIT.getName())) {
+                if (tString.equals(TAG_NONE.getName())) {
+                    tags.add(TAG_NONE);
+                    continue;
+                } else if (tString.equals(TAG_AUDIT.getName())) {
                     tags.add(TAG_AUDIT);
                     continue;
                 } else if (tString.equals(TAG_TASK.getName())) {
@@ -77,6 +68,10 @@ public class NoteTag {
 
 
                 switch (tString) {
+                    default:
+                    case "0":
+                        tags.add(TAG_NONE);
+                        break;
                     case "1":
                         tags.add(TAG_AUDIT);
                         break;
@@ -116,13 +111,6 @@ public class NoteTag {
                     case "13":
                         tags.add(TAG_MAINTENANCE);
                         break;
-                    default:
-                        logger.error("not parsable Tag: " + tString);
-                        if (!tagString.isEmpty()) {
-                            //makes trouble
-                            // tags.add(new NoteTag(tagString, tagString));
-                        }
-
                 }
 
             } catch (Exception ex) {
@@ -130,11 +118,12 @@ public class NoteTag {
             }
         }
 
-        return new ArrayList<>(new HashSet<>(tags));
+        return tags;
     }
 
     public static List<NoteTag> getAllTags() {
         ArrayList<NoteTag> arrayList = new ArrayList<>();
+        arrayList.add(TAG_NONE);
         arrayList.add(TAG_AUDIT);
         arrayList.add(TAG_TASK);
         arrayList.add(TAG_REPORT);
@@ -160,10 +149,24 @@ public class NoteTag {
     public void setName(String name) {
         this.name = name;
     }
+    public static NoteTag TAG_AUDIT = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.audit"), "1");
 
     public String getId() {
         return id;
     }
+
+    public static NoteTag TAG_TASK = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.task"), "2");
+    public static NoteTag TAG_REPORT = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.report"), "3");
+    public static NoteTag TAG_EVENT = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.event"), "4");
+    public static NoteTag TAG_REMINDER = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.reminder"), "5");
+    public static NoteTag TAG_ERROR = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.error"), "6");
+    public static NoteTag TAG_QUESTION = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.question"), "7");
+    public static NoteTag TAG_SERVICE = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.service"), "8");
+    public static NoteTag TAG_CHARACTERISTIC = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.characteristic"), "9");
+    public static NoteTag TAG_COMMENT = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.comment"), "10");
+    public static NoteTag TAG_MEASURE = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.measure"), "11");
+    public static NoteTag TAG_DISTURBANCE = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.disturbance"), "12");
+    public static NoteTag TAG_MAINTENANCE = new NoteTag(I18n.getInstance().getString("plugin.notes.tags.maintenance"), "13");
 
     public void setId(String id) {
         this.id = id;

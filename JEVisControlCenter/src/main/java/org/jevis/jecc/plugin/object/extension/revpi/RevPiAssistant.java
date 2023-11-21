@@ -1,7 +1,7 @@
 package org.jevis.jecc.plugin.object.extension.revpi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -41,15 +41,11 @@ import java.util.stream.Collectors;
 
 public class RevPiAssistant {
 
-    public static final Integer OK = 0;
     private static final Logger logger = LogManager.getLogger(RevPiAssistant.class);
-    public static String API_STRING = "api/trends";
-    public final ScrollPane scrollPane = new ScrollPane();
-    final Stage stage;
+
     private final List<JEVisObject> channels = new ArrayList<>();
     private final HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    TableView tableView;
     private String serverURL;
     private Integer port;
     private Integer connectionTimeout;
@@ -58,13 +54,24 @@ public class RevPiAssistant {
     private String password;
     private Boolean ssl = false;
     private DateTimeZone timezone;
-    private ObservableList<RevPiTrend> revPiTrends = FXCollections.observableArrayList();
+    private final ObservableList<RevPiTrend> revPiTrends = FXCollections.observableArrayList();
     private HTTPConnection con;
+
     private JEVisClass dataDirClass;
     private JEVisClass dataClass;
     private JEVisClass cleanDataClass;
     private JEVisClass revPiDataSourceDir;
     private JEVisClass revPiDataSourceChannel;
+    public static final Integer OK = 0;
+
+    public static String API_STRING = "api/trends";
+
+    public final ScrollPane scrollPane = new ScrollPane();
+
+    final Stage stage;
+
+    TableView tableView;
+
     private JEVisObject targetDataObject;
 
     private JEVisDataSource ds;
@@ -73,7 +80,7 @@ public class RevPiAssistant {
 
     private JEVisObject rootDataSourceFolder;
 
-    private JEVisObject revPiServer;
+    private final JEVisObject revPiServer;
     private JEVisType sourceIdType;
     private JEVisType jevisTargetType;
 
@@ -183,8 +190,8 @@ public class RevPiAssistant {
         }
     }
 
-    private JFXButton buildTargetButton() {
-        final JFXButton button = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.target.button"), ControlCenter.getImage("folders_explorer.png", 18, 18));
+    private MFXButton buildTargetButton() {
+        final MFXButton button = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.target.button"), ControlCenter.getImage("folders_explorer.png", 18, 18));
         button.wrapTextProperty().setValue(true);
         button.setOnAction(actionEvent -> {
 
@@ -212,10 +219,10 @@ public class RevPiAssistant {
         return button;
     }
 
-    private JFXButton buildImportButton() {
-        JFXButton importTrends = new JFXButton("import");
+    private MFXButton buildImportButton() {
+        MFXButton importTrends = new MFXButton("import");
         importTrends.setOnAction(actionEvent -> {
-            if (targetDataObject != null) {
+            //if (targetDataObject != null) {
                 List<RevPiTrend> selectedTrends = revPiTrends.stream().filter(revPiTrend -> revPiTrend.isSelected()).collect(Collectors.toList());
                 if (selectedTrends.size() > 0) {
 
@@ -224,8 +231,10 @@ public class RevPiAssistant {
                         @Override
                         protected Void call() throws Exception {
                             try {
-                                rootDataFolder = targetDataObject.buildObject("import Rev Pi", dataDirClass);
-                                rootDataFolder.commit();
+                                if (targetDataObject != null) {
+                                    rootDataFolder = targetDataObject.buildObject("import Rev Pi", dataDirClass);
+                                    rootDataFolder.commit();
+                                }
 
                                 rootDataSourceFolder = revPiServer.buildObject("import Rev Pi", revPiDataSourceDir);
                                 rootDataSourceFolder.commit();
@@ -246,37 +255,41 @@ public class RevPiAssistant {
                 }
 
 
-            }
+            //  }
         });
         return importTrends;
     }
 
     private void addDataObject(RevPiTrend revPiTrend, DateTime dateTime) {
         try {
+            JEVisObject dataObject = null;
+            if (targetDataObject != null) {
+                if (!dataClass.isAllowedUnder(rootDataFolder.getJEVisClass())) return;
 
-            if (!dataClass.isAllowedUnder(rootDataFolder.getJEVisClass())) return;
+                dataObject = rootDataFolder.buildObject(revPiTrend.getName(), dataClass);
+                dataObject.commit();
+                JEVisAttribute dataPeriodAttribute = dataObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                if (dataPeriodAttribute != null) {
+                    JEVisSample sample = dataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(revPiTrend.getConfig()));
+                    sample.commit();
+                }
 
-            JEVisObject dataObject = rootDataFolder.buildObject(revPiTrend.getName(), dataClass);
-            dataObject.commit();
-            JEVisAttribute dataPeriodAttribute = dataObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
-            if (dataPeriodAttribute != null) {
-                JEVisSample sample = dataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(revPiTrend.getConfig()));
-                sample.commit();
+                if (!cleanDataClass.isAllowedUnder(dataObject.getJEVisClass())) return;
+
+
+                JEVisObject cleanDataObject = dataObject.buildObject(I18n.getInstance().getString("tree.treehelper.cleandata.name"), cleanDataClass);
+                cleanDataObject.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.cleandata.name"));
+
+                cleanDataObject.commit();
+
+                JEVisAttribute cleanDataPeriodAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
+                if (cleanDataPeriodAttribute != null) {
+                    JEVisSample sample = cleanDataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(revPiTrend.getConfig()));
+                    sample.commit();
+                }
             }
 
-            if (!cleanDataClass.isAllowedUnder(dataObject.getJEVisClass())) return;
 
-
-            JEVisObject cleanDataObject = dataObject.buildObject(I18n.getInstance().getString("tree.treehelper.cleandata.name"), cleanDataClass);
-            cleanDataObject.setLocalNames(I18n.getInstance().getTranslationMap("tree.treehelper.cleandata.name"));
-
-            cleanDataObject.commit();
-
-            JEVisAttribute cleanDataPeriodAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.PERIOD.getAttributeName());
-            if (cleanDataPeriodAttribute != null) {
-                JEVisSample sample = cleanDataPeriodAttribute.buildSample(new DateTime(1990, 1, 1, 0, 0, 0, 0), convertInterval(revPiTrend.getConfig()));
-                sample.commit();
-            }
             if (!revPiDataSourceChannel.isAllowedUnder(rootDataSourceFolder.getJEVisClass())) return;
 
 
@@ -287,8 +300,10 @@ public class RevPiAssistant {
 
 
             sourceIdAttribute.buildSample(dateTime, revPiTrend.getTrendId()).commit();
+            if (dataObject != null) {
+                jevisTargetIdAttribute.buildSample(dateTime, dataObject.getID() + ":Value").commit();
+            }
 
-            jevisTargetIdAttribute.buildSample(dateTime, dataObject.getID() + ":Value").commit();
 
 
         } catch (Exception e) {
@@ -335,12 +350,11 @@ public class RevPiAssistant {
                 } else if (day == 7 && hours == 0 && minute == 0 && second == 0) {
                     return Period.weeks(1);
                 } else {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append("PT");
-                    stringBuilder.append(hours + day * 24).append("H");
-                    stringBuilder.append(minute).append("M");
-                    stringBuilder.append(second).append("S");
-                    return Period.parse(stringBuilder.toString());
+                    String stringBuilder = "PT" +
+                            (hours + day * 24) + "H" +
+                            minute + "M" +
+                            second + "S";
+                    return Period.parse(stringBuilder);
 
 
                 }

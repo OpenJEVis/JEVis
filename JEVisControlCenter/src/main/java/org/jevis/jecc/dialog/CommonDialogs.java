@@ -5,9 +5,9 @@
  */
 package org.jevis.jecc.dialog;
 
-import com.jfoenix.controls.JFXTextArea;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.jevis.jecc.ControlCenter;
@@ -39,7 +39,7 @@ public abstract class CommonDialogs {
 
         Label label = new Label("The exception stacktrace was:");
 
-        JFXTextArea textArea = new JFXTextArea(exceptionText);
+        TextArea textArea = new TextArea(exceptionText);
         textArea.setEditable(false);
         textArea.setWrapText(true);
 

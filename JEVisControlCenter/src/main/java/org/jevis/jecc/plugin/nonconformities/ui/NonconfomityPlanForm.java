@@ -18,26 +18,29 @@ import java.util.Optional;
 public class NonconfomityPlanForm extends Alert {
 
 
-    Label nameLabel = new Label("Name");
+    Label nameLabel = new Label(I18n.getInstance().getString("plugin.nonconformities.nonconformityplan.dialog.name"));
 
 
-    Label mediumLabel = new Label("Medien");
-    Label seuLabel = new Label("SEU");
-    Label fieldLabel = new Label("Field");
+    Label mediumLabel = new Label(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"));
+    Label seuLabel = new Label(I18n.getInstance().getString("plugin.nonconformities.seu"));
+    Label fieldLabel = new Label(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.field"));
 
 
-    Label numberPrefix = new Label("Nr. Prefix");
+    Label numberPrefix = new Label(I18n.getInstance().getString("plugin.nonconformities.nonconformityplan.dialog.prefix"));
     MFXTextField f_numberPrefix = new MFXTextField();
 
     MFXTextField nameField = new MFXTextField();
 
 
+
     ListView<String> mediumListView = new ListView<>();
     ListView<String> seuListView = new ListView<>();
     ListView<String> fieldListView = new ListView<>();
+
+
+    private final NonconformityPlan nonconformityPlan;
     StackPane stackPane = new StackPane();
-    private NonconformityPlan nonconformityPlan;
-    private double iconSize = 12;
+    private final double iconSize = 12;
 
     public NonconfomityPlanForm(NonconformityPlan nonconformityPlan) {
         super(AlertType.INFORMATION);
@@ -107,9 +110,9 @@ public class NonconfomityPlanForm extends Alert {
 
         addButton.setOnAction(event -> {
             TextInputDialog dialog = new TextInputDialog("");
-            dialog.setTitle("Neuer Eintrag");
-            dialog.setHeaderText("Neuen Eintrag hinzufügen");
-            dialog.setContentText("Name:");
+            dialog.setTitle(I18n.getInstance().getString("plugin.nonconformities.nonconformityplan.dialog.newentry"));
+            dialog.setHeaderText(I18n.getInstance().getString("plugin.nonconformities.nonconformityplan.dialog.addnewentry"));
+            dialog.setContentText(I18n.getInstance().getString("plugin.nonconformities.nonconformityplan.dialog.name" + ":"));
 
             Optional<String> result = dialog.showAndWait();
             if (result.isPresent() && !result.get().isEmpty()) {

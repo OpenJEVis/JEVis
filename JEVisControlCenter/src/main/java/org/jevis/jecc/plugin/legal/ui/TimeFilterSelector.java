@@ -39,7 +39,7 @@ public class TimeFilterSelector extends GridPane {
     MFXComboBox<Month> fToMonth = generateMonthBox();
     MFXComboBox<Integer> fFromYear = generateYearBox();
     MFXComboBox<Integer> fToYear = generateYearBox();
-    private SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
+    private final SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
 
 
     public TimeFilterSelector(IndexOfLegalProvisions indexOfLegalProvisions) {
@@ -117,24 +117,6 @@ public class TimeFilterSelector extends GridPane {
 
     }
 
-    private static void setVersionDate(ObligationData data, List<DateTime> dateTimes) {
-        if (data.getCurrentVersionDate() != null) {
-            dateTimes.add(data.getCurrentVersionDate());
-        }
-    }
-
-    private static void setIssueDate(ObligationData data, List<DateTime> dateTimes) {
-        if (data.getIssueDate() != null) {
-            dateTimes.add(data.getIssueDate());
-        }
-    }
-
-    private static void setDateOfExaminationDate(ObligationData data, List<DateTime> dateTimes) {
-        if (data.getDateOfExamination() != null) {
-            dateTimes.add(data.getDateOfExamination());
-        }
-    }
-
     private void initValues(IndexOfLegalProvisions indexOfLegalProvisions) {
 
         logger.debug("MonthSelector.initValues: {} {}", indexOfLegalProvisions, indexOfLegalProvisions.getLegislationDataList().size());
@@ -189,6 +171,24 @@ public class TimeFilterSelector extends GridPane {
             setVersionDate(data, dateTimes);
         }
         return null;
+    }
+
+    private static void setVersionDate(ObligationData data, List<DateTime> dateTimes) {
+        if (data.getCurrentVersionDate() != null) {
+            dateTimes.add(data.getCurrentVersionDate());
+        }
+    }
+
+    private static void setIssueDate(ObligationData data, List<DateTime> dateTimes) {
+        if (data.getIssueDate() != null) {
+            dateTimes.add(data.getIssueDate());
+        }
+    }
+
+    private static void setDateOfExaminationDate(ObligationData data, List<DateTime> dateTimes) {
+        if (data.getDateOfExamination() != null) {
+            dateTimes.add(data.getDateOfExamination());
+        }
     }
 
     public DateFilter getValueProperty() {
@@ -246,16 +246,15 @@ public class TimeFilterSelector extends GridPane {
 
     private MFXComboBox<Integer> generateYearBox() {
 
-        ObservableList<Integer> months = FXCollections.observableArrayList();
-        months.add(2018);
-        months.add(2019);
-        months.add(2020);
-        months.add(2021);
-        months.add(2022);
-        months.add(2023);
-        months.add(2024);
+        ObservableList<Integer> years = FXCollections.observableArrayList();
+        int year = 2010; //ISO5001 started 2010
+        DateTime now = DateTime.now();
+        while (year <= (now.getYear() + 10)) {
+            years.add(year);
+            year++;
+        }
 
-        MFXComboBox<Integer> field = new MFXComboBox<>(months);
+        MFXComboBox<Integer> field = new MFXComboBox<>(years);
         field.setConverter(new StringConverter<Integer>() {
             @Override
             public String toString(Integer object) {

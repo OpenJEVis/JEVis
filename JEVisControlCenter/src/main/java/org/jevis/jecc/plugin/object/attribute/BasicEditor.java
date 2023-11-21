@@ -63,18 +63,6 @@ public abstract class BasicEditor implements AttributeEditor {
         this.orgSample = att.getLatestSample();
     }
 
-
-    @Override
-    public void update() {
-        logger.trace("Update()");
-        Platform.runLater(() -> {
-            this.editorNode.getChildren().clear();
-            this.editorNode.getChildren().add(buildGui(this.attribute));
-            initialized = true;
-        });
-    }
-
-
     private Node buildGui(JEVisAttribute att) {
         HBox hbox = new HBox(6);
         MFXTextField valueField = new MFXTextField();
@@ -91,7 +79,8 @@ public abstract class BasicEditor implements AttributeEditor {
                 valueField.setText(formatSample(this.orgSample));
                 this.isValid.setValue(true);
 
-                Tooltip tt = new Tooltip("TimeStamp: " + this.orgSample.getTimestamp().toString(DateTimeFormat.patternForStyle("MS", I18n.getInstance().getLocale())));
+                Tooltip tt = new Tooltip("TimeStamp: " +
+                        this.orgSample.getTimestamp().toString(DateTimeFormat.patternForStyle("MS", I18n.getInstance().getLocale())));
                 tt.setOpacity(0.5);
                 valueField.setTooltip(tt);
             }
@@ -101,41 +90,37 @@ public abstract class BasicEditor implements AttributeEditor {
         }
 
         hbox.getChildren().addAll(valueField);
-        try {
-            JEVisUnit selectedUnit = new JEVisUnitImp(Dimensionless.UNIT, "", "");
-            if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
-                selectedUnit = this.attribute.getDisplayUnit();
-            } else {
-                selectedUnit = this.attribute.getInputUnit();
-            }
-            FavUnitList favUnitList = new FavUnitList(this.attribute, selectedUnit, true);
-            hbox.getChildren().add(favUnitList);
-        } catch (Exception ex) {
-            logger.error(ex, ex);
-        }
 
 
         if (attribute.getName().equals("Value") || attribute.getName().equals("value")) {
             hbox.getChildren().add(new AnalysisLinkButton(att));
+
+            try {
+                JEVisUnit selectedUnit = new JEVisUnitImp(Dimensionless.UNIT, "", "");
+                if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
+                    selectedUnit = this.attribute.getDisplayUnit();
+                } else {
+                    selectedUnit = this.attribute.getInputUnit();
+                }
+                FavUnitList favUnitList = new FavUnitList(this.attribute, selectedUnit, true);
+                hbox.getChildren().add(favUnitList);
+            } catch (Exception ex) {
+                logger.error(ex, ex);
+            }
         }
 
         valueField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 try {
-                    if ((valueField.getText().isEmpty() && validateEmptyValue())
-                            || (!valueField.getText().isEmpty())) {
-
-                        //TODO JFX17
-                        //if (valueField.validate()) {
-                        //      this.isValid.setValue(true);
-                        //      this.finalNewValue = parseValue(valueField.getText());
-                        //      this.changedProperty.setValue(true);
-                        //  } else {
-                        this.isValid.setValue(false);
-                        // }
-                    } else {
-                        this.isValid.setValue(true);
-                    }
+                    //TODO JFX17
+                    //if (valueField.validate()) {
+                    //      this.isValid.setValue(true);
+                    //      this.finalNewValue = parseValue(valueField.getText());
+                    //      this.changedProperty.setValue(true);
+                    //  } else {
+                    // }
+                    this.isValid.setValue((!valueField.getText().isEmpty() || !validateEmptyValue())
+                            && (valueField.getText().isEmpty()));
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -145,7 +130,6 @@ public abstract class BasicEditor implements AttributeEditor {
 
         return hbox;
     }
-
 
     public boolean isOtherUnit(JEVisUnit unit) {
         return unit.getLabel().equals("other");
@@ -222,6 +206,20 @@ public abstract class BasicEditor implements AttributeEditor {
         return this.attribute;
     }
 
+    @Override
+    public boolean isValid() {
+        return this.isValid.getValue();
+    }
+
+    @Override
+    public void update() {
+        logger.trace("Update()");
+        Platform.runLater(() -> {
+            this.editorNode.getChildren().clear();
+            this.editorNode.getChildren().add(buildGui(this.attribute));
+            initialized = true;
+        });
+    }
 
     public abstract ValidatorBase getValidator();
 
@@ -238,10 +236,5 @@ public abstract class BasicEditor implements AttributeEditor {
      * @return
      */
     public abstract boolean validateEmptyValue();
-
-    @Override
-    public boolean isValid() {
-        return this.isValid.getValue();
-    }
 
 }

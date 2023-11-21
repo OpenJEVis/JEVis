@@ -1,0 +1,122 @@
+{
+  "jevisclass": "JSON Data Point",
+  "names": {
+    "de": "JSON Data Point",
+    "ru": "JSON Data Point",
+    "en": "JSON Data Point",
+    "ar": "JSON Data Point"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Data Point Path",
+      "descriptions": {
+        "de": "Data Point Path",
+        "ru": "Data Point Path",
+        "en": "Data Point Path",
+        "ar": "Data Point Path"
+      },
+      "names": {
+        "de": "Data Point Path",
+        "ru": "Data Point Path",
+        "en": "Data Point Path",
+        "ar": "Data Point Path"
+      }
+    },
+    {
+      "type": "Target",
+      "descriptions": {
+        "de": "Target",
+        "ru": "Target",
+        "en": "Target",
+        "ar": "Target"
+      },
+      "names": {
+        "de": "Target",
+        "ru": "Target",
+        "en": "Target",
+        "ar": "Target"
+      }
+    },
+    {
+      "type": "Value Format",
+      "names": {
+        "de": "Value Format",
+        "ru": "Value Format",
+        "en": "Value Format",
+        "ar": "Value Format"
+      },
+      "enums": {
+        "Double": {
+          "descriptions": null,
+          "names": {
+            "de": "Double",
+            "en": "Double",
+            "ar": "Double"
+          }
+        },
+        "String": {
+          "descriptions": null,
+          "names": {
+            "de": "String",
+            "en": "String",
+            "ar": "String"
+          }
+        },
+        "Boolean": {
+          "descriptions": null,
+          "names": {
+            "de": "Boolean",
+            "en": "Boolean",
+            "ar": "Boolean"
+          }
+        }
+      }
+    },
+    {
+      "type": "Regex Value",
+      "descriptions": {
+        "de": "Regex Value",
+        "ru": "Regex Value",
+        "en": "Regex Value",
+        "ar": "Regex Value"
+      },
+      "names": {
+        "de": "Regex Value",
+        "ru": "Regex Value",
+        "en": "Regex Value",
+        "ar": "Regex Value"
+      }
+    },
+    {
+      "type": "Status Path",
+      "descriptions": {
+        "de": "Status Path",
+        "ru": "Status Path",
+        "en": "Status Path",
+        "ar": "Status Path"
+      },
+      "names": {
+        "de": "Status Path",
+        "ru": "Status Path",
+        "en": "Status Path",
+        "ar": "Status Path"
+      }
+    },
+    {
+      "type": "Status Value OK",
+      "descriptions": {
+        "de": "Status Value OK",
+        "ru": "Status Value OK",
+        "en": "Status Value OK",
+        "ar": "Status Value OK"
+      },
+      "names": {
+        "de": "Status Value OK",
+        "ru": "Status Value OK",
+        "en": "Status Value OK",
+        "ar": "Status Value OK"
+      }
+    }
+  ]
+}

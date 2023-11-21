@@ -7,13 +7,12 @@ import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
 import eu.hansolo.fx.charts.series.MatrixItemSeries;
 import eu.hansolo.fx.charts.tools.Helper;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -27,6 +26,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
@@ -216,6 +217,27 @@ public class HeatMapChart implements Chart {
         numberFormat.setMinimumFractionDigits(chartModel.getMinFractionDigits());
         numberFormat.setMaximumFractionDigits(chartModel.getMaxFractionDigits());
 
+        AggregationPeriod selectedAggregation = chartDataRow.getAggregationPeriod();
+        ManipulationMode selectedManipulationMode = chartDataRow.getManipulationMode();
+
+        StringBuilder errorMsg = new StringBuilder();
+        if (selectedManipulationMode != ManipulationMode.NONE) {
+            errorMsg.append(I18n.getInstance().getString("plugin.chart.heatmap.warning.manipulation"));
+            errorMsg.append("\n");
+        }
+
+        if (selectedAggregation != AggregationPeriod.NONE) {
+            errorMsg.append(I18n.getInstance().getString("plugin.chart.heatmap.warning.aggregation"));
+        }
+
+        if (!errorMsg.toString().isEmpty()) {
+            Alert warning = new Alert(Alert.AlertType.WARNING, errorMsg.toString(), ButtonType.OK);
+            Platform.runLater(() -> {
+                warning.show();
+                warning.getDialogPane().toFront();
+            });
+        }
+
         HeatMapXY heatMapXY = getHeatMapXY(interval, inputSampleRate);
         COLS = heatMapXY.getX();
         ROWS = heatMapXY.getY();
@@ -223,11 +245,15 @@ public class HeatMapChart implements Chart {
         Y_FORMAT = heatMapXY.getY_FORMAT();
         Y2_FORMAT = heatMapXY.getY2_FORMAT();
         chartDataRow.setAggregationPeriod(heatMapXY.getAggregationPeriod());
+        chartDataRow.setManipulationMode(ManipulationMode.NONE);
 
         List<JEVisSample> samples = chartDataRow.getSamples();
+        DateTime currentTS = null;
+
         if (samples.size() > 1) {
             try {
                 inputSampleRate = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                currentTS = samples.get(0).getTimestamp();
 
             } catch (JEVisException e) {
                 logger.error("Error while getting input sample rate", e);
@@ -235,6 +261,7 @@ public class HeatMapChart implements Chart {
         } else {
             logger.warn("Only got {} samples, fallback to default", samples.size());
             inputSampleRate = chartDataRow.getPeriod();
+            currentTS = chartDataRow.getSelectedStart();
         }
 
         HashMap<DateTime, JEVisSample> sampleHashMap = new HashMap<>();
@@ -245,7 +272,6 @@ public class HeatMapChart implements Chart {
                 logger.error("Error while getting sample timestamp of sample {}", jeVisSample, e);
             }
         });
-        DateTime currentTS = chartDataRow.getSelectedStart();
 
         double minValue = Double.MAX_VALUE;
         double maxValue = -Double.MAX_VALUE;
@@ -331,13 +357,20 @@ public class HeatMapChart implements Chart {
 
         int row = 0;
         for (DateTime dateTime : yAxisList) {
-            Label tsLeft = new Label(dateTime.toString(Y_FORMAT));
+            Label tsLeft = new Label();
+            if (!Y_FORMAT.isEmpty()) {
+                tsLeft.setText(dateTime.toString(Y_FORMAT));
+            }
+
             if (fontColor != null) {
                 tsLeft.setTextFill(fontColor);
                 tsLeft.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(fontColor) + "!important;");
             }
 
-            Label tsRight = new Label(dateTime.toString(Y2_FORMAT));
+            Label tsRight = new Label();
+            if (!Y2_FORMAT.isEmpty()) {
+                tsRight.setText(dateTime.toString(Y2_FORMAT));
+            }
             if (fontColor != null) {
                 tsRight.setTextFill(fontColor);
                 tsRight.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(fontColor) + "!important;");
@@ -461,55 +494,44 @@ public class HeatMapChart implements Chart {
         String x_Format = "mm";
         AggregationPeriod aggregationPeriod;
         Long intervalMillis = interval.getEndMillis() - interval.getStartMillis();
+        PeriodComparator periodComparator = new PeriodComparator();
+        Period fifteenMinutes = Period.minutes(15);
+        int greaterFifteenMinutes = periodComparator.compare(inputSampleRate, fifteenMinutes);
 
-        if (intervalMillis > MIN_YEAR_MILLIS) {
-            y = Math.round((double) (intervalMillis / DAY_MILLIS));
-            y_Format = "yyyy-MM";
-            x = 31;
-            x_Format = "dd";
-            aggregationPeriod = AggregationPeriod.DAILY;
-        } else if (intervalMillis > MIN_MONTH_MILLIS) {
-            y = Math.round((double) (intervalMillis / DAY_MILLIS));
-            y_Format = "yyyy-MM-dd";
-            if (inputSampleRate.equals(Period.minutes(15))) {
-                x = 24 * 4;
-                x_Format = "HH:mm";
-                aggregationPeriod = AggregationPeriod.NONE;
-            } else {
-                x = 24;
-                x_Format = "HH";
-                aggregationPeriod = AggregationPeriod.HOURLY;
-            }
-        } else if (intervalMillis > WEEK_MILLIS) {
-            y = Math.round((double) (intervalMillis / DAY_MILLIS));
-            y_Format = "MM-dd";
-            if (inputSampleRate.equals(Period.minutes(15))) {
-                x = 24 * 4;
-                x_Format = "HH:mm";
-                aggregationPeriod = AggregationPeriod.NONE;
-            } else {
-                x = 24;
-                x_Format = "HH";
-                aggregationPeriod = AggregationPeriod.HOURLY;
-            }
-        } else if (intervalMillis > DAY_MILLIS) {
-            y = Math.round((double) (intervalMillis / DAY_MILLIS));
-            y_Format = "dd";
-            if (inputSampleRate.equals(Period.minutes(15))) {
-                x = 24 * 4;
-                x_Format = "HH:mm";
-                aggregationPeriod = AggregationPeriod.NONE;
-            } else {
-                x = 24;
-                x_Format = "HH";
-                aggregationPeriod = AggregationPeriod.HOURLY;
-            }
+        //basic settings
+        x = 24 * 4;
+        x_Format = "HH:mm";
+        aggregationPeriod = AggregationPeriod.NONE;
+        y = Math.round((double) (intervalMillis / DAY_MILLIS));
+        y_Format = "yyyy-MM-dd";
+
+        if (greaterFifteenMinutes < 0) {
+            aggregationPeriod = AggregationPeriod.QUARTER_HOURLY;
+
         } else {
-            y = Math.round((double) (intervalMillis / HOUR_MILLIS));
-            y_Format = "HH";
-            x = 4;
-            x_Format = "mm";
-            aggregationPeriod = AggregationPeriod.NONE;
+            if (inputSampleRate.equals(fifteenMinutes)) {
+                // first do nothing
+            } else if (inputSampleRate.equals(Period.hours(1))) {
+                x = 24;
+            } else if (inputSampleRate.equals(Period.days(1))) {
+                x = 31;
+                x_Format = "dd";
+                y = Math.round((double) (intervalMillis / MIN_MONTH_MILLIS));
+                y_Format = "yyyy-MM";
+                y2_Format = "";
+            } else if (inputSampleRate.equals(Period.weeks(1))) {
+                x = 1;
+                x_Format = "";
+                y = Math.round((double) (intervalMillis / WEEK_MILLIS));
+                y_Format = "ww";
+                y2_Format = "";
+            } else if (inputSampleRate.equals(Period.months(1))) {
+                x = 1;
+                x_Format = "";
+                y = Math.round((double) (intervalMillis / MIN_MONTH_MILLIS));
+                y_Format = "yyyy-MM";
+                y2_Format = "";
+            }
         }
 
         y++;

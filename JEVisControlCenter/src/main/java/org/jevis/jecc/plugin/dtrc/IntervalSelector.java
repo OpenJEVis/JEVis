@@ -48,7 +48,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         }
 
         @Override
-        public Interval getInterval(DateTime dateTime) {
+        public Interval getInterval(DateTime dateTime, Boolean fixed) {
             return new Interval(dateTime, dateTime);
         }
 
@@ -108,9 +108,9 @@ public class IntervalSelector extends ToolBarIntervalSelector {
 //        dateButton.setTooltip(new Tooltipcontroller.getInterval().toString()));
 
         this.timeFrameEditor = new TimeFrameEditor(activeTimeFrame.get(), interval);
-        this.timeFrameEditor.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
+        this.timeFrameEditor.intervalProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                interval = activeTimeFrame.get().getInterval(newValue.getEnd());
+                interval = activeTimeFrame.get().getInterval(newValue.getEnd(), false);
                 applyNewDate(interval);
                 dateButton.setText(activeTimeFrame.get().format(interval));
 
@@ -157,7 +157,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
 
         activeTimeFrame.addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                interval = activeTimeFrame.get().getInterval(interval.getEnd());
+                interval = activeTimeFrame.get().getInterval(interval.getEnd(), false);
                 dateButton.setText(activeTimeFrame.get().format(interval));
                 applyNewDate(interval);
             }

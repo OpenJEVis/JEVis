@@ -1,6 +1,7 @@
 package org.jevis.jecc.application.control;
 
 import io.github.palexdev.materialfx.controls.MFXButton;
+import javafx.scene.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -16,9 +17,21 @@ public class AnalysisLinkButton extends MFXButton {
     private static final Logger logger = LogManager.getLogger(AnalysisLinkButton.class);
     private AnalysisRequest analysisRequest;
 
+    Node icon;
+
+    public AnalysisLinkButton(Node icon, JEVisAttribute attribute) {
+
+        super("", icon);
+        init(attribute);
+    }
+
     public AnalysisLinkButton(JEVisAttribute attribute) {
         super("", ControlCenter.getImage("1415314386_Graph.png", 20, 20));
 
+        init(attribute);
+    }
+
+    private void init(JEVisAttribute attribute) {
         setStyle("-fx-background-color: transparent;");
 
         if (attribute != null) {

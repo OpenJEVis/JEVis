@@ -1,19 +1,22 @@
 package org.jevis.jecc.plugin.legal.ui;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +27,7 @@ import org.jevis.jecc.Icon;
 import org.jevis.jecc.application.table.DateTimeColumnCell;
 import org.jevis.jecc.application.table.HyperlinkCell;
 import org.jevis.jecc.application.table.ShortColumnCell;
+import org.jevis.jecc.application.table.SummeryData;
 import org.jevis.jecc.plugin.dashboard.config2.SankeyDataRow;
 import org.jevis.jecc.plugin.legal.data.IndexOfLegalProvisions;
 import org.jevis.jecc.plugin.legal.data.ObligationData;
@@ -32,37 +36,25 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 
 public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
 
+    private static final Logger logger = LogManager.getLogger(IndexOfLegalProvisionsTable.class);
+
+
     public static final String ALL = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.all");
     public static final String ONLY_RELVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlyrelevant");
-    public static final String ONLY_NOT_RELEVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant");
-    private static final Logger logger = LogManager.getLogger(IndexOfLegalProvisionsTable.class);
-    //    private static Method columnToFitMethod;
-    private static int DATE_TIME_WIDTH = 120;
-    private static int BIG_WIDTH = 200;
-    private static int VERY_BIG_WIDTH = 400;
-    private static int SMALL_WIDTH = 60;
-
-//    static {
-//        try {
-//            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
-//            columnToFitMethod.setAccessible(true);
-//        } catch (NoSuchMethodException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     ObservableList<ObligationData> data = FXCollections.observableArrayList();
     FilteredList<ObligationData> filteredData;
     SortedList<ObligationData> sortedData;
-    private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private TableFilter tableFilter = new TableFilter();
-    private ObligationData sumRow = new ObligationData();
+    private final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+    private final TableFilter tableFilter = new TableFilter();
+    private final ObligationData sumRow = new ObligationData();
     private DateFilter dateFilter;
     private String relevantFilter;
     private boolean showSumRow = false;
@@ -71,9 +63,26 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
     private ObservableList<String> relevance = FXCollections.observableArrayList();
     private ObservableList<String> scope = FXCollections.observableArrayList();
     private ObservableList<String> seu = FXCollections.observableArrayList();
+    public static final String ONLY_NOT_RELEVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant");
+    private static Method columnToFitMethod;
+    private static final int DATE_TIME_WIDTH = 120;
+    private static final int BIG_WIDTH = 200;
+    private static final int VERY_BIG_WIDTH = 400;
+    private static final int SMALL_WIDTH = 60;
+
+    static {
+        try {
+            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
+            columnToFitMethod.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
 
 
-    public IndexOfLegalProvisionsTable(IndexOfLegalProvisions indexOfLegalProvisions, ObservableList<ObligationData> data) {
+    public IndexOfLegalProvisionsTable(IndexOfLegalProvisions indexOfLegalProvisions, ObservableList<ObligationData> data, BooleanProperty updateProperty) {
         this.data = data;
         this.filteredData = new FilteredList<>(data);
         sortedData = new SortedList<>(filteredData);
@@ -98,7 +107,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
         ObligationData fakeForName = new ObligationData();
 
         TableColumn<ObligationData, String> nrCol = new TableColumn(fakeForName.nrProperty().getName());
-        nrCol.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().getNr())));
+        nrCol.setCellValueFactory(param -> param.getValue().getNrAsStringProperty());
         nrCol.setCellFactory(new ShortColumnCell<ObligationData>());
         nrCol.setStyle("-fx-alignment: LEFT;");
         nrCol.setMinWidth(SMALL_WIDTH);
@@ -193,7 +202,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
         this.getSortOrder().add(nrCol);
 
 
-        this.getColumns().addAll(nrCol, legislationCol, designationCol, descriptionCol, issueDateCol, activeVersionCol, relevanceCol, dateOfExaminationCol, importanceForTheCompanyCol, linkCol, scopeCol, categoryCol
+        this.getColumns().addAll(nrCol, legislationCol, designationCol, linkCol, descriptionCol, issueDateCol, activeVersionCol, relevanceCol, dateOfExaminationCol, importanceForTheCompanyCol, scopeCol, categoryCol
         );
         this.getColumns().add(buildMoveColumn());
 
@@ -204,6 +213,70 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
         });
 
 
+        Statistics statistics = new Statistics(sortedData, updateProperty);
+
+
+        int numberOfCategory = indexOfLegalProvisions.getCategories().size();
+        int numberOfScope = indexOfLegalProvisions.getScopes().size();
+
+
+        if (numberOfCategory > 2 || numberOfScope > 2) {
+            if (numberOfCategory > numberOfScope) {
+                for (int i = 0; i < numberOfCategory; i++) {
+                    buildRow(indexOfLegalProvisions, legislationCol, relevanceCol, categoryCol, scopeCol, statistics, i);
+
+
+                }
+            } else {
+                for (int i = 0; i < numberOfScope; i++) {
+                    buildRow(indexOfLegalProvisions, legislationCol, relevanceCol, categoryCol, scopeCol, statistics, i);
+                }
+            }
+
+
+        } else {
+            for (int i = 0; i < 2; i++) {
+                buildRow(indexOfLegalProvisions, legislationCol, relevanceCol, categoryCol, scopeCol, statistics, i);
+            }
+        }
+
+        ObservableMap<TableColumn, StringProperty> summeryRow2 = FXCollections.observableHashMap();
+        ObservableMap<TableColumn, StringProperty> summeryRow3 = FXCollections.observableHashMap();
+
+
+    }
+
+
+    private void buildRow(IndexOfLegalProvisions indexOfLegalProvisions, TableColumn<ObligationData, String> legislationCol, TableColumn<ObligationData, Boolean> relevanceCol, TableColumn<ObligationData, String> categoryCol, TableColumn<ObligationData, String> scopeCol, Statistics statistics, int i) {
+        ObservableMap<TableColumn, StringProperty> summeryRow = FXCollections.observableHashMap();
+        System.out.println(i);
+
+        switch (i) {
+            case 0:
+                summeryRow.put(legislationCol, statistics.getAll(I18n.getInstance().getString("plugin.indexoflegalprovisions.all")));
+                summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.relevant"), true));
+                break;
+            case 1:
+                summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.notrrelevant"), false));
+                break;
+        }
+        String category = null;
+        String scope = null;
+        if (indexOfLegalProvisions.getCategories().size() > i) {
+            category = indexOfLegalProvisions.getCategories().get(i);
+        }
+        if (indexOfLegalProvisions.getScopes().size() > i) {
+            scope = indexOfLegalProvisions.getScopes().get(i);
+        }
+        if (category != null) {
+            summeryRow.put(categoryCol, statistics.getCategory(category + ": ", category));
+        }
+        if (scope != null) {
+            summeryRow.put(scopeCol, statistics.getScope(scope + ": ", scope));
+        }
+        System.out.println(summeryRow);
+
+        summeryData.add(new SummeryData(summeryRow));
     }
 
     public void enableSumRow(boolean enable) {
@@ -217,15 +290,14 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
     }
 
     public void autoFitTable() {
-        //TODO JFX17
-//        for (TableColumn<ObligationData, ?> column : this.getColumns()) {
-//            try {
-//                if (getSkin() != null) {
-//                    columnToFitMethod.invoke(getSkin(), column, -1);
-//                }
-//            } catch (Exception e) {
-//            }
-//        }
+        for (TableColumn<ObligationData, ?> column : this.getColumns()) {
+            try {
+                if (getSkin() != null) {
+                    columnToFitMethod.invoke(getSkin(), column, -1);
+                }
+            } catch (Exception e) {
+            }
+        }
     }
 
 
@@ -296,11 +368,11 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                             if (!relevance.contains("*")) {
                                 relevance.forEach(s -> {
                                     try {
-                                        if (s.equals(I18n.getInstance().getString("plugin.Legalcadastre.legislation.relvant"))) {
+                                        if (s.equals(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.relevant"))) {
                                             if (notesRow.getRelevant()) {
                                                 relevanceMatch.set(true);
                                             }
-                                        } else if (s.equals(I18n.getInstance().getString("plugin.Legalcadastre.legislation.notrelvant"))) {
+                                        } else if (s.equals(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.notrrelevant"))) {
                                             if (!notesRow.getRelevant()) {
                                                 relevanceMatch.set(true);
                                             }
@@ -322,7 +394,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                                 }
 
                                 //TODO: may also check if column is visible
-                                if (!containString.get()) return false;
+                                return containString.get();
                             }
                             return true;
                         } catch (Exception ex) {
@@ -383,39 +455,46 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                             setGraphic(null);
                         } else {
                             HBox hBox = new HBox();
-                            JFXButton jfxButtonMoveUp = new JFXButton("", ControlCenter.getSVGImage(Icon.ARROW_UP, 10, 10));
-                            JFXButton jfxButtonMoveDown = new JFXButton("", ControlCenter.getSVGImage(Icon.ARROW_DOWN, 10, 10));
+                            MFXButton mfxButtonMoveUp = new MFXButton("", ControlCenter.getSVGImage(Icon.ARROW_UP, 10, 10));
+                            MFXButton mfxButtonMoveDown = new MFXButton("", ControlCenter.getSVGImage(Icon.ARROW_DOWN, 10, 10));
                             hBox.setSpacing(3);
-                            hBox.getChildren().addAll(jfxButtonMoveUp, jfxButtonMoveDown);
+                            hBox.getChildren().addAll(mfxButtonMoveUp, mfxButtonMoveDown);
 
-                            jfxButtonMoveDown.setOnAction(actionEvent -> {
+                            mfxButtonMoveDown.setOnAction(actionEvent -> {
 
 
                                 int index = getItems().indexOf(item);
                                 if (getItems().get(index).getNr() >= getItems().size()) return;
                                 ObligationData swap = getItems().get(index + 1);
 
-                                item.setNr(item.getNr() + 1);
-                                swap.setNr(swap.getNr() - 1);
+                                if (item.getNr() + 1 == swap.getNr()) {
+                                    item.setNr(item.getNr() + 1);
+                                    swap.setNr(swap.getNr() - 1);
+                                    swap.commit();
+                                } else {
+                                    item.setNr(item.getNr() + 1);
+                                }
                                 item.commit();
-                                swap.commit();
                                 this.getTableView().getSortOrder().set(0, getColumns().get(0));
                                 getItems().sorted();
                                 refresh();
 
                             });
 
-                            jfxButtonMoveUp.setOnAction(actionEvent -> {
+                            mfxButtonMoveUp.setOnAction(actionEvent -> {
 
 
                                 int index = getItems().indexOf(item);
                                 if (getItems().get(index).getNr() < 2) return;
                                 ObligationData swap = getItems().get(index - 1);
-
-                                item.setNr(item.getNr() - 1);
+                                if (item.getNr() - 1 == swap.getNr()) {
+                                    item.setNr(item.getNr() - 1);
+                                    swap.setNr(swap.getNr() + 1);
+                                    swap.commit();
+                                } else {
+                                    item.setNr(item.getNr() - 1);
+                                }
                                 item.commit();
-                                swap.commit();
-                                swap.setNr(swap.getNr() + 1);
                                 this.getTableView().getSortOrder().set(0, getColumns().get(0));
                                 getItems().sorted();
                                 refresh();
@@ -462,5 +541,9 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
 
     public void setRelevantFilter(String relevantFilter) {
         this.relevantFilter = relevantFilter;
+    }
+
+    public ObservableList<SummeryData> getSummeryData() {
+        return summeryData;
     }
 }

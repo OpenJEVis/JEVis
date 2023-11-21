@@ -1,6 +1,5 @@
 package org.jevis.jsonparser;
 
-import com.beust.ah.A;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +20,10 @@ public class JSONParser {
     public JSONParser(InputStream inputStream) {
         rootObject = getJSONObject(inputStream);
 
+    }
+
+    public void setInputStream(InputStream inputStream) {
+        rootObject = getJSONObject(inputStream);
     }
 
     private Optional<JsonNode> getJSONObject(InputStream inputStream) {
@@ -44,9 +47,8 @@ public class JSONParser {
             e.printStackTrace();
         }
 
-        System.out.println(results);
 
-
+        logger.error("Parse Result: {}", results);
         return results;
     }
 

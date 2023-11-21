@@ -163,7 +163,7 @@ public class UnitManager {
             case DECI:
                 return DECI;
             case DECA:
-                return DECA;
+                return DEKA;
             case EXA:
                 return EXA;
             case FEMTO:
@@ -216,7 +216,7 @@ public class UnitManager {
             case "DECI":
                 return DECI;
             case "DEKA":
-                return DECA;
+                return DEKA;
             case "EXA":
                 return EXA;
             case "FEMTO":
@@ -266,7 +266,7 @@ public class UnitManager {
                         return JEVisUnit.Prefix.CENTI;
                     case DECI:
                         return JEVisUnit.Prefix.DECI;
-                    case DECA:
+                    case DEKA:
                         return JEVisUnit.Prefix.DECA;
                     case EXA:
                         return JEVisUnit.Prefix.EXA;
@@ -377,7 +377,7 @@ public class UnitManager {
                     return SI.CENTI(unit);
                 case DECI:
                     return SI.DECI(unit);
-                case DECA:
+                case DEKA:
                     return SI.DEKA(unit);
                 case EXA:
                     return SI.EXA(unit);
@@ -1243,7 +1243,7 @@ public class UnitManager {
             case "d":
                 return DECI;
             case "da":
-                return DECA;
+                return DEKA;
             case "E":
                 return EXA;
             case "f":

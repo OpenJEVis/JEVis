@@ -93,6 +93,8 @@ public class Alarm {
                 return I18n.getInstance().getString("plugin.alarm.table.translation.dynamic");
             case ("STATIC"):
                 return I18n.getInstance().getString("plugin.alarm.table.translation.static");
+            case ("GAP"):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.gap");
             case ("NONE"):
             default:
                 return I18n.getInstance().getString("plugin.alarm.table.translation.none");

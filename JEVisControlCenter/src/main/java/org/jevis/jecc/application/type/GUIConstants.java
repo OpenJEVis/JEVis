@@ -28,6 +28,7 @@ public class GUIConstants {
     public static DisplayType BOOLEAN_BUTTON = new DisplayType("Button", JEVisConstants.PrimitiveType.BOOLEAN);
     public static DisplayType PASSWORD_PBKDF2 = new DisplayType("Password PBKDF2", JEVisConstants.PrimitiveType.PASSWORD_PBKDF2);
     public static DisplayType BASIC_TEXT_MULTI = new DisplayType("Text Area", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType RICH_TEXT_FORMAT = new DisplayType("RTF", JEVisConstants.PrimitiveType.FILE);
     public static DisplayType BASIC_ENUM = new DisplayType("String Enum", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType DYNAMIC_ENUM = new DisplayType("Dynamic Enum", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType LOCALE = new DisplayType("Language Selector", JEVisConstants.PrimitiveType.STRING);
@@ -52,6 +53,7 @@ public class GUIConstants {
         {
             add(BASIC_TEXT);
             add(BASIC_TEXT_MULTI);
+            add(RICH_TEXT_FORMAT);
             add(BASIC_NUMBER);
             add(NUMBER_WITH_UNIT);
             add(BASIC_FILER);

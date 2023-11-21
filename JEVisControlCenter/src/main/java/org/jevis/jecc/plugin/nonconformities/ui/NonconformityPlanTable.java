@@ -1,9 +1,12 @@
 package org.jevis.jecc.plugin.nonconformities.ui;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.TableColumn;
@@ -15,6 +18,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.application.table.DateTimeColumnCell;
 import org.jevis.jecc.application.table.ShortColumnCell;
 import org.jevis.jecc.application.table.StringListColumnCell;
+import org.jevis.jecc.application.table.SummeryData;
 import org.jevis.jecc.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jecc.plugin.nonconformities.data.NonconformityPlan;
 import org.jevis.jecc.plugin.nonconformities.data.NonconformtiesOverviewData;
@@ -34,9 +38,6 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
 
 
     private static Method columnToFitMethod;
-    private static int DATE_TIME_WIDTH = 120;
-    private static int BIG_WIDTH = 200;
-    private static int SMALL_WIDTH = 60;
 
     static {
         try {
@@ -50,9 +51,9 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
     ObservableList<NonconformityData> data = FXCollections.observableArrayList();
     FilteredList<NonconformityData> filteredData;
     SortedList<NonconformityData> sortedData;
-    private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private TableFilter tableFilter = new TableFilter();
-    private NonconformityData sumRow = new NonconformityData();
+    private final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+    private final TableFilter tableFilter = new TableFilter();
+    private final NonconformityData sumRow = new NonconformityData();
     private DateFilter dateFilter;
     private boolean showSumRow = false;
     private String containsTextFilter = "";
@@ -61,8 +62,14 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
     private ObservableList<String> fields = FXCollections.observableArrayList();
     private ObservableList<String> seu = FXCollections.observableArrayList();
 
+    private static final int DATE_TIME_WIDTH = 120;
+    private static final int BIG_WIDTH = 200;
+    private static final int SMALL_WIDTH = 60;
 
-    public NonconformityPlanTable(NonconformityPlan nonconformityPlan, ObservableList<NonconformityData> data) {
+    private final ObservableList<SummeryData> summeryData;
+
+
+    public NonconformityPlanTable(NonconformityPlan nonconformityPlan, ObservableList<NonconformityData> data, BooleanProperty updateTrigger) {
         this.data = data;
         this.filteredData = new FilteredList<>(data);
         sortedData = new SortedList<>(filteredData);
@@ -215,6 +222,24 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
             while (c.next()) autoFitTable();
         });
 
+        Statistics statistics = new Statistics(sortedData, updateTrigger);
+
+
+        ObservableMap<TableColumn, StringProperty> summeryRow1 = FXCollections.observableHashMap();
+        ObservableMap<TableColumn, StringProperty> summeryRow2 = FXCollections.observableHashMap();
+        ObservableMap<TableColumn, StringProperty> summeryRow3 = FXCollections.observableHashMap();
+
+
+        summeryRow1.put(titlePropertyCol, statistics.getAll(I18n.getInstance().getString("plugin.nonconformities.all")));
+        summeryRow2.put(titlePropertyCol, statistics.getActive(I18n.getInstance().getString("plugin.nonconformities.active")));
+        summeryRow3.put(titlePropertyCol, statistics.getFinished(I18n.getInstance().getString("plugin.nonconformities.finished")));
+
+
+        summeryData = FXCollections.observableArrayList();
+        summeryData.add(new SummeryData(summeryRow1));
+        summeryData.add(new SummeryData(summeryRow2));
+        summeryData.add(new SummeryData(summeryRow3));
+
 
     }
 
@@ -237,6 +262,10 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
             } catch (Exception e) {
             }
         }
+    }
+
+    public ObservableList<SummeryData> getSummeryData() {
+        return summeryData;
     }
 
     public TableFilter getTableFilter() {
@@ -352,7 +381,7 @@ public class NonconformityPlanTable extends TableView<NonconformityData> {
                                 }
 
                                 //TODO: may also check if column is visible
-                                if (!containString.get()) return false;
+                                return containString.get();
                             }
 
 

@@ -1,12 +1,6 @@
 package org.jevis.jecc.plugin.notes;
 
-import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXTextArea;
-import com.jfoenix.controls.JFXToggleButton;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.controls.*;
 import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -16,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.scene.CacheHint;
 import javafx.scene.Cursor;
@@ -23,6 +18,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -49,6 +45,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
@@ -83,6 +80,7 @@ public class NotesPlugin implements Plugin {
     private final MFXDatePicker startDatePicker = new MFXDatePicker();
     private final MFXDatePicker endDatePicker = new MFXDatePicker();
     private final boolean init = false;
+    private final MFXComboBox<TimeFrame> timeFrameComboBox;
     ObservableList<NotesRow> data = FXCollections.observableArrayList();
     FilteredList<NotesRow> filteredData = new FilteredList<>(data);
     BooleanProperty searchInNote = new SimpleBooleanProperty(false);
@@ -98,6 +96,7 @@ public class NotesPlugin implements Plugin {
 
     public NotesPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
+        this.timeFrameComboBox = getTimeFrameComboBox();
         this.title = title;
         this.borderPane.setTop(searchPanel());
 
@@ -151,17 +150,17 @@ public class NotesPlugin implements Plugin {
 
 
         Label filterLabel = new Label(I18n.getInstance().getString("plugin.notes.search.filterlabel"));
-        JFXToggleButton toggleUser = new JFXToggleButton();
+        MFXToggleButton toggleUser = new MFXToggleButton();
         toggleUser.setText(I18n.getInstance().getString("plugin.notes.search.toggle.user"));
         toggleUser.setSelected(true);
-        JFXToggleButton toggleNote = new JFXToggleButton();
+        MFXToggleButton toggleNote = new MFXToggleButton();
         toggleNote.setText(I18n.getInstance().getString("plugin.notes.search.toggle.note"));
         toggleNote.setSelected(true);
-        JFXToggleButton toggleDR = new JFXToggleButton();
+        MFXToggleButton toggleDR = new MFXToggleButton();
         toggleDR.setText(I18n.getInstance().getString("plugin.notes.search.toggle.data"));
         toggleDR.setSelected(true);
 
-        JFXToggleButton toggleTag = new JFXToggleButton();
+        MFXToggleButton toggleTag = new MFXToggleButton();
         toggleTag.setText(I18n.getInstance().getString("plugin.notes.search.toggle.tag"));
         toggleTag.setSelected(true);
 
@@ -244,7 +243,7 @@ public class NotesPlugin implements Plugin {
         cm.getItems().addAll(selectAllMenuItem, deselectAllMenuItem);
 
         activeTags.forEach((tagKey, tagAktiv) -> {
-            JFXCheckBox cb = new JFXCheckBox(tagKey);
+            MFXCheckbox cb = new MFXCheckbox(tagKey);
             cb.selectedProperty().bindBidirectional(tagAktiv);
             //cb.setSelected(tagAktiv.get());
             cb.setOnAction(event -> {
@@ -325,8 +324,30 @@ public class NotesPlugin implements Plugin {
                     }
                 });
         Platform.runLater(() -> autoFitTable(tableView));
-        Platform.runLater(() -> tableView.sort());
 
+    }
+
+    private void checkForRunningTasks() throws InterruptedException {
+        AtomicBoolean hasActiveTasks = new AtomicBoolean(false);
+        ConcurrentHashMap<Task, String> taskList = ControlCenter.getStatusBar().getTaskList();
+        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
+            String s = entry.getValue();
+            if (s.equals("NoteRows")) {
+                hasActiveTasks.set(true);
+                break;
+            }
+        }
+        if (!hasActiveTasks.get()) {
+            ControlCenter.getStatusBar().finishProgressJob("NoteRows", "");
+            data.sort(Comparator.comparing(NotesRow::getTimeStamp).reversed());
+
+            Platform.runLater(() -> {
+                autoFitTable(tableView);
+            });
+        } else {
+            Thread.sleep(500);
+            checkForRunningTasks();
+        }
     }
 
     private void updateList() {
@@ -341,232 +362,67 @@ public class NotesPlugin implements Plugin {
          }
          **/
 
-        ControlCenter.getStatusBar().stopTasks(NotesPlugin.class.getName());
+        ControlCenter.getStatusBar().stopTasks("NoteRows");
         this.runningUpdateTaskList.clear();
         data.clear();
         filteredData.clear();
 
         List<JEVisObject> noteObjects = getAllNoteObjects();
-        ControlCenter.getStatusBar().startProgressJob(NotesPlugin.class.getName(), noteObjects.size(), I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
+        ControlCenter.getStatusBar().startProgressJob("NoteRows", noteObjects.size(), I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
         noteObjects.forEach(noteObject -> {
             Task<List<NotesRow>> task = new Task<List<NotesRow>>() {
                 @Override
                 protected List<NotesRow> call() {
-                    //List<NotesRow> list = new ArrayList<>();
+                    List<NotesRow> list = new ArrayList<>();
                     try {
                         Platform.runLater(() -> this.updateTitle(I18n.getInstance().getString("plugin.notes.loading") + " '" + noteObject.getName() + "'"));
-                        JEVisAttribute userNotes = noteObject.getAttribute("User Notes");
-                        //list.addAll(getNotesRow(userNotes));
-                        List<NotesRow> notesRow = getNotesRow(userNotes);
-                        Platform.runLater(() -> {
-                            data.addAll(notesRow);
-                            filter();
-                        });
-                        //Platform.runLater(() -> autoFitTable(tableView));
-                        //if (noteObjects.indexOf(noteObject) % 5 == 0
-                        //       || noteObjects.indexOf(noteObject) == noteObjects.size() - 1) {
-                        //  Platform.runLater(() -> tableView.sort());
-                        //}
+                        JEVisAttribute userNotes = noteObject.getAttribute("Value");
+
+                        list.addAll(getNotesRow(userNotes));
+
                         this.succeeded();
                     } catch (Exception e) {
                         logger.error(e);
                         this.failed();
                     } finally {
+                        Platform.runLater(() -> {
+                            data.addAll(list);
+                            filter();
+                        });
                         this.done();
                         ControlCenter.getStatusBar().progressProgressJob(
-                                NotesPlugin.class.getName(),
+                                "NoteRows",
                                 1,
                                 I18n.getInstance().getString("plugin.notes.message.finishedloading") + " " + noteObject.getName());
                     }
 
-                    return null;
+                    return list;
                 }
             };
-            ControlCenter.getStatusBar().addTask(NotesPlugin.class.getName(), task, taskImage, true);//,
-
-
-            /** check if all Jobs are done/failed to set statusbar **/
-            /**
-             EventHandler<WorkerStateEvent> doneEvent = event -> {
-             if (allJobsDone(futures)) {
-             JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
-             Platform.runLater(() -> tableView.sort());
-             Platform.runLater(() -> autoFitTable(tableView));
-             }
-             };
-             Platform.runLater(() -> {
-             task.setOnSucceeded(doneEvent);
-             task.setOnFailed(doneEvent);
-             });
-             **/
+            ControlCenter.getStatusBar().addTask("NoteRows", task, taskImage, true);//,
 
             this.runningUpdateTaskList.add(task);
         });
 
+        Task task = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                try {
+                    checkForRunningTasks();
+                } catch (Exception e) {
+                    failed();
+                } finally {
+                    succeeded();
+                }
+
+                return null;
+            }
+        };
+
+
+        ControlCenter.getStatusBar().addTask(NotesPlugin.class.getName(), task, taskImage, true);
 
     }
-
-    private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", ControlCenter.getSVGImage(Icon.REFRESH, iconSize, iconSize));
-        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
-        reload.setTooltip(reloadTooltip);
-
-        ToggleButton newB = new ToggleButton("", ControlCenter.getSVGImage(Icon.PLUS_CIRCLE, 18, 18));
-        newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.add")));
-        ToggleButton save = new ToggleButton("", ControlCenter.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
-        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.save")));
-        ToggleButton delete = new ToggleButton("", ControlCenter.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
-        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.delete")));
-
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
-
-        reload.setOnAction(event -> {
-
-            final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
-            Service<Void> service = new Service<Void>() {
-                @Override
-                protected Task<Void> createTask() {
-                    return new Task<Void>() {
-                        @Override
-                        protected Void call() {
-                            updateMessage(loading);
-                            try {
-                                ds.clearCache();
-                                ds.preload();
-
-                                updateList();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            return null;
-                        }
-                    };
-                }
-            };
-            ProgressDialog pd = new ProgressDialog(service);
-            pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
-            pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
-            pd.getDialogPane().setContent(null);
-
-            service.start();
-
-        });
-
-        newB.setOnAction(event -> {
-            NotePane notePane = new NotePane(allTags, ds);
-
-            MFXButton okButton = new MFXButton(I18n.getInstance().getString("plugin.note.pane.ok"));
-            MFXButton cancelButton = new MFXButton(I18n.getInstance().getString("plugin.note.pane.cancel"));
-            HBox buttonBox = new HBox(cancelButton, okButton);
-            buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
-            buttonBox.setSpacing(12);
-            Separator separator = new Separator();
-            separator.setOrientation(Orientation.HORIZONTAL);
-            okButton.setDefaultButton(true);
-
-
-            VBox vBox = new VBox(notePane, buttonBox);
-            vBox.setSpacing(12);
-            vBox.setAlignment(Pos.BOTTOM_RIGHT);
-            vBox.setPadding(new Insets(12));
-
-
-            Dialog Dialog = new Dialog();
-            Dialog.setResizable(true);
-            Stage stage = (Stage) Dialog.getDialogPane().getScene().getWindow();
-            TopMenu.applyActiveTheme(stage.getScene());
-            stage.setAlwaysOnTop(true);
-
-            Dialog.getDialogPane().setContent(vBox);
-
-            okButton.setOnAction(event1 -> {
-                JEVisObject jeVisObject = notePane.commit();
-                if (jeVisObject != null) {
-                    //data
-                    NotesRow notesRow = new NotesRow(notePane.getDate(), jeVisObject);
-                    Platform.runLater(() -> {
-                        data.add(notesRow);
-                        updateList();
-                        //tableView.refresh();
-                        filter();
-                    });
-                }
-                Dialog.close();
-            });
-            cancelButton.setOnAction(event1 -> {
-                Dialog.close();
-            });
-
-            Dialog.show();
-        });
-
-        delete.setOnAction(event -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle(I18n.getInstance().getString("plugin.note.delete.title"));
-            alert.setHeaderText(I18n.getInstance().getString("plugin.note.delete.message"));
-            //alert.setContentText("Before : ");
-
-            ButtonType buttonYes = new ButtonType(I18n.getInstance().getString("plugin.note.delete.delete"));
-            alert.getButtonTypes().clear();
-            alert.getButtonTypes().addAll(buttonYes, ButtonType.CANCEL);
-
-            Button noButton = (Button) alert.getDialogPane().lookupButton(ButtonType.CANCEL);
-            noButton.setDefaultButton(true);
-
-            final Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == buttonYes) {
-                tableView.getSelectionModel().getSelectedItems().forEach(notesRow -> {
-                    notesRow.delete();
-                    data.remove(notesRow);
-                });
-                filter();
-            }
-
-        });
-
-        save.setOnAction(event -> {
-            this.data.forEach(notesRow -> {
-                if (notesRow.hasChanged()) {
-                    logger.debug("Note Has changed commit:");
-                    notesRow.commit();
-                }
-            });
-        });
-
-        Separator sep1 = new Separator(Orientation.VERTICAL);
-        Separator sep2 = new Separator(Orientation.VERTICAL);
-
-        if (start != null) {
-            startDatePicker.valueProperty().removeListener(startDateChangeListener);
-            startDatePicker.setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
-        }
-
-
-        if (end != null) {
-            endDatePicker.valueProperty().removeListener(endDateChangeListener);
-            endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
-        }
-
-
-        startDatePicker.valueProperty().addListener(startDateChangeListener);
-        endDatePicker.valueProperty().addListener(endDateChangeListener);
-
-        ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
-        ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
-
-        timeFrameComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
-        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
-        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
-
-        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, newB, save, delete);
-        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
-
-        JEVisHelp.getInstance().addHelpItems(NotesPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
-
-    }    private final MFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
 
     private void restartExecutor() {
         try {
@@ -583,7 +439,9 @@ public class NotesPlugin implements Plugin {
         } catch (Exception ex) {
             logger.error(ex);
         }
-    }    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
+    }
+
+    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final MFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
 
     private void createColumns() {
         TableColumn<NotesRow, DateTime> dateColumn = new TableColumn<>(I18n.getInstance().getString("plugin.notes.table.date"));
@@ -658,8 +516,8 @@ public class NotesPlugin implements Plugin {
                     public void startEdit() {
                         super.startEdit();
 
-                        NotesRow tableSample = (NotesRow) getTableRow().getItem();
-                        JFXTextArea jfxTextArea = new JFXTextArea(tableSample.getNoteProperty().get());
+                        NotesRow tableSample = getTableRow().getItem();
+                        TextArea jfxTextArea = new TextArea(tableSample.getNoteProperty().get());
                         jfxTextArea.setWrapText(true);
                         jfxTextArea.setPrefRowCount(8);
                         jfxTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -755,7 +613,7 @@ public class NotesPlugin implements Plugin {
                                 text += getFullName(item);
 
                                 if (getTableRow() != null && getTableRow().getItem() != null) {
-                                    NotesRow notesRow = (NotesRow) getTableRow().getItem();
+                                    NotesRow notesRow = getTableRow().getItem();
 
 
                                     this.setOnMouseClicked(event -> ControlCenter.openObjectInPlugin(ChartPlugin.PLUGIN_NAME, getAnalysisRequest(notesRow, item)));
@@ -859,21 +717,14 @@ public class NotesPlugin implements Plugin {
 
 
         tableView.getColumns().setAll(dateColumn, noteColumn, objectNameColumn, tagColumn, userNameColumn);
+
         Platform.runLater(() -> {
             tableView.getSortOrder().clear();
             tableView.getSortOrder().setAll(dateColumn);
         });
 
 
-    }    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
+    }
 
     private String getFullName(JEVisObject item) throws JEVisException {
         String name = "";
@@ -896,15 +747,7 @@ public class NotesPlugin implements Plugin {
             }
         }
         return name;
-    }    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
+    }
 
     private Object getAnalysisRequest(NotesRow notesRow, JEVisObject noteItem) {
         logger.debug("getAnalysisRequest: " + notesRow + " item: " + noteItem);
@@ -931,9 +774,205 @@ public class NotesPlugin implements Plugin {
         return new AnalysisRequest(parallelItem, AggregationPeriod.NONE, ManipulationMode.NONE, start, end);
     }
 
+    private void initToolBar() {
+        ToggleButton reload = new ToggleButton("", ControlCenter.getSVGImage(Icon.REFRESH, iconSize, iconSize));
+        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
+        reload.setTooltip(reloadTooltip);
+
+        ToggleButton newB = new ToggleButton("", ControlCenter.getSVGImage(Icon.PLUS_CIRCLE, 18, 18));
+        newB.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.add")));
+        newB.setDisable(true);
+        ToggleButton save = new ToggleButton("", ControlCenter.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
+        save.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.save")));
+        ToggleButton delete = new ToggleButton("", ControlCenter.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+        delete.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.notes.tooltip.delete")));
+
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
+
+        reload.setOnAction(event -> {
+
+            final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
+            Service<Void> service = new Service<Void>() {
+                @Override
+                protected Task<Void> createTask() {
+                    return new Task<Void>() {
+                        @Override
+                        protected Void call() {
+                            updateMessage(loading);
+                            try {
+                                ds.clearCache();
+                                ds.preload();
+
+                                updateList();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        }
+                    };
+                }
+            };
+            ProgressDialog pd = new ProgressDialog(service);
+            pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
+            pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
+            pd.getDialogPane().setContent(null);
+
+            service.start();
+
+        });
+
+
+        tableView.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (event.isPrimaryButtonDown() && event.getClickCount() == 1) {
+                    Platform.runLater(() -> newB.setDisable(false));
+                }
+                if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
+                    addNote();
+                }
+            }
+        });
+
+        newB.setOnAction(event -> addNote());
+
+        delete.setOnAction(event ->
+        {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(I18n.getInstance().getString("plugin.note.delete.title"));
+            alert.setHeaderText(I18n.getInstance().getString("plugin.note.delete.message"));
+            //alert.setContentText("Before : ");
+
+            ButtonType buttonYes = new ButtonType(I18n.getInstance().getString("plugin.note.delete.delete"));
+            alert.getButtonTypes().clear();
+            alert.getButtonTypes().addAll(buttonYes, ButtonType.CANCEL);
+
+            Button noButton = (Button) alert.getDialogPane().lookupButton(ButtonType.CANCEL);
+            noButton.setDefaultButton(true);
+
+            final Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonYes) {
+                tableView.getSelectionModel().getSelectedItems().forEach(notesRow -> {
+                    notesRow.delete();
+                    data.remove(notesRow);
+                });
+                filter();
+            }
+
+        });
+
+        save.setOnAction(event ->
+                this.data.forEach(notesRow -> {
+                    if (notesRow.hasChanged()) {
+                        logger.debug("Note Has changed commit:");
+                        notesRow.commit();
+                    }
+                }));
+
+        Separator sep1 = new Separator(Orientation.VERTICAL);
+        Separator sep2 = new Separator(Orientation.VERTICAL);
+
+        if (start != null) {
+            startDatePicker.valueProperty().removeListener(startDateChangeListener);
+            startDatePicker.setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        }
+
+
+        if (end != null) {
+            endDatePicker.valueProperty().removeListener(endDateChangeListener);
+            endDatePicker.setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+        }
+
+        startDatePicker.valueProperty().addListener(startDateChangeListener);
+        endDatePicker.valueProperty().addListener(endDateChangeListener);
+
+        ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+        ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
+
+        timeFrameComboBox.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.timebox.tooltip")));
+        startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.startdate.tooltip")));
+        endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.enddate.tooltip")));
+
+        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, newB, save, delete);
+        toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
+
+        JEVisHelp.getInstance().addHelpItems(NotesPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
+
+    }
+
+    private void addNote() {
+        NotePane notePane = new NotePane(allTags, ds, Optional.ofNullable(tableView.getSelectionModel().getSelectedItem()));
+
+        ButtonType okButtonType = new ButtonType(I18n.getInstance().getString("plugin.note.pane.ok"), ButtonBar.ButtonData.APPLY);
+        ButtonType cancelButtonType = new ButtonType(I18n.getInstance().getString("plugin.note.pane.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+
+        //MFXButton okButton = new MFXButton(I18n.getInstance().getString("plugin.note.pane.ok"));
+        //MFXButton cancelButton = new MFXButton(I18n.getInstance().getString("plugin.note.pane.cancel"));
+
+        notePane.getDialogPane().getButtonTypes().setAll(okButtonType, cancelButtonType);
+
+        //HBox buttonBox = new HBox(cancelButton, okButton);
+        //buttonBox.setAlignment(Pos.BOTTOM_RIGHT);
+        //buttonBox.setSpacing(12);
+        //Separator separator = new Separator();
+        //separator.setOrientation(Orientation.HORIZONTAL);
+        //okButton.setDefaultButton(true);
+
+
+        //VBox vBox = new VBox(notePane, buttonBox);
+        //vBox.setSpacing(12);
+        //vBox.setAlignment(Pos.BOTTOM_RIGHT);
+        //vBox.setPadding(new Insets(12));
+
+
+        //Dialog Dialog = new Dialog();
+        //Dialog.setResizable(true);
+        Stage stage = (Stage) notePane.getDialogPane().getScene().getWindow();
+        TopMenu.applyActiveTheme(stage.getScene());
+        stage.setAlwaysOnTop(true);
+
+        //Dialog.getDialogPane().setContent(vBox);
+
+        final Button btOk = (Button) notePane.getDialogPane().lookupButton(okButtonType);
+        final Button btCancel = (Button) notePane.getDialogPane().lookupButton(cancelButtonType);
+
+        btOk.setOnAction(event1 -> {
+            try {
+                Optional<NotesRow> notesRow = notePane.commit();
+                data.add(notesRow.orElseThrow(() -> new RuntimeException("could not commit")));
+                filter();
+
+            } catch (Exception e) {
+                logger.error(e);
+            }
+            notePane.close();
+        });
+        btCancel.setOnAction(event1 -> {
+            notePane.close();
+        });
+
+        notePane.show();
+    }
+
     private MFXComboBox<TimeFrame> getTimeFrameComboBox() {
         MFXComboBox<TimeFrame> box = new MFXComboBox<>();
-        box.setFloatMode(FloatMode.DISABLED);
+
+        final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
+        final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
+        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
+        final String thisWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonthisweek");
+        final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
+        final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
+        final String thisMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonthismonth");
+        final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
+        final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
+        final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
+        final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
+        final String preview = I18n.getInstance().getString("plugin.graph.changedate.preview");
 
         ObservableList<TimeFrame> timeFrames = FXCollections.observableArrayList(TimeFrame.values());
         timeFrames.remove(TimeFrame.values().length - 2, TimeFrame.values().length - 1);
@@ -1004,15 +1043,24 @@ public class NotesPlugin implements Plugin {
         });
 
         return box;
-    }
+    }    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+            Platform.runLater(this::initToolBar);
+        }
+    };
 
     @Override
     public void setHasFocus() {
 
-
         this.timeFrameComboBox.selectItem(TimeFrame.LAST_30_DAYS);
         Platform.runLater(() -> autoFitTable(tableView));
     }
+
+
 
     @Override
     public String getClassName() {
@@ -1032,6 +1080,16 @@ public class NotesPlugin implements Plugin {
     public StringProperty nameProperty() {
         return null;
     }
+
+    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+            Platform.runLater(this::initToolBar);
+        }
+    };
 
     @Override
     public String getUUID() {
@@ -1155,6 +1213,8 @@ public class NotesPlugin implements Plugin {
 
     }
 
+
+
     @Override
     public void lostFocus() {
 
@@ -1169,13 +1229,6 @@ public class NotesPlugin implements Plugin {
     public int getPrefTapPos() {
         return 5;
     }
-
-
-
-
-
-
-
 
 
 }

@@ -52,7 +52,6 @@ import org.jevis.jecc.tool.AttributeCopy;
 import org.jevis.jecc.tool.Calculations;
 import org.jevis.jecc.tool.CleanDatas;
 import org.jevis.jecc.tool.CreateAlarms;
-import org.jevis.jecc.tool.dwdbrowser.DWDBrowser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -76,6 +75,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         try {
             AtomicBoolean foundTarget = new AtomicBoolean(false);
             JEVisDataSource ds = obj.getDataSource();
+
 
             if (tree.getCalculationIDs().get(obj.getID()) != null) {
                 logger.info("target is a calculation");
@@ -109,6 +109,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
             } else {
                 logger.info("target is not a calculation");
                 try {
+
+
                     if (tree.getTargetAndChannel().get(obj.getID()) != null) {
                         JEVisObject object = ds.getObject(tree.getTargetAndChannel().get(obj.getID()));
                         logger.info("found target");
@@ -217,20 +219,6 @@ public class JEVisTreeContextMenu extends ContextMenu {
         return menu;
     }
 
-    private MenuItem buildImportDWDData() {
-        MenuItem menuItem = new MenuItem(I18n.getInstance().getString("jevistree.menu.importdwd"), ControlCenter.getSVGImage(Icon.IMPORT, 20, 20));
-        menuItem.setOnAction(actionEvent -> {
-            try {
-                DWDBrowser dwdBrowser = new DWDBrowser(obj.getDataSource(), obj);
-
-                dwdBrowser.show();
-            } catch (Exception e) {
-                logger.error(e);
-            }
-        });
-        return menuItem;
-    }
-
     public void setTree(JEVisTree tree) {
         this.tree = tree;
         tree.setOnMouseClicked(event -> {
@@ -281,8 +269,10 @@ public class JEVisTreeContextMenu extends ContextMenu {
                         getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
                         getItems().add(buildCreateAlarms());
                     } else if (obj.getJEVisClassName().equals("Data") || obj.getJEVisClassName().equals("Base Data")) {
-                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource(), buildImportDWDData());
+//                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource(), buildImportDWDData());
                         getItems().add(buildReCalcClean());
+                    } else if (obj.getJEVisClassName().equals("String Data")) {
+                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
                     } else if (obj.getJEVisClassName().equals("Clean Data") || obj.getJEVisClassName().equals("Math Data")) {
                         getItems().add(new SeparatorMenuItem());
                         getItems().add(buildReCalcClean());

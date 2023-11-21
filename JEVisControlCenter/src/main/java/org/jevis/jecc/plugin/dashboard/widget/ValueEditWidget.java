@@ -25,7 +25,6 @@ import org.jevis.jecc.application.Chart.data.ChartDataRow;
 import org.jevis.jecc.application.tools.ColorHelper;
 import org.jevis.jecc.dialog.EnterDataDialog;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.*;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
@@ -42,10 +41,10 @@ import java.util.Optional;
 public class ValueEditWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ValueEditWidget.class);
-    private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     public static String WIDGET_ID = "Value Editor";
     private final MFXTextField labelValue = new MFXTextField();
     private final Label labelTimeStamp = new Label();
+    private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     //private DataModelDataHandler sampleHandler;
     private final NumberFormat nf = NumberFormat.getInstance();
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
@@ -278,7 +277,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
 
         GridPane gridPane = new GridPane();

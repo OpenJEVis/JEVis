@@ -50,6 +50,7 @@ public class RenameDialog extends Dialog {
 
         okButton.setOnAction(event -> {
             try {
+                System.out.println("RenameOKButton");
                 if (selectedItem.getDataSource().getCurrentUser().canWrite(selectedItem.getID())) {
                     selectedItem.setName(nameField.getText());
                     selectedItem.commit();

@@ -22,6 +22,7 @@ package org.jevis.jeapi.ws;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -40,13 +41,12 @@ import java.util.*;
  * @author fs
  */
 public class JEVisObjectWS implements JEVisObject {
+    public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.date();
     private static final Logger logger = LogManager.getLogger(JEVisObjectWS.class);
-
     private final EventListenerList listeners = new EventListenerList();
     private final JEVisDataSourceWS ds;
     private JsonObject json;
     private DateTime tsObj = null;
-    public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.date();
 
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
@@ -63,50 +63,6 @@ public class JEVisObjectWS implements JEVisObject {
         this.json = json;
     }
 
-
-    @Override
-    public void addEventListener(JEVisEventListener listener) {
-        if (this.listeners.getListeners(JEVisEventListener.class).length > 0) {
-            logger.debug("Duplicate Listener: {}", json.getId());
-        }
-
-        this.listeners.add(JEVisEventListener.class, listener);
-    }
-
-    @Override
-    public void removeEventListener(JEVisEventListener listener) {
-        this.listeners.remove(JEVisEventListener.class, listener);
-    }
-
-    @Override
-    public JEVisEventListener[] getEventListener() {
-        return this.listeners.getListeners(JEVisEventListener.class);
-    }
-
-    @Override
-    public synchronized void notifyListeners(JEVisEvent event) {
-        logger.trace("Object event[{}] listeners: {} event:", getID(), this.listeners.getListenerCount(), event.getType());
-        for (JEVisEventListener l : this.listeners.getListeners(JEVisEventListener.class)) {
-            l.fireEvent(event);
-        }
-    }
-
-    @Override
-    public DateTime getDeleteTS() {
-        return tsObj;
-    }
-
-    @Override
-    public void setDeleteTS(DateTime ts) throws JEVisException {
-        tsObj = ts;
-        if (ts != null) {
-            json.setDeleteTS(sampleDTF.print(ts));
-        } else {
-            json.setDeleteTS(null);
-        }
-
-    }
-
     @Override
     public String getName() {
         return getLocalName(I18n.getInstance().getLocale().getLanguage());
@@ -115,72 +71,12 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public void setName(String name) {
         this.json.setName(name);
-    }
-
-    @Override
-    public String getLocalName(String key) {
-        if (key.equalsIgnoreCase("default")) {
-            return this.json.getName();
-        }
-
-        if (!json.getI18n().isEmpty()) {
-            for (JsonI18n jsonI18n : json.getI18n()) {
-                if (jsonI18n.getKey().equals(key)) {
-                    return jsonI18n.getValue();
-                }
-            }
-        }
-
-        return json.getName();
-    }
-
-    @Override
-    public Map<String, String> getLocalNameList() {
-        Map<String, String> names = new HashMap<>();
-        json.getI18n().forEach(jsonI18n -> {
-            names.put(jsonI18n.getKey(), jsonI18n.getValue());
-        });
-
-        return names;
-    }
-
-    @Override
-    public void setLocalName(String key, String name) {
-
-        if (!json.getI18n().isEmpty()) {
-            for (JsonI18n jsonI18n : json.getI18n()) {
-                if (jsonI18n.getKey().equals(key)) {
-                    jsonI18n.setValue(name);
-                }
-            }
-        } else {
-            JsonI18n newI18n = new JsonI18n();
-            newI18n.setKey(key);
-            newI18n.setValue(name);
-
-            json.getI18n().add(newI18n);
-        }
-    }
-
-    @Override
-    public void setLocalNames(Map<String, String> translation) {
-        json.getI18n().clear();
-        translation.forEach((s, s2) -> {
-            JsonI18n jsonI18n = new JsonI18n();
-            jsonI18n.setKey(s);
-            jsonI18n.setValue(s2);
-            json.getI18n().add(jsonI18n);
-        });
-
+        setLocalName(I18n.getInstance().getLocale().getLanguage(), name);
     }
 
     @Override
     public Long getID() {
         return this.json.getId();
-    }
-
-    private boolean isLink() {
-        return this.json.getJevisClass().equals("Link");
     }
 
     @Override
@@ -192,6 +88,11 @@ public class JEVisObjectWS implements JEVisObject {
             }
         }
         return this.ds.getJEVisClass(this.json.getJevisClass());
+    }
+
+    @Override
+    public String getJEVisClassName() {
+        return this.json.getJevisClass();
     }
 
     @Override
@@ -219,11 +120,6 @@ public class JEVisObjectWS implements JEVisObject {
     public JEVisObject getParent() throws JEVisException {
         JEVisObject obj = getParents().isEmpty() ? null : getParents().get(0);
         return obj;
-    }
-
-    @Override
-    public String getJEVisClassName() {
-        return this.json.getJevisClass();
     }
 
     @Override
@@ -298,10 +194,6 @@ public class JEVisObjectWS implements JEVisObject {
         return this.ds.getAttributes(getID());
     }
 
-//    public List<JEVisAttribute> getAttributesWS() {
-//        return this.ds.getAttributes(getID());
-//    }
-
     @Override
     public JEVisAttribute getAttribute(JEVisType type) throws JEVisException {
         //TODO not optimal, getAttribute() will not cached if we call all this in a loop we do no Webservice calls
@@ -332,7 +224,6 @@ public class JEVisObjectWS implements JEVisObject {
     public boolean delete() {
         return this.ds.deleteObject(getID(), false);
     }
-
 
     @Override
     public JEVisObject buildObject(String name, JEVisClass type) throws JEVisException {
@@ -448,6 +339,10 @@ public class JEVisObjectWS implements JEVisObject {
         return allowedChildren;
     }
 
+//    public List<JEVisAttribute> getAttributesWS() {
+//        return this.ds.getAttributes(getID());
+//    }
+
     @Override
     public boolean isAllowedUnder(JEVisObject otherObject) throws JEVisException {
         boolean classIsAllowedUnderClass = getJEVisClass().isAllowedUnder(otherObject.getJEVisClass());
@@ -486,6 +381,120 @@ public class JEVisObjectWS implements JEVisObject {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return this.json.getisPublic();
+    }
+
+    @Override
+    public void setIsPublic(boolean ispublic) {
+        this.json.setisPublic(ispublic);
+    }
+
+    @Override
+    public void addEventListener(JEVisEventListener listener) {
+        if (this.listeners.getListeners(JEVisEventListener.class).length > 0) {
+            logger.debug("Duplicate Listener: {}", json.getId());
+        }
+
+        this.listeners.add(JEVisEventListener.class, listener);
+    }
+
+    @Override
+    public void removeEventListener(JEVisEventListener listener) {
+        this.listeners.remove(JEVisEventListener.class, listener);
+    }
+
+    @Override
+    public JEVisEventListener[] getEventListener() {
+        return this.listeners.getListeners(JEVisEventListener.class);
+    }
+
+    @Override
+    public synchronized void notifyListeners(JEVisEvent event) {
+        logger.trace("Object event[{}] listeners: {} event:", getID(), this.listeners.getListenerCount(), event.getType());
+        for (JEVisEventListener l : this.listeners.getListeners(JEVisEventListener.class)) {
+            l.fireEvent(event);
+        }
+    }
+
+    @Override
+    public DateTime getDeleteTS() {
+        return tsObj;
+    }
+
+    @Override
+    public void setDeleteTS(DateTime ts) throws JEVisException {
+        tsObj = ts;
+        if (ts != null) {
+            json.setDeleteTS(sampleDTF.print(ts));
+        } else {
+            json.setDeleteTS(null);
+        }
+
+    }
+
+    @Override
+    public String getLocalName(String key) {
+        if (key.equalsIgnoreCase("default")) {
+            return this.json.getName();
+        }
+
+        if (!json.getI18n().isEmpty()) {
+            for (JsonI18n jsonI18n : json.getI18n()) {
+                if (jsonI18n.getKey().equals(key)) {
+                    return jsonI18n.getValue();
+                }
+            }
+        }
+
+        return json.getName();
+    }
+
+    @Override
+    public void setLocalName(String key, String name) {
+
+        if (!json.getI18n().isEmpty()) {
+            for (JsonI18n jsonI18n : json.getI18n()) {
+                if (jsonI18n.getKey().equals(key)) {
+                    jsonI18n.setValue(name);
+                }
+            }
+        } else {
+            JsonI18n newI18n = new JsonI18n();
+            newI18n.setKey(key);
+            newI18n.setValue(name);
+
+            json.getI18n().add(newI18n);
+        }
+    }
+
+    @Override
+    public void setLocalNames(Map<String, String> translation) {
+        json.getI18n().clear();
+        translation.forEach((s, s2) -> {
+            JsonI18n jsonI18n = new JsonI18n();
+            jsonI18n.setKey(s);
+            jsonI18n.setValue(s2);
+            json.getI18n().add(jsonI18n);
+        });
+
+    }
+
+    @Override
+    public Map<String, String> getLocalNameList() {
+        Map<String, String> names = new HashedMap();
+        json.getI18n().forEach(jsonI18n -> {
+            names.put(jsonI18n.getKey(), jsonI18n.getValue());
+        });
+
+        return names;
+    }
+
+    private boolean isLink() {
+        return this.json.getJevisClass().equals("Link");
     }
 
     @Override
@@ -574,6 +583,11 @@ public class JEVisObjectWS implements JEVisObject {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "JEVisObjectWS [ id: '" + getID() + "' name: '" + getName() + "' jclass: '" + getJEVisClassName() + "']";
+    }
+
     private Set<JEVisClass> getInheritanceClasses(Set<JEVisClass> hashSet, JEVisClass obj) {
         try {
             JEVisClass inheritance = obj.getInheritance();
@@ -589,22 +603,7 @@ public class JEVisObjectWS implements JEVisObject {
         return hashSet;
     }
 
-    @Override
-    public boolean isPublic() {
-        return this.json.getisPublic();
-    }
-
-    @Override
-    public void setIsPublic(boolean ispublic) {
-        this.json.setisPublic(ispublic);
-    }
-
     public JsonObject toJSON() {
         return json;
-    }
-
-    @Override
-    public String toString() {
-        return "JEVisObjectWS [ id: '" + getID() + "' name: '" + getName() + "' jclass: '" + getJEVisClassName() + "']";
     }
 }

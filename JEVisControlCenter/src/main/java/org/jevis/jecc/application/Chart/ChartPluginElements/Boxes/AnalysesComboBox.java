@@ -1,11 +1,8 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
 import io.github.palexdev.materialfx.controls.MFXComboBox;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Tooltip;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -25,7 +22,7 @@ import java.util.List;
 
 import static org.jevis.jecc.application.Chart.data.AnalysisHandler.ANALYSIS_FILE_ATTRIBUTE_NAME;
 
-public class AnalysesComboBox extends MFXComboBox<String> {
+public class AnalysesComboBox extends MFXComboBox<JEVisObject> {
     public static final String ORGANIZATION_CLASS_NAME = "Organization";
     public static final String ANALYSES_DIRECTORY_CLASS_NAME = "Analyses Directory";
     public static final String BUILDING_CLASS_NAME = "Building";
@@ -35,9 +32,6 @@ public class AnalysesComboBox extends MFXComboBox<String> {
     private final JEVisDataSource ds;
     private final DataModel dataModel;
     private final ObjectRelations objectRelations;
-    private final SimpleListProperty<JEVisObject> analyses = new SimpleListProperty<>(this, "analyses", FXCollections.observableArrayList(new ArrayList<>()));
-    private final SimpleObjectProperty<JEVisObject> selectedAnalysis = new SimpleObjectProperty<>(this, "selectedAnalysis", null);
-    private boolean updating = false;
     private Boolean multiSite = null;
     private Boolean multiDir = null;
 
@@ -51,79 +45,77 @@ public class AnalysesComboBox extends MFXComboBox<String> {
 
         JEVisHelp.getInstance().addHelpControl(ChartPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, this);
 
-        this.analyses.addListener((observable, oldValue, newValue) -> createNameList(newValue));
+        setConverter(new StringConverter<JEVisObject>() {
+            @Override
+            public String toString(JEVisObject obj) {
+                if (obj != null) {
+                    String name = "";
 
-        this.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, t1) -> {
-            this.updating = true;
-            if (t1 != null && t1.intValue() > -1) {
-                setSelectedAnalysis(analyses.get(t1.intValue()));
-            } else {
-                setSelectedAnalysis(null);
+                    try {
+                        if (obj.getJEVisClassName().equals(ANALYSIS_CLASS_NAME)) {
+                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
+                                name = obj.getName();
+                            else {
+                                String prefix = "";
+                                if (ChartTools.isMultiSite(ds)) {
+                                    prefix += objectRelations.getObjectPath(obj);
+                                }
+                                if (ChartTools.isMultiDir(ds, obj)) {
+                                    prefix += objectRelations.getRelativePath(obj);
+                                }
+
+                                name = prefix + obj.getName();
+                            }
+                        } else {
+                            if (obj.getJEVisClassName().equals(USER_CLASS_NAME)) {
+                                name = I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("could not get JEVisClassName", e);
+                    }
+
+                    return name;
+                } else return "";
             }
-            this.updating = false;
-        });
 
-        this.selectedAnalysisProperty().addListener((observable, oldValue, newValue) -> {
-            int selectedIndex = analyses.indexOf(newValue);
+            @Override
+            public JEVisObject fromString(String s) {
+                JEVisObject returnObject = null;
+                for (JEVisObject obj : getItems()) {
+                    String name = "";
+                    try {
+                        if (obj.getJEVisClassName().equals(ANALYSIS_CLASS_NAME)) {
+                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
+                                name = obj.getName();
+                            else {
+                                String prefix = "";
+                                if (ChartTools.isMultiSite(ds)) {
+                                    prefix += objectRelations.getObjectPath(obj);
+                                }
+                                if (ChartTools.isMultiDir(ds, obj)) {
+                                    prefix += objectRelations.getRelativePath(obj);
+                                }
 
-            if (selectedIndex > -1 && analyses.size() > selectedIndex) {
-                if (!updating) {
-                    getSelectionModel().selectIndex(selectedIndex);
+                                name = prefix + obj.getName();
+                            }
+                        } else {
+                            if (obj.getJEVisClassName().equals(USER_CLASS_NAME)) {
+                                name = I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("could not get JEVisClassName", e);
+                    }
+                    if (s.equals(name)) {
+                        returnObject = obj;
+                        break;
+                    }
                 }
 
-                //TODO: JFX17
-//                MFXComboBoxListViewSkin<?> skin = (MFXComboBoxListViewSkin<?>) getSkin();
-//                if (skin != null) {
-//                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-//                    if (popupContent != null) {
-//                        Platform.runLater(() -> popupContent.scrollTo(selectedIndex));
-//                    }
-//                }
+                return returnObject;
             }
         });
-    }
-
-    private void createNameList(ObservableList<JEVisObject> changedList) {
-        getItems().clear();
-        List<String> nameList = new ArrayList<>();
-        for (JEVisObject obj : changedList) {
-            String name = "";
-            try {
-                if (obj.getJEVisClassName().equals(ANALYSIS_CLASS_NAME)) {
-                    if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
-                        name = obj.getName();
-                    else {
-                        String prefix = "";
-                        if (ChartTools.isMultiSite(ds)) {
-                            prefix += objectRelations.getObjectPath(obj);
-                        }
-                        if (ChartTools.isMultiDir(ds, obj)) {
-                            prefix += objectRelations.getRelativePath(obj);
-                        }
-
-                        name = prefix + obj.getName();
-                    }
-                } else {
-                    if (obj.getJEVisClassName().equals(USER_CLASS_NAME)) {
-                        name = I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("could not get JEVisClassName", e);
-            }
-
-            if (!name.equals("")) {
-                nameList.add(name);
-            }
-        }
-
-        getItems().addAll(nameList);
-    }
-
-
-    public ObservableList<JEVisObject> getObservableListAnalyses() {
-        if (analyses.isEmpty()) updateListAnalyses();
-        return analyses;
     }
 
     public void updateListAnalyses() {
@@ -133,7 +125,7 @@ public class AnalysesComboBox extends MFXComboBox<String> {
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
         multiDir = null;
         multiSite = null;
-        JEVisObject selectedAnalysis = selectedAnalysisProperty().get();
+        JEVisObject selectedAnalysis = getSelectionModel().getSelectedItem();
 
         try {
             JEVisClass analysesDirectory = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
@@ -203,17 +195,17 @@ public class AnalysesComboBox extends MFXComboBox<String> {
             logger.error("Error while checking temp analysis attribute", e);
         }
 
-        getAnalyses().clear();
-        getAnalyses().addAll(analysisObjects);
+        getItems().clear();
+        getItems().addAll(analysisObjects);
 
         logger.debug("Updated analyses in {}", new Period(new DateTime().getMillis() - updateStart.getMillis()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
         logger.debug("selecting old Analysis...");
         updateStart = new DateTime();
 
         if (selectedAnalysis != null) {
-            int selectedIndex = analyses.indexOf(selectedAnalysis);
+            int selectedIndex = getItems().indexOf(selectedAnalysis);
 
-            if (selectedIndex > -1 && analyses.size() > selectedIndex) {
+            if (selectedIndex > -1 && getItems().size() > selectedIndex) {
                 getSelectionModel().selectIndex(selectedIndex);
             }
         }
@@ -221,27 +213,4 @@ public class AnalysesComboBox extends MFXComboBox<String> {
         logger.debug("Selected old analysis in {}", new Period(new DateTime().getMillis() - updateStart.getMillis()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
     }
 
-    public ObservableList<JEVisObject> getAnalyses() {
-        return analyses.get();
-    }
-
-    public void setAnalyses(ObservableList<JEVisObject> analyses) {
-        this.analyses.set(analyses);
-    }
-
-    public SimpleListProperty<JEVisObject> analysesProperty() {
-        return analyses;
-    }
-
-    public JEVisObject getSelectedAnalysis() {
-        return selectedAnalysis.get();
-    }
-
-    public void setSelectedAnalysis(JEVisObject selectedAnalysis) {
-        this.selectedAnalysis.set(selectedAnalysis);
-    }
-
-    public SimpleObjectProperty<JEVisObject> selectedAnalysisProperty() {
-        return selectedAnalysis;
-    }
 }

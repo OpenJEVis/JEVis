@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.legal.ui;
 
-import com.jfoenix.controls.JFXButton;
+import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
@@ -61,7 +61,7 @@ public class TreeSelectionDialog extends Dialog {
     private final MFXTextField filterTextField = new MFXTextField();
     public ButtonType buttonOK = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.APPLY);
     public ButtonType buttonCancel = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-    private Response response = Response.CANCEL;
+    private final Response response = Response.CANCEL;
 
     public TreeSelectionDialog(JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode, List<UserSelection> selection, boolean showAttributes) {
         super();
@@ -137,7 +137,7 @@ public class TreeSelectionDialog extends Dialog {
 
         updateFilter(classFilter);
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
+        MFXButton ok = new MFXButton(I18n.getInstance().getString("graph.dialog.ok"));
         ok.setOnAction(event -> {
             try {
 
@@ -171,7 +171,7 @@ public class TreeSelectionDialog extends Dialog {
             }
         });
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
+        MFXButton cancel = new MFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
         cancel.setOnAction(event ->
         {
             this.setResult(buttonCancel);

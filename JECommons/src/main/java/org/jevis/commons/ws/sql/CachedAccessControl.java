@@ -2,6 +2,7 @@ package org.jevis.commons.ws.sql;
 
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisException;
 import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
@@ -19,17 +20,44 @@ public class CachedAccessControl {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CachedAccessControl.class);
     private static CachedAccessControl fastUserManager = null;
+    private final Map<Long, List<JsonRelationship>> groupMemberships = new ConcurrentHashMap();
+    private final AtomicBoolean needUpdate = new AtomicBoolean(false);
     private Map<String, JEVisUserNew> users;
-    private Map<Long, List<JsonRelationship>> groupMemberships = new ConcurrentHashMap();
-    private AtomicBoolean needUpdate = new AtomicBoolean(false);
     //private SQLDataSource dataSource;
-
-    public enum Change {
-        ADD, DELETE, CHANGE
-    }
 
     public CachedAccessControl() throws Exception {
         //this.dataSource = dataSource;
+    }
+
+    /*
+        public static CachedAccessControl getInstance(SQLDataSource dataSource) throws Exception {
+            if (fastUserManager != null) {
+                return fastUserManager;
+            } else {
+                fastUserManager = new CachedAccessControl(dataSource);
+                fastUserManager.updateCache();
+                return fastUserManager;
+            }
+
+
+        }
+
+     */
+    public static CachedAccessControl getInstance(SQLDataSource ds) throws Exception {
+        if (fastUserManager != null) {
+            if (fastUserManager.needUpdate()) fastUserManager.updateCache(ds);
+            return fastUserManager;
+        } else {
+            fastUserManager = new CachedAccessControl();
+            fastUserManager.updateCache(ds);
+            return fastUserManager;
+        }
+
+
+    }
+
+    public synchronized void updateUser(SQLDataSource dataSource) throws JEVisException {
+        users = dataSource.getLoginTable().getAllUser();
     }
 
     public synchronized void updateCache(SQLDataSource dataSource) throws Exception {
@@ -162,30 +190,7 @@ public class CachedAccessControl {
         return needUpdate.get();
     }
 
-    /*
-        public static CachedAccessControl getInstance(SQLDataSource dataSource) throws Exception {
-            if (fastUserManager != null) {
-                return fastUserManager;
-            } else {
-                fastUserManager = new CachedAccessControl(dataSource);
-                fastUserManager.updateCache();
-                return fastUserManager;
-            }
-
-
-        }
-
-     */
-    public static CachedAccessControl getInstance(SQLDataSource ds) throws Exception {
-        if (fastUserManager != null) {
-            if (fastUserManager.needUpdate()) fastUserManager.updateCache(ds);
-            return fastUserManager;
-        } else {
-            fastUserManager = new CachedAccessControl();
-            fastUserManager.updateCache(ds);
-            return fastUserManager;
-        }
-
-
+    public enum Change {
+        ADD, DELETE, CHANGE
     }
 }

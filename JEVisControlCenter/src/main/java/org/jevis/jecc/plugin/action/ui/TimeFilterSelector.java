@@ -25,13 +25,13 @@ import static org.jevis.jecc.plugin.action.ui.DateFilter.DateField.*;
 public class TimeFilterSelector extends GridPane {
 
     private static final Logger logger = LogManager.getLogger(TimeFilterSelector.class);
+    private final SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
     //TODo locale name from Column
     MFXComboBox<DateFilter.DateField> fDateField = new MFXComboBox<>(FXCollections.observableArrayList(ALL, UMSETZUNG, ABGESCHLOSSEN, ERSTELLT));
     MFXComboBox<Month> fFromMonth = generateMonthBox();
     MFXComboBox<Month> fToMonth = generateMonthBox();
     MFXComboBox<Integer> fFromYear = generateYearBox();
     MFXComboBox<Integer> fToYear = generateYearBox();
-    private SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
 
 
     public TimeFilterSelector(ActionPlanData actionPlan) {
@@ -40,15 +40,10 @@ public class TimeFilterSelector extends GridPane {
         setHgap(8);
         setVgap(8);
 
-        Label lFrom = new Label("Start Datum");
-        Label lTo = new Label("End Datum");
-        Label lDatum = new Label("Zeitbereich");
-
-
         initValues(actionPlan);
         ActionData fakeNames = new ActionData();
 
-        //TODO JFX71
+        //TODO JFX17
 
         fDateField.setFloatMode(FloatMode.DISABLED);
         fDateField.setConverter(new StringConverter<DateFilter.DateField>() {
@@ -139,6 +134,7 @@ public class TimeFilterSelector extends GridPane {
             }
         }
 
+        /*
         if (minDate != null) {
             fFromMonth.setValue(Month.of(minDate.getMonthOfYear()));
             fFromYear.setValue(minDate.getYear());
@@ -152,6 +148,11 @@ public class TimeFilterSelector extends GridPane {
             fToMonth.setValue(Month.of(12));
             fToYear.setValue(2024);
         }
+         */
+        fFromMonth.setValue(Month.of(1));
+        fToMonth.setValue(Month.of(12));
+        fFromYear.getSelectionModel().selectFirst();
+        fToYear.getSelectionModel().selectLast();
 
 
     }
@@ -223,14 +224,12 @@ public class TimeFilterSelector extends GridPane {
     private MFXComboBox<Integer> generateYearBox() {
 
         ObservableList<Integer> years = FXCollections.observableArrayList();
-        years.add(2018);
-        years.add(2019);
-        years.add(2020);
-        years.add(2021);
-        years.add(2022);
-        years.add(2023);
-        years.add(2024);
-
+        int year = 2010; //ISO5001 started 2010
+        DateTime now = DateTime.now();
+        while (year <= (now.getYear() + 10)) {
+            years.add(year);
+            year++;
+        }
         MFXComboBox<Integer> field = new MFXComboBox(years);
         field.setConverter(new StringConverter<Integer>() {
             @Override
@@ -243,6 +242,7 @@ public class TimeFilterSelector extends GridPane {
                 return Integer.valueOf(string);
             }
         });
+
 
         return field;
     }

@@ -19,11 +19,17 @@
  */
 package org.jevis.emaildatasource;
 
-import jakarta.mail.*;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
 import org.apache.logging.log4j.LogManager;
+import org.eclipse.angus.mail.pop3.POP3Folder;
+import org.eclipse.angus.mail.pop3.POP3SSLStore;
+import org.eclipse.angus.mail.pop3.POP3Store;
 
 
 /**
+ *
  * @author bi
  */
 public class POP3Connection implements EMailConnection {
@@ -31,20 +37,18 @@ public class POP3Connection implements EMailConnection {
 
     private static final String DEFAULT_FOLDER = "Inbox";
     private Store _store;
-    private Folder _folder;
-    private Store _sslStore;
+    private POP3Folder _folder;
+    private POP3SSLStore _sslStore;
     private String _foldName;
 
     @Override
     public void setConnection(Session session, EMailServerParameters param) {
 
-        //TODO JFX17
-        _store = _folder.getStore();
-//        if (param.isSsl()) {
-//            _store = new POP3SSLStore(session, null);
-//        } else {
-//            _store = new POP3Store(session, null);
-//        }
+        if (param.isSsl()) {
+            _store = new POP3SSLStore(session, null);
+        } else {
+            _store = new POP3Store(session, null);
+        }
 
         try {
             _store.connect(param.getHost(), param.getUserEMail(), param.getPassword());
@@ -55,12 +59,12 @@ public class POP3Connection implements EMailConnection {
     }
 
     @Override
-    public Folder getFolder() {
+    public POP3Folder getFolder() {
         try {
             if (!_store.isConnected()) {
                 logger.error("Connected not possible");
             }
-            _folder = _store.getFolder(new URLName(DEFAULT_FOLDER));
+            _folder = (POP3Folder) _store.getFolder(DEFAULT_FOLDER);
         } catch (MessagingException ex) {
             logger.error("Unable to open the inbox folder", ex);
         }

@@ -7,9 +7,9 @@ import org.joda.time.DateTime;
 public class TableFilter {
 
 
-    private ObservableList<String> status = FXCollections.observableArrayList();
-    private ObservableList<String> medium = FXCollections.observableArrayList();
-    private ObservableList<String> field = FXCollections.observableArrayList();
+    private final ObservableList<String> status = FXCollections.observableArrayList();
+    private final ObservableList<String> medium = FXCollections.observableArrayList();
+    private final ObservableList<String> field = FXCollections.observableArrayList();
     private DATE_COMPARE plannedDateComp = DATE_COMPARE.EQUALS;
     private String plannedDateFilter = "";
 
@@ -19,13 +19,8 @@ public class TableFilter {
         if (!plannedDateFilter.isEmpty()) {
             DateTime now = new DateTime();
             if (plannedDateComp == DATE_COMPARE.EQUALS) {
-                System.out.println("Is bigger than");
-                boolean isBigger = false;
+                boolean isBigger = (data.deadLineProperty().get().getYear() + "").contains(plannedDateFilter);
 
-
-                if ((data.deadLineProperty().get().getYear() + "").contains(plannedDateFilter)) {
-                    isBigger = true;
-                }
 
                 if ((data.deadLineProperty().get().getMonthOfYear() + "").contains(plannedDateFilter)) {
                     isBigger = true;
@@ -40,7 +35,6 @@ public class TableFilter {
                 }
             }
         }
-        System.out.println("Filter: " + isOneTrue);
 
         return isOneTrue;
     }
@@ -53,7 +47,7 @@ public class TableFilter {
         this.plannedDateFilter = plannedDateFilter;
     }
 
-    public static enum DATE_COMPARE {
+    public enum DATE_COMPARE {
         BIGGER_THAN, SMALLER_THAN, EQUALS
     }
 

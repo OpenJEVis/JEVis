@@ -1,6 +1,6 @@
 package org.jevis.jecc.tool;
 
-import com.jfoenix.controls.JFXToggleButton;
+import io.github.palexdev.materialfx.controls.MFXToggleButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.HPos;
 import javafx.scene.control.Label;
@@ -16,7 +16,7 @@ public class ToggleSwitchPlus extends GridPane {
     private final String labelOn = I18n.getInstance().getString("extension.calc.button.toggle.activate");
     private final String labelOff = I18n.getInstance().getString("extension.calc.button.toggle.deactivate");
     private final Label buttonLabel = new Label();
-    private final JFXToggleButton button = new JFXToggleButton();
+    private final MFXToggleButton button = new MFXToggleButton();
 
     public ToggleSwitchPlus() {
         super();

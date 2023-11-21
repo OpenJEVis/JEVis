@@ -1,11 +1,12 @@
 package org.jevis.datacollector.sqldriver;
 
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import com.google.common.collect.Iterables;
+import org.jevis.api.*;
+import org.jevis.commons.DatabaseHelper;
+import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSource;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -13,6 +14,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -21,6 +23,9 @@ public class SQLDriver implements DataSource {
     private Parameters parameters;
     private JEVisAttribute statusAttribute = null;
     private JEVisAttribute lastReadoutAttribute = null;
+    private DateTimeZone timeZone = DateTimeZone.getDefault();
+    private boolean overwrite = false;
+
 
     private JEVisObject sqlServerObj;
 
@@ -58,16 +63,19 @@ public class SQLDriver implements DataSource {
                         while (rs.next()) {
                             try {
                                 DateTime dateTime = null;
+                                String note = "";
 
                                 if (requestParameters.timeStampFormate().toUpperCase().startsWith("STRING")) {
-                                    //TODO: Test and make more save
+                                    //TODO: untested
                                     if (fmt == null) {
                                         fmt = DateTimeFormat.forPattern(requestParameters.timeStampFormate().substring(7));
                                     }
                                     dateTime = fmt.parseDateTime(requestParameters.timeStampColumn());
                                 } else if (requestParameters.timeStampFormate().equalsIgnoreCase("TIMESTAMP")) {
-                                    Timestamp ts = rs.getTimestamp(requestParameters.timeStampColumn());
-                                    dateTime = new DateTime(ts.getTime());
+                                    java.time.LocalDateTime dt = rs.getObject(requestParameters.timeStampColumn(), java.time.LocalDateTime.class);
+                                    dateTime = new DateTime(dt.getYear(), dt.getMonthValue(), dt.getDayOfMonth(),
+                                            dt.getHour(), dt.getMinute(), dt.getSecond(), timeZone);
+
                                 }
 
                                 Double value = null;
@@ -88,7 +96,7 @@ public class SQLDriver implements DataSource {
                                 }
 
 
-                                String note = "";
+                                //String note = "";
                                 if (!requestParameters.noteColumn().isEmpty()) {
                                     note = rs.getString(requestParameters.noteColumn());
                                 }
@@ -105,8 +113,29 @@ public class SQLDriver implements DataSource {
                                 logStatus(5, new DateTime(), "SQL Error: " + ex);
                             }
                         }
+
+                        Collections.sort(resultSamples, (o1, o2) -> {
+                            try {
+                                return o1.getTimestamp().compareTo(o2.getTimestamp());
+                            } catch (Exception ex) {
+                                return 0;
+                            }
+                        });
                         logger.info("Importing {} sample for {}:{}:{}", resultSamples.size(), sqlServerObj.getID(), sqlServerObj.getName(), requestParameters.getTarget().getObjectID());
-                        requestParameters.getTarget().addSamples(resultSamples);
+                        if (!resultSamples.isEmpty()) {
+                            if (overwrite) {
+                                logger.info("Overwrite is enabled, delete samples in between: {}-{}",
+                                        Iterables.getFirst(resultSamples, null).getTimestamp(),
+                                        Iterables.getLast(resultSamples, null).getTimestamp());
+                                requestParameters.getTarget().deleteSamplesBetween(
+                                        Iterables.getFirst(resultSamples, null).getTimestamp(),
+                                        Iterables.getLast(resultSamples, null).getTimestamp());
+                            }
+
+                            requestParameters.getTarget().addSamples(resultSamples);
+                        }
+
+
                         if (resultSamples.size() > 0) {
                             requestParameters.logStatus(0, new DateTime(), "Import " + resultSamples.size() + " Samples");
                             requestParameters.updateLastReadout();
@@ -150,6 +179,9 @@ public class SQLDriver implements DataSource {
 
             lastReadoutAttribute = sqlServerObj.getAttribute("Last Readout");
             statusAttribute = sqlServerObj.getAttribute("Status Log");
+            timeZone = getTimeZone(dataSourceJEVis);
+            JEVisType overwriteType = dataSourceJEVis.getJEVisClass().getType(DataCollectorTypes.DataSource.DataServer.OVERWRITE);
+            overwrite = DatabaseHelper.getObjectAsBoolean(dataSourceJEVis, overwriteType);
 
             logStatus(0, new DateTime(), "Start Readout");
 

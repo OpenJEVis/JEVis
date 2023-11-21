@@ -18,8 +18,6 @@ import static org.jevis.jecc.plugin.dashboard.config2.JsonNames.Widget.*;
  */
 public class WidgetPojo {
 
-    private static final Logger logger = LogManager.getLogger(WidgetPojo.class);
-    private final JsonNode jsonNode;
     private BorderWidths borderSize = new BorderWidths(0.2);
     private Color fontColor = Color.BLACK;
     private Color fontColorSecondary = Color.WHITESMOKE;
@@ -40,7 +38,11 @@ public class WidgetPojo {
     private String type = "";
     private Integer layer = 1;
     private boolean showValue = true;
+    private static final Logger logger = LogManager.getLogger(WidgetPojo.class);
+
     private JsonNode dataHandlerJson;
+    private final JsonNode jsonNode;
+    private boolean fixedTimeframe = false;
     private int uuid = 0;
 
     public WidgetPojo() {
@@ -84,9 +86,9 @@ public class WidgetPojo {
                  * Fallback, existing dashboards have only left,right,center
                  * but the POJO expects an Pos with center_right and so on.
                  **/
-                if (jsonNode.get(TITLE_POSITION).asText().toLowerCase().equals("left")) {
+                if (jsonNode.get(TITLE_POSITION).asText().equalsIgnoreCase("left")) {
                     this.titlePosition = Pos.CENTER_LEFT;
-                } else if (jsonNode.get(TITLE_POSITION).asText().toLowerCase().equals("right")) {
+                } else if (jsonNode.get(TITLE_POSITION).asText().equalsIgnoreCase("right")) {
                     this.titlePosition = Pos.CENTER_RIGHT;
                 } else {
                     //correct implementation
@@ -184,6 +186,11 @@ public class WidgetPojo {
                 logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
             }
 
+            try {
+                this.fixedTimeframe = jsonNode.get(FIXED_TIMEFRAME).asBoolean(false);
+            } catch (Exception ex) {
+                logger.debug("Could not parse fixed timeframe: {}", BORDER_SIZE, ex.getMessage());
+            }
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
                 this.dataHandlerJson = jsonNode.get(DATA_HANDLER_NODE);
@@ -244,12 +251,12 @@ public class WidgetPojo {
         return this.title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getTooltip() {
         return this.tooltip;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public void setTooltip(String tooltip) {
@@ -370,6 +377,14 @@ public class WidgetPojo {
         this.layer = layer;
     }
 
+    public boolean isFixedTimeframe() {
+        return fixedTimeframe;
+    }
+
+    public void setFixedTimeframe(boolean fixedTimeframe) {
+        this.fixedTimeframe = fixedTimeframe;
+    }
+
     public WidgetPojo copy() {
 
         WidgetPojo copy = new WidgetPojo();
@@ -392,6 +407,7 @@ public class WidgetPojo {
         copy.setType(this.getType());
         copy.setyPosition(this.getyPosition());
         copy.setLayer(this.getLayer());
+        copy.setFixedTimeframe(this.isFixedTimeframe());
 
         return copy;
     }

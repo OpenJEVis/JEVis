@@ -1,6 +1,7 @@
 package org.jevis.jecc.plugin.dashboard.config;
 
 import javafx.scene.paint.Color;
+import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jecc.application.Chart.ChartType;
@@ -18,6 +19,8 @@ public class DataPointNode {
     private String unit;
     private String name;
     private Integer axis = 0;
+    private Integer decimalDigits = -1;
+    private BubbleType bubbleType = BubbleType.NONE;
     private String customCSS;
     private boolean enpi = false;
     private Long calculationID;
@@ -38,20 +41,10 @@ public class DataPointNode {
         this.name = name;
     }
 
-    /**
-     * @return
-     * @deprecated the CalculationID field should be enough and It's not only for EnPI
-     */
-    @Deprecated
     public boolean isEnpi() {
         return this.enpi;
     }
 
-    /**
-     * @return
-     * @deprecated the CalculationID field should be enough and It's not only for EnPI
-     */
-    @Deprecated
     public void setEnpi(boolean enpi) {
         this.enpi = enpi;
     }
@@ -62,7 +55,6 @@ public class DataPointNode {
 
     public void setCalculationID(Long calculationID) {
         this.calculationID = calculationID;
-        this.setEnpi(calculationID != null && calculationID > 0l);
 
     }
 
@@ -142,6 +134,22 @@ public class DataPointNode {
         this.axis = axis;
     }
 
+    public Integer getDecimalDigits() {
+        return decimalDigits;
+    }
+
+    public void setDecimalDigits(Integer decimalDigits) {
+        this.decimalDigits = decimalDigits;
+    }
+
+    public BubbleType getBubbleType() {
+        return bubbleType;
+    }
+
+    public void setBubbleType(BubbleType bubbleType) {
+        this.bubbleType = bubbleType;
+    }
+
     public String getCustomCSS() {
         return customCSS;
     }
@@ -166,6 +174,8 @@ public class DataPointNode {
                 ", unit=" + this.unit +
                 ", calculationID=" + this.calculationID +
                 ", axis=" + this.axis +
+                ", decimalDigits=" + this.decimalDigits +
+                ", bubbleType=" + this.bubbleType +
                 ", customCSS=" + this.customCSS +
                 '}';
     }

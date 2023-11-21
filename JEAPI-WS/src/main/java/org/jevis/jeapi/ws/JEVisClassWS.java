@@ -230,7 +230,9 @@ public class JEVisClassWS implements JEVisClass {
         for (JEVisClassRelationship cr : getRelationships(JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.BACKWARD)) {
             try {
                 heirs.add(cr.getStart());
-                heirs.addAll(cr.getStart().getHeirs());
+                if (cr.getStart().getHeirs() != null) {
+                    heirs.addAll(cr.getStart().getHeirs());
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -484,8 +486,7 @@ public class JEVisClassWS implements JEVisClass {
              * cast needs to be removed
              */
 
-            if (o instanceof JEVisClass) {
-                JEVisClass obj = (JEVisClass) o;
+            if (o instanceof JEVisClass obj) {
                 if (obj.getName().equals(getName())) {
                     return true;
                 }

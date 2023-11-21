@@ -12,6 +12,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Region;
@@ -37,15 +38,17 @@ import org.jevis.jecc.application.Chart.ChartType;
 import org.jevis.jecc.application.Chart.Charts.Chart;
 import org.jevis.jecc.application.Chart.data.ChartModel;
 import org.jevis.jecc.application.Chart.data.DataModel;
+import org.jevis.jecc.application.control.RegressionBox;
 import org.jevis.jecc.application.tools.JEVisHelp;
 import org.jevis.jecc.dialog.LoadAnalysisDialog;
 import org.jevis.jecc.dialog.Response;
 import org.jevis.jecc.dialog.SaveAnalysisDialog;
-import org.jevis.jecc.tool.dwdbrowser.DWDBrowser;
+import org.jevis.jecc.tool.NumberSpinner;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -95,9 +98,11 @@ public class ToolBarView {
     private ToggleButton showRawData;
 
     private MenuButton mathOperation;
-    private CheckMenuItem showSum;
-    private CheckMenuItem showL1L2;
-    private CheckMenuItem calcRegression;
+    private MenuItem showSum;
+    private MenuItem showL1L2;
+    private MenuItem calcRegression;
+    private MenuItem polyDegree;
+    private MenuItem regressionType;
     private MenuItem calcFullLoadHours;
     private MenuItem calcHoursAboveBelow;
     private MenuItem calcSumAboveBelow;
@@ -151,7 +156,7 @@ public class ToolBarView {
 
     private void loadNewDialog() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin, ds, analysesComboBox.getObservableListAnalyses());
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(chartPlugin, ds, analysesComboBox.getItems());
 
         dialog.setOnCloseRequest(event -> {
             JEVisHelp.getInstance().deactivatePluginModule();
@@ -203,10 +208,6 @@ public class ToolBarView {
 
             removeAnalysisComboBoxListener();
 
-            if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
-                analysesComboBox.setSelectedAnalysis(chartPlugin.getDataSettings().getCurrentAnalysis());
-            }
-
             if (!analysesComboBox.getItems().isEmpty()) {
                 dateHelper.setWorkDays(chartPlugin.getWorkDays());
             }
@@ -240,14 +241,14 @@ public class ToolBarView {
                     sep4);
 
             if (isRegressionPossible) {
-                mathOperation.getItems().add(calcRegression);
+                Separator regressionSeparator = new Separator(Orientation.HORIZONTAL);
+                mathOperation.getItems().addAll(regressionType, polyDegree, calcRegression, new MenuItem("", regressionSeparator));
             }
 
             //Math buttons now always on
             mathOperation.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad, calcValues);
 
             if (!ControlCenter.getExpert()) {
-
                 mathOperation.getItems().addAll(showL1L2, showSum);
                 toolBar.getItems().addAll(mathOperation, disableIcons, autoResize, runUpdateButton);
             } else {
@@ -262,33 +263,7 @@ public class ToolBarView {
             addAnalysisComboBoxListener();
             setDisableToolBarIcons(disabledIcons.get());
         });
-    }    private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
-        if ((oldValue == null) || (Objects.nonNull(newValue))) {
-
-            if (changed) {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setResizable(true);
-                Label text = new Label(I18n.getInstance().getString("plugin.graph.dialog.changed.text"));
-                text.setWrapText(true);
-                alert.getDialogPane().setContent(text);
-
-                alert.showAndWait().ifPresent(buttonType -> {
-                    if (buttonType.equals(ButtonType.OK)) {
-                        changed = false;
-
-                        SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(getDs(), chartPlugin.getDataSettings(), chartPlugin, this);
-                        saveAnalysisDialog.setOnCloseRequest(DialogEvent -> changeAnalysis(newValue));
-
-                        saveAnalysisDialog.show();
-                    } else {
-                        changeAnalysis(newValue);
-                    }
-                });
-            } else {
-                changeAnalysis(newValue);
-            }
-        }
-    };
+    }
 
     public ToolBar getToolbar() {
         if (toolBar == null) {
@@ -302,11 +277,11 @@ public class ToolBarView {
     }
 
     public void addAnalysisComboBoxListener() {
-        analysesComboBox.selectedAnalysisProperty().addListener(analysisComboBoxChangeListener);
+        analysesComboBox.getSelectionModel().selectedItemProperty().addListener(analysisComboBoxChangeListener);
     }
 
     public void removeAnalysisComboBoxListener() {
-        analysesComboBox.selectedAnalysisProperty().removeListener(analysisComboBoxChangeListener);
+        analysesComboBox.getSelectionModel().selectedItemProperty().removeListener(analysisComboBoxChangeListener);
     }
 
     private void createToolbarIcons() {
@@ -414,24 +389,31 @@ public class ToolBarView {
         mathOperation = new MenuButton("", ControlCenter.getSVGImage(Icon.SUM, iconSize, iconSize));
         mathOperation.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.mathoperation")));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(mathOperation);
-        showSum = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
-        showSum.selectedProperty().bindBidirectional(toolBarSettings.showSumProperty());
+        showSum = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
 
-        showL1L2 = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
-        showL1L2.selectedProperty().bindBidirectional(toolBarSettings.showL1L2Property());
+        showL1L2 = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
 
-        calcRegression = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
-        calcRegression.selectedProperty().bindBidirectional(toolBarSettings.calculateRegressionProperty());
+        NumberSpinner numberSpinner = new NumberSpinner(new BigDecimal(2), new BigDecimal(1));
+        polyDegree = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.regression.type"), numberSpinner);
+        RegressionBox regressionBox = new RegressionBox();
+        regressionType = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.regression.type"), regressionBox);
+        calcRegression = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
 
-        calcFullLoadHours = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcfullloadhours"));
+        numberSpinner.setMin(new BigDecimal(1));
+        numberSpinner.setMax(new BigDecimal(12));
 
-        calcHoursAboveBelow = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calchoursabovebelow"));
+        numberSpinner.numberProperty().addListener((observableValue, bigDecimal, t1) -> toolBarSettings.setPolyRegressionDegree(t1.toBigInteger().intValue()));
+        regressionBox.getSelectionModel().selectedItemProperty().addListener((observableValue, regressionType, t1) -> toolBarSettings.setRegressionType(t1));
 
-        calcSumAboveBelow = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcsumabovebelow"));
+        calcFullLoadHours = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcfullloadhours"));
 
-        calcBaseLoad = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcbaseloadhours"));
+        calcHoursAboveBelow = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calchoursabovebelow"));
 
-        calcValues = new CheckMenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcvalues"));
+        calcSumAboveBelow = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcsumabovebelow"));
+
+        calcBaseLoad = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcbaseloadhours"));
+
+        calcValues = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcvalues"));
 
         customWorkDay = new ToggleButton("", ControlCenter.getSVGImage(Icon.CALENDAR, iconSize, iconSize));
         Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
@@ -473,9 +455,9 @@ public class ToolBarView {
         testButton = new ToggleButton("X");
         testButton.setOnAction(actionEvent -> {
             try {
-                DWDBrowser dwdBrowser = new DWDBrowser(ds, null);
-                dwdBrowser.show();
-
+//                DWDBrowser dwdBrowser = new DWDBrowser(chartPlugin.getDialogContainer(), ds);
+//                dwdBrowser.show();
+//
 
             } catch (Exception e) {
                 logger.error("Error while testing", e);
@@ -500,8 +482,7 @@ public class ToolBarView {
             Chart chart = entry.getValue();
             if (chart.getChart() != null) {
                 for (de.gsi.chart.plugins.ChartPlugin chartPlugin : chart.getChart().getPlugins()) {
-                    if (chartPlugin instanceof MultiChartZoomer) {
-                        MultiChartZoomer multiChartZoomer = (MultiChartZoomer) chartPlugin;
+                    if (chartPlugin instanceof MultiChartZoomer multiChartZoomer) {
                         multiChartZoomer.setFollowUpZoom(false);
                         Platform.runLater(multiChartZoomer::zoomOrigin);
                         break;
@@ -510,48 +491,6 @@ public class ToolBarView {
                 break;
             }
         }
-    }
-
-    public AnalysesComboBox getAnalysesComboBox() {
-        return analysesComboBox;
-    }
-
-    public void select(JEVisObject obj) {
-        getAnalysesComboBox().setSelectedAnalysis(obj);
-    }
-
-    public void setDisableToolBarIcons(boolean bool) {
-        disabledIcons.set(bool);
-
-        analysesComboBox.setDisable(bool);
-        save.setDisable(bool);
-        loadNew.setDisable(bool);
-        exportCSV.setDisable(bool);
-        exportImage.setDisable(bool);
-        exportPDF.setDisable(bool);
-        printButton.setDisable(bool);
-        reload.setDisable(bool);
-        runUpdateButton.setDisable(bool);
-        delete.setDisable(bool);
-        autoResize.setDisable(bool);
-        select2.setDisable(bool);
-        showRawData.setDisable(bool);
-        showSum.setDisable(bool);
-        showL1L2.setDisable(bool);
-        calcRegression.setDisable(bool);
-        calcFullLoadHours.setDisable(bool);
-        calcHoursAboveBelow.setDisable(bool);
-        calcSumAboveBelow.setDisable(bool);
-        calcBaseLoad.setDisable(bool);
-        calcValues.setDisable(bool);
-        customWorkDay.setDisable(bool);
-        disableIcons.setDisable(bool);
-        zoomOut.setDisable(bool);
-        presetDateBox.setDisable(bool);
-        pickerDateStart.setDisable(bool);
-        pickerDateEnd.setDisable(bool);
-        pickerTimeStart.setDisable(bool);
-        pickerTimeEnd.setDisable(bool);
     }
 
     private void startToolbarIconListener() {
@@ -641,11 +580,20 @@ public class ToolBarView {
 
         showRawData.setOnAction(event -> chartPlugin.update());
 
-        showSum.setOnAction(event -> chartPlugin.update());
+        showSum.setOnAction(event -> {
+            toolBarSettings.setShowSum(!toolBarSettings.isShowSum());
+            chartPlugin.update();
+        });
 
-        showL1L2.setOnAction(event -> chartPlugin.update());
+        showL1L2.setOnAction(event -> {
+            toolBarSettings.setShowL1L2(!toolBarSettings.isShowL1L2());
+            chartPlugin.update();
+        });
 
-        calcRegression.setOnAction(event -> chartPlugin.update());
+        calcRegression.setOnAction(event -> {
+            toolBarSettings.setCalculateRegression(!toolBarSettings.isCalculateRegression());
+            chartPlugin.update();
+        });
 
         calcFullLoadHours.setOnAction(event -> toolBarFunctions.calcFullLoadHours());
 
@@ -664,6 +612,78 @@ public class ToolBarView {
         autoResize.setOnAction(event -> chartPlugin.update());
 
     }
+
+    public AnalysesComboBox getAnalysesComboBox() {
+        return analysesComboBox;
+    }    private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
+        if ((oldValue == null) || (Objects.nonNull(newValue))) {
+
+            if (changed) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setResizable(true);
+                Label text = new Label(I18n.getInstance().getString("plugin.graph.dialog.changed.text"));
+                text.setWrapText(true);
+                alert.getDialogPane().setContent(text);
+
+                alert.showAndWait().ifPresent(buttonType -> {
+                    if (buttonType.equals(ButtonType.OK)) {
+                        changed = false;
+
+                        SaveAnalysisDialog saveAnalysisDialog = new SaveAnalysisDialog(getDs(), chartPlugin.getDataSettings(), chartPlugin, this);
+                        saveAnalysisDialog.setOnCloseRequest(DialogEvent -> changeAnalysis(newValue));
+
+                        saveAnalysisDialog.show();
+                    } else {
+                        changeAnalysis(newValue);
+                    }
+                });
+            } else {
+                changeAnalysis(newValue);
+            }
+        }
+    };
+
+    public void select(JEVisObject obj) {
+        getAnalysesComboBox().selectItem(obj);
+    }
+
+    public void setDisableToolBarIcons(boolean bool) {
+        disabledIcons.set(bool);
+
+        analysesComboBox.setDisable(bool);
+        save.setDisable(bool);
+        loadNew.setDisable(bool);
+        exportCSV.setDisable(bool);
+        exportImage.setDisable(bool);
+        exportPDF.setDisable(bool);
+        printButton.setDisable(bool);
+        reload.setDisable(bool);
+        runUpdateButton.setDisable(bool);
+        delete.setDisable(bool);
+        autoResize.setDisable(bool);
+        select2.setDisable(bool);
+        showRawData.setDisable(bool);
+        showSum.setDisable(bool);
+        showL1L2.setDisable(bool);
+        calcRegression.setDisable(bool);
+        calcFullLoadHours.setDisable(bool);
+        calcHoursAboveBelow.setDisable(bool);
+        calcSumAboveBelow.setDisable(bool);
+        calcBaseLoad.setDisable(bool);
+        calcValues.setDisable(bool);
+        customWorkDay.setDisable(bool);
+        disableIcons.setDisable(bool);
+        zoomOut.setDisable(bool);
+        presetDateBox.setDisable(bool);
+        pickerDateStart.setDisable(bool);
+        pickerDateEnd.setDisable(bool);
+        pickerTimeStart.setDisable(bool);
+        pickerTimeEnd.setDisable(bool);
+    }
+
+
+
+
 
     public PickerCombo getPickerCombo() {
         return pickerCombo;

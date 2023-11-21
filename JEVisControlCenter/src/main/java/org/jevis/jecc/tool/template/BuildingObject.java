@@ -13,7 +13,10 @@ import org.joda.time.DateTimeZone;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import static java.util.Locale.GERMANY;
 
 public class BuildingObject extends Template {
     private final SimpleBooleanProperty withNoEntryPointGroups = new SimpleBooleanProperty(this, "withNoEntryPointGroups", false);
@@ -95,7 +98,22 @@ public class BuildingObject extends Template {
         JEVisObject userRoleDirectory = buildTranslatedObject(administrationDirectory, "Roles", userRoleDirectoryClass,
                 "Benutzerrollen", "ролі користувачів", "роли пользователей", "บทบาทของผู้ใช้", "أدوار المستخدمين");
 
-        JEVisObject buildingGroup = buildTranslatedObject(groupDirectory, name, group, "", "", "", "", "");
+        JEVisObject buildingGroup = null;
+        Locale locale = I18n.getInstance().getLocale();
+
+        if (locale.equals(GERMANY)) {
+            buildingGroup = buildTranslatedObject(groupDirectory, "", group, name, "", "", "", "");
+        } else if (locale.getLanguage().equals("ru")) {
+            buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", "", name, "", "");
+        } else if (locale.getLanguage().equals("th")) {
+            buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", "", "", name, "");
+        } else if (locale.getLanguage().equals("uk")) {
+            buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", name, "", "", "");
+        } else if (locale.getLanguage().equals("ar")) {
+            buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", "", "", "", name);
+        } else {
+            buildingGroup = buildTranslatedObject(groupDirectory, name, group, "", "", "", "", "");
+        }
         ds.buildRelationship(jscUser.getID(), buildingGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
 
         buildGroupsWithEntryPoints(ds, groupDirectoryClass, group, groupDirectory, buildingObject, jscUser, name);
@@ -105,8 +123,8 @@ public class BuildingObject extends Template {
         }
 
         JEVisObject pluginsDirectory = buildTranslatedObject(groupDirectory, "Plugins", groupDirectoryClass,
-                "Plugins", "плагіни", "плагины", "ปลั๊กอิน", "الإضافات");
-        String[] dashboardNames = new String[]{"Plugin", "Plugin", "підключати", "плагин", "เสียบเข้าไป", "توصيل في"};
+                "Module", "плагіни", "плагины", "ปลั๊กอิน", "الإضافات");
+        String[] dashboardNames = new String[]{"Plugin", "Modul", "підключати", "плагин", "เสียบเข้าไป", "توصيل في"};
         JEVisObject dashboardPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Dashboard " + dashboardNames[0], group,
                 name + " Dashboard " + dashboardNames[1], name + " Панель приладів " + dashboardNames[2],
                 name + " Приборная панель " + dashboardNames[3], name + " แผงควบคุม " + dashboardNames[4], dashboardNames[5] + " لوحة القيادة " + name);

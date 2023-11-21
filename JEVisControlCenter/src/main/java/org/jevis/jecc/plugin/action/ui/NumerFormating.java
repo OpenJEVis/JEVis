@@ -10,8 +10,8 @@ import java.util.Locale;
 public class NumerFormating {
 
     private static NumerFormating formatterFactory = null;
-    private NumberStringConverter nsc;
-    private NumberStringConverter nscNoUnit;
+    private final NumberStringConverter nsc;
+    private final NumberStringConverter nscNoUnit;
 
     private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
     private NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
@@ -39,13 +39,6 @@ public class NumerFormating {
 
         nscNoUnit = new NumberStringConverter() {
             @Override
-            public String toString(Number value) {
-                //System.out.println("toString: " + value + "  f: " + doubleFormat.format(value));
-                return doubleFormat.format(value);
-            }
-
-
-            @Override
             public Number fromString(String value) {
                 try {
                     //System.out.println("fromString: " + value + "  f: " + doubleFormat.parse(value));
@@ -54,6 +47,13 @@ public class NumerFormating {
                     return 0d;
                 }
 
+            }
+
+            @Override
+            public String toString(Number value) {
+                if (value == null) return doubleFormat.format(0);
+
+                return doubleFormat.format(value);
             }
 
 

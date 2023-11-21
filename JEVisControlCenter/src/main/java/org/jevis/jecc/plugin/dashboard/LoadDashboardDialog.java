@@ -65,6 +65,7 @@ public class LoadDashboardDialog extends Dialog {
         setTitle(I18n.getInstance().getString("plugin.dashboards.loaddashboard.title"));
         setHeaderText(I18n.getInstance().getString("plugin.dashboards.loaddashboard.header"));
         setResizable(true);
+        getDialogPane().setMinSize(800, 600);
         initOwner(ControlCenter.getStage());
         initModality(Modality.APPLICATION_MODAL);
         Stage stage = (Stage) getDialogPane().getScene().getWindow();
@@ -210,7 +211,7 @@ public class LoadDashboardDialog extends Dialog {
             dateButton.setMinWidth(100);
             //init timefactory
             selectedTimeFactory = control.getAllTimeFrames().week();
-            selectedInterval = selectedTimeFactory.getInterval(new DateTime());
+            selectedInterval = selectedTimeFactory.getInterval(new DateTime(), false);
             updateDateText();
 
             TimeFrameEditor timeFrameEditor = new TimeFrameEditor(control.getActiveTimeFrame(), control.getInterval());
@@ -229,7 +230,7 @@ public class LoadDashboardDialog extends Dialog {
             //timeFactoryBox.selectValue(controller.getActiveTimeFrame());
 
 
-            timeFrameEditor.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
+            timeFrameEditor.intervalProperty().addListener((observable, oldValue, newValue) -> {
                 selectedInterval = newValue;
                 updateDateText();
             });

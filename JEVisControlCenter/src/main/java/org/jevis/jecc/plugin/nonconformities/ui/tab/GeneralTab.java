@@ -16,14 +16,21 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.CheckComboBox;
+import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.plugin.nonconformities.data.NonconformityData;
 import org.jevis.jecc.plugin.nonconformities.data.NonconformityPlan;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GeneralTab extends Tab {
+
+    private static final Logger logger = LogManager.getLogger(GeneralTab.class);
     private final MFXDatePicker f_deadlineDate = new MFXDatePicker();
     private final MFXDatePicker f_doneDate = new MFXDatePicker();
 
@@ -32,45 +39,45 @@ public class GeneralTab extends Tab {
     private MFXComboBox<String> f_mediaTags;
     private MFXComboBox<String> f_SEU;
 
-    private TextArea f_Description = new TextArea();
-    private TextArea f_Cause = new TextArea();
-    private MFXDatePicker f_CreateDate = new MFXDatePicker();
-    private MFXTextField f_Nr = new MFXTextField();
-    private MFXTextField f_Title = new MFXTextField();
-    private MFXTextField f_action = new MFXTextField();
-    private MFXTextField f_Creator = new MFXTextField();
+    private final TextArea f_Description = new TextArea();
+    private final TextArea f_Cause = new TextArea();
+    private final MFXDatePicker f_CreateDate = new MFXDatePicker();
+    private final MFXTextField f_Nr = new MFXTextField();
+    private final MFXTextField f_Title = new MFXTextField();
+    private final MFXTextField f_action = new MFXTextField();
+    private final MFXTextField f_Creator = new MFXTextField();
 
-    private MFXTextField f_Attachment = new MFXTextField();
+    private final MFXTextField f_Attachment = new MFXTextField();
 
-    private MFXTextField f_Responsible = new MFXTextField();
+    private final MFXTextField f_Responsible = new MFXTextField();
 
-    private TextArea f_ImmediateMeasures = new TextArea();
+    private final TextArea f_ImmediateMeasures = new TextArea();
 
-    private TextArea f_CorrectiveActions = new TextArea();
+    private final TextArea f_CorrectiveActions = new TextArea();
 
     private CheckComboBox<String> f_fieldTags;
 
-    private Label l_Description = new Label();
-    private Label l_SEU = new Label();
-    private Label l_Nr = new Label();
-    private Label l_Responsible = new Label();
-    private Label l_NoteBewertet = new Label();
-    private Label l_Attachment = new Label();
-    private Label l_Title = new Label();
-    private Label l_NoteEnergiefluss = new Label();
-    private Label l_doneDate = new Label();
-    private Label l_deadLine = new Label();
-    private Label l_Cause = new Label();
-    private Label l_ImmediateMeasures = new Label();
-    private Label l_CorrectiveActions = new Label();
-    private Label l_Creator = new Label();
-    private Label l_CreateDate = new Label();
-    private Label l_Medium = new Label();
-    private Label l_mediaTags = new Label();
+    private final Label l_Description = new Label();
+    private final Label l_SEU = new Label();
+    private final Label l_Nr = new Label();
+    private final Label l_Responsible = new Label();
+    private final Label l_NoteBewertet = new Label();
+    private final Label l_Attachment = new Label();
+    private final Label l_Title = new Label();
+    private final Label l_NoteEnergiefluss = new Label();
+    private final Label l_doneDate = new Label();
+    private final Label l_deadLine = new Label();
+    private final Label l_Cause = new Label();
+    private final Label l_ImmediateMeasures = new Label();
+    private final Label l_CorrectiveActions = new Label();
+    private final Label l_Creator = new Label();
+    private final Label l_CreateDate = new Label();
+    private final Label l_Medium = new Label();
+    private final Label l_mediaTags = new Label();
 
-    private Label l_fieldTags = new Label();
+    private final Label l_fieldTags = new Label();
 
-    private Label l_action = new Label();
+    private final Label l_action = new Label();
 
     public GeneralTab(String s) {
         super(s);
@@ -84,12 +91,16 @@ public class GeneralTab extends Tab {
     public void initTab(NonconformityData nonconformityData) {
 
         addTabEvent(f_ImmediateMeasures);
+        f_ImmediateMeasures.setWrapText(true);
 
         addTabEvent(f_Cause);
+        f_Cause.setWrapText(true);
 
         addTabEvent(f_Description);
+        f_Description.setWrapText(true);
 
         addTabEvent(f_CorrectiveActions);
+        f_CorrectiveActions.setWrapText(true);
 
 
         GridPane gridPane = new GridPane();
@@ -173,7 +184,7 @@ public class GeneralTab extends Tab {
         l_NoteEnergiefluss.setPadding(new Insets(15, 0, 0, 0));
 
 
-        f_Nr.setEditable(false);
+        f_Nr.setEditable(ControlCenter.getExpert());
 
 
         //scrollPane.setContent(gridPane);
@@ -238,6 +249,20 @@ public class GeneralTab extends Tab {
                 while (change.next()) {
                     System.out.println(change.getList());
                 }
+            }
+        });
+
+        f_Nr.textProperty().addListener((observableValue, s, t1) -> {
+            try {
+                Pattern pattern = Pattern.compile("\\d+", Pattern.CASE_INSENSITIVE);
+                Matcher matcher = pattern.matcher(t1);
+                while (matcher.find()) {
+                    int i = Integer.valueOf(matcher.group());
+                    data.nrProperty().set(i);
+                    break;
+                }
+            } catch (NumberFormatException numberFormatException) {
+                logger.error(numberFormatException);
             }
         });
 
@@ -306,7 +331,6 @@ public class GeneralTab extends Tab {
         f_Nr.setText(data.getPrefix() + data.nrProperty().get());
 
     }
-
 
     public MFXTextField getF_action() {
         return f_action;

@@ -642,7 +642,7 @@ public class FXLogin extends AnchorPane {
     public void checkVersion() {
         try {
             String serverJECCVersion = ((JEVisDataSourceWS) _ds).getJEVisCCVersion();
-            if (serverJECCVersion != "0") {
+            if (serverJECCVersion != "0" && ControlCenter.class.getPackage().getImplementationVersion() != null) {
                 DefaultArtifactVersion thisVersion = new DefaultArtifactVersion(ControlCenter.class.getPackage().getImplementationVersion());
                 DefaultArtifactVersion serverVersion = new DefaultArtifactVersion(serverJECCVersion);
                 if (thisVersion.compareTo(serverVersion) < 0) {

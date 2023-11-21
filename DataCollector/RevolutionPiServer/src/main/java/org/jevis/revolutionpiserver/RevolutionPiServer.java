@@ -8,7 +8,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
-import org.jevis.commons.driver.*;
+import org.jevis.commons.driver.DataCollectorTypes;
+import org.jevis.commons.driver.DataSource;
+import org.jevis.commons.driver.Importer;
+import org.jevis.commons.driver.ImporterFactory;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeapi.ws.HTTPConnection;
 import org.jevis.jeapi.ws.REQUEST;
@@ -22,6 +25,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class RevolutionPiServer implements DataSource {
@@ -40,8 +44,7 @@ public class RevolutionPiServer implements DataSource {
     private DateTimeZone timezone;
     private Importer importer;
     private HTTPConnection con;
-    public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss").withZoneUTC();
-    public static final DateTimeFormatter FMT2 = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZoneUTC();
+    public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZoneUTC();
     public static final Integer OK = 0;
 
     public static String API_STRING = "api/data";
@@ -81,7 +84,7 @@ public class RevolutionPiServer implements DataSource {
                 if (!resource.contains("?")) {
                     prefix = "?";
                 }
-                resource += prefix + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.LIMIT + "=" + 10000;
+                resource += prefix + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.LIMIT + "=" + 1000;
 
 
                 prefix = "&";
@@ -89,26 +92,51 @@ public class RevolutionPiServer implements DataSource {
                     prefix = "?";
                 }
                 resource += prefix + "id" + "=" + sourceId;
-                try(InputStream inputStream = this.con.getInputStreamRequest(resource)) {
-                    if (inputStream != null) {
-                        String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-                        RevPiResult[] revPiResults = objectMapper.readValue(result, RevPiResult[].class);
-                        for (RevPiResult sample : revPiResults) {
-                            try {
-                                DateTime dateTime = DateTime.parse(sample.getDateTime(), FMT2);
+                try (InputStream inputStream = this.con.getInputStreamRequest(resource)) {
+                    if (inputStream == null) continue;
+                    String result = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+
+                    RevPiResult[] revPiResults = objectMapper.readValue(result, RevPiResult[].class);
+                    List<RevPiResult> revPiResultList = Arrays.asList(revPiResults);
+                    Collections.reverse(revPiResultList);
+                    if (revPiResults == null || revPiResults.length == 0) continue;
+
+                    for (RevPiResult sample : revPiResultList) {
+                        try {
+                            DateTime dateTime = DateTime.parse(sample.getDateTime(), FMT);
+                            if (sample.getStatus() != 0) {
                                 JEVisSample statusSample = statusAttribute.buildSample(dateTime, sample.getStatus());
                                 stati.add(statusSample);
-                                if (sample.getStatus() == OK) {
+                            }
+                            if (sample.getStatus() == OK) {
+                                if (targetAttribute.getObject().getJEVisClassName().equals("Data")) {
+                                    try {
+                                        double d;
+                                        d = Double.parseDouble(sample.getValue());
+                                        JEVisSample jeVisSample = targetAttribute.buildSample((dateTime), d);
+                                        logger.debug("Add Sample {}", jeVisSample);
+                                        samples.add(jeVisSample);
+
+                                    } catch (Exception e) {
+                                        logger.error("Cant parse to double {}", sample.getValue());
+                                        JEVisSample statusSample = statusAttribute.buildSample(dateTime, 6);
+                                        stati.add(statusSample);
+                                    }
+
+                                } else {
                                     JEVisSample jeVisSample = targetAttribute.buildSample((dateTime), sample.getValue());
                                     logger.debug("Add Sample {}", jeVisSample);
                                     samples.add(jeVisSample);
                                 }
-                                if (lastReadout.isBefore(dateTime)) {
-                                    lastReadout = dateTime;
-                                }
-                            } catch (Exception ex) {
-                                logger.error("Error parsing sample {} of sourceAttribute {}:{}", sample.toString(), targetAttribute.getObject().getID(), targetAttribute.getName());
+                            } else {
+                                System.out.println("Satus not OK");
+                                System.out.println(sample);
                             }
+                            if (lastReadout.isBefore(dateTime)) {
+                                lastReadout = dateTime;
+                            }
+                        } catch (Exception ex) {
+                            logger.error("Error parsing sample {} of sourceAttribute {}:{}", sample.toString(), targetAttribute.getObject().getID(), targetAttribute.getName());
                         }
                     }
                 } catch (IllegalArgumentException ex) {
@@ -243,7 +271,7 @@ public class RevolutionPiServer implements DataSource {
                 channels.addAll(getChannels(dir));
             });
             List<JEVisObject> channelsToBeAdded = jeVisObject.getChildren(channelClass, false);
-            logger.debug("Added Channels to List {}",channelsToBeAdded);
+            logger.debug("Added Channels to List {}", channelsToBeAdded);
             channels.addAll(channelsToBeAdded);
         } catch (Exception e) {
             logger.error(e);

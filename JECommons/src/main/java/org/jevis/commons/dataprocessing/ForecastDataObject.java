@@ -50,6 +50,7 @@ public class ForecastDataObject {
 
     private JEVisAttribute valueAttribute;
     private JEVisAttribute enabledAttribute;
+    private JEVisAttribute keepValuesAttribute;
     private JEVisAttribute typeAttribute;
     private JEVisAttribute referencePeriodAttribute;
     private JEVisAttribute referencePeriodCountAttribute;
@@ -73,6 +74,10 @@ public class ForecastDataObject {
     public void getAttributes() throws JEVisException {
         if (enabledAttribute == null) {
             enabledAttribute = getForecastDataObject().getAttribute(ENABLED.getAttributeName());
+        }
+
+        if (keepValuesAttribute == null) {
+            keepValuesAttribute = getForecastDataObject().getAttribute(KEEP_VALUES.getAttributeName());
         }
 
         if (valueAttribute == null) {
@@ -111,6 +116,7 @@ public class ForecastDataObject {
     public void reloadAttributes() throws JEVisException {
         getForecastDataObject().getDataSource().reloadAttribute(enabledAttribute);
         getForecastDataObject().getDataSource().reloadAttribute(valueAttribute);
+        getForecastDataObject().getDataSource().reloadAttribute(keepValuesAttribute);
         getForecastDataObject().getDataSource().reloadAttribute(typeAttribute);
         getForecastDataObject().getDataSource().reloadAttribute(referencePeriodAttribute);
         getForecastDataObject().getDataSource().reloadAttribute(referencePeriodCountAttribute);
@@ -140,7 +146,7 @@ public class ForecastDataObject {
             final JEVisClass dataNoteClass = parentDataObject.getDataSource().getJEVisClass("Data Notes");
             for (JEVisObject obj : forecastDataObject.getParents().get(0).getChildren(dataNoteClass, true)) {
                 if (obj.getName().contains(forecastDataObject.getName())) {
-                    JEVisAttribute userNoteAttribute = obj.getAttribute("User Notes");
+                    JEVisAttribute userNoteAttribute = obj.getAttribute("Value");
                     if (userNoteAttribute.hasSample()) {
                         for (JEVisSample smp : userNoteAttribute.getAllSamples()) {
                             notesMap.put(smp.getTimestamp(), smp);
@@ -161,6 +167,12 @@ public class ForecastDataObject {
         if (valueAttribute == null)
             valueAttribute = getForecastDataObject().getAttribute(VALUE.getAttributeName());
         return valueAttribute;
+    }
+
+    public JEVisAttribute getKeepValuesAttribute() throws JEVisException {
+        if (keepValuesAttribute == null)
+            keepValuesAttribute = getForecastDataObject().getAttribute(KEEP_VALUES.getAttributeName());
+        return keepValuesAttribute;
     }
 
     public JEVisAttribute getInputAttribute() throws JEVisException {
@@ -507,7 +519,8 @@ public class ForecastDataObject {
         REFERENCE_PERIOD_COUNT("Reference Period Count"),
         BIND_TO_SPECIFIC("Bind To Specific"),
         FORECAST_DURATION("Forecast Duration"),
-        FORECAST_DURATION_COUNT("Forecast Duration Count");
+        FORECAST_DURATION_COUNT("Forecast Duration Count"),
+        KEEP_VALUES("Keep Values");
 
         private final String attributeName;
 

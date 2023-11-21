@@ -15,14 +15,13 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
 
     protected static final Logger logger = LogManager.getLogger(NonconformtiesOverviewData.class);
 
-    private NonconformitiesController controller;
+    private final NonconformitiesController controller;
 
     public NonconformtiesOverviewData(NonconformitiesController controller) {
-        System.out.println("New OverVieData from Object: " + controller);
         this.controller = controller;
         name.set("Übersicht");
 
-        stausTags = FXCollections.observableArrayList();
+        statusTags = FXCollections.observableArrayList();
         fieldsTags = FXCollections.observableArrayList();
         mediumTags = FXCollections.observableArrayList();
         significantEnergyUseTags = FXCollections.observableArrayList();
@@ -43,8 +42,8 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
 
 
     public void updateData() {
-        System.out.println("Update Overview Data");
-        stausTags.clear();
+        logger.debug("Update Overview Data");
+        statusTags.clear();
         fieldsTags.clear();
         mediumTags.clear();
         nonconformityList.clear();
@@ -57,7 +56,7 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
 
             //System.out.println("Add: " + actionPlanData.getStatustags().stream().filter(obj -> !statusTags.contains(obj)).collect(Collectors.toList()));
             mediumTags.addAll(nonconformityPlan.getMediumTags().stream().filter(obj -> !mediumTags.contains(obj)).collect(Collectors.toList()));
-            stausTags.addAll(nonconformityPlan.getStausTags().stream().filter(s -> !stausTags.contains(s)).collect(Collectors.toList()));
+            statusTags.addAll(nonconformityPlan.getStatusTags().stream().filter(s -> !statusTags.contains(s)).collect(Collectors.toList()));
             fieldsTags.addAll(nonconformityPlan.getFieldsTags().stream().filter(s -> !fieldsTags.contains(s)).collect(Collectors.toList()));
             significantEnergyUseTags.addAll(nonconformityPlan.getSignificantEnergyUseTags().stream().filter(s -> !significantEnergyUseTags.contains(s)).collect(Collectors.toList()));
 
@@ -83,7 +82,7 @@ public class NonconformtiesOverviewData extends NonconformityPlan {
         });
 
 
-        System.out.println("Status nach update: " + stausTags);
+        logger.debug("Status after update: " + statusTags);
 
     }
 

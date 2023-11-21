@@ -61,7 +61,7 @@ public class TreeSelectionDialog extends Dialog {
     private final MFXTextField filterTextField = new MFXTextField();
     public ButtonType buttonOK = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.APPLY);
     public ButtonType buttonCancel = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-    private Response response = Response.CANCEL;
+    private final Response response = Response.CANCEL;
 
     public TreeSelectionDialog(JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode, List<UserSelection> selection, boolean showAttributes) {
         super();
@@ -151,7 +151,6 @@ public class TreeSelectionDialog extends Dialog {
                 }
 
                 if (correctChoice) {
-                    System.out.println("Set result: " + buttonOK);
                     setResult(buttonOK);
                     this.close();
                 } else {

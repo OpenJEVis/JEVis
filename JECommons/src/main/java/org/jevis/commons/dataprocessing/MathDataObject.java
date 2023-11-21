@@ -240,7 +240,7 @@ public class MathDataObject {
             final JEVisClass dataNoteClass = parentDataObject.getDataSource().getJEVisClass("Data Notes");
             for (JEVisObject obj : mathDataObject.getParents().get(0).getChildren(dataNoteClass, true)) {
                 if (obj.getName().contains(mathDataObject.getName())) {
-                    JEVisAttribute userNoteAttribute = obj.getAttribute("User Notes");
+                    JEVisAttribute userNoteAttribute = obj.getAttribute("Value");
                     if (userNoteAttribute.hasSample()) {
                         for (JEVisSample smp : userNoteAttribute.getAllSamples()) {
                             notesMap.put(smp.getTimestamp(), smp);

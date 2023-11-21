@@ -21,6 +21,9 @@ public class ChartModel {
     private final SimpleIntegerProperty maxFractionDigits = new SimpleIntegerProperty(this, "maxFractionDigits", 2);
     private final SimpleBooleanProperty filterEnabled = new SimpleBooleanProperty(this, "filterEnabled", false);
     private final SimpleBooleanProperty fixYAxisToZero = new SimpleBooleanProperty(this, "fixYAxisToZero", false);
+    private final SimpleBooleanProperty showColumnSums = new SimpleBooleanProperty(this, "showColumnSums", false);
+    private final SimpleBooleanProperty showRowSums = new SimpleBooleanProperty(this, "showRowSums", false);
+
     private List<ChartData> chartData = new ArrayList<>();
 
     public List<ChartData> getChartData() {
@@ -158,8 +161,31 @@ public class ChartModel {
     public void setFixYAxisToZero(boolean fixYAxisToZero) {
         this.fixYAxisToZero.set(fixYAxisToZero);
     }
-
     public SimpleBooleanProperty fixYAxisToZeroProperty() {
         return fixYAxisToZero;
+    }
+
+    public boolean isShowColumnSums() {
+        return showColumnSums.get();
+    }
+
+    public void setShowColumnSums(boolean showColumnSums) {
+        this.showColumnSums.set(showColumnSums);
+    }
+
+    public SimpleBooleanProperty showColumnSumsProperty() {
+        return showColumnSums;
+    }
+
+    public boolean isShowRowSums() {
+        return showRowSums.get();
+    }
+
+    public void setShowRowSums(boolean showRowSums) {
+        this.showRowSums.set(showRowSums);
+    }
+
+    public SimpleBooleanProperty showRowSumsProperty() {
+        return showRowSums;
     }
 }

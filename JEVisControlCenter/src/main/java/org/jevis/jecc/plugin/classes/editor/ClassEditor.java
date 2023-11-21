@@ -20,7 +20,6 @@
 package org.jevis.jecc.plugin.classes.editor;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXTextArea;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
@@ -78,7 +77,7 @@ public class ClassEditor {
     private final VBox _view;
     MFXButton fIcon;
     MFXTextField fName = new MFXTextField();
-    JFXTextArea fDescription = new JFXTextArea();
+    TextArea fDescription = new TextArea();
     JFXCheckBox fUnique = new JFXCheckBox();
     //    private Desktop desktop = Desktop.getDesktop();
     private JEVisClass _class;
@@ -362,7 +361,7 @@ public class ClassEditor {
                                                  public void handle(ActionEvent t) {
                                                      try {
 //                                UnitSelectDialog usd = new UnitSelectDialog();
-//                                if (usd.show(JEConfig.getStage(), "Select Unit", _class.getDataSource()) == UnitSelectDialog.Response.YES) {
+//                                if (usd.show(ControlCenter.getStage(), "Select Unit", _class.getDataSource()) == UnitSelectDialog.Response.YES) {
 //                                    logger.info("OK");
 //                                    unitSelector.setText(usd.getUnit().toString());
 //                                    if (type.getUnit() != null && !type.getUnit().equals(usd.getUnit())) {

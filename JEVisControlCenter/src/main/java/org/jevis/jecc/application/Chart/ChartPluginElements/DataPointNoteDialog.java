@@ -9,6 +9,7 @@ import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.plugins.AbstractDataFormattingPlugin;
 import de.gsi.dataset.DataSet;
+import de.gsi.dataset.spi.DefaultDataSet;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -22,6 +23,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
@@ -45,10 +47,7 @@ import org.jevis.jecc.plugin.notes.NoteTag;
 import org.jevis.jecc.sample.tableview.SampleTable;
 import org.joda.time.DateTime;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 
@@ -223,21 +222,6 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
         });
     }
 
-    public DataPointNoteDialog(List<XYChartSerie> xyChartSerieList, ChartPlugin chartPlugin) {
-        this(xyChartSerieList, chartPlugin, null);
-    }
-
-    public DataPointNoteDialog(List<XYChartSerie> xyChartSerieList, ChartPlugin chartPlugin, org.jevis.jecc.application.Chart.Charts.Chart chart) {
-        this.xyChartSerieList = xyChartSerieList;
-        this.chartPlugin = chartPlugin;
-        this.chart = chart;
-        this.nf = java.text.NumberFormat.getInstance(I18n.getInstance().getLocale());
-        this.nf.setMinimumFractionDigits(chart.getChartModel().getMinFractionDigits());
-        this.nf.setMaximumFractionDigits(chart.getChartModel().getMaxFractionDigits());
-
-        registerInputEventHandler(MouseEvent.MOUSE_CLICKED, noteHandler);
-    }
-
     private void getUnitName(JEVisAttribute att, MFXTextField unit) {
         try {
             if (att.getObject().getJEVisClassName().equals("Clean Data")) {
@@ -263,6 +247,21 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
         }
     }
 
+    public DataPointNoteDialog(List<XYChartSerie> xyChartSerieList, ChartPlugin chartPlugin) {
+        this(xyChartSerieList, chartPlugin, null);
+    }
+
+    public DataPointNoteDialog(List<XYChartSerie> xyChartSerieList, ChartPlugin chartPlugin, org.jevis.jecc.application.Chart.Charts.Chart chart) {
+        this.xyChartSerieList = xyChartSerieList;
+        this.chartPlugin = chartPlugin;
+        this.chart = chart;
+        this.nf = java.text.NumberFormat.getInstance(I18n.getInstance().getLocale());
+        this.nf.setMinimumFractionDigits(chart.getChartModel().getMinFractionDigits());
+        this.nf.setMaximumFractionDigits(chart.getChartModel().getMaxFractionDigits());
+
+        registerInputEventHandler(MouseEvent.MOUSE_CLICKED, noteHandler);
+    }
+
     private DataPoint findDataPoint(final MouseEvent event, final Bounds plotAreaBounds) {
         if (!plotAreaBounds.contains(event.getX(), event.getY())) {
             return null;
@@ -277,10 +276,9 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
     private DataPoint findNearestDataPointWithinPickingDistance(final Chart chart, final Point2D mouseLocation) {
         DataPoint nearestDataPoint = null;
-        if (!(chart instanceof XYChart)) {
+        if (!(chart instanceof XYChart xyChart)) {
             return null;
         }
-        final XYChart xyChart = (XYChart) chart;
         // final double xValue = toDataPoint(xyChart.getYAxis(),
         // mouseLocation).getXValue().doubleValue();
         // TODO: iterate through all axes, renderer and datasets
@@ -432,7 +430,9 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
                 for (Bubble bubble : bubbles) {
                     if (bubble.getX() == x) {
-                        for (JEVisSample xSample : bubble.getXSamples()) {
+                        List<JEVisSample> xSamples = bubble.getXSamples();
+                        for (int i = 0; i < xSamples.size(); i++) {
+                            JEVisSample xSample = xSamples.get(i);
                             try {
 
                                 JEVisSample ySample = null;
@@ -444,7 +444,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                                 }
 
                                 String title = xSample.getTimestamp().toString("yyyy-MM-dd HH:mm:ss");
-                                RowNote rowNote = new RowNote(title, xSample, ySample);
+                                RowNote rowNote = new RowNote(title, xSample, ySample, bubble.getVisibleSamples().get(i));
 
                                 map.put(title, rowNote);
                             } catch (Exception e) {
@@ -472,6 +472,71 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                                 chartPlugin.handleRequest(Constants.Plugin.Command.RELOAD);
                             }
                         }));
+                    }
+
+                    if (isBubbleChart) {
+
+                        ChartDataRow chartDataRow = chart.getChartDataRows().stream().filter(dataRow -> dataRow.getBubbleType() == BubbleType.X).findFirst().orElse(null);
+                        List<Bubble> bubbles = ((BubbleChart) chart).getBubbles();
+                        chart.getChart().getAllDatasets().forEach(dataSet -> {
+                            DefaultDataSet doubleDataSet = (DefaultDataSet) dataSet;
+                            // dataset contains bubbles
+                            DefaultDataSet newDoubleDataSet = new DefaultDataSet(doubleDataSet.getName());
+
+                            for (Map.Entry<String, RowNote> entry : nd.getNoteMap().entrySet()) {
+                                String s = entry.getKey();
+                                Double v = null;
+                                try {
+                                    v = entry.getValue().getXSample().getValueAsDouble();
+
+                                    for (Bubble bubble : bubbles) {
+                                        List<Integer> toRemove = new ArrayList<>();
+
+                                        List<JEVisSample> xSamples = bubble.getXSamples();
+                                        for (int i = 0; i < xSamples.size(); i++) {
+                                            JEVisSample jeVisSample = xSamples.get(i);
+                                            if (v != null && v.equals(jeVisSample.getValueAsDouble())) {
+                                                toRemove.add(i);
+                                            }
+                                        }
+
+                                        List<JEVisSample> ySamples = bubble.getYSamples();
+                                        List<JEVisSample> removeY = new ArrayList<>();
+                                        double newValue = 0d;
+                                        int div = 0;
+                                        for (int i = 0; i < ySamples.size(); i++) {
+                                            JEVisSample jeVisSample = ySamples.get(i);
+                                            if (toRemove.contains(i)) {
+                                                newValue += jeVisSample.getValueAsDouble();
+                                                div++;
+                                            }
+                                        }
+
+                                        if (div > 0) {
+                                            newValue /= div;
+                                            bubble.setY(newValue);
+                                            bubble.setSize((double) div);
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    logger.error(e);
+                                }
+                            }
+
+
+                            Color color = ((BubbleChart) chart).getHexColors().get(0).deriveColor(0, 1, 1, 0.9);
+                            for (Bubble bubble : bubbles) {
+                                int count = bubbles.indexOf(bubble);
+                                newDoubleDataSet.add(bubble.getX(), bubble.getY(), "bubble " + count);
+
+                                String markerSize = "markerSize=" + 40 * Math.sqrt(bubble.getSize()) + "; index=" + count + ";";
+
+                                newDoubleDataSet.addDataStyle(count, markerSize);
+                                newDoubleDataSet.addDataStyle(count, markerSize + "; markerColor=" + color + "; markerType=circle;");
+                            }
+                            doubleDataSet.set(newDoubleDataSet);
+                            ((BubbleChart) chart).getY1Axis().setAutoRanging(true);
+                        });
                     }
                 }
             });
@@ -517,12 +582,12 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                                 return smp.getValueAsDouble();
                             }
                         }
-                    } catch (JEVisException ignored) {
+                    } catch (Exception ignored) {
 
                     }
                 }
             }
-        } catch (JEVisException ignored) {
+        } catch (Exception ignored) {
 
         }
         return userValue;
@@ -548,19 +613,19 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                 }
                 if (correspondingNoteObject != null) {
                     try {
-                        JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
+                        JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("Value");
                         List<JEVisSample> listSamples = userNoteAttribute.getSamples(timeStamp, timeStamp);
                         if (listSamples.size() == 1) {
                             for (JEVisSample smp : listSamples) {
                                 return smp.getValueAsString();
                             }
                         }
-                    } catch (JEVisException ignored) {
+                    } catch (Exception ignored) {
 
                     }
                 }
             }
-        } catch (JEVisException ignored) {
+        } catch (Exception ignored) {
 
         }
         return userNote;
@@ -608,7 +673,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
                     if (correspondingNoteObject != null) {
                         try {
-                            JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
+                            JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("Value");
 
                             List<JEVisSample> listSamples;
                             if (userNoteAttribute.hasSample()) {

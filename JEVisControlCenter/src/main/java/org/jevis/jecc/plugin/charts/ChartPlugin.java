@@ -20,7 +20,6 @@
 package org.jevis.jecc.plugin.charts;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import com.jfoenix.controls.JFXTextArea;
 import de.gsi.chart.axes.AxisMode;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
@@ -154,9 +153,10 @@ public class ChartPlugin implements Plugin {
     public ChartPlugin(JEVisDataSource ds, String newName) {
         this.dataModel = new DataModel();
         this.dataSettings = new DataSettings();
-        this.dataSettings.setAnalysisTimeFrame(new AnalysisTimeFrame(ds, this, TimeFrame.TODAY));
-
         this.toolBarView = new ToolBarView(dataModel, ds, this);
+        this.dataSettings.setCurrentAnalysisProperty(toolBarView.getAnalysesComboBox().valueProperty());
+
+        this.dataSettings.setAnalysisTimeFrame(new AnalysisTimeFrame(ds, this, TimeFrame.TODAY));
 
         getToolbar();
 
@@ -395,7 +395,7 @@ public class ChartPlugin implements Plugin {
 
     private void openDialog() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(this, ds, toolBarView.getAnalysesComboBox().getObservableListAnalyses());
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(this, ds, toolBarView.getAnalysesComboBox().getItems());
 
         dialog.setOnCloseRequest(event -> {
             JEVisHelp.getInstance().deactivatePluginModule();
@@ -631,17 +631,17 @@ public class ChartPlugin implements Plugin {
                             break;
                     }
                 } else if (chart != null) {
-                    ScrollPane scrollPane = new ScrollPane();
+//                    ScrollPane scrollPane = new ScrollPane();
 
                     TableHeader tableHeader = new TableHeader(chartModel, chart);
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
-                    scrollPane.setContent(tableHeader);
-                    scrollPane.setFitToHeight(true);
-                    scrollPane.setFitToWidth(true);
-                    scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
-                    scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-                    bp.setCenter(scrollPane);
+//                    scrollPane.setContent(tableHeader);
+//                    scrollPane.setFitToHeight(true);
+//                    scrollPane.setFitToWidth(true);
+//                    scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
+//                    scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+//                    bp.setCenter(scrollPane);
                 }
 
                 if (chartModel.getChartType() != ChartType.PIE && chartModel.getChartType() != ChartType.HEAT_MAP
@@ -666,15 +666,15 @@ public class ChartPlugin implements Plugin {
 
                         HBox hBox = new HBox(8, titleLabel, spacer, tableChart.getFilterEnabledBox());
                         hBox.setAlignment(Pos.CENTER);
+                        hBox.setMaxHeight(titleLabel.getLayoutBounds().getHeight() * 1.25);
                         HBox.setHgrow(spacer, Priority.ALWAYS);
 
                         TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
                         tableChart.setTableHeader(tableHeaderTable);
-                        tableHeaderTable.maxWidthProperty().bind(bp.widthProperty());
-
-                        VBox vBox = new VBox(hBox, tableHeaderTable);
-                        VBox.setVgrow(hBox, Priority.NEVER);
-                        VBox.setVgrow(tableHeaderTable, Priority.ALWAYS);
+                        tableHeaderTable.prefWidthProperty().bind(bp.widthProperty());
+                        SplitPane vBox = new SplitPane();
+                        vBox.setOrientation(Orientation.VERTICAL);
+                        vBox.getItems().addAll(hBox, tableHeaderTable);
                         bp.setCenter(vBox);
                     }
                 } else if (chartModel.getChartType() != ChartType.LOGICAL) {
@@ -762,8 +762,7 @@ public class ChartPlugin implements Plugin {
         }
 
         allCharts.forEach((key, value) -> {
-            if (value instanceof XYChart) {
-                XYChart xyChart = (XYChart) value;
+            if (value instanceof XYChart xyChart) {
                 if (xyChart.getChartType() != ChartType.LOGICAL) {
                     xyChart.createChart(getToolBarView().getToolBarSettings(), getDataSettings());
                 }
@@ -827,7 +826,7 @@ public class ChartPlugin implements Plugin {
                     infoBox.setResizable(true);
                     infoBox.setTitle(I18n.getInstance().getString("dialog.regression.title"));
                     infoBox.setHeaderText(I18n.getInstance().getString("dialog.regression.headertext"));
-                    JFXTextArea textArea = new JFXTextArea(allFormulas.toString());
+                    TextArea textArea = new TextArea(allFormulas.toString());
                     textArea.setWrapText(true);
                     textArea.setPrefWidth(450);
                     textArea.setPrefHeight(200);
@@ -857,8 +856,7 @@ public class ChartPlugin implements Plugin {
                 VBox spVer = (VBox) sp.getContent();
                 MatrixPane<MatrixChartItem> matrixHeatMap = null;
                 for (Node node : spVer.getChildren()) {
-                    if (node instanceof HBox) {
-                        HBox spHor = (HBox) node;
+                    if (node instanceof HBox spHor) {
                         matrixHeatMap = spHor.getChildren().stream().filter(node1 -> node1 instanceof MatrixPane).findFirst().map(node1 -> (MatrixPane<MatrixChartItem>) node1).orElse(matrixHeatMap);
                     }
                 }
@@ -880,12 +878,10 @@ public class ChartPlugin implements Plugin {
                     Canvas bottomXAxis = null;
 
                     for (Node node : spVer.getChildren()) {
-                        if (node instanceof HBox) {
-                            HBox spHor = (HBox) node;
+                        if (node instanceof HBox spHor) {
                             boolean isLeftAxis = true;
                             for (Node node1 : spHor.getChildren()) {
-                                if (node1 instanceof GridPane) {
-                                    GridPane axis = (GridPane) node1;
+                                if (node1 instanceof GridPane axis) {
 
                                     for (Node node2 : axis.getChildren()) {
                                         if (node2 instanceof Label) {
@@ -937,7 +933,10 @@ public class ChartPlugin implements Plugin {
                             double x = leftAxisWidth + 4 + spacer + pixelWidth / 2;
 
                             for (DateTime dateTime : xAxisList) {
-                                String ts = dateTime.toString(X_FORMAT);
+                                String ts = "";
+                                if (!X_FORMAT.isEmpty()) {
+                                    ts = dateTime.toString(X_FORMAT);
+                                }
                                 Text text = new Text(ts);
                                 Font helvetica = Font.font("Helvetica", 12);
                                 text.setFont(helvetica);
@@ -976,8 +975,7 @@ public class ChartPlugin implements Plugin {
                             nf.setMinimumFractionDigits(2);
                             nf.setMaximumFractionDigits(2);
                             for (Node node1 : finalMatrixHeatMap.getMatrix().getChildren()) {
-                                if (node1 instanceof Canvas) {
-                                    Canvas canvas = (Canvas) node1;
+                                if (node1 instanceof Canvas canvas) {
                                     // listen to only events within the canvas
                                     final Point2D mouseLoc = new Point2D(t.getScreenX(), t.getScreenY());
                                     final Bounds screenBounds = canvas.localToScreen(canvas.getBoundsInLocal());
@@ -1014,7 +1012,7 @@ public class ChartPlugin implements Plugin {
                                                             try {
                                                                 tp.setText(nf.format(finalValue) + " " + chart.getUnit());
                                                                 tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY());
-                                                            } catch (NullPointerException np) {
+                                                            } catch (Exception np) {
                                                                 logger.warn(np);
                                                             }
                                                         });
@@ -1089,8 +1087,7 @@ public class ChartPlugin implements Plugin {
                 double height = border.getHeight() - (8.5 * noOfCharts);
 
                 for (Node node : children) {
-                    if (node instanceof BorderPane) {
-                        BorderPane borderPane = (BorderPane) node;
+                    if (node instanceof BorderPane borderPane) {
                         boolean isLogical = false;
                         boolean isTableV = false;
 
@@ -1125,8 +1122,7 @@ public class ChartPlugin implements Plugin {
                             }
 
                             for (Node child : borderChildren) {
-                                if (child instanceof de.gsi.chart.XYChart) {
-                                    de.gsi.chart.XYChart xyChart = (de.gsi.chart.XYChart) child;
+                                if (child instanceof de.gsi.chart.XYChart xyChart) {
                                     double v = (height / chartsPerScreen) - heightTop;
 //                                    Platform.runLater(() -> xyChart.setPrefHeight(v));
                                     prefHeightMap.put(xyChart, v);
@@ -1135,9 +1131,8 @@ public class ChartPlugin implements Plugin {
                         } else if (isTableV) {
                             double v = height / chartsPerScreen;
                             for (Node node1 : borderChildren) {
-                                if (node1 instanceof VBox) {
-                                    VBox vBox1 = (VBox) node1;
-//                                    Platform.runLater(() -> vBox1.setPrefHeight(v));
+                                if (node1 instanceof VBox vBox1) {
+                                    //                                    Platform.runLater(() -> vBox1.setPrefHeight(v));
                                     prefHeightMap.put(vBox1, v);
                                 }
                             }
@@ -1185,26 +1180,20 @@ public class ChartPlugin implements Plugin {
         Platform.runLater(() -> {
             try {
                 maxHeightMap.forEach((node, aDouble) -> {
-                    if (node instanceof de.gsi.chart.XYChart) {
-                        de.gsi.chart.XYChart xyChart = (de.gsi.chart.XYChart) node;
+                    if (node instanceof de.gsi.chart.XYChart xyChart) {
                         xyChart.setMaxHeight(aDouble);
                     }
                 });
                 prefHeightMap.forEach((node, aDouble) -> {
-                    if (node instanceof HBox) {
-                        HBox hBox = (HBox) node;
+                    if (node instanceof HBox hBox) {
                         hBox.setPrefHeight(aDouble);
-                    } else if (node instanceof VBox) {
-                        VBox vBox1 = (VBox) node;
+                    } else if (node instanceof VBox vBox1) {
                         vBox1.setPrefHeight(aDouble);
-                    } else if (node instanceof BorderPane) {
-                        BorderPane borderPane = (BorderPane) node;
+                    } else if (node instanceof BorderPane borderPane) {
                         borderPane.setPrefHeight(aDouble);
-                    } else if (node instanceof Pane) {
-                        Pane pane = (Pane) node;
+                    } else if (node instanceof Pane pane) {
                         pane.setPrefHeight(aDouble);
-                    } else if (node instanceof de.gsi.chart.XYChart) {
-                        de.gsi.chart.XYChart xyChart = (de.gsi.chart.XYChart) node;
+                    } else if (node instanceof de.gsi.chart.XYChart xyChart) {
                         xyChart.setPrefHeight(aDouble);
                     }
                 });
@@ -1299,14 +1288,13 @@ public class ChartPlugin implements Plugin {
 
             firstStart = false;
 
-            if (object instanceof AnalysisRequest) {
+            if (object instanceof AnalysisRequest analysisRequest) {
 
                 /**
                  * clear old model
                  */
                 dataModel.reset();
 
-                AnalysisRequest analysisRequest = (AnalysisRequest) object;
                 JEVisObject jeVisObject = analysisRequest.getObject();
                 if (jeVisObject.getJEVisClassName().equals("Analysis")) {
 
@@ -1353,9 +1341,8 @@ public class ChartPlugin implements Plugin {
 
                     Platform.runLater(() -> getToolBarView().getAnalysesComboBox().updateListAnalyses());
 
+                    dataSettings.setCurrentAnalysis(null);
                     dataSettings.setCurrentAnalysis(ds.getCurrentUser().getUserObject());
-
-                    update();
 
                     Platform.runLater(() -> toolBarView.getPickerCombo().updateCellFactory());
 

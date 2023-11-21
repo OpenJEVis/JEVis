@@ -531,6 +531,7 @@ public class ObjectPlugin implements Plugin {
             case Constants.Plugin.Command.ENABLE_ALL:
             case Constants.Plugin.Command.REPLACE:
             case Constants.Plugin.Command.RESET_CALCULATION:
+            case Constants.Plugin.Command.DELETE_DEPENDENCIES:
             case Constants.Plugin.Command.SET_LIMITS:
             case Constants.Plugin.Command.SET_SUBSTITUTION_SETTINGS:
             case Constants.Plugin.Command.SET_UNITS_AND_PERIODS:
@@ -693,6 +694,9 @@ public class ObjectPlugin implements Plugin {
                     break;
                 case Constants.Plugin.Command.RESET_CALCULATION:
                     TreeHelper.EventDeleteAllCalculations(tree);
+                    break;
+                case Constants.Plugin.Command.DELETE_DEPENDENCIES:
+                    TreeHelper.EventDeleteAllDependencies(tree);
                     break;
                 case Constants.Plugin.Command.SET_LIMITS:
                     TreeHelper.EventSetLimitsRecursive(tree);
@@ -948,8 +952,7 @@ public class ObjectPlugin implements Plugin {
     }
 
     private void changed(ObservableValue observable, Object oldValue, Object newValue) {
-        if (newValue instanceof JEVisTreeItem) {
-            JEVisTreeItem item = (JEVisTreeItem) newValue;
+        if (newValue instanceof JEVisTreeItem item) {
             JEVisObject obj = item.getValue().getJEVisObject();
 
             loadingObjectProperty.setValue(true);

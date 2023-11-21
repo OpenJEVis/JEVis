@@ -195,15 +195,30 @@ public class SaveAnalysisDialog extends Dialog {
             }
             if (!check.contains(name.getText())) {
                 JEVisObject newAnalysisObject = null;
+                boolean createOk = true;
                 try {
-                    JEVisClass classAnalysis = ds.getJEVisClass("Analysis");
-                    newAnalysisObject = currentAnalysisDirectory.buildObject(name.getText(), classAnalysis);
-                    newAnalysisObject.commit();
+                    createOk = ds.getCurrentUser().canCreate(currentAnalysisDirectory.getID());
+                    if (!createOk) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.object.permission.create.denied"));
+                        alert.initOwner(ControlCenter.getStage());
+                        alert.initModality(Modality.APPLICATION_MODAL);
+                        Stage stageAlert = (Stage) alert.getDialogPane().getScene().getWindow();
+                        TopMenu.applyActiveTheme(stageAlert.getScene());
+                        stageAlert.setAlwaysOnTop(true);
+                        alert.showAndWait();
+                        this.close();
+                    }
 
-                } catch (JEVisException e) {
+                    if (createOk) {
+                        JEVisClass classAnalysis = ds.getJEVisClass("Analysis");
+                        newAnalysisObject = currentAnalysisDirectory.buildObject(name.getText(), classAnalysis);
+                        newAnalysisObject.commit();
+                    }
+
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (newAnalysisObject != null) {
+                if (createOk && newAnalysisObject != null) {
                     chartPlugin.getAnalysisHandler().saveDataModel(newAnalysisObject, chartPlugin.getDataModel(), toolBarView.getToolBarSettings(), dataSettings);
                     toolBarView.setChanged(false);
 
@@ -254,7 +269,26 @@ public class SaveAnalysisDialog extends Dialog {
                     dialogOverwrite.close();
                 });
 
-                dialogOverwrite.show();
+                boolean writeOk = true;
+                try {
+                    writeOk = ds.getCurrentUser().canWrite(currentAnalysis.get().getID());
+                    if (!writeOk) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.object.permission.write.denied"));
+                        alert.initOwner(ControlCenter.getStage());
+                        alert.initModality(Modality.APPLICATION_MODAL);
+                        Stage stageAlert = (Stage) alert.getDialogPane().getScene().getWindow();
+                        TopMenu.applyActiveTheme(stageAlert.getScene());
+                        stageAlert.setAlwaysOnTop(true);
+                        alert.showAndWait();
+                        this.close();
+                    }
+                } catch (Exception e) {
+                    logger.error("Could not do write check", e);
+                }
+
+                if (writeOk) {
+                    dialogOverwrite.show();
+                }
             }
             close();
         });

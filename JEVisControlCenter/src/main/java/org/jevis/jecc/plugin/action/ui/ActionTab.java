@@ -1,6 +1,7 @@
 package org.jevis.jecc.plugin.action.ui;
 
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -18,7 +19,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jecc.application.table.SummeryData;
+import org.jevis.jecc.application.table.SummeryTable;
 import org.jevis.jecc.plugin.action.ActionController;
 import org.jevis.jecc.plugin.action.data.ActionPlanData;
 import org.jevis.jecc.plugin.action.data.ActionPlanOverviewData;
@@ -222,10 +226,22 @@ public class ActionTab extends Tab {
 
 
         SummeryTable summeryTable = new SummeryTable(actionTable);
+        VBox vbox = new VBox(summeryTable);
         summeryTable.setItems(actionTable.getSummeryData());
+        summeryTable.getItems().addListener((ListChangeListener<SummeryData>) c -> {
+            while (c.next()) {
+
+            }
+            Platform.runLater(() -> {
+                summeryTable.setMinHeight(c.getList().size() * 28);
+                vbox.setMinHeight(c.getList().size() * 28);
+            });
+
+        });
+
 
         borderPane.setCenter(actionTable);
-        borderPane.setBottom(summeryTable);
+        borderPane.setBottom(vbox);
 
         actionTable.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
@@ -240,6 +256,10 @@ public class ActionTab extends Tab {
 
         actionTable.filter();
 
+        Platform.runLater(() -> {
+            summeryTable.setMinHeight(summeryTable.getItems().size() * 28);
+            vbox.setMinHeight(summeryTable.getItems().size() * 28);
+        });
 
     }
 
@@ -258,6 +278,10 @@ public class ActionTab extends Tab {
 
     public ActionTable getActionTable() {
         return actionTable;
+    }
+
+    public Statistics getStatistics() {
+        return statistics;
     }
 
     public void updateStatistics() {

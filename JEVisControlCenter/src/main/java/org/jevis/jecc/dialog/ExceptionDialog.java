@@ -20,7 +20,6 @@
  */
 package org.jevis.jecc.dialog;
 
-import com.jfoenix.controls.JFXTextArea;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -32,6 +31,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -264,7 +264,7 @@ public class ExceptionDialog {
         stage.setResizable(false);
 
         HBox infoBox = new HBox();
-        JFXTextArea info = new JFXTextArea(exceptionToString(ex));
+        TextArea info = new TextArea(exceptionToString(ex));
 
         info.setWrapText(false);
         info.setPrefColumnCount(50);

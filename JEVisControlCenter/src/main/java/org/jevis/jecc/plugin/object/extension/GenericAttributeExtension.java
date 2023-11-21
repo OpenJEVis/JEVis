@@ -47,7 +47,7 @@ import org.jevis.jecc.plugin.object.attribute.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//import static org.jevis.jeconfig.JEConfig.PROGRAM_INFO;
+//import static org.jevis.jecc.JEConfig.PROGRAM_INFO;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -143,6 +143,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     editor = new FileEditor(att);
                 } else if (guiDisplayType.equals(GUIConstants.BASIC_FILER.getId())) {
                     editor = new FileEditor(att);
+                } else if (guiDisplayType.equals(GUIConstants.RICH_TEXT_FORMAT.getId())) {
+                    editor = new FileRTF(att);
                 } else {
                     editor = new StringEditor(att);
                 }
@@ -190,8 +192,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     }
 
     @Override
-    public BooleanProperty getValueChangedProperty() {
-        return _changed;
+    public Node getView() {
+        return _view;
     }
 
     @Override
@@ -214,11 +216,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     public void dismissChanges() {
         _changed.setValue(false);
         //TODO delete changes
-    }
-
-    @Override
-    public void showHelp(boolean show) {
-
     }
 
     @Override
@@ -258,6 +255,16 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     }
 
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
+    }
+
+    @Override
+    public void showHelp(boolean show) {
+
+    }
+
     private boolean saveAll() {
         for (AttributeEditor editor : _attributesEditor) {
             try {
@@ -267,7 +274,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             } catch (Exception ex) {
                 logger.catching(ex);
                 ExceptionDialog dia = new ExceptionDialog();
-//                ExceptionDialog.Response re = dia.show(JEConfig.getStage(),
+//                ExceptionDialog.Response re = dia.show(ControlCenter.getStage(),
 //                        I18n.getInstance().getString("dialog.error.title"),
 //                        I18n.getInstance().getString("dialog.error.servercommit"), ex, PROGRAM_INFO);
 //                if (re == ExceptionDialog.Response.CANCEL) {
@@ -289,11 +296,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             }
         }
         return null;
-    }
-
-    @Override
-    public Node getView() {
-        return _view;
     }
 
     private void buildGui(JEVisObject obj) {
@@ -338,6 +340,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         Label name = new Label(I18nWS.getInstance().getAttributeName(att));
                         name.setWrapText(true);
                         name.setMinWidth(100);
+                        name.setMaxWidth(150);
+                        name.setAlignment(Pos.CENTER_LEFT);
 
                         try {
 
@@ -372,7 +376,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         Separator sep = new Separator(Orientation.HORIZONTAL);
                         sep.setOpacity(0.2d);
                         gridPane.add(sep, 0, coloum, 3, 1);
-                        name.setAlignment(Pos.CENTER_RIGHT);
+
 
                         coloum++;
                         _attributesEditor.add(editor);

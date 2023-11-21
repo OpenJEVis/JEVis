@@ -13,11 +13,13 @@ import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSource;
 import org.jevis.commons.driver.DataSourceFactory;
 import org.jevis.commons.driver.DriverHelper;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
-import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,7 +88,7 @@ public class Launcher extends AbstractCliApp {
                                         JEVisAttribute attribute = object.getAttribute(DataCollectorTypes.DataSource.MANUAL_TRIGGER);
                                         JEVisSample sample = attribute.buildSample(DateTime.now(), false);
                                         sample.commit();
-                                    } catch (JEVisException e) {
+                                    } catch (Exception e) {
                                         logger.error("Could not disable manual trigger for datasource {}:{}", object.getName(), object.getID());
                                         removeJob(object);
                                     }
@@ -139,7 +141,9 @@ public class Launcher extends AbstractCliApp {
             }
             logger.info("----------------Finished DataSource " + object.getName() + "-----------------");
 
-            logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+            StringBuilder running = new StringBuilder();
+            runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
+            logger.info("Queued Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
 
             checkLastJob();
         }
@@ -191,7 +195,7 @@ public class Launcher extends AbstractCliApp {
 
             checkForTimeout();
 
-            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+            if (plannedJobs.isEmpty() && runningJobs.isEmpty()) {
                 TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 //                if (!firstRun) {
 //                    try {
@@ -232,8 +236,10 @@ public class Launcher extends AbstractCliApp {
         try {
             SampleHandler sampleHandler = new SampleHandler();
             JEVisClass dataSourceClass = client.getJEVisClass(DataCollectorTypes.DataSource.NAME);
-            JEVisDataSourceWS dsWS = (JEVisDataSourceWS) ds;
-            List<JEVisObject> allDataSources = dsWS.getObjectsWS(dataSourceClass, true);
+            DateTime start = new DateTime();
+            ds.reloadObjects();
+            logger.info("Reloaded objects in {}", new Period(new DateTime().getMillis() - start.getMillis()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
+            List<JEVisObject> allDataSources = ds.getObjects(dataSourceClass, true);
             for (JEVisObject dataSource : allDataSources) {
                 try {
                     ds.reloadAttribute(dataSource);

@@ -1,8 +1,8 @@
 package org.jevis.jecc.plugin.legal.ui.tab;
 
 import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -10,16 +10,19 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.plugin.legal.data.IndexOfLegalProvisions;
 import org.jevis.jecc.plugin.legal.data.ObligationData;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 public class GeneralTab extends Tab {
-    private final JFXDatePicker f_issueDate = new JFXDatePicker();
-    private final JFXDatePicker f_activeVersion = new JFXDatePicker();
-    private final JFXDatePicker f_dateOfExamination = new JFXDatePicker();
+    private final MFXDatePicker f_issueDate = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+    private final MFXDatePicker f_activeVersion = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+    private final MFXDatePicker f_dateOfExamination = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
 
     private final JFXCheckBox f_relevance = new JFXCheckBox();
 
@@ -61,16 +64,6 @@ public class GeneralTab extends Tab {
     public void initTab(ObligationData data) {
         this.obligationData = data;
 
-
-//        addTabEvent(f_ImmediateMeasures);
-//
-//        addTabEvent(f_Cause);
-//
-//        addTabEvent(f_Description);
-//
-//        addTabEvent(f_CorrectiveActions);
-
-
         GridPane gridPane = new GridPane();
         notificationPane.setContent(gridPane);
         gridPane.setPadding(new Insets(20));
@@ -78,13 +71,12 @@ public class GeneralTab extends Tab {
         IndexOfLegalProvisions nonconformityPlan = obligationData.getLegalCadastre();
 
 
-        //ScrollPane scrollPane = new ScrollPane(gridPane);
+
         gridPane.setVgap(10);
         gridPane.setHgap(15);
 
         f_scope.setItems(data.getLegalCadastre().getScopes());
         f_category.setItems(data.getLegalCadastre().getCategories());
-        //gridPane.gridLinesVisibleProperty().set(true);
 
         add(gridPane, 1, 1, 1, 1, Priority.ALWAYS, l_Nr);
         add(gridPane, 1, 2, 1, 1, Priority.ALWAYS, l_title);
@@ -115,8 +107,12 @@ public class GeneralTab extends Tab {
 
         add(gridPane, 1, 6, 2, 1, Priority.ALWAYS, l_description);
         add(gridPane, 1, 7, 2, 1, Priority.ALWAYS, f_description);
+
         add(gridPane, 3, 6, 2, 1, Priority.ALWAYS, l_importanceForTheCompany);
         add(gridPane, 3, 7, 2, 1, Priority.ALWAYS, f_importanceForTheCompany);
+
+        f_description.setWrapText(true);
+        f_importanceForTheCompany.setWrapText(true);
 
 
         Region col3Spacer = new Region();
@@ -128,7 +124,7 @@ public class GeneralTab extends Tab {
         int textFieldWeight = 400;
 
 
-        f_Nr.setEditable(false);
+        f_Nr.setEditable(ControlCenter.getExpert());
 
 
         //scrollPane.setContent(gridPane);
@@ -215,5 +211,9 @@ public class GeneralTab extends Tab {
         });
 
         f_Nr.setText(String.valueOf(data.nrProperty().get()));
+        f_Nr.textProperty().addListener((observableValue, s, t1) -> {
+            Integer i = Integer.valueOf(t1);
+            data.nrProperty().set(i);
+        });
     }
 }

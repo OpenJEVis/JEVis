@@ -19,7 +19,6 @@ import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.application.Chart.data.ChartDataRow;
 import org.jevis.jecc.application.tools.ColorHelper;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.JsonNames;
 import org.jevis.jecc.plugin.dashboard.config2.Size;
 import org.jevis.jecc.plugin.dashboard.config2.WidgetConfigDialog;
@@ -230,7 +229,7 @@ public class PieWidget extends Widget implements DataModelWidget {
     public void init() {
 
         try {
-            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
+            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
             this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
             ex.printStackTrace();

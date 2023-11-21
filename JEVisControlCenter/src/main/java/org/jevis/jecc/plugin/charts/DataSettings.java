@@ -1,5 +1,6 @@
 package org.jevis.jecc.plugin.charts;
 
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -12,7 +13,10 @@ public class DataSettings {
     private final SimpleObjectProperty<ManipulationMode> manipulationMode = new SimpleObjectProperty<>(this, "manipulatonMode", ManipulationMode.NONE);
     private final SimpleObjectProperty<AnalysisTimeFrame> analysisTimeFrame = new SimpleObjectProperty<>(this, "analysisTimeFrame", null);
     private final SimpleObjectProperty<WorkDays> workDays = new SimpleObjectProperty<>(this, "workDays", new WorkDays(null));
-    private final SimpleObjectProperty<JEVisObject> currentAnalysis = new SimpleObjectProperty<>(this, "currentAnalysis", null);
+    private ObjectProperty<JEVisObject> currentAnalysis = null;
+
+    public DataSettings() {
+    }
 
     public AggregationPeriod getAggregationPeriod() {
         return aggregationPeriod.get();
@@ -51,7 +55,9 @@ public class DataSettings {
     }
 
     public JEVisObject getCurrentAnalysis() {
-        return currentAnalysis.get();
+        if (currentAnalysis != null) {
+            return currentAnalysis.get();
+        } else return null;
     }
 
     public void setCurrentAnalysis(JEVisObject currentAnalysis) {
@@ -61,7 +67,11 @@ public class DataSettings {
         }
     }
 
-    public SimpleObjectProperty<JEVisObject> currentAnalysisProperty() {
+    public void setCurrentAnalysisProperty(ObjectProperty<JEVisObject> property) {
+        this.currentAnalysis = property;
+    }
+
+    public ObjectProperty<JEVisObject> currentAnalysisProperty() {
         return currentAnalysis;
     }
 

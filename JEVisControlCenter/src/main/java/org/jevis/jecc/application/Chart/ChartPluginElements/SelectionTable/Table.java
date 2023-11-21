@@ -3,7 +3,6 @@ package org.jevis.jecc.application.Chart.ChartPluginElements.SelectionTable;
 import javafx.application.Platform;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.paint.Color;
@@ -14,6 +13,7 @@ import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jecc.application.Chart.ChartTools;
 import org.jevis.jecc.application.Chart.ChartType;
 import org.jevis.jecc.application.Chart.data.ChartData;
 import org.jevis.jecc.application.Chart.data.ChartModel;
@@ -36,6 +36,7 @@ public class Table extends TableView<ChartData> {
     private final TableColumn<ChartData, AggregationPeriod> aggregationPeriodColumn;
     private final TableColumn<ChartData, ManipulationMode> manipulationModeColumn;
     private final TableColumn<ChartData, Boolean> mathColumn;
+    private final TableColumn<ChartData, Integer> decimalDigitsColumn;
     private final TableColumn<ChartData, String> cssColumn;
     private final ChartModel chartModel;
     private final JEVisDataSource ds;
@@ -62,11 +63,12 @@ public class Table extends TableView<ChartData> {
         aggregationPeriodColumn = buildAggregationPeriodColumn();
         manipulationModeColumn = buildManipulationModeColumn();
         mathColumn = buildMathColumn();
+        decimalDigitsColumn = buildDecimalDigitsColumn();
         cssColumn = buildCssColumn();
 
         getColumns().setAll(objectNameColumn, nameColumn, processorObjectColumn, chartTypeColumn, colorColumn, unitColumn,
                 intervalEnabledColumn, intervalStartColumn, intervalEndColumn,
-                bubbleTypeColumn, axisColumn, aggregationPeriodColumn, manipulationModeColumn, mathColumn, cssColumn);
+                bubbleTypeColumn, axisColumn, aggregationPeriodColumn, manipulationModeColumn, mathColumn, decimalDigitsColumn, cssColumn);
         getSortOrder().setAll(nameColumn);
     }
 
@@ -169,7 +171,7 @@ public class Table extends TableView<ChartData> {
         column.setMinWidth(50);
         column.setStyle("-fx-alignment: CENTER;");
         column.setCellValueFactory(new PropertyValueFactory<>("intervalEnabled"));
-        column.setCellFactory(CheckBoxTableCell.forTableColumn(column));
+        column.setCellFactory(CheckBoxTableCell.forTableColumn());
         column.setEditable(true);
         column.setOnEditCommit(chartDataBooleanCellEditEvent -> {
             chartDataBooleanCellEditEvent.getTableView().getItems().get(chartDataBooleanCellEditEvent.getTablePosition().getRow())
@@ -255,11 +257,32 @@ public class Table extends TableView<ChartData> {
         column.setMinWidth(120);
         column.setStyle("-fx-alignment: CENTER;");
         column.setCellValueFactory(new PropertyValueFactory<>("calculation"));
-        column.setCellFactory(CheckBoxTableCell.forTableColumn(column));
+        column.setCellFactory(CheckBoxTableCell.forTableColumn());
         column.setEditable(true);
-        column.setOnEditCommit(chartDataBooleanCellEditEvent ->
-                chartDataBooleanCellEditEvent.getTableView().getItems().get(chartDataBooleanCellEditEvent.getTablePosition().getRow())
-                        .setCalculation(chartDataBooleanCellEditEvent.getNewValue()));
+        column.setOnEditCommit(chartDataBooleanCellEditEvent -> {
+            ChartData chartData = chartDataBooleanCellEditEvent.getTableView().getItems().get(chartDataBooleanCellEditEvent.getTablePosition().getRow());
+            chartData.setCalculation(chartDataBooleanCellEditEvent.getNewValue());
+
+            if (chartDataBooleanCellEditEvent.getNewValue()) {
+                chartData.setCalculationId(ChartTools.getCalculationId(ds, chartData.getId()));
+            } else {
+                chartData.setCalculationId(-1);
+            }
+        });
+        return column;
+    }
+
+    private TableColumn<ChartData, Integer> buildDecimalDigitsColumn() {
+        TableColumn<ChartData, Integer> column = new TableColumn<>(I18n.getInstance().getString("graph.table.decimaldigits"));
+        column.setMinWidth(120);
+        column.setStyle("-fx-alignment: CENTER;");
+        column.setCellValueFactory(new PropertyValueFactory<>("decimalDigits"));
+        column.setCellFactory(DecimalDigitsTableCell.forTableColumn());
+        column.setEditable(true);
+        column.setOnEditCommit(chartDataIntegerCellEditEvent -> {
+            (chartDataIntegerCellEditEvent.getTableView().getItems().get(chartDataIntegerCellEditEvent.getTablePosition().getRow()))
+                    .setDecimalDigits(chartDataIntegerCellEditEvent.getNewValue());
+        });
 
         return column;
     }
@@ -333,6 +356,10 @@ public class Table extends TableView<ChartData> {
 
     public TableColumn<ChartData, Boolean> getMathColumn() {
         return mathColumn;
+    }
+
+    public TableColumn<ChartData, Integer> getDecimalDigitsColumn() {
+        return decimalDigitsColumn;
     }
 
     public TableColumn<ChartData, String> getCssColumn() {

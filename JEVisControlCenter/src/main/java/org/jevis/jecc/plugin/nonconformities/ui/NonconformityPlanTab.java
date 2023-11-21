@@ -1,16 +1,15 @@
 package org.jevis.jecc.plugin.nonconformities.ui;
 
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
@@ -21,6 +20,7 @@ import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jecc.application.table.SummeryTable;
 import org.jevis.jecc.plugin.nonconformities.NonconformitiesController;
 import org.jevis.jecc.plugin.nonconformities.data.NonconformityPlan;
 
@@ -31,12 +31,13 @@ public class NonconformityPlanTab extends Tab {
     private NonconformityPlan plan;
     private NonconformityPlanTable nonconformityPlanTable;
 
-    public NonconformityPlanTab(NonconformityPlan plan, NonconformitiesController controller) {
+
+    public NonconformityPlanTab(NonconformityPlan plan, NonconformitiesController controller, BooleanProperty updateTrigger) {
         super();
 
         textProperty().bind(plan.getName());
         this.plan = plan;
-        this.nonconformityPlanTable = new NonconformityPlanTable(plan, plan.getNonconformityList());
+        this.nonconformityPlanTable = new NonconformityPlanTable(plan, plan.getNonconformityList(), updateTrigger);
 
 
         GridPane gridPane = new GridPane();
@@ -53,17 +54,9 @@ public class NonconformityPlanTab extends Tab {
 
         TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), plan.getMediumTags(), plan.getMediumTags());
         TagButton fieldButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.field"), plan.getFieldsTags(), plan.getFieldsTags());
-        TagButton stausButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus"), plan.getStausTags(), plan.getStausTags());
+        TagButton stausButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus"), plan.getStatusTags(), plan.getStatusTags());
         TagButton seuButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.seu"), plan.getSignificantEnergyUseTags(), plan.getSignificantEnergyUseTags());
 
-        ComboBox<String> datumBox = new ComboBox<>();
-        datumBox.setItems(FXCollections.observableArrayList("Umsetzung", "Abgeschlossen", "Erstellt"));
-        datumBox.getSelectionModel().selectFirst();
-        MFXTextField filterDatumText = new MFXTextField();
-        filterDatumText.setPromptText("Datum...");
-        ComboBox<String> comparatorBox = new ComboBox<>();
-        comparatorBox.setItems(FXCollections.observableArrayList(">", "<", "="));
-        comparatorBox.getSelectionModel().selectFirst();
 
 
         fsearch.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -84,7 +77,6 @@ public class NonconformityPlanTab extends Tab {
 
         Separator vSep1 = new Separator(Orientation.VERTICAL);
         Separator vSep2 = new Separator(Orientation.VERTICAL);
-        ;
 
         GridPane.setRowSpan(vSep1, 2);
         GridPane.setRowSpan(vSep2, 2);
@@ -154,9 +146,11 @@ public class NonconformityPlanTab extends Tab {
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(gridPane);
         borderPane.setCenter(nonconformityPlanTable);
+        SummeryTable summeryTable = new SummeryTable(nonconformityPlanTable);
+        summeryTable.setItems(nonconformityPlanTable.getSummeryData());
 
-        TableSumPanel tableSumPanel = new TableSumPanel(nonconformityPlanTable.getItems());
-        borderPane.setBottom(tableSumPanel);
+//        TableSumPanel tableSumPanel = new TableSumPanel(nonconformityPlanTable.getItems());
+        borderPane.setBottom(summeryTable);
 
         nonconformityPlanTable.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
@@ -171,7 +165,7 @@ public class NonconformityPlanTab extends Tab {
 
     }
 
-    public NonconformityPlanTab(String text, Node content, NonconformityPlan plan) {
+    public NonconformityPlanTab(String text, Node content, NonconformityPlan plan, BooleanProperty updateTrigger) {
         super(text, content);
         this.plan = plan;
     }

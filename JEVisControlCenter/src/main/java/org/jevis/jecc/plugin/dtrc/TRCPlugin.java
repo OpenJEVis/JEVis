@@ -37,12 +37,12 @@ import org.jevis.jecc.application.control.SaveUnderDialog;
 import org.jevis.jecc.application.resource.ResourceLoader;
 import org.jevis.jecc.application.tools.JEVisHelp;
 import org.jevis.jecc.dialog.Response;
+import org.jevis.jecc.plugin.RegisterTableRow;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jecc.plugin.dtrc.dialogs.TemplateCalculationFormulaDialog;
 import org.jevis.jecc.plugin.dtrc.dialogs.TemplateCalculationInputDialog;
 import org.jevis.jecc.plugin.dtrc.dialogs.TemplateCalculationOutputDialog;
-import org.jevis.jecc.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;

@@ -147,11 +147,7 @@ public class OutputView extends Tab {
 
         intervalSelector.updateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                if (intervalSelector.getTimeFactoryBox().getSelectionModel().getSelectedItem().equals(timeFrameFactory.custom())) {
-                    showDatePicker(true);
-                } else {
-                    showDatePicker(false);
-                }
+                showDatePicker(intervalSelector.getTimeFactoryBox().getSelectionModel().getSelectedItem().equals(timeFrameFactory.custom()));
 
                 requestUpdate();
                 intervalSelector.setUpdate(false);
@@ -276,13 +272,19 @@ public class OutputView extends Tab {
         }
 
         Platform.runLater(() -> {
-            intervalSelector.getTimeFactoryBox().getItems().clear();
-            intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrames);
+            try {
+                intervalSelector.getTimeFactoryBox().getItems().clear();
 
-            if (intervalSelector.getTimeFactoryBox().getItems().contains(lastSelectedTimeFrame)) {
-                intervalSelector.getTimeFactoryBox().selectItem(lastSelectedTimeFrame);
-            } else {
-                intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
+                //intervalSelector.getTimeFactoryBox().getItems().clear();
+                intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrames);
+
+                if (intervalSelector.getTimeFactoryBox().getItems().contains(lastSelectedTimeFrame)) {
+                    intervalSelector.getTimeFactoryBox().selectValue(lastSelectedTimeFrame);
+                } else {
+                    intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
+                }
+            } catch (NullPointerException np) {
+                logger.error(np);
             }
         });
     }
@@ -504,7 +506,7 @@ public class OutputView extends Tab {
                     }
 
                     if (fixedTimeFrame != null && reducingTimeFrame != null && !fixedTimeFrame.equals(TimeFrameFactory.NONE)) {
-                        start = fixedTimeFrame.getInterval(getStart()).getStart();
+                        start = fixedTimeFrame.getInterval(getStart(), false).getStart();
                         end = getEnd();
 
                         Period p = null;
@@ -547,7 +549,7 @@ public class OutputView extends Tab {
 
                                 previousEndDate = minusPeriodToDate;
                             } else {
-                                previousEndDate = end.minus(reducingTimeFrame.getInterval(getStart()).toDuration());
+                                previousEndDate = end.minus(reducingTimeFrame.getInterval(getStart(), false).toDuration());
                             }
                         }
 
@@ -1450,8 +1452,6 @@ public class OutputView extends Tab {
                 return name;
 
             }
-
-            ;
 
             @Override
             public JEVisObject fromString(String string) {

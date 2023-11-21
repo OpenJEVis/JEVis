@@ -173,12 +173,12 @@ public class ChartExportPDF {
 
             Platform.runLater(() -> {
                 ControlCenter.getStage().setMaximized(true);
-//                double height = JEConfig.getStage().getHeight();
-//                double width = JEConfig.getStage().getWidth();
-//                JEConfig.getStage().setWidth(0);
-//                JEConfig.getStage().setHeight(0);
-//                JEConfig.getStage().setHeight(height);
-//                JEConfig.getStage().setWidth(width);
+//                double height = ControlCenter.getStage().getHeight();
+//                double width = ControlCenter.getStage().getWidth();
+//                ControlCenter.getStage().setWidth(0);
+//                ControlCenter.getStage().setHeight(0);
+//                ControlCenter.getStage().setHeight(height);
+//                ControlCenter.getStage().setWidth(width);
             });
         });
 

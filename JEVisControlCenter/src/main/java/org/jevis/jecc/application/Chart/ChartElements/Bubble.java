@@ -5,15 +5,18 @@ import org.jevis.api.JEVisSample;
 import java.util.List;
 
 public class Bubble {
-    private final List<JEVisSample> xSamples;
-    private final List<JEVisSample> ySamples;
     private Double x;
     private Double y;
     private Double size;
+    private final List<Boolean> visibleSamples;
 
-    public Bubble(List<JEVisSample> xSamples, List<JEVisSample> ySamples, Double x, Double y, Double size) {
+    private final List<JEVisSample> xSamples;
+    private final List<JEVisSample> ySamples;
+
+    public Bubble(List<JEVisSample> xSamples, List<JEVisSample> ySamples, Double x, Double y, Double size, List<Boolean> visibleSamples) {
         this.xSamples = xSamples;
         this.ySamples = ySamples;
+        this.visibleSamples = visibleSamples;
         this.x = x;
         this.y = y;
         this.size = size;
@@ -41,6 +44,10 @@ public class Bubble {
 
     public void setSize(Double size) {
         this.size = size;
+    }
+
+    public List<Boolean> getVisibleSamples() {
+        return visibleSamples;
     }
 
     public List<JEVisSample> getXSamples() {

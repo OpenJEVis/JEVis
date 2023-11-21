@@ -22,13 +22,13 @@ public class ActionToolbar extends ToolBar {
     private final double iconSize = 20;
     private final ToggleButton actionPlanConfig = new ToggleButton("", ControlCenter.getSVGImage(Icon.SETTINGS, iconSize, iconSize));
     private final ToggleButton openForm = new ToggleButton("", ControlCenter.getSVGImage(Icon.PREVIEW, iconSize, iconSize));
-    private final ToggleButton newAction = new ToggleButton("", ControlCenter.getSVGImage(Icon.PLAYLIST_ADD, iconSize, iconSize));
+    private final ToggleButton newAction = new ToggleButton("", ControlCenter.getSVGImage(Icon.PLUS, iconSize, iconSize));
     private final ToggleButton newPlan = new ToggleButton("", ControlCenter.getSVGImage(Icon.FOLDER_OPEN, iconSize, iconSize));
-    private final ToggleButton deleteAction = new ToggleButton("", ControlCenter.getSVGImage(Icon.PLAYLIST_REMOVE, iconSize, iconSize));
+    private final ToggleButton deleteAction = new ToggleButton("", ControlCenter.getSVGImage(Icon.DELETE, iconSize, iconSize));
     private final ToggleButton deletePlan = new ToggleButton("", ControlCenter.getSVGImage(Icon.DELETE, iconSize, iconSize));
     private final ToggleButton reloadButton = new ToggleButton("", ControlCenter.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
-    private final ToggleButton exportPDF = new ToggleButton("", ControlCenter.getSVGImage(Icon.PDF, this.iconSize, this.iconSize));
-    private final ToggleButton calender = new ToggleButton("", ControlCenter.getSVGImage(Icon.CALENDAR, this.iconSize, this.iconSize));
+    private final ToggleButton exportPDF = new ToggleButton("", ControlCenter.getSVGImage(Icon.EXCEL, this.iconSize, this.iconSize));
+    private final ToggleButton calender = new ToggleButton("", ControlCenter.getSVGImage(Icon.EXCEL, this.iconSize, this.iconSize));
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
     private final ActionController actionController;
@@ -39,7 +39,7 @@ public class ActionToolbar extends ToolBar {
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
-        getItems().setAll(newPlan, actionPlanConfig, deletePlan, reloadButton,
+        getItems().setAll(newPlan, actionPlanConfig, reloadButton,
                 sep1, newAction, deleteAction, openForm,
                 sep2, exportPDF,
                 JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
@@ -100,7 +100,7 @@ public class ActionToolbar extends ToolBar {
         }
         actionPlanConfig.setDisable(isOverview);
         newAction.setDisable(isOverview);
-
+        //exportPDF.setDisable(true);
 
         //exportPDF.setDisable(true);//Disabled because implementation is missing
         //reloadButton.setDisable(true); //Disabled because implementation is missing

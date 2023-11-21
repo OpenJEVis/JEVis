@@ -47,10 +47,9 @@ import org.jevis.jecc.dialog.EnterDataDialog;
 import org.jevis.jecc.dialog.ImageViewerDialog;
 import org.jevis.jecc.dialog.PDFViewerDialog;
 import org.jevis.jecc.dialog.SelectTargetDialog;
-import org.jevis.jecc.plugin.meters.AttributeValueChange;
-import org.jevis.jecc.plugin.meters.JEVisClassTab;
+import org.jevis.jecc.plugin.equipment.AttributeValueChange;
+import org.jevis.jecc.plugin.equipment.JEVisClassTab;
 import org.jevis.jecc.plugin.meters.MeterPlugin;
-import org.jevis.jecc.plugin.meters.RegisterTableRow;
 import org.jevis.jecc.plugin.object.ObjectPlugin;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
@@ -293,7 +292,7 @@ public class TablePlugin implements Plugin {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
+                            RegisterTableRow registerTableRow = getTableRow().getItem();
 
                             MFXButton manSampleButton = new MFXButton("", ControlCenter.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
                             manSampleButton.setDisable(true);
@@ -543,7 +542,7 @@ public class TablePlugin implements Plugin {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
+                            RegisterTableRow registerTableRow = getTableRow().getItem();
 
                             MFXTextField textField = new MFXTextField();
                             textField.setFloatMode(FloatMode.DISABLED);
@@ -780,7 +779,7 @@ public class TablePlugin implements Plugin {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
+                            RegisterTableRow registerTableRow = getTableRow().getItem();
 
                             MFXTextField textField = new MFXTextField();
                             textField.setFloatMode(FloatMode.DISABLED);
@@ -864,7 +863,7 @@ public class TablePlugin implements Plugin {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
+                            RegisterTableRow registerTableRow = getTableRow().getItem();
 
                             MFXTextField textField = new MFXTextField();
                             textField.setFloatMode(FloatMode.DISABLED);

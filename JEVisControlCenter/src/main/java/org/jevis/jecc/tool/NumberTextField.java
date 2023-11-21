@@ -1,12 +1,12 @@
 package org.jevis.jecc.tool;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.TextField;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -19,10 +19,22 @@ import java.text.ParseException;
  *
  * @author Thomas Bolz
  */
-public class NumberTextField extends MFXTextField {
+public class NumberTextField extends TextField {
 
     private final NumberFormat nf;
     private final ObjectProperty<BigDecimal> number = new SimpleObjectProperty<>();
+
+    public final BigDecimal getNumber() {
+        return number.get();
+    }
+
+    public final void setNumber(BigDecimal value) {
+        number.set(value);
+    }
+
+    public ObjectProperty<BigDecimal> numberProperty() {
+        return number;
+    }
 
     public NumberTextField() {
         this(BigDecimal.ZERO);
@@ -40,18 +52,6 @@ public class NumberTextField extends MFXTextField {
         setNumber(value);
     }
 
-    public final BigDecimal getNumber() {
-        return number.get();
-    }
-
-    public final void setNumber(BigDecimal value) {
-        number.set(value);
-    }
-
-    public ObjectProperty<BigDecimal> numberProperty() {
-        return number;
-    }
-
     private void initHandlers() {
 
         // try to parse when focus is lost or RETURN is hit
@@ -67,7 +67,7 @@ public class NumberTextField extends MFXTextField {
 
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (!newValue.booleanValue()) {
+                if (!newValue) {
                     parseAndFormatInput();
                 }
             }

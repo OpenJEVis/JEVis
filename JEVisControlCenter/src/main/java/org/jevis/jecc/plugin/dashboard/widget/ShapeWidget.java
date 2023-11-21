@@ -23,7 +23,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.application.Chart.data.ChartDataRow;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.*;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
@@ -57,10 +56,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private Interval lastInterval = null;
     private Boolean customWorkday = true;
 
-    private double borderWidth = 0;
-
-
-    ;
+    private final double borderWidth = 0;
 
 
     public ShapeWidget(DashboardControl control, WidgetPojo config) {
@@ -167,7 +163,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         System.out.println("return value:" + newColor);
         return newColor;
     }
-
     private double round(double value, double valueRange, double steprange) {
 
         if (steprange == 0) {
@@ -179,7 +174,6 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
 
     }
-
     private void calculateColors(double value) {
 
         double valueRange = (shapeConfig.getMaxValue() - (shapeConfig.getMinValue()));
@@ -317,7 +311,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     @Override
     public void init() {
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(false);
 
 

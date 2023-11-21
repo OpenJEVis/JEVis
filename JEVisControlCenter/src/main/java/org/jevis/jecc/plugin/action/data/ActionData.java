@@ -15,10 +15,10 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.plugin.action.ActionPlugin;
-import org.jevis.jecc.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
@@ -30,8 +30,17 @@ public class ActionData {
 
     private static final Logger logger = LogManager.getLogger(ActionData.class);
     @Expose
+    @SerializedName("Done Date")
+    public final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date",
+            I18n.getInstance().getString("plugin.action.donedate"), null);
+    @Expose
+    @SerializedName("SEU Tags")
+    private final SimpleObjectProperty<String> seuTags = new SimpleObjectProperty<>("");
+
+    @Expose
     @SerializedName("NPV")
     public final SimpleObjectProperty<NPVData> npv = new SimpleObjectProperty<>(new NPVData());
+
     @Expose
     @SerializedName("From User")
     public final SimpleStringProperty fromUser = new SimpleStringProperty("From User",
@@ -40,6 +49,7 @@ public class ActionData {
     @SerializedName("Nr")
     public final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr",
             I18n.getInstance().getString("plugin.action.nr"), 0);
+
     @Expose
     @SerializedName("Desciption")
     public final SimpleStringProperty desciption = new SimpleStringProperty("Desciption",
@@ -56,10 +66,7 @@ public class ActionData {
     @SerializedName("Planned Date")
     public final SimpleObjectProperty<DateTime> plannedDate = new SimpleObjectProperty<>("Planned Date",
             "Umsetzung", (new DateTime()));
-    @Expose
-    @SerializedName("Done Date")
-    public final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date",
-            "Abgeschlossen", null);
+    private final StringProperty nrText = new SimpleStringProperty();
     @Expose
     @SerializedName("Attachment")
     public final SimpleStringProperty attachment = new SimpleStringProperty("Attachment",
@@ -120,23 +127,17 @@ public class ActionData {
     public final SimpleObjectProperty<ConsumptionData> consumption = new SimpleObjectProperty<>(new ConsumptionData());
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
     @Expose
-    @SerializedName("SEU Tags")
-    private final SimpleObjectProperty<String> seuTags = new SimpleObjectProperty<>("");
-    private final StringProperty nrText = new SimpleStringProperty();
-    @Expose
     @SerializedName("Check List")
     private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
     @Expose
     @SerializedName("Deleted")
     private final SimpleBooleanProperty isDeleted = new SimpleBooleanProperty(false);
-    private Gson gson = GsonBuilder.createDefaultBuilder().create();
+    private final Gson gson = GsonBuilder.createDefaultBuilder().create();
+    private final ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
+    private final List<ReadOnlyProperty> propertyList = new ArrayList<>();
     private String originalSettings = "";
     private ChangeListener changeListener;
     private JEVisObject object;
-    private ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-
-    private List<ReadOnlyProperty> propertyList = new ArrayList<>();
-
     private ActionPlanData actionPlan = null;
     private boolean isNew = false;
 
@@ -155,6 +156,7 @@ public class ActionData {
         //System.out.println("-ActionData.update: " + this);
         nr.addListener((observable, oldValue, newValue) -> updateNrText());
         originalSettings = gson.toJson(this);
+        logger.debug("Update Consumption: " + getNrText());
         consumption.get().update();
         enpi.get().setEnPI(true);
         enpi.get().update();
@@ -196,7 +198,7 @@ public class ActionData {
         // if (valueChanged.getValue()) return true;
 
         if (isDeletedProperty().get() || originalSettings == null || !gson.toJson(this).equals(originalSettings)) {
-            System.out.println("gson change");
+            logger.debug("gson change");
             return true;
         }
 
@@ -206,8 +208,8 @@ public class ActionData {
 
     public void commit() {
         try {
-            System.out.println("ActonData.commit: " + nr.get() + " changes: " + valueChanged.getValue());
-            if (!hasChanged()) return;
+            logger.debug("ActonData.commit: " + nr.get() + " changes: " + valueChanged.getValue());
+            // if (!hasChanged()) return;
 
             Task task = new Task() {
                 @Override
@@ -217,12 +219,16 @@ public class ActionData {
                             // System.out.println("Json:\n" + ActionData.this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataNode));
 
                             if (object != null) {
+                                String titleShort = (title.get().length() < 50) ? title.get() : title.get().substring(0, 50) + "..";
+                                object.setName(getNrText() + " - " + titleShort);
+                                object.commit();
+
                                 JEVisAttribute dataModel = object.getAttribute("Data");
 
                                 JEVisFileImp jsonFile = new JEVisFileImp(
                                         "DataModel_v2" + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
                                         , gson.toJson(ActionData.this).getBytes(StandardCharsets.UTF_8));
-                                System.out.println("Json to commit: " + gson.toJson(ActionData.this));
+                                logger.debug("Json to commit: " + gson.toJson(ActionData.this));
 
                                 JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
                                 newSample.commit();

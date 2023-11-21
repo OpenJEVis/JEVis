@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.application.control.ColorPickerAdv;
 
+@Deprecated
 public class GaugeSectionTableFactory {
 
 
@@ -56,7 +57,7 @@ public class GaugeSectionTableFactory {
 
                             colorPicker.setStyle("-fx-color-label-visible: false ;");
                             colorPicker.setOnAction(event -> {
-                                GaugeSectionPojo gaugeSectionPojo = (GaugeSectionPojo) getTableRow().getItem();
+                                GaugeSectionPojo gaugeSectionPojo = getTableRow().getItem();
                                 gaugeSectionPojo.setColor(colorPicker.getValue());
                             });
 
@@ -107,7 +108,7 @@ public class GaugeSectionTableFactory {
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
-                                    GaugeSectionPojo gaugeSectionPojo = (GaugeSectionPojo) getTableRow().getItem();
+                                    GaugeSectionPojo gaugeSectionPojo = getTableRow().getItem();
                                     gaugeSectionPojo.setStart(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
@@ -118,7 +119,7 @@ public class GaugeSectionTableFactory {
                                 @Override
                                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                                     try {
-                                        tableView.getSelectionModel().select((GaugeSectionPojo) getTableRow().getItem());
+                                        tableView.getSelectionModel().select(getTableRow().getItem());
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -169,7 +170,7 @@ public class GaugeSectionTableFactory {
                             MFXTextField textField = buildDoubleTextField(item.toString());
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
-                                    GaugeSectionPojo gaugeSectionPojo = (GaugeSectionPojo) getTableRow().getItem();
+                                    GaugeSectionPojo gaugeSectionPojo = getTableRow().getItem();
                                     gaugeSectionPojo.setEnd(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
@@ -180,7 +181,7 @@ public class GaugeSectionTableFactory {
                                 @Override
                                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                                     try {
-                                        tableView.getSelectionModel().select((GaugeSectionPojo) getTableRow().getItem());
+                                        tableView.getSelectionModel().select(getTableRow().getItem());
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -235,7 +236,7 @@ public class GaugeSectionTableFactory {
         field.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (oldValue == true && newValue == false) {
+                if (oldValue && !newValue) {
                     GaugeSectionTableFactory.this.tableView.refresh();
                 }
             }

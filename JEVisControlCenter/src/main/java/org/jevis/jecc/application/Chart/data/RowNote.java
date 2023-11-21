@@ -1,6 +1,7 @@
 package org.jevis.jecc.application.Chart.data;
 
 import com.ibm.icu.text.DecimalFormat;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import org.jevis.api.*;
@@ -23,6 +24,7 @@ public class RowNote {
     private final SimpleStringProperty userNote = new SimpleStringProperty(this, "userNote");
     private final SimpleStringProperty userValue = new SimpleStringProperty(this, "userValue");
     private final SimpleStringProperty userValueUnit = new SimpleStringProperty(this, "userValueUnit");
+    private final SimpleBooleanProperty visible = new SimpleBooleanProperty(this, "visible");
     private final SimpleObjectProperty<JEVisSample> ySample = new SimpleObjectProperty<>(this, "ySample");
     private final SimpleObjectProperty<JEVisSample> xSample = new SimpleObjectProperty<>(this, "xSample");
     private final DecimalFormat nf = new DecimalFormat();
@@ -36,11 +38,12 @@ public class RowNote {
         nf.setSignificantDigitsUsed(true);
     }
 
-    public RowNote(String name, JEVisSample xSample, JEVisSample ySample) {
+    public RowNote(String name, JEVisSample xSample, JEVisSample ySample, Boolean visible) {
         this();
         this.name.set(name);
         this.xSample.set(xSample);
         this.ySample.set(ySample);
+        this.visible.set(visible);
     }
 
 
@@ -490,5 +493,17 @@ public class RowNote {
 
     public SimpleObjectProperty<JEVisSample> xSampleProperty() {
         return xSample;
+    }
+
+    public boolean isVisible() {
+        return visible.get();
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible.set(visible);
+    }
+
+    public SimpleBooleanProperty visibleProperty() {
+        return visible;
     }
 }

@@ -42,7 +42,6 @@ import org.jevis.jecc.application.Chart.data.ChartDataRow;
 import org.jevis.jecc.application.jevistree.methods.CommonMethods;
 import org.jevis.jecc.application.tools.ColorHelper;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.*;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
@@ -61,20 +60,22 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ValueWidget.class);
     public static String WIDGET_ID = "Value";
-    public static String PERCENT_NODE_NAME = "percent";
-    public static String LIMIT_NODE_NAME = "limit";
     private final Label label = new Label();
     private final NumberFormat nf = new DecimalFormat("#,##0.##");//NumberFormat.getInstance();
     private final NumberFormat nfPercent = new DecimalFormat("0");
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
     private Limit limit;
+    public static String PERCENT_NODE_NAME = "percent";
     private Interval lastInterval = null;
     private ChangeListener<Number> limitListener = null;
     private ChangeListener<Number> percentListener = null;
     private ValueWidget limitWidget = null;
     private ValueWidget percentWidget = null;
     private String percentText = "";
+
+
+    public static String LIMIT_NODE_NAME = "limit";
     private Percent percent;
     private Boolean customWorkday = true;
 
@@ -436,7 +437,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(LIMIT_NODE_NAME));

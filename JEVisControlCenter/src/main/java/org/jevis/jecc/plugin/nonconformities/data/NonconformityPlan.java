@@ -9,12 +9,13 @@ import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jecc.tool.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,29 +26,29 @@ public class NonconformityPlan {
 
     protected static final Logger logger = LogManager.getLogger(NonconformityPlan.class);
     public static String OPEN = I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus.open");
-    public static String CLOSE = I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus.completed");
     protected SimpleStringProperty prefix = new SimpleStringProperty();
     protected StringProperty name = new SimpleStringProperty("");
     protected ObservableList<String> mediumTags;
+    public static String CLOSE = I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.staus.completed");
     protected ObservableList<NonconformityData> nonconformityList = FXCollections.observableArrayList();
     protected ObservableList<String> fieldsTags;
-
-    protected ObservableList<String> stausTags = FXCollections.observableArrayList(OPEN, CLOSE);
+    private final AtomicInteger biggestActionNr = new AtomicInteger(0);
 
     protected ObservableList<String> significantEnergyUseTags;
+    private final String ATTRIBUTE_CMEDIUM = "Custom Medium";
     protected String initNrPrefix = "";
+
+    private String initCustomFields = "";
+    private String initCustomSEU = "";
+    private final String ATTRIBUTE_EnPI = "EnPI";
+    private final String ATTRIBUTE_PREFIX = "prefix";
+    private final String ATTRIBUTE_CFIELD = "Custom Fields";
+    private final String ATTRIBUTE_SEU = "Custom SEU";
+    private final AtomicBoolean actionsLoaded = new AtomicBoolean(false);
+    protected ObservableList<String> statusTags = FXCollections.observableArrayList(OPEN, CLOSE);
     private JEVisObject object;
     private ObservableList<JEVisObject> enpis;
     private String initCustomMedium = "";
-    private String initCustomFields = "";
-    private String initCustomSEU = "";
-    private AtomicInteger biggestActionNr = new AtomicInteger(0);
-    private String ATTRIBUTE_CMEDIUM = "Custom Medium";
-    private String ATTRIBUTE_EnPI = "EnPI";
-    private String ATTRIBUTE_PREFIX = "prefix";
-    private String ATTRIBUTE_CFIELD = "Custom Fields";
-    private String ATTRIBUTE_SEU = "Custom SEU";
-    private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
 
     public NonconformityPlan(JEVisObject obj) {
 
@@ -75,9 +76,7 @@ public class NonconformityPlan {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomMedium = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    mediumTags.add(s);
-                }
+                Collections.addAll(mediumTags, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -91,9 +90,7 @@ public class NonconformityPlan {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomFields = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    fieldsTags.add(s);
-                }
+                Collections.addAll(fieldsTags, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -106,9 +103,7 @@ public class NonconformityPlan {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomSEU = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    significantEnergyUseTags.add(s);
-                }
+                Collections.addAll(significantEnergyUseTags, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -144,6 +139,11 @@ public class NonconformityPlan {
     public NonconformityPlan() {
     }
 
+
+    public ObservableList<JEVisObject> getEnpis() {
+        return enpis;
+    }
+
     public static String listToString(ObservableList<String> list) {
         boolean first = true;
         String string = "";
@@ -156,10 +156,6 @@ public class NonconformityPlan {
             }
         }
         return string;
-    }
-
-    public ObservableList<JEVisObject> getEnpis() {
-        return enpis;
     }
 
     public void reloadActionList() {
@@ -176,7 +172,6 @@ public class NonconformityPlan {
                 JEVisClass actionClass = object.getDataSource().getJEVisClass("Nonconformity");
                 for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
                     dirObj.getChildren(actionClass, false).forEach(actionObj -> {
-                        System.out.println("new Action from JEVis: " + actionObj);
                         try {
                             nonconformityList.add(loadNonconformties(actionObj));
                         } catch (Exception e) {
@@ -195,7 +190,6 @@ public class NonconformityPlan {
 
     public NonconformityData loadNonconformties(JEVisObject actionObj) throws JEVisException, NullPointerException {
         JEVisAttribute att = actionObj.getAttribute("Data");
-        ;
         JEVisSample sample = att.getLatestSample();
         JEVisFile file = sample.getValueAsFile();
         String s = new String(file.getBytes(), StandardCharsets.UTF_8);
@@ -332,12 +326,12 @@ public class NonconformityPlan {
         return prefix.get();
     }
 
-    public void setPrefix(String prefix) {
-        this.prefix.set(prefix);
-    }
-
     public SimpleStringProperty prefixProperty() {
         return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix.set(prefix);
     }
 
     public ObservableList<NonconformityData> getNonconformityList() {
@@ -365,12 +359,12 @@ public class NonconformityPlan {
         this.significantEnergyUseTags = significantEnergyUseTags;
     }
 
-    public ObservableList<String> getStausTags() {
-        return stausTags;
+    public ObservableList<String> getStatusTags() {
+        return statusTags;
     }
 
-    public void setStausTags(ObservableList<String> stausTags) {
-        this.stausTags = stausTags;
+    public void setStatusTags(ObservableList<String> statusTags) {
+        this.statusTags = statusTags;
     }
 
     @Override
@@ -381,7 +375,7 @@ public class NonconformityPlan {
                 ", name=" + name +
                 ", nonconformityList=" + nonconformityList +
                 ", fieldsTags=" + fieldsTags +
-                ", stausTags=" + stausTags +
+                ", stausTags=" + statusTags +
                 ", significantEnergyUseTags=" + significantEnergyUseTags +
                 '}';
     }

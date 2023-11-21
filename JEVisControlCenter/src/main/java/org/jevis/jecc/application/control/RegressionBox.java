@@ -81,5 +81,7 @@ public class RegressionBox extends MFXComboBox<RegressionType> {
 
         selectItem(RegressionType.POLY);
         setDisable(true);
+
+        getSelectionModel().selectItem(RegressionType.POLY);
     }
 }

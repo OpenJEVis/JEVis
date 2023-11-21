@@ -1,8 +1,6 @@
 package org.jevis.jecc.plugin.dashboard.timeframe;
 
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Popup;
@@ -16,6 +14,8 @@ import java.time.YearMonth;
 
 public class TimeFrameEditor extends Popup {
 
+    private final SimpleObjectProperty<Interval> intervalProperty;
+    private TimeFrame timeFrame;
     private static Method getPopupContent;
 
     static {
@@ -28,13 +28,11 @@ public class TimeFrameEditor extends Popup {
 //        }
     }
 
-    public ObjectProperty<Interval> intervalProperty;
-    public TimeFrame timeFrame;
     MFXDatePicker datePicker;
 
     public TimeFrameEditor(TimeFrame timeFrame, Interval interval) {
         super();
-        this.intervalProperty = new SimpleObjectProperty<>(interval);
+        this.intervalProperty = new SimpleObjectProperty<>(this, "interval", interval);
         this.timeFrame = timeFrame;
         this.datePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
         //TODO JFX17
@@ -57,7 +55,7 @@ public class TimeFrameEditor extends Popup {
         getContent().add(borderPane);
         this.datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
             setIntervalResult();
-            Platform.runLater(this::hide);
+            this.hide();
         });
 
     }
@@ -79,17 +77,18 @@ public class TimeFrameEditor extends Popup {
         }
 
         DateTime newDateTime = new DateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0);
-
-        if (this.timeFrame != null) {
-            this.intervalProperty.setValue(this.timeFrame.getInterval(newDateTime));
-        }
+        setInterval(this.timeFrame.getInterval(newDateTime, false));
     }
 
-    public ObjectProperty<Interval> getIntervalProperty() {
-        return this.intervalProperty;
+    public SimpleObjectProperty<Interval> intervalProperty() {
+        return intervalProperty;
     }
 
-    public void setIntervalProperty(Interval interval) {
+    public Interval getInterval() {
+        return intervalProperty.get();
+    }
+
+    public void setInterval(Interval interval) {
         intervalProperty.setValue(interval);
     }
 

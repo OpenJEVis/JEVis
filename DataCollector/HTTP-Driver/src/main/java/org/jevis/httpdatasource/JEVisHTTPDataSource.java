@@ -33,62 +33,85 @@ public class JEVisHTTPDataSource implements DataSource {
 
     private final List<JEVisObject> _channels = new ArrayList<>();
 
+
     @Override
     public void run() {
 
         for (JEVisObject channel : _channels) {
 
+            runParser(channel);
+        }
+    }
+
+    private void runParser(JEVisObject channel) {
+        try {
+            _result = new ArrayList<Result>();
+            JEVisClass parserJevisClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Parser.NAME);
+            JEVisObject parser = channel.getChildren(parserJevisClass, true).get(0);
+
+            _parser = ParserFactory.getParser(parser);
+            _parser.initialize(parser);
+
             try {
-                _result = new ArrayList<Result>();
-                JEVisClass parserJevisClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Parser.NAME);
-                JEVisObject parser = channel.getChildren(parserJevisClass, true).get(0);
+                List<InputStream> input = this.sendSampleRequest(channel);
 
-                _parser = ParserFactory.getParser(parser);
-                _parser.initialize(parser);
-
-                try {
-                    List<InputStream> input = this.sendSampleRequest(channel);
-
-                    if (!input.isEmpty()) {
-                        this.parse(input);
-                    }
+                if (_httpdatasource.getEndDateTime().isAfterNow() || _httpdatasource.getLastReadout().isAfterNow()) {
+                    logger.error("Start or End Date in Future Stop from trying to fetching Data from API");
+                    return;
+                }
+                if (_httpdatasource.getLastReadout().plusMinutes(20).isAfter(_httpdatasource.getEndDateTime())) {
+                    logger.error("Start Date is Less than 20 Minutes Before End Date Stop from trying to fetch Data from API");
+                    return;
+                }
 
 
-                    if (!_result.isEmpty()) {
-//                    this.importResult();
-//
-//                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
-                        JEVisImporterAdapter.importResults(_result, _importer, channel);
-                        for (InputStream inputStream : input) {
-                            try {
-                                inputStream.close();
-                            } catch (Exception ex) {
-                                logger.warn("could not close input stream: {}", ex.getMessage());
-                            }
+                if (this._httpdatasource.getStatusLine().getStatusCode() >= 400) {
+                    logger.error("API Returned Error Code :{}", this._httpdatasource.getStatusLine().getStatusCode());
+                    return;
+                }
+
+
+                if (!input.isEmpty()) {
+                    this.parse(input);
+                }
+
+
+                if (!_result.isEmpty()) {
+                    JEVisImporterAdapter.importResultsWithOffset(_result, _importer, channel, 1);
+                    for (InputStream inputStream : input) {
+                        try {
+                            inputStream.close();
+                        } catch (Exception ex) {
+                            logger.warn("could not close input stream: {}", ex.getMessage());
                         }
                     }
-                } catch (
-                        MalformedURLException ex) {
-                    logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                } catch (
-                        ClientProtocolException ex) {
-                    logger.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                } catch (
-                        IOException ex) {
-                    logger.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
-                } catch (
-                        ParseException ex) {
-                    logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                } catch (Exception ex) {
-                    logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                    runParser(channel);
+                } else {
+                    logger.info("Result List is empty set Last Readout to: ", _httpdatasource.getEndDateTime());
+                    channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
+                    runParser(channel);
                 }
+            } catch (
+                    MalformedURLException ex) {
+                logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                logger.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
+            } catch (
+                    ClientProtocolException ex) {
+                logger.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                logger.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+            } catch (
+                    IOException ex) {
+                logger.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                logger.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
+            } catch (
+                    ParseException ex) {
+                logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
             } catch (Exception ex) {
-                logger.error(ex);
+                logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
             }
+        } catch (Exception ex) {
+            logger.error(ex);
         }
     }
 
@@ -209,6 +232,8 @@ public class JEVisHTTPDataSource implements DataSource {
     public void parse(List<InputStream> input) {
         _parser.parse(input, _httpdatasource.getDateTimeZone());
         _result = _parser.getResult();
+
+
     }
 
     private void initializeChannelObjects(JEVisObject httpObject) {

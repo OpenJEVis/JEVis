@@ -46,7 +46,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.TopMenu;
 import org.jevis.jecc.application.resource.ResourceLoader;
-import org.jevis.jecc.application.tools.NumberSpinner;
+import org.jevis.jecc.tool.NumberSpinner;
 
 import java.math.BigDecimal;
 import java.util.Collections;

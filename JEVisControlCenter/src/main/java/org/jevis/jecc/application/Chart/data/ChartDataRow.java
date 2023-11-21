@@ -1,5 +1,6 @@
 package org.jevis.jecc.application.Chart.data;
 
+import com.ibm.icu.text.NumberFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -16,6 +17,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
@@ -50,8 +52,8 @@ public class ChartDataRow extends ChartData {
     private boolean hasForecastData = false;
     private Double scaleFactor = 1d;
     private Double timeFactor = 1d;
-    private ValueWithDateTime min = new ValueWithDateTime(0d);
-    private ValueWithDateTime max = new ValueWithDateTime(0d);
+    private ValueWithDateTime min = new ValueWithDateTime(0d, NumberFormat.getInstance(I18n.getInstance().getLocale()));
+    private ValueWithDateTime max = new ValueWithDateTime(0d, NumberFormat.getInstance(I18n.getInstance().getLocale()));
     private Double avg = 0d;
     private Double sum = 0d;
     private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
@@ -64,18 +66,22 @@ public class ChartDataRow extends ChartData {
 
     public ChartDataRow(JEVisDataSource dataSource) {
         this(dataSource, null);
-
-        this.calculationProperty().addListener((observableValue, aBoolean, t1) -> {
-            if (t1) {
-                setCalculationId(ChartTools.isObjectCalculated(getObject()));
-            } else {
-                setCalculationId(-1);
-            }
-        });
     }
 
     public ChartDataRow(JEVisDataSource ds, ChartData chartData) {
         this.dataSource = ds;
+
+        this.calculationProperty().addListener((observableValue, aBoolean, t1) -> {
+            if (t1) {
+                long id = ChartTools.isObjectCalculated(getObject());
+                setCalculationId(id);
+                if (id == -1) {
+                    setCalculation(false);
+                }
+            } else {
+                setCalculationId(-1);
+            }
+        });
 
         if (chartData != null) {
             setId(chartData.getId());
@@ -103,6 +109,7 @@ public class ChartDataRow extends ChartData {
             setIntervalStart(chartData.getIntervalStart());
             setIntervalEnd(chartData.getIntervalEnd());
             setIntervalEnabled(chartData.isIntervalEnabled());
+            setDecimalDigits(chartData.getDecimalDigits());
             setCss(chartData.getCss());
 
             setSelectedStart(chartData.getIntervalStartDateTime());
@@ -121,7 +128,7 @@ public class ChartDataRow extends ChartData {
             final JEVisClass noteclass = getObject().getDataSource().getJEVisClass("Data Notes");
             for (JEVisObject obj : attribute.getObject().getParents().get(0).getChildren(noteclass, true)) {
                 if (obj.getName().contains(attribute.getObject().getName())) {
-                    JEVisAttribute userNotesAttribute = obj.getAttribute("User Notes");
+                    JEVisAttribute userNotesAttribute = obj.getAttribute("Value");
                     if (userNotesAttribute.hasSample()) {
                         for (JEVisSample jeVisSample : userNotesAttribute.getSamples(selectedStart, selectedEnd)) {
                             userNoteMap.put(jeVisSample.getTimestamp(), jeVisSample);
@@ -394,7 +401,8 @@ public class ChartDataRow extends ChartData {
                                         List<JsonGapFillingConfig> gapFillingConfig = cleanDataObject.getGapFillingConfig();
 
                                         for (JsonGapFillingConfig jsonGapFillingConfig : gapFillingConfig) {
-                                            if (gapFillingConfig.indexOf(jsonGapFillingConfig) == 1 && jsonGapFillingConfig.getType().equals(GapFillingType.DEFAULT_VALUE.toString())) {
+                                            GapFillingType fillingType = GapFillingType.parse(jsonGapFillingConfig.getType());
+                                            if (gapFillingConfig.indexOf(jsonGapFillingConfig) == 1 && fillingType.equals(GapFillingType.DEFAULT_VALUE)) {
                                                 String defaultValue = jsonGapFillingConfig.getDefaultvalue();
                                                 try {
                                                     replacementValue = Double.parseDouble(defaultValue);
@@ -553,15 +561,6 @@ public class ChartDataRow extends ChartData {
         this.forecastSamples = forecastSamples;
     }
 
-    /**
-     * Workaround from FS, Gerrit find the right solution.
-     * This workaround is for the chart Sum function because it never calls the geSample with change function
-     * the scaleFactor is never set.
-     * <p>
-     * calling the factorizeSamples will add factor and will aso not work
-     *
-     * @throws JEVisException
-     */
     public void updateScaleFactor() throws JEVisException {
         String outputUnit = UnitManager.getInstance().format(getUnit()).replace("·", "");
         if (outputUnit.equals("")) outputUnit = getUnit().getLabel();
@@ -585,7 +584,7 @@ public class ChartDataRow extends ChartData {
                 ChartUnits cu = new ChartUnits();
                 scaleFactor = cu.scaleValue(inputUnit, outputUnit);
 
-                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(inputList.size() - 1).getTimestamp());
                 PeriodComparator periodComparator = new PeriodComparator();
 
                 if ((inputUnit.equals("kWh") || inputUnit.equals("Wh") || inputUnit.equals("MWh") || inputUnit.equals("GWh"))
@@ -904,6 +903,8 @@ public class ChartDataRow extends ChartData {
         newModel.setChartType(this.getChartType());
         newModel.setPeriod(this.getPeriod());
         newModel.setSomethingChanged(false);
+        newModel.setCss(this.getCss());
+        newModel.setDecimalDigits(this.getDecimalDigits());
 
         return newModel;
     }
