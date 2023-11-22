@@ -94,8 +94,8 @@
         </dependency>
         <dependency>
             <groupId>eu.hansolo</groupId>
-            <artifactId>tilesfx</artifactId>
-            <version>17.1.17</version>
+            <artifactId>medusa</artifactId>
+            <version>17.0.0</version>
         </dependency>
         <dependency>
             <groupId>commons-validator</groupId>
@@ -167,12 +167,6 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
-        </dependency>
-        -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
@@ -180,11 +174,6 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>eu.hansolo</groupId>
-            <artifactId>charts</artifactId>
-            <version>1.0.5</version>
         </dependency>
         <dependency>
             <groupId>com.jfoenix</groupId>
@@ -205,15 +194,20 @@
             <artifactId>netty-codec</artifactId>
             <version>4.1.86.Final</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.mustangproject</groupId>-->
-        <!--            <artifactId>library</artifactId>-->
-        <!--            <version>2.5.6</version>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>eu.hansolo</groupId>
+            <artifactId>tilesfx</artifactId>
+            <version>17.1.31</version>
+        </dependency>
         <dependency>
             <groupId>eu.hansolo</groupId>
             <artifactId>Medusa</artifactId>
-            <version>17.1.7</version>
+            <version>17.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.hansolo</groupId>
+            <artifactId>charts</artifactId>
+            <version>1.0.5</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -237,6 +231,7 @@
             <version>1.7.15</version>
         </dependency>
         -->
+
     </dependencies>
 
 
