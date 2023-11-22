@@ -439,7 +439,10 @@ public class ResourceSample {
                     // If user can write -> OK
                     // If user can execute and only Note changed -> OK
                     int result = 0;
-                    if (canWrite || (canExecute && (object.getJevisClass().equals(this.executeUpdateExceptions.get(0)) || object.getJevisClass().equals(this.executeUpdateExceptions.get(1))))) {
+                    if (canWrite
+                            || (canExecute && (object.getJevisClass().equals(this.executeUpdateExceptions.get(0)) || object.getJevisClass().equals(this.executeUpdateExceptions.get(1)))
+                            || (canExecute && (object.getJevisClass().equals(this.executeUpdateExceptions.get(3)) && attribute.equals("Alarm Config")))
+                    )) {
                         logger.debug("canWrite import");
                         result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
                     } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(3))) {
@@ -565,7 +568,7 @@ public class ResourceSample {
             }
 
             ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE, String.format("%s:%s|%s -> %s", id, attribute, startDate, endDate));
-            
+
             try {
                 CachedAccessControl.getInstance(ds).checkForChanges(object, attribute, CachedAccessControl.Change.DELETE);
             } catch (Exception ex) {
