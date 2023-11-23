@@ -81,6 +81,7 @@ public class GapFillingEditor implements AttributeEditor {
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
+
     }
 
     /**
