@@ -26,44 +26,37 @@ import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.web.HTMLEditor;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.fxmisc.richtext.model.Codec;
-import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
-import org.fxmisc.richtext.model.StyledDocument;
-import org.fxmisc.richtext.model.StyledSegment;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.jecc.ControlCenter;
-import org.jevis.jecc.application.control.RtfField;
-import org.jevis.jecc.application.control.rtf.LinkedImage;
-import org.jevis.jecc.application.control.rtf.ParStyle;
-import org.jevis.jecc.application.control.rtf.TextStyle;
 import org.joda.time.DateTime;
-import org.reactfx.util.Either;
-import org.reactfx.util.Tuple2;
 
 import java.io.*;
+import java.nio.file.Files;
 
 
 /**
- * @author Florian Simon <florian.simon@envidatec.com>
+ * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
-public class FileRTF implements AttributeEditor {
-    private static final Logger logger = LogManager.getLogger(FileRTF.class);
+public class FileHTML implements AttributeEditor {
+    private static final Logger logger = LogManager.getLogger(FileHTML.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final HBox box = new HBox();
     public JEVisAttribute _attribute;
-    private RtfField _field;
+    private HTMLEditor editor;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private boolean _readOnly = true;
     private boolean initialized = false;
 
-    public FileRTF(JEVisAttribute att) {
+    public FileHTML(JEVisAttribute att) {
         _attribute = att;
     }
 
@@ -101,34 +94,27 @@ public class FileRTF implements AttributeEditor {
     @Override
     public void commit() throws JEVisException {
 
-        RtfField.FoldableStyledArea area = _field.getArea();
-        StyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> doc = area.getDocument();
-
         // Use the Codec to save the document in a binary format
-        area.getStyleCodecs().ifPresent(codecs -> {
-            Codec<StyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle>> codec =
-                    ReadOnlyStyledDocument.codec(codecs._1, codecs._2, area.getSegOps());
-            try {
-                DateTime now = DateTime.now();
-                String dateString = now.toString("yyyy-MM-dd") + "_" + now.toString("HHmmss");
-                String fileName = _attribute.getObject().getID() + "_" + _attribute.getName() + dateString;
-                File tmpFile = File.createTempFile(fileName, "tmp");
 
-                FileOutputStream fos = new FileOutputStream(tmpFile);
-                DataOutputStream dos = new DataOutputStream(fos);
-                codec.encode(dos, doc);
-                fos.close();
+        try {
+            DateTime now = DateTime.now();
+            String dateString = now.toString("yyyy-MM-dd") + "_" + now.toString("HHmmss");
+            String fileName = _attribute.getObject().getID() + "_" + _attribute.getName() + dateString;
+            File tmpFile = File.createTempFile(fileName, "tmp");
 
-                JEVisFile file = new JEVisFileImp(fileName, tmpFile);
-                _newSample = _attribute.buildSample(now, file);
-                _newSample.commit();
-            } catch (IOException fnfe) {
-                logger.error("IOException while saving file", fnfe);
-            } catch (JEVisException e) {
-                logger.error("Could not save file to JEVis", e);
-            }
-        });
+            FileWriter fileWriter = new FileWriter(tmpFile);
+            fileWriter.write(editor.getHtmlText());
 
+            fileWriter.close();
+
+            JEVisFile file = new JEVisFileImp(fileName, tmpFile);
+            _newSample = _attribute.buildSample(now, file);
+            _newSample.commit();
+        } catch (IOException fnfe) {
+            logger.error("IOException while saving file", fnfe);
+        } catch (JEVisException e) {
+            logger.error("Could not save file to JEVis", e);
+        }
     }
 
     @Override
@@ -146,36 +132,30 @@ public class FileRTF implements AttributeEditor {
     }
 
     private void buildEditor() throws JEVisException {
-        if (_field == null) {
+        if (editor == null) {
 
             box.getChildren().clear();
-            _field = new RtfField();
+            editor = new HTMLEditor();
 
-            RtfField.FoldableStyledArea area = _field.getArea();
             if (_attribute.getLatestSample() != null) {
 //                _field.setText(_attribute.getLatestSample().getValueAsString());
                 _lastSample = _attribute.getLatestSample();
 
-                if (area.getStyleCodecs().isPresent()) {
-                    Tuple2<Codec<ParStyle>, Codec<StyledSegment<Either<String, LinkedImage>, TextStyle>>> codecs = area.getStyleCodecs().get();
-                    Codec<StyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle>>
-                            codec = ReadOnlyStyledDocument.codec(codecs._1, codecs._2, area.getSegOps());
 
-                    try {
-                        JEVisFile jeVisFile = _lastSample.getValueAsFile();
-                        File tmpFile = File.createTempFile(jeVisFile.getFilename(), "tmp");
-                        jeVisFile.saveToFile(tmpFile);
-                        FileInputStream fis = new FileInputStream(tmpFile);
-                        DataInputStream dis = new DataInputStream(fis);
-                        StyledDocument<ParStyle, Either<String, LinkedImage>, TextStyle> doc = codec.decode(dis);
-                        fis.close();
+                try {
+                    JEVisFile jeVisFile = _lastSample.getValueAsFile();
+                    File tmpFile = File.createTempFile(jeVisFile.getFilename(), "tmp");
+                    jeVisFile.saveToFile(tmpFile);
 
-                        if (doc != null) {
-                            area.replaceSelection(doc);
-                        }
-                    } catch (IOException e) {
-                        logger.error("IOException while loading file", e);
-                    }
+                    InputStream inputStream = Files.newInputStream(tmpFile.toPath());
+                    FileReader fileReader = new FileReader(tmpFile);
+
+                    editor.setHtmlText(IOUtils.toString(fileReader));
+                    inputStream.close();
+                    fileReader.close();
+
+                } catch (IOException e) {
+                    logger.error("IOException while loading file", e);
                 }
             } else {
 //                _field.setText("");
@@ -210,8 +190,8 @@ public class FileRTF implements AttributeEditor {
                 }
             }
 
-            box.getChildren().add(_field.start());
-            HBox.setHgrow(area, Priority.ALWAYS);
+            box.getChildren().add(editor);
+            HBox.setHgrow(editor, Priority.ALWAYS);
 
             initialized = true;
         }
