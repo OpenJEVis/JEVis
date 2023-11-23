@@ -134,16 +134,21 @@ public class Launcher extends AbstractCliApp {
 
         } finally {
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
-            removeJob(object);
 
             if (finish) {
                 dataSource.finishCurrentRun(object);
             }
-            logger.info("----------------Finished DataSource " + object.getName() + "-----------------");
+
+            StringBuilder finished = new StringBuilder();
+            finished.append(object.getID()).append(" in ");
+            String length = new Period(runningJobs.get(object.getID()), new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
+            removeJob(object);
+            finished.append(length);
 
             StringBuilder running = new StringBuilder();
             runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
-            logger.info("Queued Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
+
+            logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.toString(), running.toString());
 
             checkLastJob();
         }

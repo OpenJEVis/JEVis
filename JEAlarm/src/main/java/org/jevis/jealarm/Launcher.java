@@ -12,11 +12,14 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.alarm.AlarmConfiguration;
 import org.jevis.commons.cli.AbstractCliApp;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,12 +73,16 @@ public class Launcher extends AbstractCliApp {
                         logger.error("Error in Job: {}:{}", alarmConfiguration.getName(), alarmConfiguration.getId(), e);
 
                     } finally {
+                        StringBuilder finished = new StringBuilder();
+                        finished.append(alarmConfiguration.getId()).append(" in ");
+                        String length = new Period(runningJobs.get(alarmConfiguration.getId()), new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
                         removeJob(alarmConfiguration.getObject());
+                        finished.append(length);
 
                         StringBuilder running = new StringBuilder();
                         runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
 
-                        logger.info("Queued Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
+                        logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.toString(), running.toString());
 
                         checkLastJob();
                     }

@@ -116,12 +116,16 @@ public class CalcLauncher extends AbstractCliApp {
                         logger.error("Failed Job: {}:{}", object.getName(), object.getID(), e);
 
                     } finally {
+                        StringBuilder finished = new StringBuilder();
+                        finished.append(object.getID()).append(" in ");
+                        String length = new Period(runningJobs.get(object.getID()), new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
                         removeJob(object);
+                        finished.append(length);
 
                         StringBuilder running = new StringBuilder();
                         runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
 
-                        logger.info("Queued Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
+                        logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.toString(), running.toString());
 
                         checkLastJob();
                     }

@@ -456,7 +456,8 @@ public class TreeHelper {
                         jeVisObjects.forEach(object -> {
                             Long target = tree.getTargetAndChannel().get(object.getID());
                             boolean selected = target != null && target != -1L;
-                            objects.add(new SelectableObject(object, !selected));
+                            boolean isCalculation = tree.getCalculationIDs().get(object.getID()) != null;
+                            objects.add(new SelectableObject(object, !selected, isCalculation));
                         });
 
                         TableView<SelectableObject> tableView = new TableView<>();
@@ -505,7 +506,12 @@ public class TreeHelper {
                         objectColumn.setCellFactory(TextFieldTableCell.forTableColumn(converter));
                         objectColumn.setCellValueFactory(new PropertyValueFactory<>("object"));
 
-                        tableView.getColumns().setAll(selectionColumn, objectColumn);
+                        TableColumn<SelectableObject, Boolean> calculationColumn = new TableColumn<>(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.calculation"));
+                        calculationColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectionColumn));
+                        calculationColumn.setCellValueFactory(new PropertyValueFactory<>("calculation"));
+                        calculationColumn.setEditable(false);
+
+                        tableView.getColumns().setAll(selectionColumn, objectColumn, calculationColumn);
 
                         tableView.setItems(FXCollections.observableArrayList(objects));
 
