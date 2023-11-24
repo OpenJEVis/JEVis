@@ -82,7 +82,7 @@
     {
       "name": "Content",
       "primitiveType": 3,
-      "guiType": "RTF",
+      "guiType": "HTML",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,

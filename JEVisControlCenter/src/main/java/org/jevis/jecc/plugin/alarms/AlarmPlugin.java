@@ -904,13 +904,13 @@ public class AlarmPlugin implements Plugin {
 
                                     JEVisAttribute alarmConfigAttribute = item.getObject().getAttribute(ALARM_CONFIG.getAttributeName());
 
-                                    AlarmEditor alarmConfiguration = new AlarmEditor(alarmConfigAttribute);
-                                    HBox hbox = (HBox) alarmConfiguration.getEditor();
-                                    MFXButton MFXButton = (MFXButton) hbox.getChildren().get(0);
-                                    MFXButton.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
-                                    alarmConfiguration.getEditor().setDisable(!ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID()));
+                                    AlarmEditor alarmEditor = new AlarmEditor(alarmConfigAttribute);
+                                    HBox hbox = (HBox) alarmEditor.getEditor();
+                                    MFXButton mfxButton = (MFXButton) hbox.getChildren().get(0);
+                                    mfxButton.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
+                                    alarmEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID()));
 
-                                    setGraphic(alarmConfiguration.getEditor());
+                                    setGraphic(alarmEditor.getEditor());
                                 }
 
                             } catch (Exception e) {

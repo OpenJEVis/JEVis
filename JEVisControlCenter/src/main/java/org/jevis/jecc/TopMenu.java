@@ -78,9 +78,7 @@ public class TopMenu extends MenuBar {
     private static final Logger logger = LogManager.getLogger(TopMenu.class);
     private static final String stylesString = "/styles/Styles.css";
     private static final String chartString = "/styles/charts.css";
-    private static final String rtfString = "rtf/richtext/rich-text.css";
     private static final String standardString = "/styles/Standard.css";
-    //private static final String standardString = new PrimerLight().getUserAgentStylesheet();
     private static final String darkString = "/styles/Dark.css";
     private static final String amberString = "/styles/Amber.css";
     private static final String greenString = "/styles/Green.css";
@@ -91,7 +89,7 @@ public class TopMenu extends MenuBar {
     private static final String primerLightString = new PrimerLight().getUserAgentStylesheet();
     private static final String primerDarkString = new PrimerDark().getUserAgentStylesheet();
 
-    private static final List<String> allThemes = Arrays.asList(stylesString, chartString, rtfString, standardString, darkString, amberString,
+    private static final List<String> allThemes = Arrays.asList(stylesString, chartString, standardString, darkString, amberString,
             greenString, indigoString, redString, whiteString);
     private static String activeTheme;
     private final List<MenuItem> items = new ArrayList<>();
@@ -112,7 +110,6 @@ public class TopMenu extends MenuBar {
         scene.getStylesheets().removeAll(allThemes);
         scene.getStylesheets().add(stylesString);
         scene.getStylesheets().add(chartString);
-        scene.getStylesheets().add(rtfString);
         scene.getStylesheets().add(activeTheme);
          */
 
@@ -490,8 +487,6 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 redTheme.setSelected(false);
                 whiteTheme.setSelected(false);
-                atlantafxLight.setSelected(false);
-                atlantafxDark.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("amber", false);
@@ -870,8 +865,6 @@ public class TopMenu extends MenuBar {
     public void setPlugin(Plugin plugin) {
         setActivePlugin(plugin);
     }
-
-
 
     public Plugin getActivePlugin() {
         return activePlugin.get();
