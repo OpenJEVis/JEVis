@@ -960,6 +960,7 @@ public class NotesPlugin implements Plugin {
 
     private MFXComboBox<TimeFrame> getTimeFrameComboBox() {
         MFXComboBox<TimeFrame> box = new MFXComboBox<>();
+        box.setFloatMode(FloatMode.DISABLED);
 
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
         final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");

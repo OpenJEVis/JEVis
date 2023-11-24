@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.action.ui.tab;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -113,8 +114,10 @@ public class GeneralTab extends Tab {
 
 
         f_statusTags = new MFXComboBox<>(actionPlan.getStatustags());
+        f_statusTags.setFloatMode(FloatMode.DISABLED);
         f_fieldTags = new CheckComboBox<>(actionPlan.getFieldsTags());
         f_sueTags = new MFXComboBox<>(actionPlan.significantEnergyUseTags());
+        f_sueTags.setFloatMode(FloatMode.DISABLED);
         //f_mediaTags.setCellFactory();
 
         ObservableList<CheckBoxData> f_fieldTags2Data = FXCollections.observableArrayList();

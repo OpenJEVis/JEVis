@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.action.ui.tab;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -92,7 +93,7 @@ public class DetailsTab extends Tab {
         });
 
         f_EnpiSelection = new MFXComboBox(data.getActionPlan().getEnpis());
-
+        f_EnpiSelection.setFloatMode(FloatMode.DISABLED);
         //TODO JFX17
 
         f_EnpiSelection.setConverter(new StringConverter<JEVisObject>() {
@@ -153,6 +154,7 @@ public class DetailsTab extends Tab {
 
         l_mediaTags.setText(I18n.getInstance().getString("actionform.editor.tab.deteils.medium"));
         f_mediaTags = new MFXComboBox<>(data.getActionPlan().getMediumTags());
+        f_mediaTags.setFloatMode(FloatMode.DISABLED);
         f_mediaTags.getSelectionModel().selectItem(data.mediaTagsProperty().getValue());
         f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override

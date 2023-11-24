@@ -57,7 +57,8 @@ public class JEVisHelp {
     }
 
     public static void setStyle(Tooltip tooltip) {
-        if (tooltip == null) return;
+        if (tooltip == null) {
+        }
         //tooltip.setFont(font);
         //tooltip.setStyle(" -fx-background-color: rgb(235,235,235,1); -fx-text-fill: black; -fx-font-smoothing-type: lcd;"); //tooltip
     }

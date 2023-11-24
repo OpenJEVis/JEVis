@@ -633,8 +633,6 @@ public class ReportPlugin implements Plugin {
                     succeeded();
                 } catch (Exception e) {
                     failed();
-                } finally {
-
                 }
                 return null;
             }

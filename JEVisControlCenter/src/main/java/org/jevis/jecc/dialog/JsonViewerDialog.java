@@ -191,6 +191,7 @@ public class JsonViewerDialog {
         };
 
         //TODO JFX17
+        fileComboBox.setFloatMode(FloatMode.DISABLED);
         fileComboBox.setConverter(new StringConverter<JEVisFileWithSample>() {
             @Override
             public String toString(JEVisFileWithSample object) {

@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXCheckBox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXDatePicker;
 import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -63,6 +64,8 @@ public class GeneralTab extends Tab {
     @Override
     public void initTab(ObligationData data) {
         this.obligationData = data;
+        f_category.setFloatMode(FloatMode.DISABLED);
+        f_scope.setFloatMode(FloatMode.DISABLED);
 
         GridPane gridPane = new GridPane();
         notificationPane.setContent(gridPane);

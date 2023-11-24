@@ -12,7 +12,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
@@ -33,7 +32,6 @@ import org.jevis.jecc.plugin.dashboard.config2.NewWidgetSelector;
 import org.jevis.jecc.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 import org.jevis.jecc.plugin.dashboard.widget.ImageWidget;
 import org.jevis.jecc.plugin.dashboard.widget.Widget;
-import org.jevis.jecc.tool.SVGLoader;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -86,7 +84,7 @@ public class DashBoardToolbar extends ToolBar {
     private Boolean multiDir = null;
     private MFXButton newWidget;
     private NewWidgetSelector widgetSelector;
-    private Separator separatorEditMode = new Separator();
+    private final Separator separatorEditMode = new Separator();
 
     private boolean disableEventListener = false;
     private MFXComboBox<JEVisObject> listAnalysesComboBox;
@@ -662,8 +660,7 @@ public class DashBoardToolbar extends ToolBar {
     private void showAllTooltips(List<Object> controls) {
         for (Object obj : controls) {
             try {
-                if (obj instanceof Control) {
-                    Control control = (Control) obj;
+                if (obj instanceof Control control) {
                     Tooltip tooltip = new Tooltip();
                     control.setTooltip(tooltip);
                     tooltip.setId("hmmmmmmmmmmmmmmm");

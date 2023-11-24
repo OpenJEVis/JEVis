@@ -3,6 +3,7 @@ package org.jevis.jecc.plugin.meters.ui;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import io.github.palexdev.materialfx.controls.MFXToggleButton;
+import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -112,7 +113,7 @@ public class MeterListTab extends Tab {
         gridPane.addColumn(6, new Label(I18n.getInstance().getString("plugin.meters.overdue")), jfxToggleButton);
 
         yearComboBox = new MFXComboBox<>(getYearList());
-
+        yearComboBox.setFloatMode(FloatMode.DISABLED);
 
         gridPane.addColumn(7, new Region(), yearComboBox);
 

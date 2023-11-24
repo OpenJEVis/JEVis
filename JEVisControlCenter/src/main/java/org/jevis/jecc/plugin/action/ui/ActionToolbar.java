@@ -29,8 +29,8 @@ public class ActionToolbar extends ToolBar {
     private final ToggleButton reloadButton = new ToggleButton("", ControlCenter.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
     private final ToggleButton exportPDF = new ToggleButton("", ControlCenter.getSVGImage(Icon.EXCEL, this.iconSize, this.iconSize));
     private final ToggleButton calender = new ToggleButton("", ControlCenter.getSVGImage(Icon.EXCEL, this.iconSize, this.iconSize));
-    private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
+    private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
     private final ActionController actionController;
 
     public ActionToolbar(ActionController actionController) {
