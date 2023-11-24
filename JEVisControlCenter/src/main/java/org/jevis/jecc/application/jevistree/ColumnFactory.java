@@ -34,6 +34,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -98,6 +99,7 @@ public class ColumnFactory {
 
                                       return new TreeTableCell<JEVisTreeRow, JEVisTreeRow>() {
                                           HBox hbox = new HBox();
+                                          VBox vbox = new VBox();
                                           Label nameLabel = new Label();
                                           Region spaceBetween = new Region();
                                           Node icon = ResourceLoader.getImage("1393615831_unknown2.png", 18, 18);
@@ -167,10 +169,13 @@ public class ColumnFactory {
                                                       }
 
                                                       hbox.getChildren().setAll(icon, spaceBetween, nameLabel);
-                                                      setGraphic(hbox);
+                                                      vbox.setAlignment(Pos.CENTER);
+                                                      vbox.getChildren().setAll(hbox);
+                                                      setGraphic(vbox);
 
                                                   } catch (Exception ex) {
                                                       logger.catching(ex);
+                                                      setGraphic(null);
                                                   }
                                               }
                                           }
