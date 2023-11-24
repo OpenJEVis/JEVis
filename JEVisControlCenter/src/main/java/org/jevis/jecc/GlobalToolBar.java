@@ -77,6 +77,7 @@ public class GlobalToolBar {
     }
 
     public static void changeBackgroundOnHoverUsingBinding(Node node) {
+        /* JFX17 Disabled no need
         node.styleProperty().bind(
                 Bindings
                         .when(node.hoverProperty())
@@ -84,5 +85,7 @@ public class GlobalToolBar {
                                 new SimpleStringProperty(HOVERED_BUTTON_STYLE))
                         .otherwise(
                                 new SimpleStringProperty(STANDARD_BUTTON_STYLE)));
+
+         */
     }
 }

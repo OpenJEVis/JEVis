@@ -29,6 +29,16 @@
     </parent>
     <dependencies>
         <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>1.13</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.mkpaz</groupId>
+            <artifactId>atlantafx-base</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
             <version>21.0.1</version>
@@ -281,10 +291,6 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
-                    <!--                    <compilerArgs>-->
-                    <!--                        <arg>&#45;&#45;add-opens</arg>-->
-                    <!--                        <arg>javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED</arg>-->
-                    <!--                    </compilerArgs>-->
                 </configuration>
             </plugin>
 
@@ -298,30 +304,6 @@
                     </rules>
                 </configuration>
             </plugin>
-
-            <!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>org.jevis.jecc.ControlCenter</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
-
         </plugins>
 
 

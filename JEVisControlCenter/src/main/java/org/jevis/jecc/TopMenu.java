@@ -19,6 +19,8 @@
  */
 package org.jevis.jecc;
 
+import atlantafx.base.theme.PrimerDark;
+import atlantafx.base.theme.PrimerLight;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
@@ -78,12 +80,17 @@ public class TopMenu extends MenuBar {
     private static final String chartString = "/styles/charts.css";
     private static final String rtfString = "rtf/richtext/rich-text.css";
     private static final String standardString = "/styles/Standard.css";
+    //private static final String standardString = new PrimerLight().getUserAgentStylesheet();
     private static final String darkString = "/styles/Dark.css";
     private static final String amberString = "/styles/Amber.css";
     private static final String greenString = "/styles/Green.css";
     private static final String indigoString = "/styles/Indigo.css";
     private static final String redString = "/styles/Red.css";
     private static final String whiteString = "/styles/White.css";
+
+    private static final String primerLightString = new PrimerLight().getUserAgentStylesheet();
+    private static final String primerDarkString = new PrimerDark().getUserAgentStylesheet();
+
     private static final List<String> allThemes = Arrays.asList(stylesString, chartString, rtfString, standardString, darkString, amberString,
             greenString, indigoString, redString, whiteString);
     private static String activeTheme;
@@ -99,11 +106,32 @@ public class TopMenu extends MenuBar {
     }
 
     public static void applyActiveTheme(Scene scene) {
+        /* Disabled for now
+
+
         scene.getStylesheets().removeAll(allThemes);
         scene.getStylesheets().add(stylesString);
         scene.getStylesheets().add(chartString);
         scene.getStylesheets().add(rtfString);
         scene.getStylesheets().add(activeTheme);
+         */
+
+    }
+
+    private void applyTheme(String themeString) {
+        /* Disabled for now
+        Platform.runLater(() -> {
+            ControlCenter.getStage().getScene().getStylesheets().removeAll(allThemes);
+            ControlCenter.getStage().getScene().getStylesheets().add(stylesString);
+            ControlCenter.getStage().getScene().getStylesheets().add(chartString);
+            ControlCenter.getStage().getScene().getStylesheets().add(rtfString);
+            ControlCenter.getStage().getScene().getStylesheets().add(themeString);
+        });
+
+        activeTheme = themeString;
+
+
+         */
     }
 
     private void updateLayout() {
@@ -403,6 +431,17 @@ public class TopMenu extends MenuBar {
         CheckMenuItem indigoTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.indigo"));
         CheckMenuItem redTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.red"));
         CheckMenuItem whiteTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.white"));
+        CheckMenuItem atlantafxLight = new CheckMenuItem("Primer Light");
+        CheckMenuItem atlantafxDark = new CheckMenuItem("Primer Dark");
+
+        atlantafxLight.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) applyTheme(primerLightString);
+
+
+        });
+        atlantafxDark.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) applyTheme(primerDarkString);
+        });
 
         standardTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -416,6 +455,8 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 redTheme.setSelected(false);
                 whiteTheme.setSelected(false);
+                atlantafxLight.setSelected(false);
+                atlantafxDark.setSelected(false);
             } else {
                 prefTheme.putBoolean("standard", false);
             }
@@ -449,6 +490,8 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 redTheme.setSelected(false);
                 whiteTheme.setSelected(false);
+                atlantafxLight.setSelected(false);
+                atlantafxDark.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("amber", false);
@@ -466,6 +509,8 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 redTheme.setSelected(false);
                 whiteTheme.setSelected(false);
+                atlantafxLight.setSelected(false);
+                atlantafxDark.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("green", false);
@@ -483,6 +528,8 @@ public class TopMenu extends MenuBar {
                 standardTheme.setSelected(false);
                 redTheme.setSelected(false);
                 whiteTheme.setSelected(false);
+                atlantafxLight.setSelected(false);
+                atlantafxDark.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("indigo", false);
@@ -500,6 +547,8 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 standardTheme.setSelected(false);
                 whiteTheme.setSelected(false);
+                atlantafxLight.setSelected(false);
+                atlantafxDark.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("red", false);
@@ -517,6 +566,8 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 redTheme.setSelected(false);
                 standardTheme.setSelected(false);
+                atlantafxLight.setSelected(false);
+                atlantafxDark.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("white", false);
@@ -530,8 +581,10 @@ public class TopMenu extends MenuBar {
         indigoTheme.setSelected(prefTheme.getBoolean("indigo", false));
         redTheme.setSelected(prefTheme.getBoolean("red", false));
         whiteTheme.setSelected(prefTheme.getBoolean("white", false));
+        atlantafxLight.setSelected(prefTheme.getBoolean("Primer Light", false));
+        atlantafxDark.setSelected(prefTheme.getBoolean("Primer Dark", false));
 
-        theme.getItems().addAll(standardTheme, darkTheme, amberTheme, greenTheme, indigoTheme, redTheme, whiteTheme);
+        theme.getItems().addAll(standardTheme, darkTheme, amberTheme, greenTheme, indigoTheme, redTheme, whiteTheme,atlantafxLight,atlantafxDark);
         view.getItems().add(theme);
         return view;
     }
@@ -818,17 +871,7 @@ public class TopMenu extends MenuBar {
         setActivePlugin(plugin);
     }
 
-    private void applyTheme(String themeString) {
-        Platform.runLater(() -> {
-            ControlCenter.getStage().getScene().getStylesheets().removeAll(allThemes);
-            ControlCenter.getStage().getScene().getStylesheets().add(stylesString);
-            ControlCenter.getStage().getScene().getStylesheets().add(chartString);
-            ControlCenter.getStage().getScene().getStylesheets().add(rtfString);
-            ControlCenter.getStage().getScene().getStylesheets().add(themeString);
-        });
 
-        activeTheme = themeString;
-    }
 
     public Plugin getActivePlugin() {
         return activePlugin.get();

@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
@@ -32,6 +33,7 @@ import org.jevis.jecc.plugin.dashboard.config2.NewWidgetSelector;
 import org.jevis.jecc.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 import org.jevis.jecc.plugin.dashboard.widget.ImageWidget;
 import org.jevis.jecc.plugin.dashboard.widget.Widget;
+import org.jevis.jecc.tool.SVGLoader;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ public class DashBoardToolbar extends ToolBar {
 
     private final double iconSize = 20;
     private final DashboardControl dashboardControl;
-    private final ToggleButton backgroundButton = new ToggleButton("", ControlCenter.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
+    private final Button backgroundButton = new Button("", ControlCenter.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
     private final ObjectRelations objectRelations;
     private final Region lockIcon = ControlCenter.getSVGImage(Icon.LOCK, this.iconSize, this.iconSize);
     private final ToggleButton unlockButton = new ToggleButton("", this.lockIcon);
@@ -52,28 +54,28 @@ public class DashBoardToolbar extends ToolBar {
     private final Region unlockIcon = ControlCenter.getSVGImage(Icon.UNLOCK, this.iconSize, this.iconSize);
     private final Region pauseIcon = ControlCenter.getSVGImage(Icon.PAUSE, this.iconSize, this.iconSize);
     private final Region playIcon = ControlCenter.getSVGImage(Icon.PLAY, this.iconSize, this.iconSize);
-    private final ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
+    private final Button runUpdateButton = new Button("", this.playIcon);
     private final Region loadIcon = ControlCenter.getSVGImage(Icon.FOLDER_OPEN, this.iconSize, this.iconSize);
-    private final ToggleButton loadDialogButton = new ToggleButton("", this.loadIcon);
+    private final Button loadDialogButton = new Button("", this.loadIcon);
     private final ToggleButton showGridButton = new ToggleButton("", ControlCenter.getSVGImage(Icon.GRID, this.iconSize, this.iconSize));
-    private final ToggleButton treeButton = new ToggleButton("", ControlCenter.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
-    private final ToggleButton settingsButton = new ToggleButton("", ControlCenter.getImage("Service Manager.png", this.iconSize, this.iconSize));
-    private final ToggleButton save = new ToggleButton("", ControlCenter.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
-    private final ToggleButton exportPNG = new ToggleButton("", ControlCenter.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
-    private final ToggleButton exportPDF = new ToggleButton("", ControlCenter.getSVGImage(Icon.PDF, this.iconSize, this.iconSize));
-    //private ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize));
-    private final ToggleButton deleteDashboard = new ToggleButton("", ControlCenter.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
-    private final ToggleButton deleteWidget = new ToggleButton("", ControlCenter.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
-    private final ToggleButton zoomIn = new ToggleButton("", ControlCenter.getSVGImage(Icon.ZOOM_IN, this.iconSize, this.iconSize));
-    private final ToggleButton zoomOut = new ToggleButton("", ControlCenter.getSVGImage(Icon.ZOOM_OUT, this.iconSize, this.iconSize));
-    private final ToggleButton enlarge = new ToggleButton("", ControlCenter.getSVGImage(Icon.MAXIMIZE, this.iconSize, this.iconSize));
-    private final ToggleButton newB = new ToggleButton("", ControlCenter.getSVGImage(Icon.PLUS, this.iconSize, this.iconSize));
+    private final Button treeButton = new Button("", ControlCenter.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
+    private final Button settingsButton = new Button("", ControlCenter.getImage("Service Manager.png", this.iconSize, this.iconSize));
+    private final Button save = new Button("", ControlCenter.getSVGImage(Icon.SAVE, this.iconSize, this.iconSize));
+    private final Button exportPNG = new Button("", ControlCenter.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
+    private final Button exportPDF = new Button("", ControlCenter.getSVGImage(Icon.PDF, this.iconSize, this.iconSize));
+    //private Button newButton = new Button("", JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize));
+    private final Button deleteDashboard = new Button("", ControlCenter.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+    private final Button deleteWidget = new Button("", ControlCenter.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+    private final Button zoomIn = new Button("", ControlCenter.getSVGImage(Icon.ZOOM_IN, this.iconSize, this.iconSize));
+    private final Button zoomOut = new Button("", ControlCenter.getSVGImage(Icon.ZOOM_OUT, this.iconSize, this.iconSize));
+    private final Button enlarge = new Button("", ControlCenter.getSVGImage(Icon.MAXIMIZE, this.iconSize, this.iconSize));
+    private final Button newB = new Button("", ControlCenter.getSVGImage(Icon.PLUS, this.iconSize, this.iconSize));
     private final ToggleButton sidebarEditor = new ToggleButton("", ControlCenter.getSVGImage(Icon.TUNE, this.iconSize, this.iconSize));
-    private final ToggleButton reloadButton = new ToggleButton("", ControlCenter.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
-    private final ToggleButton navigator = new ToggleButton("", ControlCenter.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
+    private final Button reloadButton = new Button("", ControlCenter.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
+    private final Button navigator = new Button("", ControlCenter.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
     private final ToggleButton customWorkDay = new ToggleButton("", ControlCenter.getSVGImage(Icon.CALENDAR, iconSize, iconSize));
-    private final ToggleButton homeButton = new ToggleButton("", ControlCenter.getSVGImage(Icon.HOME, iconSize, iconSize));
-    //private final ToggleButton moveButton = new ToggleButton("", JEConfig.getImage("move.png", this.iconSize, this.iconSize));
+    private final Button homeButton = new Button("", ControlCenter.getSVGImage(Icon.HOME, iconSize, iconSize));
+    private final Button moveButton = new Button("", ControlCenter.getImage("move.png", this.iconSize, this.iconSize));
     private final Menu newWidgetMenuItem = new Menu("New");
     private final Button copyButton = new Button("", ControlCenter.getSVGImage(Icon.COPY, this.iconSize, this.iconSize));
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
@@ -154,7 +156,7 @@ public class DashBoardToolbar extends ToolBar {
         doubleComboBox.setConverter(new StringConverter<Double>() {
             @Override
             public String toString(Double object) {
-                if (object == DashboardControl.fitToScreen) {
+                if (object == null || object == DashboardControl.fitToScreen) {
                     return (I18n.getInstance().getString("plugin.dashboard.zoom.fitscreen"));
                 } else if (object == DashboardControl.fitToWidth) {
                     return (I18n.getInstance().getString("plugin.dashboard.zoom.fitwidth"));
@@ -199,6 +201,7 @@ public class DashBoardToolbar extends ToolBar {
         this.listAnalysesComboBox.setPrefWidth(350);
         this.listAnalysesComboBox.setMinWidth(350);
 
+
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(treeButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(settingsButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
@@ -215,9 +218,6 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(navigator);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadDialogButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(homeButton);
-
-        //GlobalToolBar.changeBackgroundOnHoverUsingBinding(sidebarEditor);
-        //GlobalToolBar.changeBackgroundOnHoverUsingBinding(customWorkDay);
 
         this.customWorkDay.setSelected(dashboardControl.customWorkdayProperty.getValue());
 

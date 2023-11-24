@@ -20,6 +20,7 @@
 package org.jevis.jecc;
 
 
+import atlantafx.base.theme.PrimerLight;
 import de.focus_shift.HolidayManager;
 import de.focus_shift.ManagerParameters;
 import javafx.application.Application;
@@ -81,7 +82,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 
@@ -320,7 +320,8 @@ public class ControlCenter extends Application {
 
             SVGPath svgPath = getSvgPath(path, height, width);
             region.setShape(svgPath);
-            region.getStyleClass().add(css);
+            svgPath.setFill(Color.BLACK);
+            //region.getStyleClass().add(css);
 
             return region;
         } catch (Exception e) {
@@ -364,6 +365,9 @@ public class ControlCenter extends Application {
         _config.parseParameters(parameters);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
+
+        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+
     }
 
     private void checkMemory() {
@@ -614,12 +618,14 @@ public class ControlCenter extends Application {
         //Platform.runLater(() -> notificationPane.show(message));
 
         // delay or it will not be shown
+
+
         executor.schedule(new Runnable() {
             @Override
             public void run() {
                 login.checkVersion();
             }
-        }, 1, TimeUnit.SECONDS);
+        }, 1, java.util.concurrent.TimeUnit.SECONDS);
 
         primaryStage.onCloseRequestProperty().addListener((ov, t, t1) -> {
             try {
