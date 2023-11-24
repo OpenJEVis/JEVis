@@ -93,7 +93,7 @@ public class DashboardControl {
     private SideConfigPanel sideConfigPanel;
     private Interval activeInterval = new Interval(new DateTime().minus(1), new DateTime());
     private final ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
-    private TimeFrame activeTimeFrame;
+    private TimeFrame activeTimeFrame = TimeFrameFactory.NONE;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
     private List<Widget> selectedWidgets = new ArrayList<>();
     private DashBoardPane dashboardPane = new DashBoardPane();
@@ -493,6 +493,7 @@ public class DashboardControl {
             }
 
             this.activeDashboard.setJevisObject(object);
+            this.activeTimeFrame = activeDashboard.getTimeFrame();
 
             this.dashBordPlugIn.getDashBoardPane().updateView();
             this.widgetList.addAll(this.configManager.createWidgets(this, this.activeDashboard.getWidgetList()));
@@ -528,7 +529,7 @@ public class DashboardControl {
             });
 
 
-            this.activeTimeFrame = activeDashboard.getTimeFrame();
+
             //setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
             setActiveTimeFrame(activeTimeFrame);
 
