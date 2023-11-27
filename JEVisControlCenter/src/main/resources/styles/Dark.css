@@ -3,6 +3,7 @@
     -fx-focus-color: -fx-accent;
     -fx-base: #373e43;
     -fx-text-color: white;
+    -fx-text-field-background: black;
     -fx-control-inner-background: derive(-fx-base, 35%);
     -fx-control-inner-background-alt: -fx-control-inner-background ;
     -tab-text-color: white;
@@ -20,10 +21,6 @@
 
 .label{
     -fx-text-fill: lightgray;
-}
-
-.button{
-    -fx-background-color: derive(-fx-base, 120%);
 }
 
 .text-field {
@@ -79,8 +76,4 @@
 .table-row-cell{
     -fx-border-color: transparent;
     -fx-table-cell-border-color:transparent;
-}
-
-.ToolBarDatePicker.jfx-date-picker {
-    -jfx-default-color: #a4a4ab;
 }

@@ -42,7 +42,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -392,20 +391,9 @@ public class FXLogin extends AnchorPane {
 
         ObservableList<Locale> options = FXCollections.observableArrayList(I18n.getInstance().getAvailableLang());
 
-        final ComboBox<Locale> comboBox = new ComboBox<Locale>(options);
-        comboBox.setConverter(new StringConverter<Locale>() {
-            @Override
-            public String toString(Locale object) {
-                if (object != null) {
-                    return object.getDisplayLanguage(I18n.getInstance().getLocale());
-                } else return "";
-            }
-
-            @Override
-            public Locale fromString(String string) {
-                return comboBox.getItems().stream().filter(locale -> locale.getDisplayLanguage(I18n.getInstance().getLocale()).equals(string)).findFirst().orElse(null);
-            }
-        });
+        final ComboBox<Locale> comboBox = new ComboBox<>(options);
+        comboBox.setCellFactory(cellFactory);
+        comboBox.setButtonCell(cellFactory.call(null));
 
         if (I18n.getInstance().getAvailableLang().contains(Locale.getDefault())) {
             comboBox.getSelectionModel().select(Locale.getDefault());
@@ -424,7 +412,7 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * returns the JEVisDataSource after an successfull login
+     * returns the JEVisDataSource after a successfull login
      *
      * @return
      */
@@ -470,9 +458,8 @@ public class FXLogin extends AnchorPane {
         }
         if (logo != null) {
             logo.setPreserveRatio(true);
+            logo.fitWidthProperty().bind(this.mainStage.widthProperty());
         }
-
-        logo.fitWidthProperty().bind(this.mainStage.widthProperty());
 
         header.getChildren().add(logo);
         AnchorPane.setBottomAnchor(logo, 0.0);
@@ -503,11 +490,11 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Build an bottom button bar element
+     * Build a bottom button bar element
      *
      * @return
      */
-    private HBox buildButtonsbar() {
+    private HBox buildButtonBar() {
         Region spacer = new Region();
         setDefaultStyle(spacer, "-fx-background-color: transparent;");
 
@@ -521,13 +508,13 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Build an authentification (user, passwort-..) GUI element
+     * Build an authentication (user, password, ...) GUI element
      *
      * @return
      */
     private VBox buildAuthForm() {
 
-        HBox buttonBox = buildButtonsbar();
+        HBox buttonBox = buildButtonBar();
 //        Node serverConfigBox = buildServerSelection();
         Region serverConfigBox = new Region();
         this.langSelect = buildLanguageBox();

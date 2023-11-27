@@ -113,9 +113,7 @@ public class NotesPlugin implements Plugin {
         this.numberFormat.setMaximumFractionDigits(2);
 
         this.startDatePicker.setPrefWidth(120d);
-        this.startDatePicker.getStyleClass().add("ToolBarDatePicker");
         this.endDatePicker.setPrefWidth(120d);
-        this.endDatePicker.getStyleClass().add("ToolBarDatePicker");
 
         tableView.setItems(filteredData);
 

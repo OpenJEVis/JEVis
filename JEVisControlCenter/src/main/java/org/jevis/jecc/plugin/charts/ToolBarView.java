@@ -132,15 +132,10 @@ public class ToolBarView {
 
         pickerCombo = new PickerCombo(ds, chartPlugin, true);
         presetDateBox = pickerCombo.getPresetDateBox();
-        presetDateBox.getStyleClass().add("ToolBarDatePicker");
         pickerDateStart = pickerCombo.getStartDatePicker();
-        pickerDateStart.getStyleClass().add("ToolBarDatePicker");
         pickerTimeStart = pickerCombo.getStartTimePicker();
-        pickerTimeStart.getStyleClass().add("ToolBarDatePicker");
         pickerDateEnd = pickerCombo.getEndDatePicker();
-        pickerDateEnd.getStyleClass().add("ToolBarDatePicker");
         pickerTimeEnd = pickerCombo.getEndTimePicker();
-        pickerTimeEnd.getStyleClass().add("ToolBarDatePicker");
 
         createToolbarIcons();
 

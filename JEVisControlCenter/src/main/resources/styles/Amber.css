@@ -3,6 +3,7 @@
     -fx-focus-color: -fx-accent;
     -fx-base: #ffc100 !important;
     -fx-text-color: black;
+    -fx-text-field-background: white;
     -fx-control-inner-background: derive(-fx-base, 35%);
     -fx-control-inner-background-alt: -fx-control-inner-background ;
     -tab-text-color: black !important;
@@ -15,15 +16,10 @@
 
     -toolbarSVG-background-color: -fx-base;
     -pluginSVG-background-color: -fx-accent;
-    -ToolBarDatePicker-default-color: -fx-base;
 }
 
 .label{
     -fx-text-fill: #ff0000;
-}
-
-.button{
-    -fx-background-color: derive(-fx-base, 80%);
 }
 
 .text-field {

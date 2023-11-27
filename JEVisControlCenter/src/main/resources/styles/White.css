@@ -3,6 +3,7 @@
     -fx-focus-color: -fx-accent;
     -fx-base: 			#ffffff;
     -fx-text-color: black;
+    -fx-text-field-background: white;
     -fx-control-inner-background: derive(-fx-base, 35%);
     -fx-control-inner-background-alt: -fx-control-inner-background ;
     -tab-text-color: black;
@@ -85,7 +86,4 @@
 }
 .pluginSVG{
     -fx-background-color: #1d24a6;
-}
-.ToolBarDatePicker.jfx-date-picker {
-    -jfx-default-color: #535360;
 }

@@ -46,6 +46,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
+import org.jevis.jecc.application.type.DisplayType;
+import org.jevis.jecc.application.type.GUIConstants;
 import org.jevis.jecc.dialog.ExceptionDialog;
 import org.jevis.jecc.sample.csvexporttable.CSVExportTableSampleTable;
 import org.joda.time.DateTime;
@@ -446,8 +448,7 @@ public class SampleExportExtension implements SampleEditorExtension {
         if (!xlsx) {
             String exportStrg = createCSVString(Integer.MAX_VALUE);
             if (!fFile.getText().isEmpty() && exportStrg.length() > 90) {
-                writeFile(fFile.getText(), exportStrg);
-                return true;
+                return writeFile(fFile.getText(), exportStrg);
             }
         } else {
             XSSFWorkbook workbook = new XSSFWorkbook(); //create workbook
@@ -508,9 +509,16 @@ public class SampleExportExtension implements SampleEditorExtension {
                     fieldOrder.add((TableColumn) column);
                 }
                 int primType = JEVisConstants.PrimitiveType.STRING;
-                int guiType = 0;
+                DisplayType guiType = null;
                 try {
                     primType = _att.getType().getPrimitiveType();
+                    for (DisplayType displayType : GUIConstants.getALL(primType)) {
+                        if (_att.getType().getGUIDisplayType().equals(displayType.getId())) {
+                            guiType = displayType;
+                            break;
+                        }
+                    }
+
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -546,10 +554,11 @@ public class SampleExportExtension implements SampleEditorExtension {
                                         break;
                                     case JEVisConstants.PrimitiveType.STRING:
                                         Cell stringCell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
-                                        if (guiType == JEVisConstants.DisplayType.TEXT_PASSWORD) {
+                                        if (guiType == GUIConstants.BASIC_PASSWORD) {
                                             stringCell.setCellValue("**********");
+                                        } else {
+                                            stringCell.setCellValue(sample.getValueAsString());
                                         }
-                                        stringCell.setCellValue(sample.getValueAsString());
                                         break;
                                     case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
                                         Cell pbkdf2Cell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
@@ -765,20 +774,20 @@ public class SampleExportExtension implements SampleEditorExtension {
 
     }
 
-    private void writeFile(String file, String text) throws FileNotFoundException, UnsupportedEncodingException {
+    private boolean writeFile(String file, String text) {
         PrintWriter writer;
-//        try {
-        writer = new PrintWriter(file, StandardCharsets.UTF_8);
-        writer.println(text);
-        writer.close();
+        boolean writeOk = false;
 
-//        } catch (FileNotFoundException ex) {
-//            Logger.getLogger(CSVExport.class
-//                    .getName()).log(Level.SEVERE, null, ex);
-//        } catch (UnsupportedEncodingException ex) {
-//            Logger.getLogger(CSVExport.class
-//                    .getName()).log(Level.SEVERE, null, ex);
-//        }
+        try {
+            writer = new PrintWriter(file, StandardCharsets.UTF_8);
+            writer.println(text);
+            writer.close();
+            writeOk = true;
+        } catch (Exception e) {
+            logger.error("Could not write file ", e);
+        }
+
+        return writeOk;
     }
 
     private void dateChanged() {

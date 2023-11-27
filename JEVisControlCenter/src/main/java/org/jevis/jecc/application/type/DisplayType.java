@@ -34,4 +34,11 @@ public class DisplayType {
         this.primitivType = primitivType;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof DisplayType displayType) {
+            return primitivType == displayType.getPrimitivType() && id.equals(displayType.getId());
+        }
+        return false;
+    }
 }

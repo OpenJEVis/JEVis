@@ -2,6 +2,7 @@
     -tab-text-color: -fx-text-base-color ;
     -fx-base: #e2e2e2;
     -fx-text-color: black;
+    -fx-text-field-background: white;
     -fx-accent: #1a719c;
     -jfx-default-color: -fx-base;
     -fx-default-button-background: #4dadf7;
@@ -21,24 +22,8 @@
     -ToolBarDatePicker-default-color: #535360;
 }
 
-.jfx-tab-pane .tab-header-background {
-    -fx-background-color: linear-gradient(-fx-base, #eeeeee) !important;
-}
-
-.button {
-    -fx-background-color: #e2e2e2;
-}
-
 .main-split-pane, main-view-pane{
     -fx-background-color: #f4f4f4 !important;
-}
-
-.object-editor-side-node{
-    -fx-background-color: white;
-}
-
-.object-plugin-left{
-    -fx-background-color: -fx-base;
 }
 
 .toolbar, .children-editor-plugin, .generic-attribute-extension, valid-parent-editor{
@@ -52,20 +37,6 @@
 #attributelabel{
     -fx-text-fill: black;
     -fx-font-size: 14;
-}
-
-
-.search-box{
-    -fx-background-color: #E2E2E2;
-}
-
-.search-box .text-field {
-    -fx-background-color: white;
-    -fx-prompt-text-fill: grey;
-}
-
-.search-box .text-field:focused {
-    -fx-background-color: -fx-focus-color, white;
 }
 
 /* ObjectPlugin */
@@ -258,57 +229,3 @@
 .table-view > .virtual-flow > .scroll-bar:horizontal > .track-background {
     -fx-background-color: transparent;
 }
-
-
-/*-------------------------------------------------------------------------------------------------------------
-                                         JEVis Default ScrollPane
--------------------------------------------------------------------------------------------------------------*/
-
-/*
-
-
-
- .scroll-bar:horizontal .track,
- .scroll-bar:vertical .track{
-	-fx-background-color:transparent;
-	-fx-border-color:transparent;
-	-fx-background-radius: 0em;
-	-fx-border-radius:2em;
-}
-
- .scroll-bar:horizontal .increment-button ,
- .scroll-bar:horizontal .decrement-button {
-    -fx-background-color:transparent;
-	-fx-background-radius: 0em;
-	-fx-padding:0 0 10 0;
-
-}
-
-
-
- .scroll-bar:vertical .increment-button ,
- .scroll-bar:vertical .decrement-button {
-
-    -fx-background-color:transparent;
-	-fx-background-radius: 0em;
-	-fx-padding:0 10 0 0;
-
-}
-
-
-  .scroll-bar .increment-arrow,
-  .scroll-bar .decrement-arrow {
-	-fx-shape: " ";
-	-fx-padding:0;
-}
-
- .scroll-bar:horizontal .thumb,
- .scroll-bar:vertical .thumb {
-    -fx-background-color:derive(black,90%);
-	-fx-background-insets: 2, 0, 0;
-	-fx-background-radius: 2em;
-
-}
-*/
-
-
