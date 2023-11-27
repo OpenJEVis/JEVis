@@ -3,12 +3,16 @@ package org.jevis.jecc.plugin.dashboard.timeframe;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.Node;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.skin.ComboBoxPopupControl;
+import javafx.scene.control.skin.DatePickerSkin;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Popup;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 
@@ -19,13 +23,12 @@ public class TimeFrameEditor extends Popup {
     private static Method getPopupContent;
 
     static {
-        //TODO JFX17
-//        try {
-//            getPopupContent = MFXDatePickerSkin.class.getDeclaredMethod("getPopupContent");
-//            getPopupContent.setAccessible(true);
-//        } catch (NoSuchMethodException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            getPopupContent = DatePickerSkin.class.getDeclaredMethod("getPopupContent");
+            getPopupContent.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
     }
 
     DatePicker datePicker;
@@ -35,22 +38,22 @@ public class TimeFrameEditor extends Popup {
         this.intervalProperty = new SimpleObjectProperty<>(this, "interval", interval);
         this.timeFrame = timeFrame;
         this.datePicker = new DatePicker(LocalDate.now());
-        //TODO JFX17
-        //this.datePicker.setShowWeekNumbers(true);
-//        JFXDatePickerSkin datePickerSkin = new JFXDatePickerSkin(this.datePicker);
-//        ComboBoxPopupControl<LocalDate> comboBoxPopupControl = datePickerSkin;
-//        Node popupContent = null;
-//        try {
-//            popupContent = (Node) TimeFrameEditor.getPopupContent.invoke(datePickerSkin);
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        } catch (InvocationTargetException e) {
-//            e.printStackTrace();
-//        }
+
+        this.datePicker.setShowWeekNumbers(true);
+        DatePickerSkin datePickerSkin = new DatePickerSkin(this.datePicker);
+        ComboBoxPopupControl<LocalDate> comboBoxPopupControl = datePickerSkin;
+        Node popupContent = null;
+        try {
+            popupContent = (Node) TimeFrameEditor.getPopupContent.invoke(datePickerSkin);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
 
 
         BorderPane borderPane = new BorderPane();
-        // borderPane.setCenter(popupContent);
+        borderPane.setCenter(popupContent);
 
         getContent().add(borderPane);
         this.datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
