@@ -19,6 +19,7 @@
  */
 package org.jevis.jecc.plugin.object;
 
+import atlantafx.base.controls.Card;
 import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -100,41 +101,6 @@ public class ObjectEditor {
         }
     }
 
-    //    public void checkIfSaved(JEVisObject obj) {
-//        logger.info("checkIfSaved: " + obj);
-//        if (_currentObject != null && !Objects.equals(obj.getID(), _currentObject.getID())) {
-//
-//            List<ObjectEditorExtension> needSave = new ArrayList<>();
-//
-//            _hasChanged = true;
-//            for (ObjectEditorExtension extension : installedExtensions) {
-//                if (extension.needSave()) {
-//                    logger.info("extension need save: " + extension.getTitle());
-//                    needSave.add(extension);
-//                }
-//            }
-//            logger.info("needSave.size: " + needSave.size());
-//
-//            commitAll();
-//            if (!needSave.isEmpty()) {
-//                Platform.runLater(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        ConfirmDialog dia = new ConfirmDialog();
-//                        ConfirmDialog.Response re = dia.show(ControlCenter.getStage(), "Save", "Save Attribute Changes", "Changes will be lost if not saved, do you want to save now?");
-//                        if (re == ConfirmDialog.Response.YES) {
-//                            commitAll();
-//                        } else {
-//                            _hasChanged = false;
-//                        }
-//
-//                    }
-//                });
-//
-//            }
-//
-//        }
-//    }
     public Node getView() {
         return _view;
     }

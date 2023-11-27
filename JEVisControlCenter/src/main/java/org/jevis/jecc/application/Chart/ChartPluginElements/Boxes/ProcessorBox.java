@@ -52,6 +52,8 @@ public class ProcessorBox extends MFXComboBox<JEVisObject> {
         setConverter(new StringConverter<JEVisObject>() {
             @Override
             public String toString(JEVisObject object) {
+                if (object==null) return "";
+
                 String text = "";
 
                 if (object != null) {
