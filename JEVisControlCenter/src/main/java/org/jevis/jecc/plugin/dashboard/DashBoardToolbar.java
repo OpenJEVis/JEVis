@@ -210,6 +210,7 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(navigator);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadDialogButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdateButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(homeButton);
 
         this.customWorkDay.setSelected(dashboardControl.customWorkdayProperty.getValue());
