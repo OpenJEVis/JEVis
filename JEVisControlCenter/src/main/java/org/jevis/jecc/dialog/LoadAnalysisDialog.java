@@ -99,6 +99,7 @@ public class LoadAnalysisDialog extends Dialog {
         setTitle(I18n.getInstance().getString("plugin.graph.loadanalyisdialog.title"));
         setHeaderText(I18n.getInstance().getString("plugin.graph.loadanalyisdialog.header"));
         setResizable(true);
+        getDialogPane().setMinWidth(1200);
         initOwner(ControlCenter.getStage());
         initModality(Modality.APPLICATION_MODAL);
         Stage stage = (Stage) getDialogPane().getScene().getWindow();

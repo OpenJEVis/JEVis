@@ -1,21 +1,39 @@
 .root {
-    -fx-accent: 	#ff9a00 !important;
-    -fx-focus-color: -fx-accent;
-    -fx-base: #ffc100 !important;
+    -fx-base: #ffc100;
     -fx-text-color: black;
     -fx-text-field-background: white;
-    -fx-control-inner-background: derive(-fx-base, 35%);
-    -fx-control-inner-background-alt: -fx-control-inner-background ;
-    -tab-text-color: black !important;
-    -fx-box-border: derive(-fx-base, 75%);
-    -fx-border: white !important;
+    -fx-accent: 	#ff9a00;
+    -fx-focus-color: -fx-accent;
 
     -fx-default-button-background: #ffc100;
     -fx-default-button-text-fill: black;
     -fx-tree-background: transparent;
 
+    -fx-table-color-even: derive(-fx-base, 10%);
+    -fx-table-color-odd: #ffffff;
+    -fx-table-color-empty: derive(-fx-base, 20%);
+    -fx-table-color-selected: #FF7201;
+    -fx-table-color-hover: #BF9100;
+    -fx-table-color-background: -fx-table-color-even;
+    -fx-table-color-header: white;
+    -fx-table-border-color: black;
+
+    -fx-chart-background: #ffffff;
+
+    -fx-object-plugin-text-color: #4F3B00;
+    -fx-object-plugin-border-color: #EBB000;
+    -fx-object-plugin-background-color: #FCBD00;
+
+    -fx-control-inner-background: derive(-fx-base, 35%);
+    -fx-control-inner-background-alt: -fx-control-inner-background ;
+
+    -fx-box-border: derive(-fx-base, 75%);
+    -fx-border: white !important;
+
     -toolbarSVG-background-color: -fx-base;
     -pluginSVG-background-color: -fx-accent;
+
+    -fx-hyperlink-underline: #AB4D00;
 }
 
 .label{
@@ -90,7 +108,4 @@
 }
 .pluginSVG{
     -fx-background-color: #1d24a6;
-}
-.ToolBarDatePicker.jfx-date-picker {
-    -jfx-default-color: #a4a4ab;
 }

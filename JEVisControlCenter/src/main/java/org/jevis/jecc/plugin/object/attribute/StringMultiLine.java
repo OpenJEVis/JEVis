@@ -146,8 +146,6 @@ public class StringMultiLine implements AttributeEditor {
 
             });
 
-            _field.setId("attributelabel");
-
             if (_attribute.getType().getDescription() != null && !_attribute.getType().getDescription().isEmpty()) {
                 Tooltip tooltip = new Tooltip();
                 try {

@@ -1,35 +1,39 @@
 .root {
-    -fx-accent: #1e74c6;
-    -fx-focus-color: -fx-accent;
     -fx-base: #373e43;
     -fx-text-color: white;
     -fx-text-field-background: black;
-    -fx-control-inner-background: derive(-fx-base, 35%);
-    -fx-control-inner-background-alt: -fx-control-inner-background ;
-    -tab-text-color: white;
-    -fx-box-border: derive(-fx-base, 75%);
-    -fx-border: white;
+    -fx-accent: #1e74c6;
+    -fx-focus-color: -fx-accent;
 
     -fx-default-button-background: #373e43;
     -fx-default-button-text-fill: white;
+    -fx-tree-background: #242424;
 
-    -fx-tree-background: transparent;
+    -fx-table-color-even: #0F0F0F;
+    -fx-table-color-odd: ##1F1F1F;
+    -fx-table-color-empty: #333333;
+    -fx-table-color-selected: #1E403E;
+    -fx-table-color-hover: #606361;
+    -fx-table-color-background: -fx-table-color-even;
+    -fx-table-color-header: black;
+    -fx-table-border-color: white;
+
+    -fx-chart-background: #000000;
+
+    -fx-object-plugin-text-color: #949494;
+    -fx-object-plugin-border-color: #1F1F1F;
+    -fx-object-plugin-background-color: #050505;
 
     -toolbarSVG-background-color: #a4a4ab;
     -pluginSVG-background-color: white;
-}
 
-.label{
-    -fx-text-fill: lightgray;
-}
+    -fx-hyperlink-underline: #77FAF3;
 
-.text-field {
-    -fx-prompt-text-fill: gray;
-}
+    -fx-control-inner-background: derive(-fx-base, 35%);
+    -fx-control-inner-background-alt: -fx-control-inner-background ;
 
-.title{
-    -fx-font-weight: bold;
-    -fx-font-size: 18px;
+    -fx-box-border: derive(-fx-base, 75%);
+    -fx-border: white;
 }
 
 .button{
