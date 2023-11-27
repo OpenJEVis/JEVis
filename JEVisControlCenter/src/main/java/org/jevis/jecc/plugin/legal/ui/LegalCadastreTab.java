@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.legal.ui;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -13,6 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -49,7 +50,7 @@ public class LegalCadastreTab extends Tab {
 
 
         Label lSuche = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.search"));
-        MFXTextField fsearch = new MFXTextField();
+        TextField fsearch = new TextField();
         fsearch.setPromptText(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.searchfor"));
 
 

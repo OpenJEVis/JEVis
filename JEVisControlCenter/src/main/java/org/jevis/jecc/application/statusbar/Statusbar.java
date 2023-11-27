@@ -20,9 +20,7 @@
  */
 package org.jevis.jecc.application.statusbar;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXPopup;
-import io.github.palexdev.materialfx.controls.MFXProgressBar;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -35,12 +33,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Popup;
 import javafx.stage.PopupWindow;
+import javafx.stage.Window;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,12 +84,12 @@ public class Statusbar extends ToolBar {
     private final ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
     private final ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
     private final Tooltip tt = new Tooltip(I18n.getInstance().getString("statusbar.connection.lost"));
-    private final MFXProgressBar progressBar = new MFXProgressBar();
+    private final ProgressBar progressBar = new ProgressBar();
     private final HBox progressbox = new HBox();
     private final Label messageBox = new Label();
     private final TaskProgressView taskProgressView = new TaskProgressView<>();
-    private final MFXPopup popup = new MFXPopup();
-    private final MFXButton showTaskViewButton = new MFXButton("", ControlCenter.getImage("TaskList.png", 15, 15));
+    private final Popup popup = new Popup();
+    private final Button showTaskViewButton = new Button("", ControlCenter.getImage("TaskList.png", 15, 15));
     private final Map<String, Image> imageList = new HashMap<>();
     private final Label titleLabel = new Label(I18n.getInstance().getString("statusbar.taskmon.title"));
     private final Region spacer = new Region();
@@ -123,16 +124,16 @@ public class Statusbar extends ToolBar {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         anchorPane.setTop(hBox);
 
-        popup.setContent(anchorPane);
+        popup.getContent().add(anchorPane);
         popup.setAutoHide(true);
         popup.setAutoFix(true);
-        popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
+        popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_BOTTOM_RIGHT);
         showTaskViewButton.setStyle("-fx-padding: 0;");
         showTaskViewButton.setOnAction(event -> {
             if (popup.isShowing()) {
                 popup.hide();
             } else {
-                popup.show(onlineInfo);
+                showPopup(onlineInfo);
             }
 
         });
@@ -175,7 +176,7 @@ public class Statusbar extends ToolBar {
                             try {
                                 hideTaskListPane.setVisible(false);
                                 if (!hideTaskList && !popup.isShowing()) {
-                                    popup.show(onlineInfo);
+                                    showPopup(onlineInfo);
                                     progressBar.setVisible(true);
                                 }
 
@@ -199,6 +200,20 @@ public class Statusbar extends ToolBar {
             }
         });
 
+    }
+
+    private void showPopup(Node node) {
+        if (!popup.isShowing()) {
+            if (node.getScene() == null || node.getScene().getWindow() == null) {
+                throw new IllegalStateException("Can not show popup. The node must be attached to a scene/window.");
+            }
+
+            Window parent = ControlCenter.getStage();
+            final Point2D origin = node.localToScene(0, 0);
+            final double anchorX = parent.getX() + origin.getX() + node.getScene().getX() + 0;
+            final double anchorY = parent.getY() + origin.getY() + node.getScene().getY() + 0;
+            popup.show(parent, anchorX, anchorY);
+        }
     }
 
     /**
@@ -537,7 +552,7 @@ public class Statusbar extends ToolBar {
         return taskList;
     }
 
-    public MFXPopup getPopup() {
+    public Popup getPopup() {
         return popup;
     }
 

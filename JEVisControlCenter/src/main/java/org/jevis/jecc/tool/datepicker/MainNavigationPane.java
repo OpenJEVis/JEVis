@@ -1,10 +1,11 @@
 package org.jevis.jecc.tool.datepicker;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -25,14 +26,14 @@ final class MainNavigationPane extends HBox {
     private static final String CSS_CALENDAR_HEADER = "calendar-header";
 
     private final CalendarView calendarView;
-    MFXButton titleButton;
+    Button titleButton;
 
     public MainNavigationPane(final CalendarView calendarView) {
 
         this.calendarView = calendarView;
 
 
-        titleButton = new MFXButton();
+        titleButton = new Button();
         titleButton.getStyleClass().add(CSS_CALENDAR_NAVIGATION_TITLE);
         titleButton.textProperty().bind(calendarView.title);
 
@@ -77,9 +78,9 @@ final class MainNavigationPane extends HBox {
      * @param direction Either -1 (for left) or 1 (for right).
      * @return The button.
      */
-    private MFXButton getNavigationButton(final int direction) {
+    private Button getNavigationButton(final int direction) {
 
-        MFXButton button = new MFXButton();
+        Button button = new Button();
 
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -87,10 +88,10 @@ final class MainNavigationPane extends HBox {
                 Calendar calendar = calendarView.getCalendar();
                 switch (calendarView.currentlyViewing.get()) {
                     case Calendar.MONTH:
-                        calendar.add(Calendar.MONTH, 1 * direction);
+                        calendar.add(Calendar.MONTH, direction);
                         break;
                     case Calendar.YEAR:
-                        calendar.add(Calendar.YEAR, 1 * direction);
+                        calendar.add(Calendar.YEAR, direction);
                         break;
                     case Calendar.ERA:
                         calendar.add(Calendar.YEAR, 20 * direction);

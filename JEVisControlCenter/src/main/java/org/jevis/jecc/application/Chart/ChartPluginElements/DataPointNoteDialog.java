@@ -10,7 +10,6 @@ import de.gsi.chart.axes.Axis;
 import de.gsi.chart.plugins.AbstractDataFormattingPlugin;
 import de.gsi.dataset.DataSet;
 import de.gsi.dataset.spi.DefaultDataSet;
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
@@ -84,8 +83,8 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
             logger.error("Could not get translated attribute name of attribute {} of object {}:{}", att.getName(), att.getObject().getName(), att.getObject().getID(), e);
             nameValue.setText(att.getName());
         }
-        MFXTextField value = new MFXTextField();
-        MFXTextField unit = new MFXTextField();
+        TextField value = new TextField();
+        TextField unit = new TextField();
 
         HBox valueBox = new HBox(4, nameValue, value, unit);
         valueBox.setAlignment(Pos.CENTER);
@@ -164,8 +163,8 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
         Label timeStampLabel = new Label(I18n.getInstance().getString("alarms.table.captions.timestamp") + ": " +
                 minMax[0].toString("yyyy-MM-dd HH:mm:ss") + " - " + minMax[1].toString("yyyy-MM-dd HH:mm:ss"));
 
-        MFXTextField value = new MFXTextField();
-        MFXTextField unit = new MFXTextField();
+        TextField value = new TextField();
+        TextField unit = new TextField();
 
         Label nameValue = new Label();
         try {
@@ -222,7 +221,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
         });
     }
 
-    private void getUnitName(JEVisAttribute att, MFXTextField unit) {
+    private void getUnitName(JEVisAttribute att, TextField unit) {
         try {
             if (att.getObject().getJEVisClassName().equals("Clean Data")) {
                 if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {

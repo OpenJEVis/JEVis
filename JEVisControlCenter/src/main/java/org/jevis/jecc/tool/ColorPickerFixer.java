@@ -1,7 +1,8 @@
 package org.jevis.jecc.tool;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import org.jevis.jecc.TopMenu;
 
@@ -17,7 +18,7 @@ public class ColorPickerFixer {
 
 //            List<Field> privateFields = new ArrayList<>();
 
-            Field[] fields = MFXCheckbox.class.getDeclaredFields();
+            Field[] fields = CheckBox.class.getDeclaredFields();
             for (Field field : fields) {
 //                if (Modifier.isPrivate(field.getModifiers())) {
 //                    field.setAccessible(true);
@@ -52,7 +53,7 @@ public class ColorPickerFixer {
 
 
             //TODO JFX17 Testen
-            MFXButton buttonShowColorPicker = new MFXButton("Show custom color dialog!");
+            Button buttonShowColorPicker = new Button("Show custom color dialog!");
             buttonShowColorPicker.setOnAction(actionEvent -> {
                 ColorPicker customColorDialog = new ColorPicker();
                 customColorDialog.show();

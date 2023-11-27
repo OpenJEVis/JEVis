@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.object.childrentableeditor;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -56,7 +53,7 @@ public class ObjectTable {
     private Map<Long, List<Long>> calcMap = new HashMap<>();
     private JEVisDataSource ds;
 
-    public ObjectTable(JEVisObject parentObject, MFXDatePicker startDatePicker, MFXDatePicker endDatePicker, ToggleButton reloadButton, ToggleButton xlsxButton, MFXTextField filterInclude, MFXTextField filterExclude, MFXComboBox<String> columnBox, MFXCheckbox sourceDetails) {
+    public ObjectTable(JEVisObject parentObject, DatePicker startDatePicker, DatePicker endDatePicker, ToggleButton reloadButton, ToggleButton xlsxButton, TextField filterInclude, TextField filterExclude, ComboBox<String> columnBox, CheckBox sourceDetails) {
 
         reloadButton.setOnAction(event -> reload());
         LocalDate startLocalDate = startDatePicker.getValue();

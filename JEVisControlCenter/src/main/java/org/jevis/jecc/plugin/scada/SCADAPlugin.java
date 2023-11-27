@@ -1,8 +1,6 @@
 package org.jevis.jecc.plugin.scada;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -199,7 +197,7 @@ public class SCADAPlugin implements Plugin {
 
             }
         };
-        timer.schedule(updateTask, 1000, 60000 * 1);//ever 5 min
+        timer.schedule(updateTask, 1000, 60000);//ever 5 min
 
     }
 
@@ -223,8 +221,7 @@ public class SCADAPlugin implements Plugin {
     private void updateToolbar(ToolBar toolBar, final SCADAAnalysis analyses) {
         logger.info("==Update Toolbar==");
         Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
-        MFXComboBox<JEVisObject> listAnalysesComboBox = new MFXComboBox<>();
-        listAnalysesComboBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<JEVisObject> listAnalysesComboBox = new ComboBox<>();
         listAnalysesComboBox.setPrefWidth(300);
 
         try {
@@ -243,12 +240,11 @@ public class SCADAPlugin implements Plugin {
 
             @Override
             public JEVisObject fromString(String string) {
-                return listAnalysesComboBox.getItems().get(listAnalysesComboBox.getSelectedIndex());
+                return listAnalysesComboBox.getItems().get(listAnalysesComboBox.getSelectionModel().getSelectedIndex());
             }
         });
 
-        MFXComboBox<SCADAAnalysis.BGMode> listBGType = new MFXComboBox<>();
-        listBGType.setFloatMode(FloatMode.DISABLED);
+        ComboBox<SCADAAnalysis.BGMode> listBGType = new ComboBox<>();
         listBGType.setItems(FXCollections.observableArrayList(SCADAAnalysis.BGMode.values()));
 
         //TODO JFX17
@@ -278,7 +274,7 @@ public class SCADAPlugin implements Plugin {
 
             @Override
             public SCADAAnalysis.BGMode fromString(String string) {
-                return listBGType.getItems().get(listBGType.getSelectedIndex());
+                return listBGType.getItems().get(listBGType.getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -321,8 +317,8 @@ public class SCADAPlugin implements Plugin {
          * ---------------------------------------------------------------------------------------------------
          */
         if (analyses != null) {
-            listAnalysesComboBox.selectItem(analyses.getObject());
-            listBGType.selectItem(analyses.getBackgroundMode());
+            listAnalysesComboBox.getSelectionModel().select(analyses.getObject());
+            listBGType.getSelectionModel().select(analyses.getBackgroundMode());
         } else {
             listBGType.getSelectionModel().selectFirst();
         }

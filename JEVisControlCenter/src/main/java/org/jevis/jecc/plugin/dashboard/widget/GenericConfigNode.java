@@ -1,17 +1,12 @@
 package org.jevis.jecc.plugin.dashboard.widget;
 
-import com.jfoenix.controls.JFXCheckBox;
+
 import com.jfoenix.validation.DoubleValidator;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.Tab;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
@@ -51,25 +46,25 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final Label showValueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.showvalue"));
 
 
-    private final MFXTextField nameField = new MFXTextField();
-    private final MFXTextField tooltipField = new MFXTextField();
-    private final MFXTextField yPosField = new MFXTextField();
-    private final MFXTextField xPosField = new MFXTextField();
-    private final JFXCheckBox showShadowField = new JFXCheckBox();
-    private final JFXCheckBox showValueField = new JFXCheckBox();
+    private final TextField nameField = new TextField();
+    private final TextField tooltipField = new TextField();
+    private final TextField yPosField = new TextField();
+    private final TextField xPosField = new TextField();
+    private final CheckBox showShadowField = new CheckBox();
+    private final CheckBox showValueField = new CheckBox();
     private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
     private final FontWeightBox fontWeightBox = new FontWeightBox();
     private final FontPostureBox fontPostureBox = new FontPostureBox();
-    private final JFXCheckBox fontUnderlined = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fontunderlined"));
+    private final CheckBox fontUnderlined = new CheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fontunderlined"));
     private final Spinner<Integer> borderSizeSpinner = new Spinner<Integer>(0, 20, 0);
     private final Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
     private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
     private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
-    private final JFXCheckBox fixedTimeFrame = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fixedtimeframe"));
+    private final CheckBox fixedTimeFrame = new CheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fixedtimeframe"));
     private final TimeFactoryBox timeFrameBox;
     private final Widget widget;
     private final DataModelDataHandler dataModelDataHandler;
-    private final MFXComboBox<Pos> alignmentBox;
+    private final ComboBox<Pos> alignmentBox;
 
     public GenericConfigNode(JEVisDataSource ds, Widget widget, DataModelDataHandler dataModelDataHandler) {
         super(I18n.getInstance().getString("plugin.dashboard.edit.general.tab"));
@@ -82,10 +77,9 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         timeFrameBox.setMinWidth(200);
         timeFrameBox.getItems().addAll(timeFrames);
 
-        alignmentBox = new MFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+        alignmentBox = new ComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
         alignmentBox.setPrefWidth(200);
         alignmentBox.setMinWidth(200);
-        alignmentBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         alignmentBox.setConverter(new StringConverter<Pos>() {
@@ -146,10 +140,10 @@ public class GenericConfigNode extends Tab implements ConfigTab {
 
             @Override
             public Pos fromString(String string) {
-                return alignmentBox.getItems().get(alignmentBox.getSelectedIndex());
+                return alignmentBox.getItems().get(alignmentBox.getSelectionModel().getSelectedIndex());
             }
         });
-        alignmentBox.selectItem(Pos.CENTER);
+        alignmentBox.getSelectionModel().select(Pos.CENTER);
 
         bgColorPicker.setStyle("-fx-color-label-visible: false ;");
         fColorPicker.setStyle("-fx-color-label-visible: false ;");
@@ -229,11 +223,11 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         //yPosField.getValidators().add(validator);
 
         fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
-        fontWeightBox.selectItem(widget.getConfig().getFontWeight());
-        fontPostureBox.selectItem(widget.getConfig().getFontPosture());
+        fontWeightBox.getSelectionModel().select(widget.getConfig().getFontWeight());
+        fontPostureBox.getSelectionModel().select(widget.getConfig().getFontPosture());
         fontUnderlined.selectedProperty().setValue(widget.getConfig().getFontUnderlined());
         borderSizeSpinner.getValueFactory().setValue((int) widget.getConfig().getBorderSize().getTop());
-        alignmentBox.selectItem(widget.getConfig().getTitlePosition());
+        alignmentBox.getSelectionModel().select(widget.getConfig().getTitlePosition());
         precisionSpinner.getValueFactory().setValue(widget.getConfig().getDecimals().intValue());
     }
 

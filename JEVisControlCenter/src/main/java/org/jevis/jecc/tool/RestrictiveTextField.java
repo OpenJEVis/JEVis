@@ -19,13 +19,14 @@
  */
 package org.jevis.jecc.tool;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.TextField;
 
 /**
  * A text field, which restricts the user's input.
@@ -46,7 +47,7 @@ import javafx.beans.value.ObservableValue;
  *
  * @author Christian Schudt
  */
-public class RestrictiveTextField extends MFXTextField {
+public class RestrictiveTextField extends TextField {
 
     private final IntegerProperty maxLength = new SimpleIntegerProperty(this, "maxLength", -1);
     private final StringProperty restrict = new SimpleStringProperty(this, "restrict");

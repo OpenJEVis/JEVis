@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.dashboard;
 
 import com.google.common.collect.Iterables;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -79,15 +76,15 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
     private ToolBarIntervalSelector toolBarIntervalSelector;
-    private MFXComboBox<Double> listZoomLevel;
+    private ComboBox<Double> listZoomLevel;
     private Boolean multiSite = null;
     private Boolean multiDir = null;
-    private MFXButton newWidget;
+    private Button newWidget;
     private NewWidgetSelector widgetSelector;
     private final Separator separatorEditMode = new Separator();
 
     private boolean disableEventListener = false;
-    private MFXComboBox<JEVisObject> listAnalysesComboBox;
+    private ComboBox<JEVisObject> listAnalysesComboBox;
 
 
     public DashBoardToolbar(DashboardControl dashboardControl) {
@@ -98,7 +95,7 @@ public class DashBoardToolbar extends ToolBar {
     }
 
 
-    public static MFXComboBox<Double> buildZoomLevelListView() {
+    public static ComboBox<Double> buildZoomLevelListView() {
         ObservableList<Double> zoomLevel = FXCollections.observableArrayList();
 
         List<Double> zoomLevels = new ArrayList<>();
@@ -106,7 +103,7 @@ public class DashBoardToolbar extends ToolBar {
         zoomLevel.add(DashboardControl.fitToWidth);
         zoomLevel.add(DashboardControl.fitToHeight);
 
-        /** MFXComboBox need all posible values or the buttonCell will not work work in java 1.8 **/
+        /** ComboBox need all posible values or the buttonCell will not work work in java 1.8 **/
         double zs = 0;
         for (double d = 0; d <= DashboardControl.MAX_ZOOM; d += DashboardControl.zoomSteps) {
             zs = Precision.round((zs + 0.05d), 2);
@@ -115,8 +112,7 @@ public class DashBoardToolbar extends ToolBar {
         zoomLevel.addAll(zoomLevels);
 
 
-        MFXComboBox<Double> doubleComboBox = new MFXComboBox<>(zoomLevel);
-        doubleComboBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<Double> doubleComboBox = new ComboBox<>(zoomLevel);
         DecimalFormat df = new DecimalFormat("##0");
         df.setMaximumFractionDigits(2);
         Callback<ListView<Double>, ListCell<Double>> cellFactory = new Callback<ListView<Double>, ListCell<Double>>() {
@@ -167,7 +163,7 @@ public class DashBoardToolbar extends ToolBar {
 
             @Override
             public Double fromString(String string) {
-                return doubleComboBox.getItems().get(doubleComboBox.getSelectedIndex());
+                return doubleComboBox.getItems().get(doubleComboBox.getSelectionModel().getSelectedIndex());
             }
         });
         doubleComboBox.setValue(1.0d);
@@ -193,8 +189,7 @@ public class DashBoardToolbar extends ToolBar {
     public void initLayout() {
         logger.debug("InitLayout");
         ObservableList<JEVisObject> observableList = this.dashboardControl.getAllDashboards();
-        this.listAnalysesComboBox = new MFXComboBox<>(observableList);
-        this.listAnalysesComboBox.setFloatMode(FloatMode.DISABLED);
+        this.listAnalysesComboBox = new ComboBox<>(observableList);
         setCellFactoryForComboBox();
         this.listAnalysesComboBox.setPrefWidth(350);
         this.listAnalysesComboBox.setMinWidth(350);
@@ -495,7 +490,7 @@ public class DashBoardToolbar extends ToolBar {
         listAnalysesComboBox.setItems(dashboardList);
 
         if (dashboardSettings.getDashboardObject() != null) {
-            this.listAnalysesComboBox.selectItem(dashboardSettings.getDashboardObject());
+            this.listAnalysesComboBox.getSelectionModel().select(dashboardSettings.getDashboardObject());
         }
         disableEventListener = false;
     }
@@ -653,7 +648,7 @@ public class DashBoardToolbar extends ToolBar {
         return multiDir;
     }
 
-    public MFXComboBox<JEVisObject> getListAnalysesComboBox() {
+    public ComboBox<JEVisObject> getListAnalysesComboBox() {
         return this.listAnalysesComboBox;
     }
 

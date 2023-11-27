@@ -1,7 +1,8 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -12,7 +13,7 @@ import org.jevis.jecc.plugin.AnalysisRequest;
 import org.jevis.jecc.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
 
-public class AnalysisLinkButton extends MFXButton {
+public class AnalysisLinkButton extends Button {
 
     private static final Logger logger = LogManager.getLogger(AnalysisLinkButton.class);
     private AnalysisRequest analysisRequest;

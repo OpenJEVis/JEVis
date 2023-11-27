@@ -5,9 +5,7 @@
  */
 package org.jevis.jecc.plugin.object.extension.processchain;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -16,9 +14,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,8 +33,8 @@ import java.util.List;
 public class FunctionPane extends Region {
     private static final Logger logger = LogManager.getLogger(FunctionPane.class);
     final ChoiceBox functionBox = new ChoiceBox();
-    MFXButton close = new MFXButton("X");
-    MFXButton newB = new MFXButton("", ControlCenter.getImage("list-add.png", 12, 12));
+    Button close = new Button("X");
+    Button newB = new Button("", ControlCenter.getImage("list-add.png", 12, 12));
 
     public FunctionPane(Process thisTask) {
         logger.info("FunctionPane: {}", thisTask.getFunction().getName());
@@ -67,8 +63,7 @@ public class FunctionPane extends Region {
 
         //---------------------- body ------------------------
         Label functionName = new Label("ID:");
-        MFXTextField nameField = new MFXTextField();
-        nameField.setFloatMode(FloatMode.DISABLED);
+        TextField nameField = new TextField();
 //        Separator sep = new Separator(Orientation.HORIZONTAL_TOP_LEFT);
 
         AnchorPane bodySpcer = new AnchorPane();
@@ -88,8 +83,7 @@ public class FunctionPane extends Region {
 
             rowNr++;
             Label optionName = new Label(key);
-            MFXTextField optionValue = new MFXTextField(value);
-            optionValue.setFloatMode(FloatMode.DISABLED);
+            TextField optionValue = new TextField(value);
             body.add(optionName, 0, rowNr);
             body.add(optionValue, 1, rowNr);
         }

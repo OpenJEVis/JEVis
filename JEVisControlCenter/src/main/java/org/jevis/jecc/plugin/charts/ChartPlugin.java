@@ -24,8 +24,6 @@ import de.gsi.chart.axes.AxisMode;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
 import eu.hansolo.fx.charts.tools.Helper;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -244,11 +242,11 @@ public class ChartPlugin implements Plugin {
                             "    -fx-text-alignment: left;\n";
 //                    "    -fx-text-fill: #0076a3;\n";
 
-            MFXButton newAnalysis = new MFXButton(I18n.getInstance().getString("plugin.graph.analysis.new"), ControlCenter.getSVGImage(Icon.ADD_CHART, 32, 32));
+            Button newAnalysis = new Button(I18n.getInstance().getString("plugin.graph.analysis.new"), ControlCenter.getSVGImage(Icon.ADD_CHART, 32, 32));
             newAnalysis.setStyle(style);
             newAnalysis.setAlignment(Pos.CENTER);
 
-            MFXButton loadAnalysis = new MFXButton(I18n.getInstance().getString("plugin.graph.analysis.load"), ControlCenter.getSVGImage(Icon.FOLDER_OPEN, 32, 32));
+            Button loadAnalysis = new Button(I18n.getInstance().getString("plugin.graph.analysis.load"), ControlCenter.getSVGImage(Icon.FOLDER_OPEN, 32, 32));
             loadAnalysis.setStyle(style);
             loadAnalysis.setAlignment(Pos.CENTER);
 
@@ -1233,7 +1231,7 @@ public class ChartPlugin implements Plugin {
                 case TABLE:
                     TableChart chart = (TableChart) cv;
                     TableTopDatePicker tableTopDatePicker = chart.getTableTopDatePicker();
-                    MFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                    ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
                     ChartDataRow singleRow = chart.getSingleRow();
                     datePicker.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                         if (datePicker.getSelectionModel().selectedIndexProperty().get() < singleRow.getSamples().size()
@@ -1255,14 +1253,14 @@ public class ChartPlugin implements Plugin {
                     tableTopDatePicker.getLeftImage().setOnMouseClicked(event -> {
                         int i = datePicker.getSelectionModel().getSelectedIndex() - 1;
                         if (i > -1) {
-                            Platform.runLater(() -> datePicker.getSelectionModel().selectIndex(i));
+                            Platform.runLater(() -> datePicker.getSelectionModel().select(i));
                         }
                     });
 
                     tableTopDatePicker.getRightImage().setOnMouseClicked(event -> {
                         int i = datePicker.getSelectionModel().getSelectedIndex() - 1;
                         if (i < singleRow.getSamples().size()) {
-                            Platform.runLater(() -> datePicker.getSelectionModel().selectIndex(i));
+                            Platform.runLater(() -> datePicker.getSelectionModel().select(i));
                         }
                     });
                     break;

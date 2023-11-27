@@ -1,9 +1,10 @@
 package org.jevis.jecc.tool;
 
-import io.github.palexdev.materialfx.controls.MFXToggleButton;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.HPos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.jevis.commons.i18n.I18n;
@@ -16,7 +17,7 @@ public class ToggleSwitchPlus extends GridPane {
     private final String labelOn = I18n.getInstance().getString("extension.calc.button.toggle.activate");
     private final String labelOff = I18n.getInstance().getString("extension.calc.button.toggle.deactivate");
     private final Label buttonLabel = new Label();
-    private final MFXToggleButton button = new MFXToggleButton();
+    private final ToggleButton button = new ToggleButton();
 
     public ToggleSwitchPlus() {
         super();

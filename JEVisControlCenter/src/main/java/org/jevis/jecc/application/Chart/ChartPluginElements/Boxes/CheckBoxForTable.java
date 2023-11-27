@@ -1,19 +1,20 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
-import com.jfoenix.controls.JFXCheckBox;
+
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
+import javafx.scene.control.CheckBox;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import org.jevis.commons.i18n.I18n;
 
-public class CheckBox extends JFXCheckBox {
+public class CheckBoxForTable extends CheckBox {
 
-    public CheckBox() {
+    public CheckBoxForTable() {
         super();
     }
 
-    public CheckBox(Boolean b) {
+    public CheckBoxForTable(Boolean b) {
         this();
         this.setSelected(b);
     }
@@ -30,45 +31,45 @@ public class CheckBox extends JFXCheckBox {
         return "";
     }
 
-    public static CheckBox createComboBox(final Cell<Boolean> cell) {
+    public static CheckBoxForTable createComboBox(final Cell<Boolean> cell) {
         Boolean item = cell.getItem();
-        final CheckBox checkBox = new CheckBox(item);
+        final CheckBoxForTable checkBoxForTable = new CheckBoxForTable(item);
 
         // Use onAction here rather than onKeyReleased (with check for Enter),
         // as otherwise we encounter RT-34685
-        checkBox.setOnAction(event -> {
+        checkBoxForTable.setOnAction(event -> {
 
-            cell.commitEdit(checkBox.isSelected());
+            cell.commitEdit(checkBoxForTable.isSelected());
             event.consume();
         });
-        checkBox.setOnKeyReleased(t -> {
+        checkBoxForTable.setOnKeyReleased(t -> {
             if (t.getCode() == KeyCode.ESCAPE) {
                 cell.cancelEdit();
                 t.consume();
             }
         });
-        return checkBox;
+        return checkBoxForTable;
     }
 
     public static void startEdit(final Cell<Boolean> cell,
                                  final HBox hbox,
                                  final Node graphic,
-                                 final CheckBox checkBox) {
-        if (checkBox != null) {
-            checkBox.setSelected(cell.getItem());
+                                 final CheckBoxForTable checkBoxForTable) {
+        if (checkBoxForTable != null) {
+            checkBoxForTable.setSelected(cell.getItem());
         }
         cell.setText(null);
 
         if (graphic != null) {
-            hbox.getChildren().setAll(graphic, checkBox);
+            hbox.getChildren().setAll(graphic, checkBoxForTable);
             cell.setGraphic(hbox);
         } else {
-            cell.setGraphic(checkBox);
+            cell.setGraphic(checkBoxForTable);
         }
 
         // requesting focus so that key input can immediately go into the
         // TextField (see RT-28132)
-        checkBox.requestFocus();
+        checkBoxForTable.requestFocus();
     }
 
     public static void cancelEdit(Cell<Boolean> cell, Node graphic) {
@@ -79,22 +80,22 @@ public class CheckBox extends JFXCheckBox {
     public static void updateItem(final Cell<Boolean> cell,
                                   final HBox hbox,
                                   final Node graphic,
-                                  final CheckBox checkBox) {
+                                  final CheckBoxForTable checkBoxForTable) {
         if (cell.isEmpty()) {
             cell.setText(null);
             cell.setGraphic(null);
         } else {
             if (cell.isEditing()) {
-                if (checkBox != null) {
-                    checkBox.setSelected(cell.getItem());
+                if (checkBoxForTable != null) {
+                    checkBoxForTable.setSelected(cell.getItem());
                 }
                 cell.setText(null);
 
                 if (graphic != null) {
-                    hbox.getChildren().setAll(graphic, checkBox);
+                    hbox.getChildren().setAll(graphic, checkBoxForTable);
                     cell.setGraphic(hbox);
                 } else {
-                    cell.setGraphic(checkBox);
+                    cell.setGraphic(checkBoxForTable);
                 }
             } else {
                 cell.setText(getItemText(cell));

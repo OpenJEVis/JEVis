@@ -4,8 +4,8 @@ package org.jevis.jecc.application.control;
 import de.focus_shift.CalendarHierarchy;
 import de.focus_shift.HolidayManager;
 import de.focus_shift.ManagerParameters;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class CalendarBox extends MFXComboBox<CalendarRow> {
+public class CalendarBox extends ComboBox<CalendarRow> {
 
     public CalendarBox() {
         List<CalendarRow> list = new ArrayList<>();
@@ -70,7 +70,7 @@ public class CalendarBox extends MFXComboBox<CalendarRow> {
 
             @Override
             public CalendarRow fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
 

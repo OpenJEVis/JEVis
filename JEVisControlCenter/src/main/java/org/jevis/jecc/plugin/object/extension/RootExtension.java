@@ -19,7 +19,7 @@
  */
 package org.jevis.jecc.plugin.object.extension;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,10 +27,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -174,7 +171,7 @@ public class RootExtension implements ObjectEditorExtension {
 
                 groupBox.getChildren().addAll(usericon, nameLabel);
 
-                MFXButton remove = new MFXButton();
+                Button remove = new Button();
                 remove.setGraphic(ControlCenter.getImage("list-remove.png", 17, 17));
                 remove.setOnAction(t -> {
 
@@ -234,7 +231,7 @@ public class RootExtension implements ObjectEditorExtension {
         GridPane.setValignment(newOwnerlabel, VPos.CENTER);
         HBox addNewBox = new HBox(5);
 
-        MFXButton newB = new MFXButton();
+        Button newB = new Button();
         newB.setGraphic(ControlCenter.getImage("list-add.png", 17, 17));
 
         newB.setOnAction(t -> {

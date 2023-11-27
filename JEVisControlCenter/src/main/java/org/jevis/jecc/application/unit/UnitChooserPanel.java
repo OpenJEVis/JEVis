@@ -5,16 +5,16 @@
  */
 package org.jevis.jecc.application.unit;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -36,13 +36,13 @@ import java.util.regex.Pattern;
  */
 public class UnitChooserPanel {
     private static final Logger logger = LogManager.getLogger(UnitChooserPanel.class);
-    private final MFXTextField altSymbolField = new MFXTextField("");
-    private final MFXComboBox<?> boxMeaning = new MFXComboBox<Object>();
-    private final MFXComboBox<MetricPrefix> boxPrefix = new MFXComboBox<MetricPrefix>();
-    private final MFXComboBox<JEVisUnit> boxQuantity = new MFXComboBox<JEVisUnit>();
-    private final MFXComboBox<JEVisUnit> boxUnit = new MFXComboBox<JEVisUnit>();
+    private final TextField altSymbolField = new TextField("");
+    private final ComboBox<?> boxMeaning = new ComboBox<Object>();
+    private final ComboBox<MetricPrefix> boxPrefix = new ComboBox<MetricPrefix>();
+    private final ComboBox<JEVisUnit> boxQuantity = new ComboBox<JEVisUnit>();
+    private final ComboBox<JEVisUnit> boxUnit = new ComboBox<JEVisUnit>();
     private final Label example = new Label("1234.56");
-    private final MFXTextField searchField = new MFXTextField();
+    private final TextField searchField = new TextField();
     private final GridPane root = new GridPane();
     private final Label lQuantity = new Label("Quantity:");
     private final Label lUnit = new Label("Unit:");
@@ -54,10 +54,6 @@ public class UnitChooserPanel {
     private String _altSymbol = "";
 
     public UnitChooserPanel(JEVisUnit unit, String altSymbol) {
-        boxMeaning.setFloatMode(FloatMode.DISABLED);
-        boxPrefix.setFloatMode(FloatMode.DISABLED);
-        boxQuantity.setFloatMode(FloatMode.DISABLED);
-        boxUnit.setFloatMode(FloatMode.DISABLED);
         _unit = unit;
         _altSymbol = altSymbol;
 
@@ -195,7 +191,7 @@ public class UnitChooserPanel {
             public String toString(JEVisUnit object) {
                 String text = "";
                 if (object instanceof Unit) {
-                    text = String.format("%s [%s]", object.toString(), UnitManager.getInstance().getUnitName((Unit) object, Locale.ENGLISH));
+                    text = String.format("%s [%s]", object, UnitManager.getInstance().getUnitName((Unit) object, Locale.ENGLISH));
 //                setText(UnitManager.getInstance().getQuantitiesName((Unit) item, Locale.getDefault()));
                 }
 

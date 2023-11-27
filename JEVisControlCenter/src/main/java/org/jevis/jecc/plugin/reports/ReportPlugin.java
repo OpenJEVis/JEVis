@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.reports;
 
-import com.jfoenix.controls.JFXListView;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
@@ -64,10 +61,10 @@ public class ReportPlugin implements Plugin {
     private final ObjectRelations objectRelations;
     private final ToolBar toolBar = new ToolBar();
     private final Pagination pagination = new Pagination();
-    private final MFXComboBox<String> fileComboBox = new MFXComboBox<>();
+    private final ComboBox<String> fileComboBox = new ComboBox<>();
     private final Map<String, JEVisFileWithSample> sampleMap = new HashMap<>();
     private final List<JEVisObject> disabledItemList = new ArrayList<>();
-    private final MFXTextField filterInput = new MFXTextField();
+    private final TextField filterInput = new TextField();
     private final int iconSize = 20;
     private final PDFModel model = new PDFModel();
     private final SimpleDoubleProperty zoomFactor = new SimpleDoubleProperty(0.3);
@@ -78,7 +75,7 @@ public class ReportPlugin implements Plugin {
     private final AlphanumComparator alphanumComparator = new AlphanumComparator();
     private final ObservableList<JEVisObject> reports = FXCollections.observableArrayList();
     private final FilteredList<JEVisObject> filteredData = new FilteredList<>(reports, s -> true);
-    private final JFXListView<JEVisObject> listView = new JFXListView<>();
+    private final ListView<JEVisObject> listView = new ListView<>();
     private final ObservableList<String> fileNames = FXCollections.observableArrayList();
     private final SortedList<String> sortedList = new SortedList<>(fileNames);
     private boolean initialized = false;
@@ -89,11 +86,9 @@ public class ReportPlugin implements Plugin {
         this.ds = ds;
         this.title = title;
 
-        this.filterInput.setFloatMode(FloatMode.DISABLED);
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         sortedList.setComparator(alphanumComparator.reversed());
-        fileComboBox.setFloatMode(FloatMode.DISABLED);
         fileComboBox.setItems(sortedList);
 
         VBox view = new VBox(pagination);
@@ -298,14 +293,14 @@ public class ReportPlugin implements Plugin {
         prevButton.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i > 0) {
-                fileComboBox.selectIndex(i - 1);
+                fileComboBox.getSelectionModel().select(i - 1);
             }
         });
 
         nextButton.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i < sampleMap.size()) {
-                fileComboBox.selectIndex(i + 1);
+                fileComboBox.getSelectionModel().select(i + 1);
             }
         });
 

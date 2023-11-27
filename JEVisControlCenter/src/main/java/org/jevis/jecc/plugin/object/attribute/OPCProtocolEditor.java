@@ -5,14 +5,14 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,10 +70,9 @@ public class OPCProtocolEditor implements AttributeEditor {
         enumList.add("opc.tcp");
         enumList.add("http");
 
-        MFXComboBox<String> picker = new MFXComboBox<>(enumList);
-        picker.setFloatMode(FloatMode.DISABLED);
+        ComboBox<String> picker = new ComboBox<>(enumList);
 
-        picker.selectItem(initinitialProtocol);
+        picker.getSelectionModel().select(initinitialProtocol);
 
         picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 

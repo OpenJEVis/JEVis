@@ -7,9 +7,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -62,7 +59,7 @@ public class RangingValueEditor implements AttributeEditor {
     }
 
     private void initGui() {
-        MFXButton openConfig = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
+        Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
         openConfig.setOnAction(action -> {
             try {
                 show();
@@ -206,12 +203,9 @@ public class RangingValueEditor implements AttributeEditor {
         Label toLabel = new Label(I18n.getInstance().getString("plugin.graph.dialog.export.to"));
         Label valueLabel = new Label(I18n.getInstance().getString("plugin.graph.table.value"));
 
-        MFXTextField fromField = new MFXTextField();
-        fromField.setFloatMode(FloatMode.DISABLED);
-        MFXTextField toField = new MFXTextField();
-        toField.setFloatMode(FloatMode.DISABLED);
-        MFXTextField valueField = new MFXTextField();
-        valueField.setFloatMode(FloatMode.DISABLED);
+        TextField fromField = new TextField();
+        TextField toField = new TextField();
+        TextField valueField = new TextField();
 
         NumberFormat numberFormat = NumberFormat.getInstance(I18n.getInstance().getLocale());
 

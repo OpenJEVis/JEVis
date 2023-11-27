@@ -3,8 +3,6 @@ package org.jevis.jecc.dialog;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -48,7 +46,7 @@ public class JsonViewerDialog {
     private final int iconSize = 32;
     private final ImageView rightImage = ControlCenter.getImage("right.png", 20, 20);
     private final ImageView leftImage = ControlCenter.getImage("left.png", 20, 20);
-    private final MFXComboBox<JEVisFileWithSample> fileComboBox = new MFXComboBox<>(FXCollections.observableArrayList());
+    private final ComboBox<JEVisFileWithSample> fileComboBox = new ComboBox<>(FXCollections.observableArrayList());
     private final Map<JEVisFile, JEVisSample> sampleMap = new HashMap<>();
     private final ImageView jsonIcon = ControlCenter.getImage("json_icon.png", iconSize, iconSize);
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -58,7 +56,6 @@ public class JsonViewerDialog {
     public JsonViewerDialog() {
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        this.fileComboBox.setFloatMode(FloatMode.DISABLED);
     }
 
     public void show(JEVisAttribute attribute, JEVisFile file, Window owner) {
@@ -191,7 +188,6 @@ public class JsonViewerDialog {
         };
 
         //TODO JFX17
-        fileComboBox.setFloatMode(FloatMode.DISABLED);
         fileComboBox.setConverter(new StringConverter<JEVisFileWithSample>() {
             @Override
             public String toString(JEVisFileWithSample object) {
@@ -209,14 +205,14 @@ public class JsonViewerDialog {
         leftImage.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i > 0) {
-                fileComboBox.getSelectionModel().selectIndex(i - 1);
+                fileComboBox.getSelectionModel().select(i - 1);
             }
         });
 
         rightImage.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i < sampleMap.size()) {
-                fileComboBox.getSelectionModel().selectIndex(i + 1);
+                fileComboBox.getSelectionModel().select(i + 1);
             }
         });
 

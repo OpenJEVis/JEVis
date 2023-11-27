@@ -1,10 +1,6 @@
 package org.jevis.jecc.plugin.dtrc.dialogs;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXRadioButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -53,9 +49,8 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         stage.setAlwaysOnTop(true);
 
         Label nameLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.namelabel"));
-        MFXTextField MFXTextField = new MFXTextField(templateFormula.getName());
-        MFXTextField.setFloatMode(FloatMode.DISABLED);
-        MFXTextField.textProperty().addListener((observable, oldValue, newValue) -> templateFormula.setName(newValue));
+        TextField textField = new TextField(templateFormula.getName());
+        textField.textProperty().addListener((observable, oldValue, newValue) -> templateFormula.setName(newValue));
 
         Separator separator1 = new Separator(Orientation.HORIZONTAL);
         separator1.setPadding(new Insets(8, 0, 8, 0));
@@ -71,7 +66,7 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         FlowPane inputsFlowPane = new FlowPane(4, 4);
 
         for (TemplateInput templateInput : rcTemplate.getTemplateFormulaInputs()) {
-            MFXCheckbox mfxCheckbox = new MFXCheckbox(templateInput.getVariableName());
+            CheckBox mfxCheckbox = new CheckBox(templateInput.getVariableName());
             mfxCheckbox.setStyle("-fx-text-fill: red !important;");
             mfxCheckbox.setMnemonicParsing(false);
 
@@ -90,7 +85,7 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         }
 
         for (TemplateInput templateInput : rcTemplate.getTemplateInputs()) {
-            MFXCheckbox mfxCheckbox = new MFXCheckbox(templateInput.getVariableName());
+            CheckBox mfxCheckbox = new CheckBox(templateInput.getVariableName());
             mfxCheckbox.setMnemonicParsing(false);
 
             if (templateFormula.getInputIds().contains(templateInput.getId())) {
@@ -117,7 +112,7 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         final ToggleGroup outputsToggleGroup = new ToggleGroup();
 
         for (TemplateOutput templateOutput : rcTemplate.getTemplateOutputs()) {
-            MFXRadioButton mfxRadioButton = new MFXRadioButton();
+            RadioButton mfxRadioButton = new RadioButton();
 
             if (templateOutput.getName() != null) {
                 mfxRadioButton.setText(templateOutput.getName());
@@ -135,12 +130,11 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         separator4.setPadding(new Insets(8, 0, 8, 0));
 
         Label timeRestrictionsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.timerestictions"));
-        MFXCheckbox timeRestrictionEnabledCheckBox = new MFXCheckbox(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
+        CheckBox timeRestrictionEnabledCheckBox = new CheckBox(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
         timeRestrictionEnabledCheckBox.setSelected(templateFormula.getTimeRestrictionEnabled());
         timeRestrictionEnabledCheckBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateFormula.setTimeRestrictionEnabled(t1));
 
-        MFXComboBox<TimeFrame> fixedTimeFrameBox = new MFXComboBox<>();
-        fixedTimeFrameBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<TimeFrame> fixedTimeFrameBox = new ComboBox<>();
 
         //TODO JFX17
 
@@ -152,19 +146,18 @@ public class TemplateCalculationFormulaDialog extends Dialog {
 
             @Override
             public TimeFrame fromString(String string) {
-                return fixedTimeFrameBox.getItems().get(fixedTimeFrameBox.getSelectedIndex());
+                return fixedTimeFrameBox.getItems().get(fixedTimeFrameBox.getSelectionModel().getSelectedIndex());
             }
         });
 
         fixedTimeFrameBox.getItems().setAll(allowedTimeFrames);
         if (templateFormula.getFixedTimeFrame() != null) {
             TimeFrame selectedTimeFrame = allowedTimeFrames.stream().filter(timeFrame -> templateFormula.getFixedTimeFrame().equals(timeFrame.getID())).findFirst().orElse(null);
-            fixedTimeFrameBox.selectItem(selectedTimeFrame);
+            fixedTimeFrameBox.getSelectionModel().select(selectedTimeFrame);
         }
         fixedTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateFormula.setFixedTimeFrame(t1.getID()));
 
-        MFXComboBox<TimeFrame> reducingTimeFrameBox = new MFXComboBox<>();
-        reducingTimeFrameBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<TimeFrame> reducingTimeFrameBox = new ComboBox<>();
 
         //TODO JFX17
 
@@ -176,14 +169,14 @@ public class TemplateCalculationFormulaDialog extends Dialog {
 
             @Override
             public TimeFrame fromString(String string) {
-                return reducingTimeFrameBox.getItems().get(reducingTimeFrameBox.getSelectedIndex());
+                return reducingTimeFrameBox.getItems().get(reducingTimeFrameBox.getSelectionModel().getSelectedIndex());
             }
         });
 
         reducingTimeFrameBox.getItems().setAll(allowedTimeFrames);
         if (templateFormula.getReducingTimeFrame() != null) {
             TimeFrame selectedTimeFrame = allowedTimeFrames.stream().filter(timeFrame -> templateFormula.getReducingTimeFrame().equals(timeFrame.getID())).findFirst().orElse(null);
-            reducingTimeFrameBox.selectItem(selectedTimeFrame);
+            reducingTimeFrameBox.getSelectionModel().select(selectedTimeFrame);
         }
         reducingTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateFormula.setReducingTimeFrame(t1.getID()));
 
@@ -224,7 +217,7 @@ public class TemplateCalculationFormulaDialog extends Dialog {
         ScrollPane outputsScrollPane = new ScrollPane(outputsGridPane);
         outputsScrollPane.setMinHeight(550);
 
-        VBox vBox = new VBox(4, new HBox(4, nameLabel, MFXTextField), separator1,
+        VBox vBox = new VBox(4, new HBox(4, nameLabel, textField), separator1,
                 formulaLabel, textArea, separator2,
                 inputsLabel, inputsFlowPane, separator3,
                 outputsLabel, outputsScrollPane, separator4,

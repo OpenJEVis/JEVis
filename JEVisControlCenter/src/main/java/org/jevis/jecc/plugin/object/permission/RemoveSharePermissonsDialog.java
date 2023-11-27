@@ -20,14 +20,15 @@
  */
 package org.jevis.jecc.plugin.object.permission;
 
-import com.jfoenix.controls.JFXCheckBox;
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
@@ -96,19 +97,19 @@ public class RemoveSharePermissonsDialog {
 
         HBox buttonPanel = new HBox();
 
-        MFXButton ok = new MFXButton(I18n.getInstance().getString("plugin.object.permission.button.delete"));
+        Button ok = new Button(I18n.getInstance().getString("plugin.object.permission.button.delete"));
         ok.setDefaultButton(true);
 
-        final JFXCheckBox includeChildren = new JFXCheckBox("For all children");
+        final CheckBox includeChildren = new CheckBox("For all children");
         includeChildren.setSelected(true);
-//        MFXButton okAll = new MFXButton("Delte also for all Children");
+//        Button okAll = new Button("Delte also for all Children");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setHgrow(includeChildren, Priority.NEVER);
         HBox.setHgrow(ok, Priority.NEVER);
-//        MFXButton okAll = new MFXButton("Delte also for all Children");
+//        Button okAll = new Button("Delte also for all Children");
 
-        MFXButton cancel = new MFXButton(I18n.getInstance().getString("plugin.object.permission.button.cancel"));
+        Button cancel = new Button(I18n.getInstance().getString("plugin.object.permission.button.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(includeChildren, spacer, ok, cancel);

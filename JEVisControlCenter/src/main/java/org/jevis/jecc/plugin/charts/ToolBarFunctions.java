@@ -1,10 +1,6 @@
 package org.jevis.jecc.plugin.charts;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -38,8 +34,8 @@ import org.jevis.jecc.tool.NumberSpinner;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -203,7 +199,7 @@ public class ToolBarFunctions {
 
         Label baseLoadTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.timeframe"));
 
-        MFXDatePicker baseLoadStartDate = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+        DatePicker baseLoadStartDate = new DatePicker(LocalDate.now());
         baseLoadStartDate.setPrefWidth(120d);
 
         LocalTimePicker baseLoadStartTime = new LocalTimePicker(LocalTime.now());
@@ -212,7 +208,7 @@ public class ToolBarFunctions {
 //        baseLoadStartTime.set24HourView(true);
 //        baseLoadStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        MFXDatePicker baseLoadEndDate = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+        DatePicker baseLoadEndDate = new DatePicker(LocalDate.now());
         baseLoadEndDate.setPrefWidth(120d);
 
         LocalTimePicker baseLoadEndTime = new LocalTimePicker(LocalTime.now());
@@ -223,8 +219,7 @@ public class ToolBarFunctions {
 
         Label baseLoadBinding = new Label(I18n.getInstance().getString("dialog.baseload.repeatingtimeframe"));
         ObservableList<Integer> list = FXCollections.observableArrayList(0, 1, 2, 3, 4);
-        MFXComboBox<Integer> boundSpecificBox = new MFXComboBox<>(list);
-        boundSpecificBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<Integer> boundSpecificBox = new ComboBox<>(list);
 
         Callback<ListView<Integer>, ListCell<Integer>> cellFactoryBoundToSpecificBox = new Callback<javafx.scene.control.ListView<Integer>, ListCell<Integer>>() {
             @Override
@@ -288,7 +283,7 @@ public class ToolBarFunctions {
 
             @Override
             public Integer fromString(String string) {
-                return boundSpecificBox.getItems().get(boundSpecificBox.getSelectedIndex());
+                return boundSpecificBox.getItems().get(boundSpecificBox.getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -296,7 +291,7 @@ public class ToolBarFunctions {
 
         Label resultTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.resulttimeframe"));
 
-        MFXDatePicker resultStartDate = new MFXDatePicker();
+        DatePicker resultStartDate = new DatePicker();
         resultStartDate.setValue(dataSettings.getAnalysisTimeFrame().getLocalStartDate());
         resultStartDate.setPrefWidth(120d);
 
@@ -306,7 +301,7 @@ public class ToolBarFunctions {
 //        resultStartTime.set24HourView(true);
 //        resultStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        MFXDatePicker resultEndDate = new MFXDatePicker();
+        DatePicker resultEndDate = new DatePicker();
         resultEndDate.setValue(dataSettings.getAnalysisTimeFrame().getLocalEndDate());
         resultEndDate.setPrefWidth(120d);
 
@@ -401,7 +396,7 @@ public class ToolBarFunctions {
 
         Label resultTimeFrame = new Label(I18n.getInstance().getString("dialog.baseload.resulttimeframe"));
 
-        MFXDatePicker resultStartDate = new MFXDatePicker();
+        DatePicker resultStartDate = new DatePicker();
         resultStartDate.setValue(dataSettings.getAnalysisTimeFrame().getLocalStartDate());
         resultStartDate.setPrefWidth(120d);
 
@@ -411,7 +406,7 @@ public class ToolBarFunctions {
 //        resultStartTime.set24HourView(true);
 //        resultStartTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        MFXDatePicker resultEndDate = new MFXDatePicker();
+        DatePicker resultEndDate = new DatePicker();
         resultEndDate.setValue(dataSettings.getAnalysisTimeFrame().getLocalEndDate());
         resultEndDate.setPrefWidth(120d);
 
@@ -436,7 +431,7 @@ public class ToolBarFunctions {
         gp.add(resultEndTime, 3, row);
         row++;
 
-        MFXCheckbox insideBox = new MFXCheckbox(I18n.getInstance().getString("graph.dialog.buttons.values.inside"));
+        CheckBox insideBox = new CheckBox(I18n.getInstance().getString("graph.dialog.buttons.values.inside"));
         insideBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> valuesSetting.setInside(t1));
         insideBox.setSelected(true);
         gp.add(insideBox, 0, row, 2, 1);
@@ -497,8 +492,7 @@ public class ToolBarFunctions {
         alert.setHeaderText(I18n.getInstance().getString("dialog.calchoursabovebelow.entervalue"));
 
         Label limitLabel = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"));
-        MFXTextField limitField = new MFXTextField();
-        limitField.setFloatMode(FloatMode.DISABLED);
+        TextField limitField = new TextField();
 
         DoubleValidator validator = DoubleValidator.getInstance();
         limitField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -647,8 +641,7 @@ public class ToolBarFunctions {
         alert.setHeaderText(I18n.getInstance().getString("dialog.calchoursabovebelow.entervalue"));
 
         Label limitLabel = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.limitvalue"));
-        MFXTextField limitField = new MFXTextField();
-        limitField.setFloatMode(FloatMode.DISABLED);
+        TextField limitField = new TextField();
         DoubleValidator validator = DoubleValidator.getInstance();
         limitField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {

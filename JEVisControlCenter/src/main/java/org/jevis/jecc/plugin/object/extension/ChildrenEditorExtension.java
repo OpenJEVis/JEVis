@@ -1,17 +1,11 @@
 package org.jevis.jecc.plugin.object.extension;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import org.jevis.api.JEVisObject;
@@ -22,27 +16,26 @@ import org.jevis.jecc.plugin.object.ObjectEditorExtension;
 import org.jevis.jecc.plugin.object.childrentableeditor.ObjectTable;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 
 
 public class ChildrenEditorExtension implements ObjectEditorExtension {
 
     private final BorderPane borderPane = new BorderPane();
     private final int iconSize = 20;
-    private final MFXDatePicker startDatePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
-    private final MFXDatePicker endDatePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+    private final DatePicker startDatePicker = new DatePicker(LocalDate.now());
+    private final DatePicker endDatePicker = new DatePicker(LocalDate.now());
     private final ToggleButton reloadButton = new ToggleButton("", ControlCenter.getImage("1403018303_Refresh.png", iconSize, iconSize));
     private final ToggleButton xlsxButton = new ToggleButton("", ControlCenter.getImage("xlsx_315594.png", iconSize, iconSize));
     private final Label columnLabel = new Label(I18n.getInstance().getString("searchbar.filter") + " " + I18n.getInstance().getString("plugin.dtrc.dialog.columnlabel"));
     private final Label includeLabel = new Label(I18n.getInstance().getString("plugin.object.childreneditor.includelabel"));
     private final Label excludeLabel = new Label(I18n.getInstance().getString("plugin.object.childreneditor.excludelabel"));
-    private final MFXComboBox<String> columnBox = new MFXComboBox<>();
+    private final ComboBox<String> columnBox = new ComboBox<>();
     private final String nameString = I18n.getInstance().getString("plugin.object.attribute.overview.name");
     private final String classString = I18n.getInstance().getString("plugin.dtrc.dialog.classlabel");
     private final String sourceString = I18n.getInstance().getString("jevis.types.source");
-    private final MFXTextField filterInclude = new MFXTextField();
-    private final MFXTextField filterExclude = new MFXTextField();
-    private final MFXCheckbox sourceDetails = new MFXCheckbox(I18n.getInstance().getString("plugin.object.childreneditor.sourcedetails"));
+    private final TextField filterInclude = new TextField();
+    private final TextField filterExclude = new TextField();
+    private final CheckBox sourceDetails = new CheckBox(I18n.getInstance().getString("plugin.object.childreneditor.sourcedetails"));
     private final GridPane dateSelection = new GridPane();
     private JEVisObject parentObject = null;
 
@@ -50,8 +43,6 @@ public class ChildrenEditorExtension implements ObjectEditorExtension {
         this.parentObject = parentObject;
         this.borderPane.getStyleClass().add("children-editor-plugin");
 //        this.viewPane.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-        this.filterInclude.setFloatMode(FloatMode.DISABLED);
-        this.filterExclude.setFloatMode(FloatMode.DISABLED);
 
         startDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.startdate")));
         endDatePicker.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.enddate")));
@@ -71,7 +62,6 @@ public class ChildrenEditorExtension implements ObjectEditorExtension {
         dateSelection.setHgap(6);
         dateSelection.setVgap(6);
 
-        columnBox.setFloatMode(FloatMode.DISABLED);
         columnBox.getItems().addAll(nameString, classString, sourceString);
         columnBox.getSelectionModel().selectFirst();
 

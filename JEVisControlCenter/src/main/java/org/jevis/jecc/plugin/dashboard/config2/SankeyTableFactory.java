@@ -1,7 +1,6 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -11,10 +10,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Control;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
@@ -45,7 +41,7 @@ public class SankeyTableFactory {
             }
         }
     };
-    private BooleanProperty disable = new SimpleBooleanProperty(false) {
+    private final BooleanProperty disable = new SimpleBooleanProperty(false) {
     };
 
     public TableView<SankeyDataRow> buildTable(ObservableList<SankeyDataRow> sankeyDataRows) {
@@ -177,12 +173,12 @@ public class SankeyTableFactory {
                             setGraphic(null);
                         } else {
                             HBox hBox = new HBox();
-                            MFXButton MFXButtonMoveUp = new MFXButton("", ControlCenter.getSVGImage(Icon.ARROW_UP, 10, 10));
-                            MFXButton MFXButtonMoveDown = new MFXButton("", ControlCenter.getSVGImage(Icon.ARROW_DOWN, 10, 10));
+                            Button ButtonMoveUp = new Button("", ControlCenter.getSVGImage(Icon.ARROW_UP, 10, 10));
+                            Button ButtonMoveDown = new Button("", ControlCenter.getSVGImage(Icon.ARROW_DOWN, 10, 10));
                             hBox.setSpacing(3);
-                            hBox.getChildren().addAll(MFXButtonMoveUp, MFXButtonMoveDown);
+                            hBox.getChildren().addAll(ButtonMoveUp, ButtonMoveDown);
 
-                            MFXButtonMoveDown.setOnAction(actionEvent -> {
+                            ButtonMoveDown.setOnAction(actionEvent -> {
 
 
                                 int index = observableList.indexOf(item);
@@ -199,7 +195,7 @@ public class SankeyTableFactory {
 
                             });
 
-                            MFXButtonMoveUp.setOnAction(actionEvent -> {
+                            ButtonMoveUp.setOnAction(actionEvent -> {
                                 int index = observableList.indexOf(item);
 
 
@@ -249,8 +245,8 @@ public class SankeyTableFactory {
     }
 
 
-    private MFXTextField buildTextField(String text) {
-        MFXTextField textField = new MFXTextField(text);
+    private TextField buildTextField(String text) {
+        TextField textField = new TextField(text);
         textField.focusedProperty().addListener(SankeyTableFactory.this.focusListener);
         //textField.setMaxWidth(this.numberColumDefaultSize);
         return textField;
@@ -260,7 +256,7 @@ public class SankeyTableFactory {
         field.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (oldValue == true && newValue == false) {
+                if (oldValue && !newValue) {
                     SankeyTableFactory.this.tableView.refresh();
                 }
             }

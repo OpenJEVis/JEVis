@@ -19,11 +19,12 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
@@ -163,7 +164,7 @@ public class StringMultiLine implements AttributeEditor {
 
             try {
                 if (_attribute.getType().getValidity() == JEVisConstants.Validity.AT_DATE) {
-                    MFXButton chartView = new MFXButton();
+                    Button chartView = new Button();
                     chartView.setGraphic(ControlCenter.getImage("1394566386_Graph.png", 20, 20));
                     chartView.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
 

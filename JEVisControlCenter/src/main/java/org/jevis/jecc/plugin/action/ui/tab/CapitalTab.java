@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.action.ui.tab;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -24,31 +24,31 @@ import java.text.DecimalFormat;
 public class CapitalTab extends Tab {
     private static final Logger logger = LogManager.getLogger(CapitalTab.class);
     Label l_investition = new Label("Investition");
-    MFXTextField f_investition = new MFXTextField();
+    TextField f_investition = new TextField();
     Label l_investitionUnit = new Label("€");
     Label l_einsparrung = new Label(I18n.getInstance().getString("actionform.action.nvp.annualSavings"));//"Jährliche Einsparung");
-    MFXTextField f_einsparrung = new MFXTextField();
+    TextField f_einsparrung = new TextField();
     Label l_einsparrungUnit = new Label("€");
     Label l_zinssatz = new Label(I18n.getInstance().getString("actionform.action.nvp.interestRate"));//"Zinssatz");
-    MFXTextField f_zinssatz = new MFXTextField("");
+    TextField f_zinssatz = new TextField("");
     Label l_proZent = new Label("%");
     Label l_years = new Label("Jahr(e)");
     Label l_kapitalwert = new Label(I18n.getInstance().getString("actionform.action.nvp"));//"Kapitalwert");
-    MFXTextField f_kapitalwert = new MFXTextField("");
+    TextField f_kapitalwert = new TextField("");
     Label l_kapitalwertrate = new Label(I18n.getInstance().getString("actionform.action.nvp.rate"));//"Kapitalwertrate");
-    MFXTextField f_kapitalwertrate = new MFXTextField("");
+    TextField f_kapitalwertrate = new TextField("");
     Label l_period = new Label(I18n.getInstance().getString("actionform.action.nvp.label.term"));//"Laufzeit");
     Label l_periodOverX = new Label(I18n.getInstance().getString("actionform.action.nvp.label.termOverX"));//"Laufzeit über X");
     Label l_overRuntime = new Label(I18n.getInstance().getString("actionform.action.nvp.label.overRuntime"));//"Amortisation über die Laufzeit");
     Label l_over = new Label(I18n.getInstance().getString("actionform.action.nvp.label.amortization"));//"Amortisation über");
     Label l_infation = new Label(I18n.getInstance().getString("actionform.action.nvp.annualIncrease"));
     Label l_infationUnit = new Label("%");
-    MFXTextField f_infation = new MFXTextField();
+    TextField f_infation = new TextField();
     Label l_yearCost = new Label(I18n.getInstance().getString("actionform.action.nvp.annualCost"));
     Label l_yearCostUnit = new Label("€");
-    MFXTextField f_runningCost = new MFXTextField();
-    MFXTextField f_kapitalwertOverX = new MFXTextField();
-    MFXTextField f_kapitalrateOverX = new MFXTextField();
+    TextField f_runningCost = new TextField();
+    TextField f_kapitalwertOverX = new TextField();
+    TextField f_kapitalrateOverX = new TextField();
 
     Label l_yearsOverX = new Label("Jahr(e)");
 
@@ -64,15 +64,15 @@ public class CapitalTab extends Tab {
 
         Label l_einzahlungGesamt = new Label("Einsparung");
         l_einzahlungGesamt.setAlignment(Pos.CENTER);
-        MFXTextField f_einzahlungGesamt = new MFXTextField();
+        TextField f_einzahlungGesamt = new TextField();
 
 
         Label l_auszahlungGesamt = new Label("Investition");
         l_auszahlungGesamt.setAlignment(Pos.CENTER);
-        MFXTextField f_auszahlungGesamt = new MFXTextField();
+        TextField f_auszahlungGesamt = new TextField();
         Label l_nettoGesamt = new Label("Netto");
         l_nettoGesamt.setAlignment(Pos.CENTER);
-        MFXTextField f_nettoGesamt = new MFXTextField();
+        TextField f_nettoGesamt = new TextField();
         Label l_gesamt = new Label("Gesamt");
         logger.debug("-------------");
         logger.debug("data.npv.get().overXYear: " + data.npv.get().amoutYear.get());

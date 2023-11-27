@@ -1,10 +1,6 @@
 package org.jevis.jecc.plugin.object.extension;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXRadioButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -83,11 +79,11 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private ToggleSwitchPlus gapsEnabled;
     private ToggleSwitchPlus alarmEnabled;
     private ToggleSwitchPlus periodAlignment;
-    private MFXTextField periodOffset;
+    private TextField periodOffset;
     private ToggleSwitchPlus valueIsAQuantity;
-    private MFXTextField valueMultiplier;
-    private MFXTextField valueOffset;
-    private MFXTextField counterOverflow;
+    private TextField valueMultiplier;
+    private TextField valueOffset;
+    private TextField counterOverflow;
     private SamplingRateUI period;
     private TimeStampEditor conversionToDifferentialTimeStampEditor;
     private TimeStampEditor valueMultiplierTimeStampEditor;
@@ -229,7 +225,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         /**
          * Calculate now
          */
-        MFXButton calcCow = new MFXButton(I18n.getInstance().getString("plugin.object.cleandata.reclean"));
+        Button calcCow = new Button(I18n.getInstance().getString("plugin.object.cleandata.reclean"));
         calcCow.setOnAction(buttonEvent -> {
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -240,16 +236,16 @@ public class CleanDataExtension implements ObjectEditorExtension {
             gp.setVgap(6);
             final ToggleGroup toggleGroup = new ToggleGroup();
 
-            MFXRadioButton allRadioButton = new MFXRadioButton(I18n.getInstance().getString("plugin.object.report.dialog.period.all"));
+            RadioButton allRadioButton = new RadioButton(I18n.getInstance().getString("plugin.object.report.dialog.period.all"));
             allRadioButton.setSelected(true);
             allRadioButton.setToggleGroup(toggleGroup);
 
-            MFXRadioButton nowRadioButton = new MFXRadioButton(I18n.getInstance().getString("graph.datehelper.referencepoint.now"));
+            RadioButton nowRadioButton = new RadioButton(I18n.getInstance().getString("graph.datehelper.referencepoint.now"));
             nowRadioButton.setToggleGroup(toggleGroup);
 
-            MFXRadioButton fromRadioButton = new MFXRadioButton(I18n.getInstance().getString("plugin.graph.dialog.export.from"));
+            RadioButton fromRadioButton = new RadioButton(I18n.getInstance().getString("plugin.graph.dialog.export.from"));
             fromRadioButton.setToggleGroup(toggleGroup);
-            MFXDatePicker fromDatePicker = new MFXDatePicker();
+            DatePicker fromDatePicker = new DatePicker();
             fromDatePicker.setPrefWidth(120d);
             LocalTimePicker fromTimePicker = new LocalTimePicker();
             fromTimePicker.setPrefWidth(100d);
@@ -364,8 +360,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         AttributeAdvSettingDialogButton advSettingDialogButtonAlarmLog = new AttributeAdvSettingDialogButton(alarmLogAttribute);
         TimeStampEditor alarmLogTimeStamp = new TimeStampEditor(alarmLogAttribute);
         alarmLogTimeStamp.getEditor().setDisable(true);
-        MFXTextField alarmLog = new MFXTextField();
-        alarmLog.setFloatMode(FloatMode.DISABLED);
+        TextField alarmLog = new TextField();
         alarmLog.setDisable(true);
         if (alarmLogLastSample != null) {
             alarmLog.setText(alarmLogLastSample.getValueAsDouble().toString());
@@ -421,8 +416,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
             namePeriodOffset.setTooltip(ttPeriodOffset);
         }
         AttributeAdvSettingDialogButton advSettingDialogButtonPeriodOffset = new AttributeAdvSettingDialogButton(periodOffsetAttribute);
-        periodOffset = new MFXTextField();
-        periodOffset.setFloatMode(FloatMode.DISABLED);
+        periodOffset = new TextField();
         if (periodOffsetLastSample != null) {
             periodOffset.setText(periodOffsetLastSample.getValueAsLong().toString());
         }
@@ -451,7 +445,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         }
         AttributeAdvSettingDialogButton advSettingDialogButtonValueMultiplier = new AttributeAdvSettingDialogButton(valueMultiplierAttribute);
         valueMultiplierTimeStampEditor = new TimeStampEditor(valueMultiplierAttribute);
-        valueMultiplier = new MFXTextField();
+        valueMultiplier = new TextField();
 
         if (valueMultiplierLastSample != null) {
             valueMultiplier.setText(nf.format(valueMultiplierLastSample.getValueAsDouble()));
@@ -467,7 +461,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         }
         AttributeAdvSettingDialogButton advSettingDialogButtonValue = new AttributeAdvSettingDialogButton(valueAttribute);
         TimeStampEditor valueTimeStamp = new TimeStampEditor(valueAttribute);
-        MFXTextField value = new MFXTextField();
+        TextField value = new TextField();
         value.setEditable(false);
 
         JEVisUnit selectedUnit = new JEVisUnitImp(Dimensionless.UNIT, "", "");
@@ -492,7 +486,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
             nameValueOffset.setTooltip(ttValueOffset);
         }
         AttributeAdvSettingDialogButton advSettingDialogButtonValueOffset = new AttributeAdvSettingDialogButton(valueOffsetAttribute);
-        valueOffset = new MFXTextField();
+        valueOffset = new TextField();
         if (valueOffsetLastSample != null) {
             valueOffset.setText(nf.format(valueOffsetLastSample.getValueAsDouble()));
         }
@@ -506,7 +500,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
             nameCounterOverflow.setTooltip(ttCounterOverflow);
         }
         AttributeAdvSettingDialogButton advSettingDialogButtonCounterOverflow = new AttributeAdvSettingDialogButton(counterOverflowAttribute);
-        counterOverflow = new MFXTextField();
+        counterOverflow = new TextField();
         if (counterOverflowLastSample != null) {
             counterOverflow.setText(nf.format(counterOverflowLastSample.getValueAsDouble()));
         }
@@ -667,7 +661,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         view.setCenter(scrollPane);
     }
 
-    private void recleanCleanData(MFXRadioButton allRadioButton, MFXRadioButton nowRadioButton, MFXRadioButton fromRadioButton, MFXDatePicker fromDatePicker, LocalTimePicker fromTimePicker, JEVisObject obj) {
+    private void recleanCleanData(RadioButton allRadioButton, RadioButton nowRadioButton, RadioButton fromRadioButton, DatePicker fromDatePicker, LocalTimePicker fromTimePicker, JEVisObject obj) {
 
         final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "[" + obj.getID() + "] " + obj.getName() + "  ...");
         boolean all = allRadioButton.isSelected();
@@ -755,9 +749,9 @@ public class CleanDataExtension implements ObjectEditorExtension {
                                ToggleSwitchPlus enabled, ToggleSwitchPlus limitsEnabled,
                                ToggleSwitchPlus deltaEnabled, ToggleSwitchPlus gapsEnabled, ToggleSwitchPlus alarmEnabled,
                                ToggleSwitchPlus periodAlignment,
-                               MFXTextField periodOffset, ToggleSwitchPlus valueIsAQuantity, TimeStampEditor valueMultiplierTimeStampEditor,
-                               MFXTextField valueMultiplier, MFXTextField valueOffset, TimeStampEditor valueTimeStampEditor,
-                               MFXTextField value, MFXTextField counterOverflow, TimeStampEditor periodTimeStampEditor, SamplingRateUI samplingRateUI) {
+                               TextField periodOffset, ToggleSwitchPlus valueIsAQuantity, TimeStampEditor valueMultiplierTimeStampEditor,
+                               TextField valueMultiplier, TextField valueOffset, TimeStampEditor valueTimeStampEditor,
+                               TextField value, TextField counterOverflow, TimeStampEditor periodTimeStampEditor, SamplingRateUI samplingRateUI) {
 
         conversionToDifferentialTimeStampEditor.getValueChangedProperty().addListener((observable, oldValue, newValue) -> {
             _changed.set(true);

@@ -9,12 +9,12 @@ import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.plugins.AbstractDataFormattingPlugin;
 import de.gsi.dataset.DataSet;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
+import javafx.scene.control.ComboBox;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
@@ -228,9 +228,9 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                             tableChart.updateTable(null, nearest);
                             tableChart.setBlockDatePickerEvent(true);
                             TableTopDatePicker tableTopDatePicker = tableChart.getTableTopDatePicker();
-                            MFXComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                            ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
                             Platform.runLater(() -> {
-                                datePicker.selectItem(nearest);
+                                datePicker.getSelectionModel().select(nearest);
                                 tableChart.setBlockDatePickerEvent(false);
                             });
                         }

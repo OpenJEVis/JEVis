@@ -20,9 +20,7 @@
  */
 package org.jevis.jecc.plugin.scada;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -91,8 +89,7 @@ public class NewAnalysisDialog {
         int x = 0;
 
         Label lName = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        final MFXTextField fName = new MFXTextField();
-        fName.setFloatMode(FloatMode.DISABLED);
+        final TextField fName = new TextField();
         fName.setPromptText(I18n.getInstance().getString("jevistree.dialog.new.name.prompt"));
 
 
@@ -100,8 +97,7 @@ public class NewAnalysisDialog {
 
         ObservableList<JEVisObject> optionsParents = FXCollections.observableArrayList(anaylsesDirs);
 
-        final MFXComboBox<JEVisObject> comboBox = new MFXComboBox<>(optionsParents);
-        comboBox.setFloatMode(FloatMode.DISABLED);
+        final ComboBox<JEVisObject> comboBox = new ComboBox<>(optionsParents);
 
         //TODO JFX17
         comboBox.setConverter(new StringConverter<JEVisObject>() {
@@ -124,7 +120,7 @@ public class NewAnalysisDialog {
 
             @Override
             public JEVisObject fromString(String string) {
-                return comboBox.getItems().get(comboBox.getSelectedIndex());
+                return comboBox.getItems().get(comboBox.getSelectionModel().getSelectedIndex());
             }
         });
 

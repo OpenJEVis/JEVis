@@ -5,13 +5,14 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
@@ -49,7 +50,7 @@ public class TargetEditor implements AttributeEditor {
     public JEVisAttribute _attribute;
     JEVisSample newSample;
     private boolean _readOnly = true;
-    private MFXButton _treeButton;
+    private Button _treeButton;
     private boolean initialized = false;
 
     public TargetEditor(JEVisAttribute att, MODE mode, JEVisTree tree) {
@@ -104,12 +105,12 @@ public class TargetEditor implements AttributeEditor {
     }
 
     private void init() {
-        _treeButton = new MFXButton(I18n
+        _treeButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 ControlCenter.getImage("folders_explorer.png", 18, 18));
         _treeButton.wrapTextProperty().setValue(true);
 
-        MFXButton gotoButton = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
+        Button gotoButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
                 ControlCenter.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
         gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 

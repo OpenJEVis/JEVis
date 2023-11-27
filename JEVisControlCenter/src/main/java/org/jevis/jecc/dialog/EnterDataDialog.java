@@ -1,9 +1,6 @@
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -49,8 +46,8 @@ import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +60,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
     public static String ICON = "Startup Wizard_18228.png";
     private final JEVisDataSource ds;
     private final ObjectRelations objectRelations;
-    private final MFXTextField doubleField = new MFXTextField();
+    private final TextField doubleField = new TextField();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
     private final Label messageLabel = new Label(I18n.getInstance().getString("plugin.object.dialog.data.message.notdiffquantity"));
     private final ObjectProperty<JEVisSample> newSampleProperty = new SimpleObjectProperty<>();
@@ -78,8 +75,8 @@ public class EnterDataDialog extends Dialog implements EventTarget {
     private final Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
     private final Label lastRawValueLabel = new Label(I18n.getInstance().getString("status.table.captions.lastrawvalue"));
     private final Label dateTypeLabel = new Label(I18n.getInstance().getString("plugin.object.dialog.data.datetype.label"));
-    private final MFXTextField searchIdField = new MFXTextField();
-    private final MFXButton treeButton = new MFXButton(I18n
+    private final TextField searchIdField = new TextField();
+    private final Button treeButton = new Button(I18n
             .getInstance().getString("plugin.object.attribute.target.button"),
             ControlCenter.getImage("folders_explorer.png", 18, 18));
     private final Label targetLabel = new Label();
@@ -87,7 +84,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
     private final DayBox dayBox = new DayBox();
     private final MonthBox monthBox = new MonthBox();
     private final Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
-    private final MFXDatePicker datePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+    private final DatePicker datePicker = new DatePicker(LocalDate.now());
     private final LocalTimePicker timePicker = new LocalTimePicker(LocalTime.of(0, 0, 0));
     private final SimpleObjectProperty<DateTime> lastTS = new SimpleObjectProperty<>(new DateTime(1990, 1, 1, 0, 0, 0, 0));
     private final GridPane gridPane = new GridPane();
@@ -118,8 +115,6 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.objectRelations = new ObjectRelations(ds);
         this.numberFormat.setMinimumFractionDigits(2);
         this.numberFormat.setMaximumFractionDigits(2);
-        this.doubleField.setFloatMode(FloatMode.DISABLED);
-        this.searchIdField.setFloatMode(FloatMode.DISABLED);
 
         init();
     }
@@ -443,7 +438,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                 messageLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.message.differential"));
                 dataTypeBox.setVisible(false);
 
-                dataTypeBox.selectItem(EnterDataTypes.DAY);
+                dataTypeBox.getSelectionModel().select(EnterDataTypes.DAY);
                 dateTypeLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.datetype.date"));
                 valueLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.value.meterreading"));
                 lastRawValueLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.value.lastmeterreading"));
@@ -686,7 +681,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         return nextTS;
     }
 
-    private void filterGridPane(GridPane gridPane, YearBox yearBox, DayBox dayBox, MonthBox monthBox, Label dateLabel, MFXDatePicker datePicker, LocalTimePicker timePicker, EnterDataTypes newValue) {
+    private void filterGridPane(GridPane gridPane, YearBox yearBox, DayBox dayBox, MonthBox monthBox, Label dateLabel, DatePicker datePicker, LocalTimePicker timePicker, EnterDataTypes newValue) {
         switch (newValue) {
             case YEAR:
                 Platform.runLater(() -> gridPane.getChildren().removeAll(dateLabel, datePicker, timePicker, yearBox, monthBox, dayBox));
@@ -827,8 +822,8 @@ public class EnterDataDialog extends Dialog implements EventTarget {
             DateTime nextTS = getNextTS();
             yearBox.setTS(nextTS);
             Platform.runLater(() -> {
-                monthBox.selectIndex(nextTS.getMonthOfYear() - 1);
-                dayBox.selectIndex(nextTS.getDayOfMonth() - 1);
+                monthBox.getSelectionModel().select(nextTS.getMonthOfYear() - 1);
+                dayBox.getSelectionModel().select(nextTS.getDayOfMonth() - 1);
             });
         } catch (Exception e) {
             logger.error(e);

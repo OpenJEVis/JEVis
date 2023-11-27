@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.object.extension;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -57,12 +54,12 @@ public class RoleExtention implements ObjectEditorExtension {
     private TableView groupTableView;
     private TableView userTableView;
     private boolean needLoad = true;
-    private MFXTextField filterFieldGroup;
-    private MFXTextField filterFieldUser;
+    private TextField filterFieldGroup;
+    private TextField filterFieldUser;
     private RoleManager roleManager;
-    private MFXComboBox<JEVisObject> dashboadList;
-    private MFXCheckbox overwriteDashboad;
-    private Long orgaID = 0l;
+    private ComboBox<JEVisObject> dashboadList;
+    private CheckBox overwriteDashboad;
+    private Long orgaID = 0L;
 
     public RoleExtention(JEVisObject obj) {
         this._obj = obj;
@@ -214,9 +211,8 @@ public class RoleExtention implements ObjectEditorExtension {
         return prefix;
     }
 
-    private MFXComboBox<JEVisObject> buildDashboardListView() {
-        MFXComboBox<JEVisObject> view = new MFXComboBox<>();
-        view.setFloatMode(FloatMode.DISABLED);
+    private ComboBox<JEVisObject> buildDashboardListView() {
+        ComboBox<JEVisObject> view = new ComboBox<>();
         List<JEVisObject> allDashboard = new ArrayList<>();
         try {
 
@@ -229,7 +225,7 @@ public class RoleExtention implements ObjectEditorExtension {
 
                 @Override
                 public JEVisObject fromString(String string) {
-                    return view.getItems().get(view.getSelectedIndex());
+                    return view.getItems().get(view.getSelectionModel().getSelectedIndex());
                 }
             });
 
@@ -243,7 +239,7 @@ public class RoleExtention implements ObjectEditorExtension {
                 if (dashboard != null) {
                     JEVisObject dashboardObject = _obj.getDataSource().getObject(dashboard.getValueAsLong());
                     if (dashboardObject != null) {
-                        view.selectItem(dashboardObject);
+                        view.getSelectionModel().select(dashboardObject);
                     }
                 }
             } catch (Exception ex) {
@@ -268,16 +264,14 @@ public class RoleExtention implements ObjectEditorExtension {
 
         Label userTitle = new Label(I18n.getInstance().getString("plugin.object.role.users"));
         Label groupTitle = new Label(I18n.getInstance().getString("plugin.object.role.grouprights"));
-        MFXCheckbox showActiveMember = new MFXCheckbox(I18n.getInstance().getString("plugin.object.role.autofilter"));
-        MFXCheckbox showActiveUser = new MFXCheckbox(I18n.getInstance().getString("plugin.object.role.autofilter"));
+        CheckBox showActiveMember = new CheckBox(I18n.getInstance().getString("plugin.object.role.autofilter"));
+        CheckBox showActiveUser = new CheckBox(I18n.getInstance().getString("plugin.object.role.autofilter"));
         Label dashboardLabel = new Label(I18n.getInstance().getString("plugin.object.role.dashboard"));
         Label filterGroupTable = new Label(I18n.getInstance().getString("plugin.object.role.filter"));
         Label filterUserTable = new Label(I18n.getInstance().getString("plugin.object.role.filter"));
-        filterFieldGroup = new MFXTextField();
-        filterFieldGroup.setFloatMode(FloatMode.DISABLED);
-        filterFieldUser = new MFXTextField();
-        filterFieldUser.setFloatMode(FloatMode.DISABLED);
-        overwriteDashboad = new MFXCheckbox(I18n.getInstance().getString("plugin.object.role.overwritedashboard"));
+        filterFieldGroup = new TextField();
+        filterFieldUser = new TextField();
+        overwriteDashboad = new CheckBox(I18n.getInstance().getString("plugin.object.role.overwritedashboard"));
         filterFieldGroup.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         filterFieldUser.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         HBox userFilterBox = new HBox(8, filterUserTable, filterFieldUser);

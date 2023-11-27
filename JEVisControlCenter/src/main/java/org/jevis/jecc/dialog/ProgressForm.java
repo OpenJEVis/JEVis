@@ -5,13 +5,14 @@
  */
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXProgressBar;
+
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -27,7 +28,7 @@ import org.jevis.jecc.TopMenu;
 public class ProgressForm {
 
     private final Stage dialogStage;
-    private final MFXProgressBar pb = new MFXProgressBar();
+    private final ProgressBar pb = new ProgressBar();
     private final TextArea textArea = new TextArea();
     private final StringBuilder stringBuilder = new StringBuilder();
 

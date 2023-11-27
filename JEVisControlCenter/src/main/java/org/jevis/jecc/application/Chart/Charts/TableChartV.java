@@ -1,9 +1,6 @@
 package org.jevis.jecc.application.Chart.Charts;
 
 import com.ibm.icu.text.NumberFormat;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -13,10 +10,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -59,7 +53,7 @@ public class TableChartV extends XYChart {
     private final DateTime maxDate = new DateTime(9999, 1, 1, 0, 0, 0, 0);
     private Boolean showRowSums = false;
     private Boolean showColumnSums = false;
-    private final MFXCheckbox filterEnabledBox = new MFXCheckbox(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
+    private final CheckBox filterEnabledBox = new CheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
     private final HashMap<TableColumn<TableSample, ?>, String> columnFilter = new HashMap<>();
     private final HashMap<TableColumn<TableSample, ?>, Node> newGraphicNodes = new HashMap<>();
     private final HashMap<TableColumn<TableSample, ?>, String> columnTitles = new HashMap<>();
@@ -294,8 +288,7 @@ public class TableChartV extends XYChart {
                 columnNameLabel.setAlignment(Pos.CENTER);
                 HBox nameLabelBox = new HBox(columnNameLabel);
                 nameLabelBox.setAlignment(Pos.CENTER);
-                MFXTextField filterBox = new MFXTextField();
-                filterBox.setFloatMode(FloatMode.DISABLED);
+                TextField filterBox = new TextField();
                 filterBox.setPromptText(I18n.getInstance().getString("plugin.chart.tablev.filter.prompt"));
                 filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {
@@ -458,8 +451,7 @@ public class TableChartV extends XYChart {
                 columnNameLabel.setAlignment(Pos.CENTER);
                 HBox nameLabelBox = new HBox(columnNameLabel);
                 nameLabelBox.setAlignment(Pos.CENTER);
-                MFXTextField filterBox = new MFXTextField();
-                filterBox.setFloatMode(FloatMode.DISABLED);
+                TextField filterBox = new TextField();
                 filterBox.setPromptText(I18n.getInstance().getString("plugin.chart.tablev.filter.prompt"));
                 filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {
@@ -723,7 +715,7 @@ public class TableChartV extends XYChart {
         this.showColumnSums = showColumnSums;
     }
 
-    public MFXCheckbox getFilterEnabledBox() {
+    public CheckBox getFilterEnabledBox() {
         return filterEnabledBox;
     }
 }

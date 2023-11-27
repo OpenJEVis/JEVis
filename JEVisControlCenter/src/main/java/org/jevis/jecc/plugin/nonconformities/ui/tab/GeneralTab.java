@@ -1,15 +1,11 @@
 package org.jevis.jecc.plugin.nonconformities.ui.tab;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.control.skin.TextAreaSkin;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -31,25 +27,22 @@ import java.util.regex.Pattern;
 public class GeneralTab extends Tab {
 
     private static final Logger logger = LogManager.getLogger(GeneralTab.class);
-    private final MFXDatePicker f_deadlineDate = new MFXDatePicker();
-    private final MFXDatePicker f_doneDate = new MFXDatePicker();
+    private final DatePicker f_deadlineDate = new DatePicker();
+    private final DatePicker f_doneDate = new DatePicker();
 
-    private final MFXDatePicker f_createDate = new MFXDatePicker();
-
-    private MFXComboBox<String> f_mediaTags;
-    private MFXComboBox<String> f_SEU;
+    private final DatePicker f_createDate = new DatePicker();
+    private final DatePicker f_CreateDate = new DatePicker();
+    private final TextField f_Nr = new TextField();
 
     private final TextArea f_Description = new TextArea();
     private final TextArea f_Cause = new TextArea();
-    private final MFXDatePicker f_CreateDate = new MFXDatePicker();
-    private final MFXTextField f_Nr = new MFXTextField();
-    private final MFXTextField f_Title = new MFXTextField();
-    private final MFXTextField f_action = new MFXTextField();
-    private final MFXTextField f_Creator = new MFXTextField();
-
-    private final MFXTextField f_Attachment = new MFXTextField();
-
-    private final MFXTextField f_Responsible = new MFXTextField();
+    private final TextField f_Title = new TextField();
+    private final TextField f_action = new TextField();
+    private final TextField f_Creator = new TextField();
+    private final TextField f_Attachment = new TextField();
+    private final TextField f_Responsible = new TextField();
+    private ComboBox<String> f_mediaTags;
+    private ComboBox<String> f_SEU;
 
     private final TextArea f_ImmediateMeasures = new TextArea();
 
@@ -220,12 +213,10 @@ public class GeneralTab extends Tab {
         f_CorrectiveActions.textProperty().bindBidirectional(data.correctiveActionsProperty());
         f_ImmediateMeasures.textProperty().bindBidirectional(data.immediateMeasuresProperty());
         f_Creator.textProperty().bindBidirectional(data.creatorProperty());
-        f_mediaTags = new MFXComboBox<>(data.getNonconformityPlan().getMediumTags());
-        f_mediaTags.setFloatMode(FloatMode.DISABLED);
+        f_mediaTags = new ComboBox<>(data.getNonconformityPlan().getMediumTags());
         f_fieldTags = new CheckComboBox<>(data.getNonconformityPlan().getFieldsTags());
         f_action.textProperty().bindBidirectional(data.actionProperty());
-        f_SEU = new MFXComboBox<>(data.getNonconformityPlan().getSignificantEnergyUseTags());
-        f_SEU.setFloatMode(FloatMode.DISABLED);
+        f_SEU = new ComboBox<>(data.getNonconformityPlan().getSignificantEnergyUseTags());
         f_SEU.valueProperty().bindBidirectional(data.seuProperty());
 
         f_mediaTags.valueProperty().bindBidirectional(data.mediumProperty());
@@ -332,7 +323,7 @@ public class GeneralTab extends Tab {
 
     }
 
-    public MFXTextField getF_action() {
+    public TextField getF_action() {
         return f_action;
     }
 
@@ -341,7 +332,7 @@ public class GeneralTab extends Tab {
     }
 
 
-    public MFXDatePicker getF_doneDate() {
+    public DatePicker getF_doneDate() {
         return f_doneDate;
     }
 }

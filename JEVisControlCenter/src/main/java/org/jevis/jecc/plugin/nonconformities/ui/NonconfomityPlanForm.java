@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.nonconformities.ui;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -27,9 +27,9 @@ public class NonconfomityPlanForm extends Alert {
 
 
     Label numberPrefix = new Label(I18n.getInstance().getString("plugin.nonconformities.nonconformityplan.dialog.prefix"));
-    MFXTextField f_numberPrefix = new MFXTextField();
+    TextField f_numberPrefix = new TextField();
 
-    MFXTextField nameField = new MFXTextField();
+    TextField nameField = new TextField();
 
 
 

@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.dashboard;
 
-import com.jfoenix.controls.JFXListView;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
@@ -43,15 +40,15 @@ import org.joda.time.Interval;
 public class LoadDashboardDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(LoadDashboardDialog.class);
     private final ObjectRelations objectRelations;
-    private final MFXTextField filterInput = new MFXTextField();
-    private final MFXDatePicker pickerDateEnd = new MFXDatePicker();
+    private final TextField filterInput = new TextField();
+    private final DatePicker pickerDateEnd = new DatePicker();
     private final FilteredList<JEVisObject> filteredData;
-    private final JFXListView<JEVisObject> analysisListView;
+    private final ListView<JEVisObject> analysisListView;
     private final JEVisDataSource ds;
     private final ToolBarIntervalSelector toolBarIntervalSelector;
     private final DateTime selectedDateTime = null;
     private final DashboardControl control;
-    MFXButton dateButton = new MFXButton("");
+    Button dateButton = new Button("");
     private Response response = Response.CANCEL;
     private JEVisObject selectedDashboard = null;
     private Interval selectedInterval = null;
@@ -107,7 +104,7 @@ public class LoadDashboardDialog extends Dialog {
             }
         });
 
-        analysisListView = new JFXListView<>();
+        analysisListView = new ListView<>();
         analysisListView.setMinWidth(400);
         analysisListView.setItems(filteredData);
         analysisListView.getSelectionModel().selectedIndexProperty().addListener(
@@ -156,7 +153,7 @@ public class LoadDashboardDialog extends Dialog {
 
         Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
         cancelButton.setCancelButton(true);
-        cancelButton = new MFXButton(I18n.getInstance().getString(""));
+        cancelButton = new Button(I18n.getInstance().getString(""));
         cancelButton.setId("cancel-button");
 
         Button newButton = (Button) this.getDialogPane().lookupButton(newType);
@@ -217,7 +214,7 @@ public class LoadDashboardDialog extends Dialog {
             TimeFrameEditor timeFrameEditor = new TimeFrameEditor(control.getActiveTimeFrame(), control.getInterval());
             TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
             timeFactoryBox.getItems().setAll(FXCollections.observableArrayList(control.getAllTimeFrames().getAll()));
-            timeFactoryBox.selectItem(selectedTimeFactory);
+            timeFactoryBox.getSelectionModel().select(selectedTimeFactory);
             timeFactoryBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 selectedTimeFactory = newValue;
                 timeFrameEditor.setTimeFrame(selectedTimeFactory);

@@ -11,13 +11,13 @@ package org.jevis.jecc.plugin.object.attribute;
  */
 //public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
 
-   /* private final MFXComboBox comboBox;
+   /* private final ComboBox comboBox;
     private final StringBuilder sb;
     private final ObservableList<T> data;
     private boolean moveCaretToPos = false;
     private int caretPos;
 
-    public AutoCompleteComboBoxListener(final MFXComboBox comboBox) {
+    public AutoCompleteComboBoxListener(final ComboBox comboBox) {
         this.comboBox = comboBox;
         sb = new StringBuilder();
         data = comboBox.getItems();

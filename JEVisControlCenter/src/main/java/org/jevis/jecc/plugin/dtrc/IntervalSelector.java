@@ -1,11 +1,12 @@
 package org.jevis.jecc.plugin.dtrc;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Region;
 import jfxtras.scene.control.LocalTimePicker;
@@ -69,14 +70,14 @@ public class IntervalSelector extends ToolBarIntervalSelector {
     });
 
     private final TimeFrameFactory timeFrameFactory;
-    private final MFXDatePicker startDatePicker;
+    private final DatePicker startDatePicker;
     private final LocalTimePicker startTimePicker;
-    private final MFXDatePicker endDatePicker;
+    private final DatePicker endDatePicker;
     private final LocalTimePicker endTimePicker;
     private final SimpleBooleanProperty update = new SimpleBooleanProperty(false);
     private Interval interval;
 
-    public IntervalSelector(JEVisDataSource ds, MFXDatePicker startDatePicker, LocalTimePicker startTimePicker, MFXDatePicker endDatePicker, LocalTimePicker endTimePicker) {
+    public IntervalSelector(JEVisDataSource ds, DatePicker startDatePicker, LocalTimePicker startTimePicker, DatePicker endDatePicker, LocalTimePicker endTimePicker) {
         super();
         this.startDatePicker = startDatePicker;
         this.startTimePicker = startTimePicker;
@@ -93,7 +94,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         this.timeFrameFactory = new TimeFrameFactory(ds);
 
         this.setAlignment(Pos.CENTER_LEFT);
-        MFXButton dateButton = new MFXButton("");
+        Button dateButton = new Button("");
         dateButton.setMinWidth(100);
 
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(prevButton);

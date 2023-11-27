@@ -19,10 +19,7 @@
  */
 package org.jevis.jecc.plugin.classes.relationship;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -30,8 +27,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -99,7 +95,7 @@ public class ValidParentEditor {
                                               classBox.getChildren().setAll(icon, otherClass);
 
                                               gb.add(classBox, 0, ++x);
-                                              MFXButton remove = new MFXButton();
+                                              Button remove = new Button();
                                               remove.setDisable(!ControlCenter.getDataSource().getCurrentUser().isSysAdmin());
                                               remove.setGraphic(ControlCenter.getImage("list-remove.png", 20, 20));
                                               gb.add(remove, 1, x);
@@ -127,16 +123,15 @@ public class ValidParentEditor {
                                       logger.fatal(ex);
                                   }
 
-                                  final MFXButton newB = new MFXButton();
+                                  final Button newB = new Button();
 
                                   newB.setGraphic(ControlCenter.getImage("list-add.png", 20, 20));
                                   newB.setDisable(true);
 
                                   //TODO: replace with Tree selection dialog
-                                  final MFXTextField newTF = new MFXTextField();
-                                  newTF.setFloatMode(FloatMode.DISABLED);
+                                  final TextField newTF = new TextField();
 
-                                  newTF.setPromptText(I18n.getInstance().getString("plugin.classes.relationship.name.prompt"));
+                                  newTF.setText(I18n.getInstance().getString("plugin.classes.relationship.name.prompt"));
                                   gb.add(new Separator(Orientation.HORIZONTAL), 0, ++x, 2, 1);
                                   gb.add(newTF, 0, ++x);
                                   gb.add(newB, 1, x);
@@ -218,26 +213,25 @@ public class ValidParentEditor {
 
     }
 
-    public MFXComboBox<String> buildTypeBox(JEVisClassRelationship rel) throws JEVisException {
-        MFXComboBox<String> box = new MFXComboBox<>();
-        box.setFloatMode(FloatMode.DISABLED);
+    public ComboBox<String> buildTypeBox(JEVisClassRelationship rel) throws JEVisException {
+        ComboBox<String> box = new ComboBox<>();
         box.getItems().add(INHERIT);
         box.getItems().add(NESTED);
         box.getItems().add(OK_PARENT);
 
         switch (rel.getType()) {
             case JEVisConstants.ClassRelationship.INHERIT:
-                box.selectItem(INHERIT);
+                box.getSelectionModel().select(INHERIT);
                 break;
             case JEVisConstants.ClassRelationship.NESTED:
-                box.selectItem(NESTED);
+                box.getSelectionModel().select(NESTED);
                 break;
             case JEVisConstants.ClassRelationship.OK_PARENT:
-                box.selectItem(OK_PARENT);
+                box.getSelectionModel().select(OK_PARENT);
                 break;
             default:
                 box.getItems().add(rel.getType() + "");
-                box.selectItem(rel.getType() + "");
+                box.getSelectionModel().select(rel.getType() + "");
                 break;
         }
 
@@ -250,16 +244,15 @@ public class ValidParentEditor {
         return box;
     }
 
-    public MFXComboBox<String> buildDirectionBox(JEVisClassRelationship rel, JEVisClass jclass) throws JEVisException {
-        MFXComboBox<String> box = new MFXComboBox<>();
-        box.setFloatMode(FloatMode.DISABLED);
+    public ComboBox<String> buildDirectionBox(JEVisClassRelationship rel, JEVisClass jclass) throws JEVisException {
+        ComboBox<String> box = new ComboBox<>();
         box.getItems().add("Forward");
         box.getItems().add("Backward");
 
         if (rel.getOtherClass(jclass).equals(rel.getStart())) {
-            box.selectItem(I18n.getInstance().getString("plugin.classes.relationship.direction.forward"));
+            box.getSelectionModel().select(I18n.getInstance().getString("plugin.classes.relationship.direction.forward"));
         } else {
-            box.selectItem(I18n.getInstance().getString("plugin.classes.relationship.direction.backward"));
+            box.getSelectionModel().select(I18n.getInstance().getString("plugin.classes.relationship.direction.backward"));
         }
 
         try {

@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.basedata;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
@@ -142,7 +142,7 @@ public class BaseDataPlugin extends TablePlugin {
                                     } else {
                                         RegisterTableRow registerTableRow = getTableRow().getItem();
                                         JEVisAttribute att = registerTableRow.getAttributeMap().get(type);
-                                        MFXButton manSampleButton = new MFXButton("", ControlCenter.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
+                                        Button manSampleButton = new Button("", ControlCenter.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
                                         manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
 
                                         if (att != null) {

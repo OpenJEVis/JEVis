@@ -1,8 +1,9 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
@@ -10,7 +11,7 @@ import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.application.Chart.Charts.regression.RegressionType;
 
-public class RegressionBox extends MFXComboBox<RegressionType> {
+public class RegressionBox extends ComboBox<RegressionType> {
 
     public RegressionBox() {
         super();
@@ -75,13 +76,13 @@ public class RegressionBox extends MFXComboBox<RegressionType> {
 
             @Override
             public RegressionType fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
 
-        selectItem(RegressionType.POLY);
+        getSelectionModel().select(RegressionType.POLY);
         setDisable(true);
 
-        getSelectionModel().selectItem(RegressionType.POLY);
+        getSelectionModel().select(RegressionType.POLY);
     }
 }

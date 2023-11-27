@@ -1,8 +1,9 @@
 package org.jevis.jecc.tool;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +16,7 @@ import org.jevis.jecc.dialog.UnitDialog;
 
 import javax.measure.quantity.Dimensionless;
 
-public class FavUnitList extends MFXComboBox<JEVisUnit> {
+public class FavUnitList extends ComboBox<JEVisUnit> {
     private static final Logger logger = LogManager.getLogger(FavUnitList.class);
 
     public FavUnitList(JEVisAttribute att, JEVisUnit selectedUnit, boolean autoCommit) {
@@ -52,7 +53,7 @@ public class FavUnitList extends MFXComboBox<JEVisUnit> {
 
         setMinWidth(50);
         setMaxWidth(200);
-        selectItem(selectedUnit);
+        getSelectionModel().select(selectedUnit);
 
         getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {

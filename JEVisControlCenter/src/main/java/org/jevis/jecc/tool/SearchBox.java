@@ -19,14 +19,14 @@
  */
 package org.jevis.jecc.tool;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 import javafx.scene.control.Control;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 
 /**
@@ -34,8 +34,8 @@ import javafx.scene.layout.Region;
  */
 public class SearchBox extends Region {
 
-    private final MFXTextField textBox;
-    private final MFXButton clearButton;
+    private final TextField textBox;
+    private final Button clearButton;
 
     public SearchBox() {
         setId("SearchBox");
@@ -44,10 +44,9 @@ public class SearchBox extends Region {
         setMinHeight(24);
         setPrefSize(200, 24);
         setMaxSize(Control.USE_PREF_SIZE, Control.USE_PREF_SIZE);
-        textBox = new MFXTextField();
-        textBox.setFloatMode(FloatMode.DISABLED);
+        textBox = new TextField();
         textBox.setPromptText("Search");
-        clearButton = new MFXButton();
+        clearButton = new Button();
         clearButton.setVisible(false);
         getChildren().addAll(textBox, clearButton);
         clearButton.setOnAction(new EventHandler<ActionEvent>() {

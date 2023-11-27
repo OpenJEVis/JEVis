@@ -6,8 +6,6 @@
 package org.jevis.jecc.plugin.object.attribute;
 
 import com.jfoenix.validation.base.ValidatorBase;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -15,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
@@ -65,8 +64,7 @@ public abstract class BasicEditor implements AttributeEditor {
 
     private Node buildGui(JEVisAttribute att) {
         HBox hbox = new HBox(6);
-        MFXTextField valueField = new MFXTextField();
-        valueField.setFloatMode(FloatMode.DISABLED);
+        TextField valueField = new TextField();
 
         //TODO JFX17
         // valueField.getValidators().add(getValidator());

@@ -1,11 +1,6 @@
 package org.jevis.jecc.plugin.dtrc;
 
 import com.ibm.icu.text.NumberFormat;
-import com.jfoenix.controls.JFXListCell;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -66,7 +61,6 @@ import org.mariuszgromada.math.mxparser.Expression;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.YearMonth;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -76,8 +70,8 @@ public class OutputView extends Tab {
     private static final Insets INSETS = new Insets(12);
     private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
     private final JEVisDataSource ds;
-    private final MFXDatePicker startDate = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
-    private final MFXDatePicker endDate = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+    private final DatePicker startDate = new DatePicker(LocalDate.now());
+    private final DatePicker endDate = new DatePicker(LocalDate.now());
     private final LocalTimePicker startTime = new LocalTimePicker(LocalTime.of(0, 0, 0));
     private final LocalTimePicker endTime = new LocalTimePicker(LocalTime.of(23, 59, 59));
     private final TemplateHandler templateHandler;
@@ -407,7 +401,7 @@ public class OutputView extends Tab {
 
             if (templateOutput.getLink()) {
                 logger.debug("Found linked output, creating Manual Data Button");
-                MFXButton manSampleButton = new MFXButton("", ControlCenter.getSVGImage(Icon.MANUAL_DATA_ENTRY, 12, 12));
+                Button manSampleButton = new Button("", ControlCenter.getSVGImage(Icon.MANUAL_DATA_ENTRY, 12, 12));
                 manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
 
                 if (templateOutput.getTarget() != null) {
@@ -861,13 +855,13 @@ public class OutputView extends Tab {
             }
 
             try {
-                MFXComboBox<JEVisObject> objectSelector = createObjectSelector(ungroupedInput.getObjectClass(), ungroupedInput.getFilter());
+                ComboBox<JEVisObject> objectSelector = createObjectSelector(ungroupedInput.getObjectClass(), ungroupedInput.getFilter());
 
                 try {
                     Long objectID = ungroupedInput.getObjectID();
                     if (objectID != -1L) {
                         JEVisObject selectedObject = ds.getObject(objectID);
-                        objectSelector.selectItem(selectedObject);
+                        objectSelector.getSelectionModel().select(selectedObject);
                     } else {
                         objectSelector.getSelectionModel().selectFirst();
                         ungroupedInput.setObjectID(objectSelector.getSelectionModel().getSelectedItem().getID());
@@ -973,7 +967,7 @@ public class OutputView extends Tab {
             label.setMinWidth(120);
             label.setAlignment(Pos.CENTER_LEFT);
 
-            MFXComboBox<JEVisObject> objectSelector = createObjectSelector(firstGroupedInput.getObjectClass(), firstGroupedInput.getFilter());
+            ComboBox<JEVisObject> objectSelector = createObjectSelector(firstGroupedInput.getObjectClass(), firstGroupedInput.getFilter());
 
             try {
                 Long objectID = groupedInputs.stream().filter(input -> input.getObjectID() != -1L).findFirst().map(TemplateSelected::getObjectID).orElse(-1L);
@@ -988,7 +982,7 @@ public class OutputView extends Tab {
 
                     JEVisObject selectedObject = ds.getObject(objectID);
                     logger.debug("Found object {}:{}, selecting for {}", selectedObject.getName(), selectedObject.getID(), firstGroupedInput.getVariableName());
-                    objectSelector.selectItem(selectedObject);
+                    objectSelector.getSelectionModel().select(selectedObject);
                 } else {
                     logger.debug("Found no object, selecting for {}", firstGroupedInput.getVariableName());
                     objectSelector.getSelectionModel().selectFirst();
@@ -1065,7 +1059,7 @@ public class OutputView extends Tab {
 
                 Label label = new Label(templateOutput.getVariableName());
 
-                MFXButton targetButton = new MFXButton(I18n
+                Button targetButton = new Button(I18n
                         .getInstance().getString("plugin.object.attribute.target.button"),
                         ControlCenter.getImage("folders_explorer.png", 18, 18));
                 targetButton.wrapTextProperty().setValue(true);
@@ -1104,7 +1098,7 @@ public class OutputView extends Tab {
         }
     }
 
-    public EventHandler<ActionEvent> getTargetButtonActionEventEventHandler(TemplateOutput templateOutput, MFXButton targetButton) {
+    public EventHandler<ActionEvent> getTargetButtonActionEventEventHandler(TemplateOutput templateOutput, Button targetButton) {
         return t -> {
             try {
                 SelectTargetDialog selectTargetDialog = null;
@@ -1169,7 +1163,7 @@ public class OutputView extends Tab {
         };
     }
 
-    void setButtonText(TemplateOutput templateOutput, MFXButton targetButton) {
+    void setButtonText(TemplateOutput templateOutput, Button targetButton) {
         TargetHelper th = null;
         try {
             if (templateOutput.getTarget() != null) {
@@ -1265,7 +1259,7 @@ public class OutputView extends Tab {
         }
     }
 
-    private MFXComboBox<JEVisObject> createObjectSelector(String jeVisClassName, String filter) {
+    private ComboBox<JEVisObject> createObjectSelector(String jeVisClassName, String filter) {
 
         List<JEVisObject> objects = new ArrayList<>();
         try {
@@ -1369,14 +1363,13 @@ public class OutputView extends Tab {
             return alphanumComparator.compare(o1.getName(), o2.getName());
         });
 
-        MFXComboBox<JEVisObject> objectSelector = new MFXComboBox<>(FXCollections.observableArrayList(objects));
-        objectSelector.setFloatMode(FloatMode.DISABLED);
+        ComboBox<JEVisObject> objectSelector = new ComboBox<>(FXCollections.observableArrayList(objects));
         objectSelector.setMaxWidth(Double.MAX_VALUE);
 
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new JFXListCell<JEVisObject>() {
+                return new ListCell<JEVisObject>() {
                     @Override
                     protected void updateItem(JEVisObject obj, boolean empty) {
                         super.updateItem(obj, empty);
@@ -1455,7 +1448,7 @@ public class OutputView extends Tab {
 
             @Override
             public JEVisObject fromString(String string) {
-                return objectSelector.getItems().get(objectSelector.getSelectedIndex());
+                return objectSelector.getItems().get(objectSelector.getSelectionModel().getSelectedIndex());
             }
         });
 

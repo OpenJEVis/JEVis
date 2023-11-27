@@ -1,6 +1,6 @@
 package org.jevis.jecc.tool.datepicker;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.*;
@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -128,7 +129,7 @@ public class CalendarView extends VBox {
         todayButtonBox = new HBox();
         todayButtonBox.getStyleClass().add(CSS_CALENDAR_FOOTER);
 
-        MFXButton todayButton = new MFXButton();
+        Button todayButton = new Button();
         todayButton.textProperty().bind(todayButtonText);
         todayButton.getStyleClass().add(CSS_CALENDAR_TODAY_BUTTON);
         todayButton.setOnAction(new EventHandler<ActionEvent>() {

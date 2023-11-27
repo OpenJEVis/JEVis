@@ -1,14 +1,15 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
 import javafx.geometry.Orientation;
+import javafx.scene.control.ComboBox;
 import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.application.Chart.ChartSetting;
 import org.jevis.jecc.application.Chart.data.ChartModel;
 
-public class OrientationBox extends MFXComboBox<Orientation> {
+public class OrientationBox extends ComboBox<Orientation> {
 
     public OrientationBox() {
         super(FXCollections.observableArrayList(Orientation.values()));
@@ -20,10 +21,10 @@ public class OrientationBox extends MFXComboBox<Orientation> {
                 String text = "";
                 switch (object) {
                     case HORIZONTAL:
-                        setText(I18n.getInstance().getString("plugin.graph.orientation.horizontal"));
+                        text += I18n.getInstance().getString("plugin.graph.orientation.horizontal");
                         break;
                     case VERTICAL:
-                        setText(I18n.getInstance().getString("plugin.graph.orientation.vertical"));
+                        text += I18n.getInstance().getString("plugin.graph.orientation.vertical");
                         break;
                 }
                 return text;
@@ -31,7 +32,7 @@ public class OrientationBox extends MFXComboBox<Orientation> {
 
             @Override
             public Orientation fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
     }
@@ -39,7 +40,7 @@ public class OrientationBox extends MFXComboBox<Orientation> {
     public OrientationBox(ChartSetting chartSetting) {
         this();
 
-        this.selectItem(chartSetting.getOrientation());
+        this.getSelectionModel().select(chartSetting.getOrientation());
 
         this.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
@@ -51,7 +52,7 @@ public class OrientationBox extends MFXComboBox<Orientation> {
     public OrientationBox(ChartModel chartModel) {
         this();
 
-        this.selectItem(chartModel.getOrientation());
+        this.getSelectionModel().select(chartModel.getOrientation());
 
         this.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {

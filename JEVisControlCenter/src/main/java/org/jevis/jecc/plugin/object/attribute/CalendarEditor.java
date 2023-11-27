@@ -41,7 +41,7 @@ public class CalendarEditor implements AttributeEditor {
                 CalendarRow calendarRow = new CalendarRow(value);
 
                 try {
-                    calendarBox.selectItem(calendarRow);
+                    calendarBox.getSelectionModel().select(calendarRow);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

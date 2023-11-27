@@ -1,7 +1,6 @@
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -33,8 +32,7 @@ public class RenameDialog extends Dialog {
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name.prompt"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        MFXTextField nameField = new MFXTextField(selectedItem.getName());
-        nameField.setFloatMode(FloatMode.DISABLED);
+        TextField nameField = new TextField(selectedItem.getName());
         nameField.setMinWidth(250);
 
         ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);

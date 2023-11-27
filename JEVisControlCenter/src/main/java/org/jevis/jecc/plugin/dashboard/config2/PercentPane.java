@@ -1,9 +1,9 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -28,8 +28,8 @@ public class PercentPane extends GridPane {
     private final Label sourceLabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.source"));
     private final Percent percent;
     private final ObservableList<Widget> widgetList;
-    private MFXComboBox<Widget> widgetBox;
-    private DashboardControl dashboardControl;
+    private ComboBox<Widget> widgetBox;
+    private final DashboardControl dashboardControl;
 
 
     public PercentPane(DashboardControl dashboardControl, Percent percent, ObservableList<Widget> widgetList) {
@@ -76,8 +76,7 @@ public class PercentPane extends GridPane {
             widgetList.add(0, Widgets.emptyValueWidget(dashboardControl));
         }
 
-        widgetBox = new MFXComboBox<>(widgetList.filtered(widget -> widget.typeID() == Widgets.emptyValueWidget(dashboardControl).TYPE_ID || widget.typeID().equals(ValueWidget.WIDGET_ID)));
-        widgetBox.setFloatMode(FloatMode.DISABLED);
+        widgetBox = new ComboBox<>(widgetList.filtered(widget -> widget.typeID() == Widgets.emptyValueWidget(dashboardControl).TYPE_ID || widget.typeID().equals(ValueWidget.WIDGET_ID)));
 
         Callback<ListView<Widget>, ListCell<Widget>> cellFactory = new Callback<ListView<Widget>, ListCell<Widget>>() {
             @Override
@@ -149,7 +148,7 @@ public class PercentPane extends GridPane {
                     .filter(widget1 -> widget1.getConfig().getUuid() == percent.percentWidget)
                     .findFirst();
             if (widget.isPresent()) {
-                widgetBox.selectItem(widget.get());
+                widgetBox.getSelectionModel().select(widget.get());
             }
         }
 

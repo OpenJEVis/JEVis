@@ -5,7 +5,8 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
+import javafx.scene.control.Button;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -15,7 +16,7 @@ import org.jevis.jecc.sample.SampleEditor;
 /**
  * @author fs
  */
-public class AttributeAdvSettingDialogButton extends MFXButton {
+public class AttributeAdvSettingDialogButton extends Button {
 
     private static final Logger logger = LogManager.getLogger(AttributeAdvSettingDialogButton.class);
     private final int height = 17;

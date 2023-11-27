@@ -1,7 +1,8 @@
 package org.jevis.jecc.plugin.dashboard.controls;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.text.FontPosture;
@@ -9,7 +10,7 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 
-public class FontPostureBox extends MFXComboBox<FontPosture> {
+public class FontPostureBox extends ComboBox<FontPosture> {
 
     public FontPostureBox() {
         super(FXCollections.observableArrayList(FontPosture.values()));
@@ -54,7 +55,7 @@ public class FontPostureBox extends MFXComboBox<FontPosture> {
 
             @Override
             public FontPosture fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
     }

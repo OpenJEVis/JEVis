@@ -1,8 +1,6 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.tabs;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -50,14 +48,14 @@ public class ChartTab extends Tab {
     private final Label labelFixYAxisToZero = new Label(I18n.getInstance().getString("graph.tabs.tab.fixyaxistozero"));
     private final Label labelShowColumnSums = new Label(I18n.getInstance().getString("graph.tabs.tab.showcolumnsums"));
     private final Label labelShowRowSums = new Label(I18n.getInstance().getString("graph.tabs.tab.showrowsums"));
-    private final MFXCheckbox fixYAxisToZero = new MFXCheckbox();
+    private final CheckBox fixYAxisToZero = new CheckBox();
     private final Table chartTable;
     private final GridPane chartSettings = new GridPane();
     private final VBox vBox = new VBox();
     private final ToolBar tableMenu;
     private final NumberSpinner groupingInterval;
-    private final MFXCheckbox showColumnSums = new MFXCheckbox();
-    private final MFXCheckbox showRowSums = new MFXCheckbox();
+    private final CheckBox showColumnSums = new CheckBox();
+    private final CheckBox showRowSums = new CheckBox();
     private final List<JEVisClass> dataProcessorClasses = new ArrayList<>();
     private final List<JEVisClass> allDataClasses = new ArrayList<>();
     private final List<Color> usedColors = new ArrayList<>();
@@ -70,7 +68,7 @@ public class ChartTab extends Tab {
     private final Label labelColorMapping = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.colormapping"));
     private final ColorMappingBox colorMappingBox;
     private final Label chartNameLabel = new Label(I18n.getInstance().getString("graph.title"));
-    private final MFXTextField chartNameSecondTextField = new MFXTextField();
+    private final TextField chartNameSecondTextField = new TextField();
     private ChartModel chartModel;
     private final ChangeListener<BigDecimal> groupingIntervalChangeListener = (observable, oldValue, newValue) -> {
         if (chartModel != null && !newValue.equals(oldValue)) {
@@ -131,7 +129,7 @@ public class ChartTab extends Tab {
         nameLabel.textProperty().bind(chartModel.chartNameProperty());
         setGraphic(nameLabel);
 
-        MFXTextField chartNameTextField = new MFXTextField();
+        TextField chartNameTextField = new TextField();
         nameLabel.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 chartNameTextField.setText(nameLabel.getText());
@@ -514,7 +512,7 @@ public class ChartTab extends Tab {
         }
     }
 
-    void setButtonText(MFXButton targetButton, JEVisObject target) {
+    void setButtonText(Button targetButton, JEVisObject target) {
 
         try {
             if (target != null) {

@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
@@ -94,7 +91,7 @@ public class TablePlugin implements Plugin {
     protected final ObjectRelations objectRelations;
     protected final String title;
     protected final AlphanumComparator alphanumComparator = new AlphanumComparator();
-    protected final MFXTextField filterInput = new MFXTextField("");
+    protected final TextField filterInput = new TextField("");
     protected final BorderPane borderPane = new BorderPane();
     private Boolean multiSite;
 
@@ -102,7 +99,6 @@ public class TablePlugin implements Plugin {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.title = title;
-        this.filterInput.setFloatMode(FloatMode.DISABLED);
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         Tooltip xlsxTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.xlsx"));
@@ -217,7 +213,7 @@ public class TablePlugin implements Plugin {
                             setGraphic(null);
                         } else {
 
-                            MFXDatePicker pickerDate = new MFXDatePicker();
+                            DatePicker pickerDate = new DatePicker();
 
                             if (getTableRow().getIndex() % 2 == 0) {
                                 pickerDate.setStyle("-fx-text-fill: white;");
@@ -259,7 +255,7 @@ public class TablePlugin implements Plugin {
                         }
                     }
 
-                    private DateTime getCurrentDate(MFXDatePicker pickerDate) {
+                    private DateTime getCurrentDate(DatePicker pickerDate) {
                         return new DateTime(
                                 pickerDate.valueProperty().get().getYear(), pickerDate.valueProperty().get().getMonthValue(), pickerDate.valueProperty().get().getDayOfMonth(),
                                 0, 0, 0,
@@ -294,14 +290,14 @@ public class TablePlugin implements Plugin {
                         } else {
                             RegisterTableRow registerTableRow = getTableRow().getItem();
 
-                            MFXButton manSampleButton = new MFXButton("", ControlCenter.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
+                            Button manSampleButton = new Button("", ControlCenter.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
                             manSampleButton.setDisable(true);
                             manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
-                            MFXButton treeButton = new MFXButton("",
+                            Button treeButton = new Button("",
                                     ControlCenter.getImage("folders_explorer.png", tableIconSize, tableIconSize));
                             treeButton.wrapTextProperty().setValue(true);
 
-                            MFXButton gotoButton = new MFXButton("",
+                            Button gotoButton = new Button("",
                                     ControlCenter.getImage("1476393792_Gnome-Go-Jump-32.png", tableIconSize, tableIconSize));//icon
                             gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
@@ -440,7 +436,7 @@ public class TablePlugin implements Plugin {
         };
     }
 
-    protected void addEventManSampleAction(JEVisSample targetSample, MFXButton buttonToAddEvent, String headerText) {
+    protected void addEventManSampleAction(JEVisSample targetSample, Button buttonToAddEvent, String headerText) {
 
         buttonToAddEvent.setOnAction(event -> {
             if (targetSample != null) {
@@ -478,7 +474,7 @@ public class TablePlugin implements Plugin {
         });
     }
 
-    private boolean setToolTipText(MFXButton treeButton, JEVisAttribute att) {
+    private boolean setToolTipText(Button treeButton, JEVisAttribute att) {
         boolean foundTarget = false;
         try {
             TargetHelper th = new TargetHelper(ds, att);
@@ -544,8 +540,7 @@ public class TablePlugin implements Plugin {
                         } else {
                             RegisterTableRow registerTableRow = getTableRow().getItem();
 
-                            MFXTextField textField = new MFXTextField();
-                            textField.setFloatMode(FloatMode.DISABLED);
+                            TextField textField = new TextField();
                             textField.setStyle("-fx-text-fill: black;");
 
                             try {
@@ -603,9 +598,9 @@ public class TablePlugin implements Plugin {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            MFXButton downloadButton = new MFXButton("", ControlCenter.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
-                            MFXButton previewButton = new MFXButton("", ControlCenter.getImage("eye_visible.png", tableIconSize, tableIconSize));
-                            MFXButton uploadButton = new MFXButton("", ControlCenter.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
+                            Button downloadButton = new Button("", ControlCenter.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
+                            Button previewButton = new Button("", ControlCenter.getImage("eye_visible.png", tableIconSize, tableIconSize));
+                            Button uploadButton = new Button("", ControlCenter.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
                             downloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.download")));
                             previewButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
@@ -706,7 +701,7 @@ public class TablePlugin implements Plugin {
         };
     }
 
-    private void setPreviewButton(MFXButton button, AttributeValueChange valueChange) {
+    private void setPreviewButton(Button button, AttributeValueChange valueChange) {
 
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -781,8 +776,7 @@ public class TablePlugin implements Plugin {
                         } else {
                             RegisterTableRow registerTableRow = getTableRow().getItem();
 
-                            MFXTextField textField = new MFXTextField();
-                            textField.setFloatMode(FloatMode.DISABLED);
+                            TextField textField = new TextField();
 
                             /**
                              if (getTableRow().getIndex() % 2 == 0) {
@@ -865,8 +859,7 @@ public class TablePlugin implements Plugin {
                         } else {
                             RegisterTableRow registerTableRow = getTableRow().getItem();
 
-                            MFXTextField textField = new MFXTextField();
-                            textField.setFloatMode(FloatMode.DISABLED);
+                            TextField textField = new TextField();
 
                             /**
                              if (getTableRow().getIndex() % 2 == 0) {

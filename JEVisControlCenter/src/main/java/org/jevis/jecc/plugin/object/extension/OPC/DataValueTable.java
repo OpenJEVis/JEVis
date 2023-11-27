@@ -1,19 +1,13 @@
 package org.jevis.jecc.plugin.object.extension.OPC;
 
 
-import com.jfoenix.controls.JFXCheckBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
@@ -41,20 +35,19 @@ public class DataValueTable {
     private final HiddenSidesPane hiddenSidesPane = new HiddenSidesPane();
     private final ObservableList<DataValueRow> list = FXCollections.observableArrayList();
     private final ObservableList<DataValueRow> filteredList = FXCollections.observableArrayList();
-    private final JFXCheckBox filterTrends = new JFXCheckBox();
-    private final MFXTextField filterFieldGroup = new MFXTextField();
+    private final CheckBox filterTrends = new CheckBox();
+    private final TextField filterFieldGroup = new TextField();
     private final ObservableList<DataValueRow> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = ControlCenter.getImage("if_dashboard_46791.png");
     private final Label fromLabel = new Label("From:");
     private final Label untilLabel = new Label("Until:");
-    private final MFXDatePicker fromDatePicker = new MFXDatePicker();
-    private final MFXDatePicker untilDatePicker = new MFXDatePicker();
+    private final DatePicker fromDatePicker = new DatePicker();
+    private final DatePicker untilDatePicker = new DatePicker();
     private NodeId selectedtNodeId = null;
     private Task runningTask = null;
 
     public DataValueTable(OPCClient opcClient) {
         this.opcClient = opcClient;
-        filterFieldGroup.setFloatMode(FloatMode.DISABLED);
         filterFieldGroup.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         filterFieldGroup.textProperty().addListener((observable, oldValue, newValue) -> updateFilteredData());
 

@@ -1,6 +1,6 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -8,6 +8,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Cell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
@@ -24,7 +25,7 @@ public class ColorPickerAdv extends HBox {
     private static final Logger logger = LogManager.getLogger(ColorPickerAdv.class);
     private final ObjectProperty<Color> selectColorProperty = new SimpleObjectProperty<>(ColorTable.color_list[0]);
     private final ObjectProperty<Color> finalColor = new SimpleObjectProperty<>(ColorTable.color_list[0]);
-    private final MFXButton button = new MFXButton();
+    private final Button button = new Button();
     private Window owner;
     private Color initColor = ColorTable.color_list[0];
 

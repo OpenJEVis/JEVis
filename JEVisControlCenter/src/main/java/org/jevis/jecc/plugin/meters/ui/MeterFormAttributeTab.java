@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.meters.ui;
 
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -200,12 +197,12 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
         Label label = null;
         HBox hBox = null;
-        MFXButton uploadButton = null;
+        Button uploadButton = null;
 
         try {
             Label fileName = new Label();
             fileName.setText(optionalJEVisSample.isPresent() ? optionalJEVisSample.get().getValueAsString() : "");
-            uploadButton = new MFXButton("", ControlCenter.getSVGImage(Icon.CLOUD_UPLOAD, 18, 18));
+            uploadButton = new Button("", ControlCenter.getSVGImage(Icon.CLOUD_UPLOAD, 18, 18));
             label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
             hBox = new HBox(uploadButton, fileName);
             hBox.setSpacing(5);
@@ -245,7 +242,7 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
     private void buildCal(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
         Label label = null;
-        MFXDatePicker jfxDatePicker = new MFXDatePicker();
+        DatePicker jfxDatePicker = new DatePicker();
         JEVisObject jeVisObject = meterData.getJeVisObject();
         try {
             label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
@@ -287,9 +284,9 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
     public void buildTargetSelect(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
 
         Label label = null;
-        MFXButton mfxButton = null;
+        Button mfxButton = null;
         try {
-            mfxButton = new MFXButton("", ControlCenter.getSVGImage(Icon.TREE, 18, 18));
+            mfxButton = new Button("", ControlCenter.getSVGImage(Icon.TREE, 18, 18));
             label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
 
             JEVisSample latestSample = meterData.getJeVisObject().getAttribute(jeVisType).getLatestSample();
@@ -417,10 +414,10 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
     private void buildTextField(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
         Label label = null;
-        MFXTextField textField = null;
+        TextField textField = null;
         try {
             label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
-            textField = optionalJEVisSample.isPresent() ? new MFXTextField(optionalJEVisSample.get().getValueAsString()) : new MFXTextField();
+            textField = optionalJEVisSample.isPresent() ? new TextField(optionalJEVisSample.get().getValueAsString()) : new TextField();
             textField.setPrefWidth(200);
 
             textField.textProperty().addListener((observableValue, s, t1) -> {

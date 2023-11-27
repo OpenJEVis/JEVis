@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.action.ui.tab;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -51,13 +48,13 @@ public class DetailsTab extends Tab {
     private final Button beforeDateButton = new Button("", ControlCenter.getSVGImage(Icon.CALENDAR, 14, 14));
     private final Button afterDateButton = new Button("", ControlCenter.getSVGImage(Icon.CALENDAR, 14, 14));
     private final Button diffDateButton = new Button("", ControlCenter.getSVGImage(Icon.CALENDAR, 14, 14));
-    private final MFXButton buttonOpenAnalysisBefore = new MFXButton("", ControlCenter.getSVGImage(Icon.GRAPH, 14, 14));
+    private final Button buttonOpenAnalysisBefore = new Button("", ControlCenter.getSVGImage(Icon.GRAPH, 14, 14));
     private final Button buttonOpenAnalysisAfter = new Button("", ControlCenter.getSVGImage(Icon.GRAPH, 14, 14));
     private final Button buttonOpenAnalysisDiff = new Button("", ControlCenter.getSVGImage(Icon.GRAPH, 14, 14));
-    private final MFXComboBox<JEVisObject> f_EnpiSelection;
+    private final ComboBox<JEVisObject> f_EnpiSelection;
     private final Label l_EnpiSelection = new Label("EnPI");
     private final Label l_mediaTags = new Label();
-    private final MFXComboBox<String> f_mediaTags;
+    private final ComboBox<String> f_mediaTags;
     private final TextArea f_correctionIfNeeded = new TextArea("");
     private final TextFieldWithUnit f_enpiAfter = new TextFieldWithUnit();
     private final TextFieldWithUnit f_enpiBefore = new TextFieldWithUnit();
@@ -68,7 +65,7 @@ public class DetailsTab extends Tab {
     private final TextFieldWithUnit f_consumptionAfter = new TextFieldWithUnit();
     private final TextFieldWithUnit f_consumptionDiff = new TextFieldWithUnit();
 
-    private final MFXTextField f_toUser = new MFXTextField();
+    private final TextField f_toUser = new TextField();
 
 
     public DetailsTab(ActionData data) {
@@ -92,8 +89,7 @@ public class DetailsTab extends Tab {
             f_enpiAfter.setEditable(newValue.equals(FreeObject.getInstance().getID().toString()));
         });
 
-        f_EnpiSelection = new MFXComboBox(data.getActionPlan().getEnpis());
-        f_EnpiSelection.setFloatMode(FloatMode.DISABLED);
+        f_EnpiSelection = new ComboBox(data.getActionPlan().getEnpis());
         //TODO JFX17
 
         f_EnpiSelection.setConverter(new StringConverter<JEVisObject>() {
@@ -104,7 +100,7 @@ public class DetailsTab extends Tab {
 
             @Override
             public JEVisObject fromString(String string) {
-                return f_EnpiSelection.getItems().get(f_EnpiSelection.getSelectedIndex());
+                return f_EnpiSelection.getItems().get(f_EnpiSelection.getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -123,7 +119,7 @@ public class DetailsTab extends Tab {
             } catch (Exception exception) {
                 logger.error(exception);
             }
-            f_EnpiSelection.getSelectionModel().selectItem(obj);
+            f_EnpiSelection.getSelectionModel().select(obj);
 
 
         } catch (Exception ex) {
@@ -153,9 +149,8 @@ public class DetailsTab extends Tab {
         });
 
         l_mediaTags.setText(I18n.getInstance().getString("actionform.editor.tab.deteils.medium"));
-        f_mediaTags = new MFXComboBox<>(data.getActionPlan().getMediumTags());
-        f_mediaTags.setFloatMode(FloatMode.DISABLED);
-        f_mediaTags.getSelectionModel().selectItem(data.mediaTagsProperty().getValue());
+        f_mediaTags = new ComboBox<>(data.getActionPlan().getMediumTags());
+        f_mediaTags.getSelectionModel().select(data.mediaTagsProperty().getValue());
         f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {

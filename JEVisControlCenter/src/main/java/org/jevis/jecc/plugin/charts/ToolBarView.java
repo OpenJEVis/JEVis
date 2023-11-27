@@ -5,8 +5,6 @@
  */
 package org.jevis.jecc.plugin.charts;
 
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -67,9 +65,9 @@ public class ToolBarView {
     private final SimpleBooleanProperty disabledIcons = new SimpleBooleanProperty(true);
     private final PickerCombo pickerCombo;
     private final PresetDateBox presetDateBox;
-    private final MFXDatePicker pickerDateStart;
+    private final DatePicker pickerDateStart;
     private final LocalTimePicker pickerTimeStart;
-    private final MFXDatePicker pickerDateEnd;
+    private final DatePicker pickerDateEnd;
     private final LocalTimePicker pickerTimeEnd;
     private final DateHelper dateHelper = new DateHelper();
     private final ToolBarFunctions toolBarFunctions;
@@ -117,7 +115,6 @@ public class ToolBarView {
         this.toolBarFunctions = new ToolBarFunctions(ds, chartPlugin.getDataSettings(), toolBarSettings, chartPlugin);
 
         analysesComboBox = new AnalysesComboBox(ds, dataModel);
-        analysesComboBox.setFloatMode(FloatMode.DISABLED);
         analysesComboBox.setPrefWidth(300);
 
         //TODO: JFX17
@@ -644,7 +641,7 @@ public class ToolBarView {
     };
 
     public void select(JEVisObject obj) {
-        getAnalysesComboBox().selectItem(obj);
+        getAnalysesComboBox().getSelectionModel().select(obj);
     }
 
     public void setDisableToolBarIcons(boolean bool) {

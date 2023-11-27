@@ -19,14 +19,15 @@
  */
 package org.jevis.jecc.tool;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
@@ -883,7 +884,7 @@ public class PatchNotesPage {
                     "JEWebservice - ResourceSample - fixed user exception for files\n\n";
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
     private final boolean isLoading = true;
-    MFXCheckbox remember = new MFXCheckbox(I18n.getInstance().getString("welcome.dontshow"));
+    CheckBox remember = new CheckBox(I18n.getInstance().getString("welcome.dontshow"));
 
     public PatchNotesPage() {
 
@@ -930,7 +931,7 @@ public class PatchNotesPage {
         bot.setAlignment(Pos.BOTTOM_RIGHT);
         bot.setSpacing(5);
         bot.setPadding(new Insets(10));
-        MFXButton close = new MFXButton(I18n.getInstance().getString("welcome.close"));
+        Button close = new Button(I18n.getInstance().getString("welcome.close"));
         close.setCancelButton(true);
         close.setDefaultButton(true);
 

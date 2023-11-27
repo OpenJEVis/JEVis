@@ -20,10 +20,7 @@
  */
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -35,8 +32,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -76,12 +72,11 @@ public class JsonExportDialog {
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
         Label destinationL = new Label("File:");
-        final MFXTextField destinationF = new MFXTextField();
-        destinationF.setFloatMode(FloatMode.DISABLED);
-        final MFXButton fileSelect = new MFXButton("Change...");
-        final MFXCheckbox allChildren = new MFXCheckbox("Include all sub-Objects");
-        final MFXCheckbox allSamples = new MFXCheckbox("Include all Samples");
-        final MFXCheckbox attributes = new MFXCheckbox("Include Configuration");
+        final TextField destinationF = new TextField();
+        final Button fileSelect = new Button("Change...");
+        final CheckBox allChildren = new CheckBox("Include all sub-Objects");
+        final CheckBox allSamples = new CheckBox("Include all Samples");
+        final CheckBox attributes = new CheckBox("Include Configuration");
         allSamples.setDisable(true);
 
         HBox fileBox = new HBox(5);
@@ -153,11 +148,11 @@ public class JsonExportDialog {
 
         HBox buttonPanel = new HBox();
 
-        final MFXButton ok = new MFXButton("Export");
+        final Button ok = new Button("Export");
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        MFXButton cancel = new MFXButton("Cancel");
+        Button cancel = new Button("Cancel");
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

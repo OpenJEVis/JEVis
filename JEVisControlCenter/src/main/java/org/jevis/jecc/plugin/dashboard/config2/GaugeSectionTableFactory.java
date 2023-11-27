@@ -1,13 +1,10 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.Control;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -104,7 +101,7 @@ public class GaugeSectionTableFactory {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
-                            MFXTextField textField = buildDoubleTextField(item.toString());
+                            TextField textField = buildDoubleTextField(item.toString());
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
@@ -167,7 +164,7 @@ public class GaugeSectionTableFactory {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
-                            MFXTextField textField = buildDoubleTextField(item.toString());
+                            TextField textField = buildDoubleTextField(item.toString());
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     GaugeSectionPojo gaugeSectionPojo = getTableRow().getItem();
@@ -225,8 +222,8 @@ public class GaugeSectionTableFactory {
     }
 
 
-    private MFXTextField buildDoubleTextField(String text) {
-        MFXTextField textField = new MFXTextField(text);
+    private TextField buildDoubleTextField(String text) {
+        TextField textField = new TextField(text);
         textField.focusedProperty().addListener(GaugeSectionTableFactory.this.focusListener);
         //textField.setMaxWidth(this.numberColumDefaultSize);
         return textField;

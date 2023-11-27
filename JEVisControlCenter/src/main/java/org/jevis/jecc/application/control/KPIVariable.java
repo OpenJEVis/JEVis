@@ -1,15 +1,9 @@
 package org.jevis.jecc.application.control;
 
-import com.jfoenix.controls.JFXListCell;
-import com.jfoenix.controls.JFXListView;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import org.jevis.api.JEVisObject;
@@ -19,12 +13,12 @@ import org.jevis.commons.relationship.ObjectRelations;
 import java.util.List;
 
 public class KPIVariable extends GridPane {
-    private final MFXTextField field = new MFXTextField();
-    private final JFXListView<JEVisObject> listView = new JFXListView<>();
+    private final TextField field = new TextField();
+    private final ListView<JEVisObject> listView = new ListView<>();
     private final FilteredList<JEVisObject> filteredData;
-    private final MFXButton variableButton = new MFXButton("Get Variable for Formula");
-    private final MFXCheckbox useForName = new MFXCheckbox("Use for name");
-    private final MFXCheckbox useOneForAll = new MFXCheckbox("Use one for all");
+    private final Button variableButton = new Button("Get Variable for Formula");
+    private final CheckBox useForName = new CheckBox("Use for name");
+    private final CheckBox useOneForAll = new CheckBox("Use one for all");
     private final int index;
 
     public KPIVariable(List<JEVisObject> objects, ObjectRelations objectRelations, int number) {
@@ -64,7 +58,7 @@ public class KPIVariable extends GridPane {
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> listViewCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new JFXListCell<JEVisObject>() {
+                return new ListCell<>() {
                     @Override
                     protected void updateItem(JEVisObject obj, boolean empty) {
                         super.updateItem(obj, empty);
@@ -104,15 +98,15 @@ public class KPIVariable extends GridPane {
         return index;
     }
 
-    public MFXButton getVariableButton() {
+    public Button getVariableButton() {
         return variableButton;
     }
 
-    public MFXCheckbox getUseOneForAll() {
+    public CheckBox getUseOneForAll() {
         return useOneForAll;
     }
 
-    public MFXCheckbox getUseForName() {
+    public CheckBox getUseForName() {
         return useForName;
     }
 }

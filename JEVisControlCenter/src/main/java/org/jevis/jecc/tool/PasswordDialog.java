@@ -19,8 +19,7 @@
  */
 package org.jevis.jecc.tool;
 
-import com.jfoenix.controls.JFXPasswordField;
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -28,7 +27,9 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.Separator;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -56,10 +57,10 @@ public class PasswordDialog {
     private final Label passOldL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.oldpassword"));
     private final Label passL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.newpassword"));
     private final Label confirmL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.confirmpassword"));
-    private final MFXButton ok = new MFXButton(I18n.getInstance().getString("tool.dialog.passworddialog.button.ok"));
-    private final JFXPasswordField newPass = new JFXPasswordField();
-    private final JFXPasswordField oldPass = new JFXPasswordField();
-    private final JFXPasswordField confirmNew = new JFXPasswordField();
+    private final Button ok = new Button(I18n.getInstance().getString("tool.dialog.passworddialog.button.ok"));
+    private final PasswordField newPass = new PasswordField();
+    private final PasswordField oldPass = new PasswordField();
+    private final PasswordField confirmNew = new PasswordField();
     private Response response = Response.CANCEL;
     private boolean correctOldPass = false;
 
@@ -90,7 +91,7 @@ public class PasswordDialog {
 
         ok.setDefaultButton(true);
 
-        MFXButton cancel = new MFXButton(I18n.getInstance().getString("tool.dialog.passworddialog.button.cancel"));
+        Button cancel = new Button(I18n.getInstance().getString("tool.dialog.passworddialog.button.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

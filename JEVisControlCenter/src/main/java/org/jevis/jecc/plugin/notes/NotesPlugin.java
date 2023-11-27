@@ -1,7 +1,6 @@
 package org.jevis.jecc.plugin.notes;
 
-import io.github.palexdev.materialfx.controls.*;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -77,10 +76,10 @@ public class NotesPlugin implements Plugin {
 
     private final TableView<NotesRow> tableView = new TableView<>();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-    private final MFXDatePicker startDatePicker = new MFXDatePicker();
-    private final MFXDatePicker endDatePicker = new MFXDatePicker();
+    private final DatePicker startDatePicker = new DatePicker();
+    private final DatePicker endDatePicker = new DatePicker();
     private final boolean init = false;
-    private final MFXComboBox<TimeFrame> timeFrameComboBox;
+    private final ComboBox<TimeFrame> timeFrameComboBox;
     ObservableList<NotesRow> data = FXCollections.observableArrayList();
     FilteredList<NotesRow> filteredData = new FilteredList<>(data);
     BooleanProperty searchInNote = new SimpleBooleanProperty(false);
@@ -139,8 +138,7 @@ public class NotesPlugin implements Plugin {
         gridPane.setPadding(new Insets(12));
         gridPane.setHgap(12);
 
-        MFXTextField searchbar = new MFXTextField();
-        searchbar.setFloatMode(FloatMode.DISABLED);
+        TextField searchbar = new TextField();
         searchbar.setPromptText(I18n.getInstance().getString("plugin.notes.search.prompt"));
         searchbar.setMinWidth(250);
 
@@ -150,17 +148,17 @@ public class NotesPlugin implements Plugin {
 
 
         Label filterLabel = new Label(I18n.getInstance().getString("plugin.notes.search.filterlabel"));
-        MFXToggleButton toggleUser = new MFXToggleButton();
+        ToggleButton toggleUser = new ToggleButton();
         toggleUser.setText(I18n.getInstance().getString("plugin.notes.search.toggle.user"));
         toggleUser.setSelected(true);
-        MFXToggleButton toggleNote = new MFXToggleButton();
+        ToggleButton toggleNote = new ToggleButton();
         toggleNote.setText(I18n.getInstance().getString("plugin.notes.search.toggle.note"));
         toggleNote.setSelected(true);
-        MFXToggleButton toggleDR = new MFXToggleButton();
+        ToggleButton toggleDR = new ToggleButton();
         toggleDR.setText(I18n.getInstance().getString("plugin.notes.search.toggle.data"));
         toggleDR.setSelected(true);
 
-        MFXToggleButton toggleTag = new MFXToggleButton();
+        ToggleButton toggleTag = new ToggleButton();
         toggleTag.setText(I18n.getInstance().getString("plugin.notes.search.toggle.tag"));
         toggleTag.setSelected(true);
 
@@ -243,7 +241,7 @@ public class NotesPlugin implements Plugin {
         cm.getItems().addAll(selectAllMenuItem, deselectAllMenuItem);
 
         activeTags.forEach((tagKey, tagAktiv) -> {
-            MFXCheckbox cb = new MFXCheckbox(tagKey);
+            CheckBox cb = new CheckBox(tagKey);
             cb.selectedProperty().bindBidirectional(tagAktiv);
             //cb.setSelected(tagAktiv.get());
             cb.setOnAction(event -> {
@@ -254,7 +252,7 @@ public class NotesPlugin implements Plugin {
             cm.getItems().add(cmi);
         });
 
-        MFXButton tagButton = new MFXButton(I18n.getInstance().getString("plugin.notes.contextmenu.tags"));
+        Button tagButton = new Button(I18n.getInstance().getString("plugin.notes.contextmenu.tags"));
         tagButton.setContextMenu(cm);
         tagButton.setOnAction(event -> {
             cm.show(tagButton, Side.BOTTOM, 0, 0);
@@ -441,7 +439,7 @@ public class NotesPlugin implements Plugin {
         }
     }
 
-    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final MFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final ComboBox <TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
 
     private void createColumns() {
         TableColumn<NotesRow, DateTime> dateColumn = new TableColumn<>(I18n.getInstance().getString("plugin.notes.table.date"));
@@ -910,8 +908,8 @@ public class NotesPlugin implements Plugin {
         ButtonType cancelButtonType = new ButtonType(I18n.getInstance().getString("plugin.note.pane.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
 
-        //MFXButton okButton = new MFXButton(I18n.getInstance().getString("plugin.note.pane.ok"));
-        //MFXButton cancelButton = new MFXButton(I18n.getInstance().getString("plugin.note.pane.cancel"));
+        //Button okButton = new Button(I18n.getInstance().getString("plugin.note.pane.ok"));
+        //Button cancelButton = new Button(I18n.getInstance().getString("plugin.note.pane.cancel"));
 
         notePane.getDialogPane().getButtonTypes().setAll(okButtonType, cancelButtonType);
 
@@ -958,9 +956,8 @@ public class NotesPlugin implements Plugin {
         notePane.show();
     }
 
-    private MFXComboBox<TimeFrame> getTimeFrameComboBox() {
-        MFXComboBox<TimeFrame> box = new MFXComboBox<>();
-        box.setFloatMode(FloatMode.DISABLED);
+    private ComboBox<TimeFrame> getTimeFrameComboBox() {
+        ComboBox<TimeFrame> box = new ComboBox<>();
 
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
         final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
@@ -994,7 +991,7 @@ public class NotesPlugin implements Plugin {
             }
         });
 
-        box.selectItem(timeFrame);
+        box.getSelectionModel().select(timeFrame);
 
         box.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
@@ -1057,7 +1054,7 @@ public class NotesPlugin implements Plugin {
     @Override
     public void setHasFocus() {
 
-        this.timeFrameComboBox.selectItem(TimeFrame.LAST_30_DAYS);
+        this.timeFrameComboBox.getSelectionModel().select(TimeFrame.LAST_30_DAYS);
         Platform.runLater(() -> autoFitTable(tableView));
     }
 

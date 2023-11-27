@@ -1,8 +1,9 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
+import javafx.scene.control.ComboBox;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
@@ -16,7 +17,7 @@ import org.jevis.commons.utils.CommonMethods;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProcessorBox extends MFXComboBox<JEVisObject> {
+public class ProcessorBox extends ComboBox<JEVisObject> {
     final static String RAW_DATA_STRING = I18n.getInstance().getString("graph.processing.raw");
 
     public ProcessorBox(JEVisDataSource ds, Long id) {
@@ -68,7 +69,7 @@ public class ProcessorBox extends MFXComboBox<JEVisObject> {
             }
         });
 
-        if (selectedObject != null) selectItem(selectedObject);
+        if (selectedObject != null) getSelectionModel().select(selectedObject);
         else {
             JEVisObject firstCleanDataObject = null;
             for (JEVisObject processor : dataProcessors) {
@@ -82,9 +83,9 @@ public class ProcessorBox extends MFXComboBox<JEVisObject> {
                 }
             }
             if (firstCleanDataObject != null) {
-                selectItem(firstCleanDataObject);
+                getSelectionModel().select(firstCleanDataObject);
             } else {
-                selectItem(selectedObject);
+                getSelectionModel().select(selectedObject);
             }
         }
     }
@@ -126,7 +127,7 @@ public class ProcessorBox extends MFXComboBox<JEVisObject> {
                                  final ProcessorBox comboBox) {
         if (comboBox != null) {
             try {
-                comboBox.selectItem(ds.getObject(cell.getItem()));
+                comboBox.getSelectionModel().select(ds.getObject(cell.getItem()));
             } catch (Exception ignored) {
 
             }
@@ -161,7 +162,7 @@ public class ProcessorBox extends MFXComboBox<JEVisObject> {
             if (cell.isEditing()) {
                 if (comboBox != null) {
                     try {
-                        comboBox.selectItem(ds.getObject(cell.getItem()));
+                        comboBox.getSelectionModel().select(ds.getObject(cell.getItem()));
                     } catch (Exception e) {
 
                     }

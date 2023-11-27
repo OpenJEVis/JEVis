@@ -1,16 +1,11 @@
 package org.jevis.jecc.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
@@ -42,14 +37,14 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ValueEditWidget.class);
     public static String WIDGET_ID = "Value Editor";
-    private final MFXTextField labelValue = new MFXTextField();
+    private final TextField labelValue = new TextField();
     private final Label labelTimeStamp = new Label();
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     //private DataModelDataHandler sampleHandler;
     private final NumberFormat nf = NumberFormat.getInstance();
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final ImageView imageView = ControlCenter.getImage("add_table.png", 18, 18);
-    private final MFXButton addButton = new MFXButton("", ControlCenter.getImage("AddValue.png", 34, 34));
+    private final Button addButton = new Button("", ControlCenter.getImage("AddValue.png", 34, 34));
     private final boolean forceLastValue = true;
     private Limit limit;
     private Interval lastInterval = null;
@@ -60,7 +55,6 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
     public ValueEditWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
-        labelValue.setFloatMode(FloatMode.DISABLED);
     }
 
 

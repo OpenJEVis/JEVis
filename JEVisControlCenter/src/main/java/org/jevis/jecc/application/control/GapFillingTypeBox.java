@@ -1,13 +1,14 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.util.StringConverter;
 import org.jevis.commons.constants.GapFillingType;
 import org.jevis.commons.i18n.I18n;
 
-public class GapFillingTypeBox extends MFXComboBox<GapFillingType> {
+public class GapFillingTypeBox extends ComboBox<GapFillingType> {
     private final ObservableList<GapFillingType> options = FXCollections.observableArrayList(GapFillingType.NONE, GapFillingType.INTERPOLATION, GapFillingType.AVERAGE,
             GapFillingType.DEFAULT_VALUE, GapFillingType.STATIC, GapFillingType.MINIMUM, GapFillingType.MAXIMUM, GapFillingType.MEDIAN, GapFillingType.DELETE);
 
@@ -54,7 +55,7 @@ public class GapFillingTypeBox extends MFXComboBox<GapFillingType> {
 
             @Override
             public GapFillingType fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
 

@@ -13,6 +13,9 @@
     -fx-default-button-text-fill: white;
 
     -fx-tree-background: transparent;
+
+    -toolbarSVG-background-color: #a4a4ab;
+    -pluginSVG-background-color: white;
 }
 
 .label{
@@ -77,12 +80,7 @@
     -fx-border-color: transparent;
     -fx-table-cell-border-color:transparent;
 }
-.toolbarSVG{
-    -fx-background-color: #a4a4ab;
-}
-.pluginSVG{
-    -fx-background-color: white;
-}
+
 .ToolBarDatePicker.jfx-date-picker {
     -jfx-default-color: #a4a4ab;
 }

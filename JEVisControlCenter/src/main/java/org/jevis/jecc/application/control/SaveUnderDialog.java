@@ -1,8 +1,6 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -51,7 +49,7 @@ public class SaveUnderDialog extends Dialog {
 
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
-        MFXTextField name = new MFXTextField();
+        TextField name = new TextField();
         name.setMinWidth(350);
         ObjectRelations objectRelations = new ObjectRelations(jeVisDataSource);
 
@@ -68,8 +66,7 @@ public class SaveUnderDialog extends Dialog {
         }
 
         ObjectProperty<JEVisObject> currentSaveDirectory = new SimpleObjectProperty<>(null);
-        MFXComboBox<JEVisObject> parentsDirectories = new MFXComboBox<>(FXCollections.observableArrayList(listSaveDirectories));
-        parentsDirectories.setFloatMode(FloatMode.DISABLED);
+        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listSaveDirectories));
 
         //TODO JFX17
 
@@ -124,7 +121,7 @@ public class SaveUnderDialog extends Dialog {
             try {
                 if (selectedObj.getParents() != null) {
                     JEVisObject parenObj = selectedObj.getParents().get(0);
-                    parentsDirectories.selectItem(parenObj);
+                    parentsDirectories.getSelectionModel().select(parenObj);
                 }
             } catch (Exception e) {
                 logger.error("Couldn't select current Analysis Directory: " + e);

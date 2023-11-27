@@ -19,7 +19,7 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,6 +27,7 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -64,8 +65,8 @@ public class FileEditor implements AttributeEditor {
     //This function is suboptial and gives a abd user experience.
     private final boolean _autoDownload = true;
     public JEVisAttribute attribute;
-    private MFXButton _downloadButton;
-    private MFXButton uploadButton;
+    private Button _downloadButton;
+    private Button uploadButton;
     private boolean readOnly = true;
     private boolean initialized = false;
 
@@ -116,9 +117,9 @@ public class FileEditor implements AttributeEditor {
 
     private void init() {
 
-        _downloadButton = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.file.download")
+        _downloadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.download")
                 , ControlCenter.getImage("698925-icon-92-inbox-download-48.png", 18, 18));
-        uploadButton = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.file.upload"),
+        uploadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.upload"),
                 ControlCenter.getImage("1429894158_698394-icon-130-cloud-upload-48.png", 18, 18));
 
         boolean isPDF = false;
@@ -165,7 +166,7 @@ public class FileEditor implements AttributeEditor {
         box.getChildren().setAll(uploadButton, _downloadButton, rightSpacer);
 
         if (isPDF) {
-            MFXButton pdfButton = new MFXButton("", ControlCenter.getImage("pdf_24_2133056.png", 18, 18));
+            Button pdfButton = new Button("", ControlCenter.getImage("pdf_24_2133056.png", 18, 18));
             box.getChildren().add(2, pdfButton);
             pdfButton.setOnAction(event -> {
                 PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
@@ -181,7 +182,7 @@ public class FileEditor implements AttributeEditor {
         }
 
         if (isImage) {
-            MFXButton imageButton = new MFXButton("", ControlCenter.getImage("export-image.png", 18, 18));
+            Button imageButton = new Button("", ControlCenter.getImage("export-image.png", 18, 18));
             box.getChildren().add(2, imageButton);
             imageButton.setOnAction(event -> {
                 ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
@@ -197,7 +198,7 @@ public class FileEditor implements AttributeEditor {
         }
 
         if (isJson) {
-            MFXButton jsonButton = new MFXButton("", ControlCenter.getImage("json_icon.png", 18, 18));
+            Button jsonButton = new Button("", ControlCenter.getImage("json_icon.png", 18, 18));
             box.getChildren().add(2, jsonButton);
             jsonButton.setOnAction(event -> {
                 JsonViewerDialog jsonViewerDialog = new JsonViewerDialog();

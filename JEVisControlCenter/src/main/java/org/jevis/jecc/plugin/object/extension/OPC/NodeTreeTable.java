@@ -1,11 +1,6 @@
 package org.jevis.jecc.plugin.object.extension.OPC;
 
 
-import com.jfoenix.controls.JFXCheckBox;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -73,8 +68,8 @@ public class NodeTreeTable {
     private final VBox view = new VBox();
     private final TreeTableView<Node> opcUATreeTableView = new TreeTableView<>();
     private final OPCClient opcClient;
-    private final MFXButton importDataStructureMFXButton;
-    private final MFXButton selectTargetMFXButton;
+    private final Button importDataStructureButton;
+    private final Button selectTargetButton;
     private final ObservableList<Node> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = ControlCenter.getImage("if_dashboard_46791.png");
     private final JEVisObject trendRoot;
@@ -99,8 +94,8 @@ public class NodeTreeTable {
         this.trendRoot = trendRoot;
         this.backNetRootFolder = backNetRootFolder;
         this.opcUARootFolder = opcUaRootFolder;
-        selectTargetMFXButton = buildTargetButton();
-        importDataStructureMFXButton = buildImportDataStructureButton();
+        selectTargetButton = buildTargetButton();
+        importDataStructureButton = buildImportDataStructureButton();
         try {
             ds = trendRoot.getDataSource();
         } catch (JEVisException e) {
@@ -114,7 +109,7 @@ public class NodeTreeTable {
 
         if (mode.equals(SETUP_MODE)) {
             HBox hBox = new HBox(10);
-            hBox.getChildren().addAll(selectTargetMFXButton, importDataStructureMFXButton);
+            hBox.getChildren().addAll(selectTargetButton, importDataStructureButton);
             hBox.setPadding(new Insets(10, 10, 10, 10));
 
             view.getChildren().add(hBox);
@@ -159,11 +154,11 @@ public class NodeTreeTable {
                                 PathReferenceDescription x = o;
 
                                 Node node = new Node(o.getReferenceDescription(), o.getPath(), o.getDataValue());
-                                if (rootSet == false) {
+                                if (!rootSet) {
 
                                     currentTreeItem = setRoot(node);
 
-                                } else if (rootSet == true) {
+                                } else if (rootSet) {
 
                                     currentTreeItem = createOPCUAChildren(currentTreeItem, node);
                                 }
@@ -173,7 +168,7 @@ public class NodeTreeTable {
 
                         }
                     }
-                    if (bacnet == true && mode.equals(SETUP_MODE)) {
+                    if (bacnet && mode.equals(SETUP_MODE)) {
                         branchRootTreeItem.getChildren().removeIf(nodeTreeItem -> !nodeTreeItem.getValue().getName().equals("Trend"));
                     }
 
@@ -266,7 +261,7 @@ public class NodeTreeTable {
                                 try {
 
                                     if (getTreeTableRow().getTreeItem().getValue().getDescriptionProperty().getNodeClass().getValue() == 1) {
-                                        JFXCheckBox box = new JFXCheckBox();
+                                        CheckBox box = new CheckBox();
                                         box.setSelected(item);
                                         box.setOnAction(event -> {
 
@@ -340,11 +335,9 @@ public class NodeTreeTable {
             Label valueLabel = new Label(I18n.getInstance().getString("plugin.graph.table.value"));
 
             HBox hbox = new HBox(6);
-            MFXTextField valueField = new MFXTextField();
-            valueField.setFloatMode(FloatMode.DISABLED);
+            TextField valueField = new TextField();
 
-            MFXComboBox<Boolean> valueComboBox = new MFXComboBox<>();
-            valueComboBox.setFloatMode(FloatMode.DISABLED);
+            ComboBox<Boolean> valueComboBox = new ComboBox<>();
             valueComboBox.getItems().addAll(true, false);
 
 
@@ -439,7 +432,7 @@ public class NodeTreeTable {
      */
 
     private TreeItem<Node> setRoot(Node node) {
-        if (bacnet == true) {
+        if (bacnet) {
             node.setTrendType(Node.BACNET_TREND);
         }
         branchRootTreeItem = new TreeItem<>(node);
@@ -466,7 +459,7 @@ public class NodeTreeTable {
      */
 
     private TreeItem<Node> createOPCUAChildren(TreeItem<Node> parent, Node node) {
-        if (bacnet == true) {
+        if (bacnet) {
             node.setTrendType(Node.BACNET_TREND);
         }
         if ((parent.getValue().getPathProperty() + "/" + parent.getValue().getDescriptionProperty().getBrowseName().getName()).equals(node.getPathProperty())) {
@@ -666,7 +659,7 @@ public class NodeTreeTable {
             return Period.ZERO;
         } else {
             int day = (int) TimeUnit.SECONDS.toDays(Integer.valueOf(interval));
-            long hours = TimeUnit.SECONDS.toHours(Integer.valueOf(interval)) - (day * 24);
+            long hours = TimeUnit.SECONDS.toHours(Integer.valueOf(interval)) - (day * 24L);
             long minute = TimeUnit.SECONDS.toMinutes(Integer.valueOf(interval)) - (TimeUnit.SECONDS.toHours(Integer.valueOf(interval)) * 60);
             long second = TimeUnit.SECONDS.toSeconds(Integer.valueOf(interval)) - (TimeUnit.SECONDS.toMinutes(Integer.valueOf(interval)) * 60);
 
@@ -681,12 +674,11 @@ public class NodeTreeTable {
             } else if (day == 7 && hours == 0 && minute == 0 && second == 0) {
                 return Period.weeks(1);
             } else {
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("PT");
-                stringBuilder.append(hours + day * 24).append("H");
-                stringBuilder.append(minute).append("M");
-                stringBuilder.append(second).append("S");
-                return Period.parse(stringBuilder.toString());
+                String stringBuilder = "PT" +
+                        (hours + day * 24L) + "H" +
+                        minute + "M" +
+                        second + "S";
+                return Period.parse(stringBuilder);
 
 
             }
@@ -695,8 +687,8 @@ public class NodeTreeTable {
     }
 
 
-    private MFXButton buildTargetButton() {
-        final MFXButton button = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.target.button"), ControlCenter.getImage("folders_explorer.png", 18, 18));
+    private Button buildTargetButton() {
+        final Button button = new Button(I18n.getInstance().getString("plugin.object.attribute.target.button"), ControlCenter.getImage("folders_explorer.png", 18, 18));
         button.wrapTextProperty().setValue(true);
         button.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -743,10 +735,10 @@ public class NodeTreeTable {
         return button;
     }
 
-    private MFXButton buildImportDataStructureButton() {
-        MFXButton MFXButton = new MFXButton();
-        MFXButton.setText(I18n.getInstance().getString("plugin.object.opcua.button.import"));
-        MFXButton.setOnAction(event -> {
+    private Button buildImportDataStructureButton() {
+        Button Button = new Button();
+        Button.setText(I18n.getInstance().getString("plugin.object.opcua.button.import"));
+        Button.setOnAction(event -> {
 
 
             Task<Void> task = new Task<Void>() {
@@ -792,14 +784,14 @@ public class NodeTreeTable {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle(I18n.getInstance().getString("plugin.object.opcua.import.finish.title"));
                 alert.setHeaderText("");
-                alert.setContentText(I18n.getInstance().getString("plugin.object.opcua.import.finish.message") + "" + jevisObjectcount);
+                alert.setContentText(I18n.getInstance().getString("plugin.object.opcua.import.finish.message") + jevisObjectcount);
                 jevisObjectcount = 0;
                 alert.showAndWait();
             });
 
 
         });
-        return MFXButton;
+        return Button;
     }
 
 

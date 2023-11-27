@@ -20,7 +20,7 @@
  */
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -29,6 +29,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
@@ -114,17 +115,17 @@ public class ExceptionDialog {
 
         HBox buttonPanel = new HBox();
 
-        MFXButton ok = new MFXButton("OK");
+        Button ok = new Button("OK");
         ok.setDefaultButton(true);
 
-        MFXButton cancel = new MFXButton("Cancel");
+        Button cancel = new Button("Cancel");
         cancel.setCancelButton(true);
 
-//        MFXButton exit = new MFXButton("Exit");
-        MFXButton send = new MFXButton("Report");
+//        Button exit = new Button("Exit");
+        Button send = new Button("Report");
 
-        MFXButton details = new MFXButton("Details");
-        MFXButton copyAll = new MFXButton("Copy all");
+        Button details = new Button("Details");
+        Button copyAll = new Button("Copy all");
 
         buttonPanel.getChildren().addAll(details, copyAll, send, ok, cancel);
         buttonPanel.setAlignment(Pos.CENTER_RIGHT);
@@ -273,15 +274,15 @@ public class ExceptionDialog {
 
         HBox buttonPanel = new HBox();
 
-        MFXButton ok = new MFXButton("Close");
+        Button ok = new Button("Close");
         ok.setCancelButton(true);
 
-        MFXButton exit = new MFXButton("Exit");
-        MFXButton send = new MFXButton("Report");
+        Button exit = new Button("Exit");
+        Button send = new Button("Report");
 
         send.setDefaultButton(true);
 
-        MFXButton copyAll = new MFXButton("Copy All");
+        Button copyAll = new Button("Copy All");
 
         buttonPanel.getChildren().addAll(copyAll, send, ok, exit);
         buttonPanel.setAlignment(Pos.CENTER_RIGHT);

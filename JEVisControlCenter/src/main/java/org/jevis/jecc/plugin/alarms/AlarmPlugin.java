@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.alarms;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -113,17 +110,34 @@ public class AlarmPlugin implements Plugin {
     private final List<AlarmRow> data = new ArrayList<>();
     private final TableView<AlarmRow> tableView = new TableView<>();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-    private final MFXDatePicker startDatePicker = new MFXDatePicker();
-    private final MFXDatePicker endDatePicker = new MFXDatePicker();
+    private final DatePicker startDatePicker = new DatePicker();
+    private final DatePicker endDatePicker = new DatePicker();
     private boolean init = false;
     private DateTime start;
     private DateTime end;
     private TimeFrame timeFrame = TimeFrame.TODAY;
+    private final ComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+        }
+    };
+    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+        }
+    };
 
     public AlarmPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
-
+        this.timeFrameComboBox.getSelectionModel().select(TimeFrame.PREVIEW);
 
         Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
         label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -170,7 +184,7 @@ public class AlarmPlugin implements Plugin {
     }
 
     private void initToolBar() {
-        MFXButton reload = new MFXButton("", ControlCenter.getSVGImage(Icon.REFRESH, iconSize, iconSize));
+        Button reload = new Button("", ControlCenter.getSVGImage(Icon.REFRESH, iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
 
@@ -225,13 +239,12 @@ public class AlarmPlugin implements Plugin {
         startDatePicker.valueProperty().addListener(startDateChangeListener);
         endDatePicker.valueProperty().addListener(endDateChangeListener);
 
-        MFXComboBox<String> filterBox = new MFXComboBox<>();
-        filterBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<String> filterBox = new ComboBox<>();
         String showOnlyUncheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showunchecked");
         String showOnlyCheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showchecked");
         String showAllAlarms = I18n.getInstance().getString("plugin.alarm.label.showall");
         filterBox.getItems().addAll(showOnlyUncheckedAlarms, showOnlyCheckedAlarms, showAllAlarms);
-        filterBox.getSelectionModel().selectIndex(showCheckedAlarms.get());
+        filterBox.getSelectionModel().select(showCheckedAlarms.get());
 
         filterBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
@@ -242,7 +255,7 @@ public class AlarmPlugin implements Plugin {
 
         Separator sep4 = new Separator(Orientation.VERTICAL);
 
-        MFXButton checkAll = new MFXButton(I18n.getInstance().getString("plugin.alarm.checkall"), ControlCenter.getSVGImage(Icon.CHECK, iconSize, iconSize));
+        Button checkAll = new Button(I18n.getInstance().getString("plugin.alarm.checkall"), ControlCenter.getSVGImage(Icon.CHECK, iconSize, iconSize));
         checkAll.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
         checkAll.setOnMouseClicked(event -> {
             getAllAlarmConfigs().forEach(alarmConfiguration -> alarmConfiguration.setChecked(true));
@@ -281,7 +294,9 @@ public class AlarmPlugin implements Plugin {
         JEVisHelp.getInstance().addHelpItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
 
-    }    private final MFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+    }
+
+    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final ComboBox <TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
 
     private Node createPage(int pageIndex) {
         int numOfPages = 1;
@@ -322,11 +337,7 @@ public class AlarmPlugin implements Plugin {
         }
     }
 
-    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final MFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
-
-    private void updateList() {
-
-        Platform.runLater(this::initToolBar);
+    public void updateList() {
 
         if (init) {
             restartExecutor();
@@ -875,8 +886,8 @@ public class AlarmPlugin implements Plugin {
 
                                     LimitEditor limitEditor = new LimitEditor(limitConfigAttribute);
                                     HBox hbox = (HBox) limitEditor.getEditor();
-                                    MFXButton MFXButton = (MFXButton) hbox.getChildren().get(0);
-                                    MFXButton.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
+                                    Button Button = (Button) hbox.getChildren().get(0);
+                                    Button.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
                                     limitEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(limitConfigAttribute.getObjectID()));
 
                                     setGraphic(limitEditor.getEditor());
@@ -885,7 +896,7 @@ public class AlarmPlugin implements Plugin {
 
                                     GapFillingEditor gapFillingEditor = new GapFillingEditor(gapFillingConfiguration);
                                     HBox hbox = (HBox) gapFillingEditor.getEditor();
-                                    MFXButton mfxButton = (MFXButton) hbox.getChildren().get(0);
+                                    Button mfxButton = (Button) hbox.getChildren().get(0);
                                     mfxButton.setText(I18nWS.getInstance().getTypeName(gapFillingConfiguration.getType()));
                                     gapFillingEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(gapFillingConfiguration.getObjectID()));
 
@@ -896,7 +907,7 @@ public class AlarmPlugin implements Plugin {
 
                                     AlarmEditor alarmEditor = new AlarmEditor(alarmConfigAttribute);
                                     HBox hbox = (HBox) alarmEditor.getEditor();
-                                    MFXButton mfxButton = (MFXButton) hbox.getChildren().get(0);
+                                    Button mfxButton = (Button) hbox.getChildren().get(0);
                                     mfxButton.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
                                     alarmEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID()));
 
@@ -922,9 +933,8 @@ public class AlarmPlugin implements Plugin {
 
     }
 
-    private MFXComboBox<TimeFrame> getTimeFrameComboBox() {
-        MFXComboBox<TimeFrame> box = new MFXComboBox<>();
-        box.setFloatMode(FloatMode.DISABLED);
+    private ComboBox<TimeFrame> getTimeFrameComboBox() {
+        ComboBox<TimeFrame> box = new ComboBox<>();
 
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
         final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
@@ -962,7 +972,7 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
-        box.selectItem(timeFrame);
+        box.getSelectionModel().select(timeFrame);
 
         box.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
@@ -1006,21 +1016,15 @@ public class AlarmPlugin implements Plugin {
                     start = dateHelper.getStartDate();
                     end = dateHelper.getEndDate();
 
-                    updateList();
+                    if (init) {
+                        updateList();
+                    }
                 }
             }
         });
 
         return box;
-    }    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
+    }
 
     private void restartExecutor() {
         try {
@@ -1061,16 +1065,6 @@ public class AlarmPlugin implements Plugin {
         }
         return name;
     }
-
-    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
 
     private Object getAnalysisRequest(AlarmRow alarmRow, JEVisObject item) {
 
@@ -1119,14 +1113,9 @@ public class AlarmPlugin implements Plugin {
         return list;
     }
 
-
-
     @Override
     public void setHasFocus() {
-
-
-        this.timeFrameComboBox.selectItem(TimeFrame.PREVIEW);
-
+        Platform.runLater(this::initToolBar);
 
         Platform.runLater(() -> autoFitTable(tableView));
     }

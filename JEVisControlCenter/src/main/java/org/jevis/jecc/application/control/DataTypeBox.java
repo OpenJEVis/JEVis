@@ -1,9 +1,10 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.util.StringConverter;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
@@ -12,7 +13,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.joda.time.Period;
 
-public class DataTypeBox extends MFXComboBox<EnterDataTypes> {
+public class DataTypeBox extends ComboBox<EnterDataTypes> {
 
     public DataTypeBox() {
         super();
@@ -52,11 +53,11 @@ public class DataTypeBox extends MFXComboBox<EnterDataTypes> {
 
             @Override
             public EnterDataTypes fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
 
-        selectItem(EnterDataTypes.MONTH);
+        getSelectionModel().select(EnterDataTypes.MONTH);
     }
 
     public Period selectFromPeriod(JEVisObject selectedObject) {
@@ -77,15 +78,15 @@ public class DataTypeBox extends MFXComboBox<EnterDataTypes> {
                 }
 
                 if (p.equals(Period.days(1))) {
-                    Platform.runLater(() -> selectItem(EnterDataTypes.DAY));
+                    Platform.runLater(() -> getSelectionModel().select(EnterDataTypes.DAY));
                 } else if (p.equals(Period.weeks(1))) {
-                    Platform.runLater(() -> selectItem(EnterDataTypes.DAY));
+                    Platform.runLater(() -> getSelectionModel().select(EnterDataTypes.DAY));
                 } else if (p.equals(Period.months(1))) {
-                    Platform.runLater(() -> selectItem(EnterDataTypes.MONTH));
+                    Platform.runLater(() -> getSelectionModel().select(EnterDataTypes.MONTH));
                 } else if (p.equals(Period.years(1))) {
-                    Platform.runLater(() -> selectItem(EnterDataTypes.YEAR));
+                    Platform.runLater(() -> getSelectionModel().select(EnterDataTypes.YEAR));
                 } else {
-                    Platform.runLater(() -> selectItem(EnterDataTypes.SPECIFIC_DATETIME));
+                    Platform.runLater(() -> getSelectionModel().select(EnterDataTypes.SPECIFIC_DATETIME));
                 }
             }
         }

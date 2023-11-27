@@ -65,6 +65,6 @@ public class DeleteAnalysisDialog {
 
     private void updateAnalysisBox(int currentIndex) {
         analysesComboBox.updateListAnalyses();
-        analysesComboBox.selectIndex(currentIndex - 1);
+        analysesComboBox.getSelectionModel().select(currentIndex - 1);
     }
 }

@@ -1,13 +1,14 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.util.StringConverter;
 import org.jevis.commons.constants.GapFillingReferencePeriod;
 import org.jevis.commons.i18n.I18n;
 
-public class ReferencePeriodsBox extends MFXComboBox<GapFillingReferencePeriod> {
+public class ReferencePeriodsBox extends ComboBox<GapFillingReferencePeriod> {
     private final ObservableList<GapFillingReferencePeriod> options = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,
             GapFillingReferencePeriod.WEEK, GapFillingReferencePeriod.MONTH, GapFillingReferencePeriod.YEAR, GapFillingReferencePeriod.ALL);
 
@@ -47,7 +48,7 @@ public class ReferencePeriodsBox extends MFXComboBox<GapFillingReferencePeriod> 
 
             @Override
             public GapFillingReferencePeriod fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
 

@@ -20,11 +20,7 @@
  */
 package org.jevis.jecc.plugin.object.extension.processchain;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
-import io.github.palexdev.virtualizedfx.cell.Cell;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -36,12 +32,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -63,7 +55,6 @@ import org.jevis.jecc.tool.ImageConverter;
 import org.jevis.jecc.tool.NumberSpinner;
 
 import java.math.BigDecimal;
-import java.util.function.Function;
 
 /**
  * @author fs
@@ -133,11 +124,11 @@ public class NewFunctionDialog {
 
         HBox buttonPanel = new HBox();
 
-        final MFXButton ok = new MFXButton(I18n.getInstance().getString("newobject.ok"));
+        final Button ok = new Button(I18n.getInstance().getString("newobject.ok"));
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        MFXButton cancel = new MFXButton(I18n.getInstance().getString("newobject.cancel"));
+        Button cancel = new Button(I18n.getInstance().getString("newobject.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -153,8 +144,7 @@ public class NewFunctionDialog {
         int x = 0;
 
         Label lName = new Label(I18n.getInstance().getString("newobject.name"));
-        final MFXTextField fName = new MFXTextField();
-        fName.setFloatMode(FloatMode.DISABLED);
+        final TextField fName = new TextField();
         fName.setPromptText(I18n.getInstance().getString("newobject.name.prompt"));
 
         if (objName != null) {
@@ -221,34 +211,33 @@ public class NewFunctionDialog {
             }
         };
 
-        final MFXComboBox<JEVisClass> comboBox = new MFXComboBox<JEVisClass>(options);
-        comboBox.setFloatMode(FloatMode.DISABLED);
+        final ComboBox<JEVisClass> comboBox = new ComboBox<JEVisClass>(options);
 
         //TODO JFX17
-        comboBox.setCellFactory((Function<JEVisClass, Cell<JEVisClass>>) jeVisClass -> {
-            return new Cell<JEVisClass>() {
-                ImageView icon = new ImageView();
-                Label cName = new Label();
-                HBox box = new HBox(5, icon, cName);
+        comboBox.setCellFactory(new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
+            @Override
+            public ListCell<JEVisClass> call(ListView<JEVisClass> jeVisClassListView) {
+                return new ListCell<>() {
+                    final ImageView icon = new ImageView();
+                    final Label cName = new Label();
+                    final HBox box = new HBox(5, icon, cName);
 
-                @Override
-                public Node getNode() {
-                    cName.setTextFill(Color.BLACK);
-                    icon.fitHeightProperty().set(15);
-                    icon.fitWidthProperty().set(15);
-                    return box;
-                }
-
-                @Override
-                public void updateItem(JEVisClass item) {
-                    try {
-                        icon.setImage(ImageConverter.convertToFxImage(item.getIcon()));
-                        cName.setText(item.getName());
-                    } catch (Exception e) {
-                        logger.error(e);
+                    @Override
+                    protected void updateItem(JEVisClass item, boolean b) {
+                        super.updateItem(item, b);
+                        if (item != null)
+                            try {
+                                cName.setTextFill(Color.BLACK);
+                                icon.fitHeightProperty().set(15);
+                                icon.fitWidthProperty().set(15);
+                                icon.setImage(ImageConverter.convertToFxImage(item.getIcon()));
+                                cName.setText(item.getName());
+                            } catch (Exception e) {
+                                logger.error(e);
+                            }
                     }
-                }
-            };
+                };
+            }
         });
 
         comboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<JEVisClass>() {
@@ -266,7 +255,7 @@ public class NewFunctionDialog {
         });
 
         if (jclass != null) {
-            comboBox.selectItem(jclass);
+            comboBox.getSelectionModel().select(jclass);
         }
 
         comboBox.setMinWidth(250);
@@ -357,7 +346,7 @@ public class NewFunctionDialog {
             stage.setTitle(I18n.getInstance().getString("newobject.rename.title"));
             topTitle.setText(I18n.getInstance().getString("newobject.rename.message"));
             count.setDisable(true);
-            comboBox.selectItem(jclass);
+            comboBox.getSelectionModel().select(jclass);
         }
 
         stage.showAndWait();

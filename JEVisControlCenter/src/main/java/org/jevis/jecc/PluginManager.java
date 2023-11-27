@@ -284,16 +284,15 @@ public class PluginManager {
                         });
                     });
                     /** Start Loading Alarms in the background after a delay **/
-                    /*
+
                     Timer updateTimer = new Timer(true);
                     updateTimer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            Platform.runLater(plugin::setHasFocus);
+                            Platform.runLater(alarmPlugin::updateList);
                         }
                     }, 4000);
 
-                     */
 
                 }
 

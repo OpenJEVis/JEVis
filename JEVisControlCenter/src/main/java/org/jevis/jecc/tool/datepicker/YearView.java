@@ -1,10 +1,11 @@
 package org.jevis.jecc.tool.datepicker;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
@@ -49,7 +50,7 @@ final class YearView extends DatePane {
 
         for (int i = 0; i < numberOfMonths; i++) {
             final int j = i;
-            MFXButton button = new MFXButton();
+            Button button = new Button();
             button.getStyleClass().add(CSS_CALENDAR_MONTH_BUTTON);
 
             // Make the button stretch.
@@ -82,7 +83,7 @@ final class YearView extends DatePane {
         DateFormatSymbols symbols = new DateFormatSymbols(this.calendarView.localeProperty().get());
         String[] monthNames = symbols.getShortMonths();
         for (int i = 1; i < monthNames.length; i++) {
-            MFXButton button = (MFXButton) getChildren().get(i - 1);
+            Button button = (Button) getChildren().get(i - 1);
             button.setText(monthNames[i - 1]);
         }
         this.title.set(getDateFormat("yyyy").format(this.calendarView.getCalendar().getTime()));

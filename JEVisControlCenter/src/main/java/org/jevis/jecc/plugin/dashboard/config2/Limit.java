@@ -3,13 +3,12 @@ package org.jevis.jecc.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
@@ -91,8 +90,7 @@ public class Limit {
 
 
         Label limitTypeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.type"));
-        MFXComboBox<MODE> limitTypeBox = new MFXComboBox<>(types);
-        limitTypeBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<MODE> limitTypeBox = new ComboBox<>(types);
 
         //TODO JFX17
 
@@ -117,11 +115,11 @@ public class Limit {
 
             @Override
             public MODE fromString(String string) {
-                return limitTypeBox.getItems().get(limitTypeBox.getSelectedIndex());
+                return limitTypeBox.getItems().get(limitTypeBox.getSelectionModel().getSelectedIndex());
             }
         });
 
-        limitTypeBox.selectItem(mode);
+        limitTypeBox.getSelectionModel().select(mode);
         if (mode == MODE.DYNAMIC) {
             editorPane.getChildren().add(limitDynamicPane);
         } else if (mode == MODE.STATIC) {

@@ -1,8 +1,6 @@
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -82,15 +80,14 @@ public class EquipmentDialog extends Dialog {
         VBox parentVBox = new VBox(parentLabel);
         parentVBox.setAlignment(Pos.CENTER);
 
-        MFXButton treeButton = new MFXButton(I18n
+        Button treeButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 ControlCenter.getImage("folders_explorer.png", 18, 18));
 
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        MFXTextField nameField = new MFXTextField();
-        nameField.setFloatMode(FloatMode.DISABLED);
+        TextField nameField = new TextField();
 
         Region targetSpace = new Region();
         targetSpace.setPrefWidth(20);
@@ -212,17 +209,16 @@ public class EquipmentDialog extends Dialog {
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        MFXTextField nameField = new MFXTextField(selectedMeter.getName());
-        nameField.setFloatMode(FloatMode.DISABLED);
+        TextField nameField = new TextField(selectedMeter.getName());
 
         HBox targetBox = new HBox(nameVBox, nameField);
         targetBox.setSpacing(4);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        MFXButton ok = new MFXButton(I18n.getInstance().getString("jevistree.dialog.new.ok"));
+        Button ok = new Button(I18n.getInstance().getString("jevistree.dialog.new.ok"));
         HBox.setHgrow(ok, Priority.NEVER);
-        MFXButton cancel = new MFXButton(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
+        Button cancel = new Button(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
         HBox.setHgrow(cancel, Priority.NEVER);
 
         Separator sep1 = new Separator(Orientation.HORIZONTAL);

@@ -20,10 +20,7 @@
  */
 package org.jevis.jecc.tool;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -34,8 +31,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -60,7 +56,7 @@ public class NewClassDialog {
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
     public static String ICON_QUESTION = "1400874302_question_blue.png";
 
-    final MFXCheckbox iherit = new MFXCheckbox("Inherit:");
+    final CheckBox iherit = new CheckBox("Inherit:");
 
     private JEVisClass inherit = null;
     private String name;
@@ -94,10 +90,10 @@ public class NewClassDialog {
 
         HBox buttonPanel = new HBox();
 
-        final MFXButton ok = new MFXButton("OK");
+        final Button ok = new Button("OK");
         ok.setDefaultButton(true);
 
-        MFXButton cancel = new MFXButton("Cancel");
+        Button cancel = new Button("Cancel");
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);
@@ -107,15 +103,13 @@ public class NewClassDialog {
         buttonPanel.setMaxHeight(25);
 
         Label nameL = new Label("Name:");
-        final MFXTextField nameF = new MFXTextField();
-        nameF.setFloatMode(FloatMode.DISABLED);
+        final TextField nameF = new TextField();
         nameF.setPromptText("Enter new name here");
 
         final Label warning = new Label("Exists!");
         warning.setTextFill(Color.web("#CB5959"));
 
-        final MFXTextField heritB = new MFXTextField();
-        heritB.setFloatMode(FloatMode.DISABLED);
+        final TextField heritB = new TextField();
         heritB.setPromptText("Iherit class name");
         heritB.setDisable(true);
 

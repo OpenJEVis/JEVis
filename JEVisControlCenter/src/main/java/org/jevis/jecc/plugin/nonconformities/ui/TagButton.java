@@ -1,16 +1,13 @@
 package org.jevis.jecc.plugin.nonconformities.ui;
 
-import com.jfoenix.controls.JFXCheckBox;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Side;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
@@ -29,7 +26,7 @@ public class TagButton extends Button {
     HashMap<String, BooleanProperty> activeTags = new HashMap<>();
     ObservableList<String> allTags = FXCollections.observableArrayList();
 
-    private List<JFXCheckBox> boxes = new ArrayList<>();
+    private final List<CheckBox> boxes = new ArrayList<>();
 
     public TagButton(String text, ObservableList<String> entry, ObservableList<String> selected) {
         super(text);
@@ -78,7 +75,7 @@ public class TagButton extends Button {
         cm.getItems().addAll(selectAllMenuItem, deselectAllMenuItem);
 
         allTags.forEach(s -> {
-            JFXCheckBox cb = new JFXCheckBox(s);
+            CheckBox cb = new CheckBox(s);
             cb.setSelected(true);
             boxes.add(cb);
             cb.setOnAction(event -> {

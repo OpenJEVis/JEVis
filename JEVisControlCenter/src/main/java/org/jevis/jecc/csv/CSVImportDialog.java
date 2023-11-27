@@ -19,10 +19,7 @@
  */
 package org.jevis.jecc.csv;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -37,10 +34,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -76,20 +70,20 @@ public class CSVImportDialog {
     private static final Logger logger = LogManager.getLogger(CSVImportDialog.class);
 
     public static String ICON = "1403727005_gnome-mime-application-vnd.lotus-1-2-3.png";
-    final MFXButton ok = new MFXButton(I18n.getInstance().getString("csv.ok"));
-    final MFXButton automatic = new MFXButton(I18n.getInstance().getString("csv.automatic"));//, JEConfig.getImage("1403018303_Refresh.png", 15, 15));
-    final MFXButton fileButton = new MFXButton(I18n.getInstance().getString("csv.file_select"));
-    final MFXButton saveFormat = new MFXButton(I18n.getInstance().getString("csv.save_formate"));
+    final Button ok = new Button(I18n.getInstance().getString("csv.ok"));
+    final Button automatic = new Button(I18n.getInstance().getString("csv.automatic"));//, JEConfig.getImage("1403018303_Refresh.png", 15, 15));
+    final Button fileButton = new Button(I18n.getInstance().getString("csv.file_select"));
+    final Button saveFormat = new Button(I18n.getInstance().getString("csv.save_formate"));
     final NumberSpinner headerRowCount = new NumberSpinner(BigDecimal.valueOf(0), BigDecimal.valueOf(1));
     final ToggleGroup textDiGroup = new ToggleGroup();
     final AnchorPane tableRootPane = new AnchorPane();
     private final double LEFT_PADDING = 30;
-    private final MFXComboBox<Separator> separatorComboBox = new MFXComboBox<>(FXCollections.observableArrayList(Separator.values()));
-    private final MFXComboBox<Enclosed> enclosedComboBox = new MFXComboBox<>(FXCollections.observableArrayList(Enclosed.values()));
+    private final ComboBox<Separator> separatorComboBox = new ComboBox<>(FXCollections.observableArrayList(Separator.values()));
+    private final ComboBox<Enclosed> enclosedComboBox = new ComboBox<>(FXCollections.observableArrayList(Enclosed.values()));
     private final NotificationPane notificationPane = new NotificationPane();
-    private final MFXTextField otherSeparatorField = new MFXTextField();
-    private final MFXTextField otherEnclosedField = new MFXTextField();
-    private final MFXTextField customNoteField = new MFXTextField();
+    private final TextField otherSeparatorField = new TextField();
+    private final TextField otherEnclosedField = new TextField();
+    private final TextField customNoteField = new TextField();
     ObservableList<String> formatOptions;
     private String _encloser = "";
     private String separator = "";
@@ -112,11 +106,6 @@ public class CSVImportDialog {
         Label sepTextL = new Label(I18n.getInstance().getString("csv.separator.text"));
 
         //TODO JFX17
-        otherSeparatorField.setFloatMode(FloatMode.DISABLED);
-        otherEnclosedField.setFloatMode(FloatMode.DISABLED);
-        customNoteField.setFloatMode(FloatMode.DISABLED);
-
-        separatorComboBox.setFloatMode(FloatMode.DISABLED);
         separatorComboBox.setConverter(new StringConverter<Separator>() {
             @Override
             public String toString(Separator object) {
@@ -136,7 +125,7 @@ public class CSVImportDialog {
 
         otherEnclosedField.setDisable(true);
         otherSeparatorField.setDisable(true);
-        separatorComboBox.selectItem(Separator.Semicolon);
+        separatorComboBox.getSelectionModel().select(Separator.Semicolon);
         separatorComboBox.setOnAction(event -> {
             if (separatorComboBox.getValue() == Separator.OTHER) {
                 otherSeparatorField.setDisable(false);
@@ -148,7 +137,6 @@ public class CSVImportDialog {
         });
 
         //TODO JFX17
-        enclosedComboBox.setFloatMode(FloatMode.DISABLED);
         enclosedComboBox.setConverter(new StringConverter<Enclosed>() {
             @Override
             public String toString(Enclosed object) {
@@ -167,7 +155,7 @@ public class CSVImportDialog {
             }
         });
 
-        enclosedComboBox.selectItem(Enclosed.NONE);
+        enclosedComboBox.getSelectionModel().select(Enclosed.NONE);
         enclosedComboBox.setOnAction(event -> {
             Platform.runLater(() -> {
                 if (enclosedComboBox.getValue() == Enclosed.OTHER) {
@@ -277,7 +265,7 @@ public class CSVImportDialog {
         ok.setDefaultButton(true);
         saveFormat.setDisable(true);//Disabled as long its not working
 
-        MFXButton cancel = new MFXButton(I18n.getInstance().getString("csv.cancel"));
+        Button cancel = new Button(I18n.getInstance().getString("csv.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().setAll(ok, cancel);
@@ -412,8 +400,7 @@ public class CSVImportDialog {
 
         ObservableList<Charset> options = FXCollections.observableArrayList(Charset.availableCharsets().values());
 
-        final MFXComboBox<Charset> charsetBox = new MFXComboBox<>(options);
-        charsetBox.setFloatMode(FloatMode.DISABLED);
+        final ComboBox<Charset> charsetBox = new ComboBox<>(options);
 
         //TODO JFX17
         charsetBox.setConverter(new StringConverter<Charset>() {
@@ -437,7 +424,7 @@ public class CSVImportDialog {
                 updateTree(true);
             }
         });
-        charsetBox.selectItem(Charset.defaultCharset());
+        charsetBox.getSelectionModel().select(Charset.defaultCharset());
 
         formatOptions = FXCollections.observableArrayList();
         for (Format format : Format.values()) {
@@ -445,8 +432,7 @@ public class CSVImportDialog {
         }
 
 //        formatOptions = FXCollections.observableArrayList("MS Office, ARA01, Custom");
-        final MFXComboBox<String> formats = new MFXComboBox<>(formatOptions);
-        formats.setFloatMode(FloatMode.DISABLED);
+        final ComboBox<String> formats = new ComboBox<>(formatOptions);
         formats.getSelectionModel().selectFirst();
 
         Node title = buildTitle(I18n.getInstance().getString("csv.tab.title.field_options"));
@@ -473,7 +459,7 @@ public class CSVImportDialog {
                     CSVAnalyser csvAnalyser = new CSVAnalyser(_csvFile);
                     setEncloser(csvAnalyser.getEnclosed());
                     setSeparator(csvAnalyser.getSeparator());
-                    formats.selectItem(Format.Custom.name());
+                    formats.getSelectionModel().select(Format.Custom.name());
                     table.getParser().setEnclosed(csvAnalyser.getEnclosed());
                     table.getParser().setSeparator(csvAnalyser.getSeparator());
                     updateTree(true);
@@ -519,7 +505,7 @@ public class CSVImportDialog {
 
                             setEncloser(analyse.getEnclosed());
                             setSeparator(analyse.getSeparator());
-                            formats.selectItem(Format.Custom.name());
+                            formats.getSelectionModel().select(Format.Custom.name());
 
                             updateTree(true);
                         } catch (Exception ex) {
@@ -585,19 +571,19 @@ public class CSVImportDialog {
         _encloser = endclosed;
         switch (endclosed) {
             case "\"":
-                enclosedComboBox.selectItem(Enclosed.Ditto);
+                enclosedComboBox.getSelectionModel().select(Enclosed.Ditto);
                 break;
             case "'":
-                enclosedComboBox.selectItem(Enclosed.Apostrophe);
+                enclosedComboBox.getSelectionModel().select(Enclosed.Apostrophe);
                 break;
             case "`":
-                enclosedComboBox.selectItem(Enclosed.Gravis);
+                enclosedComboBox.getSelectionModel().select(Enclosed.Gravis);
                 break;
             case "":
-                enclosedComboBox.selectItem(Enclosed.NONE);
+                enclosedComboBox.getSelectionModel().select(Enclosed.NONE);
                 break;
             default:
-                enclosedComboBox.selectItem(Enclosed.OTHER);
+                enclosedComboBox.getSelectionModel().select(Enclosed.OTHER);
                 otherEnclosedField.setText(_encloser);
                 break;
         }
@@ -634,19 +620,19 @@ public class CSVImportDialog {
 
         switch (sep) {
             case ";":
-                separatorComboBox.selectItem(Separator.Semicolon);
+                separatorComboBox.getSelectionModel().select(Separator.Semicolon);
                 break;
             case ",":
-                separatorComboBox.selectItem(Separator.Comma);
+                separatorComboBox.getSelectionModel().select(Separator.Comma);
                 break;
             case " ":
-                separatorComboBox.selectItem(Separator.Space);
+                separatorComboBox.getSelectionModel().select(Separator.Space);
                 break;
             case "\t":
-                separatorComboBox.selectItem(Separator.Tab);
+                separatorComboBox.getSelectionModel().select(Separator.Tab);
                 break;
             default:
-                separatorComboBox.selectItem(Separator.OTHER);
+                separatorComboBox.getSelectionModel().select(Separator.OTHER);
                 otherSeparatorField.setText(sep);
                 break;
         }
@@ -674,7 +660,7 @@ public class CSVImportDialog {
         updateTree(true);
 
 //        if (sepGroup.getSelectedToggle() != null) {
-//            MFXRadioButton selecedt = (MFXRadioButton) sepGroup.getSelectedToggle();
+//            RadioButton selecedt = (MFXRadioButton) sepGroup.getSelectedToggle();
 //            if (selecedt.equals(semicolon)) {
 //                separator = ";";
 //            } else if (selecedt.equals(comma)) {

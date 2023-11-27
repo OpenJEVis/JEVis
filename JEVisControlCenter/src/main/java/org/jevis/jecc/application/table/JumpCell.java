@@ -1,7 +1,8 @@
 package org.jevis.jecc.application.table;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.HBox;
@@ -31,8 +32,8 @@ public class JumpCell<T> implements Callback<TableColumn<T, SampleData>, TableCe
         return new TableCell<T, SampleData>() {
             final HBox hBox = new HBox();
 
-            final MFXButton manSampleButton = new MFXButton("", ControlCenter.getSVGImage(Icon.MANUAL_DATA_ENTRY, 20, 20));
-            MFXButton analysisLinkButton = new MFXButton("", ControlCenter.getSVGImage(Icon.GRAPH, 20, 20));
+            final Button manSampleButton = new Button("", ControlCenter.getSVGImage(Icon.MANUAL_DATA_ENTRY, 20, 20));
+            Button analysisLinkButton = new Button("", ControlCenter.getSVGImage(Icon.GRAPH, 20, 20));
 
             @Override
             protected void updateItem(SampleData item, boolean empty) {

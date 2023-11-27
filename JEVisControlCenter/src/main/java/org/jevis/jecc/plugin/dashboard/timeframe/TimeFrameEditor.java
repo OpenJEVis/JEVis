@@ -1,17 +1,16 @@
 package org.jevis.jecc.plugin.dashboard.timeframe;
 
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.control.DatePicker;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Popup;
-import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.lang.reflect.Method;
 import java.time.LocalDate;
-import java.time.YearMonth;
 
 public class TimeFrameEditor extends Popup {
 
@@ -29,13 +28,13 @@ public class TimeFrameEditor extends Popup {
 //        }
     }
 
-    MFXDatePicker datePicker;
+    DatePicker datePicker;
 
     public TimeFrameEditor(TimeFrame timeFrame, Interval interval) {
         super();
         this.intervalProperty = new SimpleObjectProperty<>(this, "interval", interval);
         this.timeFrame = timeFrame;
-        this.datePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+        this.datePicker = new DatePicker(LocalDate.now());
         //TODO JFX17
         //this.datePicker.setShowWeekNumbers(true);
 //        JFXDatePickerSkin datePickerSkin = new JFXDatePickerSkin(this.datePicker);

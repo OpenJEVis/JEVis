@@ -20,13 +20,14 @@
  */
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.image.Image;
@@ -103,7 +104,7 @@ public class AboutDialog {
 
         HBox buttonPanel = new HBox();
 
-        MFXButton cancel = new MFXButton("Close");
+        Button cancel = new Button("Close");
         cancel.setDefaultButton(true);
 
         buttonPanel.getChildren().addAll(cancel);

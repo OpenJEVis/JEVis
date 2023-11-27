@@ -20,11 +20,7 @@
  */
 package org.jevis.jecc.plugin.unit;
 
-import com.jfoenix.controls.JFXSlider;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -35,7 +31,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -52,7 +48,7 @@ import org.joda.time.Period;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class SamplingRateUI extends MFXComboBox<Period> {
+public class SamplingRateUI extends ComboBox<Period> {
 
     private final Period FREE_SELECTION = Period.years(999);//Workaround, value to show the selection
     private final Period CANCELD_SELECTION = Period.years(998);//workaround, value if the new persio was cancled
@@ -85,7 +81,7 @@ public class SamplingRateUI extends MFXComboBox<Period> {
 
             @Override
             public Period fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -93,7 +89,7 @@ public class SamplingRateUI extends MFXComboBox<Period> {
             this.getItems().add(period);
         }
 
-        this.selectItem(period);
+        this.getSelectionModel().select(period);
 
 //        this.valueProperty().bindBidirectional(periodProperty);
         this.valueProperty().addListener(new ChangeListener<Period>() {
@@ -108,7 +104,7 @@ public class SamplingRateUI extends MFXComboBox<Period> {
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
-                                SamplingRateUI.this.selectItem(periodProperty.getValue());
+                                SamplingRateUI.this.getSelectionModel().select(periodProperty.getValue());
                             }
                         });
 
@@ -117,7 +113,7 @@ public class SamplingRateUI extends MFXComboBox<Period> {
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
-                                SamplingRateUI.this.selectItem(oldValue);
+                                SamplingRateUI.this.getSelectionModel().select(oldValue);
                             }
                         });
 
@@ -259,13 +255,12 @@ public class SamplingRateUI extends MFXComboBox<Period> {
         final Label l_minutesLabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.minutes") + ":");
         final Label l_secondsLabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.seconds") + ":");
         final Label l_periodLabel = new Label(I18n.getInstance().getString("plugin.unit.newperiod.iso") + ":");
-        final JFXSlider sliderMonth = new JFXSlider();
-        final JFXSlider sliderWeek = new JFXSlider();
-        final JFXSlider sliderHours = new JFXSlider();
-        final JFXSlider sliderMinutes = new JFXSlider();
-        final JFXSlider sliderSeconds = new JFXSlider();
-        final MFXTextField fieldISOString = new MFXTextField("");
-        fieldISOString.setFloatMode(FloatMode.DISABLED);
+        final Slider sliderMonth = new Slider();
+        final Slider sliderWeek = new Slider();
+        final Slider sliderHours = new Slider();
+        final Slider sliderMinutes = new Slider();
+        final Slider sliderSeconds = new Slider();
+        final TextField fieldISOString = new TextField("");
         final ObjectProperty<Period> newPeriod = new SimpleObjectProperty<>(Period.minutes(15));
 
         sliderMonth.setMin(0);
@@ -306,11 +301,11 @@ public class SamplingRateUI extends MFXComboBox<Period> {
         HBox buttonBar = new HBox();
         Region spaceBetween = new Region();
         Stage dia = new Stage();
-        MFXButton okButton = new MFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.ok").toUpperCase());
-        MFXButton calcelButton = new MFXButton(I18n.getInstance().getString("plugin.graph.dialog.new.cancel").toUpperCase());
+        Button okButton = new Button(I18n.getInstance().getString("plugin.graph.dialog.new.ok").toUpperCase());
+        Button calcelButton = new Button(I18n.getInstance().getString("plugin.graph.dialog.new.cancel").toUpperCase());
         okButton.setDefaultButton(true);
         okButton.setAlignment(Pos.BASELINE_RIGHT);
-//        okButton.setButtonType(MFXButton.ButtonType.FLAT);
+//        okButton.setButtonType(Button.ButtonType.FLAT);
         okButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -330,7 +325,7 @@ public class SamplingRateUI extends MFXComboBox<Period> {
 
         //localize
 //        Label enableLabel = new Label("Has fix sample rate:");
-//        final JFXCheckBox enable = new JFXCheckBox("Set fixed sample rate");
+//        final CheckBox enable = new CheckBox("Set fixed sample rate");
         gp.setHgap(5);
         gp.setVgap(5);
         gp.setPadding(new Insets(10, 10, 10, 10));

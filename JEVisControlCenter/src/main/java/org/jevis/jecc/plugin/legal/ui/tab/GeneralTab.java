@@ -1,44 +1,37 @@
 package org.jevis.jecc.plugin.legal.ui.tab;
 
-import com.jfoenix.controls.JFXCheckBox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.plugin.legal.data.IndexOfLegalProvisions;
 import org.jevis.jecc.plugin.legal.data.ObligationData;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 
 public class GeneralTab extends Tab {
-    private final MFXDatePicker f_issueDate = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
-    private final MFXDatePicker f_activeVersion = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
-    private final MFXDatePicker f_dateOfExamination = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+    private final DatePicker f_issueDate = new DatePicker(LocalDate.now());
+    private final DatePicker f_activeVersion = new DatePicker(LocalDate.now());
+    private final DatePicker f_dateOfExamination = new DatePicker(LocalDate.now());
 
-    private final JFXCheckBox f_relevance = new JFXCheckBox();
+    private final CheckBox f_relevance = new CheckBox();
 
-    private final MFXTextField f_Nr = new MFXTextField();
-    private final MFXTextField f_title = new MFXTextField();
-    private final MFXTextField f_designation = new MFXTextField();
+    private final TextField f_Nr = new TextField();
+    private final TextField f_title = new TextField();
+    private final TextField f_designation = new TextField();
     private final TextArea f_description = new TextArea();
 
-    private final MFXComboBox f_category = new MFXComboBox<>();
-    private final MFXComboBox f_scope = new MFXComboBox<>();
+    private final ComboBox f_category = new ComboBox<>();
+    private final ComboBox f_scope = new ComboBox<>();
 
-    private final MFXTextField f_Attachment = new MFXTextField();
+    private final TextField f_Attachment = new TextField();
 
     private final TextArea f_importanceForTheCompany = new TextArea();
-    private final MFXTextField f_link = new MFXTextField();
+    private final TextField f_link = new TextField();
 
 
     private final Label l_title = new Label();
@@ -64,8 +57,6 @@ public class GeneralTab extends Tab {
     @Override
     public void initTab(ObligationData data) {
         this.obligationData = data;
-        f_category.setFloatMode(FloatMode.DISABLED);
-        f_scope.setFloatMode(FloatMode.DISABLED);
 
         GridPane gridPane = new GridPane();
         notificationPane.setContent(gridPane);

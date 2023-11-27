@@ -385,7 +385,7 @@ public class AnalysisDataModel {
 ////        ProgressDialog pd = new ProgressDialog(service);
 ////        pd.setHeaderText(I18n.getInstance().getString("graph.progress.header"));
 ////        pd.setTitle(I18n.getInstance().getString("graph.progress.title"));
-////        MFXButton cancelButton = new MFXButton(I18n.getInstance().getString("attribute.editor.cancel"));
+////        Button cancelButton = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
 ////        cancelButton.setOnAction(event -> service.cancel());
 ////        pd.getDialogPane().setContent(cancelButton);
 ////

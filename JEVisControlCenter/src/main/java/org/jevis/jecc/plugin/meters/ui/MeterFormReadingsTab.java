@@ -1,13 +1,14 @@
 package org.jevis.jecc.plugin.meters.ui;
 
-import com.jfoenix.controls.JFXTimePicker;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import jfxtras.scene.control.LocalTimePicker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -23,8 +24,8 @@ import org.jevis.jecc.plugin.meters.data.JEVisTypeWrapper;
 import org.jevis.jecc.plugin.meters.data.MeterData;
 import org.joda.time.DateTime;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.YearMonth;
 
 
 public class MeterFormReadingsTab extends Tab implements MeterFormTab {
@@ -38,8 +39,8 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
     private final YearBox yearBox = new YearBox(null);
     private final DayBox dayBox = new DayBox();
     private final MonthBox monthBox = new MonthBox();
-    private final MFXDatePicker datePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
-    private final JFXTimePicker timePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
+    private final DatePicker datePicker = new DatePicker(LocalDate.now());
+    private final LocalTimePicker timePicker = new LocalTimePicker(LocalTime.of(0, 0, 0));
 
     private final Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
     private final TargetHelper targetHelper;
@@ -100,9 +101,9 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
                         datePicker.valueProperty().get().getYear(),
                         datePicker.valueProperty().get().getMonthValue(),
                         datePicker.valueProperty().get().getDayOfMonth(),
-                        timePicker.valueProperty().get().getHour(),
-                        timePicker.valueProperty().get().getMinute(),
-                        timePicker.valueProperty().get().getSecond());
+                        timePicker.getLocalTime().getHour(),
+                        timePicker.getLocalTime().getMinute(),
+                        timePicker.getLocalTime().getSecond());
                 break;
         }
         return ts;
@@ -168,9 +169,9 @@ public class MeterFormReadingsTab extends Tab implements MeterFormTab {
         Label newMeter_Label = new Label("Neuer Zählerstand");
 
 
-        MFXTextField oldMeter_Value = new MFXTextField();
+        TextField oldMeter_Value = new TextField();
 
-        MFXTextField newMeter_Value = new MFXTextField();
+        TextField newMeter_Value = new TextField();
 
 
         // gridPane.add(gridPane, 0, rowcount, 4, 1);

@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.action.ui;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -28,9 +29,9 @@ import java.util.stream.Collectors;
 
 public class TableSumPanel extends GridPane {
     ActionData fakeNames = new ActionData();
-    MFXTextField f_sumInvestment = new MFXTextField();
-    MFXTextField f_sumSavingsYear = new MFXTextField();
-    MFXTextField f_sumSavingEnergy = new MFXTextField();
+    TextField f_sumInvestment = new TextField();
+    TextField f_sumSavingsYear = new TextField();
+    TextField f_sumSavingEnergy = new TextField();
     Label l_sumLabel = new Label(I18n.getInstance().getString("plugin.action.sumtable.total"));
     Label l_sumInvestment = new Label(fakeNames.npv.get().investment.getName());
     Label l_sumSavingsYear = new Label(fakeNames.npv.get().einsparung.getName());
@@ -44,12 +45,12 @@ public class TableSumPanel extends GridPane {
         }
     };
     UnitDoubleConverter unitDoubleConverter = new UnitDoubleConverter();
-    private Map<String, MFXTextField> columns = new HashMap<>();
-    private ActionPlanData actionPlan;
+    private final Map<String, TextField> columns = new HashMap<>();
+    private final ActionPlanData actionPlan;
 
-    private TableView<StringProperty> tableView = new TableView();
-    private Map<String, StringProperty> valueMap = new HashMap<>();
-    private Statistics statistics;
+    private final TableView<StringProperty> tableView = new TableView();
+    private final Map<String, StringProperty> valueMap = new HashMap<>();
+    private final Statistics statistics;
 
 
     public TableSumPanel(ActionPlanData actionPlan, ObservableList<ActionData> data, Statistics statistics) {

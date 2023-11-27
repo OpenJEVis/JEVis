@@ -1,26 +1,26 @@
 package org.jevis.jecc.application.tools;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.TextField;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
 /**
- * Textfield implementation that accepts formatted number and stores them in a
+ * TextField implementation that accepts formatted number and stores them in a
  * BigDecimal property The user input is formatted when the focus is lost or the
  * user hits RETURN.
  *
  * @author Thomas Bolz
  */
-public class NumberTextField extends MFXTextField {
+public class NumberTextField extends TextField {
 
     private final NumberFormat nf;
     private final ObjectProperty<BigDecimal> number = new SimpleObjectProperty<>();
@@ -36,7 +36,6 @@ public class NumberTextField extends MFXTextField {
 
     public NumberTextField(BigDecimal value, NumberFormat nf) {
         super();
-        this.setFloatMode(FloatMode.DISABLED);
         this.nf = nf;
         initHandlers();
         setNumber(value);

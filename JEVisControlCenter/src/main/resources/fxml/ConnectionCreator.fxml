@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXPasswordField?>
-<?import io.github.palexdev.materialfx.controls.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -30,17 +29,17 @@
               <Label text="Connection String:" GridPane.rowIndex="5"/>
               <Label text="Schema:" GridPane.rowIndex="2"/>
               <Label text="Username:" GridPane.rowIndex="3"/>
-              <MFXTextField fx:id="host" onKeyTyped="#onChanged" promptText="start.my.jevis.de"
+              <TextField fx:id="host" onKeyTyped="#onChanged" promptText="start.my.jevis.de"
                             GridPane.columnIndex="1"/>
-              <MFXTextField fx:id="port" onKeyTyped="#onChanged" promptText="3306" GridPane.columnIndex="1"
+              <TextField fx:id="port" onKeyTyped="#onChanged" promptText="3306" GridPane.columnIndex="1"
                             GridPane.rowIndex="1"/>
-              <MFXTextField fx:id="schema" onKeyTyped="#onChanged" promptText="jevis" GridPane.columnIndex="1"
+              <TextField fx:id="schema" onKeyTyped="#onChanged" promptText="jevis" GridPane.columnIndex="1"
                             GridPane.rowIndex="2"/>
-              <MFXTextField fx:id="user" onKeyTyped="#onChanged" promptText="jevis" GridPane.columnIndex="1"
+              <TextField fx:id="user" onKeyTyped="#onChanged" promptText="jevis" GridPane.columnIndex="1"
                             GridPane.rowIndex="3"/>
               <JFXPasswordField fx:id="passwd" onKeyTyped="#onChanged" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-              <MFXTextField fx:id="result" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
-              <MFXButton fx:id="CopyCon" mnemonicParsing="false" onAction="#onCopy" text="Copy to clipboard"
+              <TextField fx:id="result" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+              <Button fx:id="CopyCon" mnemonicParsing="false" onAction="#onCopy" text="Copy to clipboard"
                          GridPane.columnIndex="1" GridPane.rowIndex="6"/>
           </children>
          <opaqueInsets>

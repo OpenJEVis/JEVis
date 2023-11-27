@@ -19,13 +19,14 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,7 +48,7 @@ public class PasswordEditor implements AttributeEditor {
     private final HBox box = new HBox();
     public JEVisAttribute _attribute;
     private boolean _hasChanged = false;
-    private MFXButton _setPW;
+    private Button _setPW;
     private boolean _readOnly = true;
     private boolean initialized = false;
 
@@ -119,7 +120,7 @@ public class PasswordEditor implements AttributeEditor {
 
     private void buildTextField() {
         if (_setPW == null) {
-            _setPW = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.password.button"),
+            _setPW = new Button(I18n.getInstance().getString("plugin.object.attribute.password.button"),
                     ControlCenter.getImage("1415303685_lock-s1.png", 18, 18));
             _setPW.setDisable(_readOnly);
             _setPW.setOnAction(new EventHandler<ActionEvent>() {

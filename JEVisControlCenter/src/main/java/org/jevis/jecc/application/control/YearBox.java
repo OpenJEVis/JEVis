@@ -1,16 +1,17 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import org.joda.time.DateTime;
 
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class YearBox extends MFXComboBox<Integer> {
+public class YearBox extends ComboBox<Integer> {
 
     private MonthBox monthBox;
     private DayBox dayBox;
@@ -30,9 +31,9 @@ public class YearBox extends MFXComboBox<Integer> {
         Integer year = DateTime.now().getYear();
 
         if (nextTS != null) {
-            selectItem(nextTS.getYear());
+            getSelectionModel().select(nextTS.getYear());
         } else {
-            selectItem(year);
+            getSelectionModel().select(year);
         }
     }
 
@@ -56,7 +57,7 @@ public class YearBox extends MFXComboBox<Integer> {
 
     public void setTS(DateTime nextTS) {
         if (nextTS != null) {
-            Platform.runLater(() -> selectItem(Integer.valueOf(nextTS.getYear())));
+            Platform.runLater(() -> getSelectionModel().select(Integer.valueOf(nextTS.getYear())));
         }
     }
 }

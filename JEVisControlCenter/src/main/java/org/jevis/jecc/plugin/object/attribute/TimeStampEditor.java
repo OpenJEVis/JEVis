@@ -19,11 +19,12 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
+import javafx.scene.control.DatePicker;
 import javafx.scene.layout.HBox;
 import jfxtras.scene.control.LocalTimePicker;
 import org.apache.logging.log4j.LogManager;
@@ -44,7 +45,7 @@ import java.time.ZoneId;
 public class TimeStampEditor implements AttributeEditor {
 
     private static final Logger logger = LogManager.getLogger(TimeStampEditor.class);
-    private final MFXDatePicker pickerDate = new MFXDatePicker();
+    private final DatePicker pickerDate = new DatePicker();
     private final LocalTimePicker pickerTime = new LocalTimePicker();
     //    private final LocalDateTimeTextField picker = new LocalDateTimeTextField();
     private final HBox editor = new HBox();

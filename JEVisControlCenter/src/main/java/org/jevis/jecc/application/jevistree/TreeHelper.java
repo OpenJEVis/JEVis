@@ -20,11 +20,7 @@
  */
 package org.jevis.jecc.application.jevistree;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -262,7 +258,7 @@ public class TreeHelper {
                     rawData.setSelected(false);
 
                     Label dateLabelFrom = new Label(I18n.getInstance().getString("tree.treehelper.from"));
-                    MFXDatePicker datePickerFrom = new MFXDatePicker();
+                    DatePicker datePickerFrom = new DatePicker();
                     LocalTimePicker timePickerFrom = new LocalTimePicker();
 //                    timePickerFrom.set24HourView(true);
 //                    timePickerFrom.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
@@ -281,7 +277,7 @@ public class TreeHelper {
                     });
 
                     Label dateLabelTo = new Label(I18n.getInstance().getString("tree.treehelper.to"));
-                    MFXDatePicker datePickerTo = new MFXDatePicker();
+                    DatePicker datePickerTo = new DatePicker();
                     LocalTimePicker timePickerTo = new LocalTimePicker();
 //                    timePickerTo.set24HourView(true);
 //                    timePickerTo.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
@@ -540,7 +536,7 @@ public class TreeHelper {
                         cancelButton.setCancelButton(true);
 
                         Label dateLabelFrom = new Label(I18n.getInstance().getString("tree.treehelper.from"));
-                        MFXDatePicker datePickerFrom = new MFXDatePicker();
+                        DatePicker datePickerFrom = new DatePicker();
                         LocalTimePicker timePickerFrom = new LocalTimePicker();
                         // timePickerFrom.set24HourView(true);
                         // timePickerFrom.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
@@ -638,7 +634,7 @@ public class TreeHelper {
                     gp.setVgap(6);
 
                     Label dateLabelFrom = new Label(I18n.getInstance().getString("tree.treehelper.from"));
-                    MFXDatePicker datePickerFrom = new MFXDatePicker();
+                    DatePicker datePickerFrom = new DatePicker();
                     LocalTimePicker timePickerFrom = new LocalTimePicker();
 //                    timePickerFrom.set24HourView(true);
 //                    timePickerFrom.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
@@ -657,7 +653,7 @@ public class TreeHelper {
                     });
 
                     Label dateLabelTo = new Label(I18n.getInstance().getString("tree.treehelper.to"));
-                    MFXDatePicker datePickerTo = new MFXDatePicker();
+                    DatePicker datePickerTo = new DatePicker();
                     LocalTimePicker timePickerTo = new LocalTimePicker();
 //                    timePickerTo.set24HourView(true);
 //                    timePickerTo.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
@@ -805,13 +801,12 @@ public class TreeHelper {
                     gp.setHgap(4);
                     gp.setVgap(6);
                     Label multiplierLabel = new Label("Multiplier");
-                    MFXTextField multiplier = new MFXTextField();
-                    multiplier.setFloatMode(FloatMode.DISABLED);
+                    TextField multiplier = new TextField();
                     Label differentialLabel = new Label("Differential");
                     ToggleSwitchPlus differential = new ToggleSwitchPlus();
                     differential.setSelected(false);
                     Label dateLabel = new Label("Date");
-                    MFXDatePicker datePicker = new MFXDatePicker();
+                    DatePicker datePicker = new DatePicker();
                     LocalTimePicker timePicker = new LocalTimePicker();
 //                    timePicker.set24HourView(true);
 //                    timePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
@@ -915,14 +910,14 @@ public class TreeHelper {
                     final Label l_example = new Label(I18n.getInstance().getString("attribute.editor.unit.symbol"));
                     final Label l_SampleRate = new Label(I18n.getInstance().getString("attribute.editor.unit.samplingrate"));
 
-                    MFXCheckbox setUnit = new MFXCheckbox("Unit");
+                    CheckBox setUnit = new CheckBox("Unit");
                     setUnit.setSelected(true);
-                    MFXCheckbox setPeriod = new MFXCheckbox("Period");
-                    MFXCheckbox setNewTypePeriod = new MFXCheckbox("New Type Period");
+                    CheckBox setPeriod = new CheckBox("Period");
+                    CheckBox setNewTypePeriod = new CheckBox("New Type Period");
                     setPeriod.setSelected(true);
                     setNewTypePeriod.setSelected(true);
 
-                    MFXDatePicker pickerDate = new MFXDatePicker();
+                    DatePicker pickerDate = new DatePicker();
                     LocalTimePicker pickerTime = new LocalTimePicker();
                     pickerDate.setPrefWidth(120d);
                     pickerTime.setPrefWidth(110d);
@@ -1051,40 +1046,32 @@ public class TreeHelper {
                     gp.setHgap(4);
                     gp.setVgap(6);
 
-                    MFXCheckbox auto = new MFXCheckbox("Automatische Festlegung");
+                    CheckBox auto = new CheckBox("Automatische Festlegung");
 
                     Label presetDateLabel = new Label("Zeitbereich zur Bestimmung");
                     PresetDateBox presetDateBox = new PresetDateBox(tree.getJEVisDataSource(), null);
-                    MFXCheckbox minIsZero = new MFXCheckbox("Untere Grenze ist immer 0");
+                    CheckBox minIsZero = new CheckBox("Untere Grenze ist immer 0");
 
                     Label limit1MinSubLabel = new Label("Toleranz der unteren Grenze [%]");
-                    MFXTextField limit1MinSub = new MFXTextField("0");
-                    limit1MinSub.setFloatMode(FloatMode.DISABLED);
+                    TextField limit1MinSub = new TextField("0");
                     Label limit1MaxAddLabel = new Label("Toleranz der oberen Grenze [%]");
-                    MFXTextField limit1MaxAdd = new MFXTextField("15");
-                    limit1MaxAdd.setFloatMode(FloatMode.DISABLED);
+                    TextField limit1MaxAdd = new TextField("15");
 
                     Label limit1MinTimesXLimit2MinLabel = new Label("Vielfaches des niedrigesten Wertes des Zeitbereichs");
-                    MFXTextField limit1MinTimesXLimit2Min = new MFXTextField("2");
-                    limit1MinTimesXLimit2Min.setFloatMode(FloatMode.DISABLED);
+                    TextField limit1MinTimesXLimit2Min = new TextField("2");
 
                     Label limit1MaxTimesXLimit2MaxLabel = new Label("Vielfaches des höchsten Wertes des Zeitbereichs");
-                    MFXTextField limit1MaxTimesXLimit2Max = new MFXTextField("2");
-                    limit1MaxTimesXLimit2Max.setFloatMode(FloatMode.DISABLED);
+                    TextField limit1MaxTimesXLimit2Max = new TextField("2");
 
                     Label limit1MinLabel = new Label("Limit 1 Min");
-                    MFXTextField limit1Min = new MFXTextField();
-                    limit1Min.setFloatMode(FloatMode.DISABLED);
+                    TextField limit1Min = new TextField();
                     Label limit1MaxLabel = new Label("Limit 1 Max");
-                    MFXTextField limit1Max = new MFXTextField();
-                    limit1Max.setFloatMode(FloatMode.DISABLED);
+                    TextField limit1Max = new TextField();
 
                     Label limit2MinLabel = new Label("Limit 2 Min");
-                    MFXTextField limit2Min = new MFXTextField();
-                    limit2Min.setFloatMode(FloatMode.DISABLED);
+                    TextField limit2Min = new TextField();
                     Label limit2MaxLabel = new Label("Limit 2 Max");
-                    MFXTextField limit2Max = new MFXTextField();
-                    limit2Max.setFloatMode(FloatMode.DISABLED);
+                    TextField limit2Max = new TextField();
 
                     auto.selectedProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue) {
@@ -2101,8 +2088,7 @@ public class TreeHelper {
                     AlphanumComparator ac = new AlphanumComparator();
                     jeVisClassesStrings.sort(ac);
                     jeVisClassesStrings.add(0, "All");
-                    MFXComboBox<String> jeVisClassComboBox = new MFXComboBox<>(FXCollections.observableList(jeVisClassesStrings));
-                    jeVisClassComboBox.setFloatMode(FloatMode.DISABLED);
+                    ComboBox<String> jeVisClassComboBox = new ComboBox<>(FXCollections.observableList(jeVisClassesStrings));
                     jeVisClassComboBox.getSelectionModel().selectFirst();
                     vBox.getChildren().addAll(qLabel, jeVisClassComboBox);
 
@@ -2283,12 +2269,11 @@ public class TreeHelper {
         Alert warning = new Alert(AlertType.WARNING);
         TopMenu.applyActiveTheme(warning.getDialogPane().getScene());
 
-        MFXTextField textField = new MFXTextField();
-        textField.setFloatMode(FloatMode.DISABLED);
+        TextField textField = new TextField();
         Label message = new Label("You really sure you know what you're doing? Move all data/clean data samples between start and end their period x field");
 
         Label dateLabelFrom = new Label(I18n.getInstance().getString("tree.treehelper.from"));
-        MFXDatePicker datePickerFrom = new MFXDatePicker();
+        DatePicker datePickerFrom = new DatePicker();
         LocalTimePicker timePickerFrom = new LocalTimePicker();
 //        timePickerFrom.set24HourView(true);
 //        timePickerFrom.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
@@ -2307,7 +2292,7 @@ public class TreeHelper {
         });
 
         Label dateLabelTo = new Label(I18n.getInstance().getString("tree.treehelper.to"));
-        MFXDatePicker datePickerTo = new MFXDatePicker();
+        DatePicker datePickerTo = new DatePicker();
         LocalTimePicker timePickerTo = new LocalTimePicker();
 //        timePickerTo.set24HourView(true);
 //        timePickerTo.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
@@ -2325,11 +2310,11 @@ public class TreeHelper {
             }
         });
 
-        MFXCheckbox correctUTC = new MFXCheckbox("Correct UTC diff");
-        MFXCheckbox dataObjectsCheckBox = new MFXCheckbox("Data Objects");
-        MFXCheckbox cleanDataObjectsCheckBox = new MFXCheckbox("Clean Data Objects");
-        MFXCheckbox onlyConversionToDiffObjectsCheckBox = new MFXCheckbox("Only Conversion To Diff Clean Objects");
-        MFXCheckbox allObjects = new MFXCheckbox("All Objects");
+        CheckBox correctUTC = new CheckBox("Correct UTC diff");
+        CheckBox dataObjectsCheckBox = new CheckBox("Data Objects");
+        CheckBox cleanDataObjectsCheckBox = new CheckBox("Clean Data Objects");
+        CheckBox onlyConversionToDiffObjectsCheckBox = new CheckBox("Only Conversion To Diff Clean Objects");
+        CheckBox allObjects = new CheckBox("All Objects");
         Label tzInputLabel = new Label("Input Timezone");
         Label tzOutputLabel = new Label("Output Timezone");
         TimeZoneBox timeZoneBoxInput = new TimeZoneBox();

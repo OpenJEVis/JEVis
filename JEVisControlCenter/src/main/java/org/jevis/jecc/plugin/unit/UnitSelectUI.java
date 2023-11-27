@@ -20,14 +20,14 @@
  */
 package org.jevis.jecc.plugin.unit;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Point2D;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,22 +50,20 @@ import java.util.List;
 public class UnitSelectUI {
 
     private static final Logger logger = LogManager.getLogger(UnitSelectUI.class);
-    private final MFXTextField symbolField = new MFXTextField();
-    private final MFXComboBox<Prefix> prefixBox;
-    private final MFXButton changeBaseUnit = new MFXButton();//new MFXButton("Basic Unit");
+    private final TextField symbolField = new TextField();
+    private final ComboBox<Prefix> prefixBox;
+    private final Button changeBaseUnit = new Button();//new Button("Basic Unit");
     //workaround
     private final BooleanProperty valueChangedProperty = new SimpleBooleanProperty(false);
     private JEVisUnit jeVisUnit;
 
     public UnitSelectUI(JEVisDataSource ds, JEVisUnit unit) {
         final JEVisUnit.Prefix prefix = unit.getPrefix();
-        this.symbolField.setFloatMode(FloatMode.DISABLED);
         jeVisUnit = unit;
         List<Prefix> list = new ArrayList<>();
         list.add(null);
         Collections.addAll(list, MetricPrefix.values());
-        prefixBox = new MFXComboBox<>(FXCollections.observableArrayList(MetricPrefix.values()));
-        prefixBox.setFloatMode(FloatMode.DISABLED);
+        prefixBox = new ComboBox<>(FXCollections.observableArrayList(MetricPrefix.values()));
 
         //TODO JFX17
 //        prefixBox.setButtonCell(new ListCell<Prefix>() {
@@ -87,10 +85,10 @@ public class UnitSelectUI {
 
             @Override
             public Prefix fromString(String string) {
-                return prefixBox.getItems().get(prefixBox.getSelectedIndex());
+                return prefixBox.getItems().get(prefixBox.getSelectionModel().getSelectedIndex());
             }
         });
-        prefixBox.selectItem(UnitManager.getInstance().getPrefix(prefix));
+        prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefix(prefix));
         if (unit.getUnit().toString().length() > 1) {
             String sub = unit.toString().substring(0, 0);
             if (UnitManager.getInstance().getPrefixFromShort(sub) != null) {
@@ -141,7 +139,7 @@ public class UnitSelectUI {
             if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {
                 logger.info("Unit selected: {}", stc.getUnit().getFormula());
                 jeVisUnit = stc.getUnit();
-                prefixBox.selectItem(null);
+                prefixBox.getSelectionModel().select(null);
                 changeBaseUnit.setText(jeVisUnit.getFormula());
                 symbolField.setText(jeVisUnit.getLabel());
             }
@@ -174,15 +172,15 @@ public class UnitSelectUI {
         this.jeVisUnit = unit;
     }
 
-    public MFXTextField getSymbolField() {
+    public TextField getSymbolField() {
         return symbolField;
     }
 
-    public MFXButton getUnitButton() {
+    public Button getUnitButton() {
         return changeBaseUnit;
     }
 
-    public MFXComboBox<Prefix> getPrefixBox() {
+    public ComboBox<Prefix> getPrefixBox() {
         return prefixBox;
     }
 //

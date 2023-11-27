@@ -1,9 +1,10 @@
 package org.jevis.jecc.plugin.object.extension.role;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -13,7 +14,7 @@ import org.jevis.commons.i18n.I18n;
 import java.util.Comparator;
 import java.util.List;
 
-public class GroupSelector extends MFXTextField {
+public class GroupSelector extends TextField {
 
     private static final Logger logger = LogManager.getLogger(GroupSelector.class);
 

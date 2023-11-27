@@ -1,12 +1,13 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
 import javafx.util.StringConverter;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.i18n.I18n;
 
-public class ReportAggregationBox extends MFXComboBox<AggregationPeriod> {
+public class ReportAggregationBox extends ComboBox<AggregationPeriod> {
 
     public ReportAggregationBox() {
         super();
@@ -59,7 +60,7 @@ public class ReportAggregationBox extends MFXComboBox<AggregationPeriod> {
 
             @Override
             public AggregationPeriod fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
 

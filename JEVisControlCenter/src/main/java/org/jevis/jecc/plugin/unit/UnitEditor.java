@@ -19,14 +19,14 @@
  */
 package org.jevis.jecc.plugin.unit;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -59,11 +59,9 @@ public class UnitEditor {
 //                Label orderLabel = new Label("Dimension: ");
             Label formel = new Label("Formel Editor:");
 
-            MFXTextField nameT = new MFXTextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
-            nameT.setFloatMode(FloatMode.DISABLED);
-            MFXTextField symboleT = new MFXTextField(unit.getUnit().toString());
-            symboleT.setFloatMode(FloatMode.DISABLED);
-//                MFXTextField orderT = new MFXTextField(unit.getUnit().getDimension().toString());
+            TextField nameT = new TextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
+            TextField symboleT = new TextField(unit.getUnit().toString());
+//                TextField orderT = new TextField(unit.getUnit().getDimension().toString());
             TextArea formelField = new TextArea();
             formelField.setPrefSize(260, 100);
             formelField.setWrapText(true);
@@ -87,8 +85,7 @@ public class UnitEditor {
     }
 
     public void hideImageNodesMatching(Node node, Pattern imageNamePattern, int depth) {
-        if (node instanceof ImageView) {
-            ImageView imageView = (ImageView) node;
+        if (node instanceof ImageView imageView) {
             //TODO JFX17 Testen
             String url = imageView.getImage().getUrl();
             if (url != null && imageNamePattern.matcher(url).matches()) {

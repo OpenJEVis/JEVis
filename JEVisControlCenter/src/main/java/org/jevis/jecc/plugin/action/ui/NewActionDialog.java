@@ -20,10 +20,7 @@
  */
 package org.jevis.jecc.plugin.action.ui;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
-import io.github.palexdev.virtualizedfx.cell.Cell;
+
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -32,7 +29,6 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -53,7 +49,6 @@ import org.jevis.jecc.application.resource.ImageConverter;
 import org.jevis.jecc.application.resource.ResourceLoader;
 
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author fs
@@ -99,7 +94,7 @@ public class NewActionDialog {
         int x = 0;
 
         Label lName = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        final MFXTextField fName = new MFXTextField();
+        final TextField fName = new TextField();
         fName.setPromptText(I18n.getInstance().getString("jevistree.dialog.new.name.prompt"));
 
 
@@ -151,42 +146,43 @@ public class NewActionDialog {
             }
         };
 
-        final MFXComboBox<JEVisObject> comboBox = new MFXComboBox<>(optionsParents);
-        comboBox.setFloatMode(FloatMode.DISABLED);
+        final ComboBox<JEVisObject> comboBox = new ComboBox<>(optionsParents);
 
         //TODO JFX17
-        comboBox.setCellFactory((Function<JEVisObject, io.github.palexdev.virtualizedfx.cell.Cell<JEVisObject>>) jeVisObject -> {
-            return new Cell<JEVisObject>() {
-                ImageView icon = new ImageView();
-                Label cName = new Label();
-                HBox box = new HBox(5, icon, cName);
+        comboBox.setCellFactory(new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> jeVisObjectListView) {
+                return new ListCell<>() {
+                    final ImageView icon = new ImageView();
+                    final Label cName = new Label();
+                    final HBox box = new HBox(5, icon, cName);
 
-                @Override
-                public Node getNode() {
-                    cName.setTextFill(Color.BLACK);
-                    box.setAlignment(Pos.CENTER_LEFT);
-                    icon.fitHeightProperty().set(15);
-                    icon.fitWidthProperty().set(15);
-                    return box;
-                }
+                    @Override
+                    protected void updateItem(JEVisObject item, boolean b) {
+                        super.updateItem(item, b);
 
-                @Override
-                public void updateItem(JEVisObject item) {
-                    try {
-                        String parentName = "";
+                        cName.setTextFill(Color.BLACK);
+                        box.setAlignment(Pos.CENTER_LEFT);
+                        icon.fitHeightProperty().set(15);
+                        icon.fitWidthProperty().set(15);
+
                         try {
-                            JEVisObject parent = item.getParents().get(0);//not save
-                            parentName = parent.getName();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                            String parentName = "";
+                            try {
+                                JEVisObject parent = item.getParents().get(0);//not save
+                                parentName = parent.getName();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                            icon.setImage(org.jevis.jecc.tool.ImageConverter.convertToFxImage(actionPlanDirClass.getIcon()));
+                            cName.setText(parentName + "/" + item.getName());
+                        } catch (Exception e) {
+                            logger.error(e);
                         }
-                        icon.setImage(org.jevis.jecc.tool.ImageConverter.convertToFxImage(actionPlanDirClass.getIcon()));
-                        cName.setText(parentName + "/" + item.getName());
-                    } catch (Exception e) {
-                        logger.error(e);
                     }
-                }
-            };
+
+                };
+            }
         });
 
         comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {

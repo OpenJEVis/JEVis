@@ -1,6 +1,6 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -62,7 +62,7 @@ public class TreeSelectionDialog extends Dialog {
 
     private final JEVisTreeView treeView;
     private List<JEVisClass> classFilter;
-    private final MFXTextField filterTextField = new MFXTextField();
+    private final TextField filterTextField = new TextField();
     private Response response = Response.CANCEL;
 
     public TreeSelectionDialog(JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode) {

@@ -1,16 +1,13 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.Control;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +28,7 @@ public class NetGraphTableFactory {
             }
         }
     };
-    private BooleanProperty disable = new SimpleBooleanProperty(false) {
+    private final BooleanProperty disable = new SimpleBooleanProperty(false) {
     };
 
     public TableView<NetGraphDataRow> buildTable(boolean disableMinMax) {
@@ -56,7 +53,7 @@ public class NetGraphTableFactory {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
-                            MFXTextField textField = buildTextField(item.toString());
+                            TextField textField = buildTextField(item.toString());
                             textField.setDisable(disable.getValue());
                             disable.addListener((observable, oldValue, newValue) -> {
                                 textField.setDisable(newValue);
@@ -64,7 +61,7 @@ public class NetGraphTableFactory {
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
-                                    NetGraphDataRow gaugeSectionPojo = (NetGraphDataRow) getTableRow().getItem();
+                                    NetGraphDataRow gaugeSectionPojo = getTableRow().getItem();
                                     gaugeSectionPojo.setMin(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
@@ -75,7 +72,7 @@ public class NetGraphTableFactory {
                                 @Override
                                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                                     try {
-                                        tableView.getSelectionModel().select((NetGraphDataRow) getTableRow().getItem());
+                                        tableView.getSelectionModel().select(getTableRow().getItem());
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -143,14 +140,14 @@ public class NetGraphTableFactory {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
-                            MFXTextField textField = buildTextField(item.toString());
+                            TextField textField = buildTextField(item.toString());
                             textField.setDisable(disable.getValue());
                             disable.addListener((observable, oldValue, newValue) -> {
                                 textField.setDisable(newValue);
                             });
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
-                                    NetGraphDataRow gaugeSectionPojo = (NetGraphDataRow) getTableRow().getItem();
+                                    NetGraphDataRow gaugeSectionPojo = getTableRow().getItem();
                                     gaugeSectionPojo.setMax(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
@@ -161,7 +158,7 @@ public class NetGraphTableFactory {
                                 @Override
                                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                                     try {
-                                        tableView.getSelectionModel().select((NetGraphDataRow) getTableRow().getItem());
+                                        tableView.getSelectionModel().select(getTableRow().getItem());
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -204,8 +201,8 @@ public class NetGraphTableFactory {
     }
 
 
-    private MFXTextField buildTextField(String text) {
-        MFXTextField textField = new MFXTextField(text);
+    private TextField buildTextField(String text) {
+        TextField textField = new TextField(text);
         textField.focusedProperty().addListener(NetGraphTableFactory.this.focusListener);
         //textField.setMaxWidth(this.numberColumDefaultSize);
         return textField;
@@ -215,7 +212,7 @@ public class NetGraphTableFactory {
         field.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (oldValue == true && newValue == false) {
+                if (oldValue && !newValue) {
                     NetGraphTableFactory.this.tableView.refresh();
                 }
             }

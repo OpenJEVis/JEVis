@@ -1,8 +1,8 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
@@ -29,7 +29,7 @@ import java.util.List;
 
 import static org.jevis.jecc.application.Chart.TimeFrame.CUSTOM_START_END;
 
-public class PresetDateBox extends MFXComboBox<AnalysisTimeFrame> {
+public class PresetDateBox extends ComboBox<AnalysisTimeFrame> {
     private static final Logger logger = LogManager.getLogger(PresetDateBox.class);
     private final DateHelper dateHelper = new DateHelper();
     private final JEVisDataSource ds;
@@ -41,7 +41,6 @@ public class PresetDateBox extends MFXComboBox<AnalysisTimeFrame> {
         super();
         this.ds = ds;
         this.chartPlugin = chartPlugin;
-        this.setFloatMode(FloatMode.DISABLED);
 
         //TODO: JFX17
 //        this.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
@@ -199,7 +198,7 @@ public class PresetDateBox extends MFXComboBox<AnalysisTimeFrame> {
         });
 
         if (chartPlugin != null && chartPlugin.getDataSettings() != null && chartPlugin.getDataSettings().getAnalysisTimeFrame() != null) {
-            selectItem(chartPlugin.getDataSettings().getAnalysisTimeFrame());
+            getSelectionModel().select(chartPlugin.getDataSettings().getAnalysisTimeFrame());
         }
     }
 

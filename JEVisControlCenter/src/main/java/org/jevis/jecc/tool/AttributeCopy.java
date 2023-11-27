@@ -1,6 +1,6 @@
 package org.jevis.jecc.tool;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -146,8 +146,8 @@ public class AttributeCopy {
         Region spacer = new Region();
         spacer.setMinWidth(20);
 
-        final MFXCheckbox question = new MFXCheckbox(I18n.getInstance().getString("dialog.attributecopy.replace"));
-        final MFXCheckbox clearBefore = new MFXCheckbox(I18n.getInstance().getString("dialog.attributecopy.delete"));
+        final CheckBox question = new CheckBox(I18n.getInstance().getString("dialog.attributecopy.replace"));
+        final CheckBox clearBefore = new CheckBox(I18n.getInstance().getString("dialog.attributecopy.delete"));
         clearBefore.selectedProperty().set(true);
 
         gridLayout.add(header, 0, 0, 1, 1);
@@ -241,7 +241,7 @@ public class AttributeCopy {
 
             for (JEVisAttribute jeVisAttribute : object.getAttributes()) {
                 try {
-                    MFXCheckbox mfxCheckbox = new MFXCheckbox(I18nWS.getInstance().getAttributeName(jeVisAttribute));
+                    CheckBox mfxCheckbox = new CheckBox(I18nWS.getInstance().getAttributeName(jeVisAttribute));
                     listGrid.add(mfxCheckbox, 1, ++row, 1, 1);
                     mfxCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue) {
