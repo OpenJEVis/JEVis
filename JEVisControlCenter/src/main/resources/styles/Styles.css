@@ -430,7 +430,7 @@ titled-pane:focused .content {
 }
 
 .search-box .text-field {
-    -fx-prompt-text-fill: derive(-fx-text-color), 80%);
+    -fx-prompt-text-fill: derive(-fx-text-color, 80%);
     -fx-background-color: -fx-text-field-background;
     -fx-background-insets: 1;
     -fx-background-radius: 15;
