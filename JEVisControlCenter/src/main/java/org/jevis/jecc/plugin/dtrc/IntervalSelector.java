@@ -75,6 +75,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
     private final DatePicker endDatePicker;
     private final LocalTimePicker endTimePicker;
     private final SimpleBooleanProperty update = new SimpleBooleanProperty(false);
+    private Boolean updating = false;
     private Interval interval;
 
     public IntervalSelector(JEVisDataSource ds, DatePicker startDatePicker, LocalTimePicker startTimePicker, DatePicker endDatePicker, LocalTimePicker endTimePicker) {
@@ -115,7 +116,9 @@ public class IntervalSelector extends ToolBarIntervalSelector {
                 applyNewDate(interval);
                 dateButton.setText(activeTimeFrame.get().format(interval));
 
-                setUpdate(true);
+                if (!isUpdating()) {
+                    setUpdate(true);
+                }
             }
         });
 
@@ -134,7 +137,9 @@ public class IntervalSelector extends ToolBarIntervalSelector {
             if (newValue != null && !newValue.equals(oldValue)) {
                 activeTimeFrame.set(newValue);
 
-                setUpdate(true);
+                if (!isUpdating()) {
+                    setUpdate(true);
+                }
             }
         });
 
@@ -200,5 +205,13 @@ public class IntervalSelector extends ToolBarIntervalSelector {
 
     public SimpleBooleanProperty updateProperty() {
         return update;
+    }
+
+    public Boolean isUpdating() {
+        return updating;
+    }
+
+    public void isUpdating(Boolean updating) {
+        this.updating = updating;
     }
 }

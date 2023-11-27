@@ -1358,12 +1358,15 @@ public class AccountingPlugin extends TablePlugin {
         trcs.setConverter(new StringConverter<JEVisObject>() {
             @Override
             public String toString(JEVisObject object) {
-                return object.getName();
+                if (object != null) {
+                    return object.getName();
+                } else return "";
             }
 
             @Override
             public JEVisObject fromString(String string) {
-                return trcs.getItems().get(trcs.getSelectionModel().getSelectedIndex());
+
+                return trcs.getItems().stream().filter(object -> object.getName().equals(string)).findFirst().orElse(null);
             }
         });
 

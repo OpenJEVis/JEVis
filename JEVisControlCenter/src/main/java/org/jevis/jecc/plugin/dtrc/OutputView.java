@@ -37,6 +37,7 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jecc.ControlCenter;
+import org.jevis.jecc.GlobalToolBar;
 import org.jevis.jecc.Icon;
 import org.jevis.jecc.TopMenu;
 import org.jevis.jecc.application.Chart.ChartTools;
@@ -267,9 +268,9 @@ public class OutputView extends Tab {
 
         Platform.runLater(() -> {
             try {
+                intervalSelector.isUpdating(true);
                 intervalSelector.getTimeFactoryBox().getItems().clear();
 
-                //intervalSelector.getTimeFactoryBox().getItems().clear();
                 intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrames);
 
                 if (intervalSelector.getTimeFactoryBox().getItems().contains(lastSelectedTimeFrame)) {
@@ -277,6 +278,7 @@ public class OutputView extends Tab {
                 } else {
                     intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
                 }
+                intervalSelector.isUpdating(false);
             } catch (NullPointerException np) {
                 logger.error(np);
             }
@@ -403,6 +405,7 @@ public class OutputView extends Tab {
                 logger.debug("Found linked output, creating Manual Data Button");
                 Button manSampleButton = new Button("", ControlCenter.getSVGImage(Icon.MANUAL_DATA_ENTRY, 12, 12));
                 manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
+                GlobalToolBar.changeBackgroundOnHoverUsingBinding(manSampleButton);
 
                 if (templateOutput.getTarget() != null) {
                     try {
