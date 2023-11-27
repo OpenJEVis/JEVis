@@ -131,7 +131,7 @@ public class IntervalSelector extends ToolBarIntervalSelector {
         timeFactoryBox.selectValue(activeTimeFrame.get());
 
         timeFactoryBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
+            if (newValue != null && !newValue.equals(oldValue)) {
                 activeTimeFrame.set(newValue);
 
                 setUpdate(true);
