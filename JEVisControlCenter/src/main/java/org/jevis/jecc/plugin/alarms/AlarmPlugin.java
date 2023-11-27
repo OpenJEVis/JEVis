@@ -185,6 +185,7 @@ public class AlarmPlugin implements Plugin {
         Button reload = new Button("", ControlCenter.getSVGImage(Icon.REFRESH, iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> {
 
@@ -254,6 +255,7 @@ public class AlarmPlugin implements Plugin {
         Separator sep4 = new Separator(Orientation.VERTICAL);
 
         Button checkAll = new Button(I18n.getInstance().getString("plugin.alarm.checkall"), ControlCenter.getSVGImage(Icon.CHECK, iconSize, iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkAll);
         checkAll.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
         checkAll.setOnMouseClicked(event -> {
             getAllAlarmConfigs().forEach(alarmConfiguration -> alarmConfiguration.setChecked(true));
