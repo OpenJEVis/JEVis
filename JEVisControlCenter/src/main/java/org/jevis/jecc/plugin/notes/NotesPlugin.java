@@ -134,7 +134,8 @@ public class NotesPlugin implements Plugin {
     private GridPane searchPanel() {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(12));
-        gridPane.setHgap(12);
+        gridPane.setHgap(8);
+        gridPane.setVgap(6);
 
         TextField searchbar = new TextField();
         searchbar.setPromptText(I18n.getInstance().getString("plugin.notes.search.prompt"));
