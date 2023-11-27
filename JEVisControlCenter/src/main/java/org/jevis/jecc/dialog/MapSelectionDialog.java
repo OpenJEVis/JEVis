@@ -20,13 +20,14 @@
  */
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
@@ -98,7 +99,7 @@ public class MapSelectionDialog {
 
         HBox buttonBox = new HBox(10);
         Region spacer = new Region();
-        MFXButton ok = new MFXButton("Load");
+        Button ok = new Button("Load");
         ok.setDefaultButton(true);
 
         HBox.setHgrow(ok, Priority.NEVER);
@@ -121,9 +122,8 @@ public class MapSelectionDialog {
 
                 logger.info("Results");
                 for (TreePlugin plugin : tree.getPlugins()) {
-                    if (plugin instanceof MapPlugin) {
+                    if (plugin instanceof MapPlugin bp) {
                         logger.info("Found Mapchart plugin");
-                        MapPlugin bp = (MapPlugin) plugin;
 
                         data = bp.getSelectedData();
                     }

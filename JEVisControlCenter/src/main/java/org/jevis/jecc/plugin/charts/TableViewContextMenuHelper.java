@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.charts;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.geometry.Side;
@@ -88,7 +88,7 @@ public class TableViewContextMenuHelper {
 
         tableView.skinProperty().addListener((a, b, newSkin) -> {
             tableView.tableMenuButtonVisibleProperty().addListener((ob, o, n) -> {
-                if (n == true) {
+                if (n) {
                     registerListeners();
                 }
             });
@@ -249,7 +249,7 @@ public class TableViewContextMenuHelper {
 
             TableColumn<?, ?> tableColumn = (TableColumn<?, ?>) obj;
 
-            MFXCheckbox cb = new MFXCheckbox(tableColumn.getText());
+            CheckBox cb = new CheckBox(tableColumn.getText());
             cb.selectedProperty().bindBidirectional(tableColumn.visibleProperty());
 
             cmi = new CustomMenuItem(cb);

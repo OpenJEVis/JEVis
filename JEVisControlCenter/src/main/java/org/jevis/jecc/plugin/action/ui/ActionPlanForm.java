@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.action.ui;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.*;
@@ -34,9 +34,9 @@ public class ActionPlanForm extends Alert {
     Label enpiLabel = new Label("EnPI");
     Label sueLabel = new Label("SEU");
     Label numberPrefix = new Label("Nr. Prefix");
-    MFXTextField f_numberPrefix = new MFXTextField();
+    TextField f_numberPrefix = new TextField();
 
-    MFXTextField nameField = new MFXTextField();
+    TextField nameField = new TextField();
 
     ListView<String> statusListView = new ListView<>();
     ListView<String> fieldsListView = new ListView<>();
@@ -44,8 +44,8 @@ public class ActionPlanForm extends Alert {
     ListView<JEVisObject> enpiListView = new ListView<>();
     ListView<String> sueListView = new ListView<>();
     StackPane stackPane = new StackPane();
-    private ActionPlanData actionPlan;
-    private double iconSize = 12;
+    private final ActionPlanData actionPlan;
+    private final double iconSize = 12;
 
     public ActionPlanForm(ActionPlanData actionPlan) {
         super(AlertType.INFORMATION);

@@ -3,13 +3,13 @@ package org.jevis.jecc.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXCheckBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
@@ -37,16 +37,16 @@ public class LinearGaugePojo {
     private boolean showMediumTick = true;
     private boolean showMinorTick = true;
     private double majorTickStep = 5.0;
-    private JFXCheckBox jfxCheckBoxShowTitle;
-    private JFXCheckBox jfxCheckBoxShowValue;
-    private JFXCheckBox jfxCheckBoxShowUnit;
-    private JFXCheckBox jfxCheckBoxInPercent;
-    private JFXCheckBox jfxCheckBoxShowMajorTick;
-    private JFXCheckBox jfxCheckBoxShowMediumTick;
-    private JFXCheckBox jfxCheckBoxShowMinorTick;
-    private MFXTextField MFXTextFieldMaxValue;
-    private MFXTextField MFXTextFieldMinValue;
-    private MFXTextField MFXTextFieldMajorTickStep;
+    private CheckBox checkBoxShowTitle;
+    private CheckBox checkBoxShowValue;
+    private CheckBox checkBoxShowUnit;
+    private CheckBox checkBoxInPercent;
+    private CheckBox checkBoxShowMajorTick;
+    private CheckBox checkBoxShowMediumTick;
+    private CheckBox checkBoxShowMinorTick;
+    private TextField textFieldMaxValue;
+    private TextField textFieldMinValue;
+    private TextField textFieldMajorTickStep;
     private ColorPickerAdv colorPickerAdvBoarderColor;
     private ColorPickerAdv colorPickerAdvValueIndicator;
 
@@ -249,41 +249,41 @@ public class LinearGaugePojo {
 
         int i = 0;
 
-        jfxCheckBoxShowTitle = new JFXCheckBox();
-        jfxCheckBoxShowTitle.setSelected(showTitle);
+        checkBoxShowTitle = new CheckBox();
+        checkBoxShowTitle.setSelected(showTitle);
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showTitle")), jfxCheckBoxShowTitle);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showTitle")), checkBoxShowTitle);
         i++;
-        jfxCheckBoxShowUnit = new JFXCheckBox();
-        jfxCheckBoxShowUnit.setSelected(showUnit);
+        checkBoxShowUnit = new CheckBox();
+        checkBoxShowUnit.setSelected(showUnit);
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showUnit")), jfxCheckBoxShowUnit);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showUnit")), checkBoxShowUnit);
         i++;
-        jfxCheckBoxShowValue = new JFXCheckBox();
-        jfxCheckBoxShowValue.setSelected(showValue);
+        checkBoxShowValue = new CheckBox();
+        checkBoxShowValue.setSelected(showValue);
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showValue")), jfxCheckBoxShowValue);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showValue")), checkBoxShowValue);
         i++;
-        jfxCheckBoxInPercent = new JFXCheckBox();
-        jfxCheckBoxInPercent.setSelected(inPercent);
+        checkBoxInPercent = new CheckBox();
+        checkBoxInPercent.setSelected(inPercent);
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent")), jfxCheckBoxInPercent);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.inPercent")), checkBoxInPercent);
         i++;
-        MFXTextFieldMinValue = new MFXTextField();
-        MFXTextFieldMinValue.setText(String.valueOf(minimum));
+        textFieldMinValue = new TextField();
+        textFieldMinValue.setText(String.valueOf(minimum));
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.min")), MFXTextFieldMinValue);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.min")), textFieldMinValue);
         i++;
-        MFXTextFieldMaxValue = new MFXTextField();
-        MFXTextFieldMaxValue.setText(String.valueOf(maximum));
+        textFieldMaxValue = new TextField();
+        textFieldMaxValue.setText(String.valueOf(maximum));
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.max")), MFXTextFieldMaxValue);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.max")), textFieldMaxValue);
         i++;
 
-        MFXTextFieldMajorTickStep = new MFXTextField();
-        MFXTextFieldMajorTickStep.setText(String.valueOf(majorTickStep));
+        textFieldMajorTickStep = new TextField();
+        textFieldMajorTickStep.setText(String.valueOf(majorTickStep));
         if (showMajorTick) {
-            gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.majortickstep")), MFXTextFieldMajorTickStep);
+            gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.majortickstep")), textFieldMajorTickStep);
             i++;
         }
 
@@ -293,33 +293,33 @@ public class LinearGaugePojo {
 
         gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.valueIndicatorColor")), colorPickerAdvValueIndicator);
         i++;
-        jfxCheckBoxShowMajorTick = new JFXCheckBox();
-        jfxCheckBoxShowMajorTick.setSelected(showMajorTick);
+        checkBoxShowMajorTick = new CheckBox();
+        checkBoxShowMajorTick.setSelected(showMajorTick);
 
-        jfxCheckBoxShowMajorTick.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
+        checkBoxShowMajorTick.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
             if (t1) {
                 moveplusNodesGridpane(6, gridPane);
-                gridPane.addRow(6, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.majortickstep")), MFXTextFieldMajorTickStep);
+                gridPane.addRow(6, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.majortickstep")), textFieldMajorTickStep);
 
             } else {
-                gridPane.getChildren().removeIf(node -> GridPane.getRowIndex(node) == GridPane.getRowIndex(MFXTextFieldMajorTickStep));
+                gridPane.getChildren().removeIf(node -> GridPane.getRowIndex(node) == GridPane.getRowIndex(textFieldMajorTickStep));
                 moveminusNodesGridpane(6, gridPane);
             }
         });
 
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.lineargaugewidget.showMajorTick")), jfxCheckBoxShowMajorTick);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.lineargaugewidget.showMajorTick")), checkBoxShowMajorTick);
         i++;
 
-        jfxCheckBoxShowMediumTick = new JFXCheckBox();
-        jfxCheckBoxShowMediumTick.setSelected(showMediumTick);
+        checkBoxShowMediumTick = new CheckBox();
+        checkBoxShowMediumTick.setSelected(showMediumTick);
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.lineargaugewidget.showMediumTick")), jfxCheckBoxShowMediumTick);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.lineargaugewidget.showMediumTick")), checkBoxShowMediumTick);
         i++;
-        jfxCheckBoxShowMinorTick = new JFXCheckBox();
-        jfxCheckBoxShowMinorTick.setSelected(showMinorTick);
+        checkBoxShowMinorTick = new CheckBox();
+        checkBoxShowMinorTick.setSelected(showMinorTick);
 
-        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.lineargaugewidget.showMinorTick")), jfxCheckBoxShowMinorTick);
+        gridPane.addRow(i, new Label(I18n.getInstance().getString("plugin.dashboard.lineargaugewidget.showMinorTick")), checkBoxShowMinorTick);
         i++;
 
         colorPickerAdvBoarderColor = new ColorPickerAdv();
@@ -393,19 +393,19 @@ public class LinearGaugePojo {
         public void commitChanges() {
 
             try {
-                showTitle = jfxCheckBoxShowTitle.isSelected();
-                showUnit = jfxCheckBoxShowUnit.isSelected();
-                showValue = jfxCheckBoxShowValue.isSelected();
-                inPercent = jfxCheckBoxInPercent.isSelected();
+                showTitle = checkBoxShowTitle.isSelected();
+                showUnit = checkBoxShowUnit.isSelected();
+                showValue = checkBoxShowValue.isSelected();
+                inPercent = checkBoxInPercent.isSelected();
 
-                minimum = Double.valueOf(MFXTextFieldMinValue.getText());
-                maximum = Double.valueOf(MFXTextFieldMaxValue.getText());
+                minimum = Double.valueOf(textFieldMinValue.getText());
+                maximum = Double.valueOf(textFieldMaxValue.getText());
 
-                majorTickStep = Double.valueOf(MFXTextFieldMajorTickStep.getText());
+                majorTickStep = Double.valueOf(textFieldMajorTickStep.getText());
 
-                showMajorTick = jfxCheckBoxShowMajorTick.isSelected();
-                showMediumTick = jfxCheckBoxShowMediumTick.isSelected();
-                showMinorTick = jfxCheckBoxShowMinorTick.isSelected();
+                showMajorTick = checkBoxShowMajorTick.isSelected();
+                showMediumTick = checkBoxShowMediumTick.isSelected();
+                showMinorTick = checkBoxShowMinorTick.isSelected();
 
                 colorBorder = colorPickerAdvBoarderColor.getValue();
                 colorValueIndicator = colorPickerAdvValueIndicator.getValue();

@@ -1,11 +1,8 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.geometry.Insets;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 import org.jevis.commons.i18n.I18n;
@@ -24,10 +21,10 @@ public class MoveDialog extends Dialog<ButtonType> {
         gp.setHgap(8);
         gp.setVgap(8);
 
-        MFXButton leftButton = new MFXButton("<");
-        MFXButton rightButton = new MFXButton(">");
-        MFXButton downButton = new MFXButton("down");
-        MFXButton upButton = new MFXButton("^");
+        Button leftButton = new Button("<");
+        Button rightButton = new Button(">");
+        Button downButton = new Button("down");
+        Button upButton = new Button("^");
 
         TextField pixels = new TextField(control.getActiveDashboard().getxGridInterval() + "");
         pixels.setMaxWidth(35);

@@ -1,9 +1,10 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AxisBox extends MFXComboBox<Integer> {
+public class AxisBox extends ComboBox<Integer> {
 
     private static final String y1 = I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1");
     private static final String y2 = I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y2");
@@ -94,7 +95,7 @@ public class AxisBox extends MFXComboBox<Integer> {
                 this.getSelectionModel().selectFirst();
                 break;
             case 1:
-                this.getSelectionModel().selectIndex(1);
+                this.getSelectionModel().select(1);
                 break;
         }
     }
@@ -134,7 +135,7 @@ public class AxisBox extends MFXComboBox<Integer> {
                                  final Node graphic,
                                  final AxisBox comboBox) {
         if (comboBox != null) {
-            comboBox.selectItem(cell.getItem());
+            comboBox.getSelectionModel().select(cell.getItem());
         }
         cell.setText(null);
 
@@ -165,7 +166,7 @@ public class AxisBox extends MFXComboBox<Integer> {
         } else {
             if (cell.isEditing()) {
                 if (comboBox != null) {
-                    comboBox.selectItem(cell.getItem());
+                    comboBox.getSelectionModel().select(cell.getItem());
                 }
                 cell.setText(null);
 

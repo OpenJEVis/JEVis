@@ -19,10 +19,7 @@
  */
 package org.jevis.jecc.plugin.object.extension;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -34,10 +31,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -181,7 +175,7 @@ public class PermissionExtension implements ObjectEditorExtension {
 
                 groupBox.getChildren().addAll(usericon, nameLabel);
 
-                MFXButton remove = new MFXButton();
+                Button remove = new Button();
                 remove.setGraphic(ControlCenter.getImage("list-remove.png", 17, 17));
                 remove.setOnAction(t -> {
 
@@ -212,7 +206,7 @@ public class PermissionExtension implements ObjectEditorExtension {
                     });
                 });
 
-                MFXButton forAllChildren = new MFXButton();
+                Button forAllChildren = new Button();
                 forAllChildren.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.permissions.include_children")));
                 forAllChildren.setGraphic(ControlCenter.getImage("1417642712_sitemap.png", 17, 17));
                 forAllChildren.setOnAction(t -> {
@@ -402,10 +396,9 @@ public class PermissionExtension implements ObjectEditorExtension {
         addNewBox.setHgap(10);
         addNewBox.setVgap(4);
 
-        MFXButton newB = new MFXButton();
+        Button newB = new Button();
         //ToDo
-        final MFXComboBox<JEVisObject> groupsCBox = new MFXComboBox<>();
-        groupsCBox.setFloatMode(FloatMode.DISABLED);
+        final ComboBox<JEVisObject> groupsCBox = new ComboBox<>();
         groupsCBox.setMinWidth(300);
 
         //TODO JFX17
@@ -425,7 +418,7 @@ public class PermissionExtension implements ObjectEditorExtension {
 
             @Override
             public JEVisObject fromString(String string) {
-                return groupsCBox.getItems().get(groupsCBox.getSelectedIndex());
+                return groupsCBox.getItems().get(groupsCBox.getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -445,8 +438,7 @@ public class PermissionExtension implements ObjectEditorExtension {
         }
 
         FilteredList<JEVisObject> filteredData = new FilteredList<>(possibleOwners, s -> true);
-        MFXTextField filterInput = new MFXTextField();
-        filterInput.setFloatMode(FloatMode.DISABLED);
+        TextField filterInput = new TextField();
         filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         filterInput.textProperty().addListener(obs -> {

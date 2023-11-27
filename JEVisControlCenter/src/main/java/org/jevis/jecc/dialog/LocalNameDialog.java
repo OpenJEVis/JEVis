@@ -1,8 +1,6 @@
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -78,8 +76,7 @@ public class LocalNameDialog {
 
 
         Label objLocalNameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        MFXTextField objectLocalNameTest = new MFXTextField();
-        objectLocalNameTest.setFloatMode(FloatMode.DISABLED);
+        TextField objectLocalNameTest = new TextField();
         Image img = new Image("/icons/flags2/" + I18n.getInstance().getLocale().getLanguage() + ".png");
         ImageView imageViewFlag = new ImageView(img);
         imageViewFlag.fitHeightProperty().setValue(20);
@@ -128,7 +125,7 @@ public class LocalNameDialog {
                     try {
                         if (item == null) {
                             TranslationRow rowItem = getTableRow().getItem();
-                            MFXComboBox<Locale> langBox = buildLangBox(null);
+                            ComboBox<Locale> langBox = buildLangBox(null);
                             langBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     rowItem.setLanguage(newValue.getLanguage());
@@ -141,7 +138,7 @@ public class LocalNameDialog {
                             setGraphic(langBox);
                         } else {
                             TranslationRow rowItem = getTableRow().getItem();
-                            MFXComboBox<Locale> langBox = buildLangBox(new Locale(item));
+                            ComboBox<Locale> langBox = buildLangBox(new Locale(item));
                             langBox.valueProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     rowItem.setLanguage(newValue.getLanguage());
@@ -227,10 +224,9 @@ public class LocalNameDialog {
         return response;
     }
 
-    private MFXComboBox<Locale> buildLangBox(Locale selected) {
+    private ComboBox<Locale> buildLangBox(Locale selected) {
         ObservableList<Locale> langList = FXCollections.observableArrayList(I18n.getInstance().getAvailableLang());
-        MFXComboBox<Locale> picker = new MFXComboBox<>(langList);
-        picker.setFloatMode(FloatMode.DISABLED);
+        ComboBox<Locale> picker = new ComboBox<>(langList);
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
@@ -281,7 +277,7 @@ public class LocalNameDialog {
 
         if (selected != null && !selected.equals("empty")) {
             int index = langList.indexOf(langList.stream().filter(locale -> locale.getLanguage().equals(selected.getLanguage())).findAny().get());
-            picker.selectIndex(index);
+            picker.getSelectionModel().select(index);
         }
 
         return picker;

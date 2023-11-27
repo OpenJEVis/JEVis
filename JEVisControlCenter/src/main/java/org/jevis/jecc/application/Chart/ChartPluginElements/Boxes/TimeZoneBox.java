@@ -1,7 +1,8 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
 import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTimeZone;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TimeZoneBox extends MFXComboBox<DateTimeZone> {
+public class TimeZoneBox extends ComboBox<DateTimeZone> {
 
     public TimeZoneBox() {
 
@@ -31,7 +32,7 @@ public class TimeZoneBox extends MFXComboBox<DateTimeZone> {
 
             @Override
             public DateTimeZone fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -42,7 +43,7 @@ public class TimeZoneBox extends MFXComboBox<DateTimeZone> {
 
         setItems(FXCollections.observableArrayList(allTimeZones));
 
-        selectItem(DateTimeZone.getDefault());
+        getSelectionModel().select(DateTimeZone.getDefault());
 
     }
 }

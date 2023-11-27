@@ -5,9 +5,7 @@
  */
 package org.jevis.jecc.bulkedit;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -149,8 +147,7 @@ public class EditTable {
             }
         };
 
-        MFXComboBox<JEVisClass> classComboBox = new MFXComboBox<JEVisClass>(options);
-        classComboBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<JEVisClass> classComboBox = new ComboBox<JEVisClass>(options);
 
         //TODO JFX17
 
@@ -162,7 +159,7 @@ public class EditTable {
 
             @Override
             public JEVisClass fromString(String string) {
-                return classComboBox.getItems().get(classComboBox.getSelectedIndex());
+                return classComboBox.getItems().get(classComboBox.getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -171,8 +168,8 @@ public class EditTable {
         selectedClass = classComboBox.getSelectionModel().getSelectedItem();
 
         addListChildren(parent, selectedClass);
-        MFXButton editBtn = new MFXButton("Edit Structure");
-        MFXButton cancelBtn = new MFXButton("Cancel");
+        Button editBtn = new Button("Edit Structure");
+        Button cancelBtn = new Button("Cancel");
 
         try {
             if (selectedClass.getName().equals("Data")) {
@@ -191,7 +188,7 @@ public class EditTable {
         hBoxTop.setSpacing(10);
         //hBoxTop.setPadding(new Insets(3, 3, 3, 3));
         Label lClass = new Label("Class:");
-        MFXButton help = new MFXButton("Help", ControlCenter.getImage("quick_help_icon.png", 22, 22));
+        Button help = new Button("Help", ControlCenter.getImage("quick_help_icon.png", 22, 22));
         Separator sep1 = new Separator();
         hBoxTop.getChildren().addAll(lClass, classComboBox, sep1, help);
         root.setTop(hBoxTop);
@@ -604,7 +601,7 @@ public class EditTable {
 
         private final ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndAttribute = FXCollections.observableArrayList();
 
-        public CreateNewDataEditTable(JEVisObject parent, MFXButton editBtn) {
+        public CreateNewDataEditTable(JEVisObject parent, Button editBtn) {
 
             String[] colNames = {"Object ID", "Object Name", "Display Prefix", "Display Symbol", "Display Sample Rate", "Input Prefix", "Input Symbol", "Input Sample Rate"};
             try {

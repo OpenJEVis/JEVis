@@ -4,9 +4,7 @@ package org.jevis.jecc.dialog;
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -249,9 +247,9 @@ public class AlarmWizardDialog {
         VBox vBox = new VBox(6);
         HBox hbox = new HBox(6);
 
-        MFXButton addMultiple = new MFXButton("", ControlCenter.getImage("list-add.png", 16, 16));
+        Button addMultiple = new Button("", ControlCenter.getImage("list-add.png", 16, 16));
 
-        MFXComboBox<ReportType> reportTypeComboBox = getReportTypeComboBox();
+        ComboBox<ReportType> reportTypeComboBox = getReportTypeComboBox();
         reportTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue) {
                 reportType = newValue;
@@ -311,13 +309,12 @@ public class AlarmWizardDialog {
         vBox.setFillWidth(true);
     }
 
-    private MFXComboBox<ReportType> getReportTypeComboBox() {
-        MFXComboBox<ReportType> box = new MFXComboBox<>();
-        box.setFloatMode(FloatMode.DISABLED);
+    private ComboBox<ReportType> getReportTypeComboBox() {
+        ComboBox<ReportType> box = new ComboBox<>();
 
         box.setItems(FXCollections.observableArrayList(ReportType.values()));
 
-        box.selectItem(ReportType.STANDARD);
+        box.getSelectionModel().select(ReportType.STANDARD);
 
         final String keyStandard = I18n.getInstance().getString("plugin.object.report.dialog.typ.standard");
         final String keyAllAttributes = I18n.getInstance().getString("plugin.object.report.dialog.typ.allattributes");
@@ -482,33 +479,32 @@ public class AlarmWizardDialog {
 
     private void createBox(ReportLink reportLink) {
         int currentRow = row;
-        MFXButton targetsButton = new MFXButton("Select Target");
+        Button targetsButton = new Button("Select Target");
         ReportAggregationBox aggregationPeriodComboBox = new ReportAggregationBox();
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation() != null) {
-            aggregationPeriodComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+            aggregationPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
         }
 
         ReportManipulationBox manipulationComboBox = new ReportManipulationBox();
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation() != null) {
-            manipulationComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
+            manipulationComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
         }
 
         ImageView imageMarkAllAggregation = new ImageView(imgMarkAll);
         imageMarkAllAggregation.fitHeightProperty().set(13);
         imageMarkAllAggregation.fitWidthProperty().set(13);
 
-        MFXButton tbAggregation = new MFXButton("", imageMarkAllAggregation);
+        Button tbAggregation = new Button("", imageMarkAllAggregation);
         tbAggregation.setTooltip(tooltipMarkAll);
         tbAggregation.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
                 if (GridPane.getColumnIndex(node) == 1) {
-                    if (node instanceof ReportAggregationBox) {
-                        ReportAggregationBox reportAggregationBox = (ReportAggregationBox) node;
-                        Platform.runLater(() -> reportAggregationBox.selectItem(aggregationPeriodComboBox.getSelectionModel().getSelectedItem()));
+                    if (node instanceof ReportAggregationBox reportAggregationBox) {
+                        Platform.runLater(() -> reportAggregationBox.getSelectionModel().select(aggregationPeriodComboBox.getSelectionModel().getSelectedItem()));
                     }
                 }
             });
@@ -518,14 +514,13 @@ public class AlarmWizardDialog {
         imageMarkAllManipulation.fitHeightProperty().set(13);
         imageMarkAllManipulation.fitWidthProperty().set(13);
 
-        MFXButton tbManipulation = new MFXButton("", imageMarkAllManipulation);
+        Button tbManipulation = new Button("", imageMarkAllManipulation);
         tbManipulation.setTooltip(tooltipMarkAll);
         tbManipulation.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
                 if (GridPane.getColumnIndex(node) == 2) {
-                    if (node instanceof ReportManipulationBox) {
-                        ReportManipulationBox reportManipulationBox = (ReportManipulationBox) node;
-                        Platform.runLater(() -> reportManipulationBox.selectItem(manipulationComboBox.getSelectionModel().getSelectedItem()));
+                    if (node instanceof ReportManipulationBox reportManipulationBox) {
+                        Platform.runLater(() -> reportManipulationBox.getSelectionModel().select(manipulationComboBox.getSelectionModel().getSelectedItem()));
                     }
                 }
             });
@@ -535,28 +530,27 @@ public class AlarmWizardDialog {
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
-            periodModeComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
+            periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
         }
 
         ReportFixedPeriodBox fixedPeriodComboBox = new ReportFixedPeriodBox();
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod() != null) {
-            fixedPeriodComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod());
+            fixedPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod());
         }
 
         ImageView imageMarkAllPeriod = new ImageView(imgMarkAll);
         imageMarkAllPeriod.fitHeightProperty().set(13);
         imageMarkAllPeriod.fitWidthProperty().set(13);
 
-        MFXButton tbPeriod = new MFXButton("", imageMarkAllPeriod);
+        Button tbPeriod = new Button("", imageMarkAllPeriod);
         tbPeriod.setTooltip(tooltipMarkAll);
         tbPeriod.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
                 if (GridPane.getColumnIndex(node) == 4) {
-                    if (node instanceof ReportPeriodBox) {
-                        ReportPeriodBox reportPeriodBox = (ReportPeriodBox) node;
-                        Platform.runLater(() -> reportPeriodBox.selectItem(periodModeComboBox.getSelectionModel().getSelectedItem()));
+                    if (node instanceof ReportPeriodBox reportPeriodBox) {
+                        Platform.runLater(() -> reportPeriodBox.getSelectionModel().select(periodModeComboBox.getSelectionModel().getSelectedItem()));
                     }
                 }
             });
@@ -570,9 +564,9 @@ public class AlarmWizardDialog {
             }
         });
 
-        MFXButton copyButton = new MFXButton("", ControlCenter.getImage("copy_172587.png", 16, 16));
+        Button copyButton = new Button("", ControlCenter.getImage("copy_172587.png", 16, 16));
 
-        MFXButton removeButton = new MFXButton("", ControlCenter.getImage("list-remove.png", 16, 16));
+        Button removeButton = new Button("", ControlCenter.getImage("list-remove.png", 16, 16));
         removeButton.setOnAction(event -> {
             if (row > 1) {
                 reportLinkList.remove(reportLink);
@@ -761,7 +755,7 @@ public class AlarmWizardDialog {
     }
 
 
-    private void setButtonText(String targetString, MFXButton targetsButton) {
+    private void setButtonText(String targetString, Button targetsButton) {
         TargetHelper th;
         try {
             if (targetString != null) {

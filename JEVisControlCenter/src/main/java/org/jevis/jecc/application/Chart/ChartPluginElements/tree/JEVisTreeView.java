@@ -1,8 +1,8 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.tree;
 
-import com.jfoenix.controls.JFXTreeView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
+public class JEVisTreeView extends TreeView<JEVisTreeViewItem> {
     private final double iconSize = 18d;
     private final AlphanumComparator alphanumComparator = new AlphanumComparator();
     private final boolean showAttributes;
@@ -152,8 +152,7 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
     public List<JEVisObject> getSelectedObjects() {
         List<JEVisObject> result = new ArrayList<>();
         for (TreeItem<JEVisTreeViewItem> selectedItem : getSelectionModel().getSelectedItems()) {
-            if (selectedItem instanceof FilterableTreeItem) {
-                FilterableTreeItem treeItem = (FilterableTreeItem) selectedItem;
+            if (selectedItem instanceof FilterableTreeItem treeItem) {
                 result.add(treeItem.getValue().getObject());
             }
         }
@@ -164,8 +163,7 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
     public List<JEVisAttribute> getSelectedAttributes() {
         List<JEVisAttribute> result = new ArrayList<>();
         for (TreeItem<JEVisTreeViewItem> selectedItem : getSelectionModel().getSelectedItems()) {
-            if (selectedItem instanceof FilterableTreeItem) {
-                FilterableTreeItem treeItem = (FilterableTreeItem) selectedItem;
+            if (selectedItem instanceof FilterableTreeItem treeItem) {
                 result.add(treeItem.getValue().getAttribute());
             }
         }
@@ -176,8 +174,7 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
     public List<UserSelection> getUserSelection() {
         List<UserSelection> result = new ArrayList<>();
         for (TreeItem<JEVisTreeViewItem> selectedItem : getSelectionModel().getSelectedItems()) {
-            if (selectedItem instanceof FilterableTreeItem) {
-                FilterableTreeItem treeItem = (FilterableTreeItem) selectedItem;
+            if (selectedItem instanceof FilterableTreeItem treeItem) {
                 JEVisTreeViewItem treeItemValue = treeItem.getValue();
                 UserSelection userSelection;
                 if (treeItemValue.getItemType() == JEVisTreeViewItem.ItemType.OBJECT) {

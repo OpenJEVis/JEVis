@@ -14,7 +14,7 @@ public class ManipulationModeBox extends DisabledItemsComboBox<ManipulationMode>
     public ManipulationModeBox(ManipulationMode manipulationMode) {
         super(FXCollections.observableArrayList(ManipulationMode.values()));
 
-        selectItem(manipulationMode);
+        getSelectionModel().select(manipulationMode);
     }
 
     private static String getItemText(Cell<ManipulationMode> cell) {
@@ -46,7 +46,7 @@ public class ManipulationModeBox extends DisabledItemsComboBox<ManipulationMode>
                                  final Node graphic,
                                  final ManipulationModeBox comboBox) {
         if (comboBox != null) {
-            comboBox.selectItem(cell.getItem());
+            comboBox.getSelectionModel().select(cell.getItem());
         }
         cell.setText(null);
 
@@ -77,7 +77,7 @@ public class ManipulationModeBox extends DisabledItemsComboBox<ManipulationMode>
         } else {
             if (cell.isEditing()) {
                 if (comboBox != null) {
-                    comboBox.selectItem(cell.getItem());
+                    comboBox.getSelectionModel().select(cell.getItem());
                 }
                 cell.setText(null);
 

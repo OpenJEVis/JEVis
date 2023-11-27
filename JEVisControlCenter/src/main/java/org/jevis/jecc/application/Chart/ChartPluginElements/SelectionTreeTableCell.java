@@ -1,12 +1,13 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
@@ -24,7 +25,7 @@ public class SelectionTreeTableCell<S, T> extends TreeTableCell<S, T> {
             return new TreeItem(s);
         }
     };
-    private final MFXCheckbox checkBox;
+    private final CheckBox checkBox;
     private final ObjectProperty<StringConverter<T>> converter;
     private final ObjectProperty<Callback<Integer, ObservableValue<Boolean>>> selectedStateCallback;
     private boolean showLabel;
@@ -46,7 +47,7 @@ public class SelectionTreeTableCell<S, T> extends TreeTableCell<S, T> {
         };
         this.selectedStateCallback = new SimpleObjectProperty(this, "selectedStateCallback");
         this.getStyleClass().add("check-box-tree-table-cell");
-        this.checkBox = new MFXCheckbox();
+        this.checkBox = new CheckBox();
         this.setGraphic(null);
         this.setSelectedStateCallback(integerObservableValueCallback);
         this.setConverter(stringConverter);

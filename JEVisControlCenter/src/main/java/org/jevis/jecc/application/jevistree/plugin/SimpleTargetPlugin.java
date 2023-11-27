@@ -5,11 +5,12 @@
  */
 package org.jevis.jecc.application.jevistree.plugin;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Pos;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.StackPane;
@@ -191,7 +192,7 @@ public class SimpleTargetPlugin implements TreePlugin {
 
                                         StackPane stackPane = new StackPane();
                                         StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
-                                        MFXCheckbox box = new MFXCheckbox();
+                                        CheckBox box = new CheckBox();
                                         stackPane.getChildren().add(box);
 
                                         if (isPreselected(getTreeTableRow().getItem())) {

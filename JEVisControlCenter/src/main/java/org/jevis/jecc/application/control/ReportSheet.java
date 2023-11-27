@@ -1,6 +1,6 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -138,13 +138,13 @@ public class ReportSheet extends Tab {
         }
         excelCellLabel.setText(stringBuilder.toString());
         int currentRow = row;
-        MFXButton targetsButton = new MFXButton("Select Target");
+        Button targetsButton = new Button("Select Target");
         ReportAggregationBox aggregationPeriodComboBox = new ReportAggregationBox();
         aggregationPeriodComboBox.setDisable(disable);
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation() != null) {
-            aggregationPeriodComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+            aggregationPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
         }
 
         ReportManipulationBox manipulationComboBox = new ReportManipulationBox();
@@ -152,17 +152,16 @@ public class ReportSheet extends Tab {
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation() != null) {
-            manipulationComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
+            manipulationComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
         }
 
-        MFXButton tbManipulation = new MFXButton("", ControlCenter.getSVGImage(Icon.SELECT_CHECK_BOX, 13, 13));
+        Button tbManipulation = new Button("", ControlCenter.getSVGImage(Icon.SELECT_CHECK_BOX, 13, 13));
         tbManipulation.setTooltip(tooltipMarkAll);
         tbManipulation.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
                 if (GridPane.getColumnIndex(node) == 4) {
-                    if (node instanceof ReportManipulationBox) {
-                        ReportManipulationBox reportAggregationBox = (ReportManipulationBox) node;
-                        Platform.runLater(() -> reportAggregationBox.selectItem(manipulationComboBox.getSelectionModel().getSelectedItem()));
+                    if (node instanceof ReportManipulationBox reportAggregationBox) {
+                        Platform.runLater(() -> reportAggregationBox.getSelectionModel().select(manipulationComboBox.getSelectionModel().getSelectedItem()));
                     }
                 }
             });
@@ -173,7 +172,7 @@ public class ReportSheet extends Tab {
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod() != null) {
-            fixedPeriodComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod());
+            fixedPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod());
         }
 
         ReportPeriodBox periodModeComboBox = new ReportPeriodBox(FXCollections.observableArrayList(PeriodMode.values()));
@@ -181,7 +180,7 @@ public class ReportSheet extends Tab {
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
-            periodModeComboBox.selectItem(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
+            periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
             if (reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED)
                     || reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.FIXED_TO_REPORT_END)
                     || reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().equals(PeriodMode.RELATIVE)) {
@@ -192,27 +191,25 @@ public class ReportSheet extends Tab {
         imageMarkAllPeriod.fitHeightProperty().set(13);
         imageMarkAllPeriod.fitWidthProperty().set(13);
 
-        MFXButton tbPeriod = new MFXButton("", ControlCenter.getSVGImage(Icon.SELECT_CHECK_BOX, 13, 13));
+        Button tbPeriod = new Button("", ControlCenter.getSVGImage(Icon.SELECT_CHECK_BOX, 13, 13));
         tbPeriod.setTooltip(tooltipMarkAll);
         tbPeriod.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
                 if (GridPane.getColumnIndex(node) == 6) {
-                    if (node instanceof ReportPeriodBox) {
-                        ReportPeriodBox reportPeriodBox = (ReportPeriodBox) node;
-                        Platform.runLater(() -> reportPeriodBox.selectItem(periodModeComboBox.getSelectionModel().getSelectedItem()));
+                    if (node instanceof ReportPeriodBox reportPeriodBox) {
+                        Platform.runLater(() -> reportPeriodBox.getSelectionModel().select(periodModeComboBox.getSelectionModel().getSelectedItem()));
                     }
                 }
             });
         });
 
-        MFXButton tbAggregation = new MFXButton("", ControlCenter.getSVGImage(Icon.SELECT_CHECK_BOX, 13, 13));
+        Button tbAggregation = new Button("", ControlCenter.getSVGImage(Icon.SELECT_CHECK_BOX, 13, 13));
         tbAggregation.setTooltip(tooltipMarkAll);
         tbAggregation.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
                 if (GridPane.getColumnIndex(node) == 2) {
-                    if (node instanceof ReportAggregationBox) {
-                        ReportAggregationBox reportAggregationBox = (ReportAggregationBox) node;
-                        Platform.runLater(() -> reportAggregationBox.selectItem(aggregationPeriodComboBox.getSelectionModel().getSelectedItem()));
+                    if (node instanceof ReportAggregationBox reportAggregationBox) {
+                        Platform.runLater(() -> reportAggregationBox.getSelectionModel().select(aggregationPeriodComboBox.getSelectionModel().getSelectedItem()));
                     }
                 }
             });
@@ -229,9 +226,9 @@ public class ReportSheet extends Tab {
             }
         });
 
-        MFXButton copyButton = new MFXButton("", ControlCenter.getSVGImage(Icon.COPY, 16, 16));
+        Button copyButton = new Button("", ControlCenter.getSVGImage(Icon.COPY, 16, 16));
 
-        MFXButton removeButton = new MFXButton("", ControlCenter.getSVGImage(Icon.MINUS_CIRCLE, 16, 16));
+        Button removeButton = new Button("", ControlCenter.getSVGImage(Icon.MINUS_CIRCLE, 16, 16));
         removeButton.setOnAction(event -> {
             if (row > 1) {
                 if (reportWizardDialog.getWizardType().equals(ReportWizardDialog.UPDATE)) {
@@ -429,7 +426,7 @@ public class ReportSheet extends Tab {
         Platform.runLater(() -> gridPane.add(fixedPeriodComboBox, 11, currentRow));
     }
 
-    private void setButtonText(String targetString, MFXButton targetsButton) {
+    private void setButtonText(String targetString, Button targetsButton) {
         try {
             TargetHelper th = new TargetHelper(ds, targetString);
 

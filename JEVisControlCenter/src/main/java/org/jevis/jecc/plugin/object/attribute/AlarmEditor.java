@@ -19,10 +19,7 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -91,7 +88,7 @@ public class AlarmEditor implements AttributeEditor {
      * Build main UI
      */
     private void init() {
-        MFXButton openConfig = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.openconfig"));
+        Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.openconfig"));
         openConfig.setOnAction(action -> {
             try {
                 show();
@@ -308,15 +305,14 @@ public class AlarmEditor implements AttributeEditor {
         Label standbyLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.label.standbyTime"));
         Label toleranceLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.alarmeditor.label.tolerance"));
 
-        MFXTextField nameField = new MFXTextField();
-        nameField.setFloatMode(FloatMode.DISABLED);
+        TextField nameField = new TextField();
 
         HBox limitDataBox = new HBox();
-        MFXButton treeButton = new MFXButton(I18n
+        Button treeButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 ControlCenter.getImage("folders_explorer.png", 18, 18));
 
-        MFXButton gotoButton = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
+        Button gotoButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
                 ControlCenter.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
         gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
@@ -418,11 +414,9 @@ public class AlarmEditor implements AttributeEditor {
             }
         });
 
-        MFXTextField limitField = new MFXTextField();
-        limitField.setFloatMode(FloatMode.DISABLED);
+        TextField limitField = new TextField();
 
-        MFXComboBox<AlarmConstants.Operator> operator = new MFXComboBox<>(this.operator);
-        operator.setFloatMode(FloatMode.DISABLED);
+        ComboBox<AlarmConstants.Operator> operator = new ComboBox<>(this.operator);
         Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>> cellFactory = new Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>>() {
             @Override
             public ListCell<AlarmConstants.Operator> call(ListView<AlarmConstants.Operator> param) {
@@ -449,12 +443,11 @@ public class AlarmEditor implements AttributeEditor {
 
             @Override
             public AlarmConstants.Operator fromString(String string) {
-                return operator.getItems().get(operator.getSelectedIndex());
+                return operator.getItems().get(operator.getSelectionModel().getSelectedIndex());
             }
         });
 
-        MFXTextField toleranceField = new MFXTextField();
-        toleranceField.setFloatMode(FloatMode.DISABLED);
+        TextField toleranceField = new TextField();
 
         ScheduleEditor silentTime;
 
@@ -504,7 +497,7 @@ public class AlarmEditor implements AttributeEditor {
         }
 
         if (config.getOperator() != null) {
-            operator.selectItem(AlarmConstants.Operator.parse(config.getOperator()));
+            operator.getSelectionModel().select(AlarmConstants.Operator.parse(config.getOperator()));
         } else operator.getSelectionModel().selectFirst();
 
 

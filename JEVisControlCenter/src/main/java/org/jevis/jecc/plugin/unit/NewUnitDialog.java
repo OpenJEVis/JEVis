@@ -19,7 +19,7 @@
  */
 package org.jevis.jecc.plugin.unit;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
@@ -27,6 +27,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -76,11 +77,11 @@ public class NewUnitDialog {
 
         HBox buttonPanel = new HBox();
 
-        final MFXButton ok = new MFXButton("OK");
+        final Button ok = new Button("OK");
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        MFXButton cancel = new MFXButton("Cancel");
+        Button cancel = new Button("Cancel");
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

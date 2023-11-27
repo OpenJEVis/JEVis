@@ -19,13 +19,13 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
@@ -77,15 +77,14 @@ public class WebViewEditor implements AttributeEditor {
                     logger.error("Could not add date to dat list.");
                 }
             }
-            MFXComboBox<DateTime> dateTimeComboBox = new MFXComboBox<>(FXCollections.observableList(dateTimeList));
-            dateTimeComboBox.setFloatMode(FloatMode.DISABLED);
+            ComboBox<DateTime> dateTimeComboBox = new ComboBox<>(FXCollections.observableList(dateTimeList));
             try {
                 if (_lastSample != null) {
-                    dateTimeComboBox.selectItem(_lastSample.getTimestamp());
+                    dateTimeComboBox.getSelectionModel().select(_lastSample.getTimestamp());
                 }
             } catch (Exception e) {
                 logger.error("Could not get Time Stamp of last sample.");
-                dateTimeComboBox.selectIndex(dateTimeList.size() - 1);
+                dateTimeComboBox.getSelectionModel().select(dateTimeList.size() - 1);
             }
 
             String lastSampleString = "";

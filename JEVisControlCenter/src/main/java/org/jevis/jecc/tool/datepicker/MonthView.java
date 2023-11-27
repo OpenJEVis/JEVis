@@ -1,11 +1,12 @@
 package org.jevis.jecc.tool.datepicker;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
@@ -131,7 +132,7 @@ final class MonthView extends DatePane {
 
             // iterate through the columns
             for (int colIndex = 0; colIndex < this.numberOfDaysPerWeek; colIndex++) {
-                final MFXButton button = new MFXButton();
+                final Button button = new Button();
                 button.setMaxWidth(Double.MAX_VALUE);
                 button.setMaxHeight(Double.MAX_VALUE);
 
@@ -201,7 +202,7 @@ final class MonthView extends DatePane {
                 Label label = (Label) getChildren().get(i);
                 label.setText(Integer.toString(calendar.get(Calendar.WEEK_OF_YEAR)));
             } else {
-                MFXButton control = (MFXButton) getChildren().get(i);
+                Button control = (Button) getChildren().get(i);
 
                 control.setText(Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)));
                 control.setTooltip(new Tooltip(dateFormat.format(currentDate)));

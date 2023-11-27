@@ -20,10 +20,7 @@
  */
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -123,8 +120,7 @@ public class NewObjectDialog {
         int x = 0;
 
         Label lName = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
-        final MFXTextField fName = new MFXTextField();
-        fName.setFloatMode(FloatMode.DISABLED);
+        final TextField fName = new TextField();
         fName.setPromptText(I18n.getInstance().getString("jevistree.dialog.new.name.prompt"));
 
         if (objName != null) {
@@ -187,8 +183,7 @@ public class NewObjectDialog {
         };
 
         Label templateLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.template"));
-        MFXComboBox<Template> templateBox = new MFXComboBox<>();
-        templateBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<Template> templateBox = new ComboBox<>();
         templateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
             Platform.runLater(() -> optionsGrid.getChildren().clear());
@@ -225,9 +220,8 @@ public class NewObjectDialog {
             }
         });
 
-        final MFXComboBox<JEVisClass> jeVisClassComboBox = new MFXComboBox<>(options);
-        jeVisClassComboBox.setFloatMode(FloatMode.DISABLED);
-        MFXCheckbox createCleanData = new MFXCheckbox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));
+        final ComboBox<JEVisClass> jeVisClassComboBox = new ComboBox<>(options);
+        CheckBox createCleanData = new CheckBox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));
         createCleanData.setVisible(true);
 
         jeVisClassComboBox.setConverter(new StringConverter<JEVisClass>() {
@@ -295,7 +289,7 @@ public class NewObjectDialog {
         });
 
         if (jclass != null) {
-            jeVisClassComboBox.selectItem(jclass);
+            jeVisClassComboBox.getSelectionModel().select(jclass);
         }
 
         jeVisClassComboBox.setMinWidth(250);
@@ -375,7 +369,7 @@ public class NewObjectDialog {
             });
 
             count.setDisable(true);
-            jeVisClassComboBox.selectItem(jclass);
+            jeVisClassComboBox.getSelectionModel().select(jclass);
             jeVisClassComboBox.setDisable(true);
             templateBox.setDisable(true);
         }

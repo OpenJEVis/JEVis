@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.legal.ui;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -455,8 +456,8 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                             setGraphic(null);
                         } else {
                             HBox hBox = new HBox();
-                            MFXButton mfxButtonMoveUp = new MFXButton("", ControlCenter.getSVGImage(Icon.ARROW_UP, 10, 10));
-                            MFXButton mfxButtonMoveDown = new MFXButton("", ControlCenter.getSVGImage(Icon.ARROW_DOWN, 10, 10));
+                            Button mfxButtonMoveUp = new Button("", ControlCenter.getSVGImage(Icon.ARROW_UP, 10, 10));
+                            Button mfxButtonMoveDown = new Button("", ControlCenter.getSVGImage(Icon.ARROW_DOWN, 10, 10));
                             hBox.setSpacing(3);
                             hBox.getChildren().addAll(mfxButtonMoveUp, mfxButtonMoveDown);
 

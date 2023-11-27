@@ -1,12 +1,12 @@
 package org.jevis.jecc.plugin.legal.ui;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
@@ -34,11 +34,11 @@ public class TimeFilterSelector extends GridPane {
 
 
     //TODo locale name from Column
-    MFXComboBox<DateFilter.DateField> fDateField = new MFXComboBox<>(FXCollections.observableArrayList(ALL, ISSUE_DATE, Date_Of_Examination, VERSION));
-    MFXComboBox<Month> fFromMonth = generateMonthBox();
-    MFXComboBox<Month> fToMonth = generateMonthBox();
-    MFXComboBox<Integer> fFromYear = generateYearBox();
-    MFXComboBox<Integer> fToYear = generateYearBox();
+    ComboBox<DateFilter.DateField> fDateField = new ComboBox<>(FXCollections.observableArrayList(ALL, ISSUE_DATE, Date_Of_Examination, VERSION));
+    ComboBox<Month> fFromMonth = generateMonthBox();
+    ComboBox<Month> fToMonth = generateMonthBox();
+    ComboBox<Integer> fFromYear = generateYearBox();
+    ComboBox<Integer> fToYear = generateYearBox();
     private final SimpleObjectProperty<DateFilter> valueProperty = new SimpleObjectProperty<>(null);
 
 
@@ -56,7 +56,6 @@ public class TimeFilterSelector extends GridPane {
         initValues(indexOfLegalProvisions);
         ObligationData fakeNames = new ObligationData();
 
-        fDateField.setFloatMode(FloatMode.DISABLED);
         fDateField.setConverter(new StringConverter<DateFilter.DateField>() {
             @Override
             public String toString(DateFilter.DateField object) {
@@ -195,7 +194,7 @@ public class TimeFilterSelector extends GridPane {
         return valueProperty.get();
     }
 
-    private MFXComboBox<Month> generateMonthBox() {
+    private ComboBox<Month> generateMonthBox() {
 
         ObservableList<Month> months = FXCollections.observableArrayList();
         months.add(Month.JANUARY);
@@ -211,7 +210,7 @@ public class TimeFilterSelector extends GridPane {
         months.add(Month.NOVEMBER);
         months.add(Month.DECEMBER);
 
-        MFXComboBox<Month> field = new MFXComboBox(months);
+        ComboBox<Month> field = new ComboBox(months);
         field.setConverter(new StringConverter<Month>() {
             @Override
             public String toString(Month object) {
@@ -244,7 +243,7 @@ public class TimeFilterSelector extends GridPane {
         return valueProperty;
     }
 
-    private MFXComboBox<Integer> generateYearBox() {
+    private ComboBox<Integer> generateYearBox() {
 
         ObservableList<Integer> years = FXCollections.observableArrayList();
         int year = 2010; //ISO5001 started 2010
@@ -254,7 +253,7 @@ public class TimeFilterSelector extends GridPane {
             year++;
         }
 
-        MFXComboBox<Integer> field = new MFXComboBox<>(years);
+        ComboBox<Integer> field = new ComboBox<>(years);
         field.setConverter(new StringConverter<Integer>() {
             @Override
             public String toString(Integer object) {

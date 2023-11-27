@@ -1,8 +1,6 @@
 package org.jevis.jecc.application.jevistree;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -31,7 +29,7 @@ public class SearchFilterBar extends GridPane {
     private final Label labelFilter = new Label(I18n.getInstance().getString("searchbar.filter"));
     private final Label labelSearch = new Label(I18n.getInstance().getString("searchbar.search"));
     private final Spinner<String> searchField = new Spinner<>();
-    private final MFXComboBox<JEVisTreeFilter> filterBox;
+    private final ComboBox<JEVisTreeFilter> filterBox;
     boolean replaceMode = true;
 
     public SearchFilterBar(JEVisTree tree, List<JEVisTreeFilter> filter, Finder finder, boolean showReplaceBar) {
@@ -41,8 +39,7 @@ public class SearchFilterBar extends GridPane {
         this.finder = finder;
 
         ObservableList<JEVisTreeFilter> filterList = FXCollections.observableArrayList(filter);
-        filterBox = new MFXComboBox<>(filterList);
-        filterBox.setFloatMode(FloatMode.DISABLED);
+        filterBox = new ComboBox<>(filterList);
         filterBox.setMaxWidth(Double.MAX_VALUE);
         //TODO JFX17
         filterBox.setConverter(new StringConverter<JEVisTreeFilter>() {
@@ -101,8 +98,8 @@ public class SearchFilterBar extends GridPane {
 
         Label replaceLabel = new Label(I18n.getInstance().getString("searchbar.label.replacewith"));
         TextField replaceField = new TextField();
-        MFXButton replace = new MFXButton(I18n.getInstance().getString("searchbar.button.replace"));
-        MFXButton replaceAll = new MFXButton(I18n.getInstance().getString("searchbar.button.alltreedown"));
+        Button replace = new Button(I18n.getInstance().getString("searchbar.button.replace"));
+        Button replaceAll = new Button(I18n.getInstance().getString("searchbar.button.alltreedown"));
 
         this.setHgap(5);
         this.setVgap(12);

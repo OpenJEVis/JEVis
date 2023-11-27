@@ -19,8 +19,9 @@
  */
 package org.jevis.jecc;
 
-import com.jfoenix.controls.JFXPasswordField;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -31,8 +32,8 @@ import org.jevis.api.JEVisException;
  */
 public class Login {
     private static final Logger logger = LogManager.getLogger(Login.class);
-    private final MFXTextField txUserName = new MFXTextField();
-    private final JFXPasswordField txPassword = new JFXPasswordField();
+    private final TextField txUserName = new TextField();
+    private final PasswordField txPassword = new PasswordField();
     public String usernameResult = null;
     public String passwordResult = null;
     public String serverResult = null;
@@ -60,11 +61,11 @@ public class Login {
 //        grid.setHgap(10);
 //        grid.setVgap(10);
 //        grid.setPadding(new Insets(0, 10, 0, 10));
-//        final MFXTextField username = new MFXTextField();
+//        final TextField username = new TextField();
 //        username.setPromptText("Username");
 //        final PasswordField password = new PasswordField();
 //        password.setPromptText("Password");
-////        final MFXTextField server = new MFXTextField();
+////        final TextField server = new TextField();
 ////        username.setPromptText("Server");
 //
 //        grid.add(new Label("Username:"), 0, 0);

@@ -2,12 +2,12 @@ package org.jevis.jecc.plugin.object.extension.paramter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -43,7 +43,7 @@ public class ParameterGui {
 
     public Node buildGui(JEVisSample pathSample, JEVisSample parameterSample, String textOfTextFiled) {
         GridPane gridPane = new GridPane();
-        MFXTextField textFieldPath = new MFXTextField();
+        TextField textFieldPath = new TextField();
 
 
         try {
@@ -72,8 +72,8 @@ public class ParameterGui {
             });
             gridPane.addRow(0, new Label(textOfTextFiled), textFieldPath);
             ParameterTable parameterTable = new ParameterTable();
-            MFXButton add = new MFXButton("", ControlCenter.getSVGImage(Icon.PLUS_CIRCLE, 20, 20));
-            MFXButton remove = new MFXButton("", ControlCenter.getSVGImage(Icon.MINUS_CIRCLE, 20, 20));
+            Button add = new Button("", ControlCenter.getSVGImage(Icon.PLUS_CIRCLE, 20, 20));
+            Button remove = new Button("", ControlCenter.getSVGImage(Icon.MINUS_CIRCLE, 20, 20));
             add.setOnAction(actionEvent -> {
                 parameters.add(new Parameter());
             });

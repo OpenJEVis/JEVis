@@ -19,9 +19,7 @@
  */
 package org.jevis.jecc.plugin.classes.editor;
 
-import com.jfoenix.controls.JFXCheckBox;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -75,15 +73,15 @@ public class ClassEditor {
     private static final Logger logger = LogManager.getLogger(ClassEditor.class);
     //    private final UnitChooser pop = new UnitChooser();
     private final VBox _view;
-    MFXButton fIcon;
-    MFXTextField fName = new MFXTextField();
+    Button fIcon;
+    TextField fName = new TextField();
     TextArea fDescription = new TextArea();
-    JFXCheckBox fUnique = new JFXCheckBox();
+    CheckBox fUnique = new CheckBox();
     //    private Desktop desktop = Desktop.getDesktop();
     private JEVisClass _class;
     private TitledPane t2;
     private List<JEVisType> _toDelete;
-    private MFXTextField fInherit;
+    private TextField fInherit;
     private ClassTree _tree = null;
 
     public ClassEditor() {
@@ -127,7 +125,7 @@ public class ClassEditor {
 
                 fName.prefWidthProperty().set(250d);
 
-                fIcon = new MFXButton("", getIcon(jclass));
+                fIcon = new Button("", getIcon(jclass));
 
                 fUnique.setSelected(false);
 
@@ -350,7 +348,7 @@ public class ClassEditor {
                     }
                 });
 
-                final MFXButton unitSelector = new MFXButton("");
+                final Button unitSelector = new Button("");
                 unitSelector.setDisable(!ControlCenter.getDataSource().getCurrentUser().isSysAdmin());
                 unitSelector.setMaxWidth(56.0);
                 setUnitButton(unitSelector, type);
@@ -410,7 +408,7 @@ public class ClassEditor {
                 });
 
 //                PopOver poUnit = new PopOver(unitSelector);
-                MFXButton up = new MFXButton();
+                Button up = new Button();
                 if (_class.getTypes().indexOf(type) == 0) {
 //                    up.disableProperty().set(true);
                     up.setDisable(!ControlCenter.getDataSource().getCurrentUser().isSysAdmin());
@@ -435,7 +433,7 @@ public class ClassEditor {
                     }
                 });
 
-                MFXButton down = new MFXButton();
+                Button down = new Button();
                 if (_class.getTypes().indexOf(type) == _class.getTypes().size() - 1) {
 //                    down.disableProperty().set(true);
                     down.setDisable(!ControlCenter.getDataSource().getCurrentUser().isSysAdmin());
@@ -461,7 +459,7 @@ public class ClassEditor {
                     }
                 });
 
-                MFXButton remove = new MFXButton();
+                Button remove = new Button();
                 remove.setGraphic(ControlCenter.getImage("list-remove.png", 20, 20));
                 remove.setDisable(!ControlCenter.getDataSource().getCurrentUser().isSysAdmin());
                 remove.setOnAction(new EventHandler<ActionEvent>() {
@@ -513,11 +511,11 @@ public class ClassEditor {
         Separator newSep = new Separator();
         gridPane.add(newSep, 0, row++, 6, 1);
 
-        final MFXTextField fName = new MFXTextField();
+        final TextField fName = new TextField();
         fName.setPromptText(I18n.getInstance().getString("plugin.classes.editor.type.newname"));
 //        final ChoiceBox pTypeBox = buildPrimitiveTypeBox(null);
 
-        MFXButton newB = new MFXButton();
+        Button newB = new Button();
         newB.setGraphic(ControlCenter.getImage("list-add.png", 20, 20));
         newB.setOnAction(new EventHandler<ActionEvent>() {
             @Override

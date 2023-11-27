@@ -1,7 +1,8 @@
 package org.jevis.jecc.plugin.dashboard.controls;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.text.FontWeight;
@@ -9,7 +10,7 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 import org.jevis.commons.i18n.I18n;
 
-public class FontWeightBox extends MFXComboBox<FontWeight> {
+public class FontWeightBox extends ComboBox<FontWeight> {
 
     public FontWeightBox() {
         super(FXCollections.observableArrayList(FontWeight.values()));
@@ -88,7 +89,7 @@ public class FontWeightBox extends MFXComboBox<FontWeight> {
 
             @Override
             public FontWeight fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
     }

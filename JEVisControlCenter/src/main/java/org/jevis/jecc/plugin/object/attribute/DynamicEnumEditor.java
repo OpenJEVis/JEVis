@@ -19,14 +19,14 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
@@ -138,8 +138,7 @@ public class DynamicEnumEditor implements AttributeEditor {
     private void buildGUI() {
         try {
             try {
-                MFXComboBox<String> picker = new MFXComboBox<>(observableList);
-                picker.setFloatMode(FloatMode.DISABLED);
+                ComboBox<String> picker = new ComboBox<>(observableList);
                 picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 
                 //TODO JFX17
@@ -152,7 +151,7 @@ public class DynamicEnumEditor implements AttributeEditor {
 
                     @Override
                     public String fromString(String string) {
-                        return picker.getItems().get(picker.getSelectedIndex());
+                        return picker.getItems().get(picker.getSelectionModel().getSelectedIndex());
                     }
                 });
 
@@ -160,7 +159,7 @@ public class DynamicEnumEditor implements AttributeEditor {
                 JEVisSample lastSample = att.getLatestSample();
                 if (lastSample != null) {
                     String value = lastSample.getValueAsString();
-                    picker.selectItem(value);
+                    picker.getSelectionModel().select(value);
                 }
 
                 picker.valueProperty().addListener((observable, oldValue, newValue) -> {

@@ -1,10 +1,6 @@
 package org.jevis.jecc.dialog;
 
-import com.jfoenix.controls.JFXListView;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -59,9 +55,9 @@ public class LoadAnalysisDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private final ObjectRelations objectRelations;
     private final ChartPlugin chartPlugin;
-    private final MFXTextField filterInput = new MFXTextField();
+    private final TextField filterInput = new TextField();
     private final FilteredList<JEVisObject> filteredData;
-    private final JFXListView<JEVisObject> analysisListView;
+    private final ListView<JEVisObject> analysisListView;
     private final JEVisDataSource ds;
     private final AggregationPeriodBox aggregationBox = new AggregationPeriodBox(AggregationPeriod.NONE);
     private final DisabledItemsComboBox<ManipulationMode> mathBox = getMathBox();
@@ -81,7 +77,8 @@ public class LoadAnalysisDialog extends Dialog {
     private final Tooltip presetDateBoxTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.presetdate"));
     private final Tooltip customPeriodsComboBoxTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.customdate"));
     private final Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
-    private final Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));    private final MFXComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
+    private final Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
+    private DatePicker pickerDateStart;    private final ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
     private final Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
     private final Label labelAggregation = new Label(I18n.getInstance().getString("plugin.graph.interval.label"));
     private final Label labelMath = new Label(I18n.getInstance().getString("plugin.graph.manipulation.label"));
@@ -92,12 +89,8 @@ public class LoadAnalysisDialog extends Dialog {
     private final ButtonType newType = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.NEXT_FORWARD);
     private Response response = Response.CANCEL;
     private PickerCombo pickerCombo;
-    private MFXDatePicker pickerDateStart;
+    private DatePicker pickerDateEnd;
     private LocalTimePicker pickerTimeStart;
-    private MFXDatePicker pickerDateEnd;
-    private LocalTimePicker pickerTimeEnd;
-    private PresetDateBox presetDateBox;
-    private List<CustomPeriodObject> finalListCustomPeriodObjects;
     public LoadAnalysisDialog(ChartPlugin chartPlugin, JEVisDataSource ds, ObservableList<JEVisObject> analyses) {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
@@ -106,6 +99,7 @@ public class LoadAnalysisDialog extends Dialog {
         setTitle(I18n.getInstance().getString("plugin.graph.loadanalyisdialog.title"));
         setHeaderText(I18n.getInstance().getString("plugin.graph.loadanalyisdialog.header"));
         setResizable(true);
+        getDialogPane().setMinWidth(1200);
         initOwner(ControlCenter.getStage());
         initModality(Modality.APPLICATION_MODAL);
         Stage stage = (Stage) getDialogPane().getScene().getWindow();
@@ -114,7 +108,6 @@ public class LoadAnalysisDialog extends Dialog {
 
         filteredData = new FilteredList<>(analyses, s -> true);
 
-        filterInput.setFloatMode(FloatMode.DISABLED);
         filterInput.textProperty().addListener(obs -> {
             String filter = filterInput.getText();
             if (filter == null || filter.length() == 0) {
@@ -146,7 +139,7 @@ public class LoadAnalysisDialog extends Dialog {
             }
         });
 
-        analysisListView = new JFXListView<>();
+        analysisListView = new ListView<>();
         analysisListView.setItems(filteredData);
         analysisListView.getSelectionModel().selectedIndexProperty().addListener(
                 (observable, oldValue, newValue) ->
@@ -192,23 +185,26 @@ public class LoadAnalysisDialog extends Dialog {
         JEVisHelp.getInstance().update();
 
     }
+    private LocalTimePicker pickerTimeEnd;
+    private PresetDateBox presetDateBox;
+    private List<CustomPeriodObject> finalListCustomPeriodObjects;
 
     private void initializeControls() {
-        aggregationBox.getSelectionModel().selectIndex(AggregationPeriod.parseAggregationIndex(chartPlugin.getDataSettings().getAggregationPeriod()));
+        aggregationBox.getSelectionModel().select(AggregationPeriod.parseAggregationIndex(chartPlugin.getDataSettings().getAggregationPeriod()));
         aggregationBox.setMaxWidth(200);
 
         comboBoxCustomPeriods.setMaxWidth(200);
         if (chartPlugin.getDataSettings().getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
             for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
                 if (cpo.getObject().getID().equals(chartPlugin.getDataSettings().getAnalysisTimeFrame().getId())) {
-                    comboBoxCustomPeriods.getSelectionModel().selectIndex(finalListCustomPeriodObjects.indexOf(cpo) + 1);
+                    comboBoxCustomPeriods.getSelectionModel().select(finalListCustomPeriodObjects.indexOf(cpo) + 1);
                 }
             }
         } else {
             comboBoxCustomPeriods.getSelectionModel().selectFirst();
         }
 
-        mathBox.selectItem(chartPlugin.getDataSettings().getManipulationMode());
+        mathBox.getSelectionModel().select(chartPlugin.getDataSettings().getManipulationMode());
         mathBox.setMaxWidth(200);
 
         this.getDialogPane().getButtonTypes().addAll(cancelType, newType, loadType);
@@ -259,6 +255,84 @@ public class LoadAnalysisDialog extends Dialog {
         cancelButton.setOnAction(event -> {
             this.close();
         });
+    }
+
+    private ComboBox<String> getCustomPeriodsComboBox() {
+
+        ObservableList<String> customPeriods = FXCollections.observableArrayList();
+        List<JEVisObject> listCalendarDirectories = new ArrayList<>();
+        List<JEVisObject> listCustomPeriods = new ArrayList<>();
+        List<CustomPeriodObject> listCustomPeriodObjects = new ArrayList<>();
+
+        try {
+            try {
+                JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
+                listCalendarDirectories = ds.getObjects(calendarDirectoryClass, false);
+            } catch (JEVisException e) {
+                logger.error("Error: could not get calendar directories", e);
+            }
+            if (Objects.requireNonNull(listCalendarDirectories).isEmpty()) {
+                List<JEVisObject> listBuildings = new ArrayList<>();
+                try {
+                    JEVisClass building = ds.getJEVisClass("Building");
+                    listBuildings = ds.getObjects(building, false);
+
+                    if (!listBuildings.isEmpty()) {
+                        JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
+                        if (ds.getCurrentUser().canCreate(listBuildings.get(0).getID())) {
+
+                            JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
+                            calendarDirectory.commit();
+                        }
+                    }
+                } catch (JEVisException e) {
+                    logger.error("Error: could not create new calendar directory", e);
+                }
+
+            }
+            try {
+                listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
+            } catch (JEVisException e) {
+                logger.error("Error: could not get custom period", e);
+            }
+        } catch (Exception e) {
+        }
+
+        customPeriods.add(I18n.getInstance().getString("plugin.graph.dialog.loadnew.none"));
+
+        for (JEVisObject obj : listCustomPeriods) {
+            if (obj != null) {
+                CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
+                if (cpo.isVisible()) {
+                    listCustomPeriodObjects.add(cpo);
+                    customPeriods.add(cpo.getObject().getName());
+                }
+            }
+        }
+
+        ComboBox<String> tempBox = new ComboBox<>(customPeriods);
+
+        finalListCustomPeriodObjects = listCustomPeriodObjects;
+        if (customPeriods.size() > 1) {
+            tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.equals(oldValue)) {
+                    if (newValue.intValue() > 0) {
+                        for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
+                            if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
+
+                                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.CUSTOM_START_END);
+                                chartPlugin.getDataSettings().setAnalysisTimeFrame(newTimeFrame);
+                                updateGridLayout(false);
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            tempBox.setDisable(true);
+        }
+
+        return tempBox;
     }
 
     private DisabledItemsComboBox<ManipulationMode> getMathBox() {
@@ -338,7 +412,7 @@ public class LoadAnalysisDialog extends Dialog {
 
         return math;
     }
-    //private MFXCheckbox drawOptimization;
+    //private CheckBox drawOptimization;
 
     private void addListener() {
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -560,88 +634,11 @@ public class LoadAnalysisDialog extends Dialog {
         comboBoxCustomPeriods.setTooltip(customPeriodsComboBoxTT);
     }
 
-    private MFXComboBox<String> getCustomPeriodsComboBox() {
-
-        ObservableList<String> customPeriods = FXCollections.observableArrayList();
-        List<JEVisObject> listCalendarDirectories = new ArrayList<>();
-        List<JEVisObject> listCustomPeriods = new ArrayList<>();
-        List<CustomPeriodObject> listCustomPeriodObjects = new ArrayList<>();
-
-        try {
-            try {
-                JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                listCalendarDirectories = ds.getObjects(calendarDirectoryClass, false);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get calendar directories", e);
-            }
-            if (Objects.requireNonNull(listCalendarDirectories).isEmpty()) {
-                List<JEVisObject> listBuildings = new ArrayList<>();
-                try {
-                    JEVisClass building = ds.getJEVisClass("Building");
-                    listBuildings = ds.getObjects(building, false);
-
-                    if (!listBuildings.isEmpty()) {
-                        JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                        if (ds.getCurrentUser().canCreate(listBuildings.get(0).getID())) {
-
-                            JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
-                            calendarDirectory.commit();
-                        }
-                    }
-                } catch (JEVisException e) {
-                    logger.error("Error: could not create new calendar directory", e);
-                }
-
-            }
-            try {
-                listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get custom period", e);
-            }
-        } catch (Exception e) {
-        }
-
-        customPeriods.add(I18n.getInstance().getString("plugin.graph.dialog.loadnew.none"));
-
-        for (JEVisObject obj : listCustomPeriods) {
-            if (obj != null) {
-                CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
-                if (cpo.isVisible()) {
-                    listCustomPeriodObjects.add(cpo);
-                    customPeriods.add(cpo.getObject().getName());
-                }
-            }
-        }
-
-        MFXComboBox<String> tempBox = new MFXComboBox<>(customPeriods);
-        tempBox.setFloatMode(FloatMode.DISABLED);
-
-        finalListCustomPeriodObjects = listCustomPeriodObjects;
-        if (customPeriods.size() > 1) {
-            tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue.equals(oldValue)) {
-                    if (newValue.intValue() > 0) {
-                        for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
-                            if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
-
-                                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.CUSTOM_START_END);
-                                chartPlugin.getDataSettings().setAnalysisTimeFrame(newTimeFrame);
-                                updateGridLayout(false);
-                            }
-                        }
-                    }
-                }
-            });
-        } else {
-            tempBox.setDisable(true);
-        }
-
-        return tempBox;
-    }
-
-    public MFXTextField getFilterInput() {
+    public TextField getFilterInput() {
         return filterInput;
     }
+
+
 
     public Response getResponse() {
         return response;
@@ -663,7 +660,6 @@ public class LoadAnalysisDialog extends Dialog {
         pickerTimeStart = pickerCombo.getStartTimePicker();
         pickerDateEnd = pickerCombo.getEndDatePicker();
         pickerTimeEnd = pickerCombo.getEndTimePicker();
-        filterInput.setFloatMode(FloatMode.DISABLED);
         filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
         filterInput.setStyle("-fx-font-weight: bold;");
 

@@ -1,10 +1,10 @@
 package org.jevis.jecc.plugin.notes;
 
-import com.jfoenix.controls.JFXCheckBox;
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Side;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
 
@@ -23,7 +23,7 @@ public class TagTableCellField {
         });
 
         activeTags.forEach((tagKey, tagActive) -> {
-            JFXCheckBox cb = new JFXCheckBox(tagKey);
+            CheckBox cb = new CheckBox(tagKey);
             cb.selectedProperty().bindBidirectional(tagActive);
             cb.setOnAction(event -> {
                 tagActive.set(cb.isSelected());
@@ -32,7 +32,7 @@ public class TagTableCellField {
             cm.getItems().add(cmi);
         });
 
-        MFXButton tagButton = new MFXButton("Tags");
+        Button tagButton = new Button("Tags");
         tagButton.setContextMenu(cm);
         tagButton.setOnAction(event -> {
             cm.show(tagButton, Side.BOTTOM, 0, 0);

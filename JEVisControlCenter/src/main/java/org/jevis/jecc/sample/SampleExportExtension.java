@@ -19,9 +19,7 @@
  */
 package org.jevis.jecc.sample;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXRadioButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -48,6 +46,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
+import org.jevis.jecc.application.type.DisplayType;
+import org.jevis.jecc.application.type.GUIConstants;
 import org.jevis.jecc.dialog.ExceptionDialog;
 import org.jevis.jecc.sample.csvexporttable.CSVExportTableSampleTable;
 import org.joda.time.DateTime;
@@ -56,6 +56,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -70,30 +71,30 @@ public class SampleExportExtension implements SampleEditorExtension {
     private static final Logger logger = LogManager.getLogger(SampleExportExtension.class);
     private final static String TITLE = "Export";
     public static String ICON = "1415654364_stock_export.png";
-    final MFXButton ok = new MFXButton("OK");
+    final Button ok = new Button("OK");
     private final BorderPane _view = new BorderPane();
     Label lLineSep = new Label("Field Seperator:");
-    MFXTextField fLineSep = new MFXTextField(";");
+    TextField fLineSep = new TextField(";");
     Label lEnclosedBy = new Label("Enclosed by:");
-    MFXTextField fEnclosedBy = new MFXTextField("");
+    TextField fEnclosedBy = new TextField("");
     Label lDateTimeFormat = new Label("Date Formate:");
-    MFXTextField fDateTimeFormat = new MFXTextField("yyyy-MM-dd HH:mm:ss");
+    TextField fDateTimeFormat = new TextField("yyyy-MM-dd HH:mm:ss");
     Label lTimeFormate = new Label("Time Formate:");
     Label lDateFormat = new Label("Date Formate:");
-    MFXTextField fTimeFormate = new MFXTextField("HH:mm:ss");
-    MFXTextField fDateFormat = new MFXTextField("yyyy-MM-dd");
-    MFXRadioButton bDateTime = new MFXRadioButton("Date and time in one field:");
-    MFXRadioButton bDateTime2 = new MFXRadioButton("Date and time seperated:");
+    TextField fTimeFormate = new TextField("HH:mm:ss");
+    TextField fDateFormat = new TextField("yyyy-MM-dd");
+    RadioButton bDateTime = new RadioButton("Date and time in one field:");
+    RadioButton bDateTime2 = new RadioButton("Date and time seperated:");
     Label lValueFormate = new Label("Value Formate:");
-    MFXTextField fValueFormat = new MFXTextField("###.###");
+    TextField fValueFormat = new TextField("###.###");
     Label lHeader = new Label("Custom CSV Header");
-    MFXTextField fHeader = new MFXTextField("Example header mit Attribute namen");
+    TextField fHeader = new TextField("Example header mit Attribute namen");
     Label lExample = new Label("Preview:");
     TextArea fTextArea = new TextArea("Example");
     Label lPFilePath = new Label("File:");
-    MFXTextField fFile = new MFXTextField();
-    MFXButton bFile = new MFXButton("Change");
-    MFXButton export = new MFXButton("Export");
+    TextField fFile = new TextField();
+    Button bFile = new Button("Change");
+    Button export = new Button("Export");
     File destinationFile;
     List<JEVisSample> _samples = new ArrayList<>();
     TableView tablel = new TableView();
@@ -181,7 +182,7 @@ public class SampleExportExtension implements SampleEditorExtension {
         fTimeFormate.setDisable(true);
         fDateFormat.setDisable(true);
 
-        MFXButton bValueFaormateHelp = new MFXButton("?");
+        Button bValueFaormateHelp = new Button("?");
 
         HBox fielBox = new HBox(5d);
         HBox.setHgrow(fFile, Priority.ALWAYS);
@@ -447,8 +448,7 @@ public class SampleExportExtension implements SampleEditorExtension {
         if (!xlsx) {
             String exportStrg = createCSVString(Integer.MAX_VALUE);
             if (!fFile.getText().isEmpty() && exportStrg.length() > 90) {
-                writeFile(fFile.getText(), exportStrg);
-                return true;
+                return writeFile(fFile.getText(), exportStrg);
             }
         } else {
             XSSFWorkbook workbook = new XSSFWorkbook(); //create workbook
@@ -509,9 +509,16 @@ public class SampleExportExtension implements SampleEditorExtension {
                     fieldOrder.add((TableColumn) column);
                 }
                 int primType = JEVisConstants.PrimitiveType.STRING;
-                int guiType = 0;
+                DisplayType guiType = null;
                 try {
                     primType = _att.getType().getPrimitiveType();
+                    for (DisplayType displayType : GUIConstants.getALL(primType)) {
+                        if (_att.getType().getGUIDisplayType().equals(displayType.getId())) {
+                            guiType = displayType;
+                            break;
+                        }
+                    }
+
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -547,10 +554,11 @@ public class SampleExportExtension implements SampleEditorExtension {
                                         break;
                                     case JEVisConstants.PrimitiveType.STRING:
                                         Cell stringCell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
-                                        if (guiType == JEVisConstants.DisplayType.TEXT_PASSWORD) {
+                                        if (guiType == GUIConstants.BASIC_PASSWORD) {
                                             stringCell.setCellValue("**********");
+                                        } else {
+                                            stringCell.setCellValue(sample.getValueAsString());
                                         }
-                                        stringCell.setCellValue(sample.getValueAsString());
                                         break;
                                     case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
                                         Cell pbkdf2Cell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
@@ -766,20 +774,20 @@ public class SampleExportExtension implements SampleEditorExtension {
 
     }
 
-    private void writeFile(String file, String text) throws FileNotFoundException, UnsupportedEncodingException {
+    private boolean writeFile(String file, String text) {
         PrintWriter writer;
-//        try {
-        writer = new PrintWriter(file, "UTF-8");
-        writer.println(text);
-        writer.close();
+        boolean writeOk = false;
 
-//        } catch (FileNotFoundException ex) {
-//            Logger.getLogger(CSVExport.class
-//                    .getName()).log(Level.SEVERE, null, ex);
-//        } catch (UnsupportedEncodingException ex) {
-//            Logger.getLogger(CSVExport.class
-//                    .getName()).log(Level.SEVERE, null, ex);
-//        }
+        try {
+            writer = new PrintWriter(file, StandardCharsets.UTF_8);
+            writer.println(text);
+            writer.close();
+            writeOk = true;
+        } catch (Exception e) {
+            logger.error("Could not write file ", e);
+        }
+
+        return writeOk;
     }
 
     private void dateChanged() {

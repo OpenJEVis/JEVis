@@ -1,8 +1,9 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
@@ -17,8 +18,8 @@ public class ValueBox extends HBox {
     public ValueBox(JEVisSample sample) {
         this.setSpacing(6);
 
-        MFXTextField valueField = new MFXTextField();
-        MFXTextField unitField = new MFXTextField();
+        TextField valueField = new TextField();
+        TextField unitField = new TextField();
 
         if (sample != null) {
             try {

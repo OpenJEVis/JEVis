@@ -1,8 +1,8 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
 import eu.hansolo.fx.charts.tools.ColorMapping;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
 import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
@@ -11,7 +11,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.application.Chart.ChartSetting;
 import org.jevis.jecc.application.Chart.data.ChartModel;
 
-public class ColorMappingBox extends MFXComboBox<ColorMapping> {
+public class ColorMappingBox extends ComboBox<ColorMapping> {
     public ColorMappingBox() {
         super(FXCollections.observableArrayList(ColorMapping.values()));
 
@@ -131,7 +131,7 @@ public class ColorMappingBox extends MFXComboBox<ColorMapping> {
     public ColorMappingBox(ChartSetting chartSetting) {
         this();
 
-        this.selectItem(chartSetting.getColorMapping());
+        this.getSelectionModel().select(chartSetting.getColorMapping());
 
         this.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {
@@ -143,7 +143,7 @@ public class ColorMappingBox extends MFXComboBox<ColorMapping> {
     public ColorMappingBox(ChartModel chartModel) {
         this();
 
-        this.selectItem(chartModel.getColorMapping());
+        this.getSelectionModel().select(chartModel.getColorMapping());
 
         this.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null || newValue != oldValue) {

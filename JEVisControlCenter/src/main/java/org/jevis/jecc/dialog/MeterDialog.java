@@ -1,10 +1,6 @@
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -35,8 +31,8 @@ import org.jevis.jecc.plugin.object.attribute.AttributeEditor;
 import org.jevis.jecc.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,14 +46,14 @@ public class MeterDialog extends Dialog {
     private final YearBox yearBox = new YearBox(null);
     private final DayBox dayBox = new DayBox();
     private final MonthBox monthBox = new MonthBox();
-    private final MFXDatePicker datePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+    private final DatePicker datePicker = new DatePicker(LocalDate.now());
     private final LocalTimePicker timePicker = new LocalTimePicker(LocalTime.of(0, 0, 0));
     private final Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
     private final Label oldCounterValueLabel = new Label(I18n.getInstance().getString("plugin.meters.meterdialog.oldcountervalue"));
     private final Label newCounterValueLabel = new Label(I18n.getInstance().getString("plugin.meters.meterdialog.newcountervalue"));
-    private final MFXTextField oldCounterValue = new MFXTextField();
-    private final MFXTextField newCounterValue = new MFXTextField();
-    private final MFXCheckbox enterCounterValues = new MFXCheckbox(I18n.getInstance().getString("plugin.meters.meterdialog.entercountervalues"));
+    private final TextField oldCounterValue = new TextField();
+    private final TextField newCounterValue = new TextField();
+    private final CheckBox enterCounterValues = new CheckBox(I18n.getInstance().getString("plugin.meters.meterdialog.entercountervalues"));
     private final GridPane innerGridPane = new GridPane();
     private Response response;
     private GridPane gp;
@@ -81,9 +77,7 @@ public class MeterDialog extends Dialog {
         TopMenu.applyActiveTheme(stage.getScene());
         stage.setAlwaysOnTop(true);
 
-        this.oldCounterValue.setFloatMode(FloatMode.DISABLED);
-        this.newCounterValue.setFloatMode(FloatMode.DISABLED);
-        dataTypeBox.selectItem(EnterDataTypes.DAY);
+        dataTypeBox.getSelectionModel().select(EnterDataTypes.DAY);
         monthBox.setRelations(yearBox, dayBox, null);
         yearBox.setRelations(monthBox, dayBox);
 
@@ -145,15 +139,14 @@ public class MeterDialog extends Dialog {
         VBox parentVBox = new VBox(parentLabel);
         parentVBox.setAlignment(Pos.CENTER);
 
-        MFXButton treeButton = new MFXButton(I18n
+        Button treeButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 ControlCenter.getImage("folders_explorer.png", 18, 18));
 
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        MFXTextField nameField = new MFXTextField();
-        nameField.setFloatMode(FloatMode.DISABLED);
+        TextField nameField = new TextField();
 
         Region targetSpace = new Region();
         targetSpace.setPrefWidth(20);
@@ -270,8 +263,7 @@ public class MeterDialog extends Dialog {
         Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
         VBox nameVBox = new VBox(nameLabel);
         nameVBox.setAlignment(Pos.CENTER);
-        MFXTextField nameField = new MFXTextField(selectedMeter.getName());
-        nameField.setFloatMode(FloatMode.DISABLED);
+        TextField nameField = new TextField(selectedMeter.getName());
 
         HBox targetBox = new HBox(nameVBox, nameField);
         targetBox.setSpacing(4);

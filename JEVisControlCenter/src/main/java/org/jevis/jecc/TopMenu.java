@@ -19,10 +19,7 @@
  */
 package org.jevis.jecc;
 
-import atlantafx.base.theme.PrimerDark;
-import atlantafx.base.theme.PrimerLight;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -85,12 +82,16 @@ public class TopMenu extends MenuBar {
     private static final String indigoString = "/styles/Indigo.css";
     private static final String redString = "/styles/Red.css";
     private static final String whiteString = "/styles/White.css";
-
-    private static final String primerLightString = new PrimerLight().getUserAgentStylesheet();
-    private static final String primerDarkString = new PrimerDark().getUserAgentStylesheet();
+    private static final String cupertinoDarkString = "/styles/cupertino-dark.css";
+    private static final String cupertinoLightString = "/styles/cupertino-light.css";
+    private static final String draculaString = "/styles/dracula.css";
+    private static final String nordDarkString = "/styles/nord-dark.css";
+    private static final String nordLightString = "/styles/nord-light.css";
+    private static final String primerDarkString = "/styles/primer-dark.css";
+    private static final String primerLightString = "/styles/primer-light.css";
 
     private static final List<String> allThemes = Arrays.asList(stylesString, chartString, standardString, darkString, amberString,
-            greenString, indigoString, redString, whiteString);
+            greenString, indigoString, redString, whiteString, cupertinoLightString, cupertinoDarkString, draculaString, nordLightString, nordDarkString, primerLightString, primerDarkString);
     private static String activeTheme;
     private final List<MenuItem> items = new ArrayList<>();
     private final SimpleObjectProperty<Plugin> activePlugin = new SimpleObjectProperty<>();
@@ -104,31 +105,22 @@ public class TopMenu extends MenuBar {
     }
 
     public static void applyActiveTheme(Scene scene) {
-        /* Disabled for now
-
-
         scene.getStylesheets().removeAll(allThemes);
         scene.getStylesheets().add(stylesString);
         scene.getStylesheets().add(chartString);
         scene.getStylesheets().add(activeTheme);
-         */
-
     }
 
     private void applyTheme(String themeString) {
-        /* Disabled for now
+
         Platform.runLater(() -> {
             ControlCenter.getStage().getScene().getStylesheets().removeAll(allThemes);
             ControlCenter.getStage().getScene().getStylesheets().add(stylesString);
             ControlCenter.getStage().getScene().getStylesheets().add(chartString);
-            ControlCenter.getStage().getScene().getStylesheets().add(rtfString);
             ControlCenter.getStage().getScene().getStylesheets().add(themeString);
         });
 
         activeTheme = themeString;
-
-
-         */
     }
 
     private void updateLayout() {
@@ -206,8 +198,7 @@ public class TopMenu extends MenuBar {
                     }
 
                     String suggestedName = favoriteAnalysis.createName(ControlCenter.getDataSource());
-                    MFXTextField favoriteName = new MFXTextField();
-                    favoriteName.setFloatMode(FloatMode.DISABLED);
+                    TextField favoriteName = new TextField();
                     favoriteName.setMinWidth(450);
                     favoriteName.textProperty().bindBidirectional(favoriteAnalysis.nameProperty());
                     favoriteName.setText(suggestedName);
@@ -428,17 +419,13 @@ public class TopMenu extends MenuBar {
         CheckMenuItem indigoTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.indigo"));
         CheckMenuItem redTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.red"));
         CheckMenuItem whiteTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.white"));
-        CheckMenuItem atlantafxLight = new CheckMenuItem("Primer Light");
-        CheckMenuItem atlantafxDark = new CheckMenuItem("Primer Dark");
-
-        atlantafxLight.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) applyTheme(primerLightString);
-
-
-        });
-        atlantafxDark.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) applyTheme(primerDarkString);
-        });
+        CheckMenuItem cupertinoLightTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.cupertinolight"));
+        CheckMenuItem cupertinoDarkTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.cupertinodark"));
+        CheckMenuItem draculaTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.dracula"));
+        CheckMenuItem nordLightTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.nordlight"));
+        CheckMenuItem nordDarkTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.norddark"));
+        CheckMenuItem primerLightTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.primerlight"));
+        CheckMenuItem primerDarkTheme = new CheckMenuItem(I18n.getInstance().getString("menu.view.theme.primerdark"));
 
         standardTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -452,8 +439,13 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 redTheme.setSelected(false);
                 whiteTheme.setSelected(false);
-                atlantafxLight.setSelected(false);
-                atlantafxDark.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
             } else {
                 prefTheme.putBoolean("standard", false);
             }
@@ -470,6 +462,13 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 redTheme.setSelected(false);
                 whiteTheme.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("dark", false);
@@ -487,6 +486,13 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 redTheme.setSelected(false);
                 whiteTheme.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("amber", false);
@@ -504,8 +510,13 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 redTheme.setSelected(false);
                 whiteTheme.setSelected(false);
-                atlantafxLight.setSelected(false);
-                atlantafxDark.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("green", false);
@@ -523,8 +534,13 @@ public class TopMenu extends MenuBar {
                 standardTheme.setSelected(false);
                 redTheme.setSelected(false);
                 whiteTheme.setSelected(false);
-                atlantafxLight.setSelected(false);
-                atlantafxDark.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("indigo", false);
@@ -542,8 +558,13 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 standardTheme.setSelected(false);
                 whiteTheme.setSelected(false);
-                atlantafxLight.setSelected(false);
-                atlantafxDark.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("red", false);
@@ -561,11 +582,184 @@ public class TopMenu extends MenuBar {
                 indigoTheme.setSelected(false);
                 redTheme.setSelected(false);
                 standardTheme.setSelected(false);
-                atlantafxLight.setSelected(false);
-                atlantafxDark.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
 
             } else {
                 prefTheme.putBoolean("white", false);
+            }
+        });
+
+        cupertinoLightTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("cupertinolight", true);
+                applyTheme(cupertinoLightString);
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("cupertinolight", false);
+            }
+        });
+
+        cupertinoDarkTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("cupertinodark", true);
+                applyTheme(cupertinoDarkString);
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("cupertinodark", false);
+            }
+        });
+
+        draculaTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("dracula", true);
+                applyTheme(draculaString);
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("dracula", false);
+            }
+        });
+
+        nordLightTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("nordlight", true);
+                applyTheme(nordLightString);
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("nordlight", false);
+            }
+        });
+
+        nordDarkTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("norddark", true);
+                applyTheme(nordDarkString);
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("norddark", false);
+            }
+        });
+
+        primerLightTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("primerlight", true);
+                applyTheme(primerLightString);
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerDarkTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("primerlight", false);
+            }
+        });
+
+        primerDarkTheme.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                prefTheme.putBoolean("primerdark", true);
+                applyTheme(primerDarkString);
+
+                darkTheme.setSelected(false);
+                amberTheme.setSelected(false);
+                greenTheme.setSelected(false);
+                indigoTheme.setSelected(false);
+                redTheme.setSelected(false);
+                standardTheme.setSelected(false);
+                whiteTheme.setSelected(false);
+                cupertinoLightTheme.setSelected(false);
+                cupertinoDarkTheme.setSelected(false);
+                draculaTheme.setSelected(false);
+                nordLightTheme.setSelected(false);
+                nordDarkTheme.setSelected(false);
+                primerLightTheme.setSelected(false);
+
+            } else {
+                prefTheme.putBoolean("primerdark", false);
             }
         });
 
@@ -576,10 +770,15 @@ public class TopMenu extends MenuBar {
         indigoTheme.setSelected(prefTheme.getBoolean("indigo", false));
         redTheme.setSelected(prefTheme.getBoolean("red", false));
         whiteTheme.setSelected(prefTheme.getBoolean("white", false));
-        atlantafxLight.setSelected(prefTheme.getBoolean("Primer Light", false));
-        atlantafxDark.setSelected(prefTheme.getBoolean("Primer Dark", false));
+        cupertinoLightTheme.setSelected(prefTheme.getBoolean("cupertinolight", false));
+        cupertinoDarkTheme.setSelected(prefTheme.getBoolean("cupertinodark", false));
+        draculaTheme.setSelected(prefTheme.getBoolean("dracula", false));
+        nordLightTheme.setSelected(prefTheme.getBoolean("nordlight", false));
+        nordDarkTheme.setSelected(prefTheme.getBoolean("norddark", false));
+        primerLightTheme.setSelected(prefTheme.getBoolean("primerlight", false));
+        primerDarkTheme.setSelected(prefTheme.getBoolean("primerdark", false));
 
-        theme.getItems().addAll(standardTheme, darkTheme, amberTheme, greenTheme, indigoTheme, redTheme, whiteTheme,atlantafxLight,atlantafxDark);
+        theme.getItems().addAll(standardTheme, darkTheme, amberTheme, greenTheme, indigoTheme, redTheme, whiteTheme, cupertinoLightTheme, cupertinoDarkTheme, draculaTheme, nordLightTheme, nordDarkTheme, primerLightTheme, primerDarkTheme);
         view.getItems().add(theme);
         return view;
     }

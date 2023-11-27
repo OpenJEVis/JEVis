@@ -1,7 +1,6 @@
 package org.jevis.jecc.sample;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -9,9 +8,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -42,12 +39,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ControlPane extends GridPane {
 
     private static final Logger logger = LogManager.getLogger(ControlPane.class);
-    private final MFXButton ok = new MFXButton(I18n.getInstance().getString("attribute.editor.save"));
-    private final MFXDatePicker startDate = new MFXDatePicker();
-    private final MFXDatePicker endDate = new MFXDatePicker();
-    private final MFXButton cancel = new MFXButton(I18n.getInstance().getString("attribute.editor.cancel"));
+    private final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
+    private final DatePicker startDate = new DatePicker();
+    private final DatePicker endDate = new DatePicker();
+    private final Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
 
-    private final MFXButton reloadButton = new MFXButton("", ControlCenter.getImage("1403018303_Refresh.png", 12, 12));
+    private final Button reloadButton = new Button("", ControlCenter.getImage("1403018303_Refresh.png", 12, 12));
     private final Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
     private final Label timeHeader = new Label(I18n.getInstance().getString("attribute.editor.timerange"));
     private final Label processorHeader = new Label(I18n.getInstance().getString("attribute.editor.dataprocessing"));

@@ -1,14 +1,9 @@
 package org.jevis.jecc.plugin.charts;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -103,8 +98,7 @@ public class ChartExportCSV {
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);
 
-        MFXComboBox<Locale> decimalSeparatorChoiceBox = new MFXComboBox<>(choices);
-        decimalSeparatorChoiceBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<Locale> decimalSeparatorChoiceBox = new ComboBox<>(choices);
 
         //TODO JFX17
         decimalSeparatorChoiceBox.setConverter(new StringConverter<Locale>() {
@@ -115,11 +109,11 @@ public class ChartExportCSV {
 
             @Override
             public Locale fromString(String string) {
-                return decimalSeparatorChoiceBox.getItems().get(decimalSeparatorChoiceBox.getSelectedIndex());
+                return decimalSeparatorChoiceBox.getItems().get(decimalSeparatorChoiceBox.getSelectionModel().getSelectedIndex());
             }
         });
 
-        decimalSeparatorChoiceBox.selectItem(Locale.getDefault());
+        decimalSeparatorChoiceBox.getSelectionModel().select(Locale.getDefault());
 
         decimalSeparatorChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
@@ -139,7 +133,7 @@ public class ChartExportCSV {
 
         Label selection = new Label(I18n.getInstance().getString("plugin.graph.dialog.export.decimalseparator.selection"));
         Label withUserNotesLabel = new Label(I18n.getInstance().getString("plugin.graph.dialog.export.withusernotes"));
-        MFXCheckbox withUserNotes = new MFXCheckbox();
+        CheckBox withUserNotes = new CheckBox();
         Label emptyLine1 = new Label("");
         Label emptyLine2 = new Label("");
 

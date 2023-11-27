@@ -19,11 +19,7 @@
  */
 package org.jevis.jecc.plugin.object.extension;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -35,10 +31,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -203,11 +196,11 @@ public class MemberExtension implements ObjectEditorExtension {
             HBox userBox = new HBox(1);
             userBox.getChildren().setAll(usericon, userLabel);
 
-            MFXCheckbox readBox = new MFXCheckbox();
-            MFXCheckbox writeBox = new MFXCheckbox();
-            MFXCheckbox execBox = new MFXCheckbox();
-            MFXCheckbox deleteBox = new MFXCheckbox();
-            MFXCheckbox createBox = new MFXCheckbox();
+            CheckBox readBox = new CheckBox();
+            CheckBox writeBox = new CheckBox();
+            CheckBox execBox = new CheckBox();
+            CheckBox deleteBox = new CheckBox();
+            CheckBox createBox = new CheckBox();
 
             JEVisRelationship aRelationship = null;
 
@@ -267,7 +260,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
             HBox control = new HBox(0.5);
 
-            MFXButton remove = new MFXButton();
+            Button remove = new Button();
             remove.setGraphic(ControlCenter.getImage("list-remove.png", 17, 17));
 
             //if the currentUser has a group which has delete right on the userObj he can delete it
@@ -320,10 +313,9 @@ public class MemberExtension implements ObjectEditorExtension {
         gridPane.add(addNewBox, 0, yAxis, 7, 1);
         GridPane.setFillWidth(addNewBox, true);
 
-        MFXButton newB = new MFXButton();
+        Button newB = new Button();
         //ToDo
-        final MFXComboBox<JEVisObject> users = new MFXComboBox<>();
-        users.setFloatMode(FloatMode.DISABLED);
+        final ComboBox<JEVisObject> users = new ComboBox<>();
         users.setMinWidth(500);
 
         users.setConverter(new StringConverter<JEVisObject>() {
@@ -341,7 +333,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
             @Override
             public JEVisObject fromString(String string) {
-                return users.getItems().get(users.getSelectedIndex());
+                return users.getItems().get(users.getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -360,8 +352,7 @@ public class MemberExtension implements ObjectEditorExtension {
         }
 
         FilteredList<JEVisObject> filteredData = new FilteredList<>(possibleUsers, s -> true);
-        MFXTextField filterInput = new MFXTextField();
-        filterInput.setFloatMode(FloatMode.DISABLED);
+        TextField filterInput = new TextField();
         filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         filterInput.textProperty().addListener(obs -> {
@@ -452,7 +443,7 @@ public class MemberExtension implements ObjectEditorExtension {
      * @param group
      * @param rel
      */
-    private void addRelationshipAction(final MFXCheckbox button, final int type, final JEVisObject userObj, final JEVisObject group, final JEVisRelationship rel, boolean userCanEdit) {
+    private void addRelationshipAction(final CheckBox button, final int type, final JEVisObject userObj, final JEVisObject group, final JEVisRelationship rel, boolean userCanEdit) {
 
         try {
             if (!userCanEdit) {

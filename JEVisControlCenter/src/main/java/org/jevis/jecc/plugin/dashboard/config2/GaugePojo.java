@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXCheckBox;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.beans.property.DoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -14,9 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tab;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -40,7 +35,7 @@ public class GaugePojo {
     private final double iconSize = 20;
 
     final DashboardControl dashboardControl;
-    private final MFXButton mfxButtonDelete = new MFXButton("", ControlCenter.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+    private final Button mfxButtonDelete = new Button("", ControlCenter.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
 
     int gaugeWidgetID = -1;
 
@@ -49,7 +44,7 @@ public class GaugePojo {
     private double minimum = 0;
 
     private boolean inPercent = false;
-    private final MFXButton mfxButtonAdd = new MFXButton("", ControlCenter.getImage("list-add.png", this.iconSize, this.iconSize));
+    private final Button mfxButtonAdd = new Button("", ControlCenter.getImage("list-add.png", this.iconSize, this.iconSize));
     private final ActionEvent actionEvent = new ActionEvent();
     ObservableList<String> skins = FXCollections.observableArrayList();
     private final ObservableList<GaugeSectionPojo> sections = FXCollections.observableArrayList();
@@ -61,17 +56,17 @@ public class GaugePojo {
     private boolean showValue = true;
     private final List<GaugeSectionPojo> sectionsComitted = new ArrayList<>();
 
-    private JFXCheckBox jfxCheckBoxShowTitle;
+    private CheckBox jfxCheckBoxShowTitle;
 
-    private JFXCheckBox jfxCheckBoxShowValue;
+    private CheckBox jfxCheckBoxShowValue;
 
-    private JFXCheckBox jfxCheckBoxShowUnit;
+    private CheckBox jfxCheckBoxShowUnit;
 
-    private JFXCheckBox jfxCheckBoxInPercent;
+    private CheckBox jfxCheckBoxInPercent;
 
-    private MFXTextField minTextField;
+    private TextField minTextField;
 
-    private MFXTextField maxTextField;
+    private TextField maxTextField;
     private GaugeSectionTableView tableViewSections;
 
     private GridPane gridPane;
@@ -286,21 +281,21 @@ public class GaugePojo {
     private void createMaxMin() {
 
 
-        jfxCheckBoxShowTitle = new JFXCheckBox();
+        jfxCheckBoxShowTitle = new CheckBox();
         jfxCheckBoxShowTitle.setSelected(showTitle);
-        jfxCheckBoxShowValue = new JFXCheckBox();
+        jfxCheckBoxShowValue = new CheckBox();
         jfxCheckBoxShowValue.setSelected(showValue);
-        jfxCheckBoxShowUnit = new JFXCheckBox();
+        jfxCheckBoxShowUnit = new CheckBox();
         jfxCheckBoxShowUnit.setSelected(showUnit);
 
 
-        jfxCheckBoxInPercent = new JFXCheckBox();
+        jfxCheckBoxInPercent = new CheckBox();
         jfxCheckBoxInPercent.setSelected(inPercent);
 
 
-        minTextField = new MFXTextField(String.valueOf(minimum));
+        minTextField = new TextField(String.valueOf(minimum));
 
-        maxTextField = new MFXTextField(String.valueOf(maximum));
+        maxTextField = new TextField(String.valueOf(maximum));
 
         gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showTitle")), jfxCheckBoxShowTitle);
         gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showUnit")), jfxCheckBoxShowUnit);

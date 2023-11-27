@@ -1,17 +1,20 @@
 package org.jevis.jecc.plugin.dashboard.timeframe;
 
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.Node;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.skin.ComboBoxPopupControl;
+import javafx.scene.control.skin.DatePickerSkin;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Popup;
-import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
-import java.time.YearMonth;
 
 public class TimeFrameEditor extends Popup {
 
@@ -20,38 +23,37 @@ public class TimeFrameEditor extends Popup {
     private static Method getPopupContent;
 
     static {
-        //TODO JFX17
-//        try {
-//            getPopupContent = MFXDatePickerSkin.class.getDeclaredMethod("getPopupContent");
-//            getPopupContent.setAccessible(true);
-//        } catch (NoSuchMethodException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            getPopupContent = DatePickerSkin.class.getDeclaredMethod("getPopupContent");
+            getPopupContent.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
     }
 
-    MFXDatePicker datePicker;
+    DatePicker datePicker;
 
     public TimeFrameEditor(TimeFrame timeFrame, Interval interval) {
         super();
         this.intervalProperty = new SimpleObjectProperty<>(this, "interval", interval);
         this.timeFrame = timeFrame;
-        this.datePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
-        //TODO JFX17
-        //this.datePicker.setShowWeekNumbers(true);
-//        JFXDatePickerSkin datePickerSkin = new JFXDatePickerSkin(this.datePicker);
-//        ComboBoxPopupControl<LocalDate> comboBoxPopupControl = datePickerSkin;
-//        Node popupContent = null;
-//        try {
-//            popupContent = (Node) TimeFrameEditor.getPopupContent.invoke(datePickerSkin);
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        } catch (InvocationTargetException e) {
-//            e.printStackTrace();
-//        }
+        this.datePicker = new DatePicker(LocalDate.now());
+
+        this.datePicker.setShowWeekNumbers(true);
+        DatePickerSkin datePickerSkin = new DatePickerSkin(this.datePicker);
+        ComboBoxPopupControl<LocalDate> comboBoxPopupControl = datePickerSkin;
+        Node popupContent = null;
+        try {
+            popupContent = (Node) TimeFrameEditor.getPopupContent.invoke(datePickerSkin);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
 
 
         BorderPane borderPane = new BorderPane();
-        // borderPane.setCenter(popupContent);
+        borderPane.setCenter(popupContent);
 
         getContent().add(borderPane);
         this.datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {

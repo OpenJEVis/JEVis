@@ -5,9 +5,7 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -16,10 +14,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -537,27 +532,26 @@ public class ScheduleEditor implements AttributeEditor {
 
         timeZones.addAll(FXCollections.observableArrayList(org.joda.time.DateTimeZone.getAvailableIDs()));
 
-        MFXComboBox<String> timeZoneBox = new MFXComboBox<>(timeZones);
-        timeZoneBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<String> timeZoneBox = new ComboBox<>(timeZones);
 
-        timeZoneBox.selectItem(inputValue.getTimezone());
+        timeZoneBox.getSelectionModel().select(inputValue.getTimezone());
 
         //TODO JFX17
 
         timeZoneBox.setConverter(new StringConverter<String>() {
             @Override
             public String toString(String object) {
-                return object.toString();
+                return object;
             }
 
             @Override
             public String fromString(String string) {
-                return timeZoneBox.getItems().get(timeZoneBox.getSelectedIndex());
+                return timeZoneBox.getItems().get(timeZoneBox.getSelectionModel().getSelectedIndex());
             }
         });
 
         timeZoneBox.valueProperty().addListener((observableValue, oldValue, newValue) -> {
-            inputValue.setTimezone(newValue.toString());
+            inputValue.setTimezone(newValue);
         });
 
         TabPane tabPane = new TabPane();
@@ -572,9 +566,9 @@ public class ScheduleEditor implements AttributeEditor {
             fillTab(newTab, rule);
         }
 
-        MFXButton MFXButtonAddRule = new MFXButton();
-        MFXButtonAddRule.setGraphic(ControlCenter.getImage("list-add.png", 16, 16));
-        MFXButtonAddRule.setOnAction(event -> {
+        Button ButtonAddRule = new Button();
+        ButtonAddRule.setGraphic(ControlCenter.getImage("list-add.png", 16, 16));
+        ButtonAddRule.setOnAction(event -> {
             JsonSchedulerRule newRule = new JsonSchedulerRule();
             int max = 0;
             for (JsonSchedulerRule jsonSchedulerRule : inputValue.getRules()) {
@@ -596,16 +590,16 @@ public class ScheduleEditor implements AttributeEditor {
             tabPane.getTabs().add(newTab);
         });
 
-        MFXButton MFXButtonDeleteRule = new MFXButton();
-        MFXButtonDeleteRule.setGraphic(ControlCenter.getImage("if_trash_(delete)_16x16_10030.gif", 16, 16));
-        MFXButtonDeleteRule.setOnAction(event -> {
+        Button ButtonDeleteRule = new Button();
+        ButtonDeleteRule.setGraphic(ControlCenter.getImage("if_trash_(delete)_16x16_10030.gif", 16, 16));
+        ButtonDeleteRule.setOnAction(event -> {
             int index = tabPane.getSelectionModel().getSelectedIndex();
             inputValue.getRules().remove(index);
             tabPane.getTabs().remove(index);
         });
 
         HBox addDeleteBox = new HBox();
-        addDeleteBox.getChildren().setAll(MFXButtonAddRule, MFXButtonDeleteRule);
+        addDeleteBox.getChildren().setAll(ButtonAddRule, ButtonDeleteRule);
 
         box.setSpacing(8);
         box.getChildren().setAll(timeZoneBox, addDeleteBox, tabPane);

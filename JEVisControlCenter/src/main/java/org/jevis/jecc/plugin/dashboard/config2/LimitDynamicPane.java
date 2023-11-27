@@ -1,16 +1,12 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import com.jfoenix.controls.JFXCheckBox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
@@ -26,8 +22,8 @@ public class LimitDynamicPane extends GridPane {
     private static final Logger logger = LogManager.getLogger(LimitDynamicPane.class);
     private final Label upperColorlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.color.upper"));
     private final Label lowerColorlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.color.lower"));
-    private final JFXCheckBox enableUpperBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.upper"));
-    private final JFXCheckBox enableLowerBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.lower"));
+    private final CheckBox enableUpperBox = new CheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.upper"));
+    private final CheckBox enableLowerBox = new CheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.lower"));
     //    private ColorPicker upperColorPicker = new ColorPicker();
 //    private ColorPicker lowerColorPicker = new ColorPicker();
     private final ColorPickerAdv upperColorPicker = new ColorPickerAdv();
@@ -36,13 +32,13 @@ public class LimitDynamicPane extends GridPane {
 
     private final Label upperVOffsetlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.upper"));
     private final Label lowerVOffsetlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.lower"));
-    private final MFXTextField upperValueField = new MFXTextField();
-    private final MFXTextField lowerValueField = new MFXTextField();
+    private final TextField upperValueField = new TextField();
+    private final TextField lowerValueField = new TextField();
 
     private final Label sourceLable = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.source"));
     private final ObservableList<Widget> widgetList;
     private final Limit limit;
-    private MFXComboBox<Widget> widgetBox;
+    private ComboBox<Widget> widgetBox;
 
 
     public LimitDynamicPane(Limit limit, ObservableList<Widget> widgetList) {
@@ -79,9 +75,8 @@ public class LimitDynamicPane extends GridPane {
         upperValueField.setText(limit.upperLimitOffset.toString());
         lowerValueField.setText(limit.lowerLimitOffset.toString());
 
-        widgetBox = new MFXComboBox<>(
+        widgetBox = new ComboBox<>(
                 widgetList.filtered(widget -> widget.typeID().equals(ValueWidget.WIDGET_ID)));
-        widgetBox.setFloatMode(FloatMode.DISABLED);
 
         //TODO JFX17
         widgetBox.setConverter(new StringConverter<Widget>() {
@@ -110,7 +105,7 @@ public class LimitDynamicPane extends GridPane {
 
             @Override
             public Widget fromString(String string) {
-                return widgetBox.getItems().get(widgetBox.getSelectedIndex());
+                return widgetBox.getItems().get(widgetBox.getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -119,7 +114,7 @@ public class LimitDynamicPane extends GridPane {
                     .filter(widget1 -> widget1.getConfig().getUuid() == limit.limitWidget)
                     .findFirst();
             if (widget.isPresent()) {
-                widgetBox.selectItem(widget.get());
+                widgetBox.getSelectionModel().select(widget.get());
             }
         }
 

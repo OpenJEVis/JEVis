@@ -3,14 +3,9 @@ package org.jevis.jecc.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tab;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
@@ -70,8 +65,7 @@ public class ArrowConfig {
 
         Label limitTypeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.orientation"));
 
-        MFXComboBox<ARROW_ORIENTATION> orientationTypeBox = new MFXComboBox<>(FXCollections.observableArrayList(ARROW_ORIENTATION.values()));
-        orientationTypeBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<ARROW_ORIENTATION> orientationTypeBox = new ComboBox<>(FXCollections.observableArrayList(ARROW_ORIENTATION.values()));
         Callback<ListView<ARROW_ORIENTATION>, ListCell<ARROW_ORIENTATION>> cellFactory = new Callback<ListView<ARROW_ORIENTATION>, ListCell<ARROW_ORIENTATION>>() {
             @Override
             public ListCell<ARROW_ORIENTATION> call(ListView<ARROW_ORIENTATION> param) {
@@ -119,11 +113,11 @@ public class ArrowConfig {
 
             @Override
             public ARROW_ORIENTATION fromString(String string) {
-                return orientationTypeBox.getItems().get(orientationTypeBox.getSelectedIndex());
+                return orientationTypeBox.getItems().get(orientationTypeBox.getSelectionModel().getSelectedIndex());
             }
         });
 
-        orientationTypeBox.selectItem(orientation);
+        orientationTypeBox.getSelectionModel().select(orientation);
 
         orientationTypeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             orientation = newValue;
@@ -133,8 +127,7 @@ public class ArrowConfig {
 
         Label shapeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.shape"));
 
-        MFXComboBox<SHAPE> shapeBox = new MFXComboBox<>(FXCollections.observableArrayList(SHAPE.values()));
-        shapeBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<SHAPE> shapeBox = new ComboBox<>(FXCollections.observableArrayList(SHAPE.values()));
         Callback<ListView<SHAPE>, ListCell<SHAPE>> shapeCellFactory = new Callback<ListView<SHAPE>, ListCell<SHAPE>>() {
             @Override
             public ListCell<SHAPE> call(ListView<SHAPE> param) {
@@ -173,11 +166,11 @@ public class ArrowConfig {
 
             @Override
             public SHAPE fromString(String string) {
-                return shapeBox.getItems().get(shapeBox.getSelectedIndex());
+                return shapeBox.getItems().get(shapeBox.getSelectionModel().getSelectedIndex());
             }
         });
 
-        shapeBox.selectItem(shape);
+        shapeBox.getSelectionModel().select(shape);
 
         shapeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             shape = newValue;

@@ -1,9 +1,9 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
 import com.ibm.icu.text.NumberFormat;
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
@@ -16,7 +16,7 @@ public class ValueWithDateTimeBox extends HBox {
         this.setSpacing(6);
         NumberFormat nf = value.getNumberFormat();
 
-        MFXTextField valueField = new MFXTextField();
+        TextField valueField = new TextField();
 
         if (value != null) {
             try {

@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -121,10 +118,10 @@ public class WidgetNavigator {
         Region spacer = new Region();
         spacer.setPrefWidth(20d);
 
-        MFXTextField nameField = new MFXTextField();
-        MFXTextField widthField = new MFXTextField();
-        MFXTextField heightField = new MFXTextField();
-        MFXComboBox<Double> listZoomLevel = DashBoardToolbar.buildZoomLevelListView();
+        TextField nameField = new TextField();
+        TextField widthField = new TextField();
+        TextField heightField = new TextField();
+        ComboBox<Double> listZoomLevel = DashBoardToolbar.buildZoomLevelListView();
 
 
         TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
@@ -133,13 +130,13 @@ public class WidgetNavigator {
         timeFactoryBox.selectValue(control.getActiveDashboard().getTimeFrame());
         //timeFactoryBox.selectValue(control.getActiveTimeFrame());
 
-        MFXButton backgroundButton = new MFXButton("", ControlCenter.getImage("if_32_171485.png", this.iconSize, this.iconSize));
-        MFXButton removeBGIcon = new MFXButton("", ControlCenter.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+        Button backgroundButton = new Button("", ControlCenter.getImage("if_32_171485.png", this.iconSize, this.iconSize));
+        Button removeBGIcon = new Button("", ControlCenter.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
         ColorPickerAdv pickerAdv = new ColorPickerAdv();
         pickerAdv.setValue(control.getActiveDashboard().getBackgroundColor());
         pickerAdv.setMinHeight(backgroundButton.getHeight());
 
-        MFXComboBox<String> bhModeBox = buildBGMOdeBox();
+        ComboBox<String> bhModeBox = buildBGMOdeBox();
 
         HBox imageBox = new HBox();
         imageBox.setSpacing(5);
@@ -236,11 +233,10 @@ public class WidgetNavigator {
     }
 
 
-    private MFXComboBox<String> buildBGMOdeBox() {
+    private ComboBox<String> buildBGMOdeBox() {
         ObservableList<String> modeList = FXCollections.observableArrayList();
         modeList.addAll(BackgroundMode.defaultMode, BackgroundMode.repeat, BackgroundMode.stretch);
-        MFXComboBox<String> comboBox = new MFXComboBox<>(modeList);
-        comboBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<String> comboBox = new ComboBox<>(modeList);
         comboBox.setValue(control.getActiveDashboard().backgroundMode);
 
 
@@ -287,7 +283,7 @@ public class WidgetNavigator {
 
             @Override
             public String fromString(String string) {
-                return comboBox.getItems().get(comboBox.getSelectedIndex());
+                return comboBox.getItems().get(comboBox.getSelectionModel().getSelectedIndex());
             }
         });
 

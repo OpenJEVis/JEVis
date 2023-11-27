@@ -1,26 +1,27 @@
 package org.jevis.jecc.plugin.action.ui.control;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventDispatcher;
 import javafx.geometry.Side;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.TextField;
 import org.jevis.jecc.plugin.action.data.ActionPlanData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MFXCheckComboBox extends MFXTextField {
+public class CheckComboBox extends TextField {
 
-    private List<MFXCheckbox> boxes = new ArrayList<>();
-    private SimpleStringProperty text = new SimpleStringProperty("");
+    private final List<CheckBox> boxes = new ArrayList<>();
+    private final SimpleStringProperty text = new SimpleStringProperty("");
 
-    public MFXCheckComboBox(ObservableList<String> items, String selected) {
+    public CheckComboBox(ObservableList<String> items, String selected) {
         //super(ActionPlanData.listToString(items).replaceAll(";", ", "));
         super(selected.replaceAll(";", ", "));
         setEditable(false);
@@ -39,7 +40,7 @@ public class MFXCheckComboBox extends MFXTextField {
         List<String> selectedField = Arrays.asList(selected.split(";"));
 
         for (String s : items) {
-            MFXCheckbox cb = new MFXCheckbox(s);
+            CheckBox cb = new CheckBox(s);
             cb.setSelected(selectedField.contains(s.trim()));
 
             boxes.add(cb);
@@ -57,7 +58,7 @@ public class MFXCheckComboBox extends MFXTextField {
 
     private void updateValue() {
         ObservableList tmptext = FXCollections.observableArrayList();
-        for (MFXCheckbox mfxCheckbox : boxes) {
+        for (CheckBox mfxCheckbox : boxes) {
             if (mfxCheckbox.isSelected()) tmptext.add(mfxCheckbox.getText());
         }
 
@@ -67,7 +68,7 @@ public class MFXCheckComboBox extends MFXTextField {
 
     public ObservableList getValue() {
         ObservableList tmptext = FXCollections.observableArrayList();
-        for (MFXCheckbox mfxCheckbox : boxes) {
+        for (CheckBox mfxCheckbox : boxes) {
             if (mfxCheckbox.isSelected()) tmptext.add(mfxCheckbox.getText());
         }
         return tmptext;

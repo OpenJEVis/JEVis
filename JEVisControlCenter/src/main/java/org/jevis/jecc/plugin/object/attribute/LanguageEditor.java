@@ -5,14 +5,14 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.util.StringConverter;
@@ -69,7 +69,7 @@ public class LanguageEditor implements AttributeEditor {
      * Move to a common placed because is also used elsewhere
      **/
     public static ObservableList<Locale> getEnumList() {
-        List<String> list = Arrays.asList(new String[]{"de", "en", "es", "fr", "hi", "zh", "ar", "bn", "ru", "pt", "ur", "ja", "tr", "ko", "uk", "th", "it"});
+        List<String> list = Arrays.asList("de", "en", "es", "fr", "hi", "zh", "ar", "bn", "ru", "pt", "ur", "ja", "tr", "ko", "uk", "th", "it");
         ObservableList<Locale> enumList = FXCollections.observableArrayList();
         try {
             String[] langs = Locale.getISOLanguages();
@@ -108,9 +108,8 @@ public class LanguageEditor implements AttributeEditor {
         ObservableList<Locale> enumList = FXCollections.observableArrayList();
         enumList.addAll(getEnumList());
 
-//        MFXComboBox picker = new MFXComboBox(enumList);
-        MFXComboBox<Locale> picker = new MFXComboBox<>(enumList);
-        picker.setFloatMode(FloatMode.DISABLED);
+//        ComboBox picker = new ComboBox (enumList);
+        ComboBox<Locale> picker = new ComboBox<>(enumList);
 
         //TODO JFX17
         picker.setConverter(new StringConverter<Locale>() {
@@ -121,17 +120,17 @@ public class LanguageEditor implements AttributeEditor {
 
             @Override
             public Locale fromString(String string) {
-                return picker.getItems().get(picker.getSelectedIndex());
+                return picker.getItems().get(picker.getSelectionModel().getSelectedIndex());
             }
         });
 
-        picker.selectItem(orgLoca);
+        picker.getSelectionModel().select(orgLoca);
 
         picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 
         picker.valueProperty().addListener((observableValue, oldValue, newValue) -> {
             try {
-                Locale local = (Locale) newValue;
+                Locale local = newValue;
                 _newSample = _attribute.buildSample(new DateTime(), local.getLanguage());
                 _changed.setValue(Boolean.TRUE);
             } catch (JEVisException ex) {

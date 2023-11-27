@@ -1,10 +1,6 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,15 +35,15 @@ public class SideConfigPanel extends GridPane {
     private static final Logger logger = LogManager.getLogger(SideConfigPanel.class);
     private final DashboardControl control;
     private final double iconSize = 16;
-    private final MFXComboBox<Integer> layerComboBox = new MFXComboBox<>();
+    private final ComboBox<Integer> layerComboBox = new ComboBox<>();
     private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
     private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
-    private final MFXCheckbox showShadowField = new MFXCheckbox();
-    private final MFXCheckbox showValueField = new MFXCheckbox();
+    private final CheckBox showShadowField = new CheckBox();
+    private final CheckBox showValueField = new CheckBox();
     private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
     private final FontWeightBox fontWeightBox = new FontWeightBox();
     private final FontPostureBox fontPostureBox = new FontPostureBox();
-    private final MFXCheckbox fontUnderlined = new MFXCheckbox(I18n.getInstance().getString("plugin.dashboard.controls.fontunderlined"));
+    private final CheckBox fontUnderlined = new CheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fontunderlined"));
     private final Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
     private final Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
     private final Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
@@ -63,18 +59,18 @@ public class SideConfigPanel extends GridPane {
     private final Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
     private final Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
     private final Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
-    private final MFXTextField widthText = new MFXTextField();
-    private final MFXTextField heightText = new MFXTextField();
-    private final MFXTextField xPosText = new MFXTextField();
-    private final MFXTextField yPosText = new MFXTextField();
-    private final MFXButton leftButton = new MFXButton("", ControlCenter.getImage("arrow_left.png", iconSize, iconSize));
-    private final MFXButton rightButton = new MFXButton("", ControlCenter.getImage("arrow_right.png", iconSize, iconSize));
-    private final MFXButton downButton = new MFXButton("", ControlCenter.getImage("arrow_down.png", iconSize, iconSize));
-    private final MFXButton upButton = new MFXButton("", ControlCenter.getImage("arrow_up.png", iconSize, iconSize));
-    private final MFXButton switchSide = new MFXButton("", ControlCenter.getImage("Arrow_BothDirections.png", 20, 20));
-    private final MFXButton equalizeDataModelButton = new MFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
-    private final MFXComboBox<Pos> alignmentBox = new MFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
-    private final MFXTextField titleText = new MFXTextField();
+    private final TextField widthText = new TextField();
+    private final TextField heightText = new TextField();
+    private final TextField xPosText = new TextField();
+    private final TextField yPosText = new TextField();
+    private final Button leftButton = new Button("", ControlCenter.getImage("arrow_left.png", iconSize, iconSize));
+    private final Button rightButton = new Button("", ControlCenter.getImage("arrow_right.png", iconSize, iconSize));
+    private final Button downButton = new Button("", ControlCenter.getImage("arrow_down.png", iconSize, iconSize));
+    private final Button upButton = new Button("", ControlCenter.getImage("arrow_up.png", iconSize, iconSize));
+    private final Button switchSide = new Button("", ControlCenter.getImage("Arrow_BothDirections.png", 20, 20));
+    private final Button equalizeDataModelButton = new Button(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
+    private final ComboBox<Pos> alignmentBox = new ComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+    private final TextField titleText = new TextField();
     private final TextField pixels = new TextField("25");
     private final GridPane dataPointConfigPane = new GridPane();
     ListView<JEVisObject> selectedObjectsListView = new ListView();
@@ -83,7 +79,7 @@ public class SideConfigPanel extends GridPane {
     FlowPane dataEditor = new FlowPane();
     //-----------
     //ObservableList<String> dataItems = FXCollections.observableArrayList("One", "Two", "Three", "Four", "Five", "Six","Seven", "Eight", "Nine", "Ten");
-    MFXComboBox<JEVisObject> objectSelectionBox = new MFXComboBox<>();
+    ComboBox<JEVisObject> objectSelectionBox = new ComboBox<>();
     private boolean isUpdating = false;
     private Widget selectedWidget = null;
 
@@ -91,9 +87,6 @@ public class SideConfigPanel extends GridPane {
     public SideConfigPanel(DashboardControl control) {
         super();
         this.control = control;
-        this.layerComboBox.setFloatMode(FloatMode.DISABLED);
-        this.alignmentBox.setFloatMode(FloatMode.DISABLED);
-        this.objectSelectionBox.setFloatMode(FloatMode.DISABLED);
         setStyle("-fx-background-color: ffffff;"); //fcfcfc
 
 
@@ -151,15 +144,15 @@ public class SideConfigPanel extends GridPane {
             showShadowField.setSelected(widget.getConfig().getShowShadow());
             showValueField.setSelected(widget.getConfig().getShowValue());
             fontSizeSpinner.getValueFactory().setValue(widget.getConfig().getFontSize().intValue());
-            fontWeightBox.selectItem(widget.getConfig().getFontWeight());
-            fontPostureBox.selectItem(widget.getConfig().getFontPosture());
+            fontWeightBox.getSelectionModel().select(widget.getConfig().getFontWeight());
+            fontPostureBox.getSelectionModel().select(widget.getConfig().getFontPosture());
             fontUnderlined.setSelected(widget.getConfig().getFontUnderlined());
             widthText.setText(widget.getConfig().getSize().getWidth() + "");
             xPosText.setText(widget.getConfig().getxPosition() + "");
             yPosText.setText(widget.getConfig().getyPosition() + "");
             heightText.setText(widget.getConfig().getSize().getHeight() + "");
             pixels.setText(control.getActiveDashboard().getxGridInterval().intValue() + "");
-            alignmentBox.selectItem(widget.getConfig().getTitlePosition());
+            alignmentBox.getSelectionModel().select(widget.getConfig().getTitlePosition());
             titleText.setText(widget.getConfig().getTitle());
 
             selectedObjectsListView.getItems().clear();
@@ -599,7 +592,7 @@ public class SideConfigPanel extends GridPane {
 
         JEVisDataSource ds = control.getDataSource();
         ObjectRelations objectRelations = new ObjectRelations(ds);
-        MFXTextField filterTextField = new MFXTextField();
+        TextField filterTextField = new TextField();
         filterTextField.setPromptText("Type to filter...");
         filterTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             //System.out.println("newValue: " + newValue);
@@ -689,7 +682,7 @@ public class SideConfigPanel extends GridPane {
 
             @Override
             public JEVisObject fromString(String string) {
-                return objectSelectionBox.getItems().get(objectSelectionBox.getSelectedIndex());
+                return objectSelectionBox.getItems().get(objectSelectionBox.getSelectionModel().getSelectedIndex());
             }
         });
 

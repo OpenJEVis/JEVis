@@ -19,10 +19,7 @@
  */
 package org.jevis.jecc.sample.tableview;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXPasswordField;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -447,8 +444,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            TableSample tableSample = (TableSample) getTableRow().getItem();
-                            MFXTextField textField = new MFXTextField(dateViewFormat.print(tableSample.getTimeStamp()));
+                            TableSample tableSample = getTableRow().getItem();
+                            TextField textField = new TextField(dateViewFormat.print(tableSample.getTimeStamp()));
                             setDefaultFieldStyle(this, textField);
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -506,8 +503,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             try {
-                                TableSample tableSample = (TableSample) getTableRow().getItem();
-                                MFXCheckbox checkBox = new MFXCheckbox();
+                                TableSample tableSample = getTableRow().getItem();
+                                CheckBox checkBox = new CheckBox();
                                 checkBox.setSelected(tableSample.isSelected());
                                 checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
                                     tableSample.setIsSelected(newValue);
@@ -626,8 +623,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            TableSample tableSample = (TableSample) getTableRow().getItem();
-                            MFXTextField textField = new MFXTextField();
+                            TableSample tableSample = getTableRow().getItem();
+                            TextField textField = new TextField();
                             setDefaultFieldStyle(this, textField);
 
                             try {
@@ -723,7 +720,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             String fileName = "";
-                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TableSample tableSample = getTableRow().getItem();
                             JEVisSample sample = tableSample.getJevisSample();
                             boolean isPDF = false;
                             boolean isImage = false;
@@ -745,7 +742,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
-                            MFXButton downloadButton = new MFXButton(fileName, ControlCenter.getImage("save.gif", 14, 14));
+                            Button downloadButton = new Button(fileName, ControlCenter.getImage("save.gif", 14, 14));
 
                             downloadButton.setOnAction(event -> {
 
@@ -771,7 +768,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
                             HBox hBox = new HBox(downloadButton);
                             if (isPDF) {
-                                MFXButton pdfButton = new MFXButton("", ControlCenter.getImage("pdf_24_2133056.png", 14, 14));
+                                Button pdfButton = new Button("", ControlCenter.getImage("pdf_24_2133056.png", 14, 14));
                                 hBox.getChildren().add(pdfButton);
                                 pdfButton.setOnAction(event -> {
                                     PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
@@ -784,7 +781,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             }
 
                             if (isImage) {
-                                MFXButton imageButton = new MFXButton("", ControlCenter.getImage("export-image.png", 18, 18));
+                                Button imageButton = new Button("", ControlCenter.getImage("export-image.png", 18, 18));
                                 hBox.getChildren().add(imageButton);
                                 imageButton.setOnAction(event -> {
                                     ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
@@ -821,7 +818,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TableSample tableSample = getTableRow().getItem();
                             JEVisSample sample = tableSample.getJevisSample();
 
                             ToggleSwitchPlus toggleSwitchPlus = new ToggleSwitchPlus();
@@ -868,11 +865,11 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TableSample tableSample = getTableRow().getItem();
 
                             TextArea textField = new TextArea(tableSample.getValue().toString());
 
-                            MFXButton expand = new MFXButton(null);
+                            Button expand = new Button(null);
                             expand.setBackground(new Background(new BackgroundImage(
                                     ControlCenter.getImage("if_ExpandMore.png"),
                                     BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
@@ -903,7 +900,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                     setDefaultCellStyle(this);
 
 
-                                    tableSample.setValue(newValue + "");
+                                    tableSample.setValue(newValue);
 
                                 } catch (Exception ex) {
                                     setErrorCellStyle(this, ex);
@@ -942,7 +939,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TableSample tableSample = getTableRow().getItem();
                             Period p = Period.ZERO;
                             try {
                                 p = new Period(tableSample.getValue().toString());
@@ -992,14 +989,14 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TableSample tableSample = getTableRow().getItem();
 
-                            MFXPasswordField textField = new MFXPasswordField();
+                            PasswordField textField = new PasswordField();
                             textField.setText(tableSample.getValue().toString());
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
                                     setDefaultCellStyle(this);
-                                    tableSample.setValue(newValue + "");
+                                    tableSample.setValue(newValue);
 
                                 } catch (Exception ex) {
                                     setErrorCellStyle(this, ex);
@@ -1038,8 +1035,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            TableSample tableSample = (TableSample) getTableRow().getItem();
-                            MFXTextField textField = new MFXTextField(tableSample.getValue().toString());
+                            TableSample tableSample = getTableRow().getItem();
+                            TextField textField = new TextField(tableSample.getValue().toString());
                             setDefaultFieldStyle(this, textField);
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
@@ -1157,9 +1154,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             setDefaultCellStyle(this);
-                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            TableSample tableSample = getTableRow().getItem();
 
-                            MFXTextField textField = new MFXTextField(tableSample.getNote());
+                            TextField textField = new TextField(tableSample.getNote());
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
 

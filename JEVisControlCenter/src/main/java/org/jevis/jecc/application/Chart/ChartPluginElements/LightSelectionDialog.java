@@ -1,6 +1,6 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -125,7 +125,7 @@ public class LightSelectionDialog extends Dialog {
 
         treeView.setShowRoot(false);
 
-        TextField filterField = new MFXTextField();
+        TextField filterField = new TextField();
 
         rootNode.predicateProperty().bind(Bindings.createObjectBinding(() -> {
             if (filterField.getText() == null || filterField.getText().isEmpty())
@@ -217,8 +217,7 @@ public class LightSelectionDialog extends Dialog {
             this.filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> {
                 return child -> {
                     // Set the predicate of child items to force filtering
-                    if (child instanceof FilterableTreeItem) {
-                        FilterableTreeItem<T> filterableChild = (FilterableTreeItem<T>) child;
+                    if (child instanceof FilterableTreeItem<T> filterableChild) {
                         filterableChild.setPredicate(this.predicate.get());
                     }
                     // If there is no predicate, keep this tree item

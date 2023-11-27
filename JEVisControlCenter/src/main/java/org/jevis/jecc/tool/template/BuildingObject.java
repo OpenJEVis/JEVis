@@ -1,9 +1,10 @@
 package org.jevis.jecc.tool.template;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
+import javafx.scene.control.CheckBox;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
@@ -380,7 +381,7 @@ public class BuildingObject extends Template {
         Map<String, Node> optionMap = new HashMap<>();
 
         String withNoEntryPointGroupsName = "Create No Entry Points Groups";
-        MFXCheckbox withNoEntryPointGroupsBox = new MFXCheckbox(withNoEntryPointGroupsName);
+        CheckBox withNoEntryPointGroupsBox = new CheckBox(withNoEntryPointGroupsName);
         withNoEntryPointGroupsBox.selectedProperty().bindBidirectional(withNoEntryPointGroups);
 
         String timeZone = "Timezone";

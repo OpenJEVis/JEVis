@@ -1,10 +1,6 @@
 package org.jevis.jecc.tool.dwdbrowser;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
@@ -63,8 +59,8 @@ public class DWDBrowser extends Dialog {
     private final DateTimeFormatter monthFormatter = DateTimeFormat.forPattern("yyyyMM").withZoneUTC();
     private final DateTimeFormatter yearFormatter = DateTimeFormat.forPattern("yyyy").withZoneUTC();
     private final JEVisObject targetObject;
-    private final MFXDatePicker startDatePicker = new MFXDatePicker();
-    private final MFXDatePicker endDatePicker = new MFXDatePicker();
+    private final DatePicker startDatePicker = new DatePicker();
+    private final DatePicker endDatePicker = new DatePicker();
     private FilteredList<Station> filteredStations;
     private JEVisAttribute target;
     private DateTime firstDate = DateTime.now();
@@ -119,15 +115,13 @@ public class DWDBrowser extends Dialog {
         gridPane.add(attributeBox, 1, row);
         row++;
 
-        MFXButton loadStationsButton = new MFXButton("Load Stations");
+        Button loadStationsButton = new Button("Load Stations");
 
         gridPane.add(loadStationsButton, 0, row);
         row++;
 
-        MFXTextField stationFilter = new MFXTextField();
-        stationFilter.setFloatMode(FloatMode.DISABLED);
-        MFXComboBox<Station> stationBox = new MFXComboBox<>();
-        stationBox.setFloatMode(FloatMode.DISABLED);
+        TextField stationFilter = new TextField();
+        ComboBox<Station> stationBox = new ComboBox<>();
 
         stationBox.setConverter(new StringConverter<Station>() {
             @Override
@@ -147,7 +141,7 @@ public class DWDBrowser extends Dialog {
         gridPane.add(stationBox, 1, row);
         row++;
 
-        MFXButton loadDataButton = new MFXButton("Load Data for station");
+        Button loadDataButton = new Button("Load Data for station");
         loadDataButton.setDisable(true);
 
         gridPane.add(loadDataButton, 1, row);
@@ -157,7 +151,7 @@ public class DWDBrowser extends Dialog {
         gridPane.add(dataBox, 1, row);
         row++;
 
-        MFXButton targetButton = new MFXButton(I18n
+        Button targetButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 ControlCenter.getImage("folders_explorer.png", 18, 18));
         targetButton.wrapTextProperty().setValue(true);
@@ -176,8 +170,7 @@ public class DWDBrowser extends Dialog {
             }
         }
 
-        MFXTextField messageField = new MFXTextField();
-        messageField.setFloatMode(FloatMode.DISABLED);
+        TextField messageField = new TextField();
         gridPane.add(messageField, 0, row, 2, 1);
         row++;
 
@@ -303,7 +296,7 @@ public class DWDBrowser extends Dialog {
 
     }
 
-    private void loadData(MFXComboBox<Station> stationBox, MFXButton targetButton, Button okButton, MFXTextField messageField, FTPClient ftpClient, StationData stationData, List<String> allDataNames) {
+    private void loadData(ComboBox<Station> stationBox, Button targetButton, Button okButton, TextField messageField, FTPClient ftpClient, StationData stationData, List<String> allDataNames) {
         try {
             Station selectedStation = stationBox.getSelectionModel().getSelectedItem();
             StringBuilder idString = new StringBuilder(String.valueOf(selectedStation.getId()));
@@ -401,7 +394,7 @@ public class DWDBrowser extends Dialog {
         }
     }
 
-    private void loadStations(MFXComboBox<Station> stationBox, MFXButton loadDataButton, List<String> stationFiles, FTPClient ftpClient) {
+    private void loadStations(ComboBox<Station> stationBox, Button loadDataButton, List<String> stationFiles, FTPClient ftpClient) {
         try {
             ftpClient.connect("opendata.dwd.de");
 

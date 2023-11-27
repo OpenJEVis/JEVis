@@ -242,7 +242,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 //            alert.setContentText("Do you sill want to save?");
 //
 //            Optional<ButtonType> result = alert.showAndWait();
-//            if (result.get() == MFXButtonType.OK){
+//            if (result.get() == ButtonType.OK){
 //                return saveAll();
 //            } else {
 //                return false;

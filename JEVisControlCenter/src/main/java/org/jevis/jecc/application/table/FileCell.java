@@ -1,8 +1,9 @@
 package org.jevis.jecc.application.table;
 
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.application.Platform;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
@@ -23,7 +24,7 @@ public class FileCell<T> implements Callback<TableColumn<T, Optional<JEVisSample
     @Override
     public TableCell<T, Optional<JEVisSample>> call(TableColumn<T, Optional<JEVisSample>> param) {
         return new TableCell<T, Optional<JEVisSample>>() {
-            final MFXButton previewButton = new MFXButton("", ControlCenter.getSVGImage(Icon.PREVIEW, 20, 20));
+            final Button previewButton = new Button("", ControlCenter.getSVGImage(Icon.PREVIEW, 20, 20));
 
             @Override
             protected void updateItem(Optional<JEVisSample> item, boolean empty) {

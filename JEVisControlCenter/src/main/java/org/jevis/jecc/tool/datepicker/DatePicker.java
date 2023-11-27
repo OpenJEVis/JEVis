@@ -1,8 +1,6 @@
 package org.jevis.jecc.tool.datepicker;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -13,6 +11,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -37,7 +37,7 @@ public class DatePicker extends HBox {
     private static final String CSS_DATE_PICKER_VALID = "datepicker-valid";
     private static final String CSS_DATE_PICKER_INVALID = "datepicker-invalid";
     private final CalendarView calendarView;
-    private final MFXTextField textField;
+    private final TextField textField;
     private final BooleanProperty invalid = new SimpleBooleanProperty();
     private final ObjectProperty<Locale> locale = new SimpleObjectProperty<Locale>();
     private final ObjectProperty<Date> selectedDate = new SimpleObjectProperty<Date>();
@@ -64,8 +64,7 @@ public class DatePicker extends HBox {
         calendarView = new CalendarView(locale, car);
 //        calendarView = new CalendarView(locale);
 
-        textField = new MFXTextField();
-        textField.setFloatMode(FloatMode.DISABLED);
+        textField = new TextField();
         this.locale.set(locale);
 
         calendarView.setEffect(new DropShadow());
@@ -197,7 +196,7 @@ public class DatePicker extends HBox {
             }
         });
 
-        MFXButton button = new MFXButton(">");
+        Button button = new Button(">");
         button.setFocusTraversable(false);
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override

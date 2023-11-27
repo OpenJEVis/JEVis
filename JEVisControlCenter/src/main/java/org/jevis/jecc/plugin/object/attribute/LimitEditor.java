@@ -20,9 +20,6 @@
 package org.jevis.jecc.plugin.object.attribute;
 
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -120,7 +117,7 @@ public class LimitEditor implements AttributeEditor {
      * Build main UI
      */
     private void init() {
-        MFXButton openConfig = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.limitseditor.openconfig"));
+        Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.limitseditor.openconfig"));
         openConfig.setOnAction(action -> {
             try {
                 show();
@@ -292,12 +289,9 @@ public class LimitEditor implements AttributeEditor {
         Label minLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.min"));
         Label maxLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.limitseditor.label.max"));
 
-        MFXTextField nameField = new MFXTextField();
-        nameField.setFloatMode(FloatMode.DISABLED);
-        MFXTextField minField = new MFXTextField();
-        minField.setFloatMode(FloatMode.DISABLED);
-        MFXTextField maxField = new MFXTextField();
-        maxField.setFloatMode(FloatMode.DISABLED);
+        TextField nameField = new TextField();
+        TextField minField = new TextField();
+        TextField maxField = new TextField();
         Label unitFieldMin = new Label(unitString);
         Label unitFieldMax = new Label(unitString);
 
@@ -342,9 +336,9 @@ public class LimitEditor implements AttributeEditor {
             logger.error("Could not parse limit values", e);
         }
 
-        typeBox.selectItem(GapFillingType.parse(config.getTypeOfSubstituteValue()));
-        referencePeriodBox.selectItem(GapFillingReferencePeriod.parse(config.getReferenceperiod()));
-        boundSpecificBox.selectItem(GapFillingBoundToSpecific.parse(config.getBindtospecific()));
+        typeBox.getSelectionModel().select(GapFillingType.parse(config.getTypeOfSubstituteValue()));
+        referencePeriodBox.getSelectionModel().select(GapFillingReferencePeriod.parse(config.getReferenceperiod()));
+        boundSpecificBox.getSelectionModel().select(GapFillingBoundToSpecific.parse(config.getBindtospecific()));
 
         /**
          * Change Listeners

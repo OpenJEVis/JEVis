@@ -19,11 +19,12 @@
  */
 package org.jevis.jecc.plugin.object.permission;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -113,17 +114,17 @@ public class MemberTable extends TableView {
     }
 
     private void setBooleanCellrenderer(TableColumn column) {
-        column.setCellFactory(p -> new JFXCheckBoxTableCell<MemberRow, Boolean>());
+        column.setCellFactory(p -> new javafx.scene.control.cell.CheckBoxTableCell<>());
 
     }
 
-    public static class JFXCheckBoxTableCell<S, T> extends TableCell<S, T> {
+    public static class CheckBoxTableCell<S, T> extends TableCell<S, T> {
 
-        private final MFXCheckbox checkBox;
+        private final CheckBox checkBox;
         private ObservableValue<T> ov;
 
-        public JFXCheckBoxTableCell() {
-            this.checkBox = new MFXCheckbox();
+        public CheckBoxTableCell() {
+            this.checkBox = new CheckBox();
             this.checkBox.setAlignment(Pos.CENTER);
 
             setAlignment(Pos.CENTER);

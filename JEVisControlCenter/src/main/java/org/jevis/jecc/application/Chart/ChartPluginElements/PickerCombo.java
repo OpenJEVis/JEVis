@@ -1,6 +1,6 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements;
 
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Tooltip;
@@ -29,8 +29,8 @@ public class PickerCombo {
     private static final Logger logger = LogManager.getLogger(PickerCombo.class);
     private final JEVisDataSource ds;
     private final PresetDateBox presetDateBox;
-    private final MFXDatePicker startDatePicker = new MFXDatePicker();
-    private final MFXDatePicker endDatePicker = new MFXDatePicker();
+    private final DatePicker startDatePicker = new DatePicker();
+    private final DatePicker endDatePicker = new DatePicker();
     private final LocalTimePicker startTimePicker = new LocalTimePicker();
     private final LocalTimePicker endTimePicker = new LocalTimePicker();
     private final DataSettings dataSettings;
@@ -80,7 +80,7 @@ public class PickerCombo {
 
         if (dataModel != null && !dataModel.getChartModels().isEmpty()) {
 
-            presetDateBox.getItems().stream().filter(timeFrame -> timeFrame.getTimeFrame() == dataSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == dataSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.selectItem(timeFrame));
+            presetDateBox.getItems().stream().filter(timeFrame -> timeFrame.getTimeFrame() == dataSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == dataSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
 
             DateTime start = dataSettings.getAnalysisTimeFrame().getStart();
             DateTime end = dataSettings.getAnalysisTimeFrame().getEnd();
@@ -211,11 +211,11 @@ public class PickerCombo {
         return dataModel;
     }
 
-    public MFXDatePicker getStartDatePicker() {
+    public DatePicker getStartDatePicker() {
         return startDatePicker;
     }
 
-    public MFXDatePicker getEndDatePicker() {
+    public DatePicker getEndDatePicker() {
         return endDatePicker;
     }
 

@@ -9,7 +9,7 @@ package org.jevis.jecc.sample.csvexporttable;
  * @author br
  */
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -34,7 +34,7 @@ import java.util.List;
  * @deprecated
  */
 public class EditingCell extends TableCell<CSVExportTableSample, String> {
-    private MFXTextField textField;
+    private TextField textField;
 
     public EditingCell() {
     }
@@ -84,7 +84,7 @@ public class EditingCell extends TableCell<CSVExportTableSample, String> {
     }
 
     private void createTextField() {
-        textField = new MFXTextField(getString());
+        textField = new TextField(getString());
         textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
         textField.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override

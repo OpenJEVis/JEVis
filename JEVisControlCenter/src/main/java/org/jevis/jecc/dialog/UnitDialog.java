@@ -1,7 +1,6 @@
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -24,7 +23,7 @@ import org.jevis.jecc.plugin.unit.UnitSelectUI;
 public class UnitDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(UnitDialog.class);
 
-    public UnitDialog(JEVisAttribute attribute, MFXTextField ubutton) throws JEVisException {
+    public UnitDialog(JEVisAttribute attribute, TextField ubutton) throws JEVisException {
         super();
         setTitle(I18n.getInstance().getString("plugin.configuration.unitdialog.title"));
         setHeaderText(I18n.getInstance().getString("plugin.configuration.unitdialog.header"));
@@ -89,7 +88,7 @@ public class UnitDialog extends Dialog {
         getDialogPane().setMinSize(270, 140);
     }
 
-    public UnitDialog(JEVisAttribute attribute, MFXComboBox<JEVisUnit> unitListView) throws JEVisException {
+    public UnitDialog(JEVisAttribute attribute, ComboBox<JEVisUnit> unitListView) throws JEVisException {
         super();
         setTitle(I18n.getInstance().getString("plugin.configuration.unitdialog.title"));
         setHeaderText(I18n.getInstance().getString("plugin.configuration.unitdialog.header"));
@@ -144,7 +143,7 @@ public class UnitDialog extends Dialog {
                     UnitManager.getInstance().getFavoriteJUnits().add(unitUI.getUnit());
                     unitListView.getItems().add(unitUI.getUnit());
                 }
-                unitListView.selectItem(unitUI.getUnit());
+                unitListView.getSelectionModel().select(unitUI.getUnit());
             });
             close();
         });

@@ -20,10 +20,7 @@
  */
 package org.jevis.jecc.export;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -35,8 +32,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -77,12 +73,11 @@ public class JsonExportDialog {
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
 
         Label destinationL = new Label(I18n.getInstance().getString("export.file"));
-        final MFXTextField destinationF = new MFXTextField();
-        destinationF.setFloatMode(FloatMode.DISABLED);
-        final MFXButton fileSelect = new MFXButton(I18n.getInstance().getString("export.select"));
-        final MFXCheckbox allChildren = new MFXCheckbox(I18n.getInstance().getString("export.include_objects"));
-        final MFXCheckbox allSamples = new MFXCheckbox(I18n.getInstance().getString("export.include_samples"));
-        final MFXCheckbox attributes = new MFXCheckbox(I18n.getInstance().getString("export.include_attributes"));
+        final TextField destinationF = new TextField();
+        final Button fileSelect = new Button(I18n.getInstance().getString("export.select"));
+        final CheckBox allChildren = new CheckBox(I18n.getInstance().getString("export.include_objects"));
+        final CheckBox allSamples = new CheckBox(I18n.getInstance().getString("export.include_samples"));
+        final CheckBox attributes = new CheckBox(I18n.getInstance().getString("export.include_attributes"));
         allSamples.setDisable(true);
 
         HBox fileBox = new HBox(5);
@@ -153,11 +148,11 @@ public class JsonExportDialog {
 
         HBox buttonPanel = new HBox();
 
-        final MFXButton ok = new MFXButton(I18n.getInstance().getString("export.button.export"));
+        final Button ok = new Button(I18n.getInstance().getString("export.button.export"));
         ok.setDefaultButton(true);
         ok.setDisable(true);
 
-        MFXButton cancel = new MFXButton(I18n.getInstance().getString("export.button.cancel"));
+        Button cancel = new Button(I18n.getInstance().getString("export.button.cancel"));
         cancel.setCancelButton(true);
 
         buttonPanel.getChildren().addAll(ok, cancel);

@@ -6,7 +6,6 @@ import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.RadarChartMode;
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -18,6 +17,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Background;
@@ -360,7 +360,7 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
                                     objectName.setText(calcInputObject.getValueAttribute().getObject().getName());
                                 }
 
-                                MFXTextField field = new MFXTextField();
+                                TextField field = new TextField();
                                 field.setMinWidth(240);
                                 Double value = Double.NaN;
                                 DateTime date = new DateTime();

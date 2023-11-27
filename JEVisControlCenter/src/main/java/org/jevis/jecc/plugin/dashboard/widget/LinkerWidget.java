@@ -3,12 +3,12 @@ package org.jevis.jecc.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXListView;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -178,7 +178,7 @@ public class LinkerWidget extends Widget {
                     });
                 }
 
-                JFXListView<JEVisObject> analysisListView = new JFXListView<>();
+                ListView<JEVisObject> analysisListView = new ListView<>();
                 analysisListView.setItems(FXCollections.observableArrayList(allAnalyses));
                 analysisListView.setCellFactory(param -> new ListCell<JEVisObject>() {
 

@@ -19,7 +19,7 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import com.jfoenix.controls.JFXPasswordField;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,6 +27,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.PasswordField;
 import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
@@ -45,10 +46,10 @@ import org.joda.time.DateTime;
 public class ReadablePasswordEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(ReadablePasswordEditor.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private JFXPasswordField passField = new JFXPasswordField();
-    private HBox editor = new HBox();
+    private final PasswordField passField = new PasswordField();
+    private final HBox editor = new HBox();
     private JEVisDataSource ds;
-    private JEVisAttribute att;
+    private final JEVisAttribute att;
 
     public ReadablePasswordEditor(JEVisAttribute att) {
         this.att = att;

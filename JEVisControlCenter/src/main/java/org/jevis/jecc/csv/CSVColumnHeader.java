@@ -19,11 +19,7 @@
  */
 package org.jevis.jecc.csv;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXRadioButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -74,7 +70,7 @@ public class CSVColumnHeader {
     private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
     private static final double FIELD_WIDTH = 210;
     private static final double ROW_HIGHT = 25;
-    final MFXButton unitButton = new MFXButton(I18n.getInstance().getString("csv.table.unit"));
+    final Button unitButton = new Button(I18n.getInstance().getString("csv.table.unit"));
     private final VBox root = new VBox(5);
     private final Label typeL = new Label(I18n.getInstance().getString("csv.table.meaning"));
     private final Label formatL = new Label(I18n.getInstance().getString("csv.table.format"));
@@ -84,7 +80,7 @@ public class CSVColumnHeader {
     private final HashMap<Integer, CSVCellGraphic> _valueGraphic = new HashMap<Integer, CSVCellGraphic>();
     private final CSVTable _table;
     private JEVisAttribute _target = null;
-    private MFXComboBox<Meaning> meaning;
+    private ComboBox<Meaning> meaning;
     private DateTimeZone _selectedTimeZone = DateTimeZone.getDefault();
     private String _currentFormat;
     private char _decimalSeparator;
@@ -361,8 +357,7 @@ public class CSVColumnHeader {
     private void buildMeaningButton() {
         ObservableList<Meaning> options = FXCollections.observableArrayList(Meaning.values());
 
-        meaning = new MFXComboBox<Meaning>(options);
-        meaning.setFloatMode(FloatMode.DISABLED);
+        meaning = new ComboBox<Meaning>(options);
 
         meaning.setConverter(new StringConverter<Meaning>() {
             @Override
@@ -399,7 +394,7 @@ public class CSVColumnHeader {
 
             @Override
             public Meaning fromString(String string) {
-                return meaning.getItems().get(meaning.getSelectedIndex());
+                return meaning.getItems().get(meaning.getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -414,7 +409,7 @@ public class CSVColumnHeader {
         root.setPadding(new Insets(8, 8, 8, 8));
 
         Label targetL = new Label("Target:");
-        MFXButton targetB = buildTargetButton();
+        Button targetB = buildTargetButton();
 
         Region spacer = new Region();
 
@@ -446,13 +441,13 @@ public class CSVColumnHeader {
 
         ToggleGroup deciSepGroup = new ToggleGroup();
         Label deciSeperator = new Label(I18n.getInstance().getString("csv.deci_seperator"));
-        final MFXRadioButton comma = new MFXRadioButton(I18n.getInstance().getString("csv.comma"));
+        final RadioButton comma = new RadioButton(I18n.getInstance().getString("csv.comma"));
         comma.setId("commaRadio");
-        final MFXRadioButton dot = new MFXRadioButton(I18n.getInstance().getString("csv.dot"));
+        final RadioButton dot = new RadioButton(I18n.getInstance().getString("csv.dot"));
         dot.setId("dotRadio");
         Label targetL = new Label(I18n.getInstance().getString("csv.target"));
         Label unitLabel = new Label(I18n.getInstance().getString("csv.unit"));
-        final MFXButton unitButton = new MFXButton(I18n.getInstance().getString("csv.table.unit"));
+        final Button unitButton = new Button(I18n.getInstance().getString("csv.table.unit"));
 //        unitButton.setDisable(true);
         unitButton.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -509,7 +504,7 @@ public class CSVColumnHeader {
 
         spebox.getChildren().setAll(deciSeperator, dot, comma);
 
-        MFXButton targetB = buildTargetButton();
+        Button targetB = buildTargetButton();
 
         GridPane gp = new GridPane();
         gp.setHgap(5);
@@ -545,10 +540,9 @@ public class CSVColumnHeader {
     private void buildDateTime(Meaning mode) {
         root.setPadding(new Insets(8, 8, 8, 8));
 
-        final MFXComboBox<String> timeZone;
-        MFXComboBox<String> timeLocale;
-        final MFXTextField format = new MFXTextField();
-        format.setFloatMode(FloatMode.DISABLED);
+        final ComboBox<String> timeZone;
+        ComboBox<String> timeLocale;
+        final TextField format = new TextField();
         Label timeZoneL = new Label(I18n.getInstance().getString("csv.timezone"));
         Label targetL = new Label(I18n.getInstance().getString("csv.target"));
         Label vaueLocaleL = new Label(I18n.getInstance().getString("csv.locale"));
@@ -559,10 +553,9 @@ public class CSVColumnHeader {
         Set<String> allTimeZones = DateTimeZone.getAvailableIDs();
 
         timeZoneOpt = FXCollections.observableArrayList(allTimeZones);
-        timeZone = new MFXComboBox<>(timeZoneOpt);
-        timeZone.setFloatMode(FloatMode.DISABLED);
+        timeZone = new ComboBox<>(timeZoneOpt);
 //        timeZone.getSelectionModel().select("UTC");
-        timeZone.selectItem(TimeZone.getDefault().getID());
+        timeZone.getSelectionModel().select(TimeZone.getDefault().getID());
         timeZone.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -721,8 +714,8 @@ public class CSVColumnHeader {
         return "yyyy-MM-dd HH:mm:ss";
     }
 
-    private MFXButton buildTargetButton() {
-        final MFXButton button = new MFXButton(I18n.getInstance().getString("csv.import_target"));//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
+    private Button buildTargetButton() {
+        final Button button = new Button(I18n.getInstance().getString("csv.import_target"));//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
         button.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override

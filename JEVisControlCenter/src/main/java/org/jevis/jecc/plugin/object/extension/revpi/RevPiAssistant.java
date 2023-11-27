@@ -1,13 +1,13 @@
 package org.jevis.jecc.plugin.object.extension.revpi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
@@ -190,8 +190,8 @@ public class RevPiAssistant {
         }
     }
 
-    private MFXButton buildTargetButton() {
-        final MFXButton button = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.target.button"), ControlCenter.getImage("folders_explorer.png", 18, 18));
+    private Button buildTargetButton() {
+        final Button button = new Button(I18n.getInstance().getString("plugin.object.attribute.target.button"), ControlCenter.getImage("folders_explorer.png", 18, 18));
         button.wrapTextProperty().setValue(true);
         button.setOnAction(actionEvent -> {
 
@@ -219,8 +219,8 @@ public class RevPiAssistant {
         return button;
     }
 
-    private MFXButton buildImportButton() {
-        MFXButton importTrends = new MFXButton("import");
+    private Button buildImportButton() {
+        Button importTrends = new Button("import");
         importTrends.setOnAction(actionEvent -> {
             //if (targetDataObject != null) {
                 List<RevPiTrend> selectedTrends = revPiTrends.stream().filter(revPiTrend -> revPiTrend.isSelected()).collect(Collectors.toList());

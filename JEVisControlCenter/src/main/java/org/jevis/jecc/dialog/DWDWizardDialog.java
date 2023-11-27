@@ -1,17 +1,11 @@
 package org.jevis.jecc.dialog;
 
-import com.jfoenix.controls.JFXDialog;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -42,7 +36,7 @@ import java.util.zip.ZipInputStream;
 public class DWDWizardDialog {
 
     private static final Logger logger = LogManager.getLogger(DWDWizardDialog.class);
-    private final MFXTextField stationFilter = new MFXTextField();
+    private final TextField stationFilter = new TextField();
     private final ListView<Station> listViewStations = new ListView<>();
     private final String initialPath = "climate_environment/CDC/observations_germany/climate/";
     private final Label aggregationLabel = new Label(I18n.getInstance().getString("plugin.object.dwd.aggregation"));
@@ -71,14 +65,13 @@ public class DWDWizardDialog {
             logger.error(e);
         }
 
-        JFXDialog dialog = new JFXDialog();
+        Dialog dialog = new Dialog();
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(15));
         gridPane.setHgap(6);
         gridPane.setVgap(9);
 
-        stationFilter.setFloatMode(FloatMode.DISABLED);
 
         aggregationBox.getItems().addAll(Aggregation.values());
         aggregationBox.getSelectionModel().selectFirst();
@@ -94,7 +87,7 @@ public class DWDWizardDialog {
         gridPane.add(listViewAttribute, 1, row);
         row++;
 
-        MFXButton loadStationsButton = new MFXButton("Load Stations");
+        Button loadStationsButton = new Button("Load Stations");
         gridPane.add(loadStationsButton, 0, row);
         row++;
 
@@ -115,7 +108,7 @@ public class DWDWizardDialog {
         });
         gridPane.add(listViewStations, 0, row, 12, 2);
 
-        MFXButton loadDataButton = new MFXButton("Load Data for station");
+        Button loadDataButton = new Button("Load Data for station");
         loadDataButton.setDisable(true);
 
         gridPane.add(loadDataButton, 1, row);
@@ -126,7 +119,7 @@ public class DWDWizardDialog {
         gridPane.add(listViewData, 1, row);
         row++;
 
-        MFXButton targetButton = new MFXButton(I18n
+        Button targetButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 ControlCenter.getImage("folders_explorer.png", 18, 18));
         targetButton.wrapTextProperty().setValue(true);
@@ -144,7 +137,7 @@ public class DWDWizardDialog {
         dialog.show();
     }
 
-    private void loadStations(MFXButton loadDataButton, List<Station> stations, FTPClient ftpClient) {
+    private void loadStations(Button loadDataButton, List<Station> stations, FTPClient ftpClient) {
         try {
             ftpClient.connect("opendata.dwd.de");
 
@@ -297,7 +290,7 @@ public class DWDWizardDialog {
         });
     }
 
-    private void loadData(ListView<Station> listViewStations, MFXButton targetButton, FTPClient ftpClient) {
+    private void loadData(ListView<Station> listViewStations, Button targetButton, FTPClient ftpClient) {
         try {
             List<String> allDataNames = new ArrayList<>();
             for (Station selectedStation : listViewStations.getSelectionModel().getSelectedItems()) {

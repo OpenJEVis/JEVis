@@ -20,17 +20,17 @@
  */
 package org.jevis.jecc.application.unit;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
@@ -72,8 +72,7 @@ public class UnitPanel extends GridPane {
         List<Prefix> list = new ArrayList<>();
         list.add(CustomPrefix.NONE);
         Collections.addAll(list, MetricPrefix.values());
-        MFXComboBox<Prefix> prefixBox = new MFXComboBox<>(FXCollections.observableArrayList(list));
-        prefixBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<Prefix> prefixBox = new ComboBox<>(FXCollections.observableArrayList(list));
         prefixBox.setMaxWidth(520);
 //        prefixBox.getSelectionModel().select("");//toto get elsewhere?!
 
@@ -86,14 +85,14 @@ public class UnitPanel extends GridPane {
 
             @Override
             public Prefix fromString(String string) {
-                return prefixBox.getItems().get(prefixBox.getSelectedIndex());
+                return prefixBox.getItems().get(prefixBox.getSelectionModel().getSelectedIndex());
             }
         });
-        prefixBox.selectItem(UnitManager.getInstance().getPrefix(prefix));
+        prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefix(prefix));
 
-        final MFXTextField labelField = new MFXTextField();
+        final TextField labelField = new TextField();
         labelField.setEditable(false);
-        final MFXButton changeBaseUnit = new MFXButton();//new MFXButton("Basic Unit");
+        final Button changeBaseUnit = new Button();//new Button("Basic Unit");
         changeBaseUnit.setText(unit.toString());
 //
         HBox unitBox = new HBox(5);
@@ -158,7 +157,7 @@ public class UnitPanel extends GridPane {
         printExample(labelField, _returnUnit);
     }
 
-    private void printExample(final MFXTextField tf, final JEVisUnit unit) {
+    private void printExample(final TextField tf, final JEVisUnit unit) {
         logger.debug("UpdateLabel: '{}' '{}' '{}'", unit.getLabel(), unit.getFormula(), unit.getPrefix());
         Platform.runLater(new Runnable() {
             @Override

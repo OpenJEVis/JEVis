@@ -1,8 +1,6 @@
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -55,8 +53,7 @@ public class SaveAnalysisDialog extends Dialog {
 
         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
-        MFXTextField name = new MFXTextField();
-        name.setFloatMode(FloatMode.DISABLED);
+        TextField name = new TextField();
 
         JEVisClass analysesDirectory = null;
         List<JEVisObject> listAnalysesDirectories = null;
@@ -67,8 +64,7 @@ public class SaveAnalysisDialog extends Dialog {
             e.printStackTrace();
         }
 
-        MFXComboBox<JEVisObject> parentsDirectories = new MFXComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
-        parentsDirectories.setFloatMode(FloatMode.DISABLED);
+        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
 
         //TODO JFX17
         parentsDirectories.setConverter(new StringConverter<JEVisObject>() {
@@ -134,7 +130,7 @@ public class SaveAnalysisDialog extends Dialog {
         if (dataSettings.getCurrentAnalysis() != null) {
             try {
                 if (dataSettings.getCurrentAnalysis().getParents() != null && !dataSettings.getCurrentAnalysis().getParents().isEmpty()) {
-                    parentsDirectories.selectItem(dataSettings.getCurrentAnalysis().getParents().get(0));
+                    parentsDirectories.getSelectionModel().select(dataSettings.getCurrentAnalysis().getParents().get(0));
                 }
             } catch (JEVisException e) {
                 logger.error("Couldn't select current Analysis Directory: " + e);

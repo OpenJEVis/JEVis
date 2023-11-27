@@ -1,13 +1,14 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.util.StringConverter;
 import org.jevis.commons.constants.GapFillingBoundToSpecific;
 import org.jevis.commons.i18n.I18n;
 
-public class BoundSpecificBox extends MFXComboBox<GapFillingBoundToSpecific> {
+public class BoundSpecificBox extends ComboBox<GapFillingBoundToSpecific> {
     private final ObservableList<GapFillingBoundToSpecific> options = FXCollections.observableArrayList(GapFillingBoundToSpecific.NONE, GapFillingBoundToSpecific.WEEKDAY,
             GapFillingBoundToSpecific.WEEKOFYEAR, GapFillingBoundToSpecific.MONTHOFYEAR);
 
@@ -41,7 +42,7 @@ public class BoundSpecificBox extends MFXComboBox<GapFillingBoundToSpecific> {
 
             @Override
             public GapFillingBoundToSpecific fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
 

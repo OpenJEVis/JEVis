@@ -4,9 +4,7 @@ package org.jevis.jecc.dialog;
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -137,7 +135,7 @@ public class NoteDialog extends Dialog<ButtonType> {
 
                             TextArea textArea = new TextArea(rowNote.getUserNote());
 
-                            MFXButton expand = new MFXButton(null);
+                            Button expand = new Button(null);
                             expand.setBackground(new Background(new BackgroundImage(
                                     imgExpand,
                                     BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
@@ -219,8 +217,7 @@ public class NoteDialog extends Dialog<ButtonType> {
                         } else {
                             RowNote rowNote = getTableRow().getItem();
 
-                            MFXTextField textField = new MFXTextField();
-                            textField.setFloatMode(FloatMode.DISABLED);
+                            TextField textField = new TextField();
                             if (!rowNote.getUserValue().equals("")) {
                                 double userValue = Double.parseDouble(rowNote.getUserValue()) * rowNote.getScaleFactor();
                                 textField.setText(String.valueOf(userValue));

@@ -20,15 +20,15 @@
  */
 package org.jevis.jecc.application.unit;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
@@ -60,15 +60,15 @@ public class UnitChooser {
         units.add(SI.HERTZ);
 
         VBox spinner = new VBox();
-        final MFXButton prefixUp = new MFXButton("+");
-        MFXButton prefixDown = new MFXButton("-");
+        final Button prefixUp = new Button("+");
+        Button prefixDown = new Button("-");
         prefixDown.setId("prefixdown");
         prefixUp.setId("prefixup");
 
         Label prefix = new Label(" k ");
         prefix.setId("prefix");
 
-        MFXComboBox unitBox = buildUnitBox(units);
+        ComboBox unitBox = buildUnitBox(units);
         unitBox.setStyle("-fx-background-radius: 0 10 10 0;");
 
         prefixDown.getStylesheets().add("/styles/unitchooser.css");
@@ -121,13 +121,13 @@ public class UnitChooser {
         Label prefix = new Label(" k ");
         prefix.setId("prefix");
 
-        MFXComboBox unitBox = buildUnitBox(units);
+        ComboBox unitBox = buildUnitBox(units);
         unitBox.setStyle("-fx-background-radius: 0 10 10 0;");
 
         List<String> prefixList = new ArrayList<>();
         prefixList.add("k");
 //        ObservableList<String> options2 = FXCollections.observableArrayList(prefixList);
-        MFXComboBox uprefixBox = buildPrefixBox(prefixList);
+        ComboBox uprefixBox = buildPrefixBox(prefixList);
         uprefixBox.setId("prefixBox");
         uprefixBox.setStyle("-fx-background-radius: 10 0 0 10;");
 
@@ -154,12 +154,11 @@ public class UnitChooser {
      * @param units
      * @return
      */
-    private MFXComboBox buildUnitBox(List<Unit> units) {
+    private ComboBox buildUnitBox(List<Unit> units) {
 
         ObservableList<Unit> options = FXCollections.observableArrayList(units);
 
-        final MFXComboBox<Unit> comboBox = new MFXComboBox<Unit>(options);
-        comboBox.setFloatMode(FloatMode.DISABLED);
+        final ComboBox<Unit> comboBox = new ComboBox<Unit>(options);
 
         //TODO JFX17
 
@@ -171,7 +170,7 @@ public class UnitChooser {
 
             @Override
             public Unit fromString(String string) {
-                return comboBox.getItems().get(comboBox.getSelectedIndex());
+                return comboBox.getItems().get(comboBox.getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -184,12 +183,11 @@ public class UnitChooser {
 
     }
 
-    private MFXComboBox buildPrefixBox(List<String> units) {
+    private ComboBox buildPrefixBox(List<String> units) {
 
         ObservableList<String> options = FXCollections.observableArrayList(units);
 
-        final MFXComboBox<String> comboBox = new MFXComboBox<String>(options);
-        comboBox.setFloatMode(FloatMode.DISABLED);
+        final ComboBox<String> comboBox = new ComboBox<String>(options);
 
         //TODO JFX17
 

@@ -1,16 +1,9 @@
 package org.jevis.jecc.plugin.notes;
 
-import com.jfoenix.controls.JFXListView;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import jfxtras.scene.control.LocalTimePicker;
@@ -40,7 +33,7 @@ import java.util.Optional;
 public class NotePane extends Dialog {
 
     private static final Logger logger = LogManager.getLogger(NotePane.class);
-    private final MFXDatePicker pickerDate = new MFXDatePicker();
+    private final DatePicker pickerDate = new DatePicker();
     private final LocalTimePicker pickerTime = new LocalTimePicker();
     private final JEVisDataSource dataSource;
     Label targetLabel = new Label(I18n.getInstance().getString("plugin.note.pane.target"));
@@ -49,9 +42,9 @@ public class NotePane extends Dialog {
     Label userLabel = new Label(I18n.getInstance().getString("plugin.note.pane.user"));
     Label timeLabel = new Label(I18n.getInstance().getString("plugin.note.pane.time"));
     TextArea noteTextArea = new TextArea();
-    MFXTextField userField = new MFXTextField();
-    MFXButton targetTreeButton = new MFXButton(I18n.getInstance().getString("plugin.note.pane.opentree"));
-    JFXListView<String> tagList = new JFXListView<>();
+    TextField userField = new TextField();
+    Button targetTreeButton = new Button(I18n.getInstance().getString("plugin.note.pane.opentree"));
+    ListView<String> tagList = new ListView<>();
     HBox hBox = new HBox(pickerDate, pickerTime);
     JEVisTree jeVisTree;
     DateTime date = new DateTime();
@@ -64,13 +57,12 @@ public class NotePane extends Dialog {
         this.notesRow = notesRow;
         GridPane gridPane = new GridPane();
         this.dataSource = dataSource;
-        this.userField.setFloatMode(FloatMode.DISABLED);
 
         parentObject = getParentObject(notesRow);
         if (parentObject != null) {
-            targetTreeButton = new MFXButton(parentObject.getName());
+            targetTreeButton = new Button(parentObject.getName());
         } else {
-            targetTreeButton = new MFXButton((I18n.getInstance().getString("plugin.note.pane.opentree")));
+            targetTreeButton = new Button((I18n.getInstance().getString("plugin.note.pane.opentree")));
         }
 
 

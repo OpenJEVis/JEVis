@@ -5,14 +5,14 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -90,15 +90,14 @@ public class EnumEditor implements AttributeEditor {
         AlphanumComparator ac = new AlphanumComparator();
         enumList.sort(ac);
 
-        MFXComboBox<String> picker = new MFXComboBox<>(enumList);
-        picker.setFloatMode(FloatMode.DISABLED);
+        ComboBox<String> picker = new ComboBox<>(enumList);
         picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 
         if (sample != null) {
             try {
                 String value = sample.getValueAsString();
                 if (enumList.contains(value)) {
-                    picker.selectItem(sample.getValueAsString());
+                    picker.getSelectionModel().select(sample.getValueAsString());
                 }
 
             } catch (JEVisException ex) {

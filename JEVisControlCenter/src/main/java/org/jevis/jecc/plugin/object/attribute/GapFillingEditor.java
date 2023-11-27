@@ -19,9 +19,7 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -143,10 +141,8 @@ public class GapFillingEditor implements AttributeEditor {
         NumberSpinner referencePeriodCountText = new NumberSpinner(new BigDecimal(1), new BigDecimal(1));
         referencePeriodCountText.setMin(new BigDecimal(1));
         referencePeriodCountText.setMax(new BigDecimal(99));
-        MFXTextField boundaryText = new MFXTextField();
-        boundaryText.setFloatMode(FloatMode.DISABLED);
-        MFXTextField defaultValueText = new MFXTextField();
-        defaultValueText.setFloatMode(FloatMode.DISABLED);
+        TextField boundaryText = new TextField();
+        TextField defaultValueText = new TextField();
 
         /**
          * Text layout
@@ -159,7 +155,7 @@ public class GapFillingEditor implements AttributeEditor {
         /**
          * Fill configuration values into gui elements
          */
-        typeBox.selectItem(GapFillingType.parse(config.getType()));
+        typeBox.getSelectionModel().select(GapFillingType.parse(config.getType()));
         boundaryText.setText((Long.parseLong(config.getBoundary()) / 1000) + ""); //msec -> sec
         try {
             NumberFormat numberFormat = NumberFormat.getInstance(I18n.getInstance().getLocale());
@@ -172,9 +168,9 @@ public class GapFillingEditor implements AttributeEditor {
         }
 
 
-        typeBox.selectItem(GapFillingType.parse(config.getType()));
-        referencePeriodBox.selectItem(GapFillingReferencePeriod.parse(config.getReferenceperiod()));
-        boundSpecificBox.selectItem(GapFillingBoundToSpecific.parse(config.getBindtospecific()));
+        typeBox.getSelectionModel().select(GapFillingType.parse(config.getType()));
+        referencePeriodBox.getSelectionModel().select(GapFillingReferencePeriod.parse(config.getReferenceperiod()));
+        boundSpecificBox.getSelectionModel().select(GapFillingBoundToSpecific.parse(config.getBindtospecific()));
 
         BigDecimal parsedValue = new BigDecimal(145);
         try {
@@ -305,7 +301,7 @@ public class GapFillingEditor implements AttributeEditor {
      * Build main UI
      */
     private void init() {
-        MFXButton openConfig = new MFXButton(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
+        Button openConfig = new Button(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.openconfig"));
         openConfig.setOnAction(action -> {
             try {
                 show();

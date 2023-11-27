@@ -20,8 +20,7 @@
  */
 package org.jevis.jecc.application.login;
 
-import io.github.palexdev.materialfx.controls.*;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -31,8 +30,10 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -41,7 +42,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -83,18 +83,18 @@ public class FXLogin extends AnchorPane {
     private static final Logger logger = LogManager.getLogger(FXLogin.class);
     public static String checkMarkSymbol = "\uD83D\uDDF8";
     private final Stage mainStage;
-    private final MFXButton loginButton = new MFXButton("Login");
-    private final MFXButton closeButton = new MFXButton("Close");
-    private final MFXTextField userName = new MFXTextField();
-    private final MFXCheckbox storeConfig = new MFXCheckbox("Remember me");
-    private final MFXPasswordField userPassword = new MFXPasswordField();
+    private final Button loginButton = new Button("Login");
+    private final Button closeButton = new Button("Close");
+    private final TextField userName = new TextField();
+    private final CheckBox storeConfig = new CheckBox("Remember me");
+    private final PasswordField userPassword = new PasswordField();
     private final VBox authGrid = new VBox();
     private final Preferences jevisPref = Preferences.userRoot().node("JEVis");
     private final TextArea messageBox = new TextArea("");
     //    private final Preferences serverPref = Preferences.userRoot().node("JEVis.Server");
     private final List<JEVisObject> rootObjects = new ArrayList<>();
     private final List<JEVisClass> classes = new ArrayList<>();
-    //    private final MFXComboBox<JEVisConfiguration> serverSelection = new MFXComboBox<>();
+    //    private final ComboBox <JEVisConfiguration> serverSelection = new ComboBox <>();
     private final String css = "";
     private final int lastServer = -1;
     private final Stage statusDialog = new Stage(StageStyle.TRANSPARENT);
@@ -118,7 +118,7 @@ public class FXLogin extends AnchorPane {
     private boolean useCSSFile = false;
     private ApplicationInfo app = new ApplicationInfo("FXLogin", "");
     private Locale selectedLocale = Locale.getDefault();
-    private MFXComboBox<Locale> langSelect;
+    private ComboBox<Locale> langSelect;
     private boolean hasCredentials = false;
 
     private FXLogin() {
@@ -351,7 +351,7 @@ public class FXLogin extends AnchorPane {
      *
      * @return
      */
-    private MFXComboBox<Locale> buildLanguageBox() {
+    private ComboBox<Locale> buildLanguageBox() {
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
@@ -391,23 +391,12 @@ public class FXLogin extends AnchorPane {
 
         ObservableList<Locale> options = FXCollections.observableArrayList(I18n.getInstance().getAvailableLang());
 
-        final MFXComboBox<Locale> comboBox = new MFXComboBox<Locale>(options);
-        comboBox.setConverter(new StringConverter<Locale>() {
-            @Override
-            public String toString(Locale object) {
-                if (object != null) {
-                    return object.getDisplayLanguage(I18n.getInstance().getLocale());
-                } else return "";
-            }
-
-            @Override
-            public Locale fromString(String string) {
-                return comboBox.getItems().stream().filter(locale -> locale.getDisplayLanguage(I18n.getInstance().getLocale()).equals(string)).findFirst().orElse(null);
-            }
-        });
+        final ComboBox<Locale> comboBox = new ComboBox<>(options);
+        comboBox.setCellFactory(cellFactory);
+        comboBox.setButtonCell(cellFactory.call(null));
 
         if (I18n.getInstance().getAvailableLang().contains(Locale.getDefault())) {
-            comboBox.selectItem(Locale.getDefault());
+            comboBox.getSelectionModel().select(Locale.getDefault());
         }
 
         comboBox.setMinWidth(250);
@@ -423,7 +412,7 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * returns the JEVisDataSource after an successfull login
+     * returns the JEVisDataSource after a successfull login
      *
      * @return
      */
@@ -469,9 +458,8 @@ public class FXLogin extends AnchorPane {
         }
         if (logo != null) {
             logo.setPreserveRatio(true);
+            logo.fitWidthProperty().bind(this.mainStage.widthProperty());
         }
-
-        logo.fitWidthProperty().bind(this.mainStage.widthProperty());
 
         header.getChildren().add(logo);
         AnchorPane.setBottomAnchor(logo, 0.0);
@@ -502,11 +490,11 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Build an bottom button bar element
+     * Build a bottom button bar element
      *
      * @return
      */
-    private HBox buildButtonsbar() {
+    private HBox buildButtonBar() {
         Region spacer = new Region();
         setDefaultStyle(spacer, "-fx-background-color: transparent;");
 
@@ -520,13 +508,13 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Build an authentification (user, passwort-..) GUI element
+     * Build an authentication (user, password, ...) GUI element
      *
      * @return
      */
     private VBox buildAuthForm() {
 
-        HBox buttonBox = buildButtonsbar();
+        HBox buttonBox = buildButtonBar();
 //        Node serverConfigBox = buildServerSelection();
         Region serverConfigBox = new Region();
         this.langSelect = buildLanguageBox();
@@ -536,17 +524,14 @@ public class FXLogin extends AnchorPane {
 
         //this.loginButton.setId("fxlogin-form-login");
         //this.closeButton.setId("fxlogin-form-close");
-//        this.userName.setId("fxlogin-form-username");
-        this.userName.setFloatMode(FloatMode.INLINE);
-        this.userName.setFloatingText("Username:");
+        this.userName.setId("fxlogin-form-username");
+        this.userName.setPromptText("Username:");
 
-//        this.userPassword.setId("fxlogin-form-password");
-        this.userPassword.setFloatMode(FloatMode.INLINE);
-        this.userPassword.setFloatingText("Password:");
+        this.userPassword.setId("fxlogin-form-password");
+        this.userPassword.setPromptText("Password:");
 
-//        this.langSelect.setId("fxlogin-form-language");
-        this.langSelect.setFloatMode(FloatMode.INLINE);
-        this.langSelect.setFloatingText("Language:");
+        this.langSelect.setId("fxlogin-form-language");
+        this.langSelect.setPromptText("Language:");
 
 //        this.authGrid.setId("fxlogin-form");
 
@@ -726,23 +711,23 @@ public class FXLogin extends AnchorPane {
         setDefaultStyle(titel, "-fx-font-weight: bold;");
 
         Label nameLabel = new Label("Name:");
-        MFXTextField nameF = new MFXTextField();
+        TextField nameF = new TextField();
         Label urlLabel = new Label("Server:");
-        MFXTextField urlF = new MFXTextField();
+        TextField urlF = new TextField();
         Label portLabel = new Label("Port:");
-        MFXTextField portF = new MFXTextField();
+        TextField portF = new TextField();
         Label schema = new Label("Schema:");
-        MFXTextField schemaF = new MFXTextField();
+        TextField schemaF = new TextField();
         Label userL = new Label("Username:");
-        MFXTextField userF = new MFXTextField();
+        TextField userF = new TextField();
         Label passL = new Label("Password:");
-        MFXTextField passF = new MFXTextField();
+        TextField passF = new TextField();
 
-        MFXButton ok = new MFXButton("Save");
+        Button ok = new Button("Save");
         ok.setDefaultButton(true);
-        MFXButton addNewButton = new MFXButton("Save as new");
+        Button addNewButton = new Button("Save as new");
         ok.setDefaultButton(true);
-        MFXButton cancel = new MFXButton("Cancel");
+        Button cancel = new Button("Cancel");
         cancel.setCancelButton(true);
         Region spacer = new Region();
 
@@ -783,8 +768,8 @@ public class FXLogin extends AnchorPane {
         root.getChildren().setAll(titel, grid, buttons, bottomSpacer);
         root.setPadding(new Insets(10));
 
-//        MFXButton configureServer = new MFXButton("", JEConfig.getImage("Service Manager.png", 16, 16));
-        MFXButton configureServer = new MFXButton("", ResourceLoader.getImage("Service Manager.png", 16, 16));
+//        Button configureServer = new Button("", JEConfig.getImage("Service Manager.png", 16, 16));
+        Button configureServer = new Button("", ResourceLoader.getImage("Service Manager.png", 16, 16));
 
         PopOver serverConfigPop = new PopOver(root);
         serverConfigPop.setArrowLocation(PopOver.ArrowLocation.LEFT_CENTER);

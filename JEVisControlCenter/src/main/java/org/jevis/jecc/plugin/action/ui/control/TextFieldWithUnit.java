@@ -1,38 +1,39 @@
 package org.jevis.jecc.plugin.action.ui.control;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.geometry.Pos;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 public class TextFieldWithUnit extends HBox {
 
-    private MFXTextField MFXTextField = new MFXTextField();
-    private MFXTextField unitField = new MFXTextField();
+    private final TextField textField = new TextField();
+    private final TextField unitField = new TextField();
 
     public TextFieldWithUnit() {
         super();
         setSpacing(2);
 
-        getChildren().addAll(MFXTextField, unitField);
-        HBox.setHgrow(MFXTextField, Priority.ALWAYS);
+        getChildren().addAll(textField, unitField);
+        HBox.setHgrow(textField, Priority.ALWAYS);
         HBox.setHgrow(unitField, Priority.NEVER);
 
         unitField.setPrefWidth(50);
-        MFXTextField.setAlignment(Pos.BASELINE_RIGHT);
+        textField.setAlignment(Pos.BASELINE_RIGHT);
         unitField.setAlignment(Pos.BASELINE_LEFT);
     }
 
     public void setEditable(boolean edible) {
-        MFXTextField.setEditable(edible);
+        textField.setEditable(edible);
         unitField.setEditable(edible);
     }
 
-    public MFXTextField getTextField() {
-        return MFXTextField;
+    public TextField getTextField() {
+        return textField;
     }
 
-    public MFXTextField getUnitField() {
+    public TextField getUnitField() {
         return unitField;
     }
 }

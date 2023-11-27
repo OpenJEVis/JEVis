@@ -13,7 +13,7 @@ public class BubbleTypeComboBox extends DisabledItemsComboBox<BubbleType> {
     public BubbleTypeComboBox(BubbleType bubbleType) {
         super(FXCollections.observableArrayList(BubbleType.values()));
 
-        this.selectItem(bubbleType);
+        this.getSelectionModel().select(bubbleType);
 
     }
 
@@ -46,7 +46,7 @@ public class BubbleTypeComboBox extends DisabledItemsComboBox<BubbleType> {
                                  final Node graphic,
                                  final BubbleTypeComboBox comboBox) {
         if (comboBox != null) {
-            comboBox.selectItem(cell.getItem());
+            comboBox.getSelectionModel().select(cell.getItem());
         }
         cell.setText(null);
 
@@ -77,7 +77,7 @@ public class BubbleTypeComboBox extends DisabledItemsComboBox<BubbleType> {
         } else {
             if (cell.isEditing()) {
                 if (comboBox != null) {
-                    comboBox.selectItem(cell.getItem());
+                    comboBox.getSelectionModel().select(cell.getItem());
                 }
                 cell.setText(null);
 

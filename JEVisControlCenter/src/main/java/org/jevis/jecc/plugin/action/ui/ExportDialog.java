@@ -1,9 +1,10 @@
 package org.jevis.jecc.plugin.action.ui;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -52,8 +53,8 @@ public class ExportDialog extends Dialog {
             Selection selection = new Selection(actionPlan);
             userSelection.add(selection);
 
-            MFXCheckbox planCheck = new MFXCheckbox();
-            MFXCheckbox actionCheck = new MFXCheckbox();
+            CheckBox planCheck = new CheckBox();
+            CheckBox actionCheck = new CheckBox();
 
             actionCheck.setOnAction(event -> selection.setExportDetail(actionCheck.isSelected()));
             planCheck.setOnAction(event -> {

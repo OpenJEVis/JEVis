@@ -1,7 +1,6 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -146,8 +145,8 @@ public class WidgetColumnFactory {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            MFXButton downButton = new MFXButton("", ControlCenter.getImage("1395085233_arrow_return_right_down.png", 15, 15));
-                            MFXButton upButton = new MFXButton("", ControlCenter.getImage("1395085229_arrow_return_right_up.png", 15, 15));
+                            Button downButton = new Button("", ControlCenter.getImage("1395085233_arrow_return_right_down.png", 15, 15));
+                            Button upButton = new Button("", ControlCenter.getImage("1395085229_arrow_return_right_up.png", 15, 15));
 
                             upButton.setOnAction(event -> {
                                 if (table.getSelectionModel().getSelectedItems().contains(item)) {
@@ -268,7 +267,7 @@ public class WidgetColumnFactory {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            MFXButton button = new MFXButton("", ControlCenter.getImage("Service Manager.png", 15, 15));
+                            Button button = new Button("", ControlCenter.getImage("Service Manager.png", 15, 15));
 
                             button.setOnAction(event -> {
                                 item.openConfig();
@@ -320,7 +319,7 @@ public class WidgetColumnFactory {
                     protected void updateItem(String item, boolean empty) {
                         if (item != null && !empty) {
                             try {
-                                ImageView icon = ((Widget) getTableRow().getItem()).getImagePreview();
+                                ImageView icon = getTableRow().getItem().getImagePreview();
                                 icon.setPreserveRatio(true);
                                 icon.setFitHeight(18d);
                                 setGraphic(icon);
@@ -369,7 +368,7 @@ public class WidgetColumnFactory {
         field.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (oldValue == true && newValue == false) {
+                if (oldValue && !newValue) {
                     WidgetColumnFactory.this.table.refresh();
                 }
             }
@@ -385,10 +384,10 @@ public class WidgetColumnFactory {
                     @Override
                     protected void updateItem(String item, boolean empty) {
                         if (item != null && !empty) {
-                            MFXTextField textField = new MFXTextField(item);
+                            TextField textField = new TextField(item);
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
-                                setWidgetTitle(textField.getText(), (Widget) getTableRow().getItem());
+                                setWidgetTitle(textField.getText(), getTableRow().getItem());
                             });
 
                             addFocusRefreshListener(textField);
@@ -451,7 +450,7 @@ public class WidgetColumnFactory {
 
                             colorPicker.setStyle("-fx-color-label-visible: false ;");
                             colorPicker.setOnAction(event -> {
-                                setWidgetFGColor(colorPicker.getValue(), (Widget) getTableRow().getItem());
+                                setWidgetFGColor(colorPicker.getValue(), getTableRow().getItem());
                             });
 
 //                            addFocusRefreshListener(colorPicker);
@@ -510,7 +509,7 @@ public class WidgetColumnFactory {
                             colorPicker.setValue(item);
                             setGraphic(colorPicker);
                             colorPicker.selectColorProperty().addListener((observable, oldValue, newValue) -> {
-                                setWidgetBGColor(newValue, (Widget) getTableRow().getItem());
+                                setWidgetBGColor(newValue, getTableRow().getItem());
                             });
 
 //                            addFocusRefreshListener(colorPicker);
@@ -557,10 +556,10 @@ public class WidgetColumnFactory {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
-                            MFXTextField textField = buildDoubleTextField(item.toString());
+                            TextField textField = buildDoubleTextField(item.toString());
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
-                                    setWidgetXPosition(textField, (Widget) getTableRow().getItem());
+                                    setWidgetXPosition(textField, getTableRow().getItem());
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }
@@ -611,10 +610,10 @@ public class WidgetColumnFactory {
                     protected void updateItem(Double item, boolean empty) {
                         setGraphic(null);
                         if (item != null && !empty) {
-                            MFXTextField textField = buildDoubleTextField(item.toString());
+                            TextField textField = buildDoubleTextField(item.toString());
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
-                                    setWidgetYPosition(textField, (Widget) getTableRow().getItem());
+                                    setWidgetYPosition(textField, getTableRow().getItem());
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }
@@ -661,10 +660,10 @@ public class WidgetColumnFactory {
                     protected void updateItem(Double item, boolean empty) {
 
                         if (item != null && !empty) {
-                            MFXTextField textField = buildDoubleTextField(item.toString());
+                            TextField textField = buildDoubleTextField(item.toString());
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
-                                    setWidgetWidth(textField, (Widget) getTableRow().getItem());
+                                    setWidgetWidth(textField, getTableRow().getItem());
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }
@@ -819,8 +818,8 @@ public class WidgetColumnFactory {
 //        System.out.println("SelectItem.B: " + this.table.getSelectionModel().getSelectedItems());
     }
 
-    private MFXTextField buildDoubleTextField(String text) {
-        MFXTextField textField = new MFXTextField(text);
+    private TextField buildDoubleTextField(String text) {
+        TextField textField = new TextField(text);
         textField.focusedProperty().addListener(WidgetColumnFactory.this.focusListener);
         textField.setMaxWidth(this.numberColumDefaultSize);
         return textField;
@@ -835,11 +834,11 @@ public class WidgetColumnFactory {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
-                            MFXTextField textField = buildDoubleTextField(item.toString());
+                            TextField textField = buildDoubleTextField(item.toString());
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 try {
-                                    setWidgetHeight(textField, (Widget) getTableRow().getItem());
+                                    setWidgetHeight(textField, getTableRow().getItem());
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }

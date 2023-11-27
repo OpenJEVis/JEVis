@@ -1,12 +1,12 @@
 package org.jevis.jecc.plugin.object.extension;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -97,8 +97,7 @@ public class StatisticExtension implements ObjectEditorExtension {
                     imageView.setFitHeight(24);
 
 
-                    MFXComboBox<JEVisObject> box = new MFXComboBox<>();
-                    box.setFloatMode(FloatMode.DISABLED);
+                    ComboBox<JEVisObject> box = new ComboBox<>();
                     //TODO JFX17
                     box.setConverter(new StringConverter<JEVisObject>() {
                         @Override
@@ -108,7 +107,7 @@ public class StatisticExtension implements ObjectEditorExtension {
 
                         @Override
                         public JEVisObject fromString(String string) {
-                            return box.getItems().get(box.getSelectedIndex());
+                            return box.getItems().get(box.getSelectionModel().getSelectedIndex());
                         }
                     });
 

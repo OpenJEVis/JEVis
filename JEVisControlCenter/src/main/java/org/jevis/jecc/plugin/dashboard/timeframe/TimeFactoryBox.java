@@ -69,14 +69,14 @@ public class TimeFactoryBox extends DisabledItemsComboBox<TimeFrame> {
 
         for (TimeFrame timeFrame : getItems()) {
             if (timeFrame.getID().equals(factory.getID())) {
-                selectItem(timeFrame);
+                getSelectionModel().select(timeFrame);
                 return;
             }
         }
 
         /** factory does not exist, create a new one **/
         getItems().add(factory);
-        selectItem(factory);
+        getSelectionModel().select(factory);
 
     }
 

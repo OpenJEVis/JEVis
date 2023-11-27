@@ -5,9 +5,6 @@ package org.jevis.jecc.dialog;
  */
 
 import com.google.common.collect.Lists;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -445,9 +442,9 @@ public class ReportWizardDialog {
         VBox vBox = new VBox(6);
         vBox.setFillWidth(true);
 
-        MFXButton addMultiple = new MFXButton("", ControlCenter.getSVGImage(Icon.PLUS, 16, 16));
+        Button addMultiple = new Button("", ControlCenter.getSVGImage(Icon.PLUS, 16, 16));
 
-        MFXComboBox<ReportType> reportTypeComboBox = getReportTypeComboBox();
+        ComboBox<ReportType> reportTypeComboBox = getReportTypeComboBox();
         reportTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue) {
                 reportType = newValue;
@@ -521,13 +518,12 @@ public class ReportWizardDialog {
         }
     }
 
-    private MFXComboBox<ReportType> getReportTypeComboBox() {
-        MFXComboBox<ReportType> box = new MFXComboBox<>();
-        box.setFloatMode(FloatMode.DISABLED);
+    private ComboBox<ReportType> getReportTypeComboBox() {
+        ComboBox<ReportType> box = new ComboBox<>();
 
         box.setItems(FXCollections.observableArrayList(ReportType.values()));
 
-        box.selectItem(ReportType.STANDARD);
+        box.getSelectionModel().select(ReportType.STANDARD);
 
         final String keyStandard = I18n.getInstance().getString("plugin.object.report.dialog.typ.standard");
         final String keyAllAttributes = I18n.getInstance().getString("plugin.object.report.dialog.typ.allattributes");
@@ -552,7 +548,7 @@ public class ReportWizardDialog {
 
             @Override
             public ReportType fromString(String string) {
-                return box.getItems().get(box.getSelectedIndex());
+                return box.getItems().get(box.getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -1062,6 +1058,6 @@ public class ReportWizardDialog {
     }
 
     private enum Result {
-        OK, CANCEL;
+        OK, CANCEL
     }
 }

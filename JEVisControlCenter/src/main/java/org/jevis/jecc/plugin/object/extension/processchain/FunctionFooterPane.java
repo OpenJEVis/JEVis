@@ -5,7 +5,7 @@
  */
 package org.jevis.jecc.plugin.object.extension.processchain;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -13,6 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -53,7 +54,7 @@ public class FunctionFooterPane extends Region {
         gc.lineTo(10, 28);
         gc.stroke();
 
-        MFXButton newB = new MFXButton("", ControlCenter.getImage("list-add.png", 12, 12));
+        Button newB = new Button("", ControlCenter.getImage("list-add.png", 12, 12));
 
         final ChoiceBox functionBox = new ChoiceBox();
         functionBox.setMaxWidth(500);

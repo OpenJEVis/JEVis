@@ -19,16 +19,12 @@
  */
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.SelectionMode;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -52,8 +48,8 @@ import java.util.List;
 public class NewObjectUnderDialog extends Dialog {
 
     //    private VBox root = new VBox();
-    private final MFXButton okButton = new MFXButton("OK");
-    private final MFXButton clear = new MFXButton("Clear");
+    private final Button okButton = new Button("OK");
+    private final Button clear = new Button("Clear");
     private final String ICON = "1404313956_evolution-tasks.png";
     private final JEVisDataSource _ds;
     private final SimpleTargetPlugin stp = new SimpleTargetPlugin();
@@ -76,7 +72,7 @@ public class NewObjectUnderDialog extends Dialog {
         okButton.setDefaultButton(true);
 //        ok.setDisable(true);
 
-        MFXButton cancelButton = new MFXButton("Cancel");
+        Button cancelButton = new Button("Cancel");
         cancelButton.setCancelButton(true);
         cancelButton.setOnAction(event -> close());
 
@@ -112,7 +108,7 @@ public class NewObjectUnderDialog extends Dialog {
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         content.getChildren().setAll(tree);
 
-        MFXCheckbox advanced = new MFXCheckbox("Advanced");
+        CheckBox advanced = new CheckBox("Advanced");
 
         tree.openUserSelection(uselection);
         stp.setUserSelection(uselection);

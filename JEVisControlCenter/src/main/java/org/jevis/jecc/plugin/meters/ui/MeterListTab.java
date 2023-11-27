@@ -1,8 +1,6 @@
 package org.jevis.jecc.plugin.meters.ui;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.controls.MFXToggleButton;
+
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -12,10 +10,7 @@ import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -49,11 +44,11 @@ public class MeterListTab extends Tab {
     private final JEVisDataSource ds;
     private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
     private final SummeryTable summeryTable;
-    private final MFXComboBox<Integer> yearComboBox;
+    private final ComboBox<Integer> yearComboBox;
     JEVisTypeWrapper typeWrapper;
     JEVisTypeWrapper locationWrapper;
     JEVisTypeWrapper verificationDateWrapper;
-    MFXToggleButton jfxToggleButton = new MFXToggleButton();
+    ToggleButton jfxToggleButton = new ToggleButton();
     private MeterTable meterTable;
     private List<String> type;
     private List<JEVisClass> jeVisClasses;
@@ -111,8 +106,7 @@ public class MeterListTab extends Tab {
         gridPane.addColumn(5, new Region(), buildTypeFilterButton(meterTable, I18n.getInstance().getString("plugin.meters.location"), meterTable::setLocation, locationWrapper));
         gridPane.addColumn(6, new Label(I18n.getInstance().getString("plugin.meters.overdue")), jfxToggleButton);
 
-        yearComboBox = new MFXComboBox<>(getYearList());
-
+        yearComboBox = new ComboBox<>(getYearList());
 
         gridPane.addColumn(7, new Region(), yearComboBox);
 
@@ -219,8 +213,8 @@ public class MeterListTab extends Tab {
         }).distinct().sorted(String::compareTo).collect(Collectors.toList());
     }
 
-    private MFXTextField buildSearch(MeterTable meterTable) {
-        MFXTextField textField = new MFXTextField();
+    private TextField buildSearch(MeterTable meterTable) {
+        TextField textField = new TextField();
         textField.textProperty().addListener((observableValue, s, t1) -> {
             meterTable.setContainsTextFilter(t1);
             meterTable.filter();

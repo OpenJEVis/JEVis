@@ -1,12 +1,13 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements.Boxes;
 
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
+import javafx.scene.control.DatePicker;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import jfxtras.scene.control.LocalTimePicker;
@@ -18,7 +19,7 @@ import java.time.LocalTime;
 public class IntervalBox extends HBox {
 
 
-    private final MFXDatePicker datePicker = new MFXDatePicker();
+    private final DatePicker datePicker = new DatePicker();
     private final LocalTimePicker timePicker = new LocalTimePicker();
     private final ObjectProperty<EventHandler<ActionEvent>> onAction = new ObjectPropertyBase<EventHandler<ActionEvent>>() {
         @Override

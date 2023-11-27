@@ -1,8 +1,9 @@
 package org.jevis.jecc.plugin.nonconformities.ui;
 
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import org.jevis.jecc.ControlCenter;
@@ -12,8 +13,8 @@ import java.time.LocalDate;
 
 public class TimeRangeDialog extends Alert {
 
-    MFXDatePicker fromDatePicker = new MFXDatePicker();
-    MFXDatePicker untilDatePicker = new MFXDatePicker();
+    DatePicker fromDatePicker = new DatePicker();
+    DatePicker untilDatePicker = new DatePicker();
 
     public TimeRangeDialog(DateTime from, DateTime until) {
         super(AlertType.CONFIRMATION);

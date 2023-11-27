@@ -1,9 +1,10 @@
 package org.jevis.jecc.plugin.nonconformities.ui.tab;
 
-import com.jfoenix.controls.JFXCheckBox;
+
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -15,31 +16,31 @@ import java.util.List;
 
 public class CheckListTab extends Tab {
     GridPane gridPane = new GridPane();
-    private JFXCheckBox f_ImmediateActionRequired = new JFXCheckBox();
-    private JFXCheckBox f_EffectOnOngoingProcesses = new JFXCheckBox();
-    private JFXCheckBox f_RoutinelyAffected = new JFXCheckBox();
-    private JFXCheckBox f_EmployeeTrained = new JFXCheckBox();
-    private JFXCheckBox f_DocumentsChangesNeeded = new JFXCheckBox();
-    private JFXCheckBox f_ProcessInstructions = new JFXCheckBox();
-    private JFXCheckBox f_WorkInstructions = new JFXCheckBox();
-    private JFXCheckBox f_TestInstructions = new JFXCheckBox();
-    private JFXCheckBox f_Design = new JFXCheckBox();
-    private JFXCheckBox f_Model = new JFXCheckBox();
-    private JFXCheckBox f_Miscellaneous = new JFXCheckBox();
-    private JFXCheckBox f_Metrics = new JFXCheckBox();
-    private Label l_ImmediateActionRequired = new Label();
-    private Label l_EffectOnOngoingProcesses = new Label();
-    private Label l_RoutinelyAffected = new Label();
-    private Label l_EmployeeTrained = new Label();
-    private Label l_DocumentsChangesNeeded = new Label();
-    private Label l_Documents = new Label();
-    private Label l_ProcessInstructions = new Label();
-    private Label l_WorkInstructions = new Label();
-    private Label l_TestInstructions = new Label();
-    private Label l_Design = new Label();
-    private Label l_Model = new Label();
-    private Label l_Miscellaneous = new Label();
-    private Label l_Metrics = new Label();
+    private final CheckBox f_ImmediateActionRequired = new CheckBox();
+    private final CheckBox f_EffectOnOngoingProcesses = new CheckBox();
+    private final CheckBox f_RoutinelyAffected = new CheckBox();
+    private final CheckBox f_EmployeeTrained = new CheckBox();
+    private final CheckBox f_DocumentsChangesNeeded = new CheckBox();
+    private final CheckBox f_ProcessInstructions = new CheckBox();
+    private final CheckBox f_WorkInstructions = new CheckBox();
+    private final CheckBox f_TestInstructions = new CheckBox();
+    private final CheckBox f_Design = new CheckBox();
+    private final CheckBox f_Model = new CheckBox();
+    private final CheckBox f_Miscellaneous = new CheckBox();
+    private final CheckBox f_Metrics = new CheckBox();
+    private final Label l_ImmediateActionRequired = new Label();
+    private final Label l_EffectOnOngoingProcesses = new Label();
+    private final Label l_RoutinelyAffected = new Label();
+    private final Label l_EmployeeTrained = new Label();
+    private final Label l_DocumentsChangesNeeded = new Label();
+    private final Label l_Documents = new Label();
+    private final Label l_ProcessInstructions = new Label();
+    private final Label l_WorkInstructions = new Label();
+    private final Label l_TestInstructions = new Label();
+    private final Label l_Design = new Label();
+    private final Label l_Model = new Label();
+    private final Label l_Miscellaneous = new Label();
+    private final Label l_Metrics = new Label();
 
 
     public CheckListTab() {
@@ -148,11 +149,7 @@ public class CheckListTab extends Tab {
             disableDocumentsCheckboxes(true);
         }
         f_DocumentsChangesNeeded.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
-            if (t1) {
-                disableDocumentsCheckboxes(false);
-            } else {
-                disableDocumentsCheckboxes(true);
-            }
+            disableDocumentsCheckboxes(!t1);
         });
 
 
@@ -164,8 +161,8 @@ public class CheckListTab extends Tab {
         for (int i = 6; i <= 13; i++) {
             getNodesByRow(i, gridPane).forEach(node -> {
                 if (disable) {
-                    if (node.getClass().equals(JFXCheckBox.class)) {
-                        JFXCheckBox checkbox = (JFXCheckBox) node;
+                    if (node.getClass().equals(CheckBox.class)) {
+                        CheckBox checkbox = (CheckBox) node;
                         checkbox.setSelected(false);
                     }
 
@@ -185,7 +182,7 @@ public class CheckListTab extends Tab {
 
         List<Node> resulNodes = new ArrayList<>();
         for (Node node : childrens) {
-            if (gridPane.getRowIndex(node) == row) {
+            if (GridPane.getRowIndex(node) == row) {
                 resulNodes.add(node);
             }
         }

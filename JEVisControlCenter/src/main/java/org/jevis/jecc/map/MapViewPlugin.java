@@ -5,9 +5,7 @@
  */
 package org.jevis.jecc.map;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -56,7 +54,7 @@ public class MapViewPlugin implements Plugin {
     private JXMapViewer mapViewer;
     private ToolBar toolBar;
     private TableView table;
-    private MFXComboBox comboBox;
+    private ComboBox comboBox;
 
     private Map<String, GPSRoute> routeData;
 
@@ -155,7 +153,7 @@ public class MapViewPlugin implements Plugin {
             delete.setDisable(true);
 
 //load new stuff
-            MFXButton select = new MFXButton(I18n.getInstance().getString("plugin.map.select"));
+            Button select = new Button(I18n.getInstance().getString("plugin.map.select"));
             select.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
@@ -216,7 +214,7 @@ public class MapViewPlugin implements Plugin {
 
             });
 
-            MFXButton defaultMap = new MFXButton(I18n.getInstance().getString("plugin.map.default"));
+            Button defaultMap = new Button(I18n.getInstance().getString("plugin.map.default"));
             defaultMap.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
@@ -307,8 +305,7 @@ public class MapViewPlugin implements Plugin {
                 "Example 1",
                 "Example 2"
         );
-        comboBox = new MFXComboBox<>(options);
-        comboBox.setFloatMode(FloatMode.DISABLED);
+        comboBox = new ComboBox<>(options);
         comboBox.setPrefWidth(Double.MAX_VALUE);
         StackPane stack = new StackPane(comboBox);
 

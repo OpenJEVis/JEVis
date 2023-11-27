@@ -19,12 +19,13 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -51,7 +52,7 @@ import java.util.Collections;
 public class PeriodEditor implements AttributeEditor {
 
     private static final Logger logger = LogManager.getLogger(PeriodEditor.class);
-    private final MFXDatePicker pickerDate = new MFXDatePicker();
+    private final DatePicker pickerDate = new DatePicker();
     private final LocalTimePicker pickerTime = new LocalTimePicker();
     private final HBox editor = new HBox(4);
     private final JEVisAttribute att;

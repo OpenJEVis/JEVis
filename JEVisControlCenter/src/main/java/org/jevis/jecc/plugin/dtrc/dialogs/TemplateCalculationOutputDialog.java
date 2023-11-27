@@ -1,8 +1,6 @@
 package org.jevis.jecc.plugin.dtrc.dialogs;
 
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -61,7 +59,7 @@ public class TemplateCalculationOutputDialog extends Dialog {
 
         Label nameLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.namelabel"));
 
-        MFXCheckbox nameBold = new MFXCheckbox(I18n.getInstance().getString("plugin.dtrc.dialog.bold"));
+        CheckBox nameBold = new CheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.bold"));
         nameBold.setSelected(templateOutput.getNameBold());
         GridPane.setHgrow(nameLabel, Priority.ALWAYS);
 
@@ -74,19 +72,15 @@ public class TemplateCalculationOutputDialog extends Dialog {
         Label tooltipLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.tooltip"));
         GridPane.setHgrow(tooltipLabel, Priority.ALWAYS);
 
-        MFXTextField nameField = new MFXTextField(templateOutput.getName());
-        nameField.setFloatMode(FloatMode.DISABLED);
-        MFXTextField variableNameField = new MFXTextField(templateOutput.getVariableName());
-        variableNameField.setFloatMode(FloatMode.DISABLED);
-        MFXTextField unitField = new MFXTextField(templateOutput.getUnit());
-        unitField.setFloatMode(FloatMode.DISABLED);
-        MFXTextField tooltipField = new MFXTextField(templateOutput.getTooltip());
-        tooltipField.setFloatMode(FloatMode.DISABLED);
+        TextField nameField = new TextField(templateOutput.getName());
+        TextField variableNameField = new TextField(templateOutput.getVariableName());
+        TextField unitField = new TextField(templateOutput.getUnit());
+        TextField tooltipField = new TextField(templateOutput.getTooltip());
 
-        MFXCheckbox isLinkToggle = new MFXCheckbox(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
+        CheckBox isLinkToggle = new CheckBox(I18n.getInstance().getString("plugin.accounting.tab.enterdata"));
         isLinkToggle.setSelected(templateOutput.getLink());
 
-        MFXCheckbox showTooltip = new MFXCheckbox(I18n.getInstance().getString("plugin.dtrc.dialog.showtooltip"));
+        CheckBox showTooltip = new CheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.showtooltip"));
         showTooltip.setSelected(templateOutput.getShowTooltip());
 
         Label columnLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.columnlabel"));
@@ -101,13 +95,13 @@ public class TemplateCalculationOutputDialog extends Dialog {
         Label rowSpanLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.rowspanlabel"));
         NumberSpinner rowSpanSpinner = new NumberSpinner(new BigDecimal(templateOutput.getRowSpan()), new BigDecimal(1));
 
-        MFXCheckbox resultBold = new MFXCheckbox(I18n.getInstance().getString("plugin.dtrc.dialog.bold"));
+        CheckBox resultBold = new CheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.bold"));
         resultBold.setSelected(templateOutput.getResultBold());
 
-        MFXCheckbox showAnalysisLink = new MFXCheckbox(I18n.getInstance().getString("plugin.dtrc.dialog.showanalysislink"));
+        CheckBox showAnalysisLink = new CheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.showanalysislink"));
         showAnalysisLink.setSelected(templateOutput.getShowAnalysisLink());
 
-        MFXCheckbox separatorToggle = new MFXCheckbox(I18n.getInstance().getString("plugin.dtrc.dialog.separator"));
+        CheckBox separatorToggle = new CheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.separator"));
         separatorToggle.setSelected(templateOutput.getSeparator());
 
         nameField.textProperty().addListener((observable, oldValue, newValue) -> templateOutput.setName(newValue));

@@ -1,9 +1,10 @@
 package org.jevis.jecc.application.control;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 import javafx.util.StringConverter;
 import org.jevis.commons.datetime.Months;
 import org.jevis.commons.i18n.I18n;
@@ -11,7 +12,7 @@ import org.joda.time.DateTime;
 
 import java.time.YearMonth;
 
-public class MonthBox extends MFXComboBox<Months> {
+public class MonthBox extends ComboBox<Months> {
     private YearBox yearBox;
     private DayBox dayBox;
 
@@ -76,7 +77,7 @@ public class MonthBox extends MFXComboBox<Months> {
 
             @Override
             public Months fromString(String string) {
-                return getItems().get(getSelectedIndex());
+                return getItems().get(getSelectionModel().getSelectedIndex());
             }
         });
 
@@ -97,11 +98,11 @@ public class MonthBox extends MFXComboBox<Months> {
 
         if (nextTS != null) {
             Platform.runLater(() -> {
-                selectIndex(nextTS.getMonthOfYear() - 1);
-                dayBox.selectItem(nextTS.getDayOfMonth());
+                getSelectionModel().select(nextTS.getMonthOfYear() - 1);
+                dayBox.getSelectionModel().select(nextTS.getDayOfMonth());
             });
         } else {
-            Platform.runLater(() -> selectIndex(DateTime.now().getMonthOfYear() - 1));
+            Platform.runLater(() -> getSelectionModel().select(DateTime.now().getMonthOfYear() - 1));
         }
     }
 

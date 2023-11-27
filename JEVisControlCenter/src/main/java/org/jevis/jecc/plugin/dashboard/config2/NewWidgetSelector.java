@@ -1,14 +1,9 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
@@ -28,16 +23,15 @@ import java.util.stream.Collectors;
 public class NewWidgetSelector extends GridPane {
 
 
-    final MFXComboBox<WidgetSelection> widgetComboBox = new MFXComboBox<>();
+    final ComboBox<WidgetSelection> widgetComboBox = new ComboBox<>();
     final ObjectProperty<Widget> selectedWidgetProperty = new SimpleObjectProperty<>();
     final DashboardControl control;
 
-    private final MFXButton newB = new MFXButton("", ControlCenter.getSVGImage(Icon.PLUS, 20, 20));
+    private final Button newB = new Button("", ControlCenter.getSVGImage(Icon.PLUS, 20, 20));
 
 
     public NewWidgetSelector(DashboardControl dashboardControl) {
         this.control = dashboardControl;
-        this.widgetComboBox.setFloatMode(FloatMode.DISABLED);
         Collection<WidgetSelection> widgets = Widgets.availableWidgets.values().stream().sorted((o1, o2) -> o1.getDisplayname().compareTo(o2.getDisplayname())).collect(Collectors.toList());
         widgetComboBox.getItems().addAll(widgets);
 
@@ -52,7 +46,7 @@ public class NewWidgetSelector extends GridPane {
 
             @Override
             public WidgetSelection fromString(String string) {
-                return widgetComboBox.getItems().get(widgetComboBox.getSelectedIndex());
+                return widgetComboBox.getItems().get(widgetComboBox.getSelectionModel().getSelectedIndex());
             }
         });
         widgetComboBox.getSelectionModel().selectFirst();
@@ -83,7 +77,7 @@ public class NewWidgetSelector extends GridPane {
     /*
     @TODO
      */
-    public MFXButton getNewB() {
+    public Button getNewB() {
         this.getChildren().remove(newB);
         return newB;
     }

@@ -5,14 +5,15 @@
  */
 package org.jevis.jecc.connectionencoder;
 
-import com.jfoenix.controls.JFXPasswordField;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
@@ -27,25 +28,25 @@ public class ConnectionEncoderWindow {
     private static final Logger logger = LogManager.getLogger(ConnectionEncoderWindow.class);
 
     @FXML
-    private MFXTextField host;
+    private TextField host;
 
     @FXML
-    private MFXTextField port;
+    private TextField port;
 
     @FXML
-    private MFXTextField result;
+    private TextField result;
 
     @FXML
-    private MFXTextField schema;
+    private TextField schema;
 
     @FXML
-    private MFXTextField user;
+    private TextField user;
 
     @FXML
-    private JFXPasswordField passwd;
+    private PasswordField passwd;
 
     @FXML
-    private MFXButton CopyCon;
+    private Button CopyCon;
 
     public ConnectionEncoderWindow(Stage stage) {
         try {

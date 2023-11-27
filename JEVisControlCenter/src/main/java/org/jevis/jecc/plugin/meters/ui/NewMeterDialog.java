@@ -1,7 +1,6 @@
 package org.jevis.jecc.plugin.meters.ui;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -34,8 +33,8 @@ public class NewMeterDialog extends Dialog {
     private final MeterList meterList;
     private final JEVisDataSource jeVisDataSource;
     ComboBox<JEVisClassWrapper> comboBox = new ComboBox<>();
-    MFXTextField mfxTextFieldName = new MFXTextField();
-    MFXButton mfxButtonTarget = new MFXButton("", ControlCenter.getSVGImage(Icon.TREE, 20, 20));
+    TextField mfxTextFieldName = new TextField();
+    Button mfxButtonTarget = new Button("", ControlCenter.getSVGImage(Icon.TREE, 20, 20));
     private Optional<JEVisObject> parent = Optional.empty();
     private SingleSelectionModel<JEVisClassWrapper> jeVisClassSingleSelectionModel;
     private JEVisClassWrapper air;

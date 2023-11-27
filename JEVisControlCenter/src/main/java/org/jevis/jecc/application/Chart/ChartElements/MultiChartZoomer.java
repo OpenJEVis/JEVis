@@ -10,7 +10,6 @@ import de.gsi.chart.plugins.Zoomer;
 import de.gsi.chart.ui.ObservableDeque;
 import de.gsi.chart.ui.geometry.Side;
 import de.gsi.dataset.DataSet;
-import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -26,6 +25,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
@@ -548,16 +548,16 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         separator.setOrientation(Orientation.VERTICAL);
         final HBox buttonBar = new HBox();
         buttonBar.setPadding(new Insets(1, 1, 1, 1));
-        final MFXButton zoomOut = new MFXButton(null, new Glyph(FONT_AWESOME, "\uf0b2").size(FONT_SIZE));
+        final Button zoomOut = new Button(null, new Glyph(FONT_AWESOME, "\uf0b2").size(FONT_SIZE));
         zoomOut.setPadding(new Insets(3, 3, 3, 3));
         zoomOut.setTooltip(new Tooltip("zooms to origin and enables auto-ranging"));
-        final MFXButton zoomModeXY = new MFXButton(null, new Glyph(FONT_AWESOME, "\uf047").size(FONT_SIZE));
+        final Button zoomModeXY = new Button(null, new Glyph(FONT_AWESOME, "\uf047").size(FONT_SIZE));
         zoomModeXY.setPadding(new Insets(3, 3, 3, 3));
         zoomModeXY.setTooltip(new Tooltip("set zoom-mode to X & Y range (N.B. disables auto-ranging)"));
-        final MFXButton zoomModeX = new MFXButton(null, new Glyph(FONT_AWESOME, "\uf07e").size(FONT_SIZE));
+        final Button zoomModeX = new Button(null, new Glyph(FONT_AWESOME, "\uf07e").size(FONT_SIZE));
         zoomModeX.setPadding(new Insets(3, 3, 3, 3));
         zoomModeX.setTooltip(new Tooltip("set zoom-mode to X range (N.B. disables auto-ranging)"));
-        final MFXButton zoomModeY = new MFXButton(null, new Glyph(FONT_AWESOME, "\uf07d").size(FONT_SIZE));
+        final Button zoomModeY = new Button(null, new Glyph(FONT_AWESOME, "\uf07d").size(FONT_SIZE));
         zoomModeY.setPadding(new Insets(3, 3, 3, 3));
         zoomModeY.setTooltip(new Tooltip("set zoom-mode to Y range (N.B. disables auto-ranging)"));
 
@@ -798,8 +798,7 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
             notActive.forEach(chart -> {
                 if (chart instanceof org.jevis.jecc.application.Chart.Charts.XYChart) {
                     chart.getChart().getPlugins().forEach(chartPlugin -> {
-                        if (chartPlugin instanceof MultiChartZoomer) {
-                            MultiChartZoomer zoomer = (MultiChartZoomer) chartPlugin;
+                        if (chartPlugin instanceof MultiChartZoomer zoomer) {
                             zoomer.setFollowUpZoom(true);
                             zoomer.zoomOrigin();
                             zoomer.setFollowUpZoom(false);
@@ -1305,8 +1304,7 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
                         double height = ((org.jevis.jecc.application.Chart.Charts.XYChart) chart).getY1Axis().getHeight();
 
                         chart.getChart().getPlugins().forEach(naChartPlugin -> {
-                            if (naChartPlugin instanceof MultiChartZoomer) {
-                                MultiChartZoomer zoomer = (MultiChartZoomer) naChartPlugin;
+                            if (naChartPlugin instanceof MultiChartZoomer zoomer) {
                                 zoomer.setFollowUpZoom(true);
                                 zoomer.getZoomRectangle().setX(displayPositionLeftX);
                                 zoomer.getZoomRectangle().setY(0d);
@@ -1362,8 +1360,7 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
             notActive.forEach(chart -> {
                 if (chart instanceof org.jevis.jecc.application.Chart.Charts.XYChart) {
                     chart.getChart().getPlugins().forEach(naChartPlugin -> {
-                        if (naChartPlugin instanceof MultiChartZoomer) {
-                            MultiChartZoomer zoomer = (MultiChartZoomer) naChartPlugin;
+                        if (naChartPlugin instanceof MultiChartZoomer zoomer) {
                             zoomer.setFollowUpZoom(true);
                             zoomer.zoomOut();
                             zoomer.setFollowUpZoom(false);

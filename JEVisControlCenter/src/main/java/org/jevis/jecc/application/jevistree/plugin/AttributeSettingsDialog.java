@@ -19,8 +19,7 @@
  */
 package org.jevis.jecc.application.jevistree.plugin;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -105,19 +104,19 @@ public class AttributeSettingsDialog {
 //        Node header = DialogHeader.getDialogHeader("1404313956_evolution-tasks.png", "Unit Selection");
         HBox buttonPanel = new HBox();
 
-        final MFXCheckbox setDefault = new MFXCheckbox("Set as default");
+        final CheckBox setDefault = new CheckBox("Set as default");
 
-        MFXButton ok = new MFXButton("OK");
+        Button ok = new Button("OK");
         ok.setDefaultButton(true);
 
-        MFXButton cancel = new MFXButton("Cancel");
+        Button cancel = new Button("Cancel");
         cancel.setCancelButton(true);
 
         if (att.getDisplayUnit() != null) {
             att.getDisplayUnit().toString();
         }//            changeBaseUnigetDisplayUnitxt(att.getUnit().toString());
 
-//        MFXCheckbox keepDefault = new MFXCheckbox("Set as DB unit");
+//        CheckBox keepDefault = new CheckBox("Set as DB unit");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 

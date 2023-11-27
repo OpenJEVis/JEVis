@@ -4,7 +4,6 @@ import com.jfoenix.assets.JFoenixResources;
 import com.jfoenix.controls.JFXScrollPane;
 import com.jfoenix.svg.SVGGlyph;
 import com.jfoenix.utils.JFXNodeUtils;
-import io.github.palexdev.materialfx.controls.MFXButton;
 import javafx.css.*;
 import javafx.css.converter.SizeConverter;
 import javafx.geometry.Insets;
@@ -132,8 +131,8 @@ public class TreeTableViewPath extends ScrollPane {
         return super.computePrefHeight(width);
     }
 
-    private MFXButton createNextButton(TreeItem temp) {
-        return new MFXButton(temp.getValue().toString()) {
+    private Button createNextButton(TreeItem temp) {
+        return new Button(temp.getValue().toString()) {
             {
                 setPadding(new Insets(getOffset(), 1.5 * getOffset(), getOffset(), 2 * getOffset()));
                 setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -157,8 +156,8 @@ public class TreeTableViewPath extends ScrollPane {
         };
     }
 
-    public MFXButton createFirstButton(TreeItem temp) {
-        return new MFXButton(temp.getValue().toString()) {
+    public Button createFirstButton(TreeItem temp) {
+        return new Button(temp.getValue().toString()) {
             {
                 setPadding(new Insets(getOffset(), 1.5 * getOffset(), getOffset(), getOffset()));
                 setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -180,8 +179,8 @@ public class TreeTableViewPath extends ScrollPane {
         };
     }
 
-    private MFXButton createLastButton(TreeItem temp, TreeItem parent) {
-        return new MFXButton(temp.getValue().toString()) {
+    private Button createLastButton(TreeItem temp, TreeItem parent) {
+        return new Button(temp.getValue().toString()) {
             private final boolean noParent = parent == null;
 
             {

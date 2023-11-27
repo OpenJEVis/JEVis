@@ -19,13 +19,13 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
@@ -42,7 +42,7 @@ import org.joda.time.DateTime;
 public class IPAdressEditor implements AttributeEditor {
 
     private static final Logger logger = LogManager.getLogger(IPAdressEditor.class);
-    private final MFXTextField ipAdressField = new MFXTextField();
+    private final TextField ipAdressField = new TextField();
     private final HBox editor = new HBox();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final JEVisAttribute att;
@@ -51,7 +51,6 @@ public class IPAdressEditor implements AttributeEditor {
 
     public IPAdressEditor(JEVisAttribute att) {
         this.att = att;
-        this.ipAdressField.setFloatMode(FloatMode.DISABLED);
         buildGUI();
     }
 

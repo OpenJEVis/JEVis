@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.object.extension.OPC;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -41,10 +38,10 @@ public class OPCBrowser {
     private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
     public static String ICON = "Loytec XML-DL Server.png";
     public final JEVisObject opcServerObj;
-    MFXTextField port = new MFXTextField();
-    MFXButton connect = new MFXButton();
-    MFXComboBox<String> comboRootFolder = new MFXComboBox<>();
-    MFXComboBox<String> comboMode = new MFXComboBox<>();
+    TextField port = new TextField();
+    Button connect = new Button();
+    ComboBox<String> comboRootFolder = new ComboBox<>();
+    ComboBox<String> comboMode = new ComboBox<>();
     Dialog opcUaBrowserDialog;
     private OPCClient opcClient;
     private JEVisDataSource ds;
@@ -53,9 +50,6 @@ public class OPCBrowser {
 
     public OPCBrowser(JEVisObject opcServerObj) {
         this.opcServerObj = opcServerObj;
-        this.comboRootFolder.setFloatMode(FloatMode.DISABLED);
-        this.comboMode.setFloatMode(FloatMode.DISABLED);
-        this.port.setFloatMode(FloatMode.DISABLED);
 
         try {
             ds = opcServerObj.getDataSource();

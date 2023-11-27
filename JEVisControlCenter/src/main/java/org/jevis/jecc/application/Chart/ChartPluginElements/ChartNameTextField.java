@@ -1,9 +1,10 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
+import javafx.scene.control.TextField;
 import org.jevis.jecc.application.Chart.ChartSetting;
 
-public class ChartNameTextField extends MFXTextField {
+public class ChartNameTextField extends TextField {
 
     public ChartNameTextField(ChartSetting chartSetting) {
         super();

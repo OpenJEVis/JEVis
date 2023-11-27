@@ -1,11 +1,12 @@
 package org.jevis.jecc.plugin.object.extension.calculation;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
@@ -16,118 +17,118 @@ public class CalculationViewController {
     private static final Logger logger = LogManager.getLogger(CalculationViewController.class);
 
     @FXML
-    public MFXButton atan2;
+    public Button atan2;
     @FXML
     public ScrollPane variablesScrollPane;
     @FXML
-    private MFXButton buttonCeil;
+    private Button buttonCeil;
     @FXML
-    private MFXButton buttonLog;
+    private Button buttonLog;
     @FXML
-    private MFXButton buttonDot;
+    private Button buttonDot;
 
     @FXML
-    private MFXButton buttonSeven;
+    private Button buttonSeven;
     @FXML
-    private MFXButton buttonTwo;
+    private Button buttonTwo;
     @FXML
-    private MFXButton buttonBracketOpen;
+    private Button buttonBracketOpen;
     @FXML
-    private MFXButton buttonThree;
+    private Button buttonThree;
     @FXML
-    private MFXButton buttonMultiply;
+    private Button buttonMultiply;
     @FXML
-    private MFXButton buttonAcos;
+    private Button buttonAcos;
     @FXML
-    private MFXButton buttonNotEquals;
+    private Button buttonNotEquals;
     @FXML
-    private MFXButton buttonRound;
+    private Button buttonRound;
     @FXML
-    private MFXTextField expressionField;
+    private TextField expressionField;
     @FXML
-    private MFXButton buttonZero;
+    private Button buttonZero;
     @FXML
-    private MFXButton buttonEquals;
+    private Button buttonEquals;
     @FXML
-    private MFXButton buttonFour;
+    private Button buttonFour;
     @FXML
-    private MFXButton buttonDivide;
+    private Button buttonDivide;
     @FXML
-    private MFXButton buttonAtan;
+    private Button buttonAtan;
     @FXML
-    private MFXButton buttonGreater;
+    private Button buttonGreater;
     @FXML
-    private MFXButton buttonClear;
+    private Button buttonClear;
     @FXML
-    private MFXButton buttonBracketClose;
+    private Button buttonBracketClose;
     @FXML
-    private MFXButton buttonSqrt;
+    private Button buttonSqrt;
     @FXML
-    private MFXButton buttonE;
+    private Button buttonE;
     @FXML
-    private MFXButton buttonRad;
+    private Button buttonRad;
     @FXML
-    private MFXButton buttonGreaterEquals;
+    private Button buttonGreaterEquals;
     @FXML
-    private MFXButton buttonExp;
+    private Button buttonExp;
     @FXML
-    private MFXButton buttonPi;
+    private Button buttonPi;
     @FXML
-    private MFXButton buttonTan;
+    private Button buttonTan;
     @FXML
-    private MFXButton buttonSmaller;
+    private Button buttonSmaller;
     @FXML
-    private MFXButton buttonMod;
+    private Button buttonMod;
     @FXML
-    private MFXButton buttonOr;
+    private Button buttonOr;
     @FXML
-    private MFXButton buttonOutput;
+    private Button buttonOutput;
     @FXML
-    private MFXButton buttonMinus;
+    private Button buttonMinus;
     @FXML
-    private MFXButton buttonDeg;
+    private Button buttonDeg;
     @FXML
-    private MFXButton buttonCos;
+    private Button buttonCos;
     @FXML
-    private MFXButton buttonFloor;
+    private Button buttonFloor;
     @FXML
-    private MFXButton buttonAbs;
+    private Button buttonAbs;
     @FXML
-    private MFXButton buttonSmallerEquals;
+    private Button buttonSmallerEquals;
     @FXML
-    private MFXButton buttonEight;
+    private Button buttonEight;
     @FXML
-    private MFXButton buttonNine;
+    private Button buttonNine;
     @FXML
-    private MFXButton buttonFive;
+    private Button buttonFive;
     @FXML
-    private MFXButton buttonSix;
+    private Button buttonSix;
     @FXML
-    private MFXButton buttonMax;
+    private Button buttonMax;
     @FXML
-    private MFXButton buttonOne;
+    private Button buttonOne;
     @FXML
-    private MFXButton buttonBack;
+    private Button buttonBack;
     @FXML
-    private MFXButton buttonMin;
+    private Button buttonMin;
     @FXML
-    private MFXButton buttonAnd;
+    private Button buttonAnd;
     @FXML
-    private MFXButton buttonPow;
+    private Button buttonPow;
     @FXML
-    private MFXButton buttonSin;
+    private Button buttonSin;
     @FXML
-    private MFXButton buttonAtan2;
+    private Button buttonAtan2;
     @FXML
     private ListView<?> listInputs;
     @FXML
-    private MFXButton buttonAsin;
+    private Button buttonAsin;
     @FXML
     private FormulaBox formulaBox;
     @FXML
     private VariablesBox variablesBox;
     @FXML
-    private MFXButton buttonVerify;
+    private Button buttonVerify;
 
     @FXML
     public void initialize() {
@@ -403,7 +404,7 @@ public class CalculationViewController {
     }
 
 
-    public void setData(JEVisObject obj, MFXButton buttonOutput) {
+    public void setData(JEVisObject obj, Button buttonOutput) {
         logger.info("setData: {}", buttonOutput);
         formulaBox.setCalculation(obj);
 

@@ -56,10 +56,10 @@ public class TimeZoneEditor implements AttributeEditor {
                 }
 
                 if (dateTimeZone != null) {
-                    timeZoneBox.selectItem(dateTimeZone);
+                    timeZoneBox.getSelectionModel().select(dateTimeZone);
                 } else {
                     //Fix missconfigured zones
-                    timeZoneBox.selectItem(utc);
+                    timeZoneBox.getSelectionModel().select(utc);
 
                     _newSample = _attribute.buildSample(new DateTime(), utc.getID());
                     _changed.setValue(Boolean.TRUE);
@@ -71,7 +71,7 @@ public class TimeZoneEditor implements AttributeEditor {
             }
         } else {
             try {
-                timeZoneBox.selectItem(utc);
+                timeZoneBox.getSelectionModel().select(utc);
                 _newSample = _attribute.buildSample(new DateTime(), utc.getID());
                 _changed.setValue(Boolean.TRUE);
             } catch (Exception ex) {

@@ -19,7 +19,7 @@
  */
 package org.jevis.jecc.sample;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,6 +27,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -135,7 +136,7 @@ public class SampleEditor {
         /** ------------------------------------------- Processor -------------------------------------------------**/
 
 
-        MFXButton config = new MFXButton();
+        Button config = new Button();
         config.setGraphic(ControlCenter.getImage("Service Manager.png", 16, 16));
 
 

@@ -1,11 +1,11 @@
 package org.jevis.jecc.application.Chart.ChartPluginElements;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Separator;
@@ -27,13 +27,12 @@ public class TableTopDatePicker extends HBox {
 
     private final ImageView leftImage;
     private final ImageView rightImage;
-    private final MFXComboBox<DateTime> selectionBox;
+    private final ComboBox<DateTime> selectionBox;
 
     public TableTopDatePicker() {
         super();
         setAlignment(Pos.CENTER);
-        selectionBox = new MFXComboBox<>();
-        selectionBox.setFloatMode(FloatMode.DISABLED);
+        selectionBox = new ComboBox<>();
         Callback<ListView<DateTime>, ListCell<DateTime>> cellFactory = new Callback<ListView<DateTime>, ListCell<DateTime>>() {
             @Override
             public ListCell<DateTime> call(ListView<DateTime> param) {
@@ -97,18 +96,18 @@ public class TableTopDatePicker extends HBox {
                         }
                     }
                     if (correctTimestamp != null) {
-                        selectionBox.selectItem(correctTimestamp);
+                        selectionBox.getSelectionModel().select(correctTimestamp);
                     } else if (dates.size() > 0) {
-                        selectionBox.selectItem(dates.get(dates.size() - 1));
+                        selectionBox.getSelectionModel().select(dates.get(dates.size() - 1));
                     }
                 }
             }
         });
 
-        Platform.runLater(() -> selectionBox.selectItem(date));
+        Platform.runLater(() -> selectionBox.getSelectionModel().select(date));
     }
 
-    public MFXComboBox<DateTime> getDatePicker() {
+    public ComboBox<DateTime> getDatePicker() {
         return selectionBox;
     }
 

@@ -1,21 +1,20 @@
 package org.jevis.jecc.plugin.meters.ui;
 
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 
 public class TimeRangeDialog extends Alert {
 
-    MFXDatePicker fromDatePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
-    MFXDatePicker untilDatePicker = new MFXDatePicker(I18n.getInstance().getLocale(), YearMonth.now());
+    DatePicker fromDatePicker = new DatePicker(LocalDate.now());
+    DatePicker untilDatePicker = new DatePicker(LocalDate.now());
 
     public TimeRangeDialog(DateTime from, DateTime until) {
         super(AlertType.CONFIRMATION);

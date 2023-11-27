@@ -1,7 +1,6 @@
 package org.jevis.jecc.dialog;
 
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
@@ -51,7 +50,7 @@ public class PDFViewerDialog {
     private final SimpleDoubleProperty zoomFactor = new SimpleDoubleProperty(0.3);
     private final ImageView rightImage = ControlCenter.getImage("right.png", 20, 20);
     private final ImageView leftImage = ControlCenter.getImage("left.png", 20, 20);
-    private final MFXComboBox<JEVisFileWithSample> fileComboBox = new MFXComboBox<>(FXCollections.observableArrayList());
+    private final ComboBox<JEVisFileWithSample> fileComboBox = new ComboBox<>(FXCollections.observableArrayList());
     private final Map<JEVisFile, JEVisSample> sampleMap = new HashMap<>();
     private final ImageView pdfIcon = ControlCenter.getImage("pdf_24_2133056.png", iconSize, iconSize);
     private Stage stage;
@@ -179,7 +178,6 @@ public class PDFViewerDialog {
         fileName.setFont(new Font("Cambria", iconSize));
 
         //TODO JFX17
-        fileComboBox.setFloatMode(FloatMode.DISABLED);
         fileComboBox.setConverter(new StringConverter<JEVisFileWithSample>() {
             @Override
             public String toString(JEVisFileWithSample object) {
@@ -197,14 +195,14 @@ public class PDFViewerDialog {
         leftImage.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i > 0) {
-                fileComboBox.selectIndex(i - 1);
+                fileComboBox.getSelectionModel().select(i - 1);
             }
         });
 
         rightImage.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
             if (i < sampleMap.size()) {
-                fileComboBox.selectIndex(i + 1);
+                fileComboBox.getSelectionModel().select(i + 1);
             }
         });
 

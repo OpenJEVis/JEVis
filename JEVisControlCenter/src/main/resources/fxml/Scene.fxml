@@ -5,7 +5,7 @@
 <AnchorPane xmlns:fx="http://javafx.com/fxml" id="AnchorPane" prefHeight="200" prefWidth="320"
             fx:controller="org.jevis.jecc.jeconfig3.FXMLController">
     <children>
-        <MFXButton layoutX="126" layoutY="90" text="Click Me!" onAction="#handleButtonAction" fx:id="button"/>
+        <Button layoutX="126" layoutY="90" text="Click Me!" onAction="#handleButtonAction" fx:id="button"/>
         <Label layoutX="126" layoutY="120" minHeight="16" minWidth="69" fx:id="label"/>
     </children>
 </AnchorPane>

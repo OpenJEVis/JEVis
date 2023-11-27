@@ -3,13 +3,13 @@ package org.jevis.jecc.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXCheckBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
@@ -30,12 +30,12 @@ public class BatteryPojo {
     private Color colorValueIndicator = Color.GREEN;
     private boolean showValue = true;
 
-    private JFXCheckBox jfxCheckBoxShowValue;
+    private CheckBox jfxCheckBoxShowValue;
 
 
-    private MFXTextField MFXTextFieldMaxValue;
+    private TextField textFieldMaxValue;
 
-    private MFXTextField MFXTextFieldMinValue;
+    private TextField textFieldMinValue;
 
     private ColorPickerAdv colorPickerAdvValueIndicator;
 
@@ -139,21 +139,21 @@ public class BatteryPojo {
         gridPane.setPadding(new Insets(8, 5, 8, 5));
 
 
-        jfxCheckBoxShowValue = new JFXCheckBox();
+        jfxCheckBoxShowValue = new CheckBox();
         jfxCheckBoxShowValue.setSelected(showValue);
 
         gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.showValue")), jfxCheckBoxShowValue);
 
 
-        MFXTextFieldMinValue = new MFXTextField();
-        MFXTextFieldMinValue.setText(String.valueOf(minimum));
+        textFieldMinValue = new TextField();
+        textFieldMinValue.setText(String.valueOf(minimum));
 
-        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), MFXTextFieldMinValue);
+        gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.min")), textFieldMinValue);
 
-        MFXTextFieldMaxValue = new MFXTextField();
-        MFXTextFieldMaxValue.setText(String.valueOf(maximum));
+        textFieldMaxValue = new TextField();
+        textFieldMaxValue.setText(String.valueOf(maximum));
 
-        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), MFXTextFieldMaxValue);
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.dashboard.gaugewidget.max")), textFieldMaxValue);
 
 
         colorPickerAdvValueIndicator = new ColorPickerAdv();
@@ -204,8 +204,8 @@ public class BatteryPojo {
             try {
                 showValue = jfxCheckBoxShowValue.isSelected();
 
-                minimum = Double.valueOf(MFXTextFieldMinValue.getText());
-                maximum = Double.valueOf(MFXTextFieldMaxValue.getText());
+                minimum = Double.valueOf(textFieldMinValue.getText());
+                maximum = Double.valueOf(textFieldMaxValue.getText());
 
                 colorValueIndicator = colorPickerAdvValueIndicator.getValue();
             } catch (Exception e) {

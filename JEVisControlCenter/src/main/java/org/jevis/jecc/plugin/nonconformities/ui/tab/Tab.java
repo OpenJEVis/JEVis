@@ -37,13 +37,13 @@ public abstract class Tab extends javafx.scene.control.Tab {
 //                GridPane gridPane = (GridPane) content.getContent();
 //                gridPane.getChildren().forEach(node -> {
 //                    if (node instanceof MFXTextField) {
-//                        MFXTextField textField = (MFXTextField) node;
+//                        TextField textField = (MFXTextField) node;
 //                        textField.getStyleClass().set(0, "nonconformityOK");
 //                    } else if (node instanceof TextArea) {
 //                        TextArea textArea = (TextArea) node;
 //                        textArea.getStyleClass().set(0, "nonconformityOK");
 //                    } else if (node instanceof MFXDatePicker) {
-//                        MFXDatePicker MFXDatePicker = (MFXDatePicker) node;
+//                        DatePicker DatePicker = (MFXDatePicker) node;
 //                        MFXDatePicker.getStyleClass().set(0, "nonconformityOK");
 //                    }
 //                });

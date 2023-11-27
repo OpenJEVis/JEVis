@@ -1,11 +1,12 @@
 package org.jevis.jecc.taskmanager;
 
-import io.github.palexdev.materialfx.controls.MFXProgressBar;
+
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -35,21 +36,21 @@ public class TaskPane extends AnchorPane {
         taskNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
 
-        TableColumn<Task, MFXProgressBar> taskProgressColumn = new TableColumn("Progress");
-        taskProgressColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Task, MFXProgressBar>, ObservableValue<MFXProgressBar>>() {
+        TableColumn<Task, ProgressBar> taskProgressColumn = new TableColumn("Progress");
+        taskProgressColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Task, ProgressBar>, ObservableValue<ProgressBar>>() {
             @Override
-            public ObservableValue<MFXProgressBar> call(TableColumn.CellDataFeatures<Task, MFXProgressBar> param) {
-                MFXProgressBar progressBar = new MFXProgressBar();
+            public ObservableValue<ProgressBar> call(TableColumn.CellDataFeatures<Task, ProgressBar> param) {
+                ProgressBar progressBar = new ProgressBar();
                 progressBar.progressProperty().bind(param.getValue().progressProperty());
                 return new SimpleObjectProperty<>(progressBar);
             }
         });
-        taskProgressColumn.setCellFactory(new Callback<TableColumn<Task, MFXProgressBar>, TableCell<Task, MFXProgressBar>>() {
+        taskProgressColumn.setCellFactory(new Callback<TableColumn<Task, ProgressBar>, TableCell<Task, ProgressBar>>() {
             @Override
-            public TableCell<Task, MFXProgressBar> call(TableColumn<Task, MFXProgressBar> param) {
-                return new TableCell<Task, MFXProgressBar>() {
+            public TableCell<Task, ProgressBar> call(TableColumn<Task, ProgressBar> param) {
+                return new TableCell<Task, ProgressBar>() {
                     @Override
-                    protected void updateItem(MFXProgressBar item, boolean empty) {
+                    protected void updateItem(ProgressBar item, boolean empty) {
                         super.updateItem(item, empty);
                         setText(null);
                         setGraphic(item);

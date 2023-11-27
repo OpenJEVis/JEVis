@@ -1,11 +1,6 @@
 package org.jevis.jecc.plugin.dtrc.dialogs;
 
-import com.jfoenix.controls.JFXListCell;
-import com.jfoenix.controls.JFXListView;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -81,8 +76,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         boolean oldNameFound = templateInput.getVariableName() != null;
         String oldName = templateInput.getVariableName();
         AtomicBoolean changedName = new AtomicBoolean(false);
-        MFXTextField variableNameField = new MFXTextField(templateInput.getVariableName());
-        variableNameField.setFloatMode(FloatMode.DISABLED);
+        TextField variableNameField = new TextField(templateInput.getVariableName());
         GridPane.setHgrow(variableNameField, Priority.ALWAYS);
 
         variableNameField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -92,11 +86,10 @@ public class TemplateCalculationInputDialog extends Dialog {
             }
         });
 
-        MFXComboBox<InputVariableType> inputVariableTypeMFXComboBox = new MFXComboBox<>(FXCollections.observableArrayList(InputVariableType.values()));
-        inputVariableTypeMFXComboBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<InputVariableType> inputVariableTypeComboBox = new ComboBox<>(FXCollections.observableArrayList(InputVariableType.values()));
 
         //TODO JFX17
-        inputVariableTypeMFXComboBox.setConverter(new StringConverter<InputVariableType>() {
+        inputVariableTypeComboBox.setConverter(new StringConverter<InputVariableType>() {
             @Override
             public String toString(InputVariableType object) {
                 String text = "";
@@ -139,22 +132,21 @@ public class TemplateCalculationInputDialog extends Dialog {
 
             @Override
             public InputVariableType fromString(String string) {
-                return inputVariableTypeMFXComboBox.getItems().get(inputVariableTypeMFXComboBox.getSelectedIndex());
+                return inputVariableTypeComboBox.getItems().get(inputVariableTypeComboBox.getSelectionModel().getSelectedIndex());
             }
         });
 
-        GridPane.setHgrow(inputVariableTypeMFXComboBox, Priority.ALWAYS);
+        GridPane.setHgrow(inputVariableTypeComboBox, Priority.ALWAYS);
 
         Label isQuantitylabel = new Label("Quantity");
-        MFXCheckbox isQuantityCheckBox = new MFXCheckbox();
+        CheckBox isQuantityCheckBox = new CheckBox();
         isQuantityCheckBox.setSelected(templateInput.isQuantity());
         isQuantityCheckBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateInput.setQuantity(t1));
 
         Label limiterLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
         GridPane.setHgrow(limiterLabel, Priority.ALWAYS);
 
-        MFXTextField filterField = new MFXTextField();
-        filterField.setFloatMode(FloatMode.DISABLED);
+        TextField filterField = new TextField();
         filterField.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
         GridPane.setHgrow(filterField, Priority.ALWAYS);
 
@@ -162,7 +154,7 @@ public class TemplateCalculationInputDialog extends Dialog {
             filterField.setText(templateInput.getFilter());
         }
 
-        MFXCheckbox groupCheckBox = new MFXCheckbox(I18n.getInstance().getString("plugin.dtrc.dialog.grouplabel"));
+        CheckBox groupCheckBox = new CheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.grouplabel"));
         GridPane.setHgrow(groupCheckBox, Priority.ALWAYS);
 
         if (templateInput.getGroup() != null) {
@@ -171,17 +163,15 @@ public class TemplateCalculationInputDialog extends Dialog {
 
         groupCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> templateInput.setGroup(newValue));
 
-        MFXComboBox<JEVisClass> classSelector = new MFXComboBox<>();
-        classSelector.setFloatMode(FloatMode.DISABLED);
-        MFXComboBox<JEVisType> attributeSelector = new MFXComboBox<>();
-        attributeSelector.setFloatMode(FloatMode.DISABLED);
+        ComboBox<JEVisClass> classSelector = new ComboBox<>();
+        ComboBox<JEVisType> attributeSelector = new ComboBox<>();
 
-        JFXListView<JEVisObject> listView = new JFXListView<>();
+        ListView<JEVisObject> listView = new ListView<>();
         listView.setMinSize(450, 550);
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> listViewCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new JFXListCell<JEVisObject>() {
+                return new ListCell<JEVisObject>() {
                     @Override
                     protected void updateItem(JEVisObject obj, boolean empty) {
                         super.updateItem(obj, empty);
@@ -249,13 +239,13 @@ public class TemplateCalculationInputDialog extends Dialog {
 
                 @Override
                 public JEVisClass fromString(String string) {
-                    return classSelector.getItems().get(classSelector.getSelectedIndex());
+                    return classSelector.getItems().get(classSelector.getSelectionModel().getSelectedIndex());
                 }
             });
 
             if (templateInput.getObjectClass() != null) {
                 JEVisClass selectedClass = ds.getJEVisClass(templateInput.getObjectClass());
-                classSelector.selectItem(selectedClass);
+                classSelector.getSelectionModel().select(selectedClass);
             } else {
                 classSelector.getSelectionModel().selectFirst();
             }
@@ -308,7 +298,7 @@ public class TemplateCalculationInputDialog extends Dialog {
 
             if (templateInput.getAttributeName() != null) {
                 JEVisType selectedType = firstClass.getType(templateInput.getAttributeName());
-                attributeSelector.selectItem(selectedType);
+                attributeSelector.getSelectionModel().select(selectedType);
             } else {
                 attributeSelector.getSelectionModel().selectFirst();
             }
@@ -376,8 +366,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         }
 
         Label formulaLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.formulalabel"));
-        MFXComboBox<TemplateFormula> formulaBox = new MFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateFormulas()));
-        formulaBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<TemplateFormula> formulaBox = new ComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateFormulas()));
         TemplateFormula none = new TemplateFormula();
         none.setName(I18n.getInstance().getString("dialog.regression.type.none"));
         formulaBox.getItems().add(0, none);
@@ -391,13 +380,12 @@ public class TemplateCalculationInputDialog extends Dialog {
 
             @Override
             public TemplateFormula fromString(String string) {
-                return formulaBox.getItems().get(formulaBox.getSelectedIndex());
+                return formulaBox.getItems().get(formulaBox.getSelectionModel().getSelectedIndex());
             }
         });
 
         Label dependencyLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.dependencylabel"));
-        MFXComboBox<TemplateInput> dependencyBox = new MFXComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateInputs()));
-        dependencyBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<TemplateInput> dependencyBox = new ComboBox<>(FXCollections.observableArrayList(rcTemplate.getTemplateInputs()));
         TemplateInput noneInput = new TemplateInput();
         noneInput.setVariableName(I18n.getInstance().getString("dialog.regression.type.none"));
         dependencyBox.getItems().add(0, noneInput);
@@ -411,17 +399,16 @@ public class TemplateCalculationInputDialog extends Dialog {
 
             @Override
             public TemplateInput fromString(String string) {
-                return dependencyBox.getItems().get(dependencyBox.getSelectedIndex());
+                return dependencyBox.getItems().get(dependencyBox.getSelectionModel().getSelectedIndex());
             }
         });
 
         Label timeRestrictionsLabel = new Label(I18n.getInstance().getString("plugin.dtrc.dialog.timerestictions"));
-        MFXCheckbox timeRestrictionEnabledCheckBox = new MFXCheckbox(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
+        CheckBox timeRestrictionEnabledCheckBox = new CheckBox(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
         timeRestrictionEnabledCheckBox.setSelected(templateInput.getTimeRestrictionEnabled());
         timeRestrictionEnabledCheckBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> templateInput.setTimeRestrictionEnabled(t1));
 
-        MFXComboBox<TimeFrame> fixedTimeFrameBox = new MFXComboBox<>();
-        fixedTimeFrameBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<TimeFrame> fixedTimeFrameBox = new ComboBox<>();
 
         //TODO JFX17
         fixedTimeFrameBox.setConverter(new StringConverter<TimeFrame>() {
@@ -432,19 +419,18 @@ public class TemplateCalculationInputDialog extends Dialog {
 
             @Override
             public TimeFrame fromString(String string) {
-                return fixedTimeFrameBox.getItems().get(fixedTimeFrameBox.getSelectedIndex());
+                return fixedTimeFrameBox.getItems().get(fixedTimeFrameBox.getSelectionModel().getSelectedIndex());
             }
         });
 
         fixedTimeFrameBox.getItems().setAll(allowedTimeFrames);
         if (templateInput.getFixedTimeFrame() != null) {
             TimeFrame selectedTimeFrame = allowedTimeFrames.stream().filter(timeFrame -> templateInput.getFixedTimeFrame().equals(timeFrame.getID())).findFirst().orElse(null);
-            fixedTimeFrameBox.selectItem(selectedTimeFrame);
+            fixedTimeFrameBox.getSelectionModel().select(selectedTimeFrame);
         }
         fixedTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateInput.setFixedTimeFrame(t1.getID()));
 
-        MFXComboBox<TimeFrame> reducingTimeFrameBox = new MFXComboBox<>();
-        reducingTimeFrameBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<TimeFrame> reducingTimeFrameBox = new ComboBox<>();
 
         //TODO JFX17
         reducingTimeFrameBox.setConverter(new StringConverter<TimeFrame>() {
@@ -455,42 +441,42 @@ public class TemplateCalculationInputDialog extends Dialog {
 
             @Override
             public TimeFrame fromString(String string) {
-                return reducingTimeFrameBox.getItems().get(reducingTimeFrameBox.getSelectedIndex());
+                return reducingTimeFrameBox.getItems().get(reducingTimeFrameBox.getSelectionModel().getSelectedIndex());
             }
         });
 
         reducingTimeFrameBox.getItems().setAll(allowedTimeFrames);
         if (templateInput.getReducingTimeFrame() != null) {
             TimeFrame selectedTimeFrame = allowedTimeFrames.stream().filter(timeFrame -> templateInput.getReducingTimeFrame().equals(timeFrame.getID())).findFirst().orElse(null);
-            reducingTimeFrameBox.selectItem(selectedTimeFrame);
+            reducingTimeFrameBox.getSelectionModel().select(selectedTimeFrame);
         }
         reducingTimeFrameBox.getSelectionModel().selectedItemProperty().addListener((observableValue, timeFrame, t1) -> templateInput.setReducingTimeFrame(t1.getID()));
 
         HBox timeRestrictionsBox = new HBox(6, timeRestrictionEnabledCheckBox, fixedTimeFrameBox, reducingTimeFrameBox);
 
         if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.FORMULA.toString())) {
-            inputVariableTypeMFXComboBox.selectItem(InputVariableType.valueOf(templateInput.getVariableType()));
+            inputVariableTypeComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
             dependencyLabel.setVisible(false);
             dependencyBox.setVisible(false);
             formulaLabel.setVisible(true);
             formulaBox.setVisible(true);
         } else if (templateInput.getVariableType() != null && templateInput.getVariableType().equals(InputVariableType.RANGING_VALUE.toString())) {
-            inputVariableTypeMFXComboBox.selectItem(InputVariableType.valueOf(templateInput.getVariableType()));
+            inputVariableTypeComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
             dependencyLabel.setVisible(true);
             dependencyBox.setVisible(true);
             formulaLabel.setVisible(false);
             formulaBox.setVisible(false);
         } else if (templateInput.getVariableType() != null) {
-            inputVariableTypeMFXComboBox.selectItem(InputVariableType.valueOf(templateInput.getVariableType()));
+            inputVariableTypeComboBox.getSelectionModel().select(InputVariableType.valueOf(templateInput.getVariableType()));
             dependencyLabel.setVisible(false);
             dependencyBox.setVisible(false);
             formulaLabel.setVisible(false);
             formulaBox.setVisible(false);
         } else {
-            inputVariableTypeMFXComboBox.getSelectionModel().selectFirst();
+            inputVariableTypeComboBox.getSelectionModel().selectFirst();
         }
 
-        inputVariableTypeMFXComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        inputVariableTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             templateInput.setVariableType(newValue.toString());
             if (newValue.equals(InputVariableType.FORMULA)) {
                 Platform.runLater(() -> {
@@ -519,14 +505,14 @@ public class TemplateCalculationInputDialog extends Dialog {
         if (templateInput.getTemplateFormula() != null) {
             TemplateFormula selectedFormula = formulaBox.getItems().stream().filter(templateFormula -> templateFormula.getId().equals(templateInput.getTemplateFormula())).findFirst().orElse(null);
             if (selectedFormula != null)
-                formulaBox.selectItem(selectedFormula);
+                formulaBox.getSelectionModel().select(selectedFormula);
             else {
                 formulaBox.getSelectionModel().selectFirst();
             }
         } else if (templateInput.getDependency() != null) {
             TemplateInput selectedInput = dependencyBox.getItems().stream().filter(ti -> ti.getId().equals(templateInput.getDependency())).findFirst().orElse(null);
             if (selectedInput != null)
-                dependencyBox.selectItem(selectedInput);
+                dependencyBox.getSelectionModel().select(selectedInput);
             else {
                 dependencyBox.getSelectionModel().selectFirst();
             }
@@ -599,7 +585,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         row++;
 
         gridPane.add(typeLabel, 0, row);
-        gridPane.add(inputVariableTypeMFXComboBox, 1, row);
+        gridPane.add(inputVariableTypeComboBox, 1, row);
         row++;
 
         gridPane.add(isQuantitylabel, 0, row);
@@ -641,7 +627,7 @@ public class TemplateCalculationInputDialog extends Dialog {
         getDialogPane().setContent(gridPane);
     }
 
-    private void createFilterList(TemplateInput templateInput, MFXTextField limiterField, JFXListView<JEVisObject> listView, ObservableList<JEVisObject> objects) {
+    private void createFilterList(TemplateInput templateInput, TextField limiterField, ListView<JEVisObject> listView, ObservableList<JEVisObject> objects) {
         FilteredList<JEVisObject> filteredList = new FilteredList<>(objects, s -> true);
 
         limiterField.textProperty().addListener(obs -> {

@@ -19,13 +19,14 @@
  */
 package org.jevis.jecc.application.unit;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -87,10 +88,10 @@ public class SimpleTreeUnitChooser {
 //        Node header = DialogHeader.getDialogHeader("1404313956_evolution-tasks.png", "Unit Selection");
         HBox buttonPanel = new HBox();
 
-        MFXButton ok = new MFXButton(I18n.getInstance().getString("plugin.units.baseunit.ok"));
+        Button ok = new Button(I18n.getInstance().getString("plugin.units.baseunit.ok"));
         ok.setDefaultButton(true);
 
-        MFXButton cancel = new MFXButton(I18n.getInstance().getString("plugin.units.baseunit.cancel"));
+        Button cancel = new Button(I18n.getInstance().getString("plugin.units.baseunit.cancel"));
         cancel.setCancelButton(true);
 
         UnitTree uTree = new UnitTree(ds);

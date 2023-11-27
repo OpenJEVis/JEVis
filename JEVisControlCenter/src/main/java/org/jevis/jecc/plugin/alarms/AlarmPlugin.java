@@ -1,9 +1,6 @@
 package org.jevis.jecc.plugin.alarms;
 
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.enums.FloatMode;
+
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -113,17 +110,34 @@ public class AlarmPlugin implements Plugin {
     private final List<AlarmRow> data = new ArrayList<>();
     private final TableView<AlarmRow> tableView = new TableView<>();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-    private final MFXDatePicker startDatePicker = new MFXDatePicker();
-    private final MFXDatePicker endDatePicker = new MFXDatePicker();
+    private final DatePicker startDatePicker = new DatePicker();
+    private final DatePicker endDatePicker = new DatePicker();
     private boolean init = false;
     private DateTime start;
     private DateTime end;
     private TimeFrame timeFrame = TimeFrame.TODAY;
+    private final ComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+        }
+    };
+    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+        }
+    };
 
     public AlarmPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
-
+        this.timeFrameComboBox.getSelectionModel().select(TimeFrame.PREVIEW);
 
         Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
         label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -135,9 +149,7 @@ public class AlarmPlugin implements Plugin {
         this.numberFormat.setMaximumFractionDigits(2);
 
         this.startDatePicker.setPrefWidth(120d);
-        this.startDatePicker.getStyleClass().add("ToolBarDatePicker");
         this.endDatePicker.setPrefWidth(120d);
-        this.endDatePicker.getStyleClass().add("ToolBarDatePicker");
 
         createColumns();
 
@@ -158,8 +170,19 @@ public class AlarmPlugin implements Plugin {
         this.borderPane.setCenter(pagination);
     }
 
+    public static void autoFitTable(TableView<AlarmRow> tableView) {
+//        for (TableColumn<AlarmRow, ?> column : tableView.getColumns()) {
+//            try {
+//                if (tableView.getSkin() != null) {
+//                    columnToFitMethod.invoke(tableView.getSkin(), column, -1);
+//                }
+//            } catch (Exception e) {
+//            }
+//        }
+    }
+
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", ControlCenter.getSVGImage(Icon.REFRESH, iconSize, iconSize));
+        Button reload = new Button("", ControlCenter.getSVGImage(Icon.REFRESH, iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
@@ -215,13 +238,12 @@ public class AlarmPlugin implements Plugin {
         startDatePicker.valueProperty().addListener(startDateChangeListener);
         endDatePicker.valueProperty().addListener(endDateChangeListener);
 
-        MFXComboBox<String> filterBox = new MFXComboBox<>();
-        filterBox.setFloatMode(FloatMode.DISABLED);
+        ComboBox<String> filterBox = new ComboBox<>();
         String showOnlyUncheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showunchecked");
         String showOnlyCheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showchecked");
         String showAllAlarms = I18n.getInstance().getString("plugin.alarm.label.showall");
         filterBox.getItems().addAll(showOnlyUncheckedAlarms, showOnlyCheckedAlarms, showAllAlarms);
-        filterBox.getSelectionModel().selectIndex(showCheckedAlarms.get());
+        filterBox.getSelectionModel().select(showCheckedAlarms.get());
 
         filterBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
@@ -232,9 +254,9 @@ public class AlarmPlugin implements Plugin {
 
         Separator sep4 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton checkAll = new ToggleButton(I18n.getInstance().getString("plugin.alarm.checkall"), ControlCenter.getSVGImage(Icon.CHECK, iconSize, iconSize));
-        checkAll.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
+        Button checkAll = new Button(I18n.getInstance().getString("plugin.alarm.checkall"), ControlCenter.getSVGImage(Icon.CHECK, iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkAll);
+        checkAll.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
         checkAll.setOnMouseClicked(event -> {
             getAllAlarmConfigs().forEach(alarmConfiguration -> alarmConfiguration.setChecked(true));
             reload.fire();
@@ -272,18 +294,9 @@ public class AlarmPlugin implements Plugin {
         JEVisHelp.getInstance().addHelpItems(AlarmPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, toolBar.getItems());
 
 
-    }    private final MFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
-
-    public static void autoFitTable(TableView<AlarmRow> tableView) {
-//        for (TableColumn<AlarmRow, ?> column : tableView.getColumns()) {
-//            try {
-//                if (tableView.getSkin() != null) {
-//                    columnToFitMethod.invoke(tableView.getSkin(), column, -1);
-//                }
-//            } catch (Exception e) {
-//            }
-//        }
     }
+
+    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final ComboBox <TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
 
     private Node createPage(int pageIndex) {
         int numOfPages = 1;
@@ -299,8 +312,6 @@ public class AlarmPlugin implements Plugin {
 
         return tableView;
     }
-
-    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final MFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
 
     private void checkForRunningTasks() throws InterruptedException {
         AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
@@ -326,9 +337,7 @@ public class AlarmPlugin implements Plugin {
         }
     }
 
-    private void updateList() {
-
-        Platform.runLater(this::initToolBar);
+    public void updateList() {
 
         if (init) {
             restartExecutor();
@@ -392,15 +401,7 @@ public class AlarmPlugin implements Plugin {
 
 
         ControlCenter.getStatusBar().addTask(AlarmPlugin.class.getName(), task, taskImage, true);
-    }    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
+    }
 
     private String getAlarm(Integer item) {
         switch (item) {
@@ -885,8 +886,8 @@ public class AlarmPlugin implements Plugin {
 
                                     LimitEditor limitEditor = new LimitEditor(limitConfigAttribute);
                                     HBox hbox = (HBox) limitEditor.getEditor();
-                                    MFXButton MFXButton = (MFXButton) hbox.getChildren().get(0);
-                                    MFXButton.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
+                                    Button Button = (Button) hbox.getChildren().get(0);
+                                    Button.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
                                     limitEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(limitConfigAttribute.getObjectID()));
 
                                     setGraphic(limitEditor.getEditor());
@@ -895,7 +896,7 @@ public class AlarmPlugin implements Plugin {
 
                                     GapFillingEditor gapFillingEditor = new GapFillingEditor(gapFillingConfiguration);
                                     HBox hbox = (HBox) gapFillingEditor.getEditor();
-                                    MFXButton mfxButton = (MFXButton) hbox.getChildren().get(0);
+                                    Button mfxButton = (Button) hbox.getChildren().get(0);
                                     mfxButton.setText(I18nWS.getInstance().getTypeName(gapFillingConfiguration.getType()));
                                     gapFillingEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(gapFillingConfiguration.getObjectID()));
 
@@ -906,7 +907,7 @@ public class AlarmPlugin implements Plugin {
 
                                     AlarmEditor alarmEditor = new AlarmEditor(alarmConfigAttribute);
                                     HBox hbox = (HBox) alarmEditor.getEditor();
-                                    MFXButton mfxButton = (MFXButton) hbox.getChildren().get(0);
+                                    Button mfxButton = (Button) hbox.getChildren().get(0);
                                     mfxButton.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
                                     alarmEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID()));
 
@@ -930,15 +931,100 @@ public class AlarmPlugin implements Plugin {
         });
 
 
-    }    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
-            timeFrame = TimeFrame.CUSTOM;
+    }
 
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
+    private ComboBox<TimeFrame> getTimeFrameComboBox() {
+        ComboBox<TimeFrame> box = new ComboBox<>();
+
+        final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
+        final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
+        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
+        final String thisWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonthisweek");
+        final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
+        final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
+        final String thisMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonthismonth");
+        final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
+        final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
+        final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
+        final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
+        final String preview = I18n.getInstance().getString("plugin.graph.changedate.preview");
+
+        ObservableList<TimeFrame> timeFrames = FXCollections.observableArrayList(TimeFrame.values());
+        timeFrames.remove(TimeFrame.values().length - 2, TimeFrame.values().length - 1);
+        box.setItems(timeFrames);
+
+        //TODO JFX17
+        box.setConverter(new StringConverter<TimeFrame>() {
+            @Override
+            public String toString(TimeFrame object) {
+                String text = "";
+
+                if (object != null) {
+                    text = object.getLocalName();
+                }
+
+                return (text);
+            }
+
+            @Override
+            public TimeFrame fromString(String string) {
+                return box.getItems().stream().filter(timeFrame1 -> timeFrame1.getLocalName().equals(string)).findFirst().orElse(null);
+            }
+        });
+
+        box.getSelectionModel().select(timeFrame);
+
+        box.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                switch (newValue) {
+                    case CUSTOM:
+                        break;
+                    case TODAY:
+                        dateHelper.setType(DateHelper.TransformType.TODAY);
+                        break;
+                    case YESTERDAY:
+                        dateHelper.setType(DateHelper.TransformType.YESTERDAY);
+                        break;
+                    case LAST_7_DAYS:
+                        dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
+                        break;
+                    case THIS_WEEK:
+                        dateHelper.setType(DateHelper.TransformType.THISWEEK);
+                        break;
+                    case LAST_WEEK:
+                        dateHelper.setType(DateHelper.TransformType.LASTWEEK);
+                        break;
+                    case LAST_30_DAYS:
+                        dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
+                        break;
+                    case THIS_MONTH:
+                        dateHelper.setType(DateHelper.TransformType.THISMONTH);
+                        break;
+                    case LAST_MONTH:
+                        dateHelper.setType(DateHelper.TransformType.LASTMONTH);
+                        break;
+                    case THIS_YEAR:
+                        dateHelper.setType(DateHelper.TransformType.THISYEAR);
+                        break;
+                    case LAST_YEAR:
+                        dateHelper.setType(DateHelper.TransformType.LASTYEAR);
+                        break;
+                }
+
+                if (newValue != TimeFrame.CUSTOM) {
+                    timeFrame = newValue;
+                    start = dateHelper.getStartDate();
+                    end = dateHelper.getEndDate();
+
+                    if (init) {
+                        updateList();
+                    }
+                }
+            }
+        });
+
+        return box;
+    }
 
     private void restartExecutor() {
         try {
@@ -1027,108 +1113,12 @@ public class AlarmPlugin implements Plugin {
         return list;
     }
 
-    private MFXComboBox<TimeFrame> getTimeFrameComboBox() {
-        MFXComboBox<TimeFrame> box = new MFXComboBox<>();
-
-        final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
-        final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
-        final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
-        final String thisWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonthisweek");
-        final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
-        final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
-        final String thisMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonthismonth");
-        final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
-        final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
-        final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
-        final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
-        final String preview = I18n.getInstance().getString("plugin.graph.changedate.preview");
-
-        ObservableList<TimeFrame> timeFrames = FXCollections.observableArrayList(TimeFrame.values());
-        timeFrames.remove(TimeFrame.values().length - 2, TimeFrame.values().length - 1);
-        box.setItems(timeFrames);
-
-        //TODO JFX17
-        box.setConverter(new StringConverter<TimeFrame>() {
-            @Override
-            public String toString(TimeFrame object) {
-                String text = "";
-
-                if (object != null) {
-                    text = object.getLocalName();
-                }
-
-                return (text);
-            }
-
-            @Override
-            public TimeFrame fromString(String string) {
-                return box.getItems().stream().filter(timeFrame1 -> timeFrame1.getLocalName().equals(string)).findFirst().orElse(null);
-            }
-        });
-
-        box.selectItem(timeFrame);
-
-        box.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                switch (newValue) {
-                    case CUSTOM:
-                        break;
-                    case TODAY:
-                        dateHelper.setType(DateHelper.TransformType.TODAY);
-                        break;
-                    case YESTERDAY:
-                        dateHelper.setType(DateHelper.TransformType.YESTERDAY);
-                        break;
-                    case LAST_7_DAYS:
-                        dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
-                        break;
-                    case THIS_WEEK:
-                        dateHelper.setType(DateHelper.TransformType.THISWEEK);
-                        break;
-                    case LAST_WEEK:
-                        dateHelper.setType(DateHelper.TransformType.LASTWEEK);
-                        break;
-                    case LAST_30_DAYS:
-                        dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
-                        break;
-                    case THIS_MONTH:
-                        dateHelper.setType(DateHelper.TransformType.THISMONTH);
-                        break;
-                    case LAST_MONTH:
-                        dateHelper.setType(DateHelper.TransformType.LASTMONTH);
-                        break;
-                    case THIS_YEAR:
-                        dateHelper.setType(DateHelper.TransformType.THISYEAR);
-                        break;
-                    case LAST_YEAR:
-                        dateHelper.setType(DateHelper.TransformType.LASTYEAR);
-                        break;
-                }
-
-                if (newValue != TimeFrame.CUSTOM) {
-                    timeFrame = newValue;
-                    start = dateHelper.getStartDate();
-                    end = dateHelper.getEndDate();
-
-                    updateList();
-                }
-            }
-        });
-
-        return box;
-    }
-
     @Override
     public void setHasFocus() {
-
-
-        this.timeFrameComboBox.selectItem(TimeFrame.PREVIEW);
-
+        Platform.runLater(this::initToolBar);
 
         Platform.runLater(() -> autoFitTable(tableView));
     }
-
-
 
     @Override
     public String getClassName() {
@@ -1255,8 +1245,6 @@ public class AlarmPlugin implements Plugin {
     public void fireCloseEvent() {
 
     }
-
-
 
     @Override
     public void lostFocus() {

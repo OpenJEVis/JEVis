@@ -1,6 +1,6 @@
 package org.jevis.jecc.plugin.action.ui;
 
-import io.github.palexdev.materialfx.controls.MFXTextField;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -15,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -61,7 +62,7 @@ public class ActionTab extends Tab {
 
 
         Label lSuche = new Label("Suche");
-        MFXTextField fsearch = new MFXTextField();
+        TextField fsearch = new TextField();
         fsearch.setPromptText("Suche nach...");
 
 

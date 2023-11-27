@@ -3,12 +3,12 @@ package org.jevis.jecc.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +37,7 @@ public class TimeFramePojo {
 
     final Region lockIcon = ControlCenter.getSVGImage(Icon.VISIBILITY_ON, this.iconSize, this.iconSize);
     final Region unlockIcon = ControlCenter.getSVGImage(Icon.VISIBILITY_OFF, this.iconSize, this.iconSize);
-    private MFXTextField jfxTextFieldParser;
+    private TextField jfxTextFieldParser;
 
 //    private Integer selectedWidgetId;
 //    private Widget selectedWidget;
@@ -150,7 +150,7 @@ public class TimeFramePojo {
         gridPane.setPadding(new Insets(8, 5, 8, 5));
 
 
-        jfxTextFieldParser = new MFXTextField(parser);
+        jfxTextFieldParser = new TextField(parser);
         jfxTextFieldParser.setPrefWidth(160d);
 
         gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.timeframe.format")), jfxTextFieldParser);
