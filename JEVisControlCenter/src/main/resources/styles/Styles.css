@@ -56,7 +56,7 @@ titled-pane:focused .content {
 
 .titled-pane:focused > .title > .arrow-button .arrow {
     /* do not highlight the title pane arrow on focus */
-    -fx-background-color: derive(-fx-object-plugin-background-color, -60%;
+    -fx-background-color: derive(-fx-object-plugin-background-color, -60%);
 }
 
 .main-split-pane, main-view-pane{
