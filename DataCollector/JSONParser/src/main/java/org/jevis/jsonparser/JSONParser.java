@@ -1,6 +1,5 @@
 package org.jevis.jsonparser;
 
-import com.beust.ah.A;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
@@ -43,9 +42,9 @@ public class JSONParser {
         try {
             if (!rootObject.isPresent()) return new ArrayList<>();
             List<String> pathList= Arrays.asList(path.split("\\."));
-            parseRekursive(rootObject.get(), 0, pathList);
+            parseRecursive(rootObject.get(), 0, pathList);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Could not parse path string ", e);
         }
 
 
@@ -53,16 +52,16 @@ public class JSONParser {
         return results;
     }
 
-    private void parseRekursive(JsonNode jsonNode, int index, List<String> pathList) {
+    private void parseRecursive(JsonNode jsonNode, int index, List<String> pathList) {
         if (index+1 > pathList.size()) {
             results.add(jsonNode);
         }else {
             if (jsonNode.isArray()) {
                 jsonNode.forEach(jsonNode1 -> {
-                    parseRekursive(jsonNode1, index, pathList);
+                    parseRecursive(jsonNode1, index, pathList);
                 });
             }else {
-                parseRekursive(jsonNode.get(pathList.get(index)), index + 1, pathList);
+                parseRecursive(jsonNode.get(pathList.get(index)), index + 1, pathList);
 
             }
         }
