@@ -41,26 +41,26 @@ public class JSONParser {
         results.clear();
         try {
             if (!rootObject.isPresent()) return new ArrayList<>();
-            List<String> pathList= Arrays.asList(path.split("\\."));
+            List<String> pathList = Arrays.asList(path.split("\\."));
             parseRecursive(rootObject.get(), 0, pathList);
         } catch (Exception e) {
             logger.error("Could not parse path string ", e);
         }
 
 
-        logger.error("Parse Result: {}",results);
+        logger.debug("Parse Result: {}", results);
         return results;
     }
 
     private void parseRecursive(JsonNode jsonNode, int index, List<String> pathList) {
-        if (index+1 > pathList.size()) {
+        if (index + 1 > pathList.size()) {
             results.add(jsonNode);
-        }else {
+        } else {
             if (jsonNode.isArray()) {
                 jsonNode.forEach(jsonNode1 -> {
                     parseRecursive(jsonNode1, index, pathList);
                 });
-            }else {
+            } else {
                 parseRecursive(jsonNode.get(pathList.get(index)), index + 1, pathList);
 
             }
