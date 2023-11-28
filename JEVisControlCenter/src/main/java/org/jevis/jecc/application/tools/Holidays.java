@@ -1,8 +1,8 @@
 package org.jevis.jecc.application.tools;
 
-import de.focus_shift.HolidayManager;
-import de.focus_shift.ManagerParameter;
-import de.focus_shift.ManagerParameters;
+import de.focus_shift.jollyday.core.HolidayManager;
+import de.focus_shift.jollyday.core.ManagerParameter;
+import de.focus_shift.jollyday.core.ManagerParameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;

@@ -19,9 +19,8 @@
  */
 package org.jevis.jecc;
 
-
-import de.focus_shift.HolidayManager;
-import de.focus_shift.ManagerParameters;
+import de.focus_shift.jollyday.core.HolidayManager;
+import de.focus_shift.jollyday.core.ManagerParameters;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
