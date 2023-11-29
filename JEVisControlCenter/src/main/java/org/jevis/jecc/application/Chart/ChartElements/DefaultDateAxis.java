@@ -1,6 +1,6 @@
 package org.jevis.jecc.application.Chart.ChartElements;
 
-import de.focus_shift.Holiday;
+import de.focus_shift.jollyday.core.Holiday;
 import de.gsi.chart.axes.AxisLabelOverlapPolicy;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import de.gsi.chart.axes.spi.TickMark;

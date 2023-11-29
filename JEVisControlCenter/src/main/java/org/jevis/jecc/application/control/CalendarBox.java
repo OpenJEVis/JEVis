@@ -1,9 +1,9 @@
 package org.jevis.jecc.application.control;
 
 
-import de.focus_shift.CalendarHierarchy;
-import de.focus_shift.HolidayManager;
-import de.focus_shift.ManagerParameters;
+import de.focus_shift.jollyday.core.CalendarHierarchy;
+import de.focus_shift.jollyday.core.HolidayManager;
+import de.focus_shift.jollyday.core.ManagerParameters;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
