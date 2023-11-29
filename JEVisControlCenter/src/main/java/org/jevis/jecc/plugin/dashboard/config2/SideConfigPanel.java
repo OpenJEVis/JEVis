@@ -22,7 +22,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jecc.ControlCenter;
-import org.jevis.jecc.application.control.ColorPickerAdv;
+import org.jevis.jecc.application.control.JEVColorPicker;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
 import org.jevis.jecc.plugin.dashboard.controls.FontPostureBox;
 import org.jevis.jecc.plugin.dashboard.controls.FontWeightBox;
@@ -36,8 +36,8 @@ public class SideConfigPanel extends GridPane {
     private final DashboardControl control;
     private final double iconSize = 16;
     private final ComboBox<Integer> layerComboBox = new ComboBox<>();
-    private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
-    private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
+    private final ColorPicker bgColorPicker = new JEVColorPicker();
+    private final ColorPicker fColorPicker = new JEVColorPicker();
     private final CheckBox showShadowField = new CheckBox();
     private final CheckBox showValueField = new CheckBox();
     private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
@@ -311,15 +311,14 @@ public class SideConfigPanel extends GridPane {
 
         titledPane.setContent(gp);
 
-        bgColorPicker.selectColorProperty().addListener((observable, oldValue, newValue) -> {
+        bgColorPicker.setOnAction(event -> {
             if (!isUpdating) {
-                control.bgColorSelected(newValue);
+                control.bgColorSelected(bgColorPicker.getValue());
             }
         });
-
-        fColorPicker.selectColorProperty().addListener((observable, oldValue, newValue) -> {
+        fColorPicker.setOnAction(event -> {
             if (!isUpdating) {
-                control.fgColorSelected(newValue);
+                control.fgColorSelected(fColorPicker.getValue());
             }
         });
 
@@ -437,6 +436,8 @@ public class SideConfigPanel extends GridPane {
         alignmentBox.setConverter(new StringConverter<Pos>() {
             @Override
             public String toString(Pos object) {
+                if(object==null) return "";
+
                 switch (object) {
                     case CENTER:
                         return (I18n.getInstance().getString("javafx.pos.center"));

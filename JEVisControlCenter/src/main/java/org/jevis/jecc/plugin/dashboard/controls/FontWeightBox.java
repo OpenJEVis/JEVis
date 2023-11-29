@@ -64,6 +64,8 @@ public class FontWeightBox extends ComboBox<FontWeight> {
         setConverter(new StringConverter<FontWeight>() {
             @Override
             public String toString(FontWeight object) {
+                if (object==null ) return "";
+
                 switch (object) {
                     case THIN:
                         return (I18n.getInstance().getString("plugin.dashboard.controls.fontweightbox.thin"));

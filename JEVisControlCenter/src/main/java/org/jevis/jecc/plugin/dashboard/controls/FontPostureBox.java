@@ -44,6 +44,8 @@ public class FontPostureBox extends ComboBox<FontPosture> {
         setConverter(new StringConverter<FontPosture>() {
             @Override
             public String toString(FontPosture object) {
+                if(object==null) return "";
+
                 switch (object) {
                     default:
                     case REGULAR:

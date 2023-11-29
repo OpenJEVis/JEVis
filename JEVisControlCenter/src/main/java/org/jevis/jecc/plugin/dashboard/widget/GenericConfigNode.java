@@ -16,7 +16,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jecc.application.Chart.ChartElements.ColorTable;
 import org.jevis.jecc.application.control.ColorPickerAdv;
+import org.jevis.jecc.application.control.JEVColorPicker;
 import org.jevis.jecc.plugin.dashboard.config2.ConfigTab;
 import org.jevis.jecc.plugin.dashboard.controls.FontPostureBox;
 import org.jevis.jecc.plugin.dashboard.controls.FontWeightBox;
@@ -58,8 +60,9 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final CheckBox fontUnderlined = new CheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fontunderlined"));
     private final Spinner<Integer> borderSizeSpinner = new Spinner<Integer>(0, 20, 0);
     private final Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
-    private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
-    private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
+    //private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
+    private final ColorPicker bgColorPicker = new JEVColorPicker();
+    private final ColorPicker fColorPicker = new JEVColorPicker();
     private final CheckBox fixedTimeFrame = new CheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fixedtimeframe"));
     private final TimeFactoryBox timeFrameBox;
     private final Widget widget;
@@ -145,7 +148,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         });
         alignmentBox.getSelectionModel().select(Pos.CENTER);
 
-        bgColorPicker.setStyle("-fx-color-label-visible: false ;");
+        //bgColorPicker.setStyle("-fx-color-label-visible: false ;");
         fColorPicker.setStyle("-fx-color-label-visible: false ;");
 
         GridPane gridPane = new GridPane();
@@ -200,6 +203,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         idField.setText(widget.getConfig().getUuid() + "");
         bgColorPicker.setValue(widget.getConfig().getBackgroundColor());
         fColorPicker.setValue(widget.getConfig().getFontColor());
+
         yPosField.setText(widget.getConfig().getyPosition() + "");
         xPosField.setText(widget.getConfig().getxPosition() + "");
 

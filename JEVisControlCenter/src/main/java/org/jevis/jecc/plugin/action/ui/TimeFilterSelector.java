@@ -33,7 +33,6 @@ public class TimeFilterSelector extends GridPane {
     ComboBox<Integer> fFromYear = generateYearBox();
     ComboBox<Integer> fToYear = generateYearBox();
 
-
     public TimeFilterSelector(ActionPlanData actionPlan) {
         super();
 
