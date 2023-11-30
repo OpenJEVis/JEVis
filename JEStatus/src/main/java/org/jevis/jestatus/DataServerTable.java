@@ -21,6 +21,7 @@ public class DataServerTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(DataServerTable.class);
     private final JEVisDataSource ds;
     private final DateTime latestReported;
+    private final List<DataServerLine> dataServerLines = new ArrayList<>();
 
     public DataServerTable(JEVisDataSource ds, DateTime latestReported) {
         super(ds);
@@ -187,7 +188,6 @@ public class DataServerTable extends AlarmTable {
         outOfBounds.removeAll(asyncTargets);
 
         boolean odd = false;
-        List<DataServerLine> dataServerLines = new ArrayList<>();
         for (JEVisObject currentChannel : outOfBounds) {
             DataServerLine dataServerLine = new DataServerLine();
             String css = rowCss;
@@ -458,5 +458,7 @@ public class DataServerTable extends AlarmTable {
         return new ArrayList<>(ds.getObjects(getChannelClass(), true));
     }
 
-
+    public List<DataServerLine> getDataServerLines() {
+        return dataServerLines;
+    }
 }
