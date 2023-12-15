@@ -19,6 +19,7 @@ public class ActionPlanOverviewData extends ActionPlanData {
     private final ObservableList<String> statusTags;
     private final ObservableList<String> mediumTags;
     private final ObservableList<String> fieldsTags;
+    private final ObservableList<Medium> medium;
     private final ObservableList<String> significantEnergyUseTags;
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty nrPrefix = new SimpleStringProperty("");
@@ -35,6 +36,8 @@ public class ActionPlanOverviewData extends ActionPlanData {
         fieldsTags = FXCollections.observableArrayList();
         mediumTags = FXCollections.observableArrayList();
         actions = FXCollections.observableArrayList();
+        medium = FXCollections.observableArrayList();
+
         significantEnergyUseTags = FXCollections.observableArrayList();
 
         controller.getActionPlans().addListener(new ListChangeListener<ActionPlanData>() {
@@ -72,11 +75,6 @@ public class ActionPlanOverviewData extends ActionPlanData {
             if (actionPlanData instanceof ActionPlanOverviewData) {
                 return;
             }
-            //System.out.println("Add actionPlan to overview: " + actionPlanData);
-
-            //actionPlanData.loadActionList();
-
-            // System.out.println("Action to add: " + actionPlanData.getName());
             actions.addAll(actionPlanData.getActionData());
             //actions.addAll(actionPlanData.getActionData().stream().filter(actionData -> !actions.contains(actionData)).collect(Collectors.toList()));
 
@@ -86,6 +84,8 @@ public class ActionPlanOverviewData extends ActionPlanData {
             fieldsTags.addAll(actionPlanData.getFieldsTags().stream().filter(obj -> !fieldsTags.contains(obj)).collect(Collectors.toList()));
             significantEnergyUseTags.addAll(actionPlanData.significantEnergyUseTags().stream().filter(obj -> !significantEnergyUseTags.contains(obj)).collect(Collectors.toList()));
 
+            medium.addAll(actionPlanData.getMedium());
+            medium.setAll(medium.stream().distinct().collect(Collectors.toList()));
 
             actionPlanData.getActionData().addListener(new ListChangeListener<ActionData>() {
                 @Override
@@ -120,7 +120,6 @@ public class ActionPlanOverviewData extends ActionPlanData {
 
     }
 
-
     @Override
     public StringProperty getName() {
         return name;
@@ -134,6 +133,11 @@ public class ActionPlanOverviewData extends ActionPlanData {
     @Override
     public ObservableList<String> getMediumTags() {
         return mediumTags;
+    }
+
+    @Override
+    public ObservableList<Medium> getMedium() {
+        return medium;
     }
 
     @Override

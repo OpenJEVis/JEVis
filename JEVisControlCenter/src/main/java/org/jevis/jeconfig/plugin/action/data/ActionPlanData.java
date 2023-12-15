@@ -17,12 +17,10 @@ import org.jevis.jeconfig.plugin.action.ui.ActionTable;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static java.util.Locale.GERMANY;
 
@@ -46,7 +44,7 @@ public class ActionPlanData {
     private final AtomicBoolean actionsLoaded = new AtomicBoolean(false);
     private JEVisObject object;
     private ObservableList<String> statusTags;
-    private ObservableList<String> mediumTags;
+    private ObservableList<Medium> mediumTags;
     private ObservableList<String> fieldsTags;
     private ObservableList<String> significantEnergyUseTags;
     private ObservableList<JEVisObject> enpis;
@@ -128,10 +126,23 @@ public class ActionPlanData {
         try {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CMEDIUM);
             JEVisSample sample = attribute.getLatestSample();
+
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomMedium = sample.getValueAsString();
-                Collections.addAll(mediumTags, sample.getValueAsString().split(";"));
             }
+
+            if (initCustomMedium.startsWith("<")) {
+                Gson gson = new Gson();
+                List<Medium> medium = gson.fromJson(initCustomMedium, ArrayList.class);
+                mediumTags.addAll(medium);
+
+            } else {//Fallback for old data structure
+
+                for (String s : initCustomMedium.split(";")) {
+                    mediumTags.add(new Medium(s, s, 2.0));
+                }
+            }
+
 
         } catch (Exception e) {
             logger.error(e);
@@ -216,10 +227,9 @@ public class ActionPlanData {
     public void setDefaultValues(Locale lang) {
 
         if (lang.equals(GERMANY)) {
-            mediumTags.setAll("Strom", "Gas");
+            mediumTags.setAll(new Medium("Strom", "Strom", 0.0), new Medium("Gas", "Gas", 0.0));
             fieldsTags.setAll("Produktion", "Verwaltung");
             statusTags.setAll(STATUS_OPEN, STATUS_DONE, "Prüfen", "Abgebrochen");
-
         }
 
     }
@@ -336,11 +346,14 @@ public class ActionPlanData {
             }
         }
 
-        if (!initCustomStatus.equals(listToString(mediumTags))) {
+        Gson gson = GsonBuilder.createDefaultBuilder().create();
+
+        if (!initCustomStatus.equals(gson.toJson(mediumTags))) {
             try {
                 JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CMEDIUM);
-                JEVisSample sample = attribute.buildSample(now, listToString(mediumTags));
-                sample.commit();
+                System.out.println("---- Commit new JSON medium: " + gson.toJson(mediumTags));
+                //JEVisSample sample = attribute.buildSample(now, listToString(mediumTags));
+                // sample.commit();
             } catch (Exception e) {
                 logger.error(e);
             }
@@ -404,6 +417,11 @@ public class ActionPlanData {
     }
 
     public ObservableList<String> getMediumTags() {
+        return FXCollections.observableArrayList(mediumTags.stream().map(Medium::getName).collect(Collectors.toList()));
+        //return mediumTags;
+    }
+
+    public ObservableList<Medium> getMedium() {
         return mediumTags;
     }
 
