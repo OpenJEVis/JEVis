@@ -53,6 +53,7 @@ public class EmailNotification implements Notification {
     //    public static final String SENT_TIME = "Sent Time";
 //    public static final String ENABLED = "Enabled";
     public static final String EMAIL_ADRESSES = "E-Mail Adresses";
+    private boolean priority = false;
 
     public EmailNotification() {
     }
@@ -628,7 +629,7 @@ public class EmailNotification implements Notification {
         if (_sendTime == null) { //If the notification is sent many times, all time will be recored.
             _sendTime = new ArrayList<DateTime>();
         }
-        if (sendSuccessful == true && null != date) {
+        if (sendSuccessful && null != date) {
             _sendTime.add(date);
         }
     }
@@ -873,5 +874,13 @@ public class EmailNotification implements Notification {
     @Override
     public List<DateTime> getSendSchedule() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public boolean isPriority() {
+        return priority;
+    }
+
+    public void setPriority(boolean priority) {
+        this.priority = priority;
     }
 }
