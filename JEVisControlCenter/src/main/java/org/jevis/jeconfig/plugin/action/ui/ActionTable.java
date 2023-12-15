@@ -25,6 +25,7 @@ import org.jevis.jeconfig.plugin.action.ui.control.CurrencyColumnCell;
 import org.jevis.jeconfig.plugin.action.ui.control.StringListColumnCell;
 import org.jevis.jeconfig.plugin.action.ui.control.TagButton;
 import org.joda.time.DateTime;
+import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -177,11 +178,61 @@ public class ActionTable extends TableView<ActionData> {
 
         TableColumn<ActionData, Double> savingYearPropertyCol = new TableColumn(fakeForName.npv.get().einsparung.getName());
         savingYearPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().einsparung.asObject());
-        //savingYearPropertyCol.setCellFactory(buildShotTextFactory());
         savingYearPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         savingYearPropertyCol.setCellFactory(new CurrencyColumnCell());
         savingYearPropertyCol.setMinWidth(130);
 
+
+        TableColumn<ActionData, DateTime> runntimePropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.donedays"));
+        runntimePropertyCol.setCellValueFactory(param -> param.getValue().doneDateProperty());
+        runntimePropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        runntimePropertyCol.setCellFactory(new Callback<TableColumn<ActionData, DateTime>, TableCell<ActionData, DateTime>>() {
+            @Override
+            public TableCell<ActionData, DateTime> call(TableColumn<ActionData, DateTime> actionDataDoubleTableColumn) {
+                return new TableCell<ActionData, DateTime>() {
+                    @Override
+                    protected void updateItem(DateTime days, boolean b) {
+                        super.updateItem(days, b);
+                        if (!b && days != null) {
+                            int daysRunning = Days.daysBetween(days.withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
+                            setText(daysRunning + "");
+                        } else {
+                            setText(null);
+                        }
+
+
+                    }
+                };
+            }
+        });
+
+        TableColumn<ActionData, Double> savingTotalPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.doneruntime"));
+        savingTotalPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().einsparung.asObject());
+        savingTotalPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        savingTotalPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
+            @Override
+            public TableCell<ActionData, Double> call(TableColumn<ActionData, Double> actionDataDoubleTableColumn) {
+                return new TableCell<ActionData, Double>() {
+                    @Override
+                    protected void updateItem(Double aDouble, boolean b) {
+                        super.updateItem(aDouble, b);
+                        if (!b && aDouble != null && getTableRow().getItem() != null) {
+                            ActionData actionData = (ActionData) getTableRow().getItem();
+                            if (actionData.doneDate.get() != null) {
+                                int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
+                                double net = ((daysRunning) * (actionData.consumption.get().diff.get() / 365));
+                                setText(NumerFormating.getInstance().getDoubleFormate().format(net) + " kWh");
+                            }
+                        } else {
+                            setText(null);
+                        }
+
+
+                    }
+                };
+            }
+        });
+        savingTotalPropertyCol.setMinWidth(130);
 
         TableColumn<ActionData, Double> enpiDevelopmentPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.enpiabechange"));
         enpiDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().enpi.get().diffProperty().asObject());
@@ -260,6 +311,9 @@ public class ActionTable extends TableView<ActionData> {
         enpiDevelopmentPropertyCol.setVisible(false);
         consumptionDevelopmentPropertyCol.setVisible(true);
 
+        savingTotalPropertyCol.setVisible(true);
+        runntimePropertyCol.setVisible(true);
+
         //setPrefHeight(1000);
         titlePropertyCol.setPrefWidth(420);
         notePropertyCol.setPrefWidth(220);
@@ -270,7 +324,8 @@ public class ActionTable extends TableView<ActionData> {
                 mediaTagsPropertyCol, statusTagsPropertyCol, fieldTagsPropertyCol,
                 createDatePropertyCol, plannedDatePropertyCol, doneDatePropertyCol, noteAlternativeMeasuresPropertyCol, noteBewertetPropertyCol,
                 noteCorrectionPropertyCol, noteEnergieflussPropertyCol, noteFollowUpActionPropertyCol,
-                investPropertyCol, savingYearPropertyCol, enpiDevelopmentPropertyCol, consumptionDevelopmentPropertyCol
+                investPropertyCol, savingYearPropertyCol, enpiDevelopmentPropertyCol, consumptionDevelopmentPropertyCol,
+                savingTotalPropertyCol, runntimePropertyCol
         );
 
 
@@ -286,10 +341,12 @@ public class ActionTable extends TableView<ActionData> {
         //StringProperty summeryNrProperty = new SimpleStringProperty("Summe:");
         ObservableMap<TableColumn, StringProperty> summeryRow1 = FXCollections.observableHashMap();
         ObservableMap<TableColumn, StringProperty> summeryRow2 = FXCollections.observableHashMap();
+        ObservableMap<TableColumn, StringProperty> summeryRow3 = FXCollections.observableHashMap();
 
         summeryData = FXCollections.observableArrayList();
         summeryData.add(new SummeryData(summeryRow1));
         summeryData.add(new SummeryData(summeryRow2));
+        summeryData.add(new SummeryData(summeryRow3));
 
 
         //summeryFunctionListA.put(actionNrPropertyCol, summeryNrProperty);
@@ -301,6 +358,7 @@ public class ActionTable extends TableView<ActionData> {
         summeryRow2.put(titlePropertyCol, statistic.textSumSinceImplementationProperty());
         //summeryRow2.put(titlePropertyCol, statistic.textSumConsumptionSinceImplementationProperty());
         summeryRow2.put(consumptionDevelopmentPropertyCol, statistic.sumSavingsByMediumProperty());
+        summeryRow3.put(titlePropertyCol, statistic.getSumCO2Net());
 
 
         updateStatusSummery(statusTagsPropertyCol);
