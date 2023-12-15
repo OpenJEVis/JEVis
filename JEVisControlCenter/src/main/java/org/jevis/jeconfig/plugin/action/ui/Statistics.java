@@ -10,12 +10,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.jevis.jeconfig.plugin.action.data.Medium;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Statistics {
@@ -35,6 +37,7 @@ public class Statistics {
     private final StringProperty sumSavingsCombinedProperty = new SimpleStringProperty();
     private final DoubleProperty sumNPVResultProperty = new SimpleDoubleProperty(0.0);
     private final StringProperty sumNPVResultStrProperty = new SimpleStringProperty();
+    private final StringProperty sumCO2 = new SimpleStringProperty();
     private final ObservableMap<String, StringProperty> sumNPVResultPerMediumStrList = FXCollections.observableHashMap();
     private final StringProperty sumStrProperty = new SimpleStringProperty();
     private final StringProperty sumSavingsByMedium = new SimpleStringProperty();
@@ -219,27 +222,55 @@ public class Statistics {
         logger.debug("------------------------\nCalculate kwh Sum");
         DoubleProperty sumNet = new SimpleDoubleProperty(0);
         DoubleProperty sumGross = new SimpleDoubleProperty(0);
+        DoubleProperty sumCO2Net = new SimpleDoubleProperty(0);
+        DoubleProperty sumCO2Gross = new SimpleDoubleProperty(0);
         data.forEach(actionData -> {
             if (actionData.doneDate.get() != null && actionData.doneDate.get().isAfter(dateFilter.get().getFromDate())) {
                 int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
-                sumNet.set(sumNet.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
+                double co2Value = 0;
+
+                ObservableList<Medium> d1 = actionPlan.getMedium();
+                String d2 = actionData.mediaTags.get();
+
+                Optional<Medium> medium = actionPlan.getMedium().stream().filter(m -> m.getId().equals(actionData.mediaTags.get())).findFirst();
+                if (medium.isPresent()) {
+                    co2Value = medium.get().getCo2();
+                }
+
+
+                double net = ((daysRunning) * (actionData.consumption.get().diff.get() / 365));
+                sumNet.set(sumNet.get() + net);
+                sumCO2Net.set(sumCO2Net.get() + (co2Value * net));
+
 
                 if (actionData.consumption.get().diff.get() > 0) {
-                    sumGross.set(sumGross.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
+                    double gross = ((daysRunning) * (actionData.consumption.get().diff.get() / 365));
+                    sumGross.set(sumGross.get() + gross);
+                    sumCO2Gross.set(sumCO2Gross.get() + (co2Value * gross));
                 }
+
 
                 logger.debug("Action Nr: " + actionData.nr.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
                 logger.debug("Sum: " + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)) + "= " + daysRunning + "*(" + actionData.consumption.get().diff.get() + "/365)");
 
             }
         });
+
+
         logger.debug("Total Sum: " + sumNet.get());
         sumSinceImplementation.setValue(sumNet.get());
         textSumSinceImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceImp")
                 + ":\t" + NumerFormating.getInstance().getDoubleFormate().format(sumNet.get()) + " kWh");
         textSumSinceImplementationGross.set(I18n.getInstance().getString("plugin.action.statistics.saveGrossSinceImp")
                 + ":\t" + NumerFormating.getInstance().getDoubleFormate().format(sumGross.get()) + " kWh");
+        sumCO2.set(I18n.getInstance().getString("plugin.action.statistics.saveCO2Net")
+                + ":\t" + NumerFormating.getInstance().getDoubleFormate().format(sumCO2Net.get()) + " Tonnen");
 
+
+    }
+
+    public StringProperty getSumCO2Net() {
+        return sumCO2;
     }
 
     public double getSumSavingsProperty() {
