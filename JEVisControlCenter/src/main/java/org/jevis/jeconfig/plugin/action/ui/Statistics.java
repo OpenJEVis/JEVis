@@ -240,13 +240,13 @@ public class Statistics {
 
                 double net = ((daysRunning) * (actionData.consumption.get().diff.get() / 365));
                 sumNet.set(sumNet.get() + net);
-                sumCO2Net.set(sumCO2Net.get() + (co2Value * net));
+                sumCO2Net.set(sumCO2Net.get() + (co2Value * (net / 1000))); //kWh->mWh
 
 
                 if (actionData.consumption.get().diff.get() > 0) {
                     double gross = ((daysRunning) * (actionData.consumption.get().diff.get() / 365));
                     sumGross.set(sumGross.get() + gross);
-                    sumCO2Gross.set(sumCO2Gross.get() + (co2Value * gross));
+                    sumCO2Gross.set(sumCO2Gross.get() + (co2Value * (gross / 1000)));//kWh->mWh
                 }
 
 
