@@ -115,7 +115,7 @@ public class ActionPlanForm extends Alert {
                 new Medium("1", "Strom", 2),
                 new Medium("2", "Gas", 3)
         );
-        mediumListView.setItems(mediumsTMP);
+        mediumListView.setItems(actionPlan.getMedium());
 
         //mediumListView.setItems(actionPlan.getMediumTags());
         sueListView.setItems(actionPlan.significantEnergyUseTags());
@@ -258,7 +258,7 @@ public class ActionPlanForm extends Alert {
 
         listView.setMaxHeight(100);
         TableColumn<Medium, String> nameCol = new TableColumn("Name");
-        TableColumn<Medium, Double> co2Col = new TableColumn("CO2/kWh");
+        TableColumn<Medium, Double> co2Col = new TableColumn("tCO2/MWh"); //CO2-Faktor
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
         listView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

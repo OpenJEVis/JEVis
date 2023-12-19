@@ -58,7 +58,7 @@ public class ExcelExporter {
         fileChooser.setSelectedExtensionFilter(pdfFilter);
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        fileChooser.setInitialFileName("Actions_+" + simpleDateFormat.format(new Date()) + ".xlsx");
+        fileChooser.setInitialFileName("Actions_" + simpleDateFormat.format(new Date()) + ".xlsx");
         //fileChooser.setInitialFileName(UUID.randomUUID() + ".xlsx");
 
         File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
@@ -229,7 +229,7 @@ public class ExcelExporter {
 
 
         int colldx = 0;
-        for (TableColumn<ActionData, ?> actionDataTableColumn : table.getColumns()) {
+        for (TableColumn<ActionData, ?> actionDataTableColumn : table.getVisibleLeafColumns()) {
             if (actionDataTableColumn.isVisible()) {
                 System.out.println("Export Colum: " + actionDataTableColumn.getText());
                 colldx++;
@@ -394,7 +394,8 @@ public class ExcelExporter {
 
                         if (actionDataTableColumn.getText().equals(I18n.getInstance().getString("plugin.action.consumption.diff"))) {
                             valueCell.setCellStyle(kwhStyle);
-                            valueCell.setCellValue(data.enpi.get().diffProperty().get());
+                            valueCell.setCellValue(data.consumption.get().diff.get());
+                            //System.out.println("data.enpi.get().diffProperty().get(): " + data.enpi.get().diffProperty().get());
 
                             CellStyle mediumSumStyle = getConsumptionStyle(workbook);
                             mediumSumStyle.setAlignment(HorizontalAlignment.RIGHT);
@@ -421,9 +422,10 @@ public class ExcelExporter {
                         }
 
                         if (actionDataTableColumn.getText().equals(I18n.getInstance().getString("plugin.action.donedays"))) {
-                            System.out.println("-Export " + I18n.getInstance().getString("plugin.action.donedays"));
-                            Cell daysCell = getOrCreateCell(sheet, row + 2, colldx);
+
+                            Cell daysCell = getOrCreateCell(sheet, row, colldx);
                             try {
+                                System.out.println("-Export " + I18n.getInstance().getString("plugin.action.donedays") + " Date: " + data.doneDateProperty().get().withTimeAtStartOfDay());
                                 int daysRunning = Days.daysBetween(data.doneDateProperty().get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
                                 daysCell.setCellValue(daysRunning);
                             } catch (Exception ex) {
@@ -432,7 +434,7 @@ public class ExcelExporter {
                         }
 
                         if (actionDataTableColumn.getText().equals(I18n.getInstance().getString("plugin.action.doneruntime"))) {
-                            Cell daysCell = getOrCreateCell(sheet, row + 2, colldx);
+                            Cell daysCell = getOrCreateCell(sheet, row, colldx);
                             try {
                                 int daysRunning = Days.daysBetween(data.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
                                 double net = ((daysRunning) * (data.consumption.get().diff.get() / 365));

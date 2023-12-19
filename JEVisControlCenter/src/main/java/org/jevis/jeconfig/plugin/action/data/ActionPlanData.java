@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.action.data;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -16,6 +17,7 @@ import org.jevis.jeconfig.plugin.action.ui.ActionTab;
 import org.jevis.jeconfig.plugin.action.ui.ActionTable;
 import org.joda.time.DateTime;
 
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,6 +44,9 @@ public class ActionPlanData {
     private final String ATTRIBUTE_EnPI = "EnPI";
     private final String ATTRIBUTE_NrPrefix = "Nr Prefix";
     private final AtomicBoolean actionsLoaded = new AtomicBoolean(false);
+    Type parameterListType = new TypeToken<List<Medium>>() {
+    }.getType();
+    Gson gson = GsonBuilder.createDefaultBuilder().create();
     private JEVisObject object;
     private ObservableList<String> statusTags;
     private ObservableList<Medium> mediumTags;
@@ -131,16 +136,13 @@ public class ActionPlanData {
                 initCustomMedium = sample.getValueAsString();
             }
 
-            if (initCustomMedium.startsWith("<")) {
-                Gson gson = new Gson();
-                List<Medium> medium = gson.fromJson(initCustomMedium, ArrayList.class);
-                mediumTags.addAll(medium);
-
-            } else {//Fallback for old data structure
-
+            if (initCustomMedium.startsWith(";")) {//Fallback for old data structure
                 for (String s : initCustomMedium.split(";")) {
-                    mediumTags.add(new Medium(s, s, 2.0));
+                    mediumTags.add(new Medium(s, s, 0.400));
                 }
+            } else {
+                List<Medium> medium = gson.fromJson(initCustomMedium, parameterListType);
+                mediumTags.addAll(medium);
             }
 
 
@@ -227,7 +229,7 @@ public class ActionPlanData {
     public void setDefaultValues(Locale lang) {
 
         if (lang.equals(GERMANY)) {
-            mediumTags.setAll(new Medium("Strom", "Strom", 0.0), new Medium("Gas", "Gas", 0.0));
+            mediumTags.setAll(new Medium("Strom", "Strom", 0.366), new Medium("Gas", "Gas", 0.201));
             fieldsTags.setAll("Produktion", "Verwaltung");
             statusTags.setAll(STATUS_OPEN, STATUS_DONE, "Prüfen", "Abgebrochen");
         }
@@ -346,14 +348,15 @@ public class ActionPlanData {
             }
         }
 
-        Gson gson = GsonBuilder.createDefaultBuilder().create();
 
-        if (!initCustomStatus.equals(gson.toJson(mediumTags))) {
+        if (!initCustomStatus.equals(gson.toJson(mediumTags, parameterListType))) {
             try {
+
                 JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CMEDIUM);
-                System.out.println("---- Commit new JSON medium: " + gson.toJson(mediumTags));
-                //JEVisSample sample = attribute.buildSample(now, listToString(mediumTags));
-                // sample.commit();
+
+                System.out.println("---- Commit new JSON medium: " + gson.toJson(mediumTags, parameterListType));
+                JEVisSample sample = attribute.buildSample(now, gson.toJson(mediumTags, parameterListType));
+                sample.commit();
             } catch (Exception e) {
                 logger.error(e);
             }
