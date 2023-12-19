@@ -24,6 +24,8 @@ import java.util.*;
 public class TemplateInput extends TemplateSelected {
     private static final Logger logger = LogManager.getLogger(TemplateInput.class);
     private final ObjectMapper mapper = new ObjectMapper();
+    @JsonIgnore
+    private final Map<DateTime, Double> resultMap = new HashMap<>();
     private String id;
     private Boolean quantity = false;
     private String objectClass;
@@ -31,8 +33,6 @@ public class TemplateInput extends TemplateSelected {
     private String variableName;
     private String variableType;
     private String templateFormula;
-    @JsonIgnore
-    private final Map<DateTime, Double> resultMap = new HashMap<>();
     private String filter;
     private Boolean group;
     private String dependency;
@@ -253,7 +253,7 @@ public class TemplateInput extends TemplateSelected {
                     for (int i = samples.size() - 1; i > -1; i--) {
                         JEVisSample sample = samples.get(i);
                         filteredList.add(sample);
-                        if (sample.getTimestamp().isBefore(start)) {
+                        if (sample.getTimestamp().equals(start) || sample.getTimestamp().isBefore(start)) {
                             break;
                         }
                     }
