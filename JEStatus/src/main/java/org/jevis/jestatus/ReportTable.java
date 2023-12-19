@@ -1,9 +1,7 @@
 package org.jevis.jestatus;
 
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
@@ -214,9 +212,20 @@ public class ReportTable extends AlarmTable {
     }
 
     private List<JEVisObject> getChannelObjects() throws JEVisException {
+        List<JEVisObject> enabledReports = new ArrayList<>();
 
-        return new ArrayList<>(ds.getObjects(getReportClass(), true));
+        for (JEVisObject report : new ArrayList<>(ds.getObjects(getReportClass(), true))) {
+            JEVisAttribute enabledAtt = report.getAttribute(ENABLED);
+            if (enabledAtt != null) {
+                JEVisSample latestSample = enabledAtt.getLatestSample();
+                if (latestSample != null) {
+                    if (latestSample.getValueAsBoolean()) {
+                        enabledReports.add(report);
+                    }
+                }
+            }
+        }
+
+        return enabledReports;
     }
-
-
 }
