@@ -252,8 +252,8 @@ public class TemplateInput extends TemplateSelected {
 
                     for (int i = samples.size() - 1; i > -1; i--) {
                         JEVisSample sample = samples.get(i);
-                        filteredList.add(sample);
                         if (sample.getTimestamp().equals(start) || sample.getTimestamp().isBefore(start)) {
+                            filteredList.add(sample);
                             break;
                         }
                     }
