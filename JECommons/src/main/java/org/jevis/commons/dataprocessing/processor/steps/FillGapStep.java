@@ -7,15 +7,14 @@ package org.jevis.commons.dataprocessing.processor.steps;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.GapFillingType;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.Gap;
 import org.jevis.commons.dataprocessing.processor.GapsAndLimits;
-import org.jevis.commons.dataprocessing.processor.workflow.DifferentialRule;
-import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
-import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.dataprocessing.processor.workflow.*;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.json.JsonGapFillingConfig;
@@ -44,10 +43,60 @@ public class FillGapStep implements ProcessStep {
             return;
         }
         List<JEVisSample> rawSamples = resourceManager.getRawSamplesDown();
+        List<CleanInterval> intervals = resourceManager.getIntervals();
         List<DifferentialRule> differentialRules = cleanDataObject.getDifferentialRules();
 
         WorkDays workDays = new WorkDays(cleanDataObject.getCleanObject());
         DateTimeZone timeZone = workDays.getDateTimeZone();
+
+        //check if intervals start before raw samples in case of current gap
+        if (!intervals.isEmpty() && !rawSamples.isEmpty()
+                && intervals.get(0).getDate().isBefore(rawSamples.get(0).getTimestamp())) {
+            logger.debug("detected possible current gap, increasing raws ample cache");
+            List<PeriodRule> rawDataPeriodAlignment = cleanDataObject.getRawDataPeriodAlignment();
+            JEVisAttribute rawAttribute = cleanDataObject.getRawAttribute();
+            DateTime firstIntervalDate = intervals.get(0).getDate();
+            DateTime firstRawSampleDate = rawSamples.get(0).getTimestamp();
+            DateTime currentDate = firstRawSampleDate;
+            int maxGapCount = 10000;
+            int i = 0;
+
+            while (firstIntervalDate.isBefore(firstRawSampleDate) && i < maxGapCount) {
+                i++;
+                Period periodForDate = CleanDataObject.getPeriodForDate(rawDataPeriodAlignment, firstRawSampleDate);
+                DateTime newStart = currentDate.minus(periodForDate);
+                List<JEVisSample> samples = rawAttribute.getSamples(newStart, currentDate);
+                if (!samples.isEmpty()) {
+                    currentDate = newStart;
+                    List<JEVisSample> filteredList = new ArrayList<>();
+                    for (JEVisSample sample : samples) {
+                        boolean tsExists = false;
+                        for (JEVisSample rawSample : rawSamples) {
+                            if (rawSample.getTimestamp().equals(sample.getTimestamp())) {
+                                tsExists = true;
+                                break;
+                            }
+                        }
+                        if (!tsExists) {
+                            filteredList.add(sample);
+                            firstRawSampleDate = sample.getTimestamp();
+                        }
+                    }
+                    rawSamples.addAll(filteredList);
+                } else {
+                    currentDate = newStart;
+                }
+            }
+
+            rawSamples.sort(Comparator.comparing(jeVisSample -> {
+                try {
+                    return jeVisSample.getTimestamp();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }));
+        }
 
         //identify gaps, gaps holds intervals
         List<Gap> gaps = identifyGaps(rawSamples, cleanDataObject, differentialRules, timeZone);
@@ -77,7 +126,7 @@ public class FillGapStep implements ProcessStep {
                         }
                     }
 
-                    if (newGaps.size() == 0) {
+                    if (newGaps.isEmpty()) {
                         logger.debug("No gaps in this interval.");
                         continue;
                     } else {
