@@ -84,7 +84,6 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
 
 
     public MeterTable(MeterList meterList, ObservableList<MeterData> data, JEVisDataSource ds, IntegerProperty integerProperty) {
-
         this.ds = ds;
         this.data = data;
         this.filteredData = new FilteredList<>(this.data);
