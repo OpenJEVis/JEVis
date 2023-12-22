@@ -51,7 +51,9 @@ public class FillGapStep implements ProcessStep {
 
         //check if intervals start before raw samples in case of current gap
         if (!intervals.isEmpty() && !rawSamples.isEmpty()
-                && intervals.get(0).getDate().isBefore(rawSamples.get(0).getTimestamp())) {
+                &&
+                (intervals.get(0).getDate().equals(rawSamples.get(0).getTimestamp()) ||
+                        intervals.get(0).getDate().isBefore(rawSamples.get(0).getTimestamp()))) {
             logger.debug("detected possible current gap, increasing raws ample cache");
             List<PeriodRule> rawDataPeriodAlignment = cleanDataObject.getRawDataPeriodAlignment();
             JEVisAttribute rawAttribute = cleanDataObject.getRawAttribute();
@@ -61,7 +63,8 @@ public class FillGapStep implements ProcessStep {
             int maxGapCount = 10000;
             int i = 0;
 
-            while (firstIntervalDate.isBefore(firstRawSampleDate) && i < maxGapCount) {
+            while (i < maxGapCount &&
+                    (firstIntervalDate.equals(firstRawSampleDate) || firstIntervalDate.isBefore(firstRawSampleDate))) {
                 i++;
                 Period periodForDate = CleanDataObject.getPeriodForDate(rawDataPeriodAlignment, firstRawSampleDate);
                 DateTime newStart = currentDate.minus(periodForDate);
