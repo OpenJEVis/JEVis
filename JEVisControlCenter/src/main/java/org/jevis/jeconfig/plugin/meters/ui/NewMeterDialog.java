@@ -4,9 +4,12 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -33,9 +36,10 @@ public class NewMeterDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(NewMeterDialog.class);
     private final MeterList meterList;
     private final JEVisDataSource jeVisDataSource;
-    ComboBox<JEVisClassWrapper> comboBox = new ComboBox<>();
-    JFXTextField jfxTextFieldName = new JFXTextField();
-    JFXButton jfxButtonTarget = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 20, 20));
+    private ComboBox<JEVisClassWrapper> comboBox = new ComboBox<>();
+    private JFXTextField jfxTextFieldName = new JFXTextField();
+    private JFXButton jfxButtonTarget = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 20, 20));
+    private JFXButton removeParent = new JFXButton("", JEConfig.getSVGImage(Icon.DELETE, 20, 20));
     private Optional<JEVisObject> parent = Optional.empty();
     private SingleSelectionModel<JEVisClassWrapper> jeVisClassSingleSelectionModel;
     private JEVisClassWrapper air;
@@ -46,7 +50,9 @@ public class NewMeterDialog extends Dialog {
     private JEVisClassWrapper nitrogen;
     private JEVisClassWrapper water;
 
-    public NewMeterDialog(JEVisDataSource jeVisDataSource, MeterList meterList) {
+    private Label parentPath;
+
+    public NewMeterDialog(JEVisDataSource jeVisDataSource, MeterList meterList, JEVisObject jeVisObject) {
         this.jeVisDataSource = jeVisDataSource;
         this.meterList = meterList;
 
@@ -78,6 +84,20 @@ public class NewMeterDialog extends Dialog {
             logger.error(jeVisException);
         }
 
+        parentPath = new Label();
+        if (jeVisObject != null) {
+            parent = Optional.of(jeVisObject);
+            parentPath.setText((parent.isPresent() ? parent.get().getName() : ""));
+            try {
+                comboBox.setValue(new JEVisClassWrapper(jeVisObject.getJEVisClass()));
+
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        } else {
+            removeParent.setDisable(true);
+        }
+
 
         jfxButtonTarget.setOnAction(actionEvent -> {
             TargetHelper th = null;
@@ -92,13 +112,10 @@ public class NewMeterDialog extends Dialog {
             JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllMeasurement(jeVisDataSource);
             allFilter.add(allDataFilter);
             List<UserSelection> openList = new ArrayList<>();
-            if (th != null && !th.getObject().isEmpty()) {
-                for (JEVisObject obj : th.getObject()) {
-                    openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
-                }
-
-
+            if (parent.isPresent()) {
+                openList.add(0, new UserSelection(UserSelection.SelectionType.Object, parent.get()));
             }
+            parentPath.setText(parent.isPresent() ? parent.get().getName() : "");
             SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE, jeVisDataSource, openList);
             selectTargetDialog.setOnCloseRequest(event1 -> {
                 try {
@@ -108,7 +125,15 @@ public class NewMeterDialog extends Dialog {
 
                         List<UserSelection> selections = selectTargetDialog.getUserSelection();
                         for (UserSelection us : selections) {
-                            parent = Optional.of(us.getSelectedObject());
+                            parent = getSelectedObject(us);
+                            parentPath.setText(parent.isPresent() ? parent.get().getName() : "");
+
+
+                        }
+                        if (parent.isPresent()) {
+                            comboBox.setValue(new JEVisClassWrapper(parent.get().getJEVisClass()));
+                            openList.add(0, new UserSelection(UserSelection.SelectionType.Object, parent.get()));
+                            removeParent.setDisable(false);
                         }
 
                     }
@@ -127,9 +152,38 @@ public class NewMeterDialog extends Dialog {
         comboBox.setPrefWidth(350);
         gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.meters.name")), jfxTextFieldName);
         gridPane.addRow(1, new Label(I18n.getInstance().getString("plugin.meters.medium")), comboBox);
-        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.meters.parent")), jfxButtonTarget);
+        HBox hBox = new HBox();
+
+        parentPath.setMinWidth(150);
+        parentPath.setMaxWidth(150);
+
+        removeParent.setOnAction(actionEvent -> {
+            parent = Optional.empty();
+            parentPath.setText("");
+        });
+
+        hBox.getChildren().addAll(jfxButtonTarget, new Region(), parentPath, new Region(), removeParent);
+        hBox.setSpacing(5);
+        gridPane.addRow(2, new Label(I18n.getInstance().getString("plugin.meters.parent")), hBox);
 
         getDialogPane().setContent(gridPane);
+    }
+
+    @NotNull
+    private static Optional<JEVisObject> getSelectedObject(UserSelection us) {
+        try {
+            if (us == null) {
+                return Optional.empty();
+            } else if (us.getSelectedObject().getJEVisClass().getName().contains("Directory")) {
+                return Optional.empty();
+
+            } else {
+                return Optional.of(us.getSelectedObject());
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            return Optional.empty();
+        }
     }
 
     public SingleSelectionModel<JEVisClassWrapper> getJeVisClassSingleSelectionModel() {

@@ -77,7 +77,7 @@ public class FillGapStep implements ProcessStep {
                         }
                     }
 
-                    if (newGaps.size() == 0) {
+                    if (newGaps.isEmpty()) {
                         logger.debug("No gaps in this interval.");
                         continue;
                     } else {

@@ -7,6 +7,7 @@ package org.jevis.commons.dataprocessing.processor.preparation;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -24,6 +25,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -82,6 +84,55 @@ public class PrepareStep implements ProcessStep {
         if (resourceManager.getIntervals().isEmpty()) {
             throw new RuntimeException(String.format("[%s] No new intervals. Stopping this job", resourceManager.getID()));
         }
+
+        logger.debug("Check for enough raw samples");
+        List<JEVisSample> rawSamples = resourceManager.getRawSamplesDown();
+        List<CleanInterval> intervals = resourceManager.getIntervals();
+        List<PeriodRule> rawDataPeriodAlignment = cleanDataObject.getRawDataPeriodAlignment();
+        JEVisAttribute rawAttribute = cleanDataObject.getRawAttribute();
+        DateTime firstIntervalDate = intervals.get(0).getInterval().getStart();
+        if (firstIntervalDate.getSecondOfMinute() == 1) firstIntervalDate = firstIntervalDate.minusSeconds(1);
+        DateTime firstRawSampleDate = rawSamplesDown.get(0).getTimestamp();
+        DateTime currentDate = firstRawSampleDate;
+        int maxGapCount = 10000;
+        int i = 0;
+
+        while (i < maxGapCount &&
+                (firstIntervalDate.equals(firstRawSampleDate) || firstIntervalDate.isBefore(firstRawSampleDate))) {
+            i++;
+            Period periodForDate = CleanDataObject.getPeriodForDate(rawDataPeriodAlignment, firstRawSampleDate);
+            DateTime newStart = currentDate.minus(periodForDate);
+            List<JEVisSample> samples = rawAttribute.getSamples(newStart, currentDate);
+            if (!samples.isEmpty()) {
+                currentDate = newStart;
+                List<JEVisSample> filteredList = new ArrayList<>();
+                for (JEVisSample sample : samples) {
+                    boolean tsExists = false;
+                    for (JEVisSample rawSample : rawSamples) {
+                        if (rawSample.getTimestamp().equals(sample.getTimestamp())) {
+                            tsExists = true;
+                            break;
+                        }
+                    }
+                    if (!tsExists) {
+                        filteredList.add(sample);
+                        firstRawSampleDate = sample.getTimestamp();
+                    }
+                }
+                rawSamples.addAll(filteredList);
+            } else {
+                currentDate = newStart;
+            }
+        }
+
+        rawSamples.sort(Comparator.comparing(jeVisSample -> {
+            try {
+                return jeVisSample.getTimestamp();
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }));
     }
 
     private List<CleanInterval> getIntervals(CleanDataObject cleanDataObject, List<PeriodRule> periodCleanData) throws JEVisException {
