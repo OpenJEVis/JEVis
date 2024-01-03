@@ -447,4 +447,23 @@ public class ActionPlanData {
     public StringProperty nrPrefixProperty() {
         return nrPrefix;
     }
+
+    public Medium getMediumByID(String mediumID) {
+        Optional<Medium> medium = getMedium().stream().filter(m -> m.getId().equals(mediumID)).findFirst();
+        if (medium.isPresent()) {
+            return medium.get();
+        } else {
+            return new Medium(mediumID, mediumID.isEmpty() ? mediumID : "Error", 0);
+        }
+    }
+
+    public Medium getMediumByName(String mediumName) {
+        Optional<Medium> medium = getMedium().stream().filter(m -> m.getName().equals(mediumName)).findFirst();
+        if (medium.isPresent()) {
+            return medium.get();
+        } else {
+            return new Medium(mediumName, mediumName.isEmpty() ? mediumName : "Error", 0);
+        }
+    }
+
 }

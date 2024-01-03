@@ -14,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import javafx.util.converter.NumberStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +29,7 @@ import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.EmptyObject;
 import org.jevis.jeconfig.plugin.action.data.FreeObject;
+import org.jevis.jeconfig.plugin.action.data.Medium;
 import org.jevis.jeconfig.plugin.action.ui.NumerFormating;
 import org.jevis.jeconfig.plugin.action.ui.TimeRangeDialog;
 import org.jevis.jeconfig.plugin.action.ui.control.TextFieldWithUnit;
@@ -57,7 +59,7 @@ public class DetailsTab extends Tab {
     private final JFXComboBox<JEVisObject> f_EnpiSelection;
     private final Label l_EnpiSelection = new Label(I18n.getInstance().getString("plugin.action.enpi"));//"EnPI"
     private final Label l_mediaTags = new Label();
-    private final JFXComboBox<String> f_mediaTags;
+    private final JFXComboBox<Medium> f_mediaTags;
     private final TextArea f_correctionIfNeeded = new TextArea("");
     private final TextFieldWithUnit f_enpiAfter = new TextFieldWithUnit();
     private final TextFieldWithUnit f_enpiBefore = new TextFieldWithUnit();
@@ -157,7 +159,36 @@ public class DetailsTab extends Tab {
         });
 
         l_mediaTags.setText(I18n.getInstance().getString("actionform.editor.tab.deteils.medium"));
-        f_mediaTags = new JFXComboBox<>(data.getActionPlan().getMediumTags());
+
+        f_mediaTags = new JFXComboBox<>(data.getActionPlan().getMedium());
+        f_mediaTags.setConverter(new StringConverter<Medium>() {
+            @Override
+            public String toString(Medium medium) {
+                return medium.getName();
+            }
+
+            @Override
+            public Medium fromString(String s) {
+
+                Optional<Medium> medium = data.getActionPlan().getMedium().stream().filter(m -> m.getId().equals(s)).findFirst();
+                if (medium.isPresent()) {
+                    return medium.get();
+                } else {
+                    return new Medium(s, "Error (" + s + ")", 0);
+                }
+            }
+        });
+
+        f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Medium>() {
+            @Override
+            public void changed(ObservableValue<? extends Medium> observable, Medium oldValue, Medium newValue) {
+                data.mediaTagsProperty().set(newValue.getId());
+            }
+        });
+
+        /*
+
+        //_mediaTags = new JFXComboBox<>(data.getActionPlan().getMediumTags());
         f_mediaTags.getSelectionModel().select(data.mediaTagsProperty().getValue());
         f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -165,6 +196,8 @@ public class DetailsTab extends Tab {
                 data.mediaTagsProperty().set(newValue);
             }
         });
+
+         */
 
         Region spacerEnpiBefore = new Region();
         Region spacerEnpiAfter = new Region();

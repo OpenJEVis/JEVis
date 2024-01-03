@@ -13,13 +13,16 @@ import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.table.SummeryData;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.jevis.jeconfig.plugin.action.data.Medium;
 import org.jevis.jeconfig.plugin.action.data.TableFilter;
 import org.jevis.jeconfig.plugin.action.ui.control.CurrencyColumnCell;
 import org.jevis.jeconfig.plugin.action.ui.control.StringListColumnCell;
@@ -113,6 +116,17 @@ public class ActionTable extends TableView<ActionData> {
         TableColumn<ActionData, String> mediaTagsPropertyCol = new TableColumn(fakeForName.mediaTagsProperty().getName());
         mediaTagsPropertyCol.setCellValueFactory(param -> param.getValue().mediaTagsProperty());
         mediaTagsPropertyCol.setCellFactory(new StringListColumnCell());
+        mediaTagsPropertyCol.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<String>() {
+            @Override
+            public String toString(String s) {
+                return actionPlanData.getMediumByID(s).getName();
+            }
+
+            @Override
+            public String fromString(String s) {
+                return null;
+            }
+        }));
         mediaTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
 
         TableColumn<ActionData, String> statusTagsPropertyCol = new TableColumn(fakeForName.statusTagsProperty().getName());
@@ -342,11 +356,13 @@ public class ActionTable extends TableView<ActionData> {
         ObservableMap<TableColumn, StringProperty> summeryRow1 = FXCollections.observableHashMap();
         ObservableMap<TableColumn, StringProperty> summeryRow2 = FXCollections.observableHashMap();
         ObservableMap<TableColumn, StringProperty> summeryRow3 = FXCollections.observableHashMap();
+        ObservableMap<TableColumn, StringProperty> summeryRow4 = FXCollections.observableHashMap();
 
         summeryData = FXCollections.observableArrayList();
         summeryData.add(new SummeryData(summeryRow1));
         summeryData.add(new SummeryData(summeryRow2));
         summeryData.add(new SummeryData(summeryRow3));
+        summeryData.add(new SummeryData(summeryRow4));
 
 
         //summeryFunctionListA.put(actionNrPropertyCol, summeryNrProperty);
@@ -359,22 +375,38 @@ public class ActionTable extends TableView<ActionData> {
         //summeryRow2.put(titlePropertyCol, statistic.textSumConsumptionSinceImplementationProperty());
         summeryRow2.put(consumptionDevelopmentPropertyCol, statistic.sumSavingsByMediumProperty());
         summeryRow3.put(titlePropertyCol, statistic.getSumCO2Net());
-
+        summeryRow4.put(titlePropertyCol, statistic.sumGrossCO2Property());
 
         updateStatusSummery(statusTagsPropertyCol);
         updateMediumConsumptionSum(consumptionDevelopmentPropertyCol);
 
+        actionPlanData.getMedium().addListener(new ListChangeListener<Medium>() {
+            @Override
+            public void onChanged(Change<? extends Medium> change) {
+                while (change.next()) {
 
+                }
+                updateMediumConsumptionSum(consumptionDevelopmentPropertyCol);
+            }
+        });
+        /*
         actionPlanData.getMediumTags().addListener((ListChangeListener<? super String>) c -> {
             while (c.next()) {
             }
             updateMediumConsumptionSum(consumptionDevelopmentPropertyCol);
         });
+
+         */
         actionPlanData.getStatustags().addListener((ListChangeListener<? super String>) c -> {
             while (c.next()) {
             }
             updateStatusSummery(statusTagsPropertyCol);
         });
+    }
+
+    public void updateStatistics() {
+
+
     }
 
     public Statistics getStatistic() {
@@ -383,8 +415,8 @@ public class ActionTable extends TableView<ActionData> {
 
     private void updateMediumConsumptionSum(TableColumn tableColumn) {
         int row = 1;
-        for (String s : actionPlanData.getMediumTags()) {
-            addSummeryForMedium(s, tableColumn, row);
+        for (Medium medium : actionPlanData.getMedium()) {
+            addSummeryForMedium(medium.getId(), tableColumn, row);
             row++;
         }
     }
@@ -584,24 +616,26 @@ public class ActionTable extends TableView<ActionData> {
                                 }
                                 //System.out.println("Filter.pass.status");
 
-
-                                if (mediumFilter != null && !mediumFilter.contains(TagButton.ALL)) {
-                                    if (mediumFilter != null) {
-                                        AtomicBoolean mediumMatch = new AtomicBoolean(false);
-                                        mediumFilter.forEach(s -> {
-                                            try {
-                                                //System.out.println("Medium: " + s + " in " + notesRow.mediaTagsProperty());
-                                                for (String s1 : notesRow.mediaTagsProperty().get().split(";")) {
-                                                    if (s1.equalsIgnoreCase(s)) {
-                                                        mediumMatch.set(true);
+                                try {
+                                    if (mediumFilter != null && !mediumFilter.contains(TagButton.ALL)) {
+                                        if (mediumFilter != null) {
+                                            AtomicBoolean mediumMatch = new AtomicBoolean(false);
+                                            mediumFilter.forEach(s -> {
+                                                try {
+                                                    //System.out.println("Medium: " + s + " in " + notesRow.mediaTagsProperty());
+                                                    for (String s1 : notesRow.mediaTagsProperty().get().split(";")) {
+                                                        if (s1.equalsIgnoreCase(s)) {
+                                                            mediumMatch.set(true);
+                                                        }
                                                     }
-                                                }
-                                            } catch (Exception ex) {
+                                                } catch (Exception ex) {
 
-                                            }
-                                        });
-                                        if (!mediumMatch.get()) return false;
+                                                }
+                                            });
+                                            if (!mediumMatch.get()) return false;
+                                        }
                                     }
+                                } catch (Exception ex) {
                                 }
                                 //System.out.println("Filter.pass.medium");
 

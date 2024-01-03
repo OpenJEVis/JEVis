@@ -84,8 +84,12 @@ public class ActionPlanOverviewData extends ActionPlanData {
             fieldsTags.addAll(actionPlanData.getFieldsTags().stream().filter(obj -> !fieldsTags.contains(obj)).collect(Collectors.toList()));
             significantEnergyUseTags.addAll(actionPlanData.significantEnergyUseTags().stream().filter(obj -> !significantEnergyUseTags.contains(obj)).collect(Collectors.toList()));
 
-            medium.addAll(actionPlanData.getMedium());
-            medium.setAll(medium.stream().distinct().collect(Collectors.toList()));
+            System.out.println("Overview collect mediums: " + actionPlanData.getName() + ": " + actionPlanData.getMedium().size());
+            actionPlanData.getMedium().forEach(medium1 -> {
+                if (!medium.contains(medium1)) {
+                    medium.add(medium1);
+                }
+            });
 
             actionPlanData.getActionData().addListener(new ListChangeListener<ActionData>() {
                 @Override
