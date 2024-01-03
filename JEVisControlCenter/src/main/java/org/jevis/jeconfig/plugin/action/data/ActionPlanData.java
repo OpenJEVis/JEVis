@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.action.data;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -16,13 +17,12 @@ import org.jevis.jeconfig.plugin.action.ui.ActionTab;
 import org.jevis.jeconfig.plugin.action.ui.ActionTable;
 import org.joda.time.DateTime;
 
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static java.util.Locale.GERMANY;
 
@@ -44,9 +44,12 @@ public class ActionPlanData {
     private final String ATTRIBUTE_EnPI = "EnPI";
     private final String ATTRIBUTE_NrPrefix = "Nr Prefix";
     private final AtomicBoolean actionsLoaded = new AtomicBoolean(false);
+    Type parameterListType = new TypeToken<List<Medium>>() {
+    }.getType();
+    Gson gson = GsonBuilder.createDefaultBuilder().create();
     private JEVisObject object;
     private ObservableList<String> statusTags;
-    private ObservableList<String> mediumTags;
+    private ObservableList<Medium> mediumTags;
     private ObservableList<String> fieldsTags;
     private ObservableList<String> significantEnergyUseTags;
     private ObservableList<JEVisObject> enpis;
@@ -128,10 +131,20 @@ public class ActionPlanData {
         try {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CMEDIUM);
             JEVisSample sample = attribute.getLatestSample();
+
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomMedium = sample.getValueAsString();
-                Collections.addAll(mediumTags, sample.getValueAsString().split(";"));
             }
+
+            if (initCustomMedium.startsWith(";")) {//Fallback for old data structure
+                for (String s : initCustomMedium.split(";")) {
+                    mediumTags.add(new Medium(s, s, 0.400));
+                }
+            } else {
+                List<Medium> medium = gson.fromJson(initCustomMedium, parameterListType);
+                mediumTags.addAll(medium);
+            }
+
 
         } catch (Exception e) {
             logger.error(e);
@@ -216,10 +229,9 @@ public class ActionPlanData {
     public void setDefaultValues(Locale lang) {
 
         if (lang.equals(GERMANY)) {
-            mediumTags.setAll("Strom", "Gas");
+            mediumTags.setAll(new Medium("Strom", "Strom", 0.366), new Medium("Gas", "Gas", 0.201));
             fieldsTags.setAll("Produktion", "Verwaltung");
             statusTags.setAll(STATUS_OPEN, STATUS_DONE, "Prüfen", "Abgebrochen");
-
         }
 
     }
@@ -336,10 +348,14 @@ public class ActionPlanData {
             }
         }
 
-        if (!initCustomStatus.equals(listToString(mediumTags))) {
+
+        if (!initCustomStatus.equals(gson.toJson(mediumTags, parameterListType))) {
             try {
+
                 JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CMEDIUM);
-                JEVisSample sample = attribute.buildSample(now, listToString(mediumTags));
+
+                System.out.println("---- Commit new JSON medium: " + gson.toJson(mediumTags, parameterListType));
+                JEVisSample sample = attribute.buildSample(now, gson.toJson(mediumTags, parameterListType));
                 sample.commit();
             } catch (Exception e) {
                 logger.error(e);
@@ -404,6 +420,11 @@ public class ActionPlanData {
     }
 
     public ObservableList<String> getMediumTags() {
+        return FXCollections.observableArrayList(mediumTags.stream().map(Medium::getName).collect(Collectors.toList()));
+        //return mediumTags;
+    }
+
+    public ObservableList<Medium> getMedium() {
         return mediumTags;
     }
 
@@ -426,4 +447,23 @@ public class ActionPlanData {
     public StringProperty nrPrefixProperty() {
         return nrPrefix;
     }
+
+    public Medium getMediumByID(String mediumID) {
+        Optional<Medium> medium = getMedium().stream().filter(m -> m.getId().equals(mediumID)).findFirst();
+        if (medium.isPresent()) {
+            return medium.get();
+        } else {
+            return new Medium(mediumID, mediumID.isEmpty() ? mediumID : "Error", 0);
+        }
+    }
+
+    public Medium getMediumByName(String mediumName) {
+        Optional<Medium> medium = getMedium().stream().filter(m -> m.getName().equals(mediumName)).findFirst();
+        if (medium.isPresent()) {
+            return medium.get();
+        } else {
+            return new Medium(mediumName, mediumName.isEmpty() ? mediumName : "Error", 0);
+        }
+    }
+
 }

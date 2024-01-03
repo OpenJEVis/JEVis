@@ -73,7 +73,7 @@ public class NPVData {
     }
 
     public void update() {
-        logger.info("NVP Update");
+        logger.debug("NVP Update");
         int amountToCreate = amoutYear.get();
         npvYears.clear();
         //System.out.println("Update NPV: " + amountToCreate);
