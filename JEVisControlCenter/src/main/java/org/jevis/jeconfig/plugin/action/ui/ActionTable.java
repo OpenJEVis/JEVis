@@ -325,8 +325,8 @@ public class ActionTable extends TableView<ActionData> {
         enpiDevelopmentPropertyCol.setVisible(false);
         consumptionDevelopmentPropertyCol.setVisible(true);
 
-        savingTotalPropertyCol.setVisible(true);
-        runntimePropertyCol.setVisible(true);
+        savingTotalPropertyCol.setVisible(false);
+        runntimePropertyCol.setVisible(false);
 
         //setPrefHeight(1000);
         titlePropertyCol.setPrefWidth(420);
