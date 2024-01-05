@@ -294,11 +294,11 @@ public class AlarmProcess {
                 if (alarmConfiguration.getAlarmPeriod() != Period.NONE) {
                     valueSamples.addAll(valueAtt.getSamples(start, end));
                 } else {
-                    DateTime timestampFromLastAlarmLogSample = alarmLogAttribute.getTimestampFromLastSample();
+                    DateTime timestampFromLastAlarmLogSample = alarmLogAttribute.getTimestampOfLastSample();
                     if (timestampFromLastAlarmLogSample != null) {
                         valueSamples.addAll(valueAtt.getSamples(timestampFromLastAlarmLogSample.plusSeconds(1), end));
                     } else {
-                        DateTime timestampFromLastValueSample = valueAtt.getTimestampFromLastSample();
+                        DateTime timestampFromLastValueSample = valueAtt.getTimestampOfLastSample();
                         if (timestampFromLastValueSample != null) {
                             valueSamples.addAll(valueAtt.getSamples(timestampFromLastValueSample, end));
                         } else {

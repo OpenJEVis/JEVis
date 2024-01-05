@@ -77,12 +77,12 @@ public class ElectricMeterCounter extends Template {
                 "  \"referenceperiodcount\" : null\n" +
                 "}, {\n" +
                 "  \"name\" : \"Stufe 2\",\n" +
-                "  \"type\" : \"AVERAGE\",\n" +
+                "  \"type\" : \"INTERPOLATION\",\n" +
                 "  \"boundary\" : \"2592000000\",\n" +
                 "  \"defaultvalue\" : null,\n" +
-                "  \"referenceperiod\" : \"MONTH\",\n" +
-                "  \"bindtospecific\" : \"WEEKDAY\",\n" +
-                "  \"referenceperiodcount\" : \"1\"\n" +
+                "  \"referenceperiod\" : null,\n" +
+                "  \"bindtospecific\" : null,\n" +
+                "  \"referenceperiodcount\" : null\n" +
                 "}]";
     }
 

@@ -256,7 +256,7 @@ public class SampleHandler {
         return defaultValue;
     }
 
-    public DateTime getTimeStampFromLastSample(JEVisObject object, String attributeName) {
+    public DateTime getTimeStampOfLastSample(JEVisObject object, String attributeName) {
         DateTime lastDate = null;
         try {
             JEVisAttribute attribute = object.getAttribute(attributeName);
@@ -270,12 +270,12 @@ public class SampleHandler {
         return lastDate;
     }
 
-    public DateTime getTimestampFromFirstSample(JEVisObject object, String attributeName) {
+    public DateTime getTimestampOfFirstSample(JEVisObject object, String attributeName) {
         DateTime firstDate = null;
         try {
             JEVisAttribute attribute = object.getAttribute(attributeName);
             if (attribute != null && attribute.hasSample()) {
-                firstDate = attribute.getTimestampFromFirstSample();
+                firstDate = attribute.getTimestampOfFirstSample();
             }
         } catch (JEVisException ex) {
             logger.error(ex);

@@ -590,9 +590,9 @@ public class ChartDataRow extends ChartData {
                 if ((inputUnit.equals("kWh") || inputUnit.equals("Wh") || inputUnit.equals("MWh") || inputUnit.equals("GWh"))
                         && (outputUnit.equals("kW") || outputUnit.equals("W") || outputUnit.equals("MW") || outputUnit.equals("GW"))) {
                     if (inputList.size() > 1) {
-                        Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
-                        int compare = periodComparator.compare(currentPeriod, rowPeriod);
-                        if (!currentPeriod.equals(rowPeriod) && compare > 0) {
+                        Period rawPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+                        int compare = periodComparator.compare(currentPeriod, rawPeriod);
+                        if (!currentPeriod.equals(rawPeriod) && compare > 0) {
                             if (currentPeriod.equals(Period.hours(1))) {
                                 timeFactor *= 1 / 4d;
                             } else if (currentPeriod.equals(Period.days(1))) {
@@ -605,6 +605,29 @@ public class ChartDataRow extends ChartData {
                                 timeFactor *= 1 / 4d / 24 / 30.25 / 3;
                             } else if (currentPeriod.equals(Period.years(1))) {
                                 timeFactor *= 1 / 4d / 24 / 365.25;
+                            }
+                        }
+                    } else {
+                        logger.debug("Can not determine time factor for fewer than two samples");
+                    }
+                } else if ((inputUnit.equals("kW") || inputUnit.equals("W") || inputUnit.equals("MW") || inputUnit.equals("GW"))
+                        && (outputUnit.equals("kWh") || outputUnit.equals("Wh") || outputUnit.equals("MWh") || outputUnit.equals("GWh"))) {
+                    if (inputList.size() > 1) {
+                        Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+                        int compare = periodComparator.compare(currentPeriod, rowPeriod);
+                        if (!currentPeriod.equals(rowPeriod) && compare > 0) {
+                            if (currentPeriod.equals(Period.hours(1))) {
+                                timeFactor *= 4d;
+                            } else if (currentPeriod.equals(Period.days(1))) {
+                                timeFactor *= 4d * 24;
+                            } else if (currentPeriod.equals(Period.weeks(1))) {
+                                timeFactor *= 4d * 24 * 7;
+                            } else if (currentPeriod.equals(Period.months(1))) {
+                                timeFactor *= 4d * 24 * 30.25;
+                            } else if (currentPeriod.equals(Period.months(3))) {
+                                timeFactor *= 4d * 24 * 30.25 * 3;
+                            } else if (currentPeriod.equals(Period.years(1))) {
+                                timeFactor *= 4d * 24 * 365.25;
                             }
                         }
                     } else {
@@ -677,15 +700,15 @@ public class ChartDataRow extends ChartData {
         if (selectedStart != null) {
             return selectedStart;
         } else if (getAttribute() != null) {
-            DateTime timeStampFromLastSample = getAttribute().getTimestampFromLastSample();
+            DateTime timeStampFromLastSample = getAttribute().getTimestampOfLastSample();
             if (timeStampFromLastSample != null) {
                 timeStampFromLastSample = timeStampFromLastSample.minusDays(7);
 
-                DateTime timeStampFromFirstSample = getAttribute().getTimestampFromFirstSample();
-                if (timeStampFromFirstSample != null) {
-                    if (timeStampFromFirstSample.isBefore(timeStampFromLastSample))
+                DateTime timeStampOfFirstSample = getAttribute().getTimestampOfFirstSample();
+                if (timeStampOfFirstSample != null) {
+                    if (timeStampOfFirstSample.isBefore(timeStampFromLastSample))
                         selectedStart = timeStampFromLastSample;
-                } else selectedStart = timeStampFromFirstSample;
+                } else selectedStart = timeStampOfFirstSample;
 
             } else {
                 return null;
@@ -708,7 +731,7 @@ public class ChartDataRow extends ChartData {
         if (selectedEnd != null) {
             return selectedEnd;
         } else if (getAttribute() != null) {
-            DateTime timeStampFromLastSample = getAttribute().getTimestampFromLastSample();
+            DateTime timeStampFromLastSample = getAttribute().getTimestampOfLastSample();
             if (timeStampFromLastSample == null) selectedEnd = DateTime.now();
             else selectedEnd = timeStampFromLastSample;
             return selectedEnd;

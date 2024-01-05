@@ -242,7 +242,7 @@ public class CommonMethods {
 
     public static DateTime getStartDateFromSampleRate(JEVisAttribute attribute) {
         if (attribute.hasSample()) {
-            DateTime start = attribute.getTimestampFromLastSample().minusDays(7);
+            DateTime start = attribute.getTimestampOfLastSample().minusDays(7);
             JEVisAttribute periodAttribute = null;
             try {
                 periodAttribute = attribute.getObject().getAttribute("Period");
@@ -259,19 +259,19 @@ public class CommonMethods {
                 }
 
                 if (p.equals(Period.years(1))) {
-                    start = attribute.getTimestampFromLastSample().minusYears(10);
+                    start = attribute.getTimestampOfLastSample().minusYears(10);
                 } else if (p.equals(Period.months(1))) {
-                    start = attribute.getTimestampFromLastSample().minusMonths(12);
+                    start = attribute.getTimestampOfLastSample().minusMonths(12);
                 } else if (p.equals(Period.weeks(1))) {
-                    start = attribute.getTimestampFromLastSample().minusWeeks(10);
+                    start = attribute.getTimestampOfLastSample().minusWeeks(10);
                 } else if (p.equals(Period.days(1))) {
-                    start = attribute.getTimestampFromLastSample().minusDays(14);
+                    start = attribute.getTimestampOfLastSample().minusDays(14);
                 } else if (p.equals(Period.hours(1))) {
-                    start = attribute.getTimestampFromLastSample().minusDays(2);
+                    start = attribute.getTimestampOfLastSample().minusDays(2);
                 } else if (p.equals(Period.minutes(15))) {
-                    start = attribute.getTimestampFromLastSample().minusHours(24);
+                    start = attribute.getTimestampOfLastSample().minusHours(24);
                 } else if (p.equals(Period.minutes(1))) {
-                    start = attribute.getTimestampFromLastSample().minusHours(6);
+                    start = attribute.getTimestampOfLastSample().minusHours(6);
                 }
             }
             return start;
@@ -360,7 +360,7 @@ public class CommonMethods {
 
                 try {
                     JEVisAttribute value = dependency.getAttribute("Value");
-                    DateTime lastSampleTS = value.getTimestampFromLastSample();
+                    DateTime lastSampleTS = value.getTimestampOfLastSample();
                     value.deleteSamplesBetween(from, lastSampleTS);
                 } catch (Exception e) {
                     logger.error("Could not delete samples from {}:{}:Value", dependency.getName(), dependency.getID());

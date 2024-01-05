@@ -36,7 +36,7 @@ public class AnalysisLinkButton extends JFXButton {
         if (attribute != null) {
             try {
 
-                DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
+                DateTime timestampFromLastSample = attribute.getTimestampOfLastSample();
 
                 DateTime startDateFromSampleRate = org.jevis.commons.utils.CommonMethods.getStartDateFromSampleRate(attribute);
 

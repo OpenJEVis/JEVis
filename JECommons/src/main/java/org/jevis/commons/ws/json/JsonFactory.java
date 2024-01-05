@@ -88,8 +88,8 @@ public class JsonFactory {
         JsonAttribute jatt = new JsonAttribute();
 
         if (att.hasSample()) {
-            jatt.setBegins(attDTF.print(att.getTimestampFromFirstSample()));
-            jatt.setEnds(attDTF.print(att.getTimestampFromLastSample()));
+            jatt.setBegins(attDTF.print(att.getTimestampOfFirstSample()));
+            jatt.setEnds(attDTF.print(att.getTimestampOfLastSample()));
             jatt.setSampleCount(att.getSampleCount());
         }
 

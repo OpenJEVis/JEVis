@@ -91,7 +91,7 @@ public class CleanDataTable extends AlarmTable {
                 try {
                     JEVisAttribute o1att = o1.getAttribute(VALUE_ATTRIBUTE_NAME);
                     if (o1att != null) {
-                        o1ts = o1att.getTimestampFromLastSample();
+                        o1ts = o1att.getTimestampOfLastSample();
                     }
                 } catch (JEVisException e) {
                     e.printStackTrace();
@@ -100,7 +100,7 @@ public class CleanDataTable extends AlarmTable {
                 try {
                     JEVisAttribute o2att = o2.getAttribute(VALUE_ATTRIBUTE_NAME);
                     if (o2att != null) {
-                        o2ts = o2att.getTimestampFromLastSample();
+                        o2ts = o2att.getTimestampOfLastSample();
                     }
                 } catch (JEVisException e) {
                     e.printStackTrace();
