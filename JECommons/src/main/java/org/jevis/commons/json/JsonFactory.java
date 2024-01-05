@@ -57,7 +57,7 @@ public class JsonFactory {
 
 
         if (!obj.getParents().isEmpty()) {
-            json.setParent(22l);
+            json.setParent(22L);
         }
 
         if (attributes) {
@@ -178,8 +178,8 @@ public class JsonFactory {
 
         json.setName(att.getName());
         if (att.hasSample()) {
-            json.setFirstTS(fmt.print(att.getTimestampFromFirstSample()));
-            json.setLastTS(fmt.print(att.getTimestampFromLastSample()));
+            json.setFirstTS(fmt.print(att.getTimestampOfFirstSample()));
+            json.setLastTS(fmt.print(att.getTimestampOfLastSample()));
             json.setLastvalue(att.getLatestSample().getValueAsString());
 
             if (allSamples) {

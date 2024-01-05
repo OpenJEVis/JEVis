@@ -51,8 +51,8 @@ public class XYChartSerie {
     ChartDataRow singleRow;
     Boolean showIcons;
     TreeMap<DateTime, JEVisSample> sampleMap;
-    DateTime timeStampFromFirstSample = DateTime.now();
-    DateTime timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
+    DateTime timeStampOfFirstSample = DateTime.now();
+    DateTime timeStampOfLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
     ValueWithDateTime minValue;
     ChartModel chartModel;
     Axis xAxis;
@@ -88,8 +88,8 @@ public class XYChartSerie {
     }
 
     public void generateSeriesFromSamples() throws JEVisException {
-        timeStampFromFirstSample = DateTime.now();
-        timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
+        timeStampOfFirstSample = DateTime.now();
+        timeStampOfLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
         Color color = singleRow.getColor().deriveColor(0, 1, 1, 0.9);
         Color brighter = ColorHelper.colorToBrighter(singleRow.getColor());
 
@@ -131,11 +131,11 @@ public class XYChartSerie {
         if (samplesSize > 0) {
             try {
 
-                if (samples.get(0).getTimestamp().isBefore(getTimeStampFromFirstSample()))
-                    setTimeStampFromFirstSample(samples.get(0).getTimestamp());
+                if (samples.get(0).getTimestamp().isBefore(getTimeStampOfFirstSample()))
+                    setTimeStampOfFirstSample(samples.get(0).getTimestamp());
 
-                if (samples.get(samples.size() - 1).getTimestamp().isAfter(getTimeStampFromLastSample()))
-                    setTimeStampFromLastSample(samples.get(samples.size() - 1).getTimestamp());
+                if (samples.get(samples.size() - 1).getTimestamp().isAfter(getTimeStampOfLastSample()))
+                    setTimeStampOfLastSample(samples.get(samples.size() - 1).getTimestamp());
 
             } catch (Exception e) {
                 logger.error("Couldn't get timestamps from samples. ", e);
@@ -409,20 +409,20 @@ public class XYChartSerie {
         return tableEntry;
     }
 
-    public DateTime getTimeStampFromFirstSample() {
-        return this.timeStampFromFirstSample;
+    public DateTime getTimeStampOfFirstSample() {
+        return this.timeStampOfFirstSample;
     }
 
-    public void setTimeStampFromFirstSample(DateTime timeStampFromFirstSample) {
-        this.timeStampFromFirstSample = timeStampFromFirstSample;
+    public void setTimeStampOfFirstSample(DateTime timeStampOfFirstSample) {
+        this.timeStampOfFirstSample = timeStampOfFirstSample;
     }
 
-    public DateTime getTimeStampFromLastSample() {
-        return this.timeStampFromLastSample;
+    public DateTime getTimeStampOfLastSample() {
+        return this.timeStampOfLastSample;
     }
 
-    public void setTimeStampFromLastSample(DateTime timeStampFromLastSample) {
-        this.timeStampFromLastSample = timeStampFromLastSample;
+    public void setTimeStampOfLastSample(DateTime timeStampOfLastSample) {
+        this.timeStampOfLastSample = timeStampOfLastSample;
     }
 
     public ChartDataRow getSingleRow() {

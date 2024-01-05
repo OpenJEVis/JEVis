@@ -135,8 +135,8 @@ public class FormulaBox extends HBox {
                                     stats.add(new Stats(jeVisObject, inputName, null, null, 0));
                                 } else {
                                     stats.add(new Stats(jeVisObject,
-                                            inputName, targetAttData.getTimestampFromFirstSample(),
-                                            targetAttData.getTimestampFromLastSample(),
+                                            inputName, targetAttData.getTimestampOfFirstSample(),
+                                            targetAttData.getTimestampOfLastSample(),
                                             0)); // targetAttData.getAllSamples().size()
                                 }
                             }

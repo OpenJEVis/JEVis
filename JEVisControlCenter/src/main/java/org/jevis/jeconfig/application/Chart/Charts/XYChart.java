@@ -1333,13 +1333,13 @@ public class XYChart implements Chart {
          * check if timestamps are in serie
          */
 
-        if (serie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
-            timeStampOfFirstSample.set(serie.getTimeStampFromFirstSample());
+        if (serie.getTimeStampOfFirstSample().isBefore(timeStampOfFirstSample.get())) {
+            timeStampOfFirstSample.set(serie.getTimeStampOfFirstSample());
             changedBoth[0] = true;
         }
 
-        if (serie.getTimeStampFromLastSample().isAfter(timeStampOfLastSample.get())) {
-            timeStampOfLastSample.set(serie.getTimeStampFromLastSample());
+        if (serie.getTimeStampOfLastSample().isAfter(timeStampOfLastSample.get())) {
+            timeStampOfLastSample.set(serie.getTimeStampOfLastSample());
             changedBoth[1] = true;
         }
 

@@ -42,11 +42,11 @@ public class XYLogicalChartSerie extends XYChartSerie {
         if (modifiedList.size() > 0) {
             try {
 
-                if (modifiedList.get(0).getTimestamp().isBefore(getTimeStampFromFirstSample()))
-                    setTimeStampFromFirstSample(modifiedList.get(0).getTimestamp());
+                if (modifiedList.get(0).getTimestamp().isBefore(getTimeStampOfFirstSample()))
+                    setTimeStampOfFirstSample(modifiedList.get(0).getTimestamp());
 
-                if (modifiedList.get(modifiedList.size() - 1).getTimestamp().isAfter(getTimeStampFromLastSample()))
-                    setTimeStampFromLastSample(modifiedList.get(modifiedList.size() - 1).getTimestamp());
+                if (modifiedList.get(modifiedList.size() - 1).getTimestamp().isAfter(getTimeStampOfLastSample()))
+                    setTimeStampOfLastSample(modifiedList.get(modifiedList.size() - 1).getTimestamp());
 
             } catch (Exception e) {
                 logger.error("Couldn't get timestamps from samples. ", e);

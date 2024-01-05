@@ -131,7 +131,7 @@ public class ResourceManager {
                                     date = date.minusYears(c);
                                     break;
                                 case ALL:
-                                    date = getCleanDataObject().getValueAttribute().getTimestampFromFirstSample();
+                                    date = getCleanDataObject().getValueAttribute().getTimestampOfFirstSample();
                                     break;
                                 case NONE:
                                     break;

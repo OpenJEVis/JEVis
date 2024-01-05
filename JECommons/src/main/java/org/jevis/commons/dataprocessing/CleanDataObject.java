@@ -643,7 +643,7 @@ public class CleanDataObject {
 //                firstDate = timestampFromLastCleanSample.plus(getCleanDataPeriodAlignment());
                 firstDate = timestampFromLastCleanSample;
             } else {
-                DateTime firstTimestampRaw = sampleHandler.getTimestampFromFirstSample(rawDataObject, VALUE_ATTRIBUTE_NAME);
+                DateTime firstTimestampRaw = sampleHandler.getTimestampOfFirstSample(rawDataObject, VALUE_ATTRIBUTE_NAME);
                 if (firstTimestampRaw != null) {
                     firstDate = new DateTime(firstTimestampRaw.getYear(), firstTimestampRaw.getMonthOfYear(), firstTimestampRaw.getDayOfMonth(), 0, 0);
                 } else {
@@ -1118,7 +1118,13 @@ public class CleanDataObject {
                     .minus(maxPeriod)
                     .minus(maxPeriod);
 
+            DateTime firstDateOfRawData = rawAttribute.getTimestampOfFirstSample();
+            if (firstDate.isBefore(firstDateOfRawData)) {
+                firstDate = firstDateOfRawData;
+            }
+
             firstDate = PeriodHelper.alignDateToPeriod(firstDate, maxPeriod, getCleanObject());
+            firstDate = firstDate.minus(maxPeriod);
 
             DateTime lastRawDate = getLastRawDate();
             DateTime lastDate1 = firstDate;
@@ -1149,6 +1155,9 @@ public class CleanDataObject {
                     }
                 }
 
+                PeriodComparator periodComparator = new PeriodComparator();
+                int compare = periodComparator.compare(rawDataPeriod, cleanDataPeriod);
+
                 if (!lastDate1.equals(firstDate) && lastDate1.isBefore(lastDate2) || lastDate1.equals(lastDate2)) {
                     lastDate = lastDate1;
                 } else if (!lastDate2.equals(firstDate) || lastDate2.isBefore(lastDate1)) {
@@ -1167,9 +1176,9 @@ public class CleanDataObject {
                     lastDate);
 
             if (rawSamplesDown.size() == 1 && !maxPeriod.equals(Period.ZERO)) {
-                DateTime timestampFromFirstSample = rawAttribute.getTimestampFromFirstSample();
+                DateTime timestampOfFirstSample = rawAttribute.getTimestampOfFirstSample();
 
-                while (timestampFromFirstSample.isBefore(firstDate) && rawSamplesDown.size() < 2) {
+                while (timestampOfFirstSample.isBefore(firstDate) && rawSamplesDown.size() < 2) {
                     firstDate = firstDate.minus(maxPeriod);
                     rawSamplesDown = sampleHandler.getSamplesInPeriod(
                             rawDataObject,
@@ -1185,7 +1194,7 @@ public class CleanDataObject {
     public DateTime getLastRawDate() {
         if (lastRawDate == null) {
             Period lastPeriod = getCleanDataPeriodAlignment().get(getCleanDataPeriodAlignment().size() - 1).getPeriod();
-            lastRawDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(lastPeriod);
+            lastRawDate = sampleHandler.getTimeStampOfLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(lastPeriod);
         }
 
         return lastRawDate;

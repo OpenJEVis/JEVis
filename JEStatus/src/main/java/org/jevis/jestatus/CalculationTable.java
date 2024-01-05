@@ -162,7 +162,7 @@ public class CalculationTable extends AlarmTable {
                     if (o1tar != null) {
                         JEVisAttribute o1att = o1tar.getAttribute(VALUE_ATTRIBUTE_NAME);
                         if (o1att != null) {
-                            o1ts = o1att.getTimestampFromLastSample();
+                            o1ts = o1att.getTimestampOfLastSample();
                         }
                     }
                 } catch (JEVisException e) {
@@ -174,7 +174,7 @@ public class CalculationTable extends AlarmTable {
                     if (o2tar != null) {
                         JEVisAttribute o2att = o2tar.getAttribute(VALUE_ATTRIBUTE_NAME);
                         if (o2att != null) {
-                            o2ts = o2att.getTimestampFromLastSample();
+                            o2ts = o2att.getTimestampOfLastSample();
                         }
                     }
                 } catch (JEVisException e) {

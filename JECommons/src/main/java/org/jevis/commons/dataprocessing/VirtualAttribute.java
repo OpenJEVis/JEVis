@@ -132,12 +132,12 @@ public class VirtualAttribute implements JEVisAttribute {
     }
 
     @Override
-    public DateTime getTimestampFromFirstSample() {
+    public DateTime getTimestampOfFirstSample() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public DateTime getTimestampFromLastSample() {
+    public DateTime getTimestampOfLastSample() {
         if (!sampleList.isEmpty()) {
             try {
                 sampleList.get(sampleList.size() - 1).getTimestamp();

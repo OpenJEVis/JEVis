@@ -146,23 +146,23 @@ public class PickerCombo {
     }
 
     private void setMinMax(JEVisAttribute att) {
-        DateTime timeStampFromFirstSample = att.getTimestampFromFirstSample();
-        DateTime timeStampFromLastSample = att.getTimestampFromLastSample();
+        DateTime timeStampOfFirstSample = att.getTimestampOfFirstSample();
+        DateTime timeStampOfLastSample = att.getTimestampOfLastSample();
 
         LocalDate min_check = null;
-        if (timeStampFromFirstSample != null) {
+        if (timeStampOfFirstSample != null) {
             min_check = LocalDate.of(
-                    timeStampFromFirstSample.getYear(),
-                    timeStampFromFirstSample.getMonthOfYear(),
-                    timeStampFromFirstSample.getDayOfMonth());
+                    timeStampOfFirstSample.getYear(),
+                    timeStampOfFirstSample.getMonthOfYear(),
+                    timeStampOfFirstSample.getDayOfMonth());
         }
 
         LocalDate max_check = null;
-        if (timeStampFromLastSample != null) {
+        if (timeStampOfLastSample != null) {
             max_check = LocalDate.of(
-                    timeStampFromLastSample.getYear(),
-                    timeStampFromLastSample.getMonthOfYear(),
-                    timeStampFromLastSample.getDayOfMonth());
+                    timeStampOfLastSample.getYear(),
+                    timeStampOfLastSample.getMonthOfYear(),
+                    timeStampOfLastSample.getDayOfMonth());
         }
 
 

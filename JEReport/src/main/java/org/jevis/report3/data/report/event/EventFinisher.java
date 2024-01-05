@@ -40,7 +40,7 @@ public class EventFinisher implements Finisher {
             Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
             String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
 
-            DateTime lastDate = samplesHandler.getTimeStampFromLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
+            DateTime lastDate = samplesHandler.getTimeStampOfLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
             String newStartTimeString = lastDate.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));
             reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
         } catch (JEVisException ex) {
@@ -55,7 +55,7 @@ public class EventFinisher implements Finisher {
             Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
             String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
 
-            DateTime lastDate = samplesHandler.getTimeStampFromLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
+            DateTime lastDate = samplesHandler.getTimeStampOfLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
             String newStartTimeString = lastDate.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));
             reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
         } catch (JEVisException e) {

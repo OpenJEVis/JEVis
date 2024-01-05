@@ -28,7 +28,7 @@ import java.util.*;
 public class DriverHelper {
     private static final Logger logger = LogManager.getLogger(DriverHelper.class);
 
-    private static String JEVIS_SOURCE = "jevis";
+    private static final String JEVIS_SOURCE = "jevis";
     private static String ROOT_FOLDER = null;
 
     public static void loadDriver(JEVisDataSource client, String rootFolder) {
@@ -173,7 +173,7 @@ public class DriverHelper {
                         }
 
                         JEVisType fileType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.SOURCE_FILE);
-                        DateTime fileDate = driver.getAttribute(fileType).getTimestampFromLastSample();
+                        DateTime fileDate = driver.getAttribute(fileType).getTimestampOfLastSample();
                         logger.debug("Driver file date: {}", fileDate);
 
                         JEVisType classType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.MAIN_CLASS);

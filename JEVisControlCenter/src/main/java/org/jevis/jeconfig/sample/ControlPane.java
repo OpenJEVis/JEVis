@@ -177,10 +177,10 @@ public class ControlPane extends GridPane {
     private void init() {
         if (attribute.hasSample()) {
             try {
-                logger.debug("init from: '{}' until: '{}'", attribute.getTimestampFromFirstSample(), attribute.getTimestampFromLastSample());
+                logger.debug("init from: '{}' until: '{}'", attribute.getTimestampOfFirstSample(), attribute.getTimestampOfLastSample());
 
-                from = attribute.getTimestampFromLastSample().minusDays(7);
-                until = attribute.getTimestampFromLastSample().plusDays(1);
+                from = attribute.getTimestampOfLastSample().minusDays(7);
+                until = attribute.getTimestampOfLastSample().plusDays(1);
 
                 startDate.setValue(LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth()));
                 endDate.setValue(LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth()));
@@ -201,11 +201,11 @@ public class ControlPane extends GridPane {
                 startDate.valueProperty().set(LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth()));
                 endDate.valueProperty().set(LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth()));
 
-                long duration = attribute.getTimestampFromLastSample().getMillis() - attribute.getTimestampFromFirstSample().getMillis();
+                long duration = attribute.getTimestampOfLastSample().getMillis() - attribute.getTimestampOfFirstSample().getMillis();
 
 
-                Tooltip minTSTooltip = new Tooltip(attribute.getTimestampFromFirstSample().toString());
-                Tooltip maxTSTooltip = new Tooltip(attribute.getTimestampFromLastSample().toString());
+                Tooltip minTSTooltip = new Tooltip(attribute.getTimestampOfFirstSample().toString());
+                Tooltip maxTSTooltip = new Tooltip(attribute.getTimestampOfLastSample().toString());
                 startDate.setTooltip(minTSTooltip);
                 endDate.setTooltip(maxTSTooltip);
 
