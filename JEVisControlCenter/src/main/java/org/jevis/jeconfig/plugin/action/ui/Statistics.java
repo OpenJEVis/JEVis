@@ -10,12 +10,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
+import org.jevis.jeconfig.plugin.action.data.Medium;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Statistics {
@@ -35,6 +37,8 @@ public class Statistics {
     private final StringProperty sumSavingsCombinedProperty = new SimpleStringProperty();
     private final DoubleProperty sumNPVResultProperty = new SimpleDoubleProperty(0.0);
     private final StringProperty sumNPVResultStrProperty = new SimpleStringProperty();
+    private final StringProperty sumCO2 = new SimpleStringProperty();
+    private final StringProperty sumGrossCO2 = new SimpleStringProperty();
     private final ObservableMap<String, StringProperty> sumNPVResultPerMediumStrList = FXCollections.observableHashMap();
     private final StringProperty sumStrProperty = new SimpleStringProperty();
     private final StringProperty sumSavingsByMedium = new SimpleStringProperty();
@@ -49,8 +53,11 @@ public class Statistics {
             update();
         });
 
-        actionPlan.getMediumTags().forEach(s -> {
-            sumNPVResultPerMediumStrList.put(s, new SimpleStringProperty());
+        actionPlan.getMedium().forEach(s -> {
+            if (!sumNPVResultPerMediumStrList.containsKey(s.getId())) {
+                sumNPVResultPerMediumStrList.put(s.getId(), new SimpleStringProperty());
+            }
+
         });
 
     }
@@ -92,25 +99,29 @@ public class Statistics {
         double sumSavingsGrossD = 0.0;
         Map<String, Double> nvpresultMap = new HashMap<>();
         Double zero = new Double(0.0);
-        actionPlan.getMediumTags().forEach(s -> {
-            nvpresultMap.put(s, zero);
+        actionPlan.getMedium().forEach(s -> {
+            nvpresultMap.put(s.getId(), zero);
         });
-
-        for (ActionData o : data) {
+        for (ActionData actionData : data) {
             try {
-                sumInvest += o.npv.get().getInvestment();
-                sumSavings += o.npv.get().einsparung.get();
-                sumImprovement += o.getConsumption().diff.get();
-                if (o.npv.get().einsparung.get() > 0) sumSavingsGrossD += o.npv.get().einsparung.get();
+                //System.out.println("- o.data: " + o.getNrText());
+                sumInvest += actionData.npv.get().getInvestment();
+                sumSavings += actionData.npv.get().einsparung.get();
+                sumImprovement += actionData.getConsumption().diff.get();
+                if (actionData.npv.get().einsparung.get() > 0)
+                    sumSavingsGrossD += actionData.npv.get().einsparung.get();
 
-
-                if (!o.mediaTags.get().isEmpty() && !nvpresultMap.isEmpty()) {
+                //System.out.println("-- isEmpty: " + o.mediaTags.get().isEmpty() + "  map.empty: " + nvpresultMap);
+                if (!nvpresultMap.isEmpty()) {
                     try {
-                        double sumMedium = nvpresultMap.get(o.mediaTags.get()) + o.getConsumption().diff.get();
-                        nvpresultMap.put(o.mediaTags.get(), sumMedium);
+                        double sumMedium = nvpresultMap.get(actionData.mediaTags.get()) + actionData.getConsumption().diff.get();
+                        nvpresultMap.put(actionData.mediaTags.get(), sumMedium);
+                        //System.out.println("-- add sum: " + o.mediaTags.get() + ": " + sumMedium);
                     } catch (Exception ex) {
-                        logger.error("Error in Sum by Medium: medium: {} , value: {}", o.mediaTags, o.getConsumption().diff);
+                        logger.error("Error in Sum by Medium: medium: {} , value: {}", actionData.mediaTags, actionData.getConsumption().diff);
                     }
+                } else {
+                    // System.out.println("-- add sum: ELSE");
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -138,6 +149,7 @@ public class Statistics {
             for (Map.Entry<String, Double> entry : nvpresultMap.entrySet()) {
                 String s = entry.getKey();
                 try {
+                    //actionPlan.getMediumByID(s).getName()
                     Double doubleValue = entry.getValue();
                     String name = String.format("%-" + (maxLength + 1) + "s", s + ":");
                     String valueStrg = String.format("%s kWh", NumerFormating.getInstance().getDoubleFormate().format(doubleValue));
@@ -152,8 +164,6 @@ public class Statistics {
                 }
             }
         }
-
-
         sumSavingsByMedium.set(mediumStrg);
 
         String statusStr = "";
@@ -172,7 +182,7 @@ public class Statistics {
 
     public StringProperty getMediumSum(String medium) {
         if (!sumNPVResultPerMediumStrList.containsKey(medium)) {
-            sumNPVResultPerMediumStrList.put(medium, new SimpleStringProperty(String.format("%s %s\n", medium, NumerFormating.getInstance().getDoubleFormate().format(0.0) + " kWh")));
+            sumNPVResultPerMediumStrList.put(medium, new SimpleStringProperty(String.format("%s %s\n", actionPlan.getMediumByID(medium).getName(), NumerFormating.getInstance().getDoubleFormate().format(0.0) + " kWh")));
         }
         return sumNPVResultPerMediumStrList.get(medium);
     }
@@ -184,17 +194,6 @@ public class Statistics {
         return statusMap.get(status);
     }
 
-    public Map<String, StringProperty> getNVPResultForMedium() {
-        return sumNPVResultPerMediumStrList;
-    }
-
-    public double getSumConsumptionSinceImplementation() {
-        return sumConsumptionSinceImplementation.get();
-    }
-
-    public DoubleProperty sumConsumptionSinceImplementationProperty() {
-        return sumConsumptionSinceImplementation;
-    }
 
     private void updateSumSinceImplementation() {
         logger.debug("------------------------\nCalculate € Sum"); // actionData.npv.get().einsparung.get()
@@ -219,80 +218,70 @@ public class Statistics {
         logger.debug("------------------------\nCalculate kwh Sum");
         DoubleProperty sumNet = new SimpleDoubleProperty(0);
         DoubleProperty sumGross = new SimpleDoubleProperty(0);
+        DoubleProperty sumCO2Net = new SimpleDoubleProperty(0);
+        DoubleProperty sumCO2Gross = new SimpleDoubleProperty(0);
         data.forEach(actionData -> {
             if (actionData.doneDate.get() != null && actionData.doneDate.get().isAfter(dateFilter.get().getFromDate())) {
                 int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
-                sumNet.set(sumNet.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
+                double co2Value = 0;
+
+                Optional<Medium> medium = actionPlan.getMedium().stream().filter(m -> m.getId().equals(actionData.mediaTags.get())).findFirst();
+                if (medium.isPresent()) {
+                    co2Value = medium.get().getCo2();
+                }
+
+
+                double net = ((daysRunning) * (actionData.consumption.get().diff.get() / 365));
+                sumNet.set(sumNet.get() + net);
+                sumCO2Net.set(sumCO2Net.get() + (co2Value * (net / 1000))); //kWh->mWh
+
 
                 if (actionData.consumption.get().diff.get() > 0) {
-                    sumGross.set(sumGross.get() + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)));
+                    double gross = ((daysRunning) * (actionData.consumption.get().diff.get() / 365));
+                    sumGross.set(sumGross.get() + gross);
+                    sumCO2Gross.set(sumCO2Gross.get() + (co2Value * (gross / 1000)));//kWh->mWh
+
                 }
+
 
                 logger.debug("Action Nr: " + actionData.nr.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
                 logger.debug("Sum: " + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)) + "= " + daysRunning + "*(" + actionData.consumption.get().diff.get() + "/365)");
 
             }
         });
+
+
         logger.debug("Total Sum: " + sumNet.get());
         sumSinceImplementation.setValue(sumNet.get());
-        textSumSinceImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceImp")
-                + ":\t" + NumerFormating.getInstance().getDoubleFormate().format(sumNet.get()) + " kWh");
-        textSumSinceImplementationGross.set(I18n.getInstance().getString("plugin.action.statistics.saveGrossSinceImp")
-                + ":\t" + NumerFormating.getInstance().getDoubleFormate().format(sumGross.get()) + " kWh");
+        textSumSinceImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceImp") //+ ":\t"
+                + ": " + NumerFormating.getInstance().getDoubleFormate().format(sumNet.get()) + " kWh");
+        textSumSinceImplementationGross.set(I18n.getInstance().getString("plugin.action.statistics.saveGrossSinceImp")//+ ":\t"
+                + ": " + NumerFormating.getInstance().getDoubleFormate().format(sumGross.get()) + " kWh");
+        sumCO2.set(I18n.getInstance().getString("plugin.action.statistics.saveCO2Net")
+                + ": " + NumerFormating.getInstance().getDoubleFormate().format(sumCO2Net.get()) + " t");
+        sumGrossCO2.set(I18n.getInstance().getString("plugin.action.statistics.savesCO2Gross")
+                + ": " + NumerFormating.getInstance().getDoubleFormate().format(sumCO2Gross.get()) + " t");
 
     }
 
-    public double getSumSavingsProperty() {
-        return sumSavingsProperty.get();
+    public StringProperty getSumCO2Net() {
+        return sumCO2;
     }
 
-    public String getTextSumSinceImplementationGross() {
-        return textSumSinceImplementationGross.get();
-    }
 
     public StringProperty textSumSinceImplementationGrossProperty() {
         return textSumSinceImplementationGross;
-    }
-
-    public double getSumSavingsGross() {
-        return sumSavingsGross.get();
-    }
-
-    public DoubleProperty sumSavingsGrossProperty() {
-        return sumSavingsGross;
-    }
-
-    public DoubleProperty sumSavingsPropertyProperty() {
-        return sumSavingsProperty;
-    }
-
-    public String getSumSavingsStrProperty() {
-        return sumSavingsStrProperty.get();
     }
 
     public StringProperty sumSavingsStrPropertyProperty() {
         return sumSavingsStrProperty;
     }
 
-    public double getSumInvestProperty() {
-        return sumInvestProperty.get();
-    }
-
-    public String getSumSavingsByMedium() {
-        return sumSavingsByMedium.get();
-    }
 
     public StringProperty sumSavingsByMediumProperty() {
         return sumSavingsByMedium;
     }
 
-    public DoubleProperty sumInvestPropertyProperty() {
-        return sumInvestProperty;
-    }
-
-    public String getSumInvestStrProperty() {
-        return sumInvestStrProperty.get();
-    }
 
     public StringProperty sumInvestStrPropertyProperty() {
         return sumInvestStrProperty;
@@ -302,47 +291,22 @@ public class Statistics {
         return textSumSinceImplementation.get();
     }
 
-    public String getStatusStrProperty() {
-        return statusStrProperty.get();
-    }
-
-    public StringProperty statusStrPropertyProperty() {
-        return statusStrProperty;
-    }
 
     public StringProperty textSumSinceImplementationProperty() {
         return textSumSinceImplementation;
-    }
-
-    public String getSumSavingsCombinedProperty() {
-        return sumSavingsCombinedProperty.get();
-    }
-
-    public StringProperty sumSavingsCombinedPropertyProperty() {
-        return sumSavingsCombinedProperty;
     }
 
     public double getSumSinceImplementation() {
         return sumSinceImplementation.get();
     }
 
-    public DoubleProperty sumSinceImplementationProperty() {
-        return sumSinceImplementation;
-    }
-
-    public double getSumNPVResultProperty() {
-        return sumNPVResultProperty.get();
-    }
-
-    public DoubleProperty sumNPVResultPropertyProperty() {
-        return sumNPVResultProperty;
-    }
-
-    public String getSumNPVResultStrProperty() {
-        return sumNPVResultStrProperty.get();
-    }
 
     public StringProperty sumNPVResultStrPropertyProperty() {
         return sumNPVResultStrProperty;
+    }
+
+
+    public StringProperty sumGrossCO2Property() {
+        return sumGrossCO2;
     }
 }
