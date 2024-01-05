@@ -1133,6 +1133,7 @@ public class CleanDataObject {
 
             Period rawDataPeriod = getPeriodForDate(getRawDataPeriodAlignment(), firstDate);
             Period cleanDataPeriod = getPeriodForDate(getCleanDataPeriodAlignment(), firstDate);
+
             if (!rawDataPeriod.equals(Period.ZERO) || !cleanDataPeriod.equals(Period.ZERO)) {
 
                 if (!rawDataPeriod.equals(Period.ZERO)) {
@@ -1158,7 +1159,9 @@ public class CleanDataObject {
                 PeriodComparator periodComparator = new PeriodComparator();
                 int compare = periodComparator.compare(rawDataPeriod, cleanDataPeriod);
 
-                if (!lastDate1.equals(firstDate) && lastDate1.isBefore(lastDate2) || lastDate1.equals(lastDate2)) {
+                if (cleanDataPeriod.equals(Period.years(1))) {
+                    lastDate = lastDate2;
+                } else if (!lastDate1.equals(firstDate) && lastDate1.isBefore(lastDate2) || lastDate1.equals(lastDate2)) {
                     lastDate = lastDate1;
                 } else if (!lastDate2.equals(firstDate) || lastDate2.isBefore(lastDate1)) {
                     lastDate = lastDate2;
