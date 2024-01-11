@@ -1718,7 +1718,7 @@ public class XYChart implements Chart {
                 long finalZeroCount = zeroCount;
                 double finalAvg = avg;
                 try {
-                    serie.updateTableEntry(newList, unit, min, max, finalAvg, finalSum, finalZeroCount, true);
+                    serie.updateTableEntry(newList, unit, min, max, finalZeroCount, true);
                 } catch (JEVisException e) {
                     logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
                 }

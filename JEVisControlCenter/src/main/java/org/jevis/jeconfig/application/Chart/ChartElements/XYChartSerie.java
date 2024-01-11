@@ -189,12 +189,12 @@ public class XYChartSerie {
             sum = maxValue.getValue();
         }
 
-        updateTableEntry(samples, unit, minValue, maxValue, avg, sum, zeroCount, false);
+        updateTableEntry(samples, unit, minValue, maxValue, zeroCount, false);
 
         JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }
 
-    public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, ValueWithDateTime min, ValueWithDateTime max, double avg, Double sum, long zeroCount, boolean later) throws JEVisException {
+    public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, ValueWithDateTime min, ValueWithDateTime max, long zeroCount, boolean later) throws JEVisException {
 
         StringBuilder finalAvg = new StringBuilder();
         StringBuilder finalSum = new StringBuilder();
@@ -275,8 +275,8 @@ public class XYChartSerie {
 
         minValue = new ValueWithDateTime(Double.MAX_VALUE, nf);
         maxValue = new ValueWithDateTime(-Double.MAX_VALUE, nf);
-        avg = 0.0;
-        sum = 0.0;
+        double avg = 0.0;
+        Double sum = 0.0;
         for (JEVisSample sample : samples) {
             try {
 
@@ -295,7 +295,7 @@ public class XYChartSerie {
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(unit);
 
-        if (!singleRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && samples.size() > 0) {
+        if (!singleRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && !samples.isEmpty()) {
             avg = sum / (samples.size() - zeroCount);
             this.avg = avg;
             sortCriteria = avg;

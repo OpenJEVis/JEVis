@@ -83,7 +83,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
             }
         }
 
-        updateTableEntry(modifiedList, new JEVisUnitImp(Unit.ONE), getMinValue(), getMaxValue(), 0.0, 0.0, 0, false);
+        updateTableEntry(modifiedList, new JEVisUnitImp(Unit.ONE), getMinValue(), getMaxValue(), 0, false);
 
         JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }
