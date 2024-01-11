@@ -17,12 +17,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartElements.CustomNumericAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.HeatMapChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChartV;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -124,6 +126,11 @@ public class ChartWidget extends Widget implements DataModelWidget {
             DataSettings dataSettings = new DataSettings();
             dataSettings.setCurrentAnalysisProperty(currentAnalysis);
             dataSettings.setCurrentAnalysis(control.getActiveDashboard().getDashboardObject());
+
+            AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(control.getDataSource(), dataSettings.getCurrentAnalysis(), TimeFrame.CUSTOM_START_END);
+            analysisTimeFrame.setStart(sampleHandler.getDataModel().get(0).getSelectedStart());
+            analysisTimeFrame.setEnd(sampleHandler.getDataModel().get(0).getSelectedEnd());
+            dataSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
             ChartModel chartModel = this.sampleHandler.getChartModel();
             chartModel.setMinFractionDigits(getConfig().getDecimals());

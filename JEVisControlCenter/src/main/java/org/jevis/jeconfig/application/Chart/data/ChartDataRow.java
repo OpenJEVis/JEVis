@@ -15,7 +15,6 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
-import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
@@ -569,11 +568,14 @@ public class ChartDataRow extends ChartData {
         if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
 
         ChartUnits cu = new ChartUnits();
-        scaleFactor = cu.scaleValue(inputUnit, outputUnit);
+        Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+        Period rawPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+
+        scaleFactor = cu.scaleValue(rawPeriod, inputUnit, currentPeriod, outputUnit);
     }
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) {
-        if (getUnit() != null && !inputList.isEmpty()) {
+        if (getUnit() != null && !inputList.isEmpty() && inputList.size() > 1) {
             try {
                 String outputUnit = UnitManager.getInstance().format(getUnit()).replace("·", "");
                 if (outputUnit.equals("")) outputUnit = getUnit().getLabel();
@@ -582,67 +584,10 @@ public class ChartDataRow extends ChartData {
                 if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
 
                 ChartUnits cu = new ChartUnits();
-                scaleFactor = cu.scaleValue(inputUnit, outputUnit);
 
-                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(inputList.size() - 1).getTimestamp());
-                PeriodComparator periodComparator = new PeriodComparator();
-
-                if ((inputUnit.equals("kWh") || inputUnit.equals("Wh") || inputUnit.equals("MWh") || inputUnit.equals("GWh"))
-                        && (outputUnit.equals("kW") || outputUnit.equals("W") || outputUnit.equals("MW") || outputUnit.equals("GW"))) {
-                    if (inputList.size() > 1) {
-                        Period rawPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
-                        int compare = periodComparator.compare(currentPeriod, rawPeriod);
-                        if (!currentPeriod.equals(rawPeriod) && compare > 0) {
-                            if (currentPeriod.equals(Period.hours(1))) {
-                                timeFactor *= 1 / 4d;
-                            } else if (currentPeriod.equals(Period.days(1))) {
-                                timeFactor *= 1 / 4d / 24;
-                            } else if (currentPeriod.equals(Period.weeks(1))) {
-                                timeFactor *= 1 / 4d / 24 / 7;
-                            } else if (currentPeriod.equals(Period.months(1))) {
-                                timeFactor *= 1 / 4d / 24 / 30.25;
-                            } else if (currentPeriod.equals(Period.months(3))) {
-                                timeFactor *= 1 / 4d / 24 / 30.25 / 3;
-                            } else if (currentPeriod.equals(Period.years(1))) {
-                                timeFactor *= 1 / 4d / 24 / 365.25;
-                            }
-                        }
-                    } else {
-                        logger.debug("Can not determine time factor for fewer than two samples");
-                    }
-                } else if ((inputUnit.equals("kW") || inputUnit.equals("W") || inputUnit.equals("MW") || inputUnit.equals("GW"))
-                        && (outputUnit.equals("kWh") || outputUnit.equals("Wh") || outputUnit.equals("MWh") || outputUnit.equals("GWh"))) {
-                    if (inputList.size() > 1) {
-                        Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
-                        int compare = periodComparator.compare(currentPeriod, rowPeriod);
-                        if (!currentPeriod.equals(rowPeriod) && compare > 0) {
-                            if (currentPeriod.equals(Period.hours(1))) {
-                                timeFactor *= 4d;
-                            } else if (currentPeriod.equals(Period.days(1))) {
-                                timeFactor *= 4d * 24;
-                            } else if (currentPeriod.equals(Period.weeks(1))) {
-                                timeFactor *= 4d * 24 * 7;
-                            } else if (currentPeriod.equals(Period.months(1))) {
-                                timeFactor *= 4d * 24 * 30.25;
-                            } else if (currentPeriod.equals(Period.months(3))) {
-                                timeFactor *= 4d * 24 * 30.25 * 3;
-                            } else if (currentPeriod.equals(Period.years(1))) {
-                                timeFactor *= 4d * 24 * 365.25;
-                            }
-                        }
-                    } else {
-                        logger.debug("Can not determine time factor for fewer than two samples");
-                    }
-                }
-
-                if (cu.areComplementary(inputUnit, outputUnit)) {
-                    Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
-                    int compare = periodComparator.compare(currentPeriod, rowPeriod);
-
-                    if (currentPeriod.equals(Period.hours(1)) && compare == 0) {
-                        timeFactor *= 1 / 4d;
-                    }
-                }
+                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+                Period rawPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+                scaleFactor = cu.scaleValue(rawPeriod, inputUnit, currentPeriod, outputUnit);
 
                 inputList.forEach(sample -> {
                     try {
@@ -874,7 +819,11 @@ public class ChartDataRow extends ChartData {
             try {
                 JEVisUnit sumUnit = qu.getSumUnit(getUnit());
                 ChartUnits cu = new ChartUnits();
-                double newScaleFactor = cu.scaleValue(getUnit().toString(), sumUnit.toString());
+
+                Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                Period rawPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+
+                double newScaleFactor = cu.scaleValue(rawPeriod, getUnit().toString(), currentPeriod, sumUnit.toString());
                 JEVisUnit inputUnit = getAttribute().getInputUnit();
                 JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
