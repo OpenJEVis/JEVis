@@ -69,7 +69,7 @@ public class EventIntervalCalc implements IntervalCalculator {
             Long jevisId = samplesHandler.getLastSample(reportObject, "JEVis ID", -1L);
             String attributeName = samplesHandler.getLastSample(reportObject, "Attribute Name", "");
 
-            DateTime lastDate = samplesHandler.getTimeStampFromLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
+            DateTime lastDate = samplesHandler.getTimeStampOfLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
 
             interval = new Interval(start, lastDate);
         } catch (Exception ex) {

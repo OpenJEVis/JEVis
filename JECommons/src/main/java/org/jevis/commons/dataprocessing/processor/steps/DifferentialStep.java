@@ -159,10 +159,10 @@ public class DifferentialStep implements ProcessStep {
                             periods.addAll(cleanDataObject.getRawDataPeriodAlignment());
                             Period maxPeriod = cleanDataObject.getMaxPeriod(periods);
                             DateTime newFirstTs = firstTS;
-                            DateTime timestampFromFirstSample = cleanDataObject.getRawAttribute().getTimestampFromFirstSample();
+                            DateTime timestampOfFirstSample = cleanDataObject.getRawAttribute().getTimestampOfFirstSample();
                             List<JEVisSample> samples = new ArrayList<>();
 
-                            while (timestampFromFirstSample.isBefore(newFirstTs) && samples.size() < 2 && !maxPeriod.equals(Period.ZERO)) {
+                            while (timestampOfFirstSample.isBefore(newFirstTs) && samples.size() < 2 && !maxPeriod.equals(Period.ZERO)) {
                                 newFirstTs = newFirstTs.minus(maxPeriod);
                                 samples = cleanDataObject.getRawAttribute().getSamples(newFirstTs, firstTS);
                             }

@@ -174,7 +174,7 @@ public class OPCUAWriterLauncher extends AbstractCliApp {
                 JEVisObject dataObject = ds.getObject(Long.valueOf(outputChannel.getAttribute(TARGET_ID).getLatestSample().getValue().toString().split(":")[0]));
 
                 if (opcuaWriter.sendOPCUANotification(outputChannel, dataObject)) {
-                    setLastReadout(outputChannel, dataObject.getAttribute(VALUE).getTimestampFromLastSample());
+                    setLastReadout(outputChannel, dataObject.getAttribute(VALUE).getTimestampOfLastSample());
                 }
             }
 

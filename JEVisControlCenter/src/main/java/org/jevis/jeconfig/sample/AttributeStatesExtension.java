@@ -127,11 +127,11 @@ public class AttributeStatesExtension implements SampleEditorExtension {
         sCount.setText(att.getSampleCount() + "");
         int dbAVG = 100;//byte from DB, this value is not fix and only an avg
         try {
-            if (att.getTimestampFromFirstSample() != null) {
-                first.setText(att.getTimestampFromFirstSample().toString());
+            if (att.getTimestampOfFirstSample() != null) {
+                first.setText(att.getTimestampOfFirstSample().toString());
             }
-            if (att.getTimestampFromFirstSample() != null) {
-                last.setText(att.getTimestampFromLastSample().toString());
+            if (att.getTimestampOfFirstSample() != null) {
+                last.setText(att.getTimestampOfLastSample().toString());
             }
 
 

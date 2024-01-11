@@ -79,7 +79,7 @@ public class DataDialog extends Dialog {
         stage.setAlwaysOnTop(true);
 
         this.attribute = attribute;
-        DateTime lastTs = attribute.getTimestampFromLastSample();
+        DateTime lastTs = attribute.getTimestampOfLastSample();
         logger.debug("Attribute {} of object {}:{} last ts - {}", attribute.getName(), attribute.getObject().getName(), attribute.getObject().getID(), lastTs);
 
         if (lastTs != null) {

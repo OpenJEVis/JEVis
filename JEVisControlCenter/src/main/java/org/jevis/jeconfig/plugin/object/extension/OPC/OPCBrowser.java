@@ -45,7 +45,7 @@ public class OPCBrowser {
 
     JFXTextField port = new JFXTextField();
     JFXButton connect = new JFXButton();
-    JFXComboBox<String> comboRootFolder = new JFXComboBox();
+    JFXComboBox<String> comboRootFolder = new JFXComboBox<>();
     JFXComboBox<String> comboMode = new JFXComboBox<>();
 
 
@@ -100,8 +100,8 @@ public class OPCBrowser {
             stage.setResizable(true);
             stage.setWidth(650);
             stage.setHeight(800);
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error(e);
         }
 
 
@@ -119,7 +119,7 @@ public class OPCBrowser {
                             if (item != null && !empty) {
                                 //String security = item.getSecurityMode() + " " + item.getSecurityLevel();
                                 String security = item.getSecurityPolicyUri().split("#")[1];
-                                setText(tuUserString(item));
+                                setText(toUserString(item));
                                 setTooltip(new Tooltip(item.toString()));
 
                             } else {
@@ -136,10 +136,10 @@ public class OPCBrowser {
             FlowPane flowPane = new FlowPane();
 
 
-            port.setPromptText("Port");
+            port.setPromptText(I18n.getInstance().getString("plugin.object.opcua.port"));
             port.setText(DEFAULT_OPC_PORT);
 
-            connect.setText("Connect");
+            connect.setText(I18n.getInstance().getString("plugin.object.opcua.connect"));
 
             connect.setOnAction(event -> {
 
@@ -179,8 +179,7 @@ public class OPCBrowser {
 
                     alert.showAndWait();
 
-
-                    e.printStackTrace();
+                    logger.error(e);
                 }
 
 
@@ -221,9 +220,9 @@ public class OPCBrowser {
     }
 
 
-    private String tuUserString(EndpointDescription ep) {
+    private String toUserString(EndpointDescription ep) {
         String product = ep.getServer().getProductUri();
-        String securtyMode = ep.getSecurityMode().name();
+        String securityMode = ep.getSecurityMode().name();
         String security = ep.getSecurityPolicyUri().split("#")[1];
         String userTokens = "{";
         for (UserTokenPolicy userIdentityToken : ep.getUserIdentityTokens()) {
@@ -243,7 +242,7 @@ public class OPCBrowser {
         endpoints += "} ";
 
         String info = String.format("Endpoints: %s | Product: %s | security: %s{%s} | userTokens: %s "
-                , product, endpoints, securtyMode, security, userTokens);
+                , product, endpoints, securityMode, security, userTokens);
         return info;
     }
 

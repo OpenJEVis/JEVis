@@ -289,9 +289,9 @@ public class AnalysisTimeFrame {
                     JEVisObject object = ds.getObject(chartData.getId());
                     if (object != null) {
                         JEVisAttribute valueAtt = object.getAttribute(chartData.getAttributeString());
-                        if (valueAtt != null && valueAtt.getTimestampFromLastSample() != null) {
-                            if (valueAtt.getTimestampFromLastSample().isBefore(end.get())) {
-                                end.set(valueAtt.getTimestampFromLastSample());
+                        if (valueAtt != null && valueAtt.getTimestampOfLastSample() != null) {
+                            if (valueAtt.getTimestampOfLastSample().isBefore(end.get())) {
+                                end.set(valueAtt.getTimestampOfLastSample());
                             }
 
                             DateTime newStart = CommonMethods.getStartDateFromSampleRate(valueAtt);

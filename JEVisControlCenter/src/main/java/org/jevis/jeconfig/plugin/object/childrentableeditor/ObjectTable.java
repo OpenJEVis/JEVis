@@ -355,8 +355,8 @@ public class ObjectTable {
                         tableData.setMinTs(newSamples.get(0).getTimestamp());
                         tableData.setMaxTs(newSamples.get(newSamples.size() - 1).getTimestamp());
                     }
-                    tableData.setMinTsOverall(valueAttribute.getTimestampFromFirstSample());
-                    tableData.setMaxTsOverall(valueAttribute.getTimestampFromLastSample());
+                    tableData.setMinTsOverall(valueAttribute.getTimestampOfFirstSample());
+                    tableData.setMaxTsOverall(valueAttribute.getTimestampOfLastSample());
                 }
             } catch (Exception e) {
                 logger.error(e);

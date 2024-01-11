@@ -47,7 +47,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
     private final List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActiveCharts;
     private final List<XYChartSerie> xyChartSerieList;
     boolean plotArea = true;
-    private DateTime timestampFromFirstSample = null;
+    private DateTime timestampOfFirstSample = null;
     private boolean asDuration = false;
     private WorkDays workDays;
 
@@ -63,7 +63,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
             break;
         }
 
-        this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
+        this.timestampOfFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
 
         EventHandler<MouseEvent> mouseMoveHandler = event -> {
             try {
@@ -291,7 +291,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                             .toString(xyChartSerie.getSingleRow().getFormatString())));
                 } else {
                     Platform.runLater(() -> tableEntry.setDate((finalDateTime.getMillis() -
-                            timestampFromFirstSample.getMillis()) / 1000 / 60 / 60 + " h"));
+                            timestampOfFirstSample.getMillis()) / 1000 / 60 / 60 + " h"));
                 }
                 Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
                 String unit = xyChartSerie.getUnit();
