@@ -88,6 +88,8 @@ public class XYChartSerie {
     }
 
     public void generateSeriesFromSamples() throws JEVisException {
+        minValue = new ValueWithDateTime(Double.MAX_VALUE, nf);
+        maxValue = new ValueWithDateTime(-Double.MAX_VALUE, nf);
         timeStampOfFirstSample = DateTime.now();
         timeStampOfLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
         Color color = singleRow.getColor().deriveColor(0, 1, 1, 0.9);
@@ -271,6 +273,25 @@ public class XYChartSerie {
             }
         }
 
+        minValue = new ValueWithDateTime(Double.MAX_VALUE, nf);
+        maxValue = new ValueWithDateTime(-Double.MAX_VALUE, nf);
+        avg = 0.0;
+        sum = 0.0;
+        for (JEVisSample sample : samples) {
+            try {
+
+                DateTime dateTime = sample.getTimestamp();
+                Double currentValue = sample.getValueAsDouble();
+
+                minValue.minCheck(dateTime, currentValue);
+                maxValue.maxCheck(dateTime, currentValue);
+                sum += currentValue;
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        }
+
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(unit);
 
@@ -280,7 +301,7 @@ public class XYChartSerie {
             sortCriteria = avg;
         }
 
-        if (samples.size() == 0) {
+        if (samples.isEmpty()) {
             finalAvg.append("- ").append(getUnit());
             finalSum.append("- ").append(getUnit());
         } else {
@@ -339,15 +360,13 @@ public class XYChartSerie {
                     try {
                         JEVisUnit sumUnit = qu.getSumUnit(unit);
                         ChartUnits cu = new ChartUnits();
-                        double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
-                        JEVisUnit inputUnit = singleRow.getAttribute().getInputUnit();
-                        JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
-                        if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
-                            sum = sum * newScaleFactor / singleRow.getTimeFactor();
-                        } else {
-                            sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
-                        }
+                        Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                        Period rawPeriod = CleanDataObject.getPeriodForDate(singleRow.getAttribute().getObject(), samples.get(0).getTimestamp());
+
+                        double newScaleFactor = cu.scaleValue(rawPeriod, unit.toString(), currentPeriod, sumUnit.toString());
+
+                        sum = sum * newScaleFactor;
 
                         Double finalSum1 = sum;
                         finalSum.append(nf.format(finalSum1)).append(" ").append(sumUnit);

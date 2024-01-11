@@ -387,15 +387,12 @@ public class XYChart implements Chart {
                         try {
                             JEVisUnit sumUnit = qu.getSumUnit(unit);
                             ChartUnits cu = new ChartUnits();
-                            double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
-                            JEVisUnit inputUnit = firstY1Row.getAttribute().getInputUnit();
-                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
-                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
-                                sum = sum * newScaleFactor / y1SumSerie.getSingleRow().getTimeFactor();
-                            } else {
-                                sum = sum / y1SumSerie.getSingleRow().getScaleFactor() / y1SumSerie.getSingleRow().getTimeFactor();
-                            }
+                            Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                            Period rawPeriod = CleanDataObject.getPeriodForDate(samples.get(0).getAttribute().getObject(), samples.get(0).getTimestamp());
+
+                            double newScaleFactor = cu.scaleValue(rawPeriod, unit.toString(), currentPeriod, sumUnit.toString());
+                            sum = sum * newScaleFactor;
 
                             Double finalSum1 = sum;
                             sumEntry.setSum(nf.format(finalSum1) + " " + sumUnit.getLabel());
@@ -521,15 +518,13 @@ public class XYChart implements Chart {
                         try {
                             JEVisUnit sumUnit = qu.getSumUnit(unit);
                             ChartUnits cu = new ChartUnits();
-                            double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
-                            JEVisUnit inputUnit = firstY2Row.getAttribute().getInputUnit();
-                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
-                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
-                                sum = sum * newScaleFactor / y2SumSerie.getSingleRow().getTimeFactor();
-                            } else {
-                                sum = sum / y2SumSerie.getSingleRow().getScaleFactor() / y2SumSerie.getSingleRow().getTimeFactor();
-                            }
+                            Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                            Period rawPeriod = CleanDataObject.getPeriodForDate(samples.get(0).getAttribute().getObject(), samples.get(0).getTimestamp());
+
+                            double newScaleFactor = cu.scaleValue(rawPeriod, unit.toString(), currentPeriod, sumUnit.toString());
+
+                            sum = sum * newScaleFactor;
 
                             Double finalSum1 = sum;
                             sumEntry.setSum(nf.format(finalSum1) + " " + sumUnit.getLabel());
@@ -728,15 +723,13 @@ public class XYChart implements Chart {
                         try {
                             JEVisUnit sumUnit = qu.getSumUnit(unit);
                             ChartUnits cu = new ChartUnits();
-                            double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
-                            JEVisUnit inputUnit = firstY1Row.getAttribute().getInputUnit();
-                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
-                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
-                                sum = sum * newScaleFactor / currentSumSerie.getSingleRow().getTimeFactor();
-                            } else {
-                                sum = sum / currentSumSerie.getSingleRow().getScaleFactor() / currentSumSerie.getSingleRow().getTimeFactor();
-                            }
+                            Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                            Period rawPeriod = CleanDataObject.getPeriodForDate(samples.get(0).getAttribute().getObject(), samples.get(0).getTimestamp());
+
+                            double newScaleFactor = cu.scaleValue(rawPeriod, unit.toString(), currentPeriod, sumUnit.toString());
+
+                            sum = sum * newScaleFactor;
 
                             Double finalSum1 = sum;
                             sumEntry.setSum(nf.format(finalSum1) + " " + sumUnit.getLabel());

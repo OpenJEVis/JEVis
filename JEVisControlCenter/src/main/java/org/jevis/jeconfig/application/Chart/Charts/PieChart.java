@@ -20,6 +20,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
@@ -45,18 +46,10 @@ public class PieChart implements Chart {
     private final JEVisDataSource ds;
     private final ChartModel chartModel;
     private final List<ChartDataRow> chartDataRows = new ArrayList<>();
-    private String unit;
-    private List<javafx.scene.chart.PieChart.Data> series = new ArrayList<>();
-    private PieChartExtended pieChart;
     private final List<Color> hexColors = new ArrayList<>();
-    private DateTime valueForDisplay;
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-    private Region pieChartRegion;
-    private Period period;
     private final ChartType chartType = ChartType.PIE;
-    private boolean legendMode = false;
     private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
-
     private final ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
         public void applySetting(javafx.scene.chart.Chart chart) {
@@ -64,6 +57,13 @@ public class PieChart implements Chart {
         }
     };
     private final List<String> seriesNames = new ArrayList<>();
+    private String unit;
+    private List<javafx.scene.chart.PieChart.Data> series = new ArrayList<>();
+    private PieChartExtended pieChart;
+    private DateTime valueForDisplay;
+    private Region pieChartRegion;
+    private Period period;
+    private boolean legendMode = false;
 
     public PieChart(JEVisDataSource ds, ChartModel chartModel) {
         this.ds = ds;
@@ -109,32 +109,41 @@ public class PieChart implements Chart {
                     samples = clonedModel.getSamples();
                 }
                 if (!isQuantity && isSummable) {
-                    List<JEVisSample> scaledSamples = new ArrayList<>();
+                    try {
+                        List<JEVisSample> scaledSamples = new ArrayList<>();
 
-                    JEVisUnit sumUnit = qu.getSumUnit(clonedModel.getUnit());
-                    String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
-                    if (outputUnit.equals("")) outputUnit = sumUnit.getLabel();
+                        JEVisUnit sumUnit = qu.getSumUnit(clonedModel.getUnit());
+                        String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
+                        if (outputUnit.equals("")) outputUnit = sumUnit.getLabel();
 
-                    String inputUnit = UnitManager.getInstance().format(clonedModel.getUnit()).replace("·", "");
-                    if (inputUnit.equals("")) inputUnit = clonedModel.getUnit().getLabel();
+                        String inputUnit = UnitManager.getInstance().format(clonedModel.getUnit()).replace("·", "");
+                        if (inputUnit.equals("")) inputUnit = clonedModel.getUnit().getLabel();
 
-                    ChartUnits cu = new ChartUnits();
-                    Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
-                    samples.forEach(sample -> {
-                        try {
-                            JEVisSample smp = new VirtualSample(sample.getTimestamp(), sample.getValueAsDouble() * finalFactor);
-                            smp.setNote(sample.getNote());
-                            scaledSamples.add(smp);
-                        } catch (Exception e) {
+                        ChartUnits cu = new ChartUnits();
+
+                        Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+
+                        Period rawPeriod = CleanDataObject.getPeriodForDate(chartDataRow.getAttribute().getObject(), samples.get(0).getTimestamp());
+
+                        Double finalFactor = cu.scaleValue(rawPeriod, inputUnit, currentPeriod, outputUnit);
+                        samples.forEach(sample -> {
                             try {
-                                logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue());
-                            } catch (Exception e1) {
-                                logger.fatal(e1);
+                                JEVisSample smp = new VirtualSample(sample.getTimestamp(), sample.getValueAsDouble() * finalFactor);
+                                smp.setNote(sample.getNote());
+                                scaledSamples.add(smp);
+                            } catch (Exception e) {
+                                try {
+                                    logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue());
+                                } catch (Exception e1) {
+                                    logger.fatal(e1);
+                                }
                             }
-                        }
-                    });
+                        });
 
-                    samples = scaledSamples;
+                        samples = scaledSamples;
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
                 }
 
                 int samplecount = samples.size();
@@ -235,11 +244,6 @@ public class PieChart implements Chart {
     }
 
     @Override
-    public void setRegion(Region region) {
-        pieChartRegion = region;
-    }
-
-    @Override
     public List<ChartDataRow> getChartDataRows() {
         return chartDataRows;
     }
@@ -253,7 +257,6 @@ public class PieChart implements Chart {
     public List<XYChartSerie> getXyChartSerieList() {
         return null;
     }
-
 
     @Override
     public String getChartName() {
@@ -297,27 +300,34 @@ public class PieChart implements Chart {
 
                 List<JEVisSample> samples = singleRow.getSamples();
                 if (!isQuantity && isSummable) {
+                    try {
+                        JEVisUnit sumUnit = qu.getSumUnit(singleRow.getUnit());
+                        String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
+                        if (outputUnit.equals("")) outputUnit = sumUnit.getLabel();
 
-                    JEVisUnit sumUnit = qu.getSumUnit(singleRow.getUnit());
-                    String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
-                    if (outputUnit.equals("")) outputUnit = sumUnit.getLabel();
+                        String inputUnit = UnitManager.getInstance().format(singleRow.getUnit()).replace("·", "");
+                        if (inputUnit.equals("")) inputUnit = singleRow.getUnit().getLabel();
 
-                    String inputUnit = UnitManager.getInstance().format(singleRow.getUnit()).replace("·", "");
-                    if (inputUnit.equals("")) inputUnit = singleRow.getUnit().getLabel();
+                        ChartUnits cu = new ChartUnits();
 
-                    ChartUnits cu = new ChartUnits();
-                    Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
-                    samples.forEach(sample -> {
-                        try {
-                            sample.setValue(sample.getValueAsDouble() * finalFactor);
-                        } catch (Exception e) {
+                        Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                        Period rawPeriod = CleanDataObject.getPeriodForDate(singleRow.getAttribute().getObject(), samples.get(0).getTimestamp());
+
+                        Double finalFactor = cu.scaleValue(rawPeriod, inputUnit, currentPeriod, outputUnit);
+                        samples.forEach(sample -> {
                             try {
-                                logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue());
-                            } catch (Exception e1) {
-                                logger.fatal(e1);
+                                sample.setValue(sample.getValueAsDouble() * finalFactor);
+                            } catch (Exception e) {
+                                try {
+                                    logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue());
+                                } catch (Exception e1) {
+                                    logger.fatal(e1);
+                                }
                             }
-                        }
-                    });
+                        });
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
                 }
 
                 int samplecount = samples.size();
@@ -402,7 +412,6 @@ public class PieChart implements Chart {
         Platform.runLater(() -> items.sort((o1, o2) -> ac.compare(o1.getText(), o2.getText())));
     }
 
-
     @Override
     public ObservableList<TableEntry> getTableData() {
         return tableData;
@@ -438,6 +447,11 @@ public class PieChart implements Chart {
     @Override
     public Region getRegion() {
         return pieChart;
+    }
+
+    @Override
+    public void setRegion(Region region) {
+        pieChartRegion = region;
     }
 
     public String getUnit(JEVisUnit jeVisUnit) {
