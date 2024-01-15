@@ -402,6 +402,8 @@ public class PeriodHelper {
         DateTime higherTS = null;
         boolean isGreaterThenDays = false;
         WorkDays workDays = new WorkDays(object);
+        //convert date to local time
+        firstDate = firstDate.withZone(workDays.getDateTimeZone());
 
         if (maxPeriod.equals(org.joda.time.Period.minutes(1))) {
             lowerTS = firstDate.minusSeconds(30).withSecondOfMinute(0).withMillisOfSecond(0);
@@ -512,7 +514,7 @@ public class PeriodHelper {
         }
 
         if (isGreaterThenDays && lowerTS != null) {
-            LocalTime workdayStart = workDays.getWorkdayStart(firstDate);
+            LocalTime workdayStart = workDays.getWorkdayStart();
             lowerTS = lowerTS.withHourOfDay(workdayStart.getHour())
                     .withMinuteOfHour(workdayStart.getMinute())
                     .withSecondOfMinute(workdayStart.getSecond());
@@ -520,7 +522,7 @@ public class PeriodHelper {
                     .withMinuteOfHour(workdayStart.getMinute())
                     .withSecondOfMinute(workdayStart.getSecond());
 
-            if (workDays.getWorkdayEnd(firstDate).isBefore(workdayStart)) {
+            if (workDays.getWorkdayEnd().isBefore(workdayStart)) {
                 lowerTS = lowerTS.minusDays(1);
                 higherTS = higherTS.minusDays(1);
             }
@@ -543,6 +545,6 @@ public class PeriodHelper {
             alignedDate = firstDate;
         }
 
-        return alignedDate;
+        return alignedDate.withZone(DateTimeZone.UTC);
     }
 }

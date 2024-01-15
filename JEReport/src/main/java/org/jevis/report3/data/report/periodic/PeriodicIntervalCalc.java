@@ -142,7 +142,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                 resultStartRecord = PeriodHelper.getPriorStartRecord(startRecord, schedule, dateHelper);
                 break;
             case ALL:
-                resultStartRecord = samplesHandler.getTimestampFromFirstSample(reportObject, "Start Record");
+                resultStartRecord = samplesHandler.getTimestampOfFirstSample(reportObject, "Start Record");
                 break;
             case FIXED:
                 switch (fixedPeriod) {

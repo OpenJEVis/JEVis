@@ -4,9 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.stack.core.UaException;
-import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
-import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -15,7 +13,6 @@ import org.jevis.jeopc.OPCClient;
 import org.jevis.jeopc.OPCUAServer;
 import org.joda.time.DateTime;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class OPCUAWriter {
@@ -39,8 +36,7 @@ public class OPCUAWriter {
             try {
 
 
-
-                if (!outputChannel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).hasSample() || dataObject.getAttribute(VALUE).getTimestampFromLastSample().getMillis() > outputChannel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).getTimestampFromLastSample().getMillis()) {
+                if (!outputChannel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).hasSample() || dataObject.getAttribute(VALUE).getTimestampOfLastSample().getMillis() > outputChannel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).getTimestampOfLastSample().getMillis()) {
 
                     logger.info("new Data to write for JEVis ID", outputChannel.getID());
 

@@ -87,13 +87,16 @@ public class Launcher extends AbstractCliApp {
                         logger.error("Failed Job: {}:{}", currentCleanDataObject.getName(), currentCleanDataObject.getID(), e);
 
                     } finally {
-
+                        StringBuilder finished = new StringBuilder();
+                        finished.append(currentCleanDataObject.getID()).append(" in ");
+                        String length = new Period(runningJobs.get(currentCleanDataObject.getID()), new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
                         removeJob(currentCleanDataObject);
+                        finished.append(length);
 
                         StringBuilder running = new StringBuilder();
                         runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
 
-                        logger.info("Queued Jobs: {} running Jobs: {}", plannedJobs.size(), running.toString());
+                        logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.toString(), running.toString());
 
                         checkLastJob();
                     }

@@ -147,7 +147,7 @@ public class MeterController {
     }
 
     public void addMeter() {
-        NewMeterDialog newMeterDialog = new NewMeterDialog(ds, getActiveTab().getPlan());
+        NewMeterDialog newMeterDialog = new NewMeterDialog(ds, getActiveTab().getPlan(), getSelectedItem() != null ? getSelectedItem().getJeVisObject(): null);
         ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.save"), ButtonBar.ButtonData.APPLY);
         ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.indexoflegalprovisions.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         newMeterDialog.getDialogPane().getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo);

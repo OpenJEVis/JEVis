@@ -1,7 +1,9 @@
 package org.jevis.commons.unit.ChartUnits;
 
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.unit.JEVisUnitImp;
+import org.joda.time.Period;
 import org.jscience.economics.money.Currency;
 
 import javax.measure.unit.NonSI;
@@ -293,38 +295,25 @@ public class ChartUnits {
         } else return one;
     }
 
-    public Double timeFactor() {
-        Double factor = 1.0;
-
-
-        return factor;
-    }
-
-    public Double scaleValue(String inputUnit, String outputUnit) {
+    public Double scaleValue(Period inputPeriod, String inputUnit, Period outputPeriod, String outputUnit) {
         Double factor = 1.0;
         switch (outputUnit) {
             case "W":
                 switch (inputUnit) {
                     case "kW":
-                        factor = 1000d / 1d;
+                    case "kWh":
+                        factor = 1000d;
                         break;
                     case "MW":
-                        factor = 1000000d / 1d;
+                    case "MWh":
+                        factor = 1000000d;
                         break;
                     case "GW":
-                        factor = 1000000000d / 1d;
+                    case "GWh":
+                        factor = 1000000000d;
                         break;
                     case "Wh":
-                        factor = 4d / 1d;
-                        break;
-                    case "kWh":
-                        factor = 1000d * 4;
-                        break;
-                    case "MWh":
-                        factor = 1000000d * 4;
-                        break;
-                    case "GWh":
-                        factor = 1000000000d * 4;
+                        factor = 1d;
                         break;
                 }
                 break;
@@ -334,192 +323,144 @@ public class ChartUnits {
                         factor = 1d / 1000;
                         break;
                     case "MW":
+                    case "MWh":
                         factor = 1000d;
                         break;
                     case "GW":
+                    case "GWh":
                         factor = 1000000d;
                         break;
                     case "Wh":
-                        factor = 4d / 1000d;
+                        factor = 1d / 1000d;
                         break;
                     case "kWh":
-                        factor = 4d / 1d;
-                        break;
-                    case "MWh":
-                        factor = 4000d / 1d;
-                        break;
-                    case "GWh":
-                        factor = 4000000d / 1d;
+                        factor = 1d;
                         break;
                 }
                 break;
             case "MW":
                 switch (inputUnit) {
                     case "W":
+                    case "Wh":
                         factor = 1d / 1000000d;
                         break;
                     case "kW":
+                    case "kWh":
                         factor = 1d / 1000d;
                         break;
                     case "GW":
+                    case "GWh":
                         factor = 1000d;
                         break;
-                    case "Wh":
-                        factor = 4d / 1000000d;
-                        break;
-                    case "kWh":
-                        factor = 4d / 1000d;
-                        break;
                     case "MWh":
-                        factor = 4d / 1d;
-                        break;
-                    case "GWh":
-                        factor = 4000d / 1d;
+                        factor = 1d;
                         break;
                 }
                 break;
             case "GW":
                 switch (inputUnit) {
                     case "W":
+                    case "Wh":
                         factor = 1d / 1000000000d;
                         break;
                     case "kW":
+                    case "kWh":
                         factor = 1d / 1000000d;
                         break;
                     case "MW":
+                    case "MWh":
                         factor = 1d / 1000d;
                         break;
-                    case "Wh":
-                        factor = 4d / 1000000000d;
-                        break;
-                    case "kWh":
-                        factor = 4d / 1000000d;
-                        break;
-                    case "MWh":
-                        factor = 4d / 1000d;
-                        break;
                     case "GWh":
-                        factor = 4d / 1d;
+                        factor = 1d;
                         break;
                 }
                 break;
             case "Wh":
                 switch (inputUnit) {
                     case "kWh":
+                    case "kW":
                         factor = 1000d;
                         break;
                     case "MWh":
-                        factor = 1000000d / 1d;
+                    case "MW":
+                        factor = 1000000d;
                         break;
                     case "GWh":
-                        factor = 1000000000d / 1d;
+                    case "GW":
+                        factor = 1000000000d;
                         break;
                     case "W":
-                        factor = 1 / 4d;
-                        break;
-                    case "kW":
-                        factor = 1000d / 4d;
-                        break;
-                    case "MW":
-                        factor = 1000000d / 4d;
-                        break;
-                    case "GW":
-                        factor = 1000000000d / 4d;
+                        factor = 1d;
                         break;
                 }
                 break;
             case "kWh":
                 switch (inputUnit) {
                     case "Wh":
+                    case "W":
                         factor = 1d / 1000d;
                         break;
                     case "MWh":
+                    case "MW":
                         factor = 1000d;
                         break;
                     case "GWh":
+                    case "GW":
                         factor = 1000000d;
                         break;
-                    case "W":
-                        factor = 1d / 4000d;
-                        break;
                     case "kW":
-                        factor = 1d / 4d;
-                        break;
-                    case "MW":
-                        factor = 1000d / 4d;
-                        break;
-                    case "GW":
-                        factor = 1000000d / 4d;
+                        factor = 1d;
                         break;
                 }
                 break;
             case "MWh":
                 switch (inputUnit) {
                     case "Wh":
+                    case "W":
                         factor = 1d / 1000000d;
                         break;
                     case "kWh":
+                    case "kW":
                         factor = 1d / 1000d;
                         break;
                     case "GWh":
+                    case "GW":
                         factor = 1000d;
                         break;
-                    case "W":
-                        factor = 1d / 4000000d;
-                        break;
-                    case "kW":
-                        factor = 1d / 4000d;
-                        break;
                     case "MW":
-                        factor = 1d / 4d;
-                        break;
-                    case "GW":
-                        factor = 1000d / 4d;
+                        factor = 1d;
                         break;
                 }
                 break;
             case "GWh":
                 switch (inputUnit) {
                     case "Wh":
+                    case "W":
                         factor = 1d / 1000000000d;
                         break;
                     case "kWh":
+                    case "kW":
                         factor = 1d / 1000000d;
                         break;
                     case "MWh":
+                    case "MW":
                         factor = 1d / 1000d;
                         break;
-                    case "W":
-                        factor = 1d / 4000000000d;
-                        break;
-                    case "kW":
-                        factor = 1d / 4000000d;
-                        break;
-                    case "MW":
-                        factor = 1d / 4000d;
-                        break;
                     case "GW":
-                        factor = 1d / 4d;
+                        factor = 1d;
                         break;
                 }
                 break;
             case "L":
                 switch (inputUnit) {
                     case "m³":
-                        factor = 1000d;
-                        break;
                     case "Nm³":
                         factor = 1000d;
                         break;
                 }
                 break;
             case "m³":
-                switch (inputUnit) {
-                    case "L":
-                        factor = 1d / 1000d;
-                        break;
-                }
-                break;
             case "Nm³":
                 switch (inputUnit) {
                     case "L":
@@ -611,7 +552,7 @@ public class ChartUnits {
             case "atm":
                 switch (inputUnit) {
                     case "bar":
-                        factor = 1.01325 / 1d;
+                        factor = 1.01325;
                         break;
                 }
                 break;
@@ -846,37 +787,35 @@ public class ChartUnits {
             case "va":
                 switch (inputUnit) {
                     case "vah":
-                        factor = 4d / 1d;
+                        factor = 1d;
                         break;
                     case "kva":
-                        factor = 1000d / 1d;
+                        factor = 1000d;
                         break;
                     case "kvah":
-                        factor = 4d / 1000d;
+                        factor = 1d / 1000d;
                         break;
                 }
                 break;
             case "kva":
                 switch (inputUnit) {
                     case "vah":
-                        factor = 4000d / 1d;
+                        factor = 1000d;
                         break;
                     case "va":
                         factor = 1d / 1000d;
                         break;
                     case "kvah":
-                        factor = 4d / 1d;
+                        factor = 1d;
                         break;
                 }
                 break;
             case "vah":
                 switch (inputUnit) {
                     case "va":
-                        factor = 1 / 4d;
+                        factor = 1d;
                         break;
                     case "kva":
-                        factor = 1000d / 4d;
-                        break;
                     case "kvah":
                         factor = 1000d;
                         break;
@@ -885,10 +824,10 @@ public class ChartUnits {
             case "kvah":
                 switch (inputUnit) {
                     case "va":
-                        factor = 1000d / 4d;
+                        factor = 1000d;
                         break;
                     case "kva":
-                        factor = 1d / 4d;
+                        factor = 1d;
                         break;
                     case "vah":
                         factor = 1d / 1000d;
@@ -898,37 +837,35 @@ public class ChartUnits {
             case "var":
                 switch (inputUnit) {
                     case "varh":
-                        factor = 4d / 1d;
+                        factor = 1d;
                         break;
                     case "kvar":
-                        factor = 1000d / 1d;
+                        factor = 1000d;
                         break;
                     case "kvarh":
-                        factor = 4d / 1000d;
+                        factor = 1d / 1000d;
                         break;
                 }
                 break;
             case "kvar":
                 switch (inputUnit) {
                     case "varh":
-                        factor = 4000d / 1d;
+                        factor = 1000d;
                         break;
                     case "var":
                         factor = 1d / 1000d;
                         break;
                     case "kvarh":
-                        factor = 4d / 1d;
+                        factor = 1d;
                         break;
                 }
                 break;
             case "varh":
                 switch (inputUnit) {
                     case "var":
-                        factor = 1 / 4d;
+                        factor = 1d;
                         break;
                     case "kvar":
-                        factor = 1000d / 4d;
-                        break;
                     case "kvarh":
                         factor = 1000d;
                         break;
@@ -937,10 +874,10 @@ public class ChartUnits {
             case "kvarh":
                 switch (inputUnit) {
                     case "var":
-                        factor = 1000d / 4d;
+                        factor = 1000d;
                         break;
                     case "kvar":
-                        factor = 1d / 4d;
+                        factor = 1d;
                         break;
                     case "varh":
                         factor = 1d / 1000d;
@@ -950,6 +887,57 @@ public class ChartUnits {
             default:
                 break;
         }
+
+        PeriodComparator comparator = new PeriodComparator();
+        int compare = comparator.compare(inputPeriod, outputPeriod);
+
+        if (compare <= 0 && inputPeriod.equals(Period.minutes(15))) {
+            switch (inputUnit) {
+                case "kWh":
+                case "Wh":
+                case "MWh":
+                case "GWh":
+                case "kvah":
+                case "vah":
+                case "varh":
+                case "kvarh":
+                    switch (outputUnit) {
+                        case "W":
+                        case "kW":
+                        case "MW":
+                        case "GW":
+                        case "va":
+                        case "kva":
+                        case "var":
+                        case "kvar":
+                            factor *= 4d;
+                            break;
+                    }
+                    break;
+                case "W":
+                case "kW":
+                case "MW":
+                case "GW":
+                case "va":
+                case "kva":
+                case "var":
+                case "kvar":
+                    switch (outputUnit) {
+                        case "kWh":
+                        case "Wh":
+                        case "MWh":
+                        case "GWh":
+                        case "kvah":
+                        case "vah":
+                        case "varh":
+                        case "kvarh":
+                            factor *= 1 / 4d;
+                            break;
+                    }
+                    break;
+            }
+        }
+
         return factor;
     }
 

@@ -281,10 +281,10 @@ public class CalcJobFactory {
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
                 ds.reloadAttribute(valueAttribute.getObject());
-                if (startTimeFromInputs.isBefore(valueAttribute.getTimestampFromFirstSample())) {
-                    DateTime timestampFromFirstSample = valueAttribute.getTimestampFromFirstSample();
-                    if (timestampFromFirstSample != null) {
-                        startTimeFromInputs = timestampFromFirstSample;
+                if (startTimeFromInputs.isBefore(valueAttribute.getTimestampOfFirstSample())) {
+                    DateTime timestampOfFirstSample = valueAttribute.getTimestampOfFirstSample();
+                    if (timestampOfFirstSample != null) {
+                        startTimeFromInputs = timestampOfFirstSample;
                     }
                 }
             } catch (JEVisException e) {

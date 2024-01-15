@@ -26,8 +26,8 @@ public class BarChartSerie {
     private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
 
     private final TableEntry tableEntry;
-    private DateTime timeStampFromFirstSample = DateTime.now();
-    private DateTime timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
+    private DateTime timeStampOfFirstSample = DateTime.now();
+    private DateTime timeStampOfLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
     private final XYChart.Data<Number, String> data;
 
     public BarChartSerie(ChartModel chartModel, ChartDataRow singleRow, boolean lastValue) throws JEVisException {
@@ -92,19 +92,19 @@ public class BarChartSerie {
         return tableEntry;
     }
 
-    public DateTime getTimeStampFromFirstSample() {
-        return timeStampFromFirstSample;
+    public DateTime getTimeStampOfFirstSample() {
+        return timeStampOfFirstSample;
     }
 
-    public void setTimeStampFromFirstSample(DateTime timeStampFromFirstSample) {
-        this.timeStampFromFirstSample = timeStampFromFirstSample;
+    public void setTimeStampOfFirstSample(DateTime timeStampOfFirstSample) {
+        this.timeStampOfFirstSample = timeStampOfFirstSample;
     }
 
-    public DateTime getTimeStampFromLastSample() {
-        return timeStampFromLastSample;
+    public DateTime getTimeStampOfLastSample() {
+        return timeStampOfLastSample;
     }
 
-    public void setTimeStampFromLastSample(DateTime timeStampFromLastSample) {
-        this.timeStampFromLastSample = timeStampFromLastSample;
+    public void setTimeStampOfLastSample(DateTime timeStampOfLastSample) {
+        this.timeStampOfLastSample = timeStampOfLastSample;
     }
 }

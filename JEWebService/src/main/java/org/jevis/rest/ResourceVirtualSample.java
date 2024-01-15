@@ -130,7 +130,7 @@ public class ResourceVirtualSample {
                     }
 
 
-                    if (onlyLatest == true) {
+                    if (onlyLatest) {
                         logger.trace("Lastsample mode");
 
                         JsonSample sample = this.ds.getLastSample(id, attribute);
@@ -289,7 +289,7 @@ public class ResourceVirtualSample {
             }
 
             @Override
-            public DateTime getTimestampFromFirstSample() {
+            public DateTime getTimestampOfFirstSample() {
                 try {
                     return samples.get(0).getTimestamp();
                 } catch (Exception ex) {
@@ -298,7 +298,7 @@ public class ResourceVirtualSample {
             }
 
             @Override
-            public DateTime getTimestampFromLastSample() {
+            public DateTime getTimestampOfLastSample() {
                 try {
                     return samples.get(samples.size() - 1).getTimestamp();
                 } catch (Exception ex) {

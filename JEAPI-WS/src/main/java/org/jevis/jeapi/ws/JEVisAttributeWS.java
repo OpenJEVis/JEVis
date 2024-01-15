@@ -257,11 +257,11 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public boolean hasSample() {
-        return getTimestampFromFirstSample() != null;
+        return getTimestampOfFirstSample() != null;
     }
 
     @Override
-    public DateTime getTimestampFromFirstSample() {
+    public DateTime getTimestampOfFirstSample() {
         try {
             return attDTF.parseDateTime(json.getBegins());
         } catch (Exception nex) {
@@ -270,7 +270,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
-    public DateTime getTimestampFromLastSample() {
+    public DateTime getTimestampOfLastSample() {
         try {
             return attDTF.parseDateTime(json.getEnds());
         } catch (Exception nex) {
