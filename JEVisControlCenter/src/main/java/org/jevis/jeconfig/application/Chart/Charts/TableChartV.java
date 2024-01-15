@@ -165,7 +165,22 @@ public class TableChartV extends XYChart {
                 int index = xyChartSerieList.indexOf(xyChartSerie);
                 List<JEVisSample> samples = xyChartSerie.getSingleRow().getSamples();
 
-                if (xyChartSerie.getSingleRow().getDataProcessor() != null && !samples.isEmpty()) {
+                if (p == null && samples.size() > 1) {
+                    try {
+                        p = new Period(samples.get(0).getTimestamp(),
+                                samples.get(1).getTimestamp());
+
+                        if (!p.equals(Period.ZERO)) {
+                            setPeriod(p);
+                            latestSample = samples.get(0);
+                            object = latestSample.getAttribute().getObject();
+
+                            break;
+                        }
+                    } catch (Exception e) {
+                        logger.error("Could not get period from samples", e);
+                    }
+                } else if (xyChartSerie.getSingleRow().getDataProcessor() != null && !samples.isEmpty()) {
                     p = CleanDataObject.getPeriodForDate(xyChartSerie.getSingleRow().getDataProcessor(), samples.get(0).getTimestamp());
                     setPeriod(p);
                     latestSample = samples.get(0);
@@ -603,7 +618,8 @@ public class TableChartV extends XYChart {
         tableHeader.refresh();
     }
 
-    private void updateSample(NumberFormat nf, TableSample sumSample, XYChartSerie xyChartSerie, int index, JEVisSample jeVisSample, TableSample nts) throws JEVisException {
+    private void updateSample(NumberFormat nf, TableSample sumSample, XYChartSerie xyChartSerie,
+                              int index, JEVisSample jeVisSample, TableSample nts) throws JEVisException {
         if (!xyChartSerie.getSingleRow().isStringData()) {
             if (!xyChartSerie.getSingleRow().getUnit().toString().isEmpty()) {
                 nts.getColumnValues().set(index, nf.format(jeVisSample.getValueAsDouble()) + " " + xyChartSerie.getSingleRow().getUnit());
