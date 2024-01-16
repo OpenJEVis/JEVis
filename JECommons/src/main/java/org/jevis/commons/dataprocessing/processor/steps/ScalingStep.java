@@ -13,7 +13,10 @@ import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -53,6 +56,7 @@ public class ScalingStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
+        DateTime benchStart = new DateTime();
         CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<JEVisSample> listMultipliers = calcAttribute.getMultiplier();
@@ -75,6 +79,8 @@ public class ScalingStep implements ProcessStep {
                 sample.setNote(note);
             }
         }
+
+        logger.debug("{} finished in {}", this.getClass().getSimpleName(), new Period(benchStart, new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
     }
 
 }

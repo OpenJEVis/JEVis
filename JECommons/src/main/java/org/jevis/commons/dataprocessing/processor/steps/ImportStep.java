@@ -14,9 +14,11 @@ import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,9 +34,9 @@ public class ImportStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-
+        DateTime benchStart = new DateTime();
         importIntoJEVis(resourceManager);
-
+        logger.debug("{} finished in {}", this.getClass().getSimpleName(), new Period(benchStart, new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
     }
 
     private void importIntoJEVis(ResourceManager resourceManager) throws Exception {
