@@ -14,9 +14,11 @@ import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -32,7 +34,7 @@ public class PeriodAlignmentStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-
+        DateTime benchStart = new DateTime();
         CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
         List<JEVisSample> rawSamples = resourceManager.getRawSamplesDown();
         Map<DateTime, JEVisSample> userDataMap = resourceManager.getUserDataMap();
@@ -258,5 +260,7 @@ public class PeriodAlignmentStep implements ProcessStep {
         for (Map.Entry<Integer, JEVisSample> entry : replacementMap.entrySet()) {
             resourceManager.getRawSamplesDown().set(entry.getKey(), entry.getValue());
         }
+
+        logger.debug("{} finished in {}", this.getClass().getSimpleName(), new Period(benchStart, new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
     }
 }
