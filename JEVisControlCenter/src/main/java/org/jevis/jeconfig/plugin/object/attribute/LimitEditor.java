@@ -82,7 +82,7 @@ public class LimitEditor implements AttributeEditor {
     private boolean initialized = false;
 
     public LimitEditor(JEVisAttribute att) {
-        logger.debug("==init== for: {}", att.getName());
+
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
         try {
@@ -90,7 +90,7 @@ public class LimitEditor implements AttributeEditor {
             if (valueAttribute != null) {
                 unitString = UnitManager.getInstance().format(valueAttribute.getDisplayUnit());
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

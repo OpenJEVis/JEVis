@@ -214,7 +214,9 @@ public class XYChart implements Chart {
         }
 
         hexColors.clear();
-        chart.getDatasets().clear();
+        if (chart != null) {
+            chart.getDatasets().clear();
+        }
         tableData.clear();
 
         changedBoth = new Boolean[]{false, false};
