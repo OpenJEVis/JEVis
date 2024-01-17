@@ -250,12 +250,17 @@ public class JEConfig extends Application {
      * @return
      */
     public static Image getImage(String icon) {
-        try {
-            return new Image(JEConfig.class.getResourceAsStream("/icons/" + icon));
-        } catch (Exception ex) {
-            logger.error("Could not load icon: " + "/icons/" + icon + ": ", ex);
-            return new Image(JEConfig.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
-        }
+        if (icon != null) {
+            try {
+                if (icon.startsWith("/icons/"))
+                    return new Image(JEConfig.class.getResourceAsStream(icon));
+                else return new Image(JEConfig.class.getResourceAsStream("/icons/" + icon));
+            } catch (Exception ex) {
+                logger.error("Could not load icon: " + "/icons/" + icon + ": ", ex);
+                return new Image(JEConfig.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
+            }
+        } else return null;
+
     }
 
 
@@ -574,7 +579,8 @@ public class JEConfig extends Application {
                 I18n.getInstance().selectBundle(login.getSelectedLocale());
                 Locale.setDefault(login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
-                I18nWS.getInstance().setLocale(login.getSelectedLocale());
+                I18nWS.getInstance();
+                I18nWS.setLocale(login.getSelectedLocale());
                 _config.setLocale(login.getSelectedLocale());
                 login.addLoginMessage(I18n.getInstance().getString("app.login.initializelocale"), false);
                 login.addLoginMessage(FXLogin.checkMarkSymbol, true);
