@@ -250,7 +250,7 @@ public class XYChart implements Chart {
 
                     xyChartSerieList.add(generateSerie(changedBoth, chartDataRow));
 
-                    if (chartDataRow.hasForecastData()) {
+                    if (chartDataRow.hasForecastData() && dataSettings.isForecastEnabled()) {
                         try {
                             XYChartSerie forecast = new XYChartSerie(this.chartModel, chartDataRow, showIcons, true);
 

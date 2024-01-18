@@ -126,6 +126,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
             DataSettings dataSettings = new DataSettings();
             dataSettings.setCurrentAnalysisProperty(currentAnalysis);
             dataSettings.setCurrentAnalysis(control.getActiveDashboard().getDashboardObject());
+            dataSettings.setForecastEnabled(false);
 
             AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(control.getDataSource(), dataSettings.getCurrentAnalysis(), TimeFrame.CUSTOM_START_END);
             analysisTimeFrame.setStart(sampleHandler.getDataModel().get(0).getSelectedStart());
