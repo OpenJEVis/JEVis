@@ -45,8 +45,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ReportExecutor {
 
-    private final JEVisObject reportObject;
     private static final Logger logger = LogManager.getLogger(ReportExecutor.class);
+    private final JEVisObject reportObject;
     private final Precondition precondition;
     private final ContextBuilder contextBuilder;
     private final ReportLinkFactory reportLinkFactory;
@@ -150,7 +150,7 @@ public class ReportExecutor {
             }
 
             JEVisObject notificationObject = property.getNotificationObject();
-            if (notificationObject != null) {
+            if (notificationObject != null && isEnabled(notificationObject)) {
                 JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
                 attachmentAttribute.buildSample(new DateTime(), fileForNotification).commit();
                 logger.info("Uploaded pdf file to notification in JEVis System");
@@ -164,6 +164,19 @@ public class ReportExecutor {
         } catch (IOException ex) {
             logger.error(ex);
         }
+    }
+
+    private boolean isEnabled(JEVisObject jeVisObject) {
+        JEVisAttribute enabledAtt = null;
+        try {
+            enabledAtt = jeVisObject.getAttribute("Enabled");
+            if (enabledAtt != null && enabledAtt.hasSample()) {
+                return enabledAtt.getLatestSample().getValueAsBoolean();
+            }
+        } catch (Exception e) {
+            logger.error("Could not get enabled status of {} with id {}", jeVisObject.getName(), jeVisObject.getID(), e);
+        }
+        return false;
     }
 
 
