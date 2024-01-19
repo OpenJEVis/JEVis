@@ -575,7 +575,7 @@ public class ChartDataRow extends ChartData {
     }
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) {
-        if (getUnit() != null && !inputList.isEmpty() && inputList.size() > 1) {
+        if (getUnit() != null && !inputList.isEmpty()) {
             try {
                 String outputUnit = UnitManager.getInstance().format(getUnit()).replace("·", "");
                 if (outputUnit.equals("")) outputUnit = getUnit().getLabel();
@@ -585,8 +585,12 @@ public class ChartDataRow extends ChartData {
 
                 ChartUnits cu = new ChartUnits();
 
-                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
                 Period rawPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+                Period currentPeriod;
+                if (inputList.size() > 1) {
+                    currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+                } else currentPeriod = rawPeriod;
+
                 scaleFactor = cu.scaleValue(rawPeriod, inputUnit, currentPeriod, outputUnit);
 
                 inputList.forEach(sample -> {
