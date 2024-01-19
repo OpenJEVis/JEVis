@@ -10,6 +10,7 @@ import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
 import java.util.*;
@@ -52,6 +53,87 @@ public class CommonMethods {
             }
         }
         return jeVisObject;
+    }
+
+    public static DateTimeZone getTimeZone(JEVisObject object) {
+        DateTimeZone timeZone = DateTimeZone.UTC;
+        if (object != null) {
+            try {
+                JEVisClass siteClass = object.getDataSource().getJEVisClass("Building");
+
+                JEVisObject site = getNextSiteRecursive(object, siteClass);
+
+                if (site != null) {
+                    return getTimeZoneFromAttribute(site);
+                } else {
+                    logger.warn("Could not get site object parent for object {}:{}. Trying to get next child site", object.getName(), object.getID());
+
+                    JEVisObject organisation = CommonMethods.getFirstParentalObjectOfClass(object, "Organization");
+
+                    if (organisation != null) {
+                        site = getNextChildSiteRecursive(organisation, siteClass);
+                        if (site != null) {
+                            return getTimeZoneFromAttribute(site);
+                        } else {
+                            logger.warn("Could not get site object parent for object {}:{}.", object.getName(), object.getID());
+
+                            for (JEVisObject foundSite : object.getDataSource().getObjects(siteClass, false)) {
+                                logger.warn("Falling back to first visible site {}:{}.", foundSite.getName(), foundSite.getID());
+                                return getTimeZoneFromAttribute(foundSite);
+                            }
+
+                        }
+                    } else {
+                        logger.warn("Could not get site object parent for object {}:{}.", object.getName(), object.getID());
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Could not get site for current object {}:{}", object.getName(), object.getID(), e);
+            }
+        }
+
+        return timeZone;
+    }
+
+    public static JEVisObject getNextChildSiteRecursive(JEVisObject object, JEVisClass siteClass) throws JEVisException {
+
+        for (JEVisObject child : object.getChildren()) {
+            if (child.getJEVisClass().equals(siteClass)) {
+                return child;
+            } else {
+                return getNextChildSiteRecursive(child, siteClass);
+            }
+        }
+
+        return null;
+    }
+
+    public static DateTimeZone getTimeZoneFromAttribute(JEVisObject site) {
+        DateTimeZone timeZone = DateTimeZone.UTC;
+        try {
+            JEVisAttribute zoneAtt = site.getAttribute("Timezone");
+
+            if (zoneAtt.hasSample()) {
+                String zoneStr = zoneAtt.getLatestSample().getValueAsString();
+                timeZone = DateTimeZone.forID(zoneStr);
+            }
+        } catch (Exception e) {
+            logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getID(), e);
+        }
+        return timeZone;
+    }
+
+    public static JEVisObject getNextSiteRecursive(JEVisObject object, JEVisClass siteClass) throws JEVisException {
+
+        for (JEVisObject parent : object.getParents()) {
+            if (parent.getJEVisClass().equals(siteClass)) {
+                return parent;
+            } else {
+                return getNextSiteRecursive(parent, siteClass);
+            }
+        }
+
+        return null;
     }
 
     public static void setEnabled(JEVisObject object, String selectedClass, boolean b) {

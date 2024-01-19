@@ -19,6 +19,7 @@ import org.jevis.commons.dataprocessing.processor.preparation.PrepareForecast;
 import org.jevis.commons.dataprocessing.processor.preparation.PrepareMath;
 import org.jevis.commons.dataprocessing.processor.preparation.PrepareStep;
 import org.jevis.commons.dataprocessing.processor.steps.*;
+import org.jevis.commons.utils.CommonMethods;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,7 @@ public class ProcessManager {
             cleanDataClass = cleanObject.getDataSource().getJEVisClass(CleanDataObject.CLASS_NAME);
             forecastDataClass = cleanObject.getDataSource().getJEVisClass(ForecastDataObject.CLASS_NAME);
             mathDataClass = cleanObject.getDataSource().getJEVisClass(MathDataObject.CLASS_NAME);
+            resourceManager.setTimeZone(CommonMethods.getTimeZone(cleanObject));
 
             if (cleanObject.getJEVisClass().equals(cleanDataClass)) {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
@@ -284,4 +286,5 @@ public class ProcessManager {
     public void setFinished(boolean finished) {
         isFinished = finished;
     }
+
 }

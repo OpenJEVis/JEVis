@@ -193,7 +193,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                 } catch (Exception e) {
                     note = "";
                 }
-                if (note.equals("")) {
+                if (note.isEmpty()) {
                     note += "agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
                 } else {
                     note += ",agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
@@ -305,7 +305,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                         long periodCount = diffInput / diffOutput;
                         value = currentInterval.getResult().getValueAsDouble() / periodCount;
                         String note = currentInterval.getResult().getNote();
-                        if (note == null || note.equals("")) {
+                        if (note == null || note.isEmpty()) {
                             note = "agg(yes,up," + periodCount + ",sum)";
                         } else {
                             note = note + ",agg(yes,up," + periodCount + ",sum)";
@@ -337,7 +337,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                             long periodCount = diffInput / diffOutput;
                             value = currentInterval.getResult().getValueAsDouble() / periodCount;
                             String note = currentInterval.getResult().getNote();
-                            if (note == null || note.equals("")) {
+                            if (note == null || note.isEmpty()) {
                                 note = "agg(yes,up," + periodCount + ",sum)";
                             } else {
                                 note = note + ",agg(yes,up," + periodCount + ",sum)";

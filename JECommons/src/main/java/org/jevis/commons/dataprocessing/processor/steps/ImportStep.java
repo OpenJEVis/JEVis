@@ -11,9 +11,11 @@ import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
 import org.joda.time.DateTime;
@@ -46,6 +48,18 @@ public class ImportStep implements ProcessStep {
             CleanDataObject cleanAttr = resourceManager.getCleanDataObject();
             cleanObject = cleanAttr.getCleanObject();
             periodOffset = cleanAttr.getPeriodOffset();
+
+            for (CleanInterval currentInt : resourceManager.getIntervals()) {
+                VirtualSample sample = currentInt.getResult();
+                DateTime offsetTs = sample.getTimestamp();
+
+                if (!currentInt.getOutputPeriod().equals(Period.ZERO)) {
+
+                    offsetTs = PeriodHelper.getNextPeriod(offsetTs, currentInt.getOutputPeriod(), periodOffset, true, resourceManager.getTimeZone());
+
+                    sample.setTimeStamp(offsetTs);
+                }
+            }
 
 //            if (!resourceManager.getIntervals().isEmpty()) {
 //                DateTime lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
@@ -114,7 +128,7 @@ public class ImportStep implements ProcessStep {
             }
             DateTime date = sample.getTimestamp();
             if (date != null) {
-                DateTime timestamp = sample.getTimestamp().plusSeconds(periodOffset);
+                DateTime timestamp = sample.getTimestamp();
 
                 if (hasSamples && (resourceManager.isClean() || resourceManager.isForecast())) {
                     JEVisSample smp = listOldSamples.get(timestamp);
@@ -126,7 +140,7 @@ public class ImportStep implements ProcessStep {
                 cleanSamples.add(sampleSql);
             }
         }
-        if (cleanSamples.size() > 0) {
+        if (!cleanSamples.isEmpty()) {
             logger.info("[{}] Start import of new Samples: {}", resourceManager.getID(), cleanSamples.size());
             insertSamples(attribute, cleanSamples);
             logger.info("[{}] Import finished for samples: {}", resourceManager.getID(), cleanSamples.size());
@@ -158,12 +172,12 @@ public class ImportStep implements ProcessStep {
         for (int i = 0; i < samples.size(); i += perChunk) {
             if ((i + perChunk) < samples.size()) {
                 List<JEVisSample> chunk = samples.subList(i, i + perChunk);
-                if (chunk.size() > 0) {
+                if (!chunk.isEmpty()) {
                     attribute.addSamples(chunk);
                 }
             } else {
                 List<JEVisSample> chunk = samples.subList(i, samples.size());
-                if (chunk.size() > 0) {
+                if (!chunk.isEmpty()) {
                     attribute.addSamples(chunk);
                 }
                 break;
