@@ -191,12 +191,12 @@
     {
       "type": "Period Offset",
       "descriptions": {
-        "de": "Definiert den zeitlichen Offset in Sekunden, z.B. zum Vorziehen eines Wertes auf den Anfang der Messperiode",
-        "ru": "Определяет смещение времени в секундах, например, для переноса значения на начало периода измерения.",
-        "uk": "Опис зміщення періоду",
-        "th": "กำหนดเวลาชดเชยเป็นวินาทีเช่น เพื่อเพิ่มมูลค่าให้กับจุดเริ่มต้นของระยะเวลาการวัด",
-        "en": "Defines the time offset in seconds, i.e. for moving a value to the beginning of the metering period.",
-        "ar": ""
+        "de": "Definiert den zeitlichen Offset in Anzahl Perioden, z.B. zum Vorziehen eines Wertes auf den Anfang der Messperiode",
+        "ru": "Определяет смещение времени в количестве периодов, например, для переноса значения на начало периода измерения.",
+        "uk": "Визначає часовий зсув у кількості періодів, наприклад, щоб перенести значення на початок періоду вимірювання",
+        "th": "กำหนดการชดเชยเวลาเป็นจำนวนงวด เช่น เพื่อนำค่าไปสู่จุดเริ่มต้นของช่วงการวัด",
+        "en": "Defines the time offset in number of periods, e.g. to bring forward a value to the beginning of the measurement period",
+        "ar": "يحدد الإزاحة الزمنية بعدد الفترات، على سبيل المثال لتقديم قيمة إلى بداية فترة القياس"
       },
       "names": {
         "de": "Perioden Verzögerung",

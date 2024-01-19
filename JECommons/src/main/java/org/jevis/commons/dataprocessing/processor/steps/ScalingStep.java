@@ -57,16 +57,17 @@ public class ScalingStep implements ProcessStep {
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
         DateTime benchStart = new DateTime();
-        CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
+        CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
         List<CleanInterval> intervals = resourceManager.getIntervals();
-        List<JEVisSample> listMultipliers = calcAttribute.getMultiplier();
-        BigDecimal offset = new BigDecimal(calcAttribute.getOffset().toString());
+        List<JEVisSample> listMultipliers = cleanDataObject.getMultiplier();
+        BigDecimal offset = new BigDecimal(cleanDataObject.getOffset().toString());
 
         for (CleanInterval currentInt : intervals) {
             BigDecimal currentMulti = getCurrentMultiplier(listMultipliers, currentInt.getDate());
 
             VirtualSample sample = currentInt.getResult();
             Double rawValue = sample.getValueAsDouble();
+
             if (rawValue != null) {
                 BigDecimal rawValueDec = new BigDecimal(rawValue.toString());
                 BigDecimal productDec = new BigDecimal(0);

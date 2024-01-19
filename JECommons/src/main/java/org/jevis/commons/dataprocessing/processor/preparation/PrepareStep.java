@@ -93,6 +93,7 @@ public class PrepareStep implements ProcessStep {
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<PeriodRule> rawDataPeriodAlignment = cleanDataObject.getRawDataPeriodAlignment();
         JEVisAttribute rawAttribute = cleanDataObject.getRawAttribute();
+        DateTime firstTimestamp = rawAttribute.getTimestampOfFirstSample();
         DateTime firstIntervalDate = intervals.get(0).getInterval().getStart();
         if (firstIntervalDate.getSecondOfMinute() == 1) firstIntervalDate = firstIntervalDate.minusSeconds(1);
         DateTime firstRawSampleDate = rawSamplesDown.get(0).getTimestamp();
@@ -100,7 +101,8 @@ public class PrepareStep implements ProcessStep {
         int maxGapCount = 10000;
         int i = 0;
 
-        while (!CleanDataObject.getPeriodForDate(rawDataPeriodAlignment, firstIntervalDate).equals(Period.ZERO) &&
+        while ((currentDate.isAfter(firstTimestamp) || currentDate.equals(firstTimestamp)) &&
+                !CleanDataObject.getPeriodForDate(rawDataPeriodAlignment, firstIntervalDate).equals(Period.ZERO) &&
                 i < maxGapCount &&
                 (firstIntervalDate.equals(firstRawSampleDate) || firstIntervalDate.isBefore(firstRawSampleDate))) {
             i++;
@@ -432,7 +434,7 @@ public class PrepareStep implements ProcessStep {
 
         for (JEVisSample curSample : rawSamples) {
 
-            DateTime timestamp = curSample.getTimestamp().plusSeconds(cleanDataObject.getPeriodOffset());
+            DateTime timestamp = curSample.getTimestamp();
             Period rawPeriod = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), timestamp);
             Period cleanPeriod = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), timestamp);
 
