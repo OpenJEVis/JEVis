@@ -79,9 +79,10 @@ public class DateHelper {
     }
 
     public DateTime getStartDate() {
+        DateTime actualDate = DateTime.now();
         if (currentDate != null) {
             this.now = currentDate;
-        } else this.now = DateTime.now();
+        } else this.now = actualDate;
         switch (type) {
             case CUSTOM:
                 break;
@@ -162,7 +163,7 @@ public class DateHelper {
                         Long startMinutes = 0L;
                         switch (customPeriodObject.getStartReferencePoint()) {
                             case "NOW":
-                                startDate = now;
+                                startDate = actualDate;
                                 break;
                             case "STARTTIMEDAY":
                                 startDate = startDate.minusMillis(startDate.getMillisOfDay());
@@ -186,20 +187,20 @@ public class DateHelper {
                                 }
                                 break;
                             case "CURRENT_WEEK":
-                                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                startDate = new DateTime(actualDate.getYear(), actualDate.getMonthOfYear(), actualDate.getDayOfMonth(),
                                         startTime.getHour(), startTime.getMinute(), startTime.getSecond())
-                                        .minusDays(now.getDayOfWeek() - 1);
+                                        .minusDays(actualDate.getDayOfWeek() - 1);
                                 break;
                             case "CURRENT_MONTH":
-                                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                startDate = new DateTime(actualDate.getYear(), actualDate.getMonthOfYear(), actualDate.getDayOfMonth(),
                                         startTime.getHour(), startTime.getMinute(), startTime.getSecond())
-                                        .minusDays(now.getDayOfMonth());
+                                        .minusDays(actualDate.getDayOfMonth());
                                 break;
                             case "CURRENT_YEAR":
-                                startDate = new DateTime(now.getYear(), 1, 1, 0, 0, 0, 0);
+                                startDate = new DateTime(actualDate.getYear(), 1, 1, 0, 0, 0, 0);
                                 break;
                             case "CURRENT_DAY":
-                                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                startDate = new DateTime(actualDate.getYear(), actualDate.getMonthOfYear(), actualDate.getDayOfMonth(),
                                         startTime.getHour(), startTime.getMinute(), startTime.getSecond());
                                 break;
                             case "SPECIFIED_DATE":
@@ -358,6 +359,7 @@ public class DateHelper {
 
     public DateTime getEndDate() {
         //if (startTime.isAfter(endTime)) now = now.minusDays(1);
+        DateTime actualDate = DateTime.now();
         if (currentDate != null) {
             this.now = currentDate;
         } else this.now = DateTime.now();
@@ -413,7 +415,7 @@ public class DateHelper {
                         Long endMinutes = 0L;
                         switch (customPeriodObject.getEndReferencePoint()) {
                             case "NOW":
-                                endDate = now;
+                                endDate = actualDate;
                                 break;
                             case "STARTTIMEDAY":
                                 endDate = endDate.minusMillis(endDate.getMillisOfDay());
@@ -437,23 +439,23 @@ public class DateHelper {
                                 }
                                 break;
                             case "CURRENT_WEEK":
-                                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                endDate = new DateTime(actualDate.getYear(), actualDate.getMonthOfYear(), actualDate.getDayOfMonth(),
                                         endTime.getHour(), endTime.getMinute(), endTime.getSecond());
-                                endDate = endDate.minusDays(now.getDayOfWeek());
+                                endDate = endDate.minusDays(actualDate.getDayOfWeek());
                                 endDate = endDate.plusWeeks(1);
                                 break;
                             case "CURRENT_MONTH":
-                                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                endDate = new DateTime(actualDate.getYear(), actualDate.getMonthOfYear(), actualDate.getDayOfMonth(),
                                         endTime.getHour(), endTime.getMinute(), endTime.getSecond());
-                                endDate = endDate.minusDays(now.getDayOfMonth() - 1);
+                                endDate = endDate.minusDays(actualDate.getDayOfMonth() - 1);
                                 endDate = endDate.plusMonths(1);
                                 endDate = endDate.minusDays(1);
                                 break;
                             case "CURRENT_YEAR":
-                                endDate = new DateTime(now.getYear(), 12, 31, 23, 59, 59, 999);
+                                endDate = new DateTime(actualDate.getYear(), 12, 31, 23, 59, 59, 999);
                                 break;
                             case "CURRENT_DAY":
-                                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                endDate = new DateTime(actualDate.getYear(), actualDate.getMonthOfYear(), actualDate.getDayOfMonth(),
                                         startTime.getHour(), startTime.getMinute(), startTime.getSecond());
                                 break;
                             case "SPECIFIED_DATE":

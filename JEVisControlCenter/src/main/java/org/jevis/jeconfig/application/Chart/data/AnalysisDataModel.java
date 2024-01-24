@@ -115,7 +115,7 @@ public class AnalysisDataModel {
         Set<ChartDataRow> data = new HashSet<>();
 
         selectedData.forEach(chartDataModel -> {
-            if (!chartDataModel.getSelectedcharts().isEmpty())
+            if (!chartDataModel.getSelectedCharts().isEmpty())
                 data.add(chartDataModel);
         });
 
@@ -579,7 +579,7 @@ public class AnalysisDataModel {
 
             for (Map.Entry<String, ChartDataRow> entrySet : data.entrySet()) {
                 ChartDataRow value = entrySet.getValue();
-                if (!value.getSelectedcharts().isEmpty()) {
+                if (!value.getSelectedCharts().isEmpty()) {
                     selectedData.add(value);
                 }
             }

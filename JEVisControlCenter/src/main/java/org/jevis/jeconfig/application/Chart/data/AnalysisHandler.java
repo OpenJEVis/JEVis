@@ -215,7 +215,7 @@ public class AnalysisHandler {
             chartModel.setOrientation(listSetting.getOrientation());
 
             for (ChartDataRow chartDataRow : oldModel.getSelectedData()) {
-                if (chartDataRow.getSelectedcharts().contains(listSetting.getId())) {
+                if (chartDataRow.getSelectedCharts().contains(listSetting.getId())) {
                     ChartData chartData = new ChartData();
                     chartData.setId(chartDataRow.getObject().getID());
                     chartData.setObjectName(chartDataRow.getObject());
