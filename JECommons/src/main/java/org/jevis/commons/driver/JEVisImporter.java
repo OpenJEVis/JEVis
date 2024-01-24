@@ -260,7 +260,7 @@ public class JEVisImporter implements Importer {
                     if (overwrite) {
                         try {
                             List<JEVisObject> objects = new ArrayList<>();
-//                            CommonMethods.getAllChildrenRecursive(objects)ghfhfg
+                            objects.add(key.getObject());
 
                             CommonMethods.cleanDependentObjects(objects, values.get(0).getTimestamp());
                         } catch (Exception e) {
