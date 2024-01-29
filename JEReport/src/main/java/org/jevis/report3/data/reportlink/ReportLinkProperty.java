@@ -15,6 +15,9 @@ import org.jevis.commons.database.JEVisObjectDataManager;
 import org.jevis.commons.database.JEVisSampleDAO;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.CommonMethods;
@@ -40,27 +43,27 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ReportLinkProperty implements ReportData {
     private static final Logger logger = LogManager.getLogger(ReportLinkProperty.class);
-
-    private String templateVariableName;
     //    private JEVisObject linkObject;
     private final List<JEVisObject> attributePropertyObjects = new ArrayList<>();
-    //    private Long jevisID;
-    private JEVisObject dataObject;
     private final List<ReportAttributeProperty> attributeProperties = new ArrayList<>();
     private final List<ReportAttributeProperty> defaultAttributeProperties = new ArrayList<>();
     private final LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private final LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
+    private String templateVariableName;
+    //    private Long jevisID;
+    private JEVisObject dataObject;
     private Boolean isCalculation;
-
-    //    private DateTime latestTimestamp;
-    public static ReportLinkProperty buildFromJEVisObject(JEVisObject reportLinkObject) {
-        return new ReportLinkProperty(reportLinkObject);
-    }
-
+    private WorkDays workDays = null;
     private JEVisObject linkObject;
 
     private ReportLinkProperty(JEVisObject reportLinkObject) {
         initialize(reportLinkObject);
+        this.workDays = new WorkDays(reportLinkObject);
+    }
+
+    //    private DateTime latestTimestamp;
+    public static ReportLinkProperty buildFromJEVisObject(JEVisObject reportLinkObject) {
+        return new ReportLinkProperty(reportLinkObject);
     }
 
     private void initialize(JEVisObject reportLinkObject) {
@@ -80,10 +83,10 @@ public class ReportLinkProperty implements ReportData {
             SampleHandler sampleHandler = new SampleHandler();
             linkObject = reportLinkObject;
             templateVariableName = reportLinkObject.getAttribute(ReportLink.TEMPLATE_VARIABLE_NAME).getLatestSample().getValueAsString();
-            Long jevisID = reportLinkObject.getAttribute(ReportLink.JEVIS_ID).getLatestSample().getValueAsLong();
-            dataObject = reportLinkObject.getDataSource().getObject(jevisID);
+            TargetHelper targetHelper = new TargetHelper(reportLinkObject.getDataSource(), reportLinkObject.getAttribute(ReportLink.JEVIS_ID));
+            dataObject = targetHelper.getObject().get(0);
             isCalculation = sampleHandler.getLastSample(reportLinkObject, ReportLink.CALCULATION, false);
-            if (!DataHelper.checkAllObjectsNotNull(linkObject, templateVariableName, jevisID, dataObject)) {
+            if (!DataHelper.checkAllObjectsNotNull(linkObject, templateVariableName, dataObject)) {
                 throw new RuntimeException("One Sample missing for report link Object: id: " + reportLinkObject.getID() + " and name: " + reportLinkObject.getName());
             }
         } catch (JEVisException ex) {
@@ -413,6 +416,12 @@ public class ReportLinkProperty implements ReportData {
                                     return new LinkStatus(true, "ok");
                                 } else if (p == null && latestSample.getTimestamp().isAfter(end)) {
                                     return new LinkStatus(true, "ok");
+                                } else if (workDays != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart()) && p != null && PeriodHelper.isGreaterThenDays(p)) {
+                                    end = end.withHourOfDay(workDays.getWorkdayEnd().getHour()).withMinuteOfHour(workDays.getWorkdayEnd().getMinute()).withSecondOfMinute(workDays.getWorkdayEnd().getSecond());
+                                    end = end.minus(p);
+                                    if (latestSample.getTimestamp().isAfter(end)) {
+                                        return new LinkStatus(true, "ok");
+                                    } else return new LinkStatus(false, getNoDataMessage());
                                 } else {
                                     return new LinkStatus(false, getNoDataMessage());
                                 }
