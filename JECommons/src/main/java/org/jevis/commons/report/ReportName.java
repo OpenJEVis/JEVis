@@ -51,7 +51,7 @@ public class ReportName {
                             break;
                     }
 
-                    if (!prefix.equals("")) {
+                    if (!prefix.isEmpty()) {
                         prefix += "_";
                     }
                 }
