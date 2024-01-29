@@ -1,13 +1,13 @@
-package org.jevis.jeconfig.application.tools;
+package org.jevis.commons.utils;
 
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.utils.CalcMethods;
-import org.jevis.jeconfig.application.application.I18nWS;
 
 import java.util.regex.Pattern;
 
-public class CalculationNameFormatter {
+public class NameFormatter {
 
     public final static String[] expressions = new String[]{"(", ")", "+", "-", "*", "#", "/", "%", "=", "!", "<", ">", "&", "|", " ", ",", ".", ";", ":", "'"};
     public final static String replacement = "_";
@@ -19,13 +19,27 @@ public class CalculationNameFormatter {
      * @param name
      * @return
      */
-    public static String formatInputVariable(String name) {
+    public static String formatVariableText(String name) {
         for (String exp : expressions) {
             name = name.replaceAll(Pattern.quote(exp), replacement);
         }
         name = replaceUmlaut(name);
         name = removeDuplicatedReplacements(name);
         name = removeNumbersInFront(name);
+
+        name = name.replaceAll("__", "_");
+
+        return name.trim();
+    }
+
+    public static String formatNames(String name) {
+        for (String exp : expressions) {
+            name = name.replaceAll(Pattern.quote(exp), replacement);
+        }
+        name = replaceUmlaut(name);
+
+        name = name.replaceAll("__", "_");
+
         return name.trim();
     }
 
@@ -39,7 +53,7 @@ public class CalculationNameFormatter {
     }
 
     /**
-     * Create an name suggestion based on the attribute
+     * Create a name suggestion based on the attribute
      *
      * @param target
      * @return
@@ -50,7 +64,7 @@ public class CalculationNameFormatter {
     }
 
     /**
-     * Create an name suggestion based on the attribute
+     * Create a name suggestion based on the attribute
      *
      * @param target
      * @return
@@ -62,16 +76,7 @@ public class CalculationNameFormatter {
             JEVisObject firstParentalDataObject = CalcMethods.getFirstParentalDataObject(target);
             name = firstParentalDataObject.getLocalName(I18n.getInstance().getDefaultBundle().getLocale().getLanguage());
         }
-        name = formatInputVariable(name);
-
-        return name;
-
-    }
-
-    public static String createVariableName(JEVisClass target, JEVisType attribute) throws JEVisException {
-        String name = I18nWS.getInstance().getClassName(target) + I18nWS.getInstance().getTypeName(target.getName(), attribute.getName());
-
-        name = formatInputVariable(name);
+        name = formatVariableText(name);
 
         return name;
 

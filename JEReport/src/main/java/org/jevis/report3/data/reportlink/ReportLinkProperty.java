@@ -298,7 +298,7 @@ public class ReportLinkProperty implements ReportData {
                                                 sum += jeVisSample.getValueAsDouble();
                                             }
 
-                                            if (!isQuantity && samples.size() > 0) {
+                                            if (!isQuantity && !samples.isEmpty()) {
                                                 sum = sum / samples.size();
                                             }
 
@@ -306,6 +306,17 @@ public class ReportLinkProperty implements ReportData {
                                             samples.clear();
                                             samples.add(resultSum);
                                         } else {
+                                            if (workDays.isEnabled()) {
+                                                DateTime start = interval.getStart().withHourOfDay(workDays.getWorkdayStart().getHour()).withMinuteOfHour(workDays.getWorkdayStart().getMinute()).withSecondOfMinute(workDays.getWorkdayStart().getSecond());
+                                                DateTime end = interval.getEnd().withHourOfDay(workDays.getWorkdayEnd().getHour()).withMinuteOfHour(workDays.getWorkdayEnd().getMinute()).withSecondOfMinute(workDays.getWorkdayEnd().getSecond());
+
+                                                if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                                    start = start.minusDays(1);
+                                                }
+
+                                                interval = new Interval(start, end);
+                                            }
+
                                             samples = attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString(), property.getTimeZone().getID());
                                         }
 
