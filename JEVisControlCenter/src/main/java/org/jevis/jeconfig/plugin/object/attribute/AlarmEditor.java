@@ -42,11 +42,13 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.AlarmConstants;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonAlarmConfig;
 import org.jevis.commons.json.JsonScheduler;
 import org.jevis.commons.json.JsonTools;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -69,6 +71,7 @@ public class AlarmEditor implements AttributeEditor {
 
     private final ObservableList<AlarmConstants.Operator> operator = FXCollections.observableArrayList(AlarmConstants.Operator.SMALLER, AlarmConstants.Operator.BIGGER, AlarmConstants.Operator.EQUALS,
             AlarmConstants.Operator.SMALLER_EQUALS, AlarmConstants.Operator.BIGGER_EQUALS, AlarmConstants.Operator.NOT_EQUALS);
+    private String unitString = "";
     public JEVisAttribute _attribute;
     private final HBox box = new HBox(12);
     private JEVisSample _newSample;
@@ -82,7 +85,14 @@ public class AlarmEditor implements AttributeEditor {
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
-
+        try {
+            JEVisAttribute valueAttribute = _attribute.getObject().getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
+            if (valueAttribute != null) {
+                unitString = UnitManager.getInstance().format(valueAttribute.getDisplayUnit());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -416,6 +426,7 @@ public class AlarmEditor implements AttributeEditor {
         });
 
         JFXTextField limitField = new JFXTextField();
+        Label unitField = new Label(unitString);
 
         JFXComboBox<AlarmConstants.Operator> operator = new JFXComboBox<>(this.operator);
         Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>> cellFactory = new Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>>() {
@@ -439,6 +450,7 @@ public class AlarmEditor implements AttributeEditor {
         operator.setButtonCell(cellFactory.call(null));
 
         JFXTextField toleranceField = new JFXTextField();
+        Label toleranceUnitLabel = new Label("%");
 
         ScheduleEditor silentTime;
 
@@ -516,6 +528,7 @@ public class AlarmEditor implements AttributeEditor {
         } else if (id == 0) {
             gridPane.add(limitLabel, 0, row);
             gridPane.add(limitField, 1, row);
+            gridPane.add(unitField, 2, row);
         }
         row++;
         gridPane.add(operatorLabel, 0, row);
@@ -550,6 +563,7 @@ public class AlarmEditor implements AttributeEditor {
 
         gridPane.add(toleranceLabel, 0, row);
         gridPane.add(toleranceField, 1, row);
+        gridPane.add(toleranceUnitLabel, 2, row);
 
         tab.setContent(new ScrollPane(gridPane));
     }
