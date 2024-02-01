@@ -220,7 +220,7 @@ public class DataDialog extends Dialog {
             for (DataSample selectedItem : selectedItems) {
                 int i = data.indexOf(selectedItem);
                 DateTime currentTS = selectedItem.getTs();
-                DateTime nextTS = currentTS.plus(CleanDataObject.getPeriodForDate(attribute.getObject(), currentTS));
+                DateTime nextTS = PeriodHelper.getNextPeriod(currentTS, CleanDataObject.getPeriodForDate(attribute.getObject(), currentTS), 1, true, workDays.getDateTimeZone());
                 VirtualSample sample = new VirtualSample(nextTS, 0d);
                 sample.setNote("");
                 DataSample nextSample = new DataSample(sample, nextTS, 0d, "");

@@ -3,18 +3,21 @@ package org.jevis.jeconfig.plugin;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
+import org.jevis.commons.datetime.WorkDays;
 
 import java.util.Map;
 
 public class RegisterTableRow {
     private final String name;
     private JEVisObject object;
+    private final WorkDays workDays;
     private boolean isMultiSite = false;
     private Map<JEVisType, JEVisAttribute> attributeMap;
     private String fullName;
 
     public RegisterTableRow(Map<JEVisType, JEVisAttribute> attributeMap, JEVisObject object, Boolean isMultiSite) {
         this.object = object;
+        this.workDays = new WorkDays(object);
         this.attributeMap = attributeMap;
         this.isMultiSite = isMultiSite;
         this.name = object.getName();
@@ -42,5 +45,9 @@ public class RegisterTableRow {
 
     public boolean isMultiSite() {
         return isMultiSite;
+    }
+
+    public WorkDays getWorkDays() {
+        return workDays;
     }
 }
