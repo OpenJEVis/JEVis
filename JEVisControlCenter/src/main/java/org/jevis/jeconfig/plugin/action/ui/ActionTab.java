@@ -292,6 +292,7 @@ public class ActionTab extends Tab {
     public void updateStatistics() {
         if (statistics != null) {
             statistics.update();
+            actionTable.updateStatisticsTable();
         }
     }
 

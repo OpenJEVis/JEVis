@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.action.ui;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -20,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.table.SummeryData;
+import org.jevis.jeconfig.application.table.SummeryTable;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.Medium;
@@ -34,7 +36,10 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 
@@ -84,11 +89,10 @@ public class ActionTable extends TableView<ActionData> {
     private final TableColumn<ActionData, Double> savingTotalPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.doneruntime"));
     private final TableColumn<ActionData, Double> enpiDevelopmentPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.enpiabechange"));
     private final TableColumn<ActionData, Double> consumptionDevelopmentPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.consumption.diff"));
+    private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
     ObservableList<ActionData> data = FXCollections.observableArrayList();
     FilteredList<ActionData> filteredData;
     NumberFormat currencyFormat = NumerFormating.getInstance().getCurrencyFormat();
-    private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
-
     private ObservableList<String> statusFilter = FXCollections.observableArrayList();
     private ObservableList<String> mediumFilter = FXCollections.observableArrayList();
     private ObservableList<String> fieldFilter = FXCollections.observableArrayList();
@@ -386,7 +390,6 @@ public class ActionTable extends TableView<ActionData> {
                 while (change.next()) {
 
                 }
-                System.out.println("-List changed update statistics");
                 updateStatisticsTable();
             }
         });
@@ -396,7 +399,6 @@ public class ActionTable extends TableView<ActionData> {
                 while (change.next()) {
 
                 }
-                System.out.println("-Medium changed update statistics");
                 updateStatisticsTable();
                 //updateMediumConsumptionSum(consumptionDevelopmentPropertyCol);
             }
@@ -406,17 +408,12 @@ public class ActionTable extends TableView<ActionData> {
         actionPlanData.getStatustags().addListener((ListChangeListener<? super String>) c -> {
             while (c.next()) {
             }
-            // updateStatusSummery(statusTagsPropertyCol);
-            System.out.println("-Status changed update statistics");
             updateStatisticsTable();
         });
     }
 
     public void updateStatisticsTable() {
         try {
-            System.out.println("-- updateStatisticsTable: " + actionPlanData.getName());
-            //statistic.update();
-
             ObservableMap<TableColumn, StringProperty> summeryRow1 = FXCollections.observableHashMap();
             ObservableMap<TableColumn, StringProperty> summeryRow2 = FXCollections.observableHashMap();
             ObservableMap<TableColumn, StringProperty> summeryRow3 = FXCollections.observableHashMap();
@@ -434,27 +431,72 @@ public class ActionTable extends TableView<ActionData> {
             summeryRow1.put(savingYearPropertyCol, statistic.sumSavingsStrPropertyProperty());
             summeryRow1.put(consumptionDevelopmentPropertyCol, statistic.sumNPVResultStrPropertyProperty());
 
-            summeryRow1.put(titlePropertyCol, statistic.textSumSinceImplementationGrossProperty());
-            summeryRow2.put(titlePropertyCol, statistic.textSumSinceImplementationProperty());
-            //summeryRow2.put(titlePropertyCol, statistic.textSumConsumptionSinceImplementationProperty());
-            summeryRow2.put(consumptionDevelopmentPropertyCol, statistic.sumSavingsByMediumProperty());
-            summeryRow3.put(titlePropertyCol, statistic.getSumCO2Net());
-            summeryRow4.put(titlePropertyCol, statistic.sumGrossCO2Property());
+            //summeryRow1.put(titlePropertyCol, statistic.textSumSinceImplementationGrossProperty());
+            //summeryRow2.put(titlePropertyCol, statistic.textSumSinceImplementationProperty());
+            //summeryRow3.put(titlePropertyCol, statistic.getSumCO2Net());
+            //summeryRow4.put(titlePropertyCol, statistic.sumGrossCO2Property());
 
-            int row = 1;
-            for (Medium medium : actionPlanData.getMedium()) {
-                addSummeryForMedium(medium.getId(), consumptionDevelopmentPropertyCol, row);
-                row++;
-            }
+            StringProperty textSumImplement = new SimpleStringProperty(
+                    I18n.getInstance().getString("plugin.action.statistics.saveSinceImp")
+                            + ": " + SummeryTable.COLUMN_SEPARATOR
+                            + NumerFormating.getInstance().getDoubleFormate().format(statistic.getSumSinceImplementation())
+                            + SummeryTable.COLUMN_SEPARATOR + " kWh"
+            );
+            StringProperty textSumImplementGross = new SimpleStringProperty(
+                    I18n.getInstance().getString("plugin.action.statistics.saveGrossSinceImp")
+                            + ": " + SummeryTable.COLUMN_SEPARATOR
+                            + NumerFormating.getInstance().getDoubleFormate().format(statistic.getSumSinceImplementationGross())
+                            + SummeryTable.COLUMN_SEPARATOR + " kWh"
+            );
 
-            row = 0;
+            StringProperty textNetCO2Net = new SimpleStringProperty(
+                    I18n.getInstance().getString("plugin.action.statistics.saveCO2Net")
+                            + ": " + SummeryTable.COLUMN_SEPARATOR
+                            + NumerFormating.getInstance().getDoubleFormate().format(statistic.getSumCO2())
+                            + SummeryTable.COLUMN_SEPARATOR + " t"
+            );
+            StringProperty textGrossCO2Net = new SimpleStringProperty(
+                    I18n.getInstance().getString("plugin.action.statistics.savesCO2Gross")
+                            + ": " + SummeryTable.COLUMN_SEPARATOR
+                            + NumerFormating.getInstance().getDoubleFormate().format(statistic.getSumGrossCO2())
+                            + SummeryTable.COLUMN_SEPARATOR + " t"
+            );
+
+
+            summeryRow1.put(titlePropertyCol, textSumImplement);
+            summeryRow2.put(titlePropertyCol, textSumImplementGross);
+            summeryRow3.put(titlePropertyCol, textNetCO2Net);
+            summeryRow4.put(titlePropertyCol, textGrossCO2Net);
+
+
+            AtomicInteger aRow = new AtomicInteger(1);
+            statistic.getMediumSumValues().entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                    .forEach(entry -> {
+                        Medium key = entry.getKey();
+                        Double aDouble = entry.getValue();
+                        if (aDouble != 0) {
+                            SummeryData data1 = getOrCreateSummeryData(aRow.get());
+
+                            String text = key.getName() + ": " + SummeryTable.COLUMN_SEPARATOR
+                                    + String.format("%s" + SummeryTable.COLUMN_SEPARATOR + "kWh", NumerFormating.getInstance().getDoubleFormate().format(aDouble));
+                            data1.getSummeryList().put(consumptionDevelopmentPropertyCol, new SimpleStringProperty(text));
+                            aRow.set(aRow.get() + 1);
+
+                            // System.out.println(entry.getKey().getId() + ": " + entry.getValue());
+                        }
+
+                    });
+
+
+            int row = 0;
             for (String s : actionPlanData.getStatustags()) {
                 addSummeryForStatus(s, statusTagsPropertyCol, row);
                 row++;
             }
 
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.error(ex, ex);
         }
     }
 
