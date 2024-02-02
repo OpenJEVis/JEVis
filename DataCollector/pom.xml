@@ -88,6 +88,7 @@
         <module>SQL-Driver</module>
         <module>JSONParser</module>
         <module>MSCONSParser</module>
+        <module>Shelly-Driver</module>
     </modules>
-   
+
 </project>

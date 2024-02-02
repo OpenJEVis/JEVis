@@ -62,7 +62,6 @@ public class Medium {
         return co2;
     }
 
-
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Medium) {
