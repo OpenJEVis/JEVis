@@ -82,7 +82,7 @@ public class LimitEditor implements AttributeEditor {
     private boolean initialized = false;
 
     public LimitEditor(JEVisAttribute att) {
-        logger.debug("==init== for: {}", att.getName());
+
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
         try {
@@ -90,7 +90,7 @@ public class LimitEditor implements AttributeEditor {
             if (valueAttribute != null) {
                 unitString = UnitManager.getInstance().format(valueAttribute.getDisplayUnit());
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -178,7 +178,7 @@ public class LimitEditor implements AttributeEditor {
     public void commit() throws JEVisException {
 
         if (hasChanged() && _newSample != null) {
-            //TODO: check if tpye is ok, maybe better at imput time
+            //TODO: check if type is ok, maybe better at input time
             logger.debug("Commit: " + _newSample.getValueAsString());
             _newSample.commit();
             _lastSample = _newSample;
@@ -382,14 +382,14 @@ public class LimitEditor implements AttributeEditor {
 
         gridPane.add(minLabel, 0, row);
         gridPane.add(minField, 1, row, 2, 1);
-        if (!unitString.equals("")) {
+        if (!unitString.isEmpty()) {
             gridPane.add(unitFieldMin, 3, row);
         }
         row++;
 
         gridPane.add(maxLabel, 0, row);
         gridPane.add(maxField, 1, row, 2, 1);
-        if (!unitString.equals("")) {
+        if (!unitString.isEmpty()) {
             gridPane.add(unitFieldMax, 3, row);
         }
 

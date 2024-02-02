@@ -575,9 +575,50 @@ public class TopMenu extends MenuBar {
         CheckMenuItem expertMode = new CheckMenuItem(I18n.getInstance().getString("menu.options.expert"));
         expertMode.setSelected(prefExpert.getBoolean("show", false));
         expertMode.setOnAction(e -> {
-            prefExpert.putBoolean("show", !prefExpert.getBoolean("show", false));
-            getActivePlugin().updateToolbar();
-            Platform.runLater(() -> updateLayout());
+            Dialog<ButtonType> pinDialog = new Dialog<>();
+            pinDialog.setTitle("Security Question");
+            pinDialog.setHeaderText("Enter PIN");
+            pinDialog.setResizable(true);
+            pinDialog.initOwner(JEConfig.getStage());
+            pinDialog.initModality(Modality.APPLICATION_MODAL);
+            Stage stage = (Stage) pinDialog.getDialogPane().getScene().getWindow();
+            TopMenu.applyActiveTheme(stage.getScene());
+            stage.setAlwaysOnTop(true);
+
+            ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+            ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            pinDialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+            JFXTextField pinField = new JFXTextField();
+            pinDialog.getDialogPane().setContent(pinField);
+
+            Button okButton = (Button) pinDialog.getDialogPane().lookupButton(okType);
+            okButton.setDefaultButton(true);
+            okButton.setOnAction(event -> {
+                // J10 E5 V22 I9 S19
+                prefExpert.putBoolean("show", pinField.getText().equals("10522919"));
+
+                Platform.runLater(() -> {
+                    expertMode.setSelected(prefExpert.getBoolean("show", false));
+                    getActivePlugin().updateToolbar();
+                    this.updateLayout();
+                });
+            });
+
+            Button cancelButton = (Button) pinDialog.getDialogPane().lookupButton(cancelType);
+            cancelButton.setCancelButton(true);
+            cancelButton.setOnAction(actionEvent -> {
+                prefExpert.putBoolean("show", false);
+
+                Platform.runLater(() -> {
+                    expertMode.setSelected(prefExpert.getBoolean("show", false));
+                    getActivePlugin().updateToolbar();
+                    this.updateLayout();
+                });
+            });
+
+            pinDialog.show();
         });
 
         final Preferences prefThreads = Preferences.userRoot().node("JEVis.JEConfig.threads");

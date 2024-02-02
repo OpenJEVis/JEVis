@@ -103,6 +103,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
     private JEVisClass baseDataClass;
     private boolean selectable = true;
     private boolean showDetailedTarget = true;
+    private WorkDays workDays;
 
     public EnterDataDialog(JEVisDataSource dataSource) {
         super();
@@ -171,7 +172,11 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        this.getDialogPane().getButtonTypes().addAll(showMoreType, cancelType, okType);
+        if (JEConfig.getExpert()) {
+            this.getDialogPane().getButtonTypes().addAll(showMoreType, cancelType, okType);
+        } else {
+            this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+        }
 
         Button okButton = (Button) this.getDialogPane().lookupButton(okType);
         okButton.setDefaultButton(true);
@@ -196,7 +201,6 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                         DoubleValidator validator = new DoubleValidator();
                         Double newVal = validator.validate(doubleField.getText(), I18n.getInstance().getLocale());
 
-
                         if (newVal != null) {
 
                             DateTime ts = null;
@@ -210,18 +214,47 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                                             1,
                                             1,
                                             0, 0, 0);
+                                    if (workDays.isCustomWorkDay()) {
+                                        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                            ts = ts.withMonthOfYear(12);
+                                            int lastDayOfMonth = ts.dayOfMonth().getMaximumValue();
+                                            ts = ts.withDayOfMonth(lastDayOfMonth)
+                                                    .withHourOfDay(workDays.getWorkdayStart().getHour())
+                                                    .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
+                                                    .withSecondOfMinute(workDays.getWorkdayStart().getSecond())
+                                                    .withMillisOfSecond(0);
+                                        }
+
+                                    }
                                     break;
                                 case MONTH:
                                     ts = new DateTime(year,
                                             month,
                                             1,
                                             0, 0, 0);
+                                    if (workDays.isCustomWorkDay()) {
+                                        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                            int lastDayOfMonth = ts.dayOfMonth().getMaximumValue();
+                                            ts = ts.withDayOfMonth(lastDayOfMonth)
+                                                    .withHourOfDay(workDays.getWorkdayStart().getHour())
+                                                    .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
+                                                    .withSecondOfMinute(workDays.getWorkdayStart().getSecond())
+                                                    .withMillisOfSecond(0);
+                                        }
+
+                                    }
                                     break;
                                 case DAY:
                                     ts = new DateTime(year,
                                             month,
                                             day,
                                             0, 0, 0);
+                                    if (workDays.isCustomWorkDay()) {
+                                        ts = ts.withHourOfDay(workDays.getWorkdayStart().getHour())
+                                                .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
+                                                .withSecondOfMinute(workDays.getWorkdayStart().getSecond())
+                                                .withMillisOfSecond(0);
+                                    }
                                     break;
                                 case SPECIFIC_DATETIME:
                                     ts = new DateTime(
@@ -497,6 +530,8 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.selectable = selectable;
         this.target = target;
         this.selectedObject = target.getObject();
+        this.workDays = new WorkDays(target.getObject());
+        this.monthBox.setWorkDays(workDays);
 
         Platform.runLater(() -> {
             removeNode(0, 0, gridPane);
@@ -663,23 +698,14 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                 e.printStackTrace();
             }
 
-            if (p.equals(Period.minutes(15))) {
-                nextTS = lastTS.get().plusMinutes(15).withSecondOfMinute(0).withMillisOfSecond(0);
-            } else if (p.equals(Period.days(1))) {
-                nextTS = lastTS.get().plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            } else if (p.equals(Period.weeks(1))) {
-                nextTS = lastTS.get().plusWeeks(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            } else if (p.equals(Period.months(1))) {
-                nextTS = lastTS.get().plusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            } else if (p.equals(Period.years(1))) {
-                nextTS = lastTS.get().plusYears(1).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            } else {
+            nextTS = PeriodHelper.getNextPeriod(lastTS.get(), p, 1, true, workDays.getDateTimeZone());
+
+            if (nextTS.equals(lastTS.get()))
                 try {
                     nextTS = lastTS.get().plus(p.toStandardDuration().getMillis());
                 } catch (Exception e) {
                     logger.error("Could not determine period", e);
                 }
-            }
         }
 
         return nextTS;

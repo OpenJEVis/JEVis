@@ -78,13 +78,13 @@ public class CSVColumnHeader {
     private final Label typeL = new Label(I18n.getInstance().getString("csv.table.meaning"));
     private final Label formatL = new Label(I18n.getInstance().getString("csv.table.format"));
     private final DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
-    private JEVisAttribute _target = null;
-    private JFXComboBox<Meaning> meaning;
     private final HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
     private final HashMap<Integer, SimpleObjectProperty<Node>> _valueProperty = new HashMap<Integer, SimpleObjectProperty<Node>>();
     private final HashMap<Integer, CSVCellGraphic> _valueGraphic = new HashMap<Integer, CSVCellGraphic>();
-    private DateTimeZone _selectedTimeZone = DateTimeZone.getDefault();
     private final CSVTable _table;
+    private JEVisAttribute _target = null;
+    private JFXComboBox<Meaning> meaning;
+    private DateTimeZone _selectedTimeZone = DateTimeZone.getDefault();
     private String _currentFormat;
     private char _decimalSeparator;
 
@@ -363,33 +363,33 @@ public class CSVColumnHeader {
         Callback<ListView<Meaning>, ListCell<Meaning>> meaningFactory = new Callback<ListView<Meaning>, ListCell<Meaning>>() {
             @Override
             public ListCell<Meaning> call(ListView<Meaning> param) {
-                return new ListCell<Meaning>(){
+                return new ListCell<Meaning>() {
                     @Override
                     protected void updateItem(Meaning item, boolean empty) {
                         super.updateItem(item, empty);
-                        String text= "";
-                        if(item!=null){
-                            switch (item){
+                        String text = "";
+                        if (item != null) {
+                            switch (item) {
                                 case Date:
-                                    text =I18n.getInstance().getString("csv.table.meaning.date");
+                                    text = I18n.getInstance().getString("csv.table.meaning.date");
                                     break;
                                 case Text:
-                                    text =I18n.getInstance().getString("csv.table.meaning.text");
+                                    text = I18n.getInstance().getString("csv.table.meaning.text");
                                     break;
                                 case Time:
-                                    text =I18n.getInstance().getString("csv.table.meaning.time");
+                                    text = I18n.getInstance().getString("csv.table.meaning.time");
                                     break;
                                 case Index:
-                                    text =I18n.getInstance().getString("csv.table.meaning.index");
+                                    text = I18n.getInstance().getString("csv.table.meaning.index");
                                     break;
                                 case Value:
-                                    text =I18n.getInstance().getString("csv.table.meaning.value");
+                                    text = I18n.getInstance().getString("csv.table.meaning.value");
                                     break;
                                 case Ignore:
-                                    text =I18n.getInstance().getString("csv.table.meaning.ignore");
+                                    text = I18n.getInstance().getString("csv.table.meaning.ignore");
                                     break;
                                 case DateTime:
-                                    text =I18n.getInstance().getString("csv.table.meaning.datetime");
+                                    text = I18n.getInstance().getString("csv.table.meaning.datetime");
                                     break;
                             }
                         }
@@ -682,7 +682,7 @@ public class CSVColumnHeader {
                     } else if (workaround > 3) {
                         break;
                     }
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     logger.error(ex);
                 }
 
@@ -726,12 +726,21 @@ public class CSVColumnHeader {
             public void handle(ActionEvent t) {
 
                 List<JEVisTreeFilter> allFilter = new ArrayList<>();
-                JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllAttributesFilter();
+
+                JEVisTreeFilter basicFilter;
+                if (JEConfig.getExpert()) {
+                    basicFilter = SelectTargetDialog.buildAllAttributesFilter();
+                } else {
+                    basicFilter = SelectTargetDialog.buildAllDataFilter();
+                }
                 allFilter.add(basicFilter);
 
-
                 SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE, _table.getDataSource(), new ArrayList<UserSelection>());
-                selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
+                if (JEConfig.getExpert()) {
+                    selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
+                } else {
+                    selectionDialog.setMode(SimpleTargetPlugin.MODE.OBJECT);
+                }
 
                 selectionDialog.setOnCloseRequest(event -> {
                     if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
@@ -743,18 +752,23 @@ public class CSVColumnHeader {
                                     logger.trace("us: {}", us.getSelectedObject().getID());
                                     buttonText += us.getSelectedObject().getName();
                                 }
+
                                 if (us.getSelectedAttribute() != null) {
                                     logger.trace("att: {}", us.getSelectedAttribute().getName());
-                                _target = us.getSelectedAttribute();
-                                buttonText += "." + _target.getName();
-                            }
+                                    _target = us.getSelectedAttribute();
+                                    buttonText += "." + _target.getName();
+                                } else if (us.getSelectedObject().getAttribute("Value") != null) {
+                                    _target = us.getSelectedObject().getAttribute("Value");
+                                    logger.trace("att: {}", _target.getName());
+                                    buttonText += "." + _target.getName();
+                                }
 
-                            button.setText(buttonText);
+                                button.setText(buttonText);
 
-                            if (us.getSelectedAttribute() != null && us.getSelectedAttribute().getInputUnit() != null) {
-                                unitButton.setText(us.getSelectedAttribute().getInputUnit().getLabel());
-                            }
-                            formatAllRows();
+                                if (us.getSelectedAttribute() != null && us.getSelectedAttribute().getInputUnit() != null) {
+                                    unitButton.setText(us.getSelectedAttribute().getInputUnit().getLabel());
+                                }
+                                formatAllRows();
 
                             } catch (Exception ex) {
                                 logger.catching(ex);

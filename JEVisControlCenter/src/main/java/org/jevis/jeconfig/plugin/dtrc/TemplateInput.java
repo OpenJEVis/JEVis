@@ -11,7 +11,8 @@ import org.jevis.api.*;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.object.plugin.RangingValues;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
-import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
+import org.jevis.commons.utils.NameFormatter;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.joda.time.DateTime;
@@ -160,10 +161,19 @@ public class TemplateInput extends TemplateSelected {
 
     public void buildVariableName(JEVisClass jeVisClass, JEVisType jeVisType) {
         try {
-            setVariableName(CalculationNameFormatter.createVariableName(jeVisClass, jeVisType));
+            setVariableName(createVariableName(jeVisClass, jeVisType));
         } catch (JEVisException e) {
             logger.error("Could not create variable name", e);
         }
+    }
+
+    private String createVariableName(JEVisClass target, JEVisType attribute) throws JEVisException {
+        String name = I18nWS.getInstance().getClassName(target) + I18nWS.getInstance().getTypeName(target.getName(), attribute.getName());
+
+        name = NameFormatter.formatVariableText(name);
+
+        return name;
+
     }
 
     public void CreateValues(JEVisDataSource ds, IntervalSelector intervalSelector, DateTime start, DateTime end) {

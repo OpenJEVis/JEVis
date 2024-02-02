@@ -15,6 +15,7 @@ import org.jevis.commons.dataprocessing.processor.workflow.*;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -22,6 +23,7 @@ import org.joda.time.Interval;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.PeriodFormat;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ public class PrepareStep implements ProcessStep {
     @Override
 
     public void run(ResourceManager resourceManager) throws Exception {
+        DateTime benchStart = new DateTime();
         CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
 
         //get the raw samples for the cleaning
@@ -90,6 +93,7 @@ public class PrepareStep implements ProcessStep {
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<PeriodRule> rawDataPeriodAlignment = cleanDataObject.getRawDataPeriodAlignment();
         JEVisAttribute rawAttribute = cleanDataObject.getRawAttribute();
+        DateTime firstTimestamp = rawAttribute.getTimestampOfFirstSample();
         DateTime firstIntervalDate = intervals.get(0).getInterval().getStart();
         if (firstIntervalDate.getSecondOfMinute() == 1) firstIntervalDate = firstIntervalDate.minusSeconds(1);
         DateTime firstRawSampleDate = rawSamplesDown.get(0).getTimestamp();
@@ -97,7 +101,9 @@ public class PrepareStep implements ProcessStep {
         int maxGapCount = 10000;
         int i = 0;
 
-        while (i < maxGapCount &&
+        while ((currentDate.isAfter(firstTimestamp) || currentDate.equals(firstTimestamp)) &&
+                !CleanDataObject.getPeriodForDate(rawDataPeriodAlignment, firstIntervalDate).equals(Period.ZERO) &&
+                i < maxGapCount &&
                 (firstIntervalDate.equals(firstRawSampleDate) || firstIntervalDate.isBefore(firstRawSampleDate))) {
             i++;
             Period periodForDate = CleanDataObject.getPeriodForDate(rawDataPeriodAlignment, firstRawSampleDate);
@@ -133,6 +139,8 @@ public class PrepareStep implements ProcessStep {
             }
             return null;
         }));
+
+        logger.debug("{} finished in {}", this.getClass().getSimpleName(), new Period(benchStart, new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
     }
 
     private List<CleanInterval> getIntervals(CleanDataObject cleanDataObject, List<PeriodRule> periodCleanData) throws JEVisException {
@@ -426,7 +434,7 @@ public class PrepareStep implements ProcessStep {
 
         for (JEVisSample curSample : rawSamples) {
 
-            DateTime timestamp = curSample.getTimestamp().plusSeconds(cleanDataObject.getPeriodOffset());
+            DateTime timestamp = curSample.getTimestamp();
             Period rawPeriod = CleanDataObject.getPeriodForDate(cleanDataObject.getRawDataPeriodAlignment(), timestamp);
             Period cleanPeriod = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), timestamp);
 

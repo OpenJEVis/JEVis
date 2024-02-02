@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
 
+import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM;
 import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END;
 
 public class PickerCombo {
@@ -80,8 +81,23 @@ public class PickerCombo {
 
         if (dataModel != null && !dataModel.getChartModels().isEmpty()) {
 
-            presetDateBox.getItems().stream().filter(timeFrame -> timeFrame.getTimeFrame() == dataSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == dataSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
+            if (dataSettings.getAnalysisTimeFrame() != null && dataSettings.getAnalysisTimeFrame().getTimeFrame() != CUSTOM_START_END && dataSettings.getAnalysisTimeFrame().getTimeFrame() != CUSTOM) {
+                for (AnalysisTimeFrame analysisTimeFrame : presetDateBox.getItems()) {
+                    if (analysisTimeFrame.getTimeFrame() == dataSettings.getAnalysisTimeFrame().getTimeFrame()) {
+                        if (analysisTimeFrame.getTimeFrame() != CUSTOM_START_END || analysisTimeFrame.getId() == dataSettings.getAnalysisTimeFrame().getId()) {
+                            presetDateBox.getSelectionModel().select(analysisTimeFrame);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                presetDateBox.getSelectionModel().select(0);
+            }
+        } else {
+            presetDateBox.getSelectionModel().select(0);
+        }
 
+        if (dataSettings != null && dataSettings.getAnalysisTimeFrame() != null) {
             DateTime start = dataSettings.getAnalysisTimeFrame().getStart();
             DateTime end = dataSettings.getAnalysisTimeFrame().getEnd();
 

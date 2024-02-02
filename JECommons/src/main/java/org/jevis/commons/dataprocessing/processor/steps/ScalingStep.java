@@ -13,7 +13,10 @@ import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -53,16 +56,18 @@ public class ScalingStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
+        DateTime benchStart = new DateTime();
+        CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
         List<CleanInterval> intervals = resourceManager.getIntervals();
-        List<JEVisSample> listMultipliers = calcAttribute.getMultiplier();
-        BigDecimal offset = new BigDecimal(calcAttribute.getOffset().toString());
+        List<JEVisSample> listMultipliers = cleanDataObject.getMultiplier();
+        BigDecimal offset = new BigDecimal(cleanDataObject.getOffset().toString());
 
         for (CleanInterval currentInt : intervals) {
             BigDecimal currentMulti = getCurrentMultiplier(listMultipliers, currentInt.getDate());
 
             VirtualSample sample = currentInt.getResult();
             Double rawValue = sample.getValueAsDouble();
+
             if (rawValue != null) {
                 BigDecimal rawValueDec = new BigDecimal(rawValue.toString());
                 BigDecimal productDec = new BigDecimal(0);
@@ -75,6 +80,8 @@ public class ScalingStep implements ProcessStep {
                 sample.setNote(note);
             }
         }
+
+        logger.debug("{} finished in {}", this.getClass().getSimpleName(), new Period(benchStart, new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
     }
 
 }

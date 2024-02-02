@@ -13,6 +13,7 @@ import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import org.mariuszgromada.math.mxparser.Expression;
 
@@ -33,13 +34,17 @@ public class MathStep implements ProcessStep {
         MathDataObject mathDataObject = resourceManager.getMathDataObject();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         workDays = new WorkDays(mathDataObject.getMathDataObject());
+        DateTimeZone timeZone = mathDataObject.getTimeZone();
 
         if (mathDataObject.getManipulationAttribute().hasSample()) {
             DateTime start = null, end = null;
-            DateTime beginning = mathDataObject.getBeginning();
-            DateTime ending = mathDataObject.getEnding();
+            DateTime beginning = mathDataObject.getBeginning().withZone(timeZone);
+            DateTime ending = mathDataObject.getEnding().withZone(timeZone);
             int dayOfMonthBeginning = beginning.getDayOfMonth();
-            int maxDayOfMonthStartDate = mathDataObject.getStartDate().dayOfMonth().getMaximumValue();
+
+            DateTime startDate = mathDataObject.getStartDate().withZone(timeZone);
+
+            int maxDayOfMonthStartDate = startDate.dayOfMonth().getMaximumValue();
             if (beginning.dayOfMonth().getMaximumValue() == dayOfMonthBeginning) {
                 dayOfMonthBeginning = maxDayOfMonthStartDate;
             }
@@ -47,17 +52,18 @@ public class MathStep implements ProcessStep {
             if (ending.dayOfMonth().getMaximumValue() == dayOfMonthEnding) {
                 dayOfMonthEnding = maxDayOfMonthStartDate;
             }
+
             switch (mathDataObject.getReferencePeriod()) {
                 default:
                 case NONE:
-                    start = mathDataObject.getStartDate();
+                    start = startDate;
                     end = mathDataObject.getEndDate().minusMillis(1);
                     break;
                 case MINUTELY:
-                    start = mathDataObject.getStartDate()
+                    start = startDate
                             .withSecondOfMinute(beginning.getSecondOfMinute())
                             .withMillisOfSecond(beginning.getMillisOfSecond());
-                    end = mathDataObject.getStartDate()
+                    end = startDate
                             .withSecondOfMinute(ending.getSecondOfMinute())
                             .withMillisOfSecond(ending.getMillisOfSecond());
                     break;
@@ -65,46 +71,46 @@ public class MathStep implements ProcessStep {
                     // TODO: add start & end conditions for 15-minutely
                     break;
                 case HOURLY:
-                    start = mathDataObject.getStartDate()
+                    start = startDate
                             .withMinuteOfHour(beginning.getMinuteOfHour())
                             .withSecondOfMinute(beginning.getSecondOfMinute())
                             .withMillisOfSecond(beginning.getMillisOfSecond());
-                    end = mathDataObject.getStartDate()
+                    end = startDate
                             .withMinuteOfHour(ending.getMinuteOfHour())
                             .withSecondOfMinute(ending.getSecondOfMinute())
                             .withMillisOfSecond(ending.getMillisOfSecond());
                     break;
                 case DAILY:
-                    start = mathDataObject.getStartDate()
+                    start = startDate
                             .withHourOfDay(beginning.getHourOfDay())
                             .withMinuteOfHour(beginning.getMinuteOfHour())
                             .withSecondOfMinute(beginning.getSecondOfMinute())
                             .withMillisOfSecond(beginning.getMillisOfSecond());
-                    end = mathDataObject.getStartDate()
+                    end = startDate
                             .withHourOfDay(ending.getHourOfDay())
                             .withMinuteOfHour(ending.getMinuteOfHour())
                             .withSecondOfMinute(ending.getSecondOfMinute())
                             .withMillisOfSecond(ending.getMillisOfSecond());
                     break;
                 case WEEKLY:
-                    start = mathDataObject.getStartDate().withDayOfWeek(beginning.getDayOfWeek())
+                    start = startDate.withDayOfWeek(beginning.getDayOfWeek())
                             .withHourOfDay(beginning.getHourOfDay())
                             .withMinuteOfHour(beginning.getMinuteOfHour())
                             .withSecondOfMinute(beginning.getSecondOfMinute())
                             .withMillisOfSecond(beginning.getMillisOfSecond());
-                    end = mathDataObject.getStartDate().withDayOfWeek(ending.getDayOfWeek())
+                    end = startDate.withDayOfWeek(ending.getDayOfWeek())
                             .withHourOfDay(ending.getHourOfDay())
                             .withMinuteOfHour(ending.getMinuteOfHour())
                             .withSecondOfMinute(ending.getSecondOfMinute())
                             .withMillisOfSecond(ending.getMillisOfSecond());
                     break;
                 case MONTHLY:
-                    start = mathDataObject.getStartDate().withDayOfMonth(dayOfMonthBeginning)
+                    start = startDate.withDayOfMonth(dayOfMonthBeginning)
                             .withHourOfDay(beginning.getHourOfDay())
                             .withMinuteOfHour(beginning.getMinuteOfHour())
                             .withSecondOfMinute(beginning.getSecondOfMinute())
                             .withMillisOfSecond(beginning.getMillisOfSecond());
-                    end = mathDataObject.getStartDate().withDayOfMonth(dayOfMonthEnding)
+                    end = startDate.withDayOfMonth(dayOfMonthEnding)
                             .withHourOfDay(ending.getHourOfDay())
                             .withMinuteOfHour(ending.getMinuteOfHour())
                             .withSecondOfMinute(ending.getSecondOfMinute())
@@ -114,13 +120,13 @@ public class MathStep implements ProcessStep {
                     // TODO: add start & end conditions for quarters
                     break;
                 case YEARLY:
-                    start = mathDataObject.getStartDate().withMonthOfYear(beginning.getMonthOfYear())
+                    start = startDate.withMonthOfYear(beginning.getMonthOfYear())
                             .withDayOfMonth(dayOfMonthBeginning)
                             .withHourOfDay(beginning.getHourOfDay())
                             .withMinuteOfHour(beginning.getMinuteOfHour())
                             .withSecondOfMinute(beginning.getSecondOfMinute())
                             .withMillisOfSecond(beginning.getMillisOfSecond());
-                    end = mathDataObject.getStartDate().withMonthOfYear(ending.getMonthOfYear())
+                    end = startDate.withMonthOfYear(ending.getMonthOfYear())
                             .withDayOfMonth(dayOfMonthEnding)
                             .withHourOfDay(ending.getHourOfDay())
                             .withMinuteOfHour(ending.getMinuteOfHour())
@@ -129,7 +135,7 @@ public class MathStep implements ProcessStep {
                     break;
                 case CUSTOM:
                 case CUSTOM2:
-                    start = mathDataObject.getStartDate().minusYears(ending.getYear() - beginning.getYear());
+                    start = startDate.minusYears(ending.getYear() - beginning.getYear());
 
                     Period periodForDate = CleanDataObject.getPeriodForDate(mathDataObject.getPeriodAlignment(), start);
 
@@ -138,13 +144,13 @@ public class MathStep implements ProcessStep {
                         if (dayOfMonthBeginning > maxDay) {
                             dayOfMonthBeginning = maxDay;
                         }
-                        start = mathDataObject.getStartDate().minusYears(ending.getYear() - beginning.getYear())
+                        start = startDate.minusYears(ending.getYear() - beginning.getYear())
                                 .withDayOfMonth(dayOfMonthBeginning)
                                 .withHourOfDay(beginning.getHourOfDay())
                                 .withMinuteOfHour(beginning.getMinuteOfHour())
                                 .withSecondOfMinute(beginning.getSecondOfMinute())
                                 .withMillisOfSecond(beginning.getMillisOfSecond());
-                        end = mathDataObject.getStartDate()
+                        end = startDate
                                 .withDayOfMonth(dayOfMonthEnding)
                                 .withHourOfDay(ending.getHourOfDay())
                                 .withMinuteOfHour(ending.getMinuteOfHour())
@@ -152,12 +158,12 @@ public class MathStep implements ProcessStep {
                                 .withMillisOfSecond(ending.getMillisOfSecond());
                     } else if (Period.days(1).equals(periodForDate)) {
 
-                        start = mathDataObject.getStartDate().minusYears(ending.getYear() - beginning.getYear())
+                        start = startDate.minusYears(ending.getYear() - beginning.getYear())
                                 .withHourOfDay(beginning.getHourOfDay())
                                 .withMinuteOfHour(beginning.getMinuteOfHour())
                                 .withSecondOfMinute(beginning.getSecondOfMinute())
                                 .withMillisOfSecond(beginning.getMillisOfSecond());
-                        end = mathDataObject.getStartDate()
+                        end = startDate
                                 .withHourOfDay(ending.getHourOfDay())
                                 .withMinuteOfHour(ending.getMinuteOfHour())
                                 .withSecondOfMinute(ending.getSecondOfMinute())
@@ -280,16 +286,16 @@ public class MathStep implements ProcessStep {
             else result += sample.getValueAsDouble();
         }
 
-        if (samples.size() > 0)
+        if (!samples.isEmpty())
             result = result / samples.size();
         else result = 0d;
 
         cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
         cleanInterval.getResult().setValue(result);
-        if (samples.size() > 0)
+        if (!samples.isEmpty())
             cleanInterval.getResult().setNote("math(avg,"
                     + samples.size() + ","
-                    + samples.get(0).getTimestamp().toString("YYYYMMdd") + "-" + samples.get(samples.size() - 1).getTimestamp().toString("YYYYMMdd")
+                    + samples.get(0).getTimestamp().toString("YYYYMMdd_HHmmss") + "-" + samples.get(samples.size() - 1).getTimestamp().toString("YYYYMMdd_HHmmss")
                     + ")");
         else cleanInterval.getResult().setNote("math(avg,0)");
     }
@@ -305,10 +311,10 @@ public class MathStep implements ProcessStep {
 
         cleanInterval.getResult().setTimeStamp(cleanInterval.getDate());
         cleanInterval.getResult().setValue(result);
-        if (samples.size() > 0)
+        if (!samples.isEmpty())
             cleanInterval.getResult().setNote("math(sum,"
                     + samples.size() + ","
-                    + samples.get(0).getTimestamp().toString("YYYYMMdd") + "-" + samples.get(samples.size() - 1).getTimestamp().toString("YYYYMMdd")
+                    + samples.get(0).getTimestamp().toString("YYYYMMdd_HHmmss") + "-" + samples.get(samples.size() - 1).getTimestamp().toString("YYYYMMdd_HHmmss")
                     + ")");
         else cleanInterval.getResult().setNote("math(sum,0)");
     }

@@ -43,7 +43,6 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.prefs.Preferences;
 
 /**
@@ -67,7 +66,7 @@ public class LoadAnalysisDialog extends Dialog {
     private final AggregationPeriodBox aggregationBox = new AggregationPeriodBox(AggregationPeriod.NONE);
     private final DisabledItemsComboBox<ManipulationMode> mathBox = getMathBox();
     private List<CustomPeriodObject> finalListCustomPeriodObjects;
-    private final JFXComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
+    private JFXComboBox<String> comboBoxCustomPeriods = null;
     private final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
 
     /**
@@ -192,6 +191,8 @@ public class LoadAnalysisDialog extends Dialog {
     //private JFXCheckBox drawOptimization;
 
     private void initializeControls() {
+        comboBoxCustomPeriods = getCustomPeriodsComboBox();
+
         aggregationBox.getSelectionModel().select(AggregationPeriod.parseAggregationIndex(chartPlugin.getDataSettings().getAggregationPeriod()));
         aggregationBox.setMaxWidth(200);
 
@@ -555,11 +556,11 @@ public class LoadAnalysisDialog extends Dialog {
         try {
             try {
                 JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                listCalendarDirectories = ds.getObjects(calendarDirectoryClass, false);
-            } catch (JEVisException e) {
+                listCalendarDirectories.addAll(ds.getObjects(calendarDirectoryClass, false));
+            } catch (Exception e) {
                 logger.error("Error: could not get calendar directories", e);
             }
-            if (Objects.requireNonNull(listCalendarDirectories).isEmpty()) {
+            if (listCalendarDirectories.isEmpty()) {
                 List<JEVisObject> listBuildings = new ArrayList<>();
                 try {
                     JEVisClass building = ds.getJEVisClass("Building");
@@ -579,7 +580,7 @@ public class LoadAnalysisDialog extends Dialog {
 
             }
             try {
-                listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
+                listCustomPeriods.addAll(ds.getObjects(ds.getJEVisClass("Custom Period"), false));
             } catch (JEVisException e) {
                 logger.error("Error: could not get custom period", e);
             }
@@ -608,7 +609,7 @@ public class LoadAnalysisDialog extends Dialog {
                         for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
                             if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
 
-                                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.CUSTOM_START_END);
+                                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.CUSTOM_START_END, cpo.getObject());
                                 chartPlugin.getDataSettings().setAnalysisTimeFrame(newTimeFrame);
                                 updateGridLayout(false);
                             }

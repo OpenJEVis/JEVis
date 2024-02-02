@@ -52,18 +52,19 @@ import java.util.*;
 public class TableChartV extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChartV.class);
     private final TableTopDatePicker tableTopDatePicker = new TableTopDatePicker();
-    private ChartDataRow singleRow;
-    private TableHeaderTable tableHeader;
-    private boolean blockDatePickerEvent = false;
     private final DateTime maxDate = new DateTime(9999, 1, 1, 0, 0, 0, 0);
-    private Boolean showRowSums = false;
-    private Boolean showColumnSums = false;
     private final JFXCheckBox filterEnabledBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
     private final HashMap<TableColumn<TableSample, ?>, String> columnFilter = new HashMap<>();
     private final HashMap<TableColumn<TableSample, ?>, Node> newGraphicNodes = new HashMap<>();
     private final HashMap<TableColumn<TableSample, ?>, String> columnTitles = new HashMap<>();
     private final List<String> listColumnTitles = new ArrayList<>();
+    private ChartDataRow singleRow;
+    private TableHeaderTable tableHeader;
+    private boolean blockDatePickerEvent = false;
+    private Boolean showRowSums = false;
+    private Boolean showColumnSums = false;
     private FilteredList<TableSample> filteredList;
+    private TableSample sumSample;
 
     public TableChartV(JEVisDataSource ds, ChartModel chartModel) {
         super(ds, chartModel);
@@ -165,7 +166,22 @@ public class TableChartV extends XYChart {
                 int index = xyChartSerieList.indexOf(xyChartSerie);
                 List<JEVisSample> samples = xyChartSerie.getSingleRow().getSamples();
 
-                if (xyChartSerie.getSingleRow().getDataProcessor() != null && !samples.isEmpty()) {
+                if (p == null && samples.size() > 1) {
+                    try {
+                        p = new Period(samples.get(0).getTimestamp(),
+                                samples.get(1).getTimestamp());
+
+                        if (!p.equals(Period.ZERO)) {
+                            setPeriod(p);
+                            latestSample = samples.get(0);
+                            object = latestSample.getAttribute().getObject();
+
+                            break;
+                        }
+                    } catch (Exception e) {
+                        logger.error("Could not get period from samples", e);
+                    }
+                } else if (xyChartSerie.getSingleRow().getDataProcessor() != null && !samples.isEmpty()) {
                     p = CleanDataObject.getPeriodForDate(xyChartSerie.getSingleRow().getDataProcessor(), samples.get(0).getTimestamp());
                     setPeriod(p);
                     latestSample = samples.get(0);
@@ -211,7 +227,7 @@ public class TableChartV extends XYChart {
             boolean nameEqualsExistingColumn = false;
 
             xyChartSerieList.stream().filter(xyChartSerie -> !listColumnTitles.contains(xyChartSerie.getTableEntryName())).forEach(xyChartSerie -> listColumnTitles.add(xyChartSerie.getTableEntryName()));
-            TableSample sumSample = new TableSample(maxDate, listColumnTitles.size());
+            sumSample = new TableSample(maxDate, listColumnTitles.size());
 
             for (XYChartSerie xyChartSerie : xyChartSerieList) {
                 int index = xyChartSerieList.indexOf(xyChartSerie);
@@ -293,9 +309,9 @@ public class TableChartV extends XYChart {
                 columnNameLabel.setAlignment(Pos.CENTER);
                 HBox nameLabelBox = new HBox(columnNameLabel);
                 nameLabelBox.setAlignment(Pos.CENTER);
-                JFXTextField filterBox = new JFXTextField();
-                filterBox.setPromptText(I18n.getInstance().getString("plugin.chart.tablev.filter.prompt"));
-                filterBox.textProperty().addListener((observable, oldValue, newValue) -> {
+                JFXTextField filterField = new JFXTextField();
+                filterField.setPromptText(I18n.getInstance().getString("plugin.chart.tablev.filter.prompt"));
+                filterField.textProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {
                         String s = columnFilter.get(column);
                         if (s != null) columnFilter.remove(column);
@@ -304,13 +320,12 @@ public class TableChartV extends XYChart {
                     }
                 });
 
-                VBox graphicNode = new VBox(nameLabelBox, filterBox);
+                VBox graphicNode = new VBox(nameLabelBox, filterField);
 
                 if (!nameEqualsExistingColumn) {
                     newGraphicNodes.put(column, graphicNode);
                     columnTitles.put(column, xyChartSerie.getTableEntryName());
                 }
-
 
                 if (filterEnabledBox.isSelected()) {
                     tableHeader.skinProperty().addListener((obs, ol, ne) -> {
@@ -332,15 +347,22 @@ public class TableChartV extends XYChart {
                             protected void updateItem(String item, boolean empty) {
                                 super.updateItem(item, empty);
 
-                                if (!empty) {
+                                if (item != null && !empty) {
                                     try {
-                                        String customCSS = xyChartSerie.getSingleRow().getCustomCSS();
-                                        setText(item);
+                                        String customCSS = null;
+                                        if (xyChartSerie.getSingleRow() != null && xyChartSerie.getSingleRow().getCustomCSS() != null) {
+                                            customCSS = xyChartSerie.getSingleRow().getCustomCSS();
+                                        }
 
-                                        if (showRowSums && getTableRow() != null && getTableRow().getIndex() == rowSums.size() - 1) {
-                                            setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
-                                        } else {
-                                            setStyle("-fx-alignment: CENTER-RIGHT;");
+                                        setText(item);
+                                        setStyle("-fx-alignment: CENTER-RIGHT;");
+
+                                        if (getTableRow() != null && getTableRow().getItem() != null) {
+                                            TableSample tableSample = (TableSample) getTableRow().getItem();
+
+                                            if (showRowSums && tableSample.equals(sumSample)) {
+                                                setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
+                                            }
                                         }
 
                                         if (customCSS != null) {
@@ -362,7 +384,7 @@ public class TableChartV extends XYChart {
                 }
             }
 
-            Map<Integer, JEVisObject> enpis = new HashMap<>();
+            Map<Integer, JEVisObject> calculations = new HashMap<>();
             if (showSum || showRowSums || showColumnSums) {
                 if (showSum) {
                     showRowSums = true;
@@ -388,7 +410,7 @@ public class TableChartV extends XYChart {
                         if (!isQuantity) {
                             v = v / size;
                             if (isCalculation) {
-                                enpis.put(i, sumSample.getCalculationObjects().get(i));
+                                calculations.put(i, sumSample.getCalculationObjects().get(i));
                             }
                         }
 
@@ -489,47 +511,15 @@ public class TableChartV extends XYChart {
 
             tableHeader.setItems(filteredList);
 
-            for (Map.Entry<Integer, JEVisObject> entry : enpis.entrySet()) {
-                Task<Void> task = new Task<Void>() {
-                    @Override
-                    protected Void call() throws Exception {
-                        try {
-                            CalcJobFactory calcJobCreator = new CalcJobFactory();
-
-                            CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), entry.getValue(),
-                                    singleRow.getSelectedStart(), singleRow.getSelectedEnd(), true);
-                            List<JEVisSample> results = calcJob.getResults();
-                            XYChartSerie serie = xyChartSerieList.get(entry.getKey());
-                            JEVisUnit unit = serie.getSingleRow().getUnit();
-
-                            if (results.size() == 1) {
-                                Platform.runLater(() -> {
-                                    try {
-                                        values.get(values.size() - 1).getColumnValues().set(entry.getKey(), serie.getNf().format(results.get(0).getValueAsDouble()) + " " + unit);
-                                    } catch (Exception e) {
-                                        logger.error("Couldn't get calculation result");
-                                    }
-                                });
-                            } else {
-                                values.get(values.size() - 1).getColumnValues().set(entry.getKey(), "- " + unit);
-                            }
-                        } catch (Exception e) {
-                            failed();
-                        } finally {
-                            succeeded();
-                            Platform.runLater(tableHeader::refresh);
-                        }
-                        return null;
-                    }
-                };
-                JEConfig.getStatusBar().addTask(TableChartV.class.getName(), task, TableChartV.taskImage, true);
-            }
+            createCalculations(calculations, values);
 
             Platform.runLater(() -> {
                 tableHeader.getColumns().clear();
                 tableHeader.getColumns().addAll(tableColumns);
                 tableHeader.autoFitTable();
-                TableViewUtils.addCustomTableMenu(tableHeader, columnTitles);
+                if (tableHeader != null && tableHeader.getSkin() != null && !columnTitles.isEmpty()) {
+                    TableViewUtils.addCustomTableMenu(tableHeader, columnTitles);
+                }
 
                 Task<Void> task = new Task<Void>() {
                     @Override
@@ -551,16 +541,63 @@ public class TableChartV extends XYChart {
                 JEConfig.getStatusBar().addTask(TableChartV.class.getName(), task, TableChartV.taskImage, true);
             });
 
-            tableHeader.getVisibleLeafColumns().addListener((ListChangeListener) change -> TableViewUtils.addCustomTableMenu(tableHeader, columnTitles));
+            tableHeader.getVisibleLeafColumns().addListener((ListChangeListener) change -> {
+                if (tableHeader != null && tableHeader.getSkin() != null && !columnTitles.isEmpty()) {
+                    TableViewUtils.addCustomTableMenu(tableHeader, columnTitles);
+                }
+            });
 
         } catch (Exception e) {
             logger.error("Error while adding Series to chart", e);
         }
     }
 
+    private void createCalculations(Map<Integer, JEVisObject> enpis, ObservableList<TableSample> values) {
+        for (Map.Entry<Integer, JEVisObject> entry : enpis.entrySet()) {
+            Task<Void> task = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    try {
+                        CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                        CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), entry.getValue(),
+                                singleRow.getSelectedStart(), singleRow.getSelectedEnd(), true);
+                        List<JEVisSample> results = calcJob.getResults();
+                        XYChartSerie serie = xyChartSerieList.get(entry.getKey());
+                        JEVisUnit unit = serie.getSingleRow().getUnit();
+
+                        if (results.size() == 1) {
+                            Platform.runLater(() -> {
+                                try {
+                                    values.get(values.size() - 1).getColumnValues().set(entry.getKey(), serie.getNf().format(results.get(0).getValueAsDouble()) + " " + unit);
+                                } catch (Exception e) {
+                                    logger.error("Couldn't get calculation result");
+                                }
+                            });
+                        } else {
+                            values.get(values.size() - 1).getColumnValues().set(entry.getKey(), "- " + unit);
+                        }
+                    } catch (Exception e) {
+                        failed();
+                    } finally {
+                        succeeded();
+                        Platform.runLater(tableHeader::refresh);
+                    }
+                    return null;
+                }
+            };
+            JEConfig.getStatusBar().addTask(TableChartV.class.getName(), task, TableChartV.taskImage, true);
+        }
+    }
+
     private void refreshTable() {
         filteredList.setPredicate(tableSample -> {
             boolean showTableSample = true;
+
+            if (tableSample.equals(this.sumSample)) {
+                return showTableSample;
+            }
+
             for (Map.Entry<TableColumn<TableSample, ?>, String> entry : columnFilter.entrySet()) {
                 TableColumn<TableSample, ?> column = entry.getKey();
                 int columnIndex = tableHeader.getColumns().indexOf(column) - 1;
@@ -600,10 +637,62 @@ public class TableChartV extends XYChart {
             }
             return showTableSample;
         });
+
+        List<Double> columnValues = sumSample.getColumnNumbers();
+        for (int i = 0; i < columnValues.size(); i++) {
+            columnValues.set(i, 0d);
+            sumSample.getColumnNumbersSize().set(i, 0L);
+        }
+
+        filteredList.forEach(tableSample -> {
+            if (!tableSample.equals(sumSample)) {
+                List<Double> columnNumbers = tableSample.getColumnNumbers();
+                for (int i = 0; i < columnNumbers.size(); i++) {
+                    Double aDouble = columnNumbers.get(i);
+                    sumSample.getColumnNumbers().set(i, sumSample.getColumnNumbers().get(i) + aDouble);
+                    sumSample.getColumnNumbersSize().set(i, sumSample.getColumnNumbersSize().get(i) + 1);
+                }
+            }
+        });
+
+        QuantityUnits qu = new QuantityUnits();
+
+        List<Double> columnNumbers = sumSample.getColumnNumbers();
+        Map<Integer, JEVisObject> calculations = new HashMap<>();
+        for (int i = 0; i < columnNumbers.size(); i++) {
+            String s = "";
+
+            Double v = columnNumbers.get(i);
+            Long size = sumSample.getColumnNumbersSize().get(i);
+            JEVisUnit unit = sumSample.getUnits().get(i);
+            NumberFormat nf = sumSample.getNumberFormats().get(i);
+            boolean isCalculation = sumSample.isCalculation().get(i);
+
+            if (unit != null && !unit.toString().isEmpty()) {
+                boolean isQuantity = qu.isQuantityUnit(unit);
+                isQuantity = qu.isQuantityIfCleanData(sumSample.getChartSeries().get(i).getSingleRow().getAttribute(), isQuantity);
+
+                if (!isQuantity) {
+                    v = v / size;
+                    if (isCalculation) {
+                        calculations.put(i, sumSample.getCalculationObjects().get(i));
+                    }
+                }
+
+                s = nf.format(v) + " " + unit;
+            } else {
+                s = nf.format(v);
+            }
+            sumSample.getColumnValues().set(i, s);
+        }
+
+        createCalculations(calculations, filteredList);
+
         tableHeader.refresh();
     }
 
-    private void updateSample(NumberFormat nf, TableSample sumSample, XYChartSerie xyChartSerie, int index, JEVisSample jeVisSample, TableSample nts) throws JEVisException {
+    private void updateSample(NumberFormat nf, TableSample sumSample, XYChartSerie xyChartSerie,
+                              int index, JEVisSample jeVisSample, TableSample nts) throws JEVisException {
         if (!xyChartSerie.getSingleRow().isStringData()) {
             if (!xyChartSerie.getSingleRow().getUnit().toString().isEmpty()) {
                 nts.getColumnValues().set(index, nf.format(jeVisSample.getValueAsDouble()) + " " + xyChartSerie.getSingleRow().getUnit());
