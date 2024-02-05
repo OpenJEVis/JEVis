@@ -54,6 +54,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DashboardControl {
 
@@ -694,13 +695,13 @@ public class DashboardControl {
 
     public void switchUpdating() {
         logger.error("switchUpdating");
-        this.isUpdateRunning = !this.isUpdateRunning;
         if (this.isUpdateRunning) {
-            runDataUpdateTasks(isUpdateRunning);
-        } else {
             stopAllUpdates();
+        } else {
+            runDataUpdateTasks(false);
         }
-//        rundataUpdateTasks(!this.isUpdateRunning);
+
+        this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(isUpdateRunning);
     }
 
     private void removeNode(Widget widget) {
@@ -724,30 +725,19 @@ public class DashboardControl {
         }
     }
 
-    public void runDataUpdateTasks(boolean reStartUpdateDaemon) {
-        logger.debug("Restart Update Tasks: daemon: {}", reStartUpdateDaemon);
-        this.isUpdateRunning = reStartUpdateDaemon;
-
-        stopAllUpdates();
-
-        for (Widget widget : this.widgetList) {
-            if (!widget.isStatic()) {
-                Platform.runLater(() -> {
-                    try {
-                        widget.showProgressIndicator(true);
-                    } catch (Exception ex) {
-                        logger.error("Show ProgressIndicator for: {}", widget.getConfig().getTitle(), ex);
-                    }
-                });
-            }
-        }
-
+    /**
+     * @param runOnce if ture run the update once. False to create an update scheduler
+     */
+    public void runDataUpdateTasks(boolean runOnce) {
+        logger.debug("Restart Update Tasks: daemon");
         logger.debug("Update Interval: {}", activeInterval);
+        AtomicInteger count = new AtomicInteger(0);
 
         updateTask = new TimerTask() {
             @Override
             public void run() {
-                logger.error("Starting Updates");
+                logger.info("Starting Updates");
+                count.set(count.get() + 1);
                 ControlCenter.getStatusBar().startProgressJob("Dashboard"
                         , DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count()
                         , I18n.getInstance().getString("plugin.dashboard.message.startupdate"));
@@ -765,20 +755,25 @@ public class DashboardControl {
                             }
                         }
                     }
+
+
                 } catch (Exception ex) {
                     logger.error("Error while adding widgets", ex);
                 }
+                logger.info("Done task #\" + count.get()");
             }
         };
 
-        if (reStartUpdateDaemon) {
-            this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(true);
-            logger.info("Start updateData scheduler: {} sec", this.activeDashboard.getUpdateRate());
-            this.updateTimer.scheduleAtFixedRate(updateTask, 1000, this.activeDashboard.getUpdateRate() * 1000);
-        } else {
+
+        if (runOnce) {
             this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(false);
             this.updateTimer.schedule(updateTask, 0);
+        } else {
+            logger.info("Start updateData scheduler: {} sec, time: {}", this.activeDashboard.getUpdateRate(), new Date());
+            this.updateTimer.scheduleAtFixedRate(updateTask, 1000, this.activeDashboard.getUpdateRate() * 1000);
+            this.isUpdateRunning = true;
         }
+        // this.updateTimer.scheduleAtFixedRate(updateTask, 1000, 30 * 1000);
 
     }
 

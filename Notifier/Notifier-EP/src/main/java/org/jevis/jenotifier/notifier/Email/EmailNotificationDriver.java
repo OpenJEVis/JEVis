@@ -602,6 +602,9 @@ public class EmailNotificationDriver implements NotificationDriver {
         message.addHeader("Content-type", "text/HTML; charset=UTF-8");
         message.addHeader("format", "flowed");
         message.addHeader("Content-Transfer-Encoding", "8bit");
+        if (emnoti.isPriority()) {
+            message.addHeader("X-Priority", "1");
+        }
 
         try {
             message.setFrom(System.getProperty("user.name") + "@" + InetAddress.getLocalHost().getCanonicalHostName());

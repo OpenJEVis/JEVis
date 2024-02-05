@@ -42,7 +42,7 @@ public class DeleteAnalysisDialog {
                         JEVisAttribute analysisFileAttribute = ds.getCurrentUser().getUserObject().getAttribute(AnalysisHandler.ANALYSIS_FILE_ATTRIBUTE_NAME);
                         if (analysisFileAttribute.hasSample()) {
                             int currentIndex = analysesComboBox.getItems().indexOf(dataSettings.getCurrentAnalysis());
-                            analysisFileAttribute.deleteSamplesBetween(analysisFileAttribute.getTimestampFromLastSample(), analysisFileAttribute.getTimestampFromLastSample());
+                            analysisFileAttribute.deleteSamplesBetween(analysisFileAttribute.getTimestampOfLastSample(), analysisFileAttribute.getTimestampOfLastSample());
 
                             updateAnalysisBox(currentIndex);
                         }

@@ -207,20 +207,20 @@ public class MapPlugin implements TreePlugin {
                     public void updateItem(LocalDate item, boolean empty) {
                         super.updateItem(item, empty);
                         LocalDate ldBeginn = LocalDate.of(
-                                data.getTimestampFromFirstSample().getYear(),
-                                data.getTimestampFromFirstSample().getMonthOfYear(),
-                                data.getTimestampFromFirstSample().getDayOfMonth());
+                                data.getTimestampOfFirstSample().getYear(),
+                                data.getTimestampOfFirstSample().getMonthOfYear(),
+                                data.getTimestampOfFirstSample().getDayOfMonth());
                         LocalDate ldEnd = LocalDate.of(
-                                data.getTimestampFromLastSample().getYear(),
-                                data.getTimestampFromLastSample().getMonthOfYear(),
-                                data.getTimestampFromLastSample().getDayOfMonth());
+                                data.getTimestampOfLastSample().getYear(),
+                                data.getTimestampOfLastSample().getMonthOfYear(),
+                                data.getTimestampOfLastSample().getDayOfMonth());
 
-                        if (data.getTimestampFromFirstSample() != null && item.isBefore(ldBeginn)) {
+                        if (data.getTimestampOfFirstSample() != null && item.isBefore(ldBeginn)) {
                             setDisable(true);
                             setStyle("-fx-background-color: #ffc0cb;");
                         }
 
-                        if (data.getTimestampFromFirstSample() != null && item.isAfter(ldEnd)) {
+                        if (data.getTimestampOfFirstSample() != null && item.isAfter(ldEnd)) {
                             setDisable(true);
                             setStyle("-fx-background-color: #ffc0cb;");
                         }
@@ -433,7 +433,7 @@ public class MapPlugin implements TreePlugin {
             if (_selectedStart != null) {
                 return _selectedStart;
             } else {
-                _selectedStart = getTimestampFromFirstSample();
+                _selectedStart = getTimestampOfFirstSample();
             }
             return _selectedStart;
 
@@ -463,7 +463,7 @@ public class MapPlugin implements TreePlugin {
             if (_selectedEnd != null) {
                 return _selectedEnd;
             } else {
-                _selectedEnd = getTimestampFromLastSample();
+                _selectedEnd = getTimestampOfLastSample();
             }
             return _selectedEnd;
 
@@ -555,23 +555,23 @@ public class MapPlugin implements TreePlugin {
             return hasSample;
         }
 
-        private DateTime getTimestampFromLastSample() {
+        private DateTime getTimestampOfLastSample() {
             DateTime until = null;
             if (_latitude != null && _longitude != null) {
-                until = _latitude.getTimestampFromLastSample();
-                if (_longitude.getTimestampFromLastSample().isBefore(until)) {
-                    until = _longitude.getTimestampFromLastSample();
+                until = _latitude.getTimestampOfLastSample();
+                if (_longitude.getTimestampOfLastSample().isBefore(until)) {
+                    until = _longitude.getTimestampOfLastSample();
                 }
             }
             return until;
         }
 
-        private DateTime getTimestampFromFirstSample() {
+        private DateTime getTimestampOfFirstSample() {
             DateTime from = null;
             if (_latitude != null && _longitude != null) {
-                from = _latitude.getTimestampFromFirstSample();
-                if (_longitude.getTimestampFromFirstSample().isAfter(from)) {
-                    from = _longitude.getTimestampFromFirstSample();
+                from = _latitude.getTimestampOfFirstSample();
+                if (_longitude.getTimestampOfFirstSample().isAfter(from)) {
+                    from = _longitude.getTimestampOfFirstSample();
                 }
             }
             return from;

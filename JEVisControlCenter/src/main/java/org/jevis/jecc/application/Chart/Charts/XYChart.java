@@ -6,6 +6,7 @@ import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
 import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.Renderer;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
+import de.gsi.chart.renderer.spi.HistoryDataSetRenderer;
 import de.gsi.chart.ui.geometry.Side;
 import de.gsi.dataset.DataSet;
 import de.gsi.dataset.spi.DoubleDataSet;
@@ -214,7 +215,9 @@ public class XYChart implements Chart {
         }
 
         hexColors.clear();
-        chart.getDatasets().clear();
+        if (chart != null) {
+            chart.getDatasets().clear();
+        }
         tableData.clear();
 
         changedBoth = new Boolean[]{false, false};
@@ -248,7 +251,7 @@ public class XYChart implements Chart {
 
                     xyChartSerieList.add(generateSerie(changedBoth, chartDataRow));
 
-                    if (chartDataRow.hasForecastData()) {
+                    if (chartDataRow.hasForecastData() && dataSettings.isForecastEnabled()) {
                         try {
                             XYChartSerie forecast = new XYChartSerie(this.chartModel, chartDataRow, showIcons, true);
 
@@ -324,7 +327,7 @@ public class XYChart implements Chart {
 
                     for (int i = 0; i < ds.getDataCount(); i++) {
                         double x = ds.get(DataSet.DIM_X, i);
-                        DateTime ts = new DateTime(new Double(x * 1000d).longValue());
+                        DateTime ts = new DateTime(Double.valueOf(x * 1000d).longValue());
 
                         double currentY = ds.get(DataSet.DIM_Y, i);
                         List<Double> otherYs = new ArrayList<>();
@@ -387,15 +390,12 @@ public class XYChart implements Chart {
                         try {
                             JEVisUnit sumUnit = qu.getSumUnit(unit);
                             ChartUnits cu = new ChartUnits();
-                            double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
-                            JEVisUnit inputUnit = firstY1Row.getAttribute().getInputUnit();
-                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
-                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
-                                sum = sum * newScaleFactor / y1SumSerie.getSingleRow().getTimeFactor();
-                            } else {
-                                sum = sum / y1SumSerie.getSingleRow().getScaleFactor() / y1SumSerie.getSingleRow().getTimeFactor();
-                            }
+                            Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                            Period rawPeriod = CleanDataObject.getPeriodForDate(samples.get(0).getAttribute().getObject(), samples.get(0).getTimestamp());
+
+                            double newScaleFactor = cu.scaleValue(rawPeriod, unit.toString(), currentPeriod, sumUnit.toString());
+                            sum = sum * newScaleFactor;
 
                             Double finalSum1 = sum;
                             sumEntry.setSum(nf.format(finalSum1) + " " + sumUnit.getLabel());
@@ -458,7 +458,7 @@ public class XYChart implements Chart {
 
                     for (int i = 0; i < ds.getDataCount(); i++) {
                         double x = ds.get(DataSet.DIM_X, i);
-                        DateTime ts = new DateTime(new Double(x * 1000d).longValue());
+                        DateTime ts = new DateTime(Double.valueOf(x * 1000d).longValue());
 
                         double currentY = ds.get(DataSet.DIM_Y, i);
                         List<Double> otherYs = new ArrayList<>();
@@ -521,15 +521,13 @@ public class XYChart implements Chart {
                         try {
                             JEVisUnit sumUnit = qu.getSumUnit(unit);
                             ChartUnits cu = new ChartUnits();
-                            double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
-                            JEVisUnit inputUnit = firstY2Row.getAttribute().getInputUnit();
-                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
-                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
-                                sum = sum * newScaleFactor / y2SumSerie.getSingleRow().getTimeFactor();
-                            } else {
-                                sum = sum / y2SumSerie.getSingleRow().getScaleFactor() / y2SumSerie.getSingleRow().getTimeFactor();
-                            }
+                            Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                            Period rawPeriod = CleanDataObject.getPeriodForDate(samples.get(0).getAttribute().getObject(), samples.get(0).getTimestamp());
+
+                            double newScaleFactor = cu.scaleValue(rawPeriod, unit.toString(), currentPeriod, sumUnit.toString());
+
+                            sum = sum * newScaleFactor;
 
                             Double finalSum1 = sum;
                             sumEntry.setSum(nf.format(finalSum1) + " " + sumUnit.getLabel());
@@ -580,17 +578,16 @@ public class XYChart implements Chart {
             Platform.runLater(() -> this.primaryDateAxis.setAxisLabelFormatter(axisLabelFormatter));
 
         } else {
-            Platform.runLater(() -> this.primaryDateAxis.setTimeAxis(true));
 
             CustomTimeFormatter axisLabelFormatter = new CustomTimeFormatter(this.primaryDateAxis);
 
-            Platform.runLater(() -> this.primaryDateAxis.setAxisLabelFormatter(axisLabelFormatter));
-
-            Platform.runLater(() -> this.secondaryDateAxis.setTimeAxis(true));
-
             CustomTimeFormatter secondaryAxisLabelFormatter = new CustomTimeFormatter(this.secondaryDateAxis);
-
-            Platform.runLater(() -> this.secondaryDateAxis.setAxisLabelFormatter(secondaryAxisLabelFormatter));
+            Platform.runLater(() -> {
+                this.primaryDateAxis.setTimeAxis(true);
+                this.primaryDateAxis.setAxisLabelFormatter(axisLabelFormatter);
+                this.secondaryDateAxis.setTimeAxis(true);
+                this.secondaryDateAxis.setAxisLabelFormatter(secondaryAxisLabelFormatter);
+            });
         }
 
         if (showSum && chartDataRows.size() > 1 && chartType != ChartType.TABLE_V) {
@@ -667,7 +664,7 @@ public class XYChart implements Chart {
 
                 for (int i = 0; i < ds.getDataCount(); i++) {
                     double x = ds.get(DataSet.DIM_X, i);
-                    DateTime ts = new DateTime(new Double(x * 1000d).longValue());
+                    DateTime ts = new DateTime(Double.valueOf(x * 1000d).longValue());
 
                     double currentY = ds.get(DataSet.DIM_Y, i);
                     List<Double> otherYs = new ArrayList<>();
@@ -728,15 +725,13 @@ public class XYChart implements Chart {
                         try {
                             JEVisUnit sumUnit = qu.getSumUnit(unit);
                             ChartUnits cu = new ChartUnits();
-                            double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
-                            JEVisUnit inputUnit = firstY1Row.getAttribute().getInputUnit();
-                            JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
-                            if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
-                                sum = sum * newScaleFactor / currentSumSerie.getSingleRow().getTimeFactor();
-                            } else {
-                                sum = sum / currentSumSerie.getSingleRow().getScaleFactor() / currentSumSerie.getSingleRow().getTimeFactor();
-                            }
+                            Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                            Period rawPeriod = CleanDataObject.getPeriodForDate(samples.get(0).getAttribute().getObject(), samples.get(0).getTimestamp());
+
+                            double newScaleFactor = cu.scaleValue(rawPeriod, unit.toString(), currentPeriod, sumUnit.toString());
+
+                            sum = sum * newScaleFactor;
 
                             Double finalSum1 = sum;
                             sumEntry.setSum(nf.format(finalSum1) + " " + sumUnit.getLabel());
@@ -816,10 +811,10 @@ public class XYChart implements Chart {
         rendererAreaX2Y2.setDrawMarker(false);
         rendererAreaX2Y2.getAxes().addAll(secondaryDateAxis, y2Axis);
 
-        ErrorDataSetRenderer rendererLogicalY1 = new ErrorDataSetRenderer();
-        ErrorDataSetRenderer rendererLogicalY2 = new ErrorDataSetRenderer();
-        ErrorDataSetRenderer rendererLogicalX2Y1 = new ErrorDataSetRenderer();
-        ErrorDataSetRenderer rendererLogicalX2Y2 = new ErrorDataSetRenderer();
+        HistoryDataSetRenderer rendererLogicalY1 = new HistoryDataSetRenderer();
+        HistoryDataSetRenderer rendererLogicalY2 = new HistoryDataSetRenderer();
+        HistoryDataSetRenderer rendererLogicalX2Y1 = new HistoryDataSetRenderer();
+        HistoryDataSetRenderer rendererLogicalX2Y2 = new HistoryDataSetRenderer();
         rendererLogicalY1.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
         rendererLogicalY1.setDrawMarker(false);
         rendererLogicalY1.getAxes().add(y1Axis);
@@ -833,10 +828,10 @@ public class XYChart implements Chart {
         rendererLogicalX2Y2.setDrawMarker(false);
         rendererLogicalX2Y2.getAxes().addAll(secondaryDateAxis, y2Axis);
 
-        ErrorDataSetRenderer rendererBarY1 = new ErrorDataSetRenderer();
-        ErrorDataSetRenderer rendererBarY2 = new ErrorDataSetRenderer();
-        ErrorDataSetRenderer rendererBarX2Y1 = new ErrorDataSetRenderer();
-        ErrorDataSetRenderer rendererBarX2Y2 = new ErrorDataSetRenderer();
+        HistoryDataSetRenderer rendererBarY1 = new HistoryDataSetRenderer();
+        HistoryDataSetRenderer rendererBarY2 = new HistoryDataSetRenderer();
+        HistoryDataSetRenderer rendererBarX2Y1 = new HistoryDataSetRenderer();
+        HistoryDataSetRenderer rendererBarX2Y2 = new HistoryDataSetRenderer();
         rendererBarY1.setPolyLineStyle(LineStyle.NONE);
         rendererBarY1.setDrawBars(true);
         rendererBarY1.setDrawMarker(false);
@@ -1206,8 +1201,7 @@ public class XYChart implements Chart {
                     }
                 }
 
-                if (input instanceof DoubleDataSet) {
-                    DoubleDataSet doubleDataSet = (DoubleDataSet) input;
+                if (input instanceof DoubleDataSet doubleDataSet) {
                     set.add(doubleDataSet.getX(i), result);
                 } else if (input instanceof DoubleErrorDataSet doubleErrorDataSet) {
                     set.add(doubleErrorDataSet.getX(i), result);
@@ -1330,13 +1324,13 @@ public class XYChart implements Chart {
          * check if timestamps are in serie
          */
 
-        if (serie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
-            timeStampOfFirstSample.set(serie.getTimeStampFromFirstSample());
+        if (serie.getTimeStampOfFirstSample().isBefore(timeStampOfFirstSample.get())) {
+            timeStampOfFirstSample.set(serie.getTimeStampOfFirstSample());
             changedBoth[0] = true;
         }
 
-        if (serie.getTimeStampFromLastSample().isAfter(timeStampOfLastSample.get())) {
-            timeStampOfLastSample.set(serie.getTimeStampFromLastSample());
+        if (serie.getTimeStampOfLastSample().isAfter(timeStampOfLastSample.get())) {
+            timeStampOfLastSample.set(serie.getTimeStampOfLastSample());
             changedBoth[1] = true;
         }
 
@@ -1464,7 +1458,7 @@ public class XYChart implements Chart {
 
     private void generatePeriod() {
         if (period == null) {
-            if (chartDataRows != null && chartDataRows.size() > 0) {
+            if (chartDataRows != null && !chartDataRows.isEmpty()) {
                 ChartDataRow chartDataRow = chartDataRows.get(0);
 
                 try {
@@ -1590,7 +1584,6 @@ public class XYChart implements Chart {
 
         }
         if (valueForDisplay != null) {
-            DateTime finalValueForDisplay = valueForDisplay;
 
             xyChartSerieList.forEach(serie -> {
                 try {
@@ -1599,10 +1592,10 @@ public class XYChart implements Chart {
                     TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
 
                     DateTime nearest = null;
-                    if (sampleTreeMap.get(finalValueForDisplay) != null) {
-                        nearest = finalValueForDisplay;
+                    if (sampleTreeMap.get(valueForDisplay) != null) {
+                        nearest = valueForDisplay;
                     } else {
-                        nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
+                        nearest = sampleTreeMap.lowerKey(valueForDisplay);
                     }
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
@@ -1644,8 +1637,8 @@ public class XYChart implements Chart {
                             Platform.runLater(() -> {
                                 try {
                                     tableEntry.setValue(sample.getValueAsString() + " " + unit);
-                                } catch (JEVisException e) {
-                                    e.printStackTrace();
+                                } catch (Exception e) {
+                                    logger.error(e);
                                 }
                             });
                         }
@@ -1722,7 +1715,7 @@ public class XYChart implements Chart {
                 long finalZeroCount = zeroCount;
                 double finalAvg = avg;
                 try {
-                    serie.updateTableEntry(newList, unit, min, max, finalAvg, finalSum, finalZeroCount, true);
+                    serie.updateTableEntry(newList, unit, min, max, finalZeroCount, true);
                 } catch (JEVisException e) {
                     logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
                 }

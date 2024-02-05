@@ -13,8 +13,10 @@ import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.*;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,7 @@ public class DifferentialStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
+        DateTime benchStart = new DateTime();
         CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
         List<CleanInterval> intervals = resourceManager.getIntervals();
         List<JEVisSample> rawSamples = resourceManager.getRawSamplesDown();
@@ -159,10 +162,10 @@ public class DifferentialStep implements ProcessStep {
                             periods.addAll(cleanDataObject.getRawDataPeriodAlignment());
                             Period maxPeriod = cleanDataObject.getMaxPeriod(periods);
                             DateTime newFirstTs = firstTS;
-                            DateTime timestampFromFirstSample = cleanDataObject.getRawAttribute().getTimestampFromFirstSample();
+                            DateTime timestampOfFirstSample = cleanDataObject.getRawAttribute().getTimestampOfFirstSample();
                             List<JEVisSample> samples = new ArrayList<>();
 
-                            while (timestampFromFirstSample.isBefore(newFirstTs) && samples.size() < 2 && !maxPeriod.equals(Period.ZERO)) {
+                            while (timestampOfFirstSample.isBefore(newFirstTs) && samples.size() < 2 && !maxPeriod.equals(Period.ZERO)) {
                                 newFirstTs = newFirstTs.minus(maxPeriod);
                                 samples = cleanDataObject.getRawAttribute().getSamples(newFirstTs, firstTS);
                             }
@@ -363,6 +366,8 @@ public class DifferentialStep implements ProcessStep {
                 lastInterval = interval;
             }
         }
+
+        logger.debug("{} finished in {}", this.getClass().getSimpleName(), new Period(benchStart, new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
     }
 
     private Double calcAvgSample(List<JEVisSample> currentRawSamples) {

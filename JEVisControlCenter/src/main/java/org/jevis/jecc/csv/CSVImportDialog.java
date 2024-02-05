@@ -362,11 +362,11 @@ public class CSVImportDialog {
 
     private Node buildTablePane() {
         TableView placeholderTree = new TableView();
-        TableColumn firstNameCol = new TableColumn(I18n.getInstance().getString("csv.table.first_col"));
-        TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("csv.table.second_col"));
-        firstNameCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
-        lastNameCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
-        placeholderTree.getColumns().addAll(firstNameCol, lastNameCol);
+        TableColumn firstCol = new TableColumn(I18n.getInstance().getString("csv.table.first_col"));
+        TableColumn lastCol = new TableColumn(I18n.getInstance().getString("csv.table.second_col"));
+        firstCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
+        lastCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
+        placeholderTree.getColumns().addAll(firstCol, lastCol);
 
         Layouts.setAnchor(placeholderTree, 0);
         tableRootPane.getChildren().setAll(placeholderTree);

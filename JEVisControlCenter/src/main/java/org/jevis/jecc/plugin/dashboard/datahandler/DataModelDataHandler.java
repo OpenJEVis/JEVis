@@ -88,7 +88,7 @@ public class DataModelDataHandler {
                     this.dataModelNode = new DataModelNode();
                 }
 
-                this.fixedTimeFrame = config.isFixedTimeframe();
+                setFixedTimeframe(config.isFixedTimeframe());
             } else {
                 this.dataModelNode = new DataModelNode();
             }
@@ -108,6 +108,10 @@ public class DataModelDataHandler {
         setData(this.dataModelNode.getData());
         this.timeFrameFactory = new TimeFrameFactory(jeVisDataSource);
         this.timeFrameFactories.addAll(this.timeFrameFactory.getAll(dashboardControl.getActiveDashboard().getDashboardObject()));
+    }
+
+    private void setFixedTimeframe(boolean fixedTimeframe) {
+        this.fixedTimeFrame = fixedTimeframe;
     }
 
     public static Double getManipulatedData(DataModelNode dataModelNode, List<JEVisSample> samples, ChartDataRow dataModel) {
@@ -320,10 +324,10 @@ public class DataModelDataHandler {
 
             TimeFrame timeFrame = getTimeFrameFactory();
             if (timeFrame != null) {
-                interval = timeFrame.getInterval(interval.getEnd(), this.fixedTimeFrame);
+                interval = timeFrame.getInterval(interval.getEnd(), isFixedTimeFrame());
                 if (interval.getEndMillis() - interval.getStartMillis() == 0) {
                     this.setForcedZeroInterval(interval);
-                    interval = dashboardControl.getActiveTimeFrame().getInterval(interval.getEnd(), this.fixedTimeFrame);
+                    interval = dashboardControl.getActiveTimeFrame().getInterval(interval.getEnd(), isFixedTimeFrame());
                 }
             } else {
                 logger.error("Widget DataModel is not configured, using selected.");
@@ -402,6 +406,10 @@ public class DataModelDataHandler {
                 logger.error(ex);
             }
         }
+    }
+
+    private Boolean isFixedTimeFrame() {
+        return this.fixedTimeFrame;
     }
 
     private void setForcedZeroInterval(Interval interval) {

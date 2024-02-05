@@ -210,8 +210,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
         //TODO: replace this , the getPrimitiveType() is very bad because it will call the Webservice for every sample
 //        if (getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
-        if (value instanceof JEVisFile) {// workaround
-            JEVisFile file = (JEVisFile) value;
+        if (value instanceof JEVisFile file) {// workaround
             newSample = new JEVisSampleWS(ds, newJson, this, file);
 
         } else {
@@ -257,11 +256,11 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public boolean hasSample() {
-        return getTimestampFromFirstSample() != null;
+        return getTimestampOfFirstSample() != null;
     }
 
     @Override
-    public DateTime getTimestampFromFirstSample() {
+    public DateTime getTimestampOfFirstSample() {
         try {
             return attDTF.parseDateTime(json.getBegins());
         } catch (Exception nex) {
@@ -270,7 +269,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     }
 
     @Override
-    public DateTime getTimestampFromLastSample() {
+    public DateTime getTimestampOfLastSample() {
         try {
             return attDTF.parseDateTime(json.getEnds());
         } catch (Exception nex) {
@@ -480,8 +479,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
         /**
          * cast needs to be removed
          */
-        if (otherObject instanceof JEVisAttribute) {
-            JEVisAttribute otherAttribute = (JEVisAttribute) otherObject;
+        if (otherObject instanceof JEVisAttribute otherAttribute) {
             if (otherAttribute.getObjectID().equals(getObjectID()) && otherAttribute.getName().equals(getName())) {
                 return otherAttribute.getName().equals(otherAttribute.getName());
             }

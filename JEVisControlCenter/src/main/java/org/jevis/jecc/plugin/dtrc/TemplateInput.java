@@ -11,7 +11,8 @@ import org.jevis.api.*;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.object.plugin.RangingValues;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
-import org.jevis.jecc.application.tools.CalculationNameFormatter;
+import org.jevis.commons.utils.NameFormatter;
+import org.jevis.jecc.application.application.I18nWS;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.joda.time.DateTime;
@@ -160,10 +161,19 @@ public class TemplateInput extends TemplateSelected {
 
     public void buildVariableName(JEVisClass jeVisClass, JEVisType jeVisType) {
         try {
-            setVariableName(CalculationNameFormatter.createVariableName(jeVisClass, jeVisType));
+            setVariableName(createVariableName(jeVisClass, jeVisType));
         } catch (JEVisException e) {
             logger.error("Could not create variable name", e);
         }
+    }
+
+    private String createVariableName(JEVisClass target, JEVisType attribute) throws JEVisException {
+        String name = I18nWS.getInstance().getClassName(target) + I18nWS.getInstance().getTypeName(target.getName(), attribute.getName());
+
+        name = NameFormatter.formatVariableText(name);
+
+        return name;
+
     }
 
     public void CreateValues(JEVisDataSource ds, IntervalSelector intervalSelector, DateTime start, DateTime end) {
@@ -252,8 +262,8 @@ public class TemplateInput extends TemplateSelected {
 
                     for (int i = samples.size() - 1; i > -1; i--) {
                         JEVisSample sample = samples.get(i);
-                        filteredList.add(sample);
-                        if (sample.getTimestamp().isBefore(start)) {
+                        if (sample.getTimestamp().equals(start) || sample.getTimestamp().isBefore(start)) {
+                            filteredList.add(sample);
                             break;
                         }
                     }

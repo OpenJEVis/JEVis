@@ -25,6 +25,7 @@ import org.jevis.jecc.Icon;
 import org.jevis.jecc.plugin.AnalysisRequest;
 import org.jevis.jecc.plugin.action.data.ActionData;
 import org.jevis.jecc.plugin.action.data.FreeObject;
+import org.jevis.jecc.plugin.action.data.Medium;
 import org.jevis.jecc.plugin.action.ui.NumerFormating;
 import org.jevis.jecc.plugin.action.ui.TimeRangeDialog;
 import org.jevis.jecc.plugin.action.ui.control.TextFieldWithUnit;
@@ -42,19 +43,19 @@ public class DetailsTab extends Tab {
     private final Label l_correctionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.correction"));
     private final Label l_nextActionIfNeeded = new Label(I18n.getInstance().getString("plugin.action.followupaction"));
     private final Label l_alternativAction = new Label(I18n.getInstance().getString("plugin.action.alternativaction"));
-    private final Label l_energyBefore = new Label("Verbrauch (Referenz)");
-    private final Label l_energyAfter = new Label("Verbrauch (Ist)");
+    private final Label l_energyBefore = new Label(I18n.getInstance().getString("plugin.action.consumption.before"));//"Verbrauch (Referenz)");f_consumptionBefore
+    private final Label l_energyAfter = new Label(I18n.getInstance().getString("plugin.action.consumption.after"));//"Verbrauch (Ist)");
     private final Label l_energyChange = new Label(I18n.getInstance().getString("plugin.action.consumption.diff"));
     private final Button beforeDateButton = new Button("", ControlCenter.getSVGImage(Icon.CALENDAR, 14, 14));
     private final Button afterDateButton = new Button("", ControlCenter.getSVGImage(Icon.CALENDAR, 14, 14));
     private final Button diffDateButton = new Button("", ControlCenter.getSVGImage(Icon.CALENDAR, 14, 14));
     private final Button buttonOpenAnalysisBefore = new Button("", ControlCenter.getSVGImage(Icon.GRAPH, 14, 14));
     private final Button buttonOpenAnalysisAfter = new Button("", ControlCenter.getSVGImage(Icon.GRAPH, 14, 14));
-    private final Button buttonOpenAnalysisDiff = new Button("", ControlCenter.getSVGImage(Icon.GRAPH, 14, 14));
+    private final Button buttonOpenAnalysisaDiff = new Button("", ControlCenter.getSVGImage(Icon.GRAPH, 14, 14));
     private final ComboBox<JEVisObject> f_EnpiSelection;
-    private final Label l_EnpiSelection = new Label("EnPI");
+    private final Label l_EnpiSelection = new Label(I18n.getInstance().getString("plugin.action.enpi"));//"EnPI"
     private final Label l_mediaTags = new Label();
-    private final ComboBox<String> f_mediaTags;
+    private final ComboBox<Medium> f_mediaTags;
     private final TextArea f_correctionIfNeeded = new TextArea("");
     private final TextFieldWithUnit f_enpiAfter = new TextFieldWithUnit();
     private final TextFieldWithUnit f_enpiBefore = new TextFieldWithUnit();
@@ -149,7 +150,36 @@ public class DetailsTab extends Tab {
         });
 
         l_mediaTags.setText(I18n.getInstance().getString("actionform.editor.tab.deteils.medium"));
-        f_mediaTags = new ComboBox<>(data.getActionPlan().getMediumTags());
+
+        f_mediaTags = new ComboBox<>(data.getActionPlan().getMedium());
+        f_mediaTags.setConverter(new StringConverter<Medium>() {
+            @Override
+            public String toString(Medium medium) {
+                return medium.getName();
+            }
+
+            @Override
+            public Medium fromString(String s) {
+
+                Optional<Medium> medium = data.getActionPlan().getMedium().stream().filter(m -> m.getId().equals(s)).findFirst();
+                if (medium.isPresent()) {
+                    return medium.get();
+                } else {
+                    return new Medium(s, "Error (" + s + ")", 0);
+                }
+            }
+        });
+
+        f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Medium>() {
+            @Override
+            public void changed(ObservableValue<? extends Medium> observable, Medium oldValue, Medium newValue) {
+                data.mediaTagsProperty().set(newValue.getId());
+            }
+        });
+
+        /*
+
+        //_mediaTags = new JFXComboBox<>(data.getActionPlan().getMediumTags());
         f_mediaTags.getSelectionModel().select(data.mediaTagsProperty().getValue());
         f_mediaTags.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -157,6 +187,8 @@ public class DetailsTab extends Tab {
                 data.mediaTagsProperty().set(newValue);
             }
         });
+
+         */
 
         Region spacerEnpiBefore = new Region();
         Region spacerEnpiAfter = new Region();

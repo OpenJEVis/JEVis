@@ -69,7 +69,7 @@ public class DashboardPojo {
         }
     };
     private Interval interval = new Interval(new DateTime(), new DateTime());
-    private Integer updateRate = 900;
+    private Integer updateRate = 10;//900;
     private Boolean snapToGrid = true;
     private Boolean showGrid = true;
     private JEVisObject jeVisObject = null;

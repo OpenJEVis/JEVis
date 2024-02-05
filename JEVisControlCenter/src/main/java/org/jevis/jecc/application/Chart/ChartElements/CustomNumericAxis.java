@@ -21,7 +21,6 @@ public class CustomNumericAxis extends DefaultNumericAxis {
             setMin(DefaultNumericAxis.DEFAULT_LOG_MIN_VALUE);
             isUpdating = false;
         }
-
         final double max = maxValue < 0 && isForceZeroInRange() ? 0 : maxValue;
         final double padding = DefaultNumericAxis.getEffectiveRange(min, max) * getAutoRangePadding();
         final double paddingScale = 1.0 + getAutoRangePadding();

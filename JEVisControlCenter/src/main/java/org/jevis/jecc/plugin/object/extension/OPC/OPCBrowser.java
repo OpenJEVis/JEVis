@@ -32,18 +32,21 @@ import java.util.concurrent.ExecutionException;
 
 public class OPCBrowser {
 
+    private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
+
+    public static String ICON = "Loytec XML-DL Server.png";
+    public final JEVisObject opcServerObj;
+    private OPCClient opcClient;
     public static final String DEFAULT_OPC_PORT = "4840";
     public static final String ROOT_FOLDER_TREND = "/Objects/Loytec ROOT/Trend";
     public static final String ROOT_FOLDER_TREND_BACNET = "/Objects/Loytec ROOT/BACnet Port";
-    private static final Logger logger = LogManager.getLogger(CSVColumnHeader.class);
-    public static String ICON = "Loytec XML-DL Server.png";
-    public final JEVisObject opcServerObj;
+
     TextField port = new TextField();
     Button connect = new Button();
     ComboBox<String> comboRootFolder = new ComboBox<>();
     ComboBox<String> comboMode = new ComboBox<>();
-    Dialog opcUaBrowserDialog;
-    private OPCClient opcClient;
+
+
     private JEVisDataSource ds;
     private EndpointDescription endpointDescription;
 
@@ -90,8 +93,8 @@ public class OPCBrowser {
             stage.setResizable(true);
             stage.setWidth(650);
             stage.setHeight(800);
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error(e);
         }
 
 
@@ -109,7 +112,7 @@ public class OPCBrowser {
                             if (item != null && !empty) {
                                 //String security = item.getSecurityMode() + " " + item.getSecurityLevel();
                                 String security = item.getSecurityPolicyUri().split("#")[1];
-                                setText(tuUserString(item));
+                                setText(toUserString(item));
                                 setTooltip(new Tooltip(item.toString()));
 
                             } else {
@@ -126,10 +129,10 @@ public class OPCBrowser {
             FlowPane flowPane = new FlowPane();
 
 
-            port.setPromptText("Port");
+            port.setPromptText(I18n.getInstance().getString("plugin.object.opcua.port"));
             port.setText(DEFAULT_OPC_PORT);
 
-            connect.setText("Connect");
+            connect.setText(I18n.getInstance().getString("plugin.object.opcua.connect"));
 
             connect.setOnAction(event -> {
 
@@ -169,8 +172,7 @@ public class OPCBrowser {
 
                     alert.showAndWait();
 
-
-                    e.printStackTrace();
+                    logger.error(e);
                 }
 
 
@@ -193,7 +195,7 @@ public class OPCBrowser {
             comboRootFolder.getItems().addAll("/Objects/Loytec ROOT", "/Objects/Loytec ROOT/LIOB-IP", "/Objects/Loytec ROOT/LIOB", "/Objects/Loytec ROOT/Local IO", "/Objects/Loytec ROOT/BACnet Port", "/Objects/Loytec ROOT/CEA709 Port", "/Objects/Loytec ROOT/Trend", "/Objects/Loytec ROOT/Scheduler", "/Objects/Loytec ROOT/User Registers", "/Objects/Loytec ROOT/System Registers");
             comboRootFolder.setValue(ROOT_FOLDER_TREND);
             comboRootFolder.setOnAction(event -> {
-                        logger.debug(comboRootFolder.getValue());
+                logger.debug(comboRootFolder.getValue());
                     }
 
             );
@@ -211,9 +213,9 @@ public class OPCBrowser {
     }
 
 
-    private String tuUserString(EndpointDescription ep) {
+    private String toUserString(EndpointDescription ep) {
         String product = ep.getServer().getProductUri();
-        String securtyMode = ep.getSecurityMode().name();
+        String securityMode = ep.getSecurityMode().name();
         String security = ep.getSecurityPolicyUri().split("#")[1];
         String userTokens = "{";
         for (UserTokenPolicy userIdentityToken : ep.getUserIdentityTokens()) {
@@ -233,7 +235,7 @@ public class OPCBrowser {
         endpoints += "} ";
 
         String info = String.format("Endpoints: %s | Product: %s | security: %s{%s} | userTokens: %s "
-                , product, endpoints, securtyMode, security, userTokens);
+                , product, endpoints, securityMode, security, userTokens);
         return info;
     }
 

@@ -14,6 +14,7 @@ import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class ResourceManager {
     private List<CleanInterval> rawIntervals = new ArrayList<>();
     private Boolean isClean = true;
     private Boolean isForecast = false;
+    private DateTimeZone timeZone;
 
     public ResourceManager() {
         numberFormat.setMinimumFractionDigits(4);
@@ -131,7 +133,7 @@ public class ResourceManager {
                                     date = date.minusYears(c);
                                     break;
                                 case ALL:
-                                    date = getCleanDataObject().getValueAttribute().getTimestampFromFirstSample();
+                                    date = getCleanDataObject().getValueAttribute().getTimestampOfFirstSample();
                                     break;
                                 case NONE:
                                     break;
@@ -191,5 +193,13 @@ public class ResourceManager {
 
     public NumberFormat getNumberFormat() {
         return numberFormat;
+    }
+
+    public DateTimeZone getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(DateTimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 }

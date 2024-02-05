@@ -258,6 +258,7 @@ public class TimeFrameFactory {
                 DateHelper dateHelper = new DateHelper();
                 dateHelper.setCustomPeriodObject(cpo);
                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
+                dateHelper.setCurrentDate(dateTime);
                 if (wd != null) {
                     dateHelper.setWorkDays(wd);
                 }

@@ -14,6 +14,7 @@ public class DataSettings {
     private final SimpleObjectProperty<AnalysisTimeFrame> analysisTimeFrame = new SimpleObjectProperty<>(this, "analysisTimeFrame", null);
     private final SimpleObjectProperty<WorkDays> workDays = new SimpleObjectProperty<>(this, "workDays", new WorkDays(null));
     private ObjectProperty<JEVisObject> currentAnalysis = null;
+    private boolean forecastEnabled = true;
 
     public DataSettings() {
     }
@@ -85,5 +86,13 @@ public class DataSettings {
 
     public SimpleObjectProperty<WorkDays> workDaysProperty() {
         return workDays;
+    }
+
+    public boolean isForecastEnabled() {
+        return forecastEnabled;
+    }
+
+    public void setForecastEnabled(boolean forecastEnabled) {
+        this.forecastEnabled = forecastEnabled;
     }
 }

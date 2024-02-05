@@ -39,7 +39,7 @@ public class SaveUnderDialog extends Dialog {
     public SaveUnderDialog(JEVisDataSource jeVisDataSource, String directoryClass, JEVisObject selectedObj, JEVisClass analysisClass, String promptName, Saver saver) {
         super();
         setTitle(I18n.getInstance().getString("plugin.trc.saveunderdialog.title"));
-        setHeaderText(I18n.getInstance().getString("plugin.trc.saveunderdialog.header"));
+        setHeaderText(I18n.getInstance().getString("plugin.dashboard.saveunderdialog.header"));
         setResizable(true);
         initOwner(ControlCenter.getStage());
         initModality(Modality.APPLICATION_MODAL);
@@ -187,9 +187,9 @@ public class SaveUnderDialog extends Dialog {
                 Stage overwriteStage = (Stage) dialogOverwrite.getDialogPane().getScene().getWindow();
                 TopMenu.applyActiveTheme(overwriteStage.getScene());
                 overwriteStage.setAlwaysOnTop(true);
-                dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
+                dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.dashboard.dialog.overwrite.title"));
                 dialogOverwrite.setResizable(true);
-                Label message = new Label(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
+                Label message = new Label(I18n.getInstance().getString("plugin.dashboard.dialog.overwrite.message"));
 
                 ButtonType overwriteOkType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
                 ButtonType overwriteCancelType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);

@@ -1,12 +1,14 @@
 package org.jevis.jecc.application.control;
 
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
-import javafx.util.StringConverter;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.util.Callback;
 import org.jevis.commons.datetime.Months;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 
@@ -15,6 +17,7 @@ import java.time.YearMonth;
 public class MonthBox extends ComboBox<Months> {
     private YearBox yearBox;
     private DayBox dayBox;
+    private WorkDays workDays;
 
     public MonthBox() {
         super();
@@ -22,64 +25,105 @@ public class MonthBox extends ComboBox<Months> {
         ObservableList<Months> months = FXCollections.observableArrayList(Months.values());
         setItems(months);
 
-        //TODO JFX17
-
-        setConverter(new StringConverter<Months>() {
+        Callback<ListView<Months>, ListCell<Months>> cellFactory = new Callback<ListView<Months>, ListCell<Months>>() {
             @Override
-            public String toString(Months object) {
-                String text = "";
-                if (object != null) {
-                    try {
-                        switch (object) {
-                            case JANUARY:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.jan");
-                                break;
-                            case FEBRUARY:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.feb");
-                                break;
-                            case MARCH:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.mar");
-                                break;
-                            case APRIL:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.apr");
-                                break;
-                            case MAY:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.may");
-                                break;
-                            case JUNE:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.jun");
-                                break;
-                            case JULY:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.jul");
-                                break;
-                            case AUGUST:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.aug");
-                                break;
-                            case SEPTEMBER:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.sep");
-                                break;
-                            case OCTOBER:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.oct");
-                                break;
-                            case NOVEMBER:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.nov");
-                                break;
-                            case DECEMBER:
-                                text = I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.dec");
-                                break;
+            public ListCell<Months> call(ListView<Months> param) {
+                return new ListCell<Months>() {
+                    @Override
+                    public void updateItem(Months item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null) {
+                            try {
+                                if (workDays != null && workDays.isCustomWorkDay() && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                    switch (item) {
+                                        case DECEMBER:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.jan"));
+                                            break;
+                                        case JANUARY:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.feb"));
+                                            break;
+                                        case FEBRUARY:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.mar"));
+                                            break;
+                                        case MARCH:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.apr"));
+                                            break;
+                                        case APRIL:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.may"));
+                                            break;
+                                        case MAY:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.jun"));
+                                            break;
+                                        case JUNE:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.jul"));
+                                            break;
+                                        case JULY:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.aug"));
+                                            break;
+                                        case AUGUST:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.sep"));
+                                            break;
+                                        case SEPTEMBER:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.oct"));
+                                            break;
+                                        case OCTOBER:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.nov"));
+                                            break;
+                                        case NOVEMBER:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.dec"));
+                                            break;
+                                    }
+                                } else {
+                                    switch (item) {
+                                        case JANUARY:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.jan"));
+                                            break;
+                                        case FEBRUARY:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.feb"));
+                                            break;
+                                        case MARCH:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.mar"));
+                                            break;
+                                        case APRIL:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.apr"));
+                                            break;
+                                        case MAY:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.may"));
+                                            break;
+                                        case JUNE:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.jun"));
+                                            break;
+                                        case JULY:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.jul"));
+                                            break;
+                                        case AUGUST:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.aug"));
+                                            break;
+                                        case SEPTEMBER:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.sep"));
+                                            break;
+                                        case OCTOBER:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.oct"));
+                                            break;
+                                        case NOVEMBER:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.nov"));
+                                            break;
+                                        case DECEMBER:
+                                            setText(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.month.dec"));
+                                            break;
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                setGraphic(null);
+                            }
                         }
-                    } catch (Exception ignored) {
-
                     }
-                }
-                return text;
+                };
             }
+        };
 
-            @Override
-            public Months fromString(String string) {
-                return getItems().get(getSelectionModel().getSelectedIndex());
-            }
-        });
+        setCellFactory(cellFactory);
+        setButtonCell(cellFactory.call(null));
 
         getSelectionModel().selectFirst();
     }
@@ -99,11 +143,14 @@ public class MonthBox extends ComboBox<Months> {
         if (nextTS != null) {
             Platform.runLater(() -> {
                 getSelectionModel().select(nextTS.getMonthOfYear() - 1);
-                dayBox.getSelectionModel().select(nextTS.getDayOfMonth());
+                dayBox.getSelectionModel().select(Integer.valueOf(nextTS.getDayOfMonth()));
             });
         } else {
             Platform.runLater(() -> getSelectionModel().select(DateTime.now().getMonthOfYear() - 1));
         }
     }
 
+    public void setWorkDays(WorkDays workDays) {
+        this.workDays = workDays;
+    }
 }

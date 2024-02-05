@@ -58,6 +58,7 @@ import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.NameFormatter;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.TopMenu;
@@ -70,7 +71,6 @@ import org.jevis.jecc.application.jevistree.methods.AutoLimitSetting;
 import org.jevis.jecc.application.jevistree.methods.CalculationMethods;
 import org.jevis.jecc.application.jevistree.methods.CommonMethods;
 import org.jevis.jecc.application.jevistree.methods.DataMethods;
-import org.jevis.jecc.application.tools.CalculationNameFormatter;
 import org.jevis.jecc.dialog.*;
 import org.jevis.jecc.plugin.object.attribute.GapFillingEditor;
 import org.jevis.jecc.plugin.object.classes.SelectableObject;
@@ -1985,7 +1985,7 @@ public class TreeHelper {
                                 }
                             }
 
-                            String inputName = CalculationNameFormatter.createVariableName(us.getSelectedObject());
+                            String inputName = NameFormatter.createVariableName(us.getSelectedObject());
                             JEVisClass inputClass = calcObject.getDataSource().getJEVisClass(JC.Input.name);
                             JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);
                             newInputObj.setLocalNames(us.getSelectedObject().getLocalNameList());

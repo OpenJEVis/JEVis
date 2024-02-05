@@ -722,12 +722,21 @@ public class CSVColumnHeader {
             public void handle(ActionEvent t) {
 
                 List<JEVisTreeFilter> allFilter = new ArrayList<>();
-                JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllAttributesFilter();
+
+                JEVisTreeFilter basicFilter;
+                if (ControlCenter.getExpert()) {
+                    basicFilter = SelectTargetDialog.buildAllAttributesFilter();
+                } else {
+                    basicFilter = SelectTargetDialog.buildAllDataFilter();
+                }
                 allFilter.add(basicFilter);
 
-
                 SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE, _table.getDataSource(), new ArrayList<UserSelection>());
-                selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
+                if (ControlCenter.getExpert()) {
+                    selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
+                } else {
+                    selectionDialog.setMode(SimpleTargetPlugin.MODE.OBJECT);
+                }
 
                 selectionDialog.setOnCloseRequest(event -> {
                     if (selectionDialog.getResponse() == SelectTargetDialog.Response.OK) {
@@ -739,9 +748,14 @@ public class CSVColumnHeader {
                                     logger.trace("us: {}", us.getSelectedObject().getID());
                                     buttonText += us.getSelectedObject().getName();
                                 }
+
                                 if (us.getSelectedAttribute() != null) {
                                     logger.trace("att: {}", us.getSelectedAttribute().getName());
                                     _target = us.getSelectedAttribute();
+                                    buttonText += "." + _target.getName();
+                                } else if (us.getSelectedObject().getAttribute("Value") != null) {
+                                    _target = us.getSelectedObject().getAttribute("Value");
+                                    logger.trace("att: {}", _target.getName());
                                     buttonText += "." + _target.getName();
                                 }
 

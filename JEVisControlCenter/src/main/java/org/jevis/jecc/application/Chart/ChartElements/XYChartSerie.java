@@ -51,8 +51,8 @@ public class XYChartSerie {
     ChartDataRow singleRow;
     Boolean showIcons;
     TreeMap<DateTime, JEVisSample> sampleMap;
-    DateTime timeStampFromFirstSample = DateTime.now();
-    DateTime timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
+    DateTime timeStampOfFirstSample = DateTime.now();
+    DateTime timeStampOfLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
     ValueWithDateTime minValue;
     ChartModel chartModel;
     Axis xAxis;
@@ -90,8 +90,10 @@ public class XYChartSerie {
     }
 
     public void generateSeriesFromSamples() throws JEVisException {
-        timeStampFromFirstSample = DateTime.now();
-        timeStampFromLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
+        minValue = new ValueWithDateTime(Double.MAX_VALUE, nf);
+        maxValue = new ValueWithDateTime(-Double.MAX_VALUE, nf);
+        timeStampOfFirstSample = DateTime.now();
+        timeStampOfLastSample = new DateTime(1990, 1, 1, 0, 0, 0);
         Color color = singleRow.getColor().deriveColor(0, 1, 1, 0.9);
         Color brighter = ColorHelper.colorToBrighter(singleRow.getColor());
 
@@ -133,11 +135,11 @@ public class XYChartSerie {
         if (samplesSize > 0) {
             try {
 
-                if (samples.get(0).getTimestamp().isBefore(getTimeStampFromFirstSample()))
-                    setTimeStampFromFirstSample(samples.get(0).getTimestamp());
+                if (samples.get(0).getTimestamp().isBefore(getTimeStampOfFirstSample()))
+                    setTimeStampOfFirstSample(samples.get(0).getTimestamp());
 
-                if (samples.get(samples.size() - 1).getTimestamp().isAfter(getTimeStampFromLastSample()))
-                    setTimeStampFromLastSample(samples.get(samples.size() - 1).getTimestamp());
+                if (samples.get(samples.size() - 1).getTimestamp().isAfter(getTimeStampOfLastSample()))
+                    setTimeStampOfLastSample(samples.get(samples.size() - 1).getTimestamp());
 
             } catch (Exception e) {
                 logger.error("Couldn't get timestamps from samples. ", e);
@@ -189,12 +191,12 @@ public class XYChartSerie {
             sum = maxValue.getValue();
         }
 
-        updateTableEntry(samples, unit, minValue, maxValue, avg, sum, zeroCount, false);
+        updateTableEntry(samples, unit, minValue, maxValue, zeroCount, false);
 
         ControlCenter.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }
 
-    public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, ValueWithDateTime min, ValueWithDateTime max, double avg, Double sum, long zeroCount, boolean later) throws JEVisException {
+    public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, ValueWithDateTime min, ValueWithDateTime max, long zeroCount, boolean later) throws JEVisException {
 
         StringBuilder finalAvg = new StringBuilder();
         StringBuilder finalSum = new StringBuilder();
@@ -273,16 +275,35 @@ public class XYChartSerie {
             }
         }
 
+        minValue = new ValueWithDateTime(Double.MAX_VALUE, nf);
+        maxValue = new ValueWithDateTime(-Double.MAX_VALUE, nf);
+        double avg = 0.0;
+        Double sum = 0.0;
+        for (JEVisSample sample : samples) {
+            try {
+
+                DateTime dateTime = sample.getTimestamp();
+                Double currentValue = sample.getValueAsDouble();
+
+                minValue.minCheck(dateTime, currentValue);
+                maxValue.maxCheck(dateTime, currentValue);
+                sum += currentValue;
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        }
+
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(unit);
 
-        if (!singleRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && samples.size() > 0) {
+        if (!singleRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && !samples.isEmpty()) {
             avg = sum / (samples.size() - zeroCount);
             this.avg = avg;
             sortCriteria = avg;
         }
 
-        if (samples.size() == 0) {
+        if (samples.isEmpty()) {
             finalAvg.append("- ").append(getUnit());
             finalSum.append("- ").append(getUnit());
         } else {
@@ -341,15 +362,13 @@ public class XYChartSerie {
                     try {
                         JEVisUnit sumUnit = qu.getSumUnit(unit);
                         ChartUnits cu = new ChartUnits();
-                        double newScaleFactor = cu.scaleValue(unit.toString(), sumUnit.toString());
-                        JEVisUnit inputUnit = singleRow.getAttribute().getInputUnit();
-                        JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
-                        if (qu.isDiffPrefix(sumUnitOfInputUnit, sumUnit)) {
-                            sum = sum * newScaleFactor / singleRow.getTimeFactor();
-                        } else {
-                            sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
-                        }
+                        Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                        Period rawPeriod = CleanDataObject.getPeriodForDate(singleRow.getAttribute().getObject(), samples.get(0).getTimestamp());
+
+                        double newScaleFactor = cu.scaleValue(rawPeriod, unit.toString(), currentPeriod, sumUnit.toString());
+
+                        sum = sum * newScaleFactor;
 
                         Double finalSum1 = sum;
                         finalSum.append(nf.format(finalSum1)).append(" ").append(sumUnit);
@@ -415,20 +434,20 @@ public class XYChartSerie {
         this.tableEntry = tableEntry;
     }
 
-    public DateTime getTimeStampFromFirstSample() {
-        return this.timeStampFromFirstSample;
+    public DateTime getTimeStampOfFirstSample() {
+        return this.timeStampOfFirstSample;
     }
 
-    public void setTimeStampFromFirstSample(DateTime timeStampFromFirstSample) {
-        this.timeStampFromFirstSample = timeStampFromFirstSample;
+    public void setTimeStampOfFirstSample(DateTime timeStampOfFirstSample) {
+        this.timeStampOfFirstSample = timeStampOfFirstSample;
     }
 
-    public DateTime getTimeStampFromLastSample() {
-        return this.timeStampFromLastSample;
+    public DateTime getTimeStampOfLastSample() {
+        return this.timeStampOfLastSample;
     }
 
-    public void setTimeStampFromLastSample(DateTime timeStampFromLastSample) {
-        this.timeStampFromLastSample = timeStampFromLastSample;
+    public void setTimeStampOfLastSample(DateTime timeStampOfLastSample) {
+        this.timeStampOfLastSample = timeStampOfLastSample;
     }
 
     public ChartDataRow getSingleRow() {

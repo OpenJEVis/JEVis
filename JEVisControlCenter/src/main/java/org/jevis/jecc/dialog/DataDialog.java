@@ -79,7 +79,7 @@ public class DataDialog extends Dialog {
         stage.setAlwaysOnTop(true);
 
         this.attribute = attribute;
-        DateTime lastTs = attribute.getTimestampFromLastSample();
+        DateTime lastTs = attribute.getTimestampOfLastSample();
         logger.debug("Attribute {} of object {}:{} last ts - {}", attribute.getName(), attribute.getObject().getName(), attribute.getObject().getID(), lastTs);
 
         if (lastTs != null) {
@@ -220,7 +220,7 @@ public class DataDialog extends Dialog {
             for (DataSample selectedItem : selectedItems) {
                 int i = data.indexOf(selectedItem);
                 DateTime currentTS = selectedItem.getTs();
-                DateTime nextTS = currentTS.plus(CleanDataObject.getPeriodForDate(attribute.getObject(), currentTS));
+                DateTime nextTS = PeriodHelper.getNextPeriod(currentTS, CleanDataObject.getPeriodForDate(attribute.getObject(), currentTS), 1, true, workDays.getDateTimeZone());
                 VirtualSample sample = new VirtualSample(nextTS, 0d);
                 sample.setNote("");
                 DataSample nextSample = new DataSample(sample, nextTS, 0d, "");

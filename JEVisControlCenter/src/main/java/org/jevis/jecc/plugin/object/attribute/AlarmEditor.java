@@ -41,11 +41,13 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.AlarmConstants;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonAlarmConfig;
 import org.jevis.commons.json.JsonScheduler;
 import org.jevis.commons.json.JsonTools;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.TopMenu;
 import org.jevis.jecc.application.jevistree.UserSelection;
@@ -69,11 +71,12 @@ public class AlarmEditor implements AttributeEditor {
     private final ObservableList<AlarmConstants.Operator> operator = FXCollections.observableArrayList(AlarmConstants.Operator.SMALLER, AlarmConstants.Operator.BIGGER, AlarmConstants.Operator.EQUALS,
             AlarmConstants.Operator.SMALLER_EQUALS, AlarmConstants.Operator.BIGGER_EQUALS, AlarmConstants.Operator.NOT_EQUALS);
     private final HBox box = new HBox(12);
-    private final boolean delete = false;
     public JEVisAttribute _attribute;
+    private final boolean delete = false;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private List<JsonAlarmConfig> _listConfig;
+    private String unitString = "";
     private boolean initialized = false;
 
     public AlarmEditor(JEVisAttribute att) {
@@ -81,7 +84,14 @@ public class AlarmEditor implements AttributeEditor {
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
-
+        try {
+            JEVisAttribute valueAttribute = _attribute.getObject().getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
+            if (valueAttribute != null) {
+                unitString = UnitManager.getInstance().format(valueAttribute.getDisplayUnit());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -415,6 +425,7 @@ public class AlarmEditor implements AttributeEditor {
         });
 
         TextField limitField = new TextField();
+        Label unitField = new Label(unitString);
 
         ComboBox<AlarmConstants.Operator> operator = new ComboBox<>(this.operator);
         Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>> cellFactory = new Callback<ListView<AlarmConstants.Operator>, ListCell<AlarmConstants.Operator>>() {
@@ -448,6 +459,7 @@ public class AlarmEditor implements AttributeEditor {
         });
 
         TextField toleranceField = new TextField();
+        Label toleranceUnitLabel = new Label("%");
 
         ScheduleEditor silentTime;
 
@@ -525,6 +537,7 @@ public class AlarmEditor implements AttributeEditor {
         } else if (id == 0) {
             gridPane.add(limitLabel, 0, row);
             gridPane.add(limitField, 1, row);
+            gridPane.add(unitField, 2, row);
         }
         row++;
         gridPane.add(operatorLabel, 0, row);
@@ -559,6 +572,7 @@ public class AlarmEditor implements AttributeEditor {
 
         gridPane.add(toleranceLabel, 0, row);
         gridPane.add(toleranceField, 1, row);
+        gridPane.add(toleranceUnitLabel, 2, row);
 
         tab.setContent(new ScrollPane(gridPane));
     }

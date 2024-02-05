@@ -53,12 +53,14 @@ public class MathDataObject {
     private JEVisAttribute beginningAttribute;
     private JEVisAttribute endingAttribute;
     private JEVisAttribute periodAttribute;
+    private JEVisAttribute timeZoneAttribute;
     private List<PeriodRule> periodInputData;
     private DateTime lastRawDate;
     private int processingSize = 10000;
     private List<JEVisSample> sampleCache;
     private Boolean fillPeriod;
     private List<PeriodRule> periodData;
+    private DateTimeZone timeZone;
 
     private Period inputDataPeriod;
     private AggregationPeriod referencePeriod;
@@ -117,7 +119,11 @@ public class MathDataObject {
         }
 
         if (periodAttribute == null) {
-            periodAttribute = getParentDataObject().getAttribute(PERIOD.getAttributeName());
+            periodAttribute = getMathDataObject().getAttribute(PERIOD.getAttributeName());
+        }
+
+        if (timeZoneAttribute == null) {
+            timeZoneAttribute = getMathDataObject().getAttribute(TIMEZONE.getAttributeName());
         }
     }
 
@@ -162,8 +168,13 @@ public class MathDataObject {
             ending = null;
         }
         if (periodAttribute != null) {
-            getParentDataObject().getDataSource().reloadAttribute(periodAttribute);
+            getMathDataObject().getDataSource().reloadAttribute(periodAttribute);
             periodData = null;
+        }
+
+        if (timeZoneAttribute != null) {
+            getMathDataObject().getDataSource().reloadAttribute(timeZoneAttribute);
+            timeZone = null;
         }
     }
 
@@ -224,6 +235,12 @@ public class MathDataObject {
         if (ending == null)
             ending = sampleHandler.getLastSample(getMathDataObject(), ENDING.getAttributeName(), getEndDate().minusMillis(1));
         return ending;
+    }
+
+    public DateTimeZone getTimeZone() {
+        if (timeZone == null)
+            timeZone = sampleHandler.getLastSample(getMathDataObject(), TIMEZONE.getAttributeName(), DateTimeZone.UTC);
+        return timeZone;
     }
 
     public JEVisObject getMathDataObject() {
@@ -448,7 +465,7 @@ public class MathDataObject {
 
             if (latestSample != null) {
                 try {
-                    DateTime latestSampleTS = latestSample.getTimestamp().withZone(getTimeZone(getMathDataObject()));
+                    DateTime latestSampleTS = latestSample.getTimestamp().withZone(getTimeZone());
 
                     boolean ready = latestSampleTS.equals(nextRun) || latestSampleTS.isAfter(nextRun);
 
@@ -559,24 +576,6 @@ public class MathDataObject {
         return PeriodHelper.getNextPeriod(lastRun, period, referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
     }
 
-    private DateTimeZone getTimeZone(JEVisObject object) {
-        DateTimeZone zone = DateTimeZone.UTC;
-
-        JEVisAttribute timeZoneAttribute = null;
-        try {
-            timeZoneAttribute = object.getAttribute("Timezone");
-            if (timeZoneAttribute != null) {
-                JEVisSample lastTimeZoneSample = timeZoneAttribute.getLatestSample();
-                if (lastTimeZoneSample != null) {
-                    zone = DateTimeZone.forID(lastTimeZoneSample.getValueAsString());
-                }
-            }
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
-        return zone;
-    }
-
     private DateTime getLastRun(JEVisObject object) {
         DateTime dateTime = new DateTime(1990, 1, 1, 0, 0, 0);
 
@@ -593,7 +592,7 @@ public class MathDataObject {
             logger.error("Could not get data source last run time: ", e);
         }
 
-        return dateTime.withZone(getTimeZone(object));
+        return dateTime.withZone(getTimeZone());
     }
 
 
@@ -623,7 +622,8 @@ public class MathDataObject {
         REFERENCE_PERIOD_COUNT("Reference Period Count"),
         PERIOD("Period"),
         PERIOD_OFFSET("Period Offset"),
-        FILL_PERIOD("Fill Period");
+        FILL_PERIOD("Fill Period"),
+        TIMEZONE("Timezone");
 
         private final String attributeName;
 

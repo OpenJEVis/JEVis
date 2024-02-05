@@ -14,6 +14,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
@@ -27,6 +28,7 @@ import org.jevis.jecc.plugin.charts.ValuesSetting;
 import org.jevis.jecc.plugin.charts.ValuesTable;
 import org.jevis.jecc.sample.DaySchedule;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,7 +133,11 @@ public class ValuesDialog extends Dialog {
                             try {
                                 JEVisUnit sumUnit = qu.getSumUnit(chartDataRow.getUnit());
                                 ChartUnits cu = new ChartUnits();
-                                double newScaleFactor = cu.scaleValue(chartDataRow.getUnit().toString(), sumUnit.toString());
+
+                                Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                                Period rawPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), samples.get(0).getTimestamp());
+
+                                double newScaleFactor = cu.scaleValue(rawPeriod, chartDataRow.getUnit().toString(), currentPeriod, sumUnit.toString());
                                 JEVisUnit inputUnit = attribute.getInputUnit();
                                 JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 

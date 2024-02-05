@@ -16,10 +16,10 @@ import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.NameFormatter;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jecc.application.jevistree.UserSelection;
-import org.jevis.jecc.application.tools.CalculationNameFormatter;
 import org.jevis.jecc.dialog.ExceptionDialog2;
 import org.jevis.jecc.dialog.Response;
 import org.joda.time.DateTime;
@@ -134,8 +134,8 @@ public class FormulaBox extends HBox {
                                     stats.add(new Stats(jeVisObject, inputName, null, null, 0));
                                 } else {
                                     stats.add(new Stats(jeVisObject,
-                                            inputName, targetAttData.getTimestampFromFirstSample(),
-                                            targetAttData.getTimestampFromLastSample(),
+                                            inputName, targetAttData.getTimestampOfFirstSample(),
+                                            targetAttData.getTimestampOfLastSample(),
                                             0)); // targetAttData.getAllSamples().size()
                                 }
                             }
@@ -408,7 +408,7 @@ public class FormulaBox extends HBox {
                                  */
                                 try {
                                     if (outputObject == null) {
-                                        JEVisObject newObject = this.calcObj.buildObject(CalculationNameFormatter.createVariableName(us.getSelectedObject()), outputClass);
+                                        JEVisObject newObject = this.calcObj.buildObject(NameFormatter.createVariableName(us.getSelectedObject()), outputClass);
                                         newObject.setLocalNames(us.getSelectedObject().getLocalNameList());
                                         newObject.commit();
                                         outputObject = newObject;
@@ -426,8 +426,8 @@ public class FormulaBox extends HBox {
                                 newSample.commit();
 
                                 /** update output variable name **/
-                                if (!outputObject.getName().equals(CalculationNameFormatter.createVariableName(us.getSelectedObject()))) {
-                                    outputObject.setName(CalculationNameFormatter.createVariableName(us.getSelectedObject()));
+                                if (!outputObject.getName().equals(NameFormatter.createVariableName(us.getSelectedObject()))) {
+                                    outputObject.setName(NameFormatter.createVariableName(us.getSelectedObject()));
                                     outputObject.commit();
                                 }
                                 outputButton.setText(th.getObject().get(0).getName() + "." + th.getAttribute().get(0).getName());

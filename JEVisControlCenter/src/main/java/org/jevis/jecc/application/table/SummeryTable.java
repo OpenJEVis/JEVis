@@ -2,13 +2,18 @@ package org.jevis.jecc.application.table;
 
 
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
-import javafx.scene.control.ScrollToEvent;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SummeryTable extends TableView<SummeryData> implements TableFindScrollbar {
@@ -26,6 +31,7 @@ public class SummeryTable extends TableView<SummeryData> implements TableFindScr
 //    }
 
     private final TableView dataTable;
+    public static final String COLUMN_SEPARATOR = "#";
 
 
     public SummeryTable(TableView dataTable) {
@@ -71,7 +77,63 @@ public class SummeryTable extends TableView<SummeryData> implements TableFindScr
             cellCopie.setPrefWidth(column.getPrefWidth());
             cellCopie.setMaxWidth(column.getMaxWidth());
             cellCopie.setMinWidth(column.getWidth());
+            Map<Integer, DoubleProperty> innerColumns = new HashMap<>();
 
+            cellCopie.setCellFactory(tc -> {
+                TableCell cell = new TableCell<String, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            //setText(item);
+
+                            if (item.contains(COLUMN_SEPARATOR)) {
+                                HBox hBox = new HBox();
+                                VBox vBox = new VBox(hBox);
+                                vBox.setFillWidth(true);
+                                //vBox.setAlignment(Pos.CENTER_RIGHT);
+                                hBox.setSpacing(3);
+                                hBox.setAlignment(Pos.CENTER_RIGHT);
+                                hBox.setFillHeight(true);
+
+                                String[] parts = item.split(COLUMN_SEPARATOR);
+                                for (int i = 0; i < parts.length; i++) {
+                                    if (!innerColumns.containsKey(i)) {
+                                        innerColumns.put(i, new SimpleDoubleProperty(0));
+                                    }
+
+                                    Label iLabel = new Label(parts[i]);
+                                    AtomicInteger atomicInteger = new AtomicInteger(i);
+                                    iLabel.setMinWidth(innerColumns.get(atomicInteger.get()).get());
+
+                                    iLabel.widthProperty().addListener((observableValue, number, t1) -> {
+                                        if (t1.doubleValue() > innerColumns.get(atomicInteger.get()).get()) {
+                                            innerColumns.get(atomicInteger.get()).set(t1.doubleValue());
+                                        }
+                                    });
+                                    innerColumns.get(atomicInteger.get()).addListener((observableValue, number, t1) -> {
+                                        iLabel.setMinWidth(t1.doubleValue());
+                                    });
+
+                                    iLabel.setAlignment(Pos.CENTER_RIGHT);
+                                    hBox.getChildren().add(iLabel);
+                                }
+                                setText(null);
+                                setGraphic(hBox);
+
+                            } else {
+                                setText(item);
+                                setGraphic(null);
+                            }
+
+                        }
+                    }
+                };
+                return cell;
+            });
 
             column.widthProperty().addListener((observable, oldValue, newValue) -> {
                 cellCopie.setMinWidth(newValue.doubleValue());

@@ -14,9 +14,11 @@ import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ public class AggregationAlignmentStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
+        DateTime benchStart = new DateTime();
         CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
 
         Map<DateTime, JEVisSample> notesMap = resourceManager.getNotesMap();
@@ -80,7 +83,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                 } catch (Exception e) {
                     note = "";
                 }
-                if (note == null || note.equals("")) {
+                if (note == null || note.isEmpty()) {
                     note = "agg(no)";
                 } else {
                     note += ",agg(no)";
@@ -126,7 +129,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                 } catch (Exception e) {
                     note += "";
                 }
-                if (note.equals("")) {
+                if (note.isEmpty()) {
                     note += "agg(yes," + currentInterval.getRawSamples().size() + ",avg)";
                 } else {
                     note += ",agg(yes," + currentInterval.getRawSamples().size() + ",avg)";
@@ -167,7 +170,7 @@ public class AggregationAlignmentStep implements ProcessStep {
 
                 Double currentValue = 0d;
 
-                if (currentInterval.getRawSamples().size() > 0) {
+                if (!currentInterval.getRawSamples().isEmpty()) {
                     if (!currentInterval.isDifferential()) {
                         for (JEVisSample sample : currentInterval.getRawSamples()) {
                             currentValue += sample.getValueAsDouble();
@@ -190,7 +193,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                 } catch (Exception e) {
                     note = "";
                 }
-                if (note.equals("")) {
+                if (note.isEmpty()) {
                     note += "agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
                 } else {
                     note += ",agg(yes," + currentInterval.getRawSamples().size() + ",sum)";
@@ -224,7 +227,7 @@ public class AggregationAlignmentStep implements ProcessStep {
 
                     } else needToBeRemoved.add(currentInterval);
 
-                    if (note == null || note.equals("")) {
+                    if (note == null || note.isEmpty()) {
                         note = "agg(yes,up," + nextAdd + ",avg)";
                     } else {
                         note = note + ",agg(yes,up," + nextAdd + ",avg)";
@@ -272,7 +275,7 @@ public class AggregationAlignmentStep implements ProcessStep {
 
                     } else needToBeRemoved.add(currentInterval);
 
-                    if (note == null || note.equals("")) {
+                    if (note == null || note.isEmpty()) {
                         note = "agg(yes,up," + nextAdd + ",sum)";
                     } else {
                         note += ",agg(yes,up," + nextAdd + ",sum)";
@@ -302,7 +305,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                         long periodCount = diffInput / diffOutput;
                         value = currentInterval.getResult().getValueAsDouble() / periodCount;
                         String note = currentInterval.getResult().getNote();
-                        if (note == null || note.equals("")) {
+                        if (note == null || note.isEmpty()) {
                             note = "agg(yes,up," + periodCount + ",sum)";
                         } else {
                             note = note + ",agg(yes,up," + periodCount + ",sum)";
@@ -310,7 +313,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                         currentInterval.getResult().setValue(value);
                         currentInterval.getResult().setNote(note);
                     } catch (Exception e) {
-                        logger.error("Could not get period count", e);
+                        logger.error("Could not get period count, object {}:{}", cleanDataObject.getCleanObject().getName(), cleanDataObject.getCleanObject().getID(), e);
                     }
                 } else {
                     try {
@@ -334,7 +337,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                             long periodCount = diffInput / diffOutput;
                             value = currentInterval.getResult().getValueAsDouble() / periodCount;
                             String note = currentInterval.getResult().getNote();
-                            if (note == null || note.equals("")) {
+                            if (note == null || note.isEmpty()) {
                                 note = "agg(yes,up," + periodCount + ",sum)";
                             } else {
                                 note = note + ",agg(yes,up," + periodCount + ",sum)";
@@ -352,7 +355,7 @@ public class AggregationAlignmentStep implements ProcessStep {
                             }
                         }
                     } catch (Exception e) {
-                        logger.error("Could not get period count", e);
+                        logger.error("Could not get period count, object {}:{}", cleanDataObject.getCleanObject().getName(), cleanDataObject.getCleanObject().getID(), e);
                     }
                 }
 
@@ -364,6 +367,8 @@ public class AggregationAlignmentStep implements ProcessStep {
         }
 
         intervals.removeAll(needToBeRemoved);
+
+        logger.debug("{} finished in {}", this.getClass().getSimpleName(), new Period(benchStart, new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
     }
 
     private BigDecimal getScaledValue(List<JEVisSample> listMultipliers, DateTime date, Double currentValue, BigDecimal offset) {
@@ -409,7 +414,7 @@ public class AggregationAlignmentStep implements ProcessStep {
     private Double calcSumSampleDownscale(List<JEVisSample> currentTmpSamples, Boolean
             differential, CleanInterval lastInterval) throws Exception {
         double value = 0.0;
-        if (currentTmpSamples.size() > 0) {
+        if (!currentTmpSamples.isEmpty()) {
             if (!differential) {
                 for (JEVisSample sample : currentTmpSamples) {
                     value += sample.getValueAsDouble();

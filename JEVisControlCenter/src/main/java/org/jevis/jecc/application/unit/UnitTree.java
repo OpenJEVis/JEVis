@@ -107,7 +107,6 @@ public class UnitTree extends TreeView<UnitObject> {
 
             //TODO: give this its own id
             setId("objecttree");
-//            getStylesheets().add("/styles/Styles.css");
 
             setPrefWidth(500);
 

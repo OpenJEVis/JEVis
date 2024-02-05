@@ -35,6 +35,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.report.*;
 import org.jevis.commons.utils.CommonMethods;
+import org.jevis.commons.utils.NameFormatter;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.Icon;
 import org.jevis.jecc.TopMenu;
@@ -42,7 +43,6 @@ import org.jevis.jecc.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jecc.application.application.I18nWS;
 import org.jevis.jecc.application.control.ReportSheet;
 import org.jevis.jecc.application.jevistree.UserSelection;
-import org.jevis.jecc.application.tools.CalculationNameFormatter;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -963,7 +963,7 @@ public class ReportWizardDialog {
                     attributeCell.setCellStyle(boldStyle);
 
                     Cell attributeCommand = getOrCreateCell(sheet, rowIndex, columnIndex + 2);
-                    String templateVariableName = CalculationNameFormatter.createVariableName(jeVisObject);
+                    String templateVariableName = NameFormatter.createVariableName(jeVisObject);
                     attributeCommand.setCellValue("${" + templateVariableName + "." + jeVisAttribute.getName() + ".value}");
                     attributeCommand.setCellStyle(defaultStyle);
 

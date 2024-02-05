@@ -87,12 +87,12 @@ public class NodeTreeTable {
     private JEVisDataSource ds;
 
 
-    public NodeTreeTable(OPCClient opcClient, JEVisObject trendRoot, String opcUaRootFolder, String backNetRootFolder, String mode) {
+    public NodeTreeTable(OPCClient opcClient, JEVisObject trendRoot, String opcUaRootFolder, String bacNetRootFolder, String mode) {
 
         this.mode = mode;
         this.opcClient = opcClient;
         this.trendRoot = trendRoot;
-        this.backNetRootFolder = backNetRootFolder;
+        this.backNetRootFolder = bacNetRootFolder;
         this.opcUARootFolder = opcUaRootFolder;
         selectTargetButton = buildTargetButton();
         importDataStructureButton = buildImportDataStructureButton();
@@ -193,7 +193,7 @@ public class NodeTreeTable {
                 @Override
                 protected Object call() throws Exception {
                     try {
-                        opcClient.browse(list, backNetRootFolder);
+                        opcClient.browse(list, bacNetRootFolder);
                         super.done();
                     } catch (Exception ex) {
                         super.failed();
@@ -221,7 +221,7 @@ public class NodeTreeTable {
              });
              **/
         } catch (Exception ex) {
-            logger.error("error while browsing Client: {}", ex);
+            logger.error("Error while browsing Client: ", ex);
         }
     }
 
@@ -244,7 +244,6 @@ public class NodeTreeTable {
             trendIdCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().getTrendID()));
             opcUATreeTableView.getColumns().addAll(nameCol, checkCol, trendIdCol, intervallIdCol);
 
-
             checkCol.setCellFactory(new Callback<TreeTableColumn<Node, Boolean>, TreeTableCell<Node, Boolean>>() {
 
                 @Override
@@ -263,10 +262,10 @@ public class NodeTreeTable {
                                     if (getTreeTableRow().getTreeItem().getValue().getDescriptionProperty().getNodeClass().getValue() == 1) {
                                         CheckBox box = new CheckBox();
                                         box.setSelected(item);
-                                        box.setOnAction(event -> {
+                                        box.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
 
 
-                                            getTreeTableRow().getTreeItem().getValue().setSelected(box.isSelected());
+                                            getTreeTableRow().getTreeItem().getValue().setSelected(t1);
 
                                             childrenSetSelected(getTreeTableRow().getTreeItem());
                                             parentSetSelected(getTreeTableRow().getTreeItem());
@@ -277,7 +276,7 @@ public class NodeTreeTable {
                                         setGraphic(new BorderPane(box));
                                     }
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    logger.error(e);
                                 }
                             }
                         }
@@ -307,7 +306,6 @@ public class NodeTreeTable {
         opcUATreeTableView.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
         VBox.setVgrow(opcUATreeTableView, Priority.ALWAYS);
 
-
         view.getChildren().add(opcUATreeTableView);
     }
 
@@ -316,7 +314,7 @@ public class NodeTreeTable {
             String dataType = opcClient.getDataType(NodeId.parse(opcUATreeTableView.getSelectionModel().getSelectedItem().getValue().getStringNodeID()));
 
 
-            setValueDialog = new Dialog();
+            setValueDialog = new Dialog<>();
             setValueDialog.setResizable(true);
             setValueDialog.initOwner(ControlCenter.getStage());
             setValueDialog.initModality(Modality.APPLICATION_MODAL);
@@ -736,49 +734,60 @@ public class NodeTreeTable {
     }
 
     private Button buildImportDataStructureButton() {
-        Button Button = new Button();
-        Button.setText(I18n.getInstance().getString("plugin.object.opcua.button.import"));
-        Button.setOnAction(event -> {
+        Button button = new Button();
+        button.setText(I18n.getInstance().getString("plugin.object.opcua.button.import"));
+        button.setOnAction(event -> {
 
 
             Task<Void> task = new Task<Void>() {
                 @Override
                 protected Void call() {
+                    if (targetDataObject == null) {
+                        failed();
+                    } else {
+                        try {
+                            DateTime dateTime = DateTime.now();
+                            JEVisClass trendClass = trendRoot.getDataSource().getJEVisClass(LOYTEC_XML_DL_DIRECTORY);
+                            JEVisObject rootTrendObject = trendRoot.buildObject(IMPORTED_FROM_OPC_UA, trendClass);
+                            if (targetDataObject != null) {
+
+                                JEVisClass dataClass = trendRoot.getDataSource().getJEVisClass(DATA_DIRECTORY);
 
 
-                    try {
-                        DateTime dateTime = DateTime.now();
-                        JEVisClass trendClass = trendRoot.getDataSource().getJEVisClass(LOYTEC_XML_DL_DIRECTORY);
-                        JEVisObject rootTrendObject = trendRoot.buildObject(IMPORTED_FROM_OPC_UA, trendClass);
-                        if (targetDataObject != null) {
+                                JEVisObject rootDataObject = targetDataObject.buildObject(IMPORTED_FROM_OPC_UA, dataClass);
+                                if (rootTrendObject.isAllowedUnder(trendRoot) && rootDataObject.isAllowedUnder(targetDataObject)) {
 
-                            JEVisClass dataClass = trendRoot.getDataSource().getJEVisClass(DATA_DIRECTORY);
+                                    rootTrendObject.commit();
+                                    rootDataObject.commit();
+                                    createTrendDataTree(mainRootTreeItem, rootTrendObject, dateTime, rootDataObject);
 
+                                }
 
-                            JEVisObject rootDataObject = targetDataObject.buildObject(IMPORTED_FROM_OPC_UA, dataClass);
-                            if (rootTrendObject.isAllowedUnder(trendRoot) && rootDataObject.isAllowedUnder(targetDataObject)) {
-
+                            } else {
+                                logger.info("no target selected");
                                 rootTrendObject.commit();
-                                rootDataObject.commit();
-                                createTrendDataTree(mainRootTreeItem, rootTrendObject, dateTime, rootDataObject);
-
+                                createTrendDataTree(mainRootTreeItem, rootTrendObject, dateTime, null);
                             }
 
-                        } else {
-                            logger.info("no target selected");
-                            rootTrendObject.commit();
-                            createTrendDataTree(mainRootTreeItem, rootTrendObject, dateTime, null);
+                            succeeded();
+                        } catch (Exception e) {
+                            logger.error(e);
                         }
-
-
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
                     }
                     return null;
                 }
             };
 
             ControlCenter.getStatusBar().addTask(DashBordPlugIn.class.getName(), task, taskIcon, true);
+
+            task.setOnFailed(workerStateEvent -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle(I18n.getInstance().getString("plugin.object.attribute.target.error"));
+                alert.setHeaderText("");
+                alert.setContentText(I18n.getInstance().getString("plugin.object.attribute.target.error.message"));
+                jevisObjectcount = 0;
+                alert.showAndWait();
+            });
 
             task.setOnSucceeded(event1 -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -791,7 +800,7 @@ public class NodeTreeTable {
 
 
         });
-        return Button;
+        return button;
     }
 
 

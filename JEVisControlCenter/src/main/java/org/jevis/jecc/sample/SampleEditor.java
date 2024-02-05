@@ -234,7 +234,7 @@ public class SampleEditor {
         if (attribute.hasSample()) {
 
             if (!startWithDates) {
-                end = attribute.getTimestampFromLastSample();
+                end = attribute.getTimestampOfLastSample();
 
                 start = end.minusDays(1);
 

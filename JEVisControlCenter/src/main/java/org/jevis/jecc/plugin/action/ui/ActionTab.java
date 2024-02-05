@@ -22,7 +22,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jecc.application.table.SummeryData;
 import org.jevis.jecc.application.table.SummeryTable;
 import org.jevis.jecc.plugin.action.ActionController;
 import org.jevis.jecc.plugin.action.data.ActionPlanData;
@@ -229,6 +228,10 @@ public class ActionTab extends Tab {
         SummeryTable summeryTable = new SummeryTable(actionTable);
         VBox vbox = new VBox(summeryTable);
         summeryTable.setItems(actionTable.getSummeryData());
+        summeryTable.setMinHeight(5 * 28);
+        vbox.setMinHeight(5 * 28);
+
+        /* now we have a fix size
         summeryTable.getItems().addListener((ListChangeListener<SummeryData>) c -> {
             while (c.next()) {
 
@@ -239,6 +242,8 @@ public class ActionTab extends Tab {
             });
 
         });
+
+         */
 
 
         borderPane.setCenter(actionTable);
@@ -288,6 +293,7 @@ public class ActionTab extends Tab {
     public void updateStatistics() {
         if (statistics != null) {
             statistics.update();
+            actionTable.updateStatisticsTable();
         }
     }
 

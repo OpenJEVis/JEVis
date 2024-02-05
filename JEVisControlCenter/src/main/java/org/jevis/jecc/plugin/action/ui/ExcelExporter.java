@@ -20,20 +20,21 @@ import org.jevis.jecc.plugin.action.ActionController;
 import org.jevis.jecc.plugin.action.data.ActionData;
 import org.jevis.jecc.plugin.action.data.ActionPlanData;
 import org.jevis.jecc.plugin.action.data.ConsumptionData;
+import org.jevis.jecc.plugin.action.data.Medium;
 import org.joda.time.DateTime;
+import org.joda.time.Days;
 
 import java.awt.Color;
 import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class ExcelExporter {
 
@@ -52,8 +53,10 @@ public class ExcelExporter {
         FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", ".xlsx");
         fileChooser.getExtensionFilters().addAll(pdfFilter);
         fileChooser.setSelectedExtensionFilter(pdfFilter);
-        //fileChooser.setInitialFileName("Actions.xlsx");
-        fileChooser.setInitialFileName(UUID.randomUUID() + ".xlsx");
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        fileChooser.setInitialFileName("Actions_" + simpleDateFormat.format(new Date()) + ".xlsx");
+        //fileChooser.setInitialFileName(UUID.randomUUID() + ".xlsx");
 
         File selectedFile = fileChooser.showSaveDialog(ControlCenter.getStage());
         if (selectedFile != null) {
@@ -86,34 +89,8 @@ public class ExcelExporter {
                 }
             });
 
-            /*
-            actionController.getTabPane().getTabs().forEach(tab -> {
-                ActionTab actionTab = (ActionTab) tab;
-                addActionPlanSheet(workbook, actionTab.getActionPlan(), actionTab.getActionTable(), actionTab.getStatistics());
-            });
-
-
-             */
-            /*
-            actionController.getTabPane().getTabs().forEach(tab -> {
-                ActionTab actionTab = (ActionTab) tab;
-                if (!actionTab.getActionPlan().getName().get().equals("Übersicht")) {
-                    System.out.println("Action to export: " + (actionTab.getActionPlan().getActionData().size() - 1));
-                    actionTab.getActionPlan().getActionData().sorted(Comparator.comparingInt(o -> o.nr.get())).forEach(actionData -> {
-                        try {
-                            addActionDetailsSheet(workbook, actionData);
-                        } catch (Exception ex) {
-                            logger.error(ex, ex);
-                        }
-                    });
-                }
-            });
-
-             */
-
 
             try {
-                //faster development workaround, remove
                 Desktop desktop = Desktop.getDesktop();
 
 
@@ -232,7 +209,7 @@ public class ExcelExporter {
 
 
         int colldx = 0;
-        for (TableColumn<ActionData, ?> actionDataTableColumn : table.getColumns()) {
+        for (TableColumn<ActionData, ?> actionDataTableColumn : table.getVisibleLeafColumns()) {
             if (actionDataTableColumn.isVisible()) {
                 colldx++;
                 lastCol = colldx;
@@ -303,8 +280,13 @@ public class ExcelExporter {
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.mediaTagsProperty().getName())) {
-                            valueCell.setCellValue(data.mediaTagsProperty().get());
-                            sheet.autoSizeColumn(colldx);
+                            try {
+                                Medium medium = actionPlanData.getMediumByID(data.mediaTagsProperty().get());
+                                valueCell.setCellValue(medium.getName());
+                                sheet.autoSizeColumn(colldx);
+                            } catch (Exception ex) {
+                                logger.error(ex, ex);
+                            }
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.statusTagsProperty().getName())) {
@@ -396,7 +378,8 @@ public class ExcelExporter {
 
                         if (actionDataTableColumn.getText().equals(I18n.getInstance().getString("plugin.action.consumption.diff"))) {
                             valueCell.setCellStyle(kwhStyle);
-                            valueCell.setCellValue(data.enpi.get().diffProperty().get());
+                            valueCell.setCellValue(data.consumption.get().diff.get());
+                            //System.out.println("data.enpi.get().diffProperty().get(): " + data.enpi.get().diffProperty().get());
 
                             CellStyle mediumSumStyle = getConsumptionStyle(workbook);
                             mediumSumStyle.setAlignment(HorizontalAlignment.RIGHT);
@@ -411,16 +394,53 @@ public class ExcelExporter {
                                 sumCell.setCellStyle(kwhStyle);
 
                                 int mediumIndex = 0;
-                                for (String s : actionPlanData.getMediumTags()) {
-                                    mediumIndex++;
-                                    Cell mediumSumCell = getOrCreateCell(sheet, row + 2 + mediumIndex, colldx);
-                                    mediumSumCell.setCellStyle(mediumSumStyle);
-                                    mediumSumCell.setCellValue(statistics.getMediumSum(s).getValue());
+                                for (Map.Entry<Medium, Double> entry : statistics.getMediumSumValues().entrySet()) {
+                                    try {
+                                        mediumIndex++;
+                                        Medium key = entry.getKey();
+                                        Double aDouble = entry.getValue();
+                                        String text = key.getName() + ": "
+                                                + String.format("%s kWh", NumerFormating.getInstance().getDoubleFormate().format(aDouble));
+
+
+                                        Cell mediumSumCell = getOrCreateCell(sheet, row + 2 + mediumIndex, colldx);
+                                        mediumSumCell.setCellStyle(mediumSumStyle);
+                                        mediumSumCell.setCellValue(text);
+                                    } catch (Exception ex) {
+                                        logger.error(ex, ex);
+                                    }
                                 }
+
+
                             }
                             sheet.autoSizeColumn(colldx);
 
                         }
+
+                        if (actionDataTableColumn.getText().equals(I18n.getInstance().getString("plugin.action.donedays"))) {
+
+                            Cell daysCell = getOrCreateCell(sheet, row, colldx);
+                            try {
+                                int daysRunning = Days.daysBetween(data.doneDateProperty().get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
+                                daysCell.setCellValue(daysRunning);
+                            } catch (Exception ex) {
+                            }
+                            //AString cellLetter = CellReference.convertNumToColString(sumCell.getColumnIndex());
+                        }
+
+                        if (actionDataTableColumn.getText().equals(I18n.getInstance().getString("plugin.action.doneruntime"))) {
+                            Cell daysCell = getOrCreateCell(sheet, row, colldx);
+                            try {
+                                int daysRunning = Days.daysBetween(data.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
+                                double net = ((daysRunning) * (data.consumption.get().diff.get() / 365));
+                                //setText(NumerFormating.getInstance().getDoubleFormate().format(net) + " kWh");
+                                daysCell.setCellValue(net);
+                                daysCell.setCellStyle(kwhStyle);
+                            } catch (Exception ex) {
+                            }
+                            //AString cellLetter = CellReference.convertNumToColString(sumCell.getColumnIndex());
+                        }
+
 
 
                         /*

@@ -23,12 +23,12 @@ import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.report.ReportAttribute;
 import org.jevis.commons.report.ReportLink;
 import org.jevis.commons.report.ReportType;
+import org.jevis.commons.utils.NameFormatter;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.Icon;
 import org.jevis.jecc.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jecc.application.jevistree.UserSelection;
 import org.jevis.jecc.application.resource.ResourceLoader;
-import org.jevis.jecc.application.tools.CalculationNameFormatter;
 import org.jevis.jecc.dialog.ReportWizardDialog;
 import org.jevis.jecc.dialog.Response;
 import org.jevis.jecc.tool.ToggleSwitchPlus;
@@ -496,15 +496,15 @@ public class ReportSheet extends Tab {
             try {
                 if (reportWizardDialog.getReportType() == ReportType.STANDARD) {
                     if (ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.Data.name) || ds.getObject(reportLink.getJEVisId()).getJEVisClass().getName().equals(JC.Data.CleanData.name)) {
-                        reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object)
+                        reportLink.setTemplateVariableName(NameFormatter.createVariableName(object)
                                 + "_" + reportLink.getReportAttribute().getAttributeName()
                                 + "_" + reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation()
                                 + "_" + reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
                     } else {
-                        reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object));
+                        reportLink.setTemplateVariableName(NameFormatter.createVariableName(object));
                     }
                 } else {
-                    reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object));
+                    reportLink.setTemplateVariableName(NameFormatter.createVariableName(object));
                 }
             } catch (Exception e) {
                 logger.error("Could not set new Variable Name for object with id: {}", reportLink.getJEVisId(), e);

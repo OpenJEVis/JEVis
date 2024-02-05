@@ -24,8 +24,7 @@ public class FilterableTreeItem extends TreeItem<JEVisTreeViewItem> {
         this.filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> {
             return child -> {
                 // Set the predicate of child items to force filtering
-                if (child instanceof FilterableTreeItem) {
-                    FilterableTreeItem filterableChild = (FilterableTreeItem) child;
+                if (child instanceof FilterableTreeItem filterableChild) {
                     filterableChild.setPredicate(this.predicate.get());
                 }
                 // If there is no predicate, keep this tree item

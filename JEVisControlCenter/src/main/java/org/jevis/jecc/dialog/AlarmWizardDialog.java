@@ -39,6 +39,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.*;
+import org.jevis.commons.utils.NameFormatter;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.TopMenu;
 import org.jevis.jecc.application.application.I18nWS;
@@ -49,7 +50,6 @@ import org.jevis.jecc.application.control.ReportPeriodBox;
 import org.jevis.jecc.application.jevistree.UserSelection;
 import org.jevis.jecc.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jecc.application.resource.ResourceLoader;
-import org.jevis.jecc.application.tools.CalculationNameFormatter;
 import org.jevis.jecc.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
@@ -740,13 +740,13 @@ public class AlarmWizardDialog {
 
             try {
                 if (reportType == ReportType.STANDARD) {
-                    reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object)
+                    reportLink.setTemplateVariableName(NameFormatter.createVariableName(object)
                             + "_" + reportLink.getReportAttribute().getAttributeName()
                             + "_" + reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation()
                             + "_" + reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
 
                 } else {
-                    reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(object));
+                    reportLink.setTemplateVariableName(NameFormatter.createVariableName(object));
                 }
             } catch (JEVisException e) {
                 logger.error("Could not set new Variable Name for object with id: {}", reportLink.getJEVisId(), e);
@@ -1055,7 +1055,7 @@ public class AlarmWizardDialog {
                     attributeCell.setCellStyle(boldStyle);
 
                     Cell attributeCommand = getOrCreateCell(sheet, rowIndex, columnIndex + 2);
-                    String templateVariableName = CalculationNameFormatter.createVariableName(jeVisObject);
+                    String templateVariableName = NameFormatter.createVariableName(jeVisObject);
                     attributeCommand.setCellValue("${" + templateVariableName + "." + jeVisAttribute.getName() + ".value}");
                     attributeCommand.setCellStyle(defaultStyle);
 

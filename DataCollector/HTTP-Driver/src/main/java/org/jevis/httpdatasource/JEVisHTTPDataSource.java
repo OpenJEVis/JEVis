@@ -29,10 +29,12 @@ import java.util.List;
  */
 public class JEVisHTTPDataSource implements DataSource {
     private static final Logger logger = LogManager.getLogger(JEVisHTTPDataSource.class);
-    private DateTimeZone timezone;
-
     private final List<JEVisObject> _channels = new ArrayList<>();
-
+    private DateTimeZone timeZone;
+    private Parser _parser;
+    private Importer _importer;
+    private List<Result> _result;
+    private HTTPDataSource _httpdatasource;
 
     @Override
     public void run() {
@@ -87,7 +89,7 @@ public class JEVisHTTPDataSource implements DataSource {
                     }
                     runParser(channel);
                 } else {
-                    logger.info("Result List is empty set Last Readout to: ", _httpdatasource.getEndDateTime());
+                    logger.info("Result List is empty set Last Readout to: {}", _httpdatasource.getEndDateTime());
                     channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), _httpdatasource.getEndDateTime().toString()).commit();
                     runParser(channel);
                 }
@@ -141,9 +143,9 @@ public class JEVisHTTPDataSource implements DataSource {
 
             String timezoneString = DatabaseHelper.getObjectAsString(httpObject, timezoneType);
             if (timezoneString != null) {
-                timezone = DateTimeZone.forID(timezoneString);
+                timeZone = DateTimeZone.forID(timezoneString);
             } else {
-                timezone = DateTimeZone.UTC;
+                timeZone = DateTimeZone.UTC;
             }
 
 
@@ -172,7 +174,7 @@ public class JEVisHTTPDataSource implements DataSource {
             _httpdatasource.setServerURL(serverURL);
             _httpdatasource.setSsl(ssl);
             _httpdatasource.setUserName(userName);
-            _httpdatasource.setDateTimeZone(timezone);
+            _httpdatasource.setDateTimeZone(timeZone);
 
 
             String authString = DatabaseHelper.getObjectAsString(httpObject, authType);
@@ -181,7 +183,7 @@ public class JEVisHTTPDataSource implements DataSource {
                     HTTPDataSource.AUTH_SCHEME aut = HTTPDataSource.AUTH_SCHEME.valueOf(authString.toUpperCase());
                     _httpdatasource.setAuthScheme(aut);
                 } catch (Exception ex) {
-                    logger.error("Cannot parse Authentication config, using NONE", ex, ex);
+                    logger.error("Cannot parse Authentication config, using NONE", ex);
                     _httpdatasource.setAuthScheme(HTTPDataSource.AUTH_SCHEME.NONE);
                 }
             } else {
@@ -189,6 +191,7 @@ public class JEVisHTTPDataSource implements DataSource {
                 if (userName != null && !userName.isEmpty()) {
                     /* Default fallback for old configuration **/
                     _httpdatasource.setAuthScheme(HTTPDataSource.AUTH_SCHEME.BASIC);
+                    logger.debug("Using old auth scheme as fallback");
                 }
             }
 
@@ -197,9 +200,6 @@ public class JEVisHTTPDataSource implements DataSource {
             logger.fatal(ex, ex);
         }
     }
-
-    private Parser _parser;
-    private Importer _importer;
 
     @Override
     public List<InputStream> sendSampleRequest(JEVisObject channel) throws Exception {
@@ -223,10 +223,6 @@ public class JEVisHTTPDataSource implements DataSource {
 
         return new ArrayList<>();
     }
-
-    private List<Result> _result;
-
-    private HTTPDataSource _httpdatasource;
 
     @Override
     public void parse(List<InputStream> input) {
@@ -267,7 +263,7 @@ public class JEVisHTTPDataSource implements DataSource {
     @Override
     public void importResult() {
 //        _importer.importResult(_result);
-        //workaround until server is threadsave
+        //workaround until server is threadsafe
 //        JEVisImporterAdapter.importResults(_result, _importer);
     }
 

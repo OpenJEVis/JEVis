@@ -45,7 +45,6 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.prefs.Preferences;
 
 /**
@@ -59,8 +58,12 @@ public class LoadAnalysisDialog extends Dialog {
     private final FilteredList<JEVisObject> filteredData;
     private final ListView<JEVisObject> analysisListView;
     private final JEVisDataSource ds;
+    private LocalTimePicker pickerTimeEnd;
+    private PresetDateBox presetDateBox;
     private final AggregationPeriodBox aggregationBox = new AggregationPeriodBox(AggregationPeriod.NONE);
     private final DisabledItemsComboBox<ManipulationMode> mathBox = getMathBox();
+    private List<CustomPeriodObject> finalListCustomPeriodObjects;
+    private ComboBox<String> comboBoxCustomPeriods = null;
     private final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
     /**
      * drawOptimization.setOnAction(event -> {
@@ -78,7 +81,7 @@ public class LoadAnalysisDialog extends Dialog {
     private final Tooltip customPeriodsComboBoxTT = new Tooltip(I18n.getInstance().getString("plugin.graph.manipulation.tip.customdate"));
     private final Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
     private final Label standardSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
-    private DatePicker pickerDateStart;    private final ComboBox<String> comboBoxCustomPeriods = getCustomPeriodsComboBox();
+    private DatePicker pickerDateStart;
     private final Label customSelectionsLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.custom"));
     private final Label labelAggregation = new Label(I18n.getInstance().getString("plugin.graph.interval.label"));
     private final Label labelMath = new Label(I18n.getInstance().getString("plugin.graph.manipulation.label"));
@@ -91,6 +94,7 @@ public class LoadAnalysisDialog extends Dialog {
     private PickerCombo pickerCombo;
     private DatePicker pickerDateEnd;
     private LocalTimePicker pickerTimeStart;
+
     public LoadAnalysisDialog(ChartPlugin chartPlugin, JEVisDataSource ds, ObservableList<JEVisObject> analyses) {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
@@ -185,11 +189,11 @@ public class LoadAnalysisDialog extends Dialog {
         JEVisHelp.getInstance().update();
 
     }
-    private LocalTimePicker pickerTimeEnd;
-    private PresetDateBox presetDateBox;
-    private List<CustomPeriodObject> finalListCustomPeriodObjects;
+    //private JFXCheckBox drawOptimization;
 
     private void initializeControls() {
+        comboBoxCustomPeriods = getCustomPeriodsComboBox();
+
         aggregationBox.getSelectionModel().select(AggregationPeriod.parseAggregationIndex(chartPlugin.getDataSettings().getAggregationPeriod()));
         aggregationBox.setMaxWidth(200);
 
@@ -255,84 +259,6 @@ public class LoadAnalysisDialog extends Dialog {
         cancelButton.setOnAction(event -> {
             this.close();
         });
-    }
-
-    private ComboBox<String> getCustomPeriodsComboBox() {
-
-        ObservableList<String> customPeriods = FXCollections.observableArrayList();
-        List<JEVisObject> listCalendarDirectories = new ArrayList<>();
-        List<JEVisObject> listCustomPeriods = new ArrayList<>();
-        List<CustomPeriodObject> listCustomPeriodObjects = new ArrayList<>();
-
-        try {
-            try {
-                JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                listCalendarDirectories = ds.getObjects(calendarDirectoryClass, false);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get calendar directories", e);
-            }
-            if (Objects.requireNonNull(listCalendarDirectories).isEmpty()) {
-                List<JEVisObject> listBuildings = new ArrayList<>();
-                try {
-                    JEVisClass building = ds.getJEVisClass("Building");
-                    listBuildings = ds.getObjects(building, false);
-
-                    if (!listBuildings.isEmpty()) {
-                        JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
-                        if (ds.getCurrentUser().canCreate(listBuildings.get(0).getID())) {
-
-                            JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
-                            calendarDirectory.commit();
-                        }
-                    }
-                } catch (JEVisException e) {
-                    logger.error("Error: could not create new calendar directory", e);
-                }
-
-            }
-            try {
-                listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get custom period", e);
-            }
-        } catch (Exception e) {
-        }
-
-        customPeriods.add(I18n.getInstance().getString("plugin.graph.dialog.loadnew.none"));
-
-        for (JEVisObject obj : listCustomPeriods) {
-            if (obj != null) {
-                CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
-                if (cpo.isVisible()) {
-                    listCustomPeriodObjects.add(cpo);
-                    customPeriods.add(cpo.getObject().getName());
-                }
-            }
-        }
-
-        ComboBox<String> tempBox = new ComboBox<>(customPeriods);
-
-        finalListCustomPeriodObjects = listCustomPeriodObjects;
-        if (customPeriods.size() > 1) {
-            tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue.equals(oldValue)) {
-                    if (newValue.intValue() > 0) {
-                        for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
-                            if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
-
-                                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.CUSTOM_START_END);
-                                chartPlugin.getDataSettings().setAnalysisTimeFrame(newTimeFrame);
-                                updateGridLayout(false);
-                            }
-                        }
-                    }
-                }
-            });
-        } else {
-            tempBox.setDisable(true);
-        }
-
-        return tempBox;
     }
 
     private DisabledItemsComboBox<ManipulationMode> getMathBox() {
@@ -412,7 +338,6 @@ public class LoadAnalysisDialog extends Dialog {
 
         return math;
     }
-    //private CheckBox drawOptimization;
 
     private void addListener() {
         analysisListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -638,7 +563,83 @@ public class LoadAnalysisDialog extends Dialog {
         return filterInput;
     }
 
+    private ComboBox<String> getCustomPeriodsComboBox() {
 
+        ObservableList<String> customPeriods = FXCollections.observableArrayList();
+        List<JEVisObject> listCalendarDirectories = new ArrayList<>();
+        List<JEVisObject> listCustomPeriods = new ArrayList<>();
+        List<CustomPeriodObject> listCustomPeriodObjects = new ArrayList<>();
+
+        try {
+            try {
+                JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
+                listCalendarDirectories.addAll(ds.getObjects(calendarDirectoryClass, false));
+            } catch (Exception e) {
+                logger.error("Error: could not get calendar directories", e);
+            }
+            if (listCalendarDirectories.isEmpty()) {
+                List<JEVisObject> listBuildings = new ArrayList<>();
+                try {
+                    JEVisClass building = ds.getJEVisClass("Building");
+                    listBuildings = ds.getObjects(building, false);
+
+                    if (!listBuildings.isEmpty()) {
+                        JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
+                        if (ds.getCurrentUser().canCreate(listBuildings.get(0).getID())) {
+
+                            JEVisObject calendarDirectory = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.calendardir.defaultname"), calendarDirectoryClass);
+                            calendarDirectory.commit();
+                        }
+                    }
+                } catch (JEVisException e) {
+                    logger.error("Error: could not create new calendar directory", e);
+                }
+
+            }
+            try {
+                listCustomPeriods.addAll(ds.getObjects(ds.getJEVisClass("Custom Period"), false));
+            } catch (JEVisException e) {
+                logger.error("Error: could not get custom period", e);
+            }
+        } catch (Exception e) {
+        }
+
+        customPeriods.add(I18n.getInstance().getString("plugin.graph.dialog.loadnew.none"));
+
+        for (JEVisObject obj : listCustomPeriods) {
+            if (obj != null) {
+                CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
+                if (cpo.isVisible()) {
+                    listCustomPeriodObjects.add(cpo);
+                    customPeriods.add(cpo.getObject().getName());
+                }
+            }
+        }
+
+        ComboBox<String> tempBox = new ComboBox<>(customPeriods);
+
+        finalListCustomPeriodObjects = listCustomPeriodObjects;
+        if (customPeriods.size() > 1) {
+            tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.equals(oldValue)) {
+                    if (newValue.intValue() > 0) {
+                        for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
+                            if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == newValue.intValue()) {
+
+                                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame(ds, chartPlugin, TimeFrame.CUSTOM_START_END, cpo.getObject());
+                                chartPlugin.getDataSettings().setAnalysisTimeFrame(newTimeFrame);
+                                updateGridLayout(false);
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            tempBox.setDisable(true);
+        }
+
+        return tempBox;
+    }
 
     public Response getResponse() {
         return response;
@@ -728,8 +729,6 @@ public class LoadAnalysisDialog extends Dialog {
                 JEVisHelp.LAYOUT.HORIZONTAL_TOP_LEFT, pickerDateStart, pickerDateEnd, pickerTimeEnd, analysisListView,
                 aggregationBox, mathBox, presetDateBox, comboBoxCustomPeriods);
     }
-
-
 
 
 }
