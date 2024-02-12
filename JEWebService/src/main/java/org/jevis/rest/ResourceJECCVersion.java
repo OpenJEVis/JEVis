@@ -60,7 +60,6 @@ public class ResourceJECCVersion {
     public Response getFiles() {
         try {
             List<String> pathList = Config.getJECCFilesPath();
-
             List<JsonFile> fileList = new ArrayList<>();
             for (String s : pathList) {
                 File file = new File(s);

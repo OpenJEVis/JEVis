@@ -56,7 +56,7 @@ public class ResourceJavaVersion {
     @GET
     @Logged
     @Path("/files")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getFiles() {
         try {
             List<String> pathList = Config.getJavaFilesPath();
