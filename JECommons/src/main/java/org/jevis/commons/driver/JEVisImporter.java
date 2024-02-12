@@ -31,10 +31,7 @@ import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author bf
@@ -241,6 +238,14 @@ public class JEVisImporter implements Importer {
                 try {
                     JEVisAttribute key = entrySet.getKey();
                     List<JEVisSample> values = entrySet.getValue();
+                    values.sort(Comparator.comparing(jeVisSample -> {
+                        try {
+                            return jeVisSample.getTimestamp();
+                        } catch (Exception e) {
+                            logger.error(e);
+                        }
+                        return null;
+                    }));
 
                     //Bulk Import
                     logger.info("Import samples: key: {} , values: {}",key.getObject().getName(),values.size());
