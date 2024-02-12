@@ -13,12 +13,21 @@ import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.EncodingFilter;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.utils.JEVisDates;
 import org.jevis.commons.ws.sql.Config;
 import org.jevis.commons.ws.sql.ConnectionFactory;
+import org.joda.time.DateTime;
 
 import javax.security.sasl.AuthenticationException;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -26,7 +35,7 @@ import java.sql.SQLException;
  * Main class.
  */
 public class Main {
-    public static final String VERSION = "JEWebService Version 1.9.2 2020-09-09";
+    public static String VERSION = "JEWebService Version";
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     /**
@@ -35,10 +44,31 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) throws SQLException, AuthenticationException, JEVisException {
-        logger.info("Start - {}", VERSION);
         //read Config
         File configfile;
+        String newestVerion = "";
+        String jarCreationDate = "";
 
+        try {
+            Path jarPath = Paths.get(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            newestVerion = jarPath.getFileName().toString().replace("JEWebService-", "").replace("-jar-with-dependencies.jar", "");
+            VERSION += " " + newestVerion;
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        try {
+            Path jarPath = Paths.get(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            BasicFileAttributes basicFileAttributes = Files.readAttributes(jarPath, BasicFileAttributes.class);
+            FileTime fileTime = basicFileAttributes.creationTime();
+            DateTime fileDate = new DateTime(fileTime.toMillis());
+            jarCreationDate = (fileDate.toString(JEVisDates.DEFAULT_DATE_FORMAT));
+            VERSION += " " + jarCreationDate;
+        } catch (URISyntaxException | IOException e) {
+            logger.error(e);
+        }
+
+        logger.info("Start - {}", VERSION);
 
         if (args.length >= 1) {
             configfile = new File(args[0]);
@@ -124,8 +154,7 @@ public class Main {
         try {
             server.start();
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Server error: {}", e);
+            logger.error("Server error: ", e);
             throw new RuntimeException(e);
         }
         try {
@@ -133,8 +162,7 @@ public class Main {
             logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Server error: {}", e);
+            logger.error("Server error: ", e);
             throw new RuntimeException(e);
         }
     }
