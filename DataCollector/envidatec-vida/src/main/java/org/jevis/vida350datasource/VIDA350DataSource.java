@@ -112,12 +112,12 @@ public class VIDA350DataSource implements DataSource {
         try {
             parser.setDateFormat("dd.MM.yyyy");
             parser.setDateIndex(2);
-            parser.setDecimalSeperator(".");
-            parser.setDelim(";");
+            parser.setDecimalSeparator(".");
+            parser.setDelimiter(";");
             parser.setDpIndex(0);
             parser.setHeaderLines(2);
             parser.setQuote(null);
-            parser.setThousandSeperator(null);
+            parser.setThousandSeparator(null);
             parser.setTimeFormat("HH:mm:ss");
             parser.setTimeIndex(1);
             parser.setDpType("ROW");

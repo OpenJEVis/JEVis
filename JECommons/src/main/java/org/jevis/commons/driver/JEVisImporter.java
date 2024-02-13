@@ -180,7 +180,7 @@ public class JEVisImporter implements Importer {
             }
             logger.info("ok target configurations for: [" + okIDs + "]");
 
-            //build the Samples per attribute so we can bulk import them
+            //build the Samples per attribute, so we can bulk import them
             Map<JEVisAttribute, List<JEVisSample>> toImportList = new HashMap<>();
             for (Result s : results) {
                 try {
