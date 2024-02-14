@@ -20,6 +20,7 @@ import org.jevis.jeconfig.plugin.action.ActionController;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.ConsumptionData;
+import org.jevis.jeconfig.plugin.action.data.Medium;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
@@ -32,10 +33,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
+import java.util.*;
 
 public class ExcelExporter {
 
@@ -86,34 +85,8 @@ public class ExcelExporter {
                 }
             });
 
-            /*
-            actionController.getTabPane().getTabs().forEach(tab -> {
-                ActionTab actionTab = (ActionTab) tab;
-                addActionPlanSheet(workbook, actionTab.getActionPlan(), actionTab.getActionTable(), actionTab.getStatistics());
-            });
-
-
-             */
-            /*
-            actionController.getTabPane().getTabs().forEach(tab -> {
-                ActionTab actionTab = (ActionTab) tab;
-                if (!actionTab.getActionPlan().getName().get().equals("Übersicht")) {
-                    System.out.println("Action to export: " + (actionTab.getActionPlan().getActionData().size() - 1));
-                    actionTab.getActionPlan().getActionData().sorted(Comparator.comparingInt(o -> o.nr.get())).forEach(actionData -> {
-                        try {
-                            addActionDetailsSheet(workbook, actionData);
-                        } catch (Exception ex) {
-                            logger.error(ex, ex);
-                        }
-                    });
-                }
-            });
-
-             */
-
 
             try {
-                //faster development workaround, remove
                 Desktop desktop = Desktop.getDesktop();
 
 
@@ -231,7 +204,6 @@ public class ExcelExporter {
         int colldx = 0;
         for (TableColumn<ActionData, ?> actionDataTableColumn : table.getVisibleLeafColumns()) {
             if (actionDataTableColumn.isVisible()) {
-                System.out.println("Export Colum: " + actionDataTableColumn.getText());
                 colldx++;
                 lastCol = colldx;
                 int row = firstRow;
@@ -301,8 +273,13 @@ public class ExcelExporter {
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.mediaTagsProperty().getName())) {
-                            valueCell.setCellValue(data.mediaTagsProperty().get());
-                            sheet.autoSizeColumn(colldx);
+                            try {
+                                Medium medium = actionPlanData.getMediumByID(data.mediaTagsProperty().get());
+                                valueCell.setCellValue(medium.getName());
+                                sheet.autoSizeColumn(colldx);
+                            } catch (Exception ex) {
+                                logger.error(ex, ex);
+                            }
                         }
 
                         if (actionDataTableColumn.getText().equals(fakeForName.statusTagsProperty().getName())) {
@@ -410,12 +387,24 @@ public class ExcelExporter {
                                 sumCell.setCellStyle(kwhStyle);
 
                                 int mediumIndex = 0;
-                                for (String s : actionPlanData.getMediumTags()) {
-                                    mediumIndex++;
-                                    Cell mediumSumCell = getOrCreateCell(sheet, row + 2 + mediumIndex, colldx);
-                                    mediumSumCell.setCellStyle(mediumSumStyle);
-                                    mediumSumCell.setCellValue(statistics.getMediumSum(s).getValue());
+                                for (Map.Entry<Medium, Double> entry : statistics.getMediumSumValues().entrySet()) {
+                                    try {
+                                        mediumIndex++;
+                                        Medium key = entry.getKey();
+                                        Double aDouble = entry.getValue();
+                                        String text = key.getName() + ": "
+                                                + String.format("%s kWh", NumerFormating.getInstance().getDoubleFormate().format(aDouble));
+
+
+                                        Cell mediumSumCell = getOrCreateCell(sheet, row + 2 + mediumIndex, colldx);
+                                        mediumSumCell.setCellStyle(mediumSumStyle);
+                                        mediumSumCell.setCellValue(text);
+                                    } catch (Exception ex) {
+                                        logger.error(ex, ex);
+                                    }
                                 }
+
+
                             }
                             sheet.autoSizeColumn(colldx);
 
@@ -425,7 +414,6 @@ public class ExcelExporter {
 
                             Cell daysCell = getOrCreateCell(sheet, row, colldx);
                             try {
-                                System.out.println("-Export " + I18n.getInstance().getString("plugin.action.donedays") + " Date: " + data.doneDateProperty().get().withTimeAtStartOfDay());
                                 int daysRunning = Days.daysBetween(data.doneDateProperty().get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
                                 daysCell.setCellValue(daysRunning);
                             } catch (Exception ex) {

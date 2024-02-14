@@ -14,7 +14,6 @@ import org.jevis.jeconfig.plugin.action.data.Medium;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +22,9 @@ import java.util.stream.Collectors;
 public class Statistics {
     private static final Logger logger = LogManager.getLogger(Statistics.class);
     private final DoubleProperty sumSinceImplementation = new SimpleDoubleProperty(0.0);
+    private final DoubleProperty sumSinceImplementationGross = new SimpleDoubleProperty(0.0);
+
+
     private final DoubleProperty sumConsumptionSinceImplementation = new SimpleDoubleProperty(0.0);
     private final StringProperty textSumSinceImplementation = new SimpleStringProperty();
     private final StringProperty textSumSinceImplementationGross = new SimpleStringProperty();
@@ -37,8 +39,10 @@ public class Statistics {
     private final StringProperty sumSavingsCombinedProperty = new SimpleStringProperty();
     private final DoubleProperty sumNPVResultProperty = new SimpleDoubleProperty(0.0);
     private final StringProperty sumNPVResultStrProperty = new SimpleStringProperty();
-    private final StringProperty sumCO2 = new SimpleStringProperty();
-    private final StringProperty sumGrossCO2 = new SimpleStringProperty();
+    private final StringProperty textSumCO2 = new SimpleStringProperty();
+    private final DoubleProperty sumCO2 = new SimpleDoubleProperty(0.0);
+    private final StringProperty textSumGrossCO2 = new SimpleStringProperty();
+    private final DoubleProperty sumGrossCO2 = new SimpleDoubleProperty(0.0);
     private final ObservableMap<String, StringProperty> sumNPVResultPerMediumStrList = FXCollections.observableHashMap();
     private final StringProperty sumStrProperty = new SimpleStringProperty();
     private final StringProperty sumSavingsByMedium = new SimpleStringProperty();
@@ -135,6 +139,7 @@ public class Statistics {
         sumNPVResultProperty.set(sumImprovement);
         sumNPVResultStrProperty.set(NumerFormating.getInstance().getDoubleFormate().format(sumImprovement) + " kWh");
 
+        /*
 
         sumNPVResultPerMediumStrList.forEach((s, stringProperty) -> {
             stringProperty.setValue("");
@@ -143,8 +148,11 @@ public class Statistics {
 
         String mediumStrg = "";
         if (!nvpresultMap.isEmpty()) {
+            double maxValue = nvpresultMap.values().stream().max(Comparator.comparingDouble(Double::doubleValue)).get();
+            int maxValueLength = String.format("%s", NumerFormating.getInstance().getDoubleFormate().format(sumImprovement)).length();
+
             int maxLength = nvpresultMap.keySet().stream().max(Comparator.comparingInt(String::length)).get().length();
-            int maxValueLength = String.format("%s kWh", nvpresultMap.values().stream().max(Comparator.comparingDouble(Double::doubleValue)).get()).length();
+            //int maxValueLength = String.format("%s kWh", nvpresultMap.values().stream().max(Comparator.comparingDouble(Double::doubleValue)).get()).length();
 
             for (Map.Entry<String, Double> entry : nvpresultMap.entrySet()) {
                 String s = entry.getKey();
@@ -152,19 +160,29 @@ public class Statistics {
                     //actionPlan.getMediumByID(s).getName()
                     Double doubleValue = entry.getValue();
                     String name = String.format("%-" + (maxLength + 1) + "s", s + ":");
-                    String valueStrg = String.format("%s kWh", NumerFormating.getInstance().getDoubleFormate().format(doubleValue));
-                    String full = String.format("%s %" + maxValueLength + "s", name, valueStrg);
+                    //String valueStrg = String.format("%s kWh", NumerFormating.getInstance().getDoubleFormate().format(doubleValue));
+                    String valueStrg = String.format("%" + maxValueLength + "s kWh", NumerFormating.getInstance().getDoubleFormate().format(doubleValue));
+                    //String full = String.format("%s %" + maxValueLength + "s", name, valueStrg);
+                    String full = String.format("%s: %s", s, valueStrg);
+                    System.out.println("full: " + full + "   " + full.length());
+
+
                     if (doubleValue.equals(zero)) {
                         sumNPVResultPerMediumStrList.get(s).setValue("");
                     } else {
                         sumNPVResultPerMediumStrList.get(s).setValue(full);
                     }
+
+
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
         }
+
         sumSavingsByMedium.set(mediumStrg);
+        */
+
 
         String statusStr = "";
 
@@ -178,6 +196,25 @@ public class Statistics {
         }
         statusStrProperty.set(statusStr);
 
+    }
+
+    public Map<Medium, Double> getMediumSumValues() {
+        Map<Medium, Double> map = new HashMap<>();
+        data.forEach(actionData -> {
+            try {
+                if (!actionData.mediaTagsProperty().get().isEmpty()) {
+                    Medium medium = actionPlan.getMediumByID(actionData.mediaTagsProperty().get());
+                    Double sum = map.getOrDefault(medium, 0d);
+                    sum += actionData.consumption.get().diff.get();
+                    map.put(medium, sum);
+                }
+
+            } catch (Exception ex) {
+                logger.error(ex, ex);
+            }
+        });
+
+        return map;
     }
 
     public StringProperty getMediumSum(String medium) {
@@ -253,21 +290,48 @@ public class Statistics {
 
         logger.debug("Total Sum: " + sumNet.get());
         sumSinceImplementation.setValue(sumNet.get());
+        sumSinceImplementationGross.setValue(sumGross.get());
+        sumCO2.setValue(sumCO2Net.get());
+        sumGrossCO2.setValue(sumCO2Gross.get());
+
         textSumSinceImplementation.set(I18n.getInstance().getString("plugin.action.statistics.saveSinceImp") //+ ":\t"
                 + ": " + NumerFormating.getInstance().getDoubleFormate().format(sumNet.get()) + " kWh");
         textSumSinceImplementationGross.set(I18n.getInstance().getString("plugin.action.statistics.saveGrossSinceImp")//+ ":\t"
                 + ": " + NumerFormating.getInstance().getDoubleFormate().format(sumGross.get()) + " kWh");
-        sumCO2.set(I18n.getInstance().getString("plugin.action.statistics.saveCO2Net")
+        textSumCO2.set(I18n.getInstance().getString("plugin.action.statistics.saveCO2Net")
                 + ": " + NumerFormating.getInstance().getDoubleFormate().format(sumCO2Net.get()) + " t");
-        sumGrossCO2.set(I18n.getInstance().getString("plugin.action.statistics.savesCO2Gross")
+        textSumGrossCO2.set(I18n.getInstance().getString("plugin.action.statistics.savesCO2Gross")
                 + ": " + NumerFormating.getInstance().getDoubleFormate().format(sumCO2Gross.get()) + " t");
 
     }
 
-    public StringProperty getSumCO2Net() {
+    public double getSumCO2() {
+        return sumCO2.get();
+    }
+
+    public DoubleProperty sumCO2Property() {
         return sumCO2;
     }
 
+    public double getSumGrossCO2() {
+        return sumGrossCO2.get();
+    }
+
+    public DoubleProperty sumGrossCO2Property() {
+        return sumGrossCO2;
+    }
+
+    public StringProperty getSumCO2Net() {
+        return textSumCO2;
+    }
+
+    public double getSumSinceImplementationGross() {
+        return sumSinceImplementationGross.get();
+    }
+
+    public DoubleProperty sumSinceImplementationGrossProperty() {
+        return sumSinceImplementationGross;
+    }
 
     public StringProperty textSumSinceImplementationGrossProperty() {
         return textSumSinceImplementationGross;
@@ -306,7 +370,7 @@ public class Statistics {
     }
 
 
-    public StringProperty sumGrossCO2Property() {
-        return sumGrossCO2;
+    public StringProperty textSumGrossCO2Property() {
+        return textSumGrossCO2;
     }
 }

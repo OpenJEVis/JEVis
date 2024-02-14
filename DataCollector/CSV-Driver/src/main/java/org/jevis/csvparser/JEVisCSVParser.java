@@ -37,15 +37,15 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author broder
  */
 public class JEVisCSVParser implements Parser {
+    public static final String VERSION = "Version 1.2.1 2017-08-28";
     private static final Logger logger = LogManager.getLogger(JEVisCSVParser.class);
     private DateTimeZone timeZone;
-    public static final String VERSION = "Version 1.2.1 2017-08-28";
+    private CSVParser _csvParser;
 
     private void initializeAttributes(JEVisObject parserObject) {
         try {
@@ -110,13 +110,13 @@ public class JEVisCSVParser implements Parser {
             _csvParser = new CSVParser();
             _csvParser.setDateFormat(dateFormat);
             _csvParser.setDateIndex(dateIndex);
-            _csvParser.setDecimalSeperator(decimalSeparator);
-            _csvParser.setDelim(delim);
+            _csvParser.setDecimalSeparator(decimalSeparator);
+            _csvParser.setDelimiter(delim);
             _csvParser.setDpIndex(dpIndex);
             _csvParser.setDpType(dpType);
             _csvParser.setHeaderLines(headerLines);
             _csvParser.setQuote(quote);
-            _csvParser.setThousandSeperator(thousandSeparator);
+            _csvParser.setThousandSeparator(thousandSeparator);
             _csvParser.setTimeFormat(timeFormat);
             _csvParser.setTimeIndex(timeIndex);
             _csvParser.setCharset(cset);
@@ -162,8 +162,10 @@ public class JEVisCSVParser implements Parser {
 
                 Integer valueIndex = null;
                 try {
-                    valueIndex = Integer.parseInt(Objects.requireNonNull(valueString));
-                    valueIndex--;
+                    if (valueString != null) {
+                        valueIndex = Integer.parseInt(valueString);
+                        valueIndex--;
+                    }
                 } catch (Exception ex) {
                     logger.warn("DataPoint value index error: {}:{}", dp.getName(), dp.getID(), ex);
 //                    ex.printStackTrace();
@@ -179,24 +181,6 @@ public class JEVisCSVParser implements Parser {
             logger.error(ex);
         }
     }
-
-    interface CSVParserTypes extends DataCollectorTypes.Parser {
-
-        String NAME = "CSV Parser";
-        String DATAPOINT_INDEX = "Datapoint Index";
-        String DATAPOINT_TYPE = "Datapoint Alignment";
-        String DATE_INDEX = "Date Index";
-        String DELIMITER = "Delimiter";
-        String NUMBER_HEADLINES = "Number Of Headlines";
-        String QUOTE = "Quote";
-        String TIME_INDEX = "Time Index";
-        String DATE_FORMAT = "Date Format";
-        String DECIMAL_SEPERATOR = "Decimal Separator";
-        String TIME_FORMAT = "Time Format";
-        String THOUSAND_SEPERATOR = "Thousand Separator";
-    }
-
-    private CSVParser _csvParser;
 
     /**
      * @param inputList
@@ -228,6 +212,22 @@ public class JEVisCSVParser implements Parser {
         _csvParser.setConverter(converter);
 
         initializeCSVDataPointParser(parserObject);
+    }
+
+    interface CSVParserTypes extends DataCollectorTypes.Parser {
+
+        String NAME = "CSV Parser";
+        String DATAPOINT_INDEX = "Datapoint Index";
+        String DATAPOINT_TYPE = "Datapoint Alignment";
+        String DATE_INDEX = "Date Index";
+        String DELIMITER = "Delimiter";
+        String NUMBER_HEADLINES = "Number Of Headlines";
+        String QUOTE = "Quote";
+        String TIME_INDEX = "Time Index";
+        String DATE_FORMAT = "Date Format";
+        String DECIMAL_SEPERATOR = "Decimal Separator";
+        String TIME_FORMAT = "Time Format";
+        String THOUSAND_SEPERATOR = "Thousand Separator";
     }
 
     interface CSVDataPointDirectoryTypes extends DataCollectorTypes.DataPointDirectory {
