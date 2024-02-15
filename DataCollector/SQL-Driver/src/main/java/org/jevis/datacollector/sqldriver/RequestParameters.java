@@ -5,6 +5,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.classes.JC;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.driver.VarFiller;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
@@ -27,6 +28,7 @@ public class RequestParameters {
     private final String noteColumn;
     private final String valueFormate;
     private final JEVisAttribute lastReadoutAttribute;
+    private final JEVisAttribute readoutOffsetAttribute;
     private final JEVisAttribute statusAttribute;
     private final DateTime lastLog = new DateTime();
 
@@ -37,9 +39,18 @@ public class RequestParameters {
         TargetHelper th = new TargetHelper(queryObject.getDataSource(), target);
         if (!th.isValid()) throw new RuntimeException("target not reachable");
         targetAtt = th.getAttribute().get(0);
-        JEVisSample lastSample = targetAtt.getLatestSample();
+//        JEVisSample lastSample = targetAtt.getLatestSample();
 
         lastReadoutAttribute = queryObject.getAttribute(JC.Channel.a_LastReadout);
+
+        DateTime initialDate = new DateTime(1980, 1, 1, 0, 0, 0, 0);
+        SampleHandler sampleHandler = new SampleHandler();
+
+        readoutOffsetAttribute = queryObject.getAttribute(JC.Channel.a_ReadoutOffset);
+        Long readoutOffset = sampleHandler.getLastSample(queryObject, JC.Channel.a_ReadoutOffset, 0L);
+
+        DateTime lastReadout = sampleHandler.getLastSample(queryObject, JC.Channel.a_LastReadout, initialDate).minus(readoutOffset);
+
         statusAttribute = queryObject.getAttribute("Status Log");
 
         timeStampColumn = Parameters.getAttValue(queryObject, "Timestamp Column", "", false);
@@ -51,24 +62,14 @@ public class RequestParameters {
         Map<VarFiller.Variable, VarFiller.VarFunction> variables = new HashMap<>();
 
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-        if (lastSample != null) {
-            variables.put(VarFiller.Variable.LAST_TS, () -> {
-                try {
-                    return fmt.print(lastSample.getTimestamp());
-                } catch (Exception e) {
-                    return "";
-                }
-            });
-        } else {
-            variables.put(VarFiller.Variable.LAST_TS, () -> {
-                try {
-                    return fmt.print(new DateTime(1980, 01, 01, 01, 01));
-                } catch (Exception e) {
-                    return "";
-                }
-            });
-        }
 
+        variables.put(VarFiller.Variable.LAST_TS, () -> {
+            try {
+                return fmt.print(lastReadout);
+            } catch (Exception e) {
+                return "";
+            }
+        });
 
         VarFiller varFiller = new VarFiller(query, variables);
         exeQuery = varFiller.getFilledURIString();
