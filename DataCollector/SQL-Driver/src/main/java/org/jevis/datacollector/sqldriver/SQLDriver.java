@@ -137,7 +137,7 @@ public class SQLDriver implements DataSource {
 
 
                         if (!resultSamples.isEmpty()) {
-                            requestParameters.logStatus(0, new DateTime(), "Import " + resultSamples.size() + " Samples");
+                            requestParameters.logStatus(0, new DateTime(), "Import " + resultSamples.size() + " Samples into " + requestParameters.getTarget().getName() + ":" + requestParameters.getTarget().getObjectID());
                             requestParameters.updateLastReadout();
                         } else {
                             requestParameters.logStatus(0, new DateTime(), "Nothing to Import");
