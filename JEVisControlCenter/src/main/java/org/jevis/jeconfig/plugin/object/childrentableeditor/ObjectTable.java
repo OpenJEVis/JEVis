@@ -38,22 +38,22 @@ import static org.jevis.commons.utils.CommonMethods.getChildrenRecursive;
 
 public class ObjectTable {
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String PATTERN = DATE_FORMAT;
+    private static final Logger logger = LogManager.getLogger(ObjectTable.class);
     protected final String STANDARD_TARGET_ATTRIBUTE_NAME = "Target";
     protected final String VALUE_ATTRIBUTE_NAME = "Value";
-    public static final String PATTERN = DATE_FORMAT;
     private final TableView<TableData> tableView = new TableView<TableData>();
-
-    private static final Logger logger = LogManager.getLogger(ObjectTable.class);
     private final Map<Long, List<Long>> targetLoytecXML = new HashMap<>();
     private final Map<Long, List<Long>> targetOPCUA = new HashMap<>();
-    private DateTime start;
-    private DateTime end;
     private final Map<Long, List<Long>> targetVIDA = new HashMap<>();
     private final Map<Long, List<Long>> targetCSV = new HashMap<>();
     private final Map<Long, List<Long>> targetXML = new HashMap<>();
     private final Map<Long, List<Long>> targetDWD = new HashMap<>();
     private final Map<Long, List<Long>> targetDataPoint = new HashMap<>();
+    private final Map<Long, List<Long>> otherTargets = new HashMap<>();
     private final FilteredList<TableData> filteredData;
+    private DateTime start;
+    private DateTime end;
     private Map<Long, List<Long>> calcMap = new HashMap<>();
     private JEVisDataSource ds;
 
@@ -231,7 +231,7 @@ public class ObjectTable {
             /**
              * Filter menu
              */
-            CheckComboBox<String> checkComboBox = new CheckComboBox();
+            CheckComboBox<String> checkComboBox = new CheckComboBox<>();
             final ObservableList<String> objectClasses = FXCollections.observableArrayList();
             tableData.forEach(tableData1 -> {
                 try {
@@ -303,7 +303,7 @@ public class ObjectTable {
 
                     return match;
                 });
-            } else if (in.length() > 0 || ex.length() > 0) {
+            } else if (!in.isEmpty() || !ex.isEmpty()) {
                 filteredData.setPredicate(s -> {
                     String string = "";
                     if (column == 0) {
@@ -313,9 +313,9 @@ public class ObjectTable {
                     } else {
                         string = s.getSourceString().toLowerCase();
                     }
-                    if (in.length() > 0 && ex.length() > 0) {
+                    if (!in.isEmpty() && !ex.isEmpty()) {
                         return string.contains(in.toLowerCase()) && !string.contains(ex.toLowerCase());
-                    } else if (in.length() > 0) {
+                    } else if (!in.isEmpty()) {
                         return string.contains(in.toLowerCase());
                     } else return !string.contains(ex.toLowerCase());
                 });
@@ -326,13 +326,32 @@ public class ObjectTable {
 
     }
 
+    /**
+     * Add an new attribute to the list id it does not allready exists.
+     * TODO: for now we only check by name but we also need to check of its the same class or inherited.
+     *
+     * @param attributes
+     * @param addAttribute
+     */
+    public static void addAttributeSave(List<JEVisAttribute> attributes, JEVisAttribute addAttribute) {
+        boolean contains = false;
+        for (JEVisAttribute attribute : attributes) {
+            if (attribute.getName().equals(addAttribute.getName())) {
+                contains = true;
+            }
+        }
+        if (!contains) {
+            attributes.add(addAttribute);
+        }
+    }
+
     private void addChildren(ObservableList<TableData> tableData, List<JEVisAttribute> attributes, JEVisObject parent) {
         try {
             for (JEVisObject child : parent.getChildren()) {
                 for (JEVisAttribute attribute : child.getAttributes()) {
                     addAttributeSave(attributes, attribute);
                 }
-                tableData.add(new TableData(child, calcMap, targetLoytecXML, targetOPCUA, targetVIDA, targetCSV, targetXML, targetDWD, targetDataPoint));
+                tableData.add(new TableData(child, calcMap, targetLoytecXML, targetOPCUA, targetVIDA, targetCSV, targetXML, targetDWD, targetDataPoint, otherTargets));
                 addChildren(tableData, attributes, child);
             }
         } catch (Exception ex) {
@@ -364,25 +383,6 @@ public class ObjectTable {
         }
 
         tableView.refresh();
-    }
-
-    /**
-     * Add an new attribute to the list id it does not allready exists.
-     * TODO: for now we only check by name but we also need to check of its the same class or inherited.
-     *
-     * @param attributes
-     * @param addAttribute
-     */
-    public static void addAttributeSave(List<JEVisAttribute> attributes, JEVisAttribute addAttribute) {
-        boolean contains = false;
-        for (JEVisAttribute attribute : attributes) {
-            if (attribute.getName().equals(addAttribute.getName())) {
-                contains = true;
-            }
-        }
-        if (!contains) {
-            attributes.add(addAttribute);
-        }
     }
 
     public Map<Long, List<Long>> getCalcMap(JEVisDataSource ds) throws JEVisException {
@@ -443,6 +443,7 @@ public class ObjectTable {
             JEVisClass dataPointClass = ds.getJEVisClass("Data Point");
 
             List<JEVisObject> objects = ds.getObjects(channelClass, true);
+            List<JEVisObject> unknownChannels = new ArrayList<>(objects);
 
             objects.forEach(object -> {
                 try {
@@ -468,6 +469,7 @@ public class ObjectTable {
                                         list.add(object.getID());
                                         targetLoytecXML.put(id, list);
                                     }
+                                    unknownChannels.remove(object);
                                 } else if (object.getJEVisClass().equals(loytecOPCUAChannel)) {
                                     if (targetOPCUA.get(id) == null) {
                                         List<Long> list = new ArrayList<>();
@@ -478,6 +480,7 @@ public class ObjectTable {
                                         list.add(object.getID());
                                         targetOPCUA.put(id, list);
                                     }
+                                    unknownChannels.remove(object);
                                 } else if (object.getJEVisClass().equals(vida350Channel)) {
                                     if (targetVIDA.get(id) == null) {
                                         List<Long> list = new ArrayList<>();
@@ -488,6 +491,7 @@ public class ObjectTable {
                                         list.add(object.getID());
                                         targetVIDA.put(id, list);
                                     }
+                                    unknownChannels.remove(object);
                                 }
                             }
                         }
@@ -499,10 +503,7 @@ public class ObjectTable {
                             dps.addAll(getChildrenRecursive(object, dwdDataPointClass));
                             dps.addAll(getChildrenRecursive(object, xmlDataPointClass));
                             dps.addAll(getChildrenRecursive(object, dataPointClass));
-                        } else {
-                            dps.addAll(getChildrenRecursive(object, csvDataPointClass));
-                            dps.addAll(getChildrenRecursive(object, xmlDataPointClass));
-                            dps.addAll(getChildrenRecursive(object, dataPointClass));
+                            unknownChannels.remove(object);
                         }
 
                         for (JEVisObject dp : dps) {
@@ -592,6 +593,31 @@ public class ObjectTable {
                 }
             });
 
+            for (JEVisObject channel : unknownChannels) {
+                JEVisAttribute targetAtt = null;
+                JEVisSample lastSampleTarget = null;
+
+                targetAtt = channel.getAttribute(STANDARD_TARGET_ATTRIBUTE_NAME);
+
+                if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
+
+                TargetHelper th = null;
+                if (lastSampleTarget != null) {
+                    th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
+                    if (th.getObject() != null && !th.getObject().isEmpty()) {
+                        Long id = th.getObject().get(0).getID();
+                        if (otherTargets.get(id) == null) {
+                            List<Long> list = new ArrayList<>();
+                            list.add(channel.getID());
+                            otherTargets.put(id, list);
+                        } else {
+                            List<Long> list = new ArrayList<>(otherTargets.remove(id));
+                            list.add(channel.getID());
+                            otherTargets.put(id, list);
+                        }
+                    }
+                }
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -24,6 +24,7 @@ public class TableData {
     private final Map<Long, List<Long>> calcMap;
     private final Map<Long, List<Long>> targetLoytecXML;
     private final Map<Long, List<Long>> targetOPCUA;
+    private final Map<Long, List<Long>> otherTargets;
     private JEVisObject object = null;
     private final Map<Long, List<Long>> targetVIDA;
     private final Map<Long, List<Long>> targetCSV;
@@ -36,7 +37,7 @@ public class TableData {
     private List<JEVisAttribute> attributeList = new ArrayList<>();
     private JEVisDataSource ds;
     private boolean duplicate = false;
-    private long sampleCount = 0l;
+    private long sampleCount = 0L;
     private DateTime minTs;
     private DateTime maxTs;
     private DateTime minTsOverall;
@@ -44,7 +45,7 @@ public class TableData {
 
     public TableData(JEVisObject object, Map<Long, List<Long>> calcMap, Map<Long, List<Long>> targetLoytecXML, Map<Long, List<Long>> targetOPCUA,
                      Map<Long, List<Long>> targetVIDA, Map<Long, List<Long>> targetCSV, Map<Long, List<Long>> targetXML,
-                     Map<Long, List<Long>> targetDWD, Map<Long, List<Long>> targetDataPoint) {
+                     Map<Long, List<Long>> targetDWD, Map<Long, List<Long>> targetDataPoint, Map<Long, List<Long>> otherTargets) {
         this.object = object;
         this.calcMap = calcMap;
         this.targetLoytecXML = targetLoytecXML;
@@ -54,6 +55,7 @@ public class TableData {
         this.targetXML = targetXML;
         this.targetDWD = targetDWD;
         this.targetDataPoint = targetDataPoint;
+        this.otherTargets = otherTargets;
         try {
             this.ds = object.getDataSource();
             this.attributeList = object.getAttributes();
@@ -121,6 +123,11 @@ public class TableData {
                 }
                 if (targetDataPoint.get(object.getID()) != null) {
                     for (Long id : targetDataPoint.get(object.getID())) {
+                        sourceObjects.add(ds.getObject(id));
+                    }
+                }
+                if (otherTargets.get(object.getID()) != null) {
+                    for (Long id : otherTargets.get(object.getID())) {
                         sourceObjects.add(ds.getObject(id));
                     }
                 }

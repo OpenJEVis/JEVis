@@ -455,18 +455,20 @@ public class EnterDataDialog extends Dialog implements EventTarget {
 
         cancelButton.setOnAction(event -> close());
 
-        showMoreButton.setOnAction(actionEvent -> {
-            JEVisAttribute value = null;
-            try {
-                value = initSample.getAttribute();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (value != null) {
-                DataDialog dataDialog = new DataDialog(value);
-                dataDialog.show();
-            }
-        });
+        if (showMoreButton != null) {
+            showMoreButton.setOnAction(actionEvent -> {
+                JEVisAttribute value = null;
+                try {
+                    value = initSample.getAttribute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (value != null) {
+                    DataDialog dataDialog = new DataDialog(value);
+                    dataDialog.show();
+                }
+            });
+        }
     }
 
     private void updateView() {

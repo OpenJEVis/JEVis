@@ -519,6 +519,7 @@ public class CommonMethods {
                 classes.add(JC.Data.MathData.name);
 
                 dependentObjects.addAll(getAllChildrenRecursive(object, classes));
+                dependentObjects.removeAll(objects);
             } catch (Exception e) {
                 logger.error(e);
             }
