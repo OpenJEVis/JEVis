@@ -78,7 +78,7 @@ public class Parameter implements VarFiller.VarFunction {
 
             return format(getFormat(), getLastTS());
         } else {
-            return format(getFormat(), new DateTime(1980, 01, 01, 01, 01));
+            return format(getFormat(), new DateTime(1980, 1, 1, 1, 1));
         }
     }
 

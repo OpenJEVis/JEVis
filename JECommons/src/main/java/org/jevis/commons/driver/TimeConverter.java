@@ -39,8 +39,7 @@ public class TimeConverter {
 
     public static DateTime parseDateTime(String input, String pattern, DateTimeZone dateTimeZone) {
         if (pattern.equals("UNIX")) {
-            Long longDate = Long.parseLong(input) * 1000L;
-            return new DateTime(longDate);
+            return new DateTime(Long.parseLong(input) * 1000L);
         } else {
             DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern).withZone(dateTimeZone);
             return fmt.parseDateTime(input);
