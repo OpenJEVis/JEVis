@@ -15,14 +15,14 @@ import org.joda.time.format.DateTimeFormatter;
 public class Parameter implements VarFiller.VarFunction {
     @Expose
     @SerializedName("format")
-    private StringProperty format = new SimpleStringProperty();
+    private final StringProperty format = new SimpleStringProperty();
     @Expose
     @SerializedName("Parameter")
-    private ObjectProperty<VarFiller.Variable> variable = new SimpleObjectProperty<>();
+    private final ObjectProperty<VarFiller.Variable> variable = new SimpleObjectProperty<>();
 
     @Expose
     @SerializedName("Timezone")
-    private StringProperty timezone = new SimpleStringProperty(DateTimeZone.UTC.getID());
+    private final StringProperty timezone = new SimpleStringProperty(DateTimeZone.UTC.getID());
 
     @JsonIgnore
     private DateTime lastTS;
@@ -45,8 +45,14 @@ public class Parameter implements VarFiller.VarFunction {
     private String format(String format, DateTime dateTime) {
         try {
             if (format != null) {
-                DateTimeFormatter fmt = DateTimeFormat.forPattern(format);
-                return fmt.print(dateTime.withZone(DateTimeZone.forID(timezone.get())));
+                if (format.equals("UNIX")) {
+                    return Long.toString(dateTime.getMillis() / 1000L);
+                } else {
+                    DateTimeFormatter fmt = DateTimeFormat.forPattern(format);
+                    return fmt.print(dateTime.withZone(DateTimeZone.forID(timezone.get())));
+                }
+
+
             } else {
                 return dateTime.toString();
             }
@@ -102,35 +108,35 @@ public class Parameter implements VarFiller.VarFunction {
         return format.get();
     }
 
-    public StringProperty formatProperty() {
-        return format;
-    }
-
     public void setFormat(String format) {
         this.format.set(format);
+    }
+
+    public StringProperty formatProperty() {
+        return format;
     }
 
     public VarFiller.Variable getVariable() {
         return variable.get();
     }
 
-    public ObjectProperty<VarFiller.Variable> variableProperty() {
-        return variable;
-    }
-
     public void setVariable(VarFiller.Variable variable) {
         this.variable.set(variable);
+    }
+
+    public ObjectProperty<VarFiller.Variable> variableProperty() {
+        return variable;
     }
 
     public String getTimezone() {
         return timezone.get();
     }
 
-    public StringProperty timezoneProperty() {
-        return timezone;
-    }
-
     public void setTimezone(String timezone) {
         this.timezone.set(timezone);
+    }
+
+    public StringProperty timezoneProperty() {
+        return timezone;
     }
 }
