@@ -23,13 +23,18 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class TreeExporterDelux {
 
 
+    private static final Logger logger = LogManager.getLogger(TreeExporterDelux.class);
     private final String OBJECT_NAME = "name";
     private final String OBJECT_CLASS = "class";
     private final String OBJECT_CHILD = "children";
@@ -42,7 +47,6 @@ public class TreeExporterDelux {
     private final String ATTRIBUTE_RATE = "sampleRate";
     private final String SAMPLE_TS = "t";
     private final String SAMPLE_VALUE = "v";
-    private static final Logger logger = LogManager.getLogger(TreeExporterDelux.class);
     private final ObjectMapper mapper = new ObjectMapper();
 
     public TreeExporterDelux() {
@@ -153,7 +157,6 @@ public class TreeExporterDelux {
         } catch (Exception ex) {
             logger.error("Error while creating Object: {}", jsonNode, ex);
         }
-        return;
     }
 
     public Task<Void> importFromFile(File file, JEVisObject parent) {
@@ -314,6 +317,20 @@ public class TreeExporterDelux {
 
         return dashBoardNode;
 
+    }
+
+    public void zipFiles(File zipFileName, File directory) throws IOException {
+        File[] files = directory.listFiles();
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFileName))) {
+            for (File jsonFile : files) {
+                if (jsonFile.isFile() && jsonFile.getName().endsWith(".json")) {
+                    ZipEntry zipEntry = new ZipEntry(jsonFile.getName());
+                    zos.putNextEntry(zipEntry);
+                    //zos.write(objectMapper.writeValueAsBytes(simplePojo));
+                    zos.closeEntry();
+                }
+            }
+        }
     }
 
 }
