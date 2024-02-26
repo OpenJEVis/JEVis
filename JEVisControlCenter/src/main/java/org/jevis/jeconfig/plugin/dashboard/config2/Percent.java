@@ -21,6 +21,7 @@ public class Percent {
     int percentWidget = -1;
     private int minFracDigits = 0;
     private int maxFracDigits = 0;
+    private boolean diff = false;
 
     public Percent(DashboardControl control) {
         this(control, null);
@@ -34,6 +35,11 @@ public class Percent {
             try {
                 minFracDigits = jsonNode.get("minFracDigits").asInt(0);
                 maxFracDigits = jsonNode.get("maxFracDigits").asInt(0);
+            } catch (Exception ignored) {
+            }
+
+            try {
+                diff = jsonNode.get("diff").asBoolean(false);
             } catch (Exception ignored) {
             }
         }
@@ -94,11 +100,20 @@ public class Percent {
         this.maxFracDigits = maxFracDigits;
     }
 
+    public boolean isDiff() {
+        return diff;
+    }
+
+    public void setDiff(boolean diff) {
+        this.diff = diff;
+    }
+
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
         dataNode.put("source", percentWidget);
         dataNode.put("minFracDigits", minFracDigits);
         dataNode.put("maxFracDigits", maxFracDigits);
+        dataNode.put("diff", diff);
 
         return dataNode;
     }
@@ -109,6 +124,7 @@ public class Percent {
                 "percentWidget=" + percentWidget +
                 "; minFracDigits=" + minFracDigits +
                 "; maxFracDigits=" + maxFracDigits +
+                "; diff=" + diff +
                 '}';
     }
 
