@@ -76,6 +76,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
     private String percentText = "";
     private Percent percent;
     private Boolean customWorkday = true;
+    private Double percentValue;
 
     public ValueWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -366,13 +367,15 @@ public class ValueWidget extends Widget implements DataModelWidget {
         if (!percent.isDiff()) {
             result = value / reference * 100;
         } else {
-            result = (1 - value / reference);
+            result = (1 - value / reference) * 100;
         }
         if (!result.isNaN()) {
-            if (result >= 0.01) {
+            if (result >= 0.01 || percent.isDiff()) {
                 ValueWidget.this.nfPercent.setMinimumFractionDigits(percent.getMinFracDigits());
                 ValueWidget.this.nfPercent.setMaximumFractionDigits(percent.getMaxFracDigits());
+
                 percentText = ValueWidget.this.nfPercent.format(result) + "%";
+                percentValue = result;
             } else {
                 percentText = " < 0.01 %";
             }
@@ -390,7 +393,11 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 this.label.setFont(new Font(this.config.getFontSize()));
 
                 if (limit != null) {
-                    this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(limit.getExceedsLimitColor(fontColor, displayedSample.get())) + " !important;");
+                    if (!percent.isDiff()) {
+                        this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(limit.getExceedsLimitColor(fontColor, displayedSample.get())) + " !important;");
+                    } else {
+                        this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(limit.getExceedsLimitColor(fontColor, percentValue)) + " !important;");
+                    }
                 } else {
                     this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(fontColor) + " !important;");
                 }
