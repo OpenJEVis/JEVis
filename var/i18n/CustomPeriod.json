@@ -56,54 +56,54 @@
           "names": {
             "de": "Tagesbeginn",
             "en": "Start time of day"
-          },
-          "CUSTOM_PERIOD": {
-            "descriptions": null,
-            "names": {
-              "de": "Benutzerdefinierter Zeitbereich",
-              "en": "Custom time range",
-              "ar": "نطاق زمني مخصص"
-            }
-          },
-          "CURRENT_DAY": {
-            "descriptions": null,
-            "names": {
-              "de": "Aktueller Tag",
-              "en": "Current day",
-              "ar": "اليوم الحالي"
-            }
-          },
-          "CURRENT_WEEK": {
-            "descriptions": null,
-            "names": {
-              "de": "Aktuelle Woche",
-              "en": "Current week",
-              "ar": "الأسبوع الحالي"
-            }
-          },
-          "CURRENT_MONTH": {
-            "descriptions": null,
-            "names": {
-              "de": "Aktueller Monat",
-              "en": "Current month",
-              "ar": "الشهر الحالي"
-            }
-          },
-          "CURRENT_YEAR": {
-            "descriptions": null,
-            "names": {
-              "de": "Aktuelles Jahr",
-              "en": "Current year",
-              "ar": "السنة الحالية"
-            }
-          },
-          "SPECIFIED_DATE": {
-            "descriptions": null,
-            "names": {
-              "de": "Fester Zeitpunkt",
-              "en": "Fixed date",
-              "ar": "الوقت المحدد"
-            }
+          }
+        },
+        "CUSTOM_PERIOD": {
+          "descriptions": null,
+          "names": {
+            "de": "Benutzerdefinierter Zeitbereich",
+            "en": "Custom time range",
+            "ar": "نطاق زمني مخصص"
+          }
+        },
+        "CURRENT_DAY": {
+          "descriptions": null,
+          "names": {
+            "de": "Aktueller Tag",
+            "en": "Current day",
+            "ar": "اليوم الحالي"
+          }
+        },
+        "CURRENT_WEEK": {
+          "descriptions": null,
+          "names": {
+            "de": "Aktuelle Woche",
+            "en": "Current week",
+            "ar": "الأسبوع الحالي"
+          }
+        },
+        "CURRENT_MONTH": {
+          "descriptions": null,
+          "names": {
+            "de": "Aktueller Monat",
+            "en": "Current month",
+            "ar": "الشهر الحالي"
+          }
+        },
+        "CURRENT_YEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Aktuelles Jahr",
+            "en": "Current year",
+            "ar": "السنة الحالية"
+          }
+        },
+        "SPECIFIED_DATE": {
+          "descriptions": null,
+          "names": {
+            "de": "Fester Zeitpunkt",
+            "en": "Fixed date",
+            "ar": "الوقت المحدد"
           }
         }
       }
