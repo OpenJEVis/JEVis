@@ -51,6 +51,12 @@
             "ar": "الآن"
           }
         },
+        "STARTTIMEDAY": {
+          "descriptions": null,
+          "names": {
+            "de": "Tagesbeginn",
+            "en": "Start time of day"
+          },
         "CUSTOM_PERIOD" : {
           "descriptions" : null,
           "names" : {

@@ -60,22 +60,20 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ValueWidget.class);
     public static String WIDGET_ID = "Value";
+    public static String PERCENT_NODE_NAME = "percent";
+    public static String LIMIT_NODE_NAME = "limit";
     private final Label label = new Label();
     private final NumberFormat nf = new DecimalFormat("#,##0.##");//NumberFormat.getInstance();
     private final NumberFormat nfPercent = new DecimalFormat("0");
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
     private Limit limit;
-    public static String PERCENT_NODE_NAME = "percent";
     private Interval lastInterval = null;
     private ChangeListener<Number> limitListener = null;
     private ChangeListener<Number> percentListener = null;
     private ValueWidget limitWidget = null;
     private ValueWidget percentWidget = null;
     private String percentText = "";
-
-
-    public static String LIMIT_NODE_NAME = "limit";
     private Percent percent;
     private Boolean customWorkday = true;
 
@@ -363,7 +361,13 @@ public class ValueWidget extends Widget implements DataModelWidget {
         }
 
         Double value = ValueWidget.this.displayedSample.get();
-        Double result = value / reference * 100;
+        Double result;
+
+        if (!percent.isDiff()) {
+            result = value / reference * 100;
+        } else {
+            result = (1 - value / reference);
+        }
         if (!result.isNaN()) {
             if (result >= 0.01) {
                 ValueWidget.this.nfPercent.setMinimumFractionDigits(percent.getMinFracDigits());
@@ -421,7 +425,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public boolean isStatic() {
         return false;
     }
-
 
 
     @Override
