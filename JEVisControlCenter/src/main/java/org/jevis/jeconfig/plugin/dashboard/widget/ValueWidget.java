@@ -369,7 +369,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
             result = (1 - value / reference);
         }
         if (!result.isNaN()) {
-            if (result >= 0.01) {
+            if (result >= 0.01 || percent.isDiff()) {
                 ValueWidget.this.nfPercent.setMinimumFractionDigits(percent.getMinFracDigits());
                 ValueWidget.this.nfPercent.setMaximumFractionDigits(percent.getMaxFracDigits());
                 percentText = ValueWidget.this.nfPercent.format(result) + "%";
