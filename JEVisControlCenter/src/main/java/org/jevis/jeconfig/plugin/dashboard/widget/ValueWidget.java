@@ -76,6 +76,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
     private String percentText = "";
     private Percent percent;
     private Boolean customWorkday = true;
+    private Double percentValue;
 
     public ValueWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -373,6 +374,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 ValueWidget.this.nfPercent.setMinimumFractionDigits(percent.getMinFracDigits());
                 ValueWidget.this.nfPercent.setMaximumFractionDigits(percent.getMaxFracDigits());
                 percentText = ValueWidget.this.nfPercent.format(result) + "%";
+                percentValue = result;
             } else {
                 percentText = " < 0.01 %";
             }
@@ -390,7 +392,11 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 this.label.setFont(new Font(this.config.getFontSize()));
 
                 if (limit != null) {
-                    this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(limit.getExceedsLimitColor(fontColor, displayedSample.get())) + " !important;");
+                    if (!percent.isDiff()) {
+                        this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(limit.getExceedsLimitColor(fontColor, displayedSample.get())) + " !important;");
+                    } else {
+                        this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(limit.getExceedsLimitColor(fontColor, percentValue)) + " !important;");
+                    }
                 } else {
                     this.label.setStyle("-fx-text-fill: " + ColorHelper.toRGBCode(fontColor) + " !important;");
                 }
