@@ -480,45 +480,47 @@ public class DashBoardToolbar extends ToolBar {
     }
 
     public void updateView(final DashboardPojo dashboardSettings) {
-        logger.debug("updateDashboard: {}", dashboardSettings);
+        Platform.runLater(() -> {
+            logger.debug("updateDashboard: {}", dashboardSettings);
 
-        unlockButton.setSelected(this.dashboardControl.editableProperty.getValue());
-        showGridButton.setSelected(this.dashboardControl.showGridProperty.getValue());
-        snapGridButton.setSelected(this.dashboardControl.snapToGridProperty.getValue());
-        customWorkDay.setSelected(this.dashboardControl.customWorkdayProperty.getValue());
-        listZoomLevel.setValue(dashboardControl.getZoomFactory());
-        toolBarIntervalSelector.updateView();
-        infoButton.setSelected(this.dashboardControl.showWidgetHelpProperty.getValue());
-        sidebarEditor.setSelected(this.dashboardControl.showSideEditorProperty.getValue());
-        //toolTipDocu.showHelpTooltips(this.dashboardControl.showHelpProperty.getValue());
+            unlockButton.setSelected(this.dashboardControl.editableProperty.getValue());
+            showGridButton.setSelected(this.dashboardControl.showGridProperty.getValue());
+            snapGridButton.setSelected(this.dashboardControl.snapToGridProperty.getValue());
+            customWorkDay.setSelected(this.dashboardControl.customWorkdayProperty.getValue());
+            listZoomLevel.setValue(dashboardControl.getZoomFactory());
+            toolBarIntervalSelector.updateView();
+            infoButton.setSelected(this.dashboardControl.showWidgetHelpProperty.getValue());
+            sidebarEditor.setSelected(this.dashboardControl.showSideEditorProperty.getValue());
+            //toolTipDocu.showHelpTooltips(this.dashboardControl.showHelpProperty.getValue());
 
-        //Disable
-        widgetSelector.setDisable(!dashboardControl.editableProperty.get());
-        copyButton.setDisable(!dashboardControl.editableProperty.get());
-        deleteWidget.setDisable(!dashboardControl.editableProperty.get());
-        navigator.setDisable(!dashboardControl.editableProperty.get());
-        snapGridButton.setDisable(!dashboardControl.editableProperty.get());
-        showGridButton.setDisable(!dashboardControl.editableProperty.get());
-        navigator.setDisable(!dashboardControl.editableProperty.get());
-        sidebarEditor.setDisable(!dashboardControl.editableProperty.get());
-        newWidget.setDisable(!dashboardControl.editableProperty.get());
-        deleteDashboard.setDisable(!dashboardControl.editableProperty.get());
-
-
-        //Hide
-        widgetSelector.setVisible(dashboardControl.editableProperty.get());
-        copyButton.setVisible(dashboardControl.editableProperty.get());
-        deleteWidget.setVisible(dashboardControl.editableProperty.get());
-        navigator.setVisible(dashboardControl.editableProperty.get());
-        snapGridButton.setVisible(dashboardControl.editableProperty.get());
-        showGridButton.setVisible(dashboardControl.editableProperty.get());
-        navigator.setVisible(dashboardControl.editableProperty.get());
-        sidebarEditor.setVisible(dashboardControl.editableProperty.get());
-        newWidget.setVisible(dashboardControl.editableProperty.get());
-        separatorEditMode.setVisible(dashboardControl.editableProperty.get());
+            //Disable
+            widgetSelector.setDisable(!dashboardControl.editableProperty.get());
+            copyButton.setDisable(!dashboardControl.editableProperty.get());
+            deleteWidget.setDisable(!dashboardControl.editableProperty.get());
+            navigator.setDisable(!dashboardControl.editableProperty.get());
+            snapGridButton.setDisable(!dashboardControl.editableProperty.get());
+            showGridButton.setDisable(!dashboardControl.editableProperty.get());
+            navigator.setDisable(!dashboardControl.editableProperty.get());
+            sidebarEditor.setDisable(!dashboardControl.editableProperty.get());
+            newWidget.setDisable(!dashboardControl.editableProperty.get());
+            deleteDashboard.setDisable(!dashboardControl.editableProperty.get());
 
 
-        updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
+            //Hide
+            widgetSelector.setVisible(dashboardControl.editableProperty.get());
+            copyButton.setVisible(dashboardControl.editableProperty.get());
+            deleteWidget.setVisible(dashboardControl.editableProperty.get());
+            navigator.setVisible(dashboardControl.editableProperty.get());
+            snapGridButton.setVisible(dashboardControl.editableProperty.get());
+            showGridButton.setVisible(dashboardControl.editableProperty.get());
+            navigator.setVisible(dashboardControl.editableProperty.get());
+            sidebarEditor.setVisible(dashboardControl.editableProperty.get());
+            newWidget.setVisible(dashboardControl.editableProperty.get());
+            separatorEditMode.setVisible(dashboardControl.editableProperty.get());
+
+
+            updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
+        });
     }
 
 

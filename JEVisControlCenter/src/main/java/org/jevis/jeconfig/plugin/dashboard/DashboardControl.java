@@ -43,6 +43,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.dashboard.widget.ValueWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
@@ -217,6 +218,7 @@ public class DashboardControl {
 
     public void setCustomWorkday(boolean customWorkday) {
         logger.error("setCustomWorkday: " + customWorkday);
+
         customWorkdayProperty.setValue(customWorkday);
         toolBar.updateView(activeDashboard);
 
@@ -225,11 +227,9 @@ public class DashboardControl {
                 DataModelWidget dataModelWidget = (DataModelWidget) widget;
                 dataModelWidget.setCustomWorkday(customWorkdayProperty.get());
             }
-            //widget.updateData(activeInterval);
         });
+
         setInterval(activeInterval);
-
-
     }
 
     public int getNextFreeUUID() {
@@ -513,39 +513,30 @@ public class DashboardControl {
             }
 
             /** add widgets to dashboard **/
-            this.widgetList.forEach(widget -> {
-                this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
-            });
+            this.widgetList.forEach(widget -> this.dashBordPlugIn.getDashBoardPane().addWidget(widget));
 
 
             /** init configuration of widgets **/
             this.widgetList.forEach(widget -> {
-                //if (!widget.getId().equals(TimeFrameWidget.WIDGET_ID)) {
                 try {
                     widget.updateConfig();
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
-                // }
             });
 
 
             this.activeTimeFrame = activeDashboard.getTimeFrame();
             //setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
-            setActiveTimeFrame(activeTimeFrame);
 
             firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
 
-            Platform.runLater(() -> {
-                setZoomFactor(activeDashboard.getZoomFactor());
-                toolBar.updateView(activeDashboard);
-            });
+            setZoomFactor(activeDashboard.getZoomFactor());
+
+            setActiveTimeFrame(activeTimeFrame);
 
             sideConfigPanel = new SideConfigPanel(this);
-
             this.dashBordPlugIn.getWidgetControlPane().setContent(sideConfigPanel);
-            this.toolBar.updateView(activeDashboard);
-
 
         } catch (Exception ex) {
             logger.error(ex);
@@ -632,7 +623,9 @@ public class DashboardControl {
             start = start.plusDays(1);
         }
 
-        this.setInterval(activeTimeFrame.getInterval(start, false));
+        Interval interval = activeTimeFrame.getInterval(start, false);
+        setInterval(interval);
+
         this.toolBar.updateView(activeDashboard);
     }
 
@@ -740,9 +733,12 @@ public class DashboardControl {
                         , I18n.getInstance().getString("plugin.dashboard.message.startupdate"));
                 try {
                     List<Widget> objects = new ArrayList<>();
+                    List<ValueWidget> valueWidgets = new ArrayList<>();
 
                     for (Widget widget : DashboardControl.this.widgetList) {
-                        if (!widget.isStatic()) {
+                        if (widget instanceof ValueWidget && !valueWidgets.contains((ValueWidget) widget)) {
+                            valueWidgets.add((ValueWidget) widget);
+                        } else if (!widget.isStatic()) {
                             if (objects.contains(widget)) {
                                 logger.warn("    --- warning duplicate widget update: {}-{}", widget.getConfig().getTitle(), widget.getConfig().getType());
                             } else {
@@ -753,6 +749,17 @@ public class DashboardControl {
                         }
                     }
 
+                    valueWidgets.sort((o1, o2) -> {
+                        if (o1.getDependentWidgets().contains(o2)) {
+                            return -1;
+                        }
+                        return 1;
+                    });
+
+                    for (ValueWidget valueWidget : valueWidgets) {
+                        Task<Object> updateTask = addWidgetUpdateTask(valueWidget, activeInterval);
+                        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
+                    }
 
                 } catch (Exception ex) {
                     logger.error("Error while adding widgets", ex);
