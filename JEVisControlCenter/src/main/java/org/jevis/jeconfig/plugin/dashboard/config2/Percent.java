@@ -22,6 +22,7 @@ public class Percent {
     private int minFracDigits = 0;
     private int maxFracDigits = 0;
     private boolean diff = false;
+    private double referenceValue;
 
     public Percent(DashboardControl control) {
         this(control, null);
@@ -126,6 +127,14 @@ public class Percent {
                 "; maxFracDigits=" + maxFracDigits +
                 "; diff=" + diff +
                 '}';
+    }
+
+    public double getReferenceValue() {
+        return referenceValue;
+    }
+
+    public void setReferenceValue(double referenceValue) {
+        this.referenceValue = referenceValue;
     }
 
     private class PercentTab extends Tab implements ConfigTab {
