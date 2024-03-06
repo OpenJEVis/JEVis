@@ -19,11 +19,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.stream.Collectors;
 
 /**
  * Loytec XML-DL Data Source
@@ -31,13 +33,12 @@ import java.util.concurrent.FutureTask;
 public class LoytecXmlDlDataSource implements DataSource {
 
     private final static Logger log = LogManager.getLogger(LoytecXmlDlDataSource.class.getName());
-
+    private final ConcurrentHashMap<LoytecXmlDlChannel, DateTime> activeChannels = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<LoytecXmlDlChannel, DateTime> channels = new ConcurrentHashMap<>();
     private LoytecXmlDlServerClass dataServer;
     private SOAPDataSource soapDataSource;
     private Importer importer;
     private ExecutorService executorService;
-    private final ConcurrentHashMap<LoytecXmlDlChannel, DateTime> activeChannels = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<LoytecXmlDlChannel, DateTime> channels = new ConcurrentHashMap<>();
 
     @Override
     public void initialize(JEVisObject dataSourceObject) {
@@ -145,7 +146,27 @@ public class LoytecXmlDlDataSource implements DataSource {
 
                     // use stream, no use later...
                 } else {
-                    log.info("The parse result is ok. Results: {}. Status results: {}", results.size(), statusResults.size());
+                    log.info("The parse result is ok. Results: {}. Status results: {} for channel {}", results.size(), statusResults.size(), channel.getName());
+                    //check for results beyond readout scope
+                    try {
+                        List<Result> outOfScopeResults = results.stream().filter(result -> result.getDate().isBefore(channel.getLastReadout())).collect(Collectors.toList());
+                        List<JEVisSample> outOfScopeStatusResults = new ArrayList<>();
+                        for (JEVisSample jeVisSample : statusResults) {
+                            if (jeVisSample.getTimestamp().isBefore(channel.getLastReadout())) {
+                                outOfScopeStatusResults.add(jeVisSample);
+                            }
+                        }
+
+                        if (!outOfScopeResults.isEmpty() || !outOfScopeStatusResults.isEmpty()) {
+                            logger.info("Found {} out of scope results and {} out of scope status results for channel {}.", outOfScopeResults.size(), outOfScopeStatusResults.size(), channel.getName());
+                        }
+
+                        results.removeAll(outOfScopeResults);
+                        statusResults.removeAll(outOfScopeStatusResults);
+                    } catch (Exception e) {
+                        logger.error("Error while checking results for not requested timestamps", e);
+                    }
+
                     // Import
                     JEVisImporterAdapter.importResults(results, statusResults, importer, channel.getJeVisObject());
 
@@ -159,18 +180,15 @@ public class LoytecXmlDlDataSource implements DataSource {
                         removeJob(channel);
                     }
                 }
-            } catch (
-                    MalformedURLException ex) {
+            } catch (MalformedURLException ex) {
                 log.error("MalformedURLException. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 log.debug("MalformedURLException. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
                 removeJob(channel);
-            } catch (
-                    ClientProtocolException ex) {
+            } catch (ClientProtocolException ex) {
                 log.error("Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 log.debug("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
                 removeJob(channel);
-            } catch (
-                    IOException ex) {
+            } catch (IOException ex) {
                 log.error("IO Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 log.debug("IO Exception. For channel {}:{}.", channel.getJeVisObject().getID(), channel.getName(), ex);
                 removeJob(channel);
@@ -233,7 +251,7 @@ public class LoytecXmlDlDataSource implements DataSource {
         log.info(" --- DEBUG RESPONSE ---");
         for (InputStream responseStream : response) {
             try {
-                String text = IOUtils.toString(responseStream, StandardCharsets.UTF_8.name());
+                String text = IOUtils.toString(responseStream, StandardCharsets.UTF_8);
                 //log.debug(text);
                 log.debug(text);
             } catch (IOException e) {
