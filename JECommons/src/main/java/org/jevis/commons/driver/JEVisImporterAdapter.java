@@ -79,6 +79,7 @@ public class JEVisImporterAdapter {
         try {
             String toString = lastDateTime.toString();
 
+            channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).deleteSamplesBetween(new DateTime(1990, 1, 1, 0, 0, 0, 0), new DateTime().minusMonths(1));
             JEVisSample buildSample = channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), toString);
             buildSample.commit();
         } catch (JEVisException ex) {
