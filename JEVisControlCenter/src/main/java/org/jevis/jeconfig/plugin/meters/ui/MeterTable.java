@@ -67,7 +67,7 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
     private final MeterEventHandler meterEventHandler = new MeterEventHandler();
     private final PrecisionEventHandler precisionEventHandler = new PrecisionEventHandler();
     private final List<String> defaultList = new ArrayList<>(Arrays.asList("Picture", "Measuring Point Name", "Serial Number",
-            "Type", "Datasheet", "Accuracy", "Conversion Factor", "Installation Date", "Installation Date", "Verification Date", "Online ID",
+            "Type", "Datasheet", "Accuracy", "Conversion Factor", "Installation Date", "Installation Date", "Verified", "Verification Date", "Online ID",
             "Verification Documentation"));
     FilteredList<MeterData> filteredData;
     SortedList<MeterData> sortedData;
