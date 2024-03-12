@@ -7,7 +7,7 @@
     "ar": "أداة قياس"
   },
   "descriptions": {
-    "de": "Das Messgerät beschreibt eine einzelene Komponente in einem Messaufbau.",
+    "de": "Das Messgerät beschreibt eine einzelne Komponente in einem Messaufbau.",
     "ru": "The Measurement Instrument represents a specific component within a metering setup.",
     "en": "The Measurement Instrument represents a specific component within a metering setup.",
     "ar": "يصف جهاز القياس مكونًا واحدًا في إعداد القياس."

@@ -19,6 +19,7 @@ import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.table.TableFindScrollbar;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -34,9 +35,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.prefs.Preferences;
@@ -67,6 +66,9 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
     private final ObservableList<String> seu = FXCollections.observableArrayList();
     private final MeterEventHandler meterEventHandler = new MeterEventHandler();
     private final PrecisionEventHandler precisionEventHandler = new PrecisionEventHandler();
+    private final List<String> defaultList = new ArrayList<>(Arrays.asList("Picture", "Measuring Point Name", "Serial Number",
+            "Type", "Datasheet", "Accuracy", "Conversion Factor", "Installation Date", "Installation Date", "Verification Date", "Online ID",
+            "Verification Documentation"));
     FilteredList<MeterData> filteredData;
     SortedList<MeterData> sortedData;
     ObservableList<MeterData> data;
@@ -121,10 +123,17 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
         }
 
         List<JEVisTypeWrapper> jeVisTypes = meterList.getAllAvailableTypes();
+        jeVisTypes.sort(Comparator.comparingInt((JEVisTypeWrapper o) -> {
+            try {
+                return o.getJeVisType().getGUIPosition();
+            } catch (Exception e) {
+                return -1;
+            }
+        }));
 
         try {
             for (JEVisTypeWrapper jeVisTypeWrapper : jeVisTypes) {
-                int i = 0;
+                int i = jeVisTypeWrapper.getJeVisType().getGUIPosition();
                 int width = SMALL_WIDTH;
                 JEVisType jeVisType = jeVisTypeWrapper.getJeVisType();
                 TableColumn<MeterData, ?> col = null;
@@ -172,7 +181,8 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
 
                 }
 
-                col.setVisible(pref.getBoolean(jeVisType.getName(), true));
+                boolean defaultVisible = defaultList.contains(jeVisType.getName());
+                col.setVisible(pref.getBoolean(jeVisType.getName(), defaultVisible));
                 col.visibleProperty().addListener((observable, oldValue, newValue) -> {
                     try {
                         pref.putBoolean(jeVisType.getName(), newValue);
@@ -195,7 +205,8 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
 
 
             TableColumn<MeterData, ?> pathColumn = new PathColumnColumn(new ObjectRelations(ds), BIG_WIDTH, I18n.getInstance().getString("plugin.meters.path"));
-            pathColumn.setVisible(pref.getBoolean("Path", true));
+            boolean isMultiSite = ChartTools.isMultiSite(ds);
+            pathColumn.setVisible(pref.getBoolean("Path", isMultiSite));
             pathColumn.visibleProperty().addListener((observable, oldValue, newValue) -> {
                 pref.putBoolean("Path", newValue);
             });
