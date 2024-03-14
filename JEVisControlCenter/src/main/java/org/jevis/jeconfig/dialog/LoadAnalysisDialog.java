@@ -45,6 +45,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import static org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox.ANALYSIS_CLASS_NAME;
+import static org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox.USER_CLASS_NAME;
+
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
@@ -52,23 +55,13 @@ public class LoadAnalysisDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
     private final ObjectRelations objectRelations;
     private final ChartPlugin chartPlugin;
-    private Response response = Response.CANCEL;
-    private PickerCombo pickerCombo;
     private final JFXTextField filterInput = new JFXTextField();
-    private JFXDatePicker pickerDateStart;
-    private JFXTimePicker pickerTimeStart;
-    private JFXDatePicker pickerDateEnd;
-    private JFXTimePicker pickerTimeEnd;
     private final FilteredList<JEVisObject> filteredData;
-    private PresetDateBox presetDateBox;
     private final JFXListView<JEVisObject> analysisListView;
     private final JEVisDataSource ds;
     private final AggregationPeriodBox aggregationBox = new AggregationPeriodBox(AggregationPeriod.NONE);
     private final DisabledItemsComboBox<ManipulationMode> mathBox = getMathBox();
-    private List<CustomPeriodObject> finalListCustomPeriodObjects;
-    private JFXComboBox<String> comboBoxCustomPeriods = null;
     private final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
-
     /**
      * drawOptimization.setOnAction(event -> {
      * HiddenConfig.CHART_PRECISION_ON = drawOptimization.isSelected();
@@ -90,10 +83,18 @@ public class LoadAnalysisDialog extends Dialog {
     private final Label labelMath = new Label(I18n.getInstance().getString("plugin.graph.manipulation.label"));
     private final Label timeRange = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.timerange"));
     private final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
-
     private final ButtonType loadType = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.load"), ButtonBar.ButtonData.OK_DONE);
     private final ButtonType cancelType = new ButtonType(I18n.getInstance().getString("plugin.graph.changedate.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
     private final ButtonType newType = new ButtonType(I18n.getInstance().getString("plugin.graph.analysis.new"), ButtonBar.ButtonData.NEXT_FORWARD);
+    private Response response = Response.CANCEL;
+    private PickerCombo pickerCombo;
+    private JFXDatePicker pickerDateStart;
+    private JFXTimePicker pickerTimeStart;
+    private JFXDatePicker pickerDateEnd;
+    private JFXTimePicker pickerTimeEnd;
+    private PresetDateBox presetDateBox;
+    private List<CustomPeriodObject> finalListCustomPeriodObjects;
+    private JFXComboBox<String> comboBoxCustomPeriods = null;
 
     public LoadAnalysisDialog(ChartPlugin chartPlugin, JEVisDataSource ds, ObservableList<JEVisObject> analyses) {
         this.ds = ds;
@@ -113,7 +114,7 @@ public class LoadAnalysisDialog extends Dialog {
 
         filterInput.textProperty().addListener(obs -> {
             String filter = filterInput.getText();
-            if (filter == null || filter.length() == 0) {
+            if (filter == null || filter.isEmpty()) {
                 filteredData.setPredicate(s -> true);
             } else {
                 if (filter.contains(" ")) {
@@ -160,24 +161,36 @@ public class LoadAnalysisDialog extends Dialog {
                 if (empty || obj == null || obj.getName() == null) {
                     setText("");
                 } else {
-                    if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
-                        setText(obj.getName());
-                    else {
-                        String prefix = "";
-                        if (ChartTools.isMultiSite(ds))
-                            prefix += objectRelations.getObjectPath(obj);
-                        if (ChartTools.isMultiDir(ds, obj)) {
-                            prefix += objectRelations.getRelativePath(obj);
-                        }
+                    String name = "";
+                    try {
+                        if (obj.getJEVisClassName().equals(ANALYSIS_CLASS_NAME)) {
+                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
+                                name = obj.getName();
+                            else {
+                                String prefix = "";
+                                if (ChartTools.isMultiSite(ds))
+                                    prefix += objectRelations.getObjectPath(obj);
+                                if (ChartTools.isMultiDir(ds, obj)) {
+                                    prefix += objectRelations.getRelativePath(obj);
+                                }
 
-                        setText(prefix + obj.getName());
+                                name = prefix + obj.getName();
+                            }
+                        } else {
+                            if (obj.getJEVisClassName().equals(USER_CLASS_NAME)) {
+                                name = I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("could not get JEVisClassName", e);
                     }
+                    setText(name);
                 }
             }
         });
 
         if (chartPlugin.getDataSettings().getCurrentAnalysis() != null && chartPlugin.getDataSettings().getCurrentAnalysis().getName() != null
-                && !chartPlugin.getDataSettings().getCurrentAnalysis().getName().equals(""))
+                && !chartPlugin.getDataSettings().getCurrentAnalysis().getName().isEmpty())
             analysisListView.getSelectionModel().select(chartPlugin.getDataSettings().getCurrentAnalysis());
 
         initializeControls();
@@ -630,7 +643,7 @@ public class LoadAnalysisDialog extends Dialog {
 
     private void updateGridLayout(boolean isInit) {
         if (!isInit) {
-            Platform.runLater(() -> updateDialog());
+            Platform.runLater(this::updateDialog);
         } else {
             updateDialog();
         }
