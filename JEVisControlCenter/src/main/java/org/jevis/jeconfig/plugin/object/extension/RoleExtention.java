@@ -30,6 +30,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.extension.role.Membership;
 import org.jevis.jeconfig.plugin.object.extension.role.Role;
@@ -61,7 +62,7 @@ public class RoleExtention implements ObjectEditorExtension {
     private RoleManager roleManager;
     private JFXComboBox<JEVisObject> dashboadList;
     private JFXCheckBox overwriteDashboad;
-    private Long orgaID = 0l;
+    private Long orgaID = 0L;
 
     public RoleExtention(JEVisObject obj) {
         this._obj = obj;
@@ -485,8 +486,9 @@ public class RoleExtention implements ObjectEditorExtension {
 
     private boolean isInSameOrga(JEVisObject obj) {
         try {
-            if (orgaID.equals(obj.getParents().get(0).getParents().get(0).getID())) return true;
-
+            JEVisObject buildingParent = CommonMethods.getFirstParentalObjectOfClass(obj, "Building");
+            JEVisObject organisationParent = CommonMethods.getFirstParentalObjectOfClass(obj, "Organisation");
+            if (orgaID.equals(buildingParent.getID()) || orgaID.equals(organisationParent.getID())) return true;
         } catch (Exception ex) {
             logger.error(ex);
         }
