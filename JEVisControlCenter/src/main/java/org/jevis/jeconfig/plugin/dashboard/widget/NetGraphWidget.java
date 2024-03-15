@@ -64,18 +64,15 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
     private final Tile netGraph;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
-    private NetGraphPojo netGraphPojo;
-    private Interval lastInterval = null;
     private final ChangeListener<Number> limitListener = null;
     private final ChangeListener<Number> percentListener = null;
     private final NetGraphWidget limitWidget = null;
     private final NetGraphWidget percentWidget = null;
     private final String percentText = "";
-    private Percent percent;
-
-
     Map<Long, ChartData> chartData = new HashMap<>();
-
+    private NetGraphPojo netGraphPojo;
+    private Interval lastInterval = null;
+    private Percent percent;
     private Boolean customWorkday = true;
 
     public NetGraphWidget(DashboardControl control, WidgetPojo config) {
@@ -160,8 +157,11 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
                             if (chartData.containsKey(dataModel.getObject().getID())) {
                                 chartData.get(dataModel.getObject().getID()).setValue(0);
                             } else {
-                                ChartData chartData1 = new ChartData(dataModel.getName(), getValue(netGraphPojo.isInPercent(), 0, netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMax(), netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMin(), this.config.getDecimals()), this.config.getFontColor(), this.config.getFontColor(), this.config.getFontColor(), Instant.now(), false, 0);
-                                chartData.put(dataModel.getObject().getID(), chartData1);
+                                try {
+                                    ChartData chartData1 = new ChartData(dataModel.getName(), getValue(netGraphPojo.isInPercent(), 0, netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMax(), netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMin(), this.config.getDecimals()), this.config.getFontColor(), this.config.getFontColor(), this.config.getFontColor(), Instant.now(), false, 0);
+                                    chartData.put(dataModel.getObject().getID(), chartData1);
+                                } catch (Exception ignored) {
+                                }
                             }
 
                         } catch (Exception e) {
