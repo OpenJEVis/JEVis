@@ -1,19 +1,34 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.SelectionTable;
 
+import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import org.jevis.api.JEVisUnit;
+import org.jevis.jeconfig.Icon;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartUnitBox;
 import org.jevis.jeconfig.application.Chart.data.ChartData;
 
 public class UnitTableCell extends TableCell<ChartData, JEVisUnit> {
 
     private ChartUnitBox chartUnitBox;
+    private final Button forAll;
+    private final HBox hBox = new HBox(4);
 
 
     public UnitTableCell() {
         super();
+
+        forAll = new Button("", JEConfig.getSVGImage(Icon.CHECK, 12, 12));
+        forAll.setOnAction(actionEvent -> {
+            JEVisUnit selectedItem = chartUnitBox.getSelectionModel().getSelectedItem();
+            getTableColumn().getTableView().getItems().forEach(chartData -> chartData.setUnit(selectedItem));
+            getTableColumn().getTableView().refresh();
+        });
+
+        setGraphic(forAll);
     }
 
     public static Callback<TableColumn<ChartData, JEVisUnit>, TableCell<ChartData, JEVisUnit>> forTableColumn() {
@@ -32,9 +47,10 @@ public class UnitTableCell extends TableCell<ChartData, JEVisUnit> {
         if (isEditing()) {
             if (chartUnitBox == null) {
                 chartUnitBox = ChartUnitBox.createUnitBox(this);
+
             }
 
-            ChartUnitBox.startEdit(this, null, null, chartUnitBox);
+            ChartUnitBox.startEdit(this, hBox, forAll, chartUnitBox);
         }
     }
 

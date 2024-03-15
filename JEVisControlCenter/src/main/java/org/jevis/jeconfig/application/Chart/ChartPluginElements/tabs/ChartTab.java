@@ -201,7 +201,7 @@ public class ChartTab extends Tab {
         newButton.setOnAction(actionEvent -> {
             boolean isHeatMap = chartModel.getChartType() == ChartType.HEAT_MAP;
             boolean isPieChart = chartModel.getChartType() == ChartType.PIE;
-            if (isHeatMap && chartModel.getChartData().size() > 0) {
+            if (isHeatMap && !chartModel.getChartData().isEmpty()) {
                 return;
             }
             if (isPieChart && chartModel.getChartData().size() > 9) {
