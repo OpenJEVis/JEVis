@@ -61,9 +61,9 @@ public class TreeSelectionDialog extends Dialog {
     private final List<JEVisClass> allReportClasses = new ArrayList<>();
 
     private final JEVisTreeView treeView;
+    private final JFXTextField filterTextField = new JFXTextField();
     private List<JEVisClass> classFilter;
     private Response response = Response.CANCEL;
-    private final JFXTextField filterTextField = new JFXTextField();
 
     public TreeSelectionDialog(JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode) {
         this(ds, classFilter, selectionMode, new ArrayList<>(), false);
@@ -241,6 +241,43 @@ public class TreeSelectionDialog extends Dialog {
         return null;
     }
 
+    private static String getItemText(Cell<JEVisObject> cell) {
+        return (DataMethods.getObjectName(cell.getItem()));
+    }
+
+    public static void startEdit(final Cell<JEVisObject> cell,
+                                 final Node graphic,
+                                 final TreeSelectionDialog treeSelectionDialog) {
+        if (treeSelectionDialog != null) {
+            treeSelectionDialog.getTreeView().select(cell.getItem());
+            treeSelectionDialog.showAndWait();
+        }
+    }
+
+    public static void updateItem(final Cell<JEVisObject> cell,
+                                  final Node graphic,
+                                  final TreeSelectionDialog treeSelectionDialog) {
+        if (cell.isEmpty()) {
+            cell.setText(null);
+            cell.setGraphic(null);
+        } else {
+            if (cell.isEditing()) {
+                if (treeSelectionDialog != null) {
+                    treeSelectionDialog.getTreeView().select(cell.getItem());
+                    treeSelectionDialog.showAndWait();
+                }
+            } else {
+                cell.setText(getItemText(cell));
+                cell.setGraphic(graphic);
+            }
+        }
+    }
+
+    public static void cancelEdit(Cell<JEVisObject> cell, Node graphic) {
+        cell.setText(getItemText(cell));
+        cell.setGraphic(graphic);
+    }
+
     private void buildClasses(JEVisDataSource ds) {
         try {
             for (String className : allData) {
@@ -299,43 +336,6 @@ public class TreeSelectionDialog extends Dialog {
         }
     }
 
-    private static String getItemText(Cell<JEVisObject> cell) {
-        return (DataMethods.getObjectName(cell.getItem()));
-    }
-
-    public static void startEdit(final Cell<JEVisObject> cell,
-                                 final Node graphic,
-                                 final TreeSelectionDialog treeSelectionDialog) {
-        if (treeSelectionDialog != null) {
-            treeSelectionDialog.getTreeView().select(cell.getItem());
-            treeSelectionDialog.showAndWait();
-        }
-    }
-
-    public static void updateItem(final Cell<JEVisObject> cell,
-                                  final Node graphic,
-                                  final TreeSelectionDialog treeSelectionDialog) {
-        if (cell.isEmpty()) {
-            cell.setText(null);
-            cell.setGraphic(null);
-        } else {
-            if (cell.isEditing()) {
-                if (treeSelectionDialog != null) {
-                    treeSelectionDialog.getTreeView().select(cell.getItem());
-                    treeSelectionDialog.showAndWait();
-                }
-            } else {
-                cell.setText(getItemText(cell));
-                cell.setGraphic(graphic);
-            }
-        }
-    }
-
-    public static void cancelEdit(Cell<JEVisObject> cell, Node graphic) {
-        cell.setText(getItemText(cell));
-        cell.setGraphic(graphic);
-    }
-
     private void updateFilter(List<JEVisClass> classFilter) {
         this.classFilter = classFilter;
         if (treeView.getRoot() instanceof FilterableTreeItem) {
@@ -344,11 +344,24 @@ public class TreeSelectionDialog extends Dialog {
                 if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (this.classFilter.isEmpty()))
                     return null;
                 else if ((filterTextField.getText() != null || !filterTextField.getText().isEmpty()) && (this.classFilter.isEmpty())) {
-                    return TreeItemPredicate.create(jeVisTreeViewItem -> jeVisTreeViewItem.getObject().getLocalName(I18n.getInstance().getLocale().getLanguage()).toLowerCase(I18n.getInstance().getLocale()).contains(filterTextField.getText().toLowerCase(I18n.getInstance().getLocale())));
+                    return TreeItemPredicate.create(jeVisTreeViewItem -> {
+                        boolean contains = jeVisTreeViewItem.getObject().getLocalName(I18n.getInstance().getLocale().getLanguage()).toLowerCase(I18n.getInstance().getLocale()).contains(filterTextField.getText().toLowerCase(I18n.getInstance().getLocale()));
+
+                        if (contains) {
+                            this.treeView.select(jeVisTreeViewItem.getObject());
+                        }
+
+                        return contains;
+                    });
                 } else if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (!this.classFilter.isEmpty())) {
                     return TreeItemPredicate.create(jeVisTreeViewItem -> {
                         try {
-                            return this.classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
+                            boolean contains = this.classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
+
+                            if (contains) {
+                                this.treeView.select(jeVisTreeViewItem.getObject());
+                            }
+                            return contains;
                         } catch (JEVisException e) {
                             e.printStackTrace();
                         }
@@ -371,6 +384,15 @@ public class TreeSelectionDialog extends Dialog {
                     return b;
                 });
             }, filterTextField.textProperty()));
+        }
+    }
+
+    private void expandTreeView(TreeItem<?> item) {
+        if (item != null && !item.isLeaf()) {
+            item.setExpanded(true);
+            for (TreeItem<?> child : item.getChildren()) {
+                expandTreeView(child);
+            }
         }
     }
 

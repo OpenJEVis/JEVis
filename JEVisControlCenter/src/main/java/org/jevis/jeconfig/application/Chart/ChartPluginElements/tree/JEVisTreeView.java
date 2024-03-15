@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.tree;
 
 import com.jfoenix.controls.JFXTreeView;
+import javafx.application.Platform;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import org.jevis.api.JEVisAttribute;
@@ -82,7 +83,7 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
         if (selectedItem != null) {
             expandTreeView(selectedItem.getParent());
             if (!selectedItem.isLeaf()) {
-                selectedItem.setExpanded(true);
+                Platform.runLater(() -> selectedItem.setExpanded(true));
             }
         }
     }
@@ -104,7 +105,7 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
 
         if (selectedItem != null) {
             expandTreeView(selectedItem);
-            getSelectionModel().select(selectedItem);
+            Platform.runLater(() -> getSelectionModel().select(selectedItem));
         }
     }
 
