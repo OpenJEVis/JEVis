@@ -429,7 +429,11 @@ public class DateHelper {
                                 endDate = now;
                                 break;
                             case "STARTTIMEDAY":
-                                endDate = endDate.minusMillis(endDate.getMillisOfDay());
+                                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                        startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+                                if (endTime.isBefore(startTime)) {
+                                    endDate = endDate.minusDays(1);
+                                }
                                 break;
                             case "CUSTOM_PERIOD":
                                 try {
