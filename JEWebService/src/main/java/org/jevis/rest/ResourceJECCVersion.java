@@ -36,7 +36,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -45,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Path("/jecc")
 public class ResourceJECCVersion {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceJECCVersion.class);
-    private static final ConcurrentHashMap<UUID, JsonFile> jeccFiles = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, JsonFile> jeccFiles = new ConcurrentHashMap<>();
 
     @GET
     @Path("/version")
@@ -98,8 +97,7 @@ public class ResourceJECCVersion {
                 internJsonFile.setLastModified(modString);
                 internJsonFile.setSize(file.length());
 
-                UUID uuid = UUID.fromString(file.getName());
-                jeccFiles.put(uuid, internJsonFile);
+                jeccFiles.put(file.getName(), internJsonFile);
             }
         }
     }
@@ -119,8 +117,7 @@ public class ResourceJECCVersion {
 
                 if (jeccFiles.isEmpty()) getJECCFiles();
 
-                UUID id = UUID.fromString(name);
-                JsonFile jsonFile = jeccFiles.get(id);
+                JsonFile jsonFile = jeccFiles.get(name);
 
                 if (jsonFile != null) {
                     File file = new File(jsonFile.getPath());

@@ -36,7 +36,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -45,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Path("/java")
 public class ResourceJavaVersion {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceJavaVersion.class);
-    private static final ConcurrentHashMap<UUID, JsonFile> javaFiles = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, JsonFile> javaFiles = new ConcurrentHashMap<>();
 
     @GET
     @Path("/version")
@@ -98,8 +97,7 @@ public class ResourceJavaVersion {
                 internJsonFile.setLastModified(modString);
                 internJsonFile.setSize(file.length());
 
-                UUID uuid = UUID.fromString(file.getName());
-                javaFiles.put(uuid, internJsonFile);
+                javaFiles.put(file.getName(), internJsonFile);
             }
         }
     }
@@ -118,8 +116,7 @@ public class ResourceJavaVersion {
             if (name != null) {
                 if (javaFiles.isEmpty()) getFiles();
 
-                UUID id = UUID.fromString(name);
-                JsonFile jsonFile = javaFiles.get(id);
+                JsonFile jsonFile = javaFiles.get(name);
 
                 if (jsonFile != null) {
                     File file = new File(jsonFile.getPath());
