@@ -64,7 +64,6 @@ public class ResourceJavaVersion {
             for (String s : pathList) {
                 File file = new File(s);
                 if (file.exists() && file.canRead()) {
-                    UUID uuid = UUID.randomUUID();
 
                     JsonFile internJsonFile = new JsonFile();
                     JsonFile externJsonFile = new JsonFile();
@@ -80,6 +79,7 @@ public class ResourceJavaVersion {
                     internJsonFile.setSize(file.length());
                     externJsonFile.setSize(file.length());
 
+                    UUID uuid = UUID.fromString(file.getName());
                     javaFiles.put(uuid, internJsonFile);
                     fileList.add(externJsonFile);
                 }
@@ -108,6 +108,8 @@ public class ResourceJavaVersion {
     ) {
         try {
             if (name != null) {
+                if (javaFiles.isEmpty()) getFiles();
+
                 UUID id = UUID.fromString(name);
                 JsonFile jsonFile = javaFiles.get(id);
 

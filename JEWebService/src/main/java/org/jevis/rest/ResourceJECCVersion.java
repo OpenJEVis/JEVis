@@ -64,7 +64,6 @@ public class ResourceJECCVersion {
             for (String s : pathList) {
                 File file = new File(s);
                 if (file.exists() && file.canRead()) {
-                    UUID uuid = UUID.randomUUID();
 
                     JsonFile internJsonFile = new JsonFile();
                     JsonFile externJsonFile = new JsonFile();
@@ -80,6 +79,7 @@ public class ResourceJECCVersion {
                     internJsonFile.setSize(file.length());
                     externJsonFile.setSize(file.length());
 
+                    UUID uuid = UUID.fromString(file.getName());
                     jeccFiles.put(uuid, internJsonFile);
                     fileList.add(externJsonFile);
                 }
@@ -108,6 +108,9 @@ public class ResourceJECCVersion {
     ) {
         try {
             if (name != null) {
+
+                if (jeccFiles.isEmpty()) getFiles();
+
                 UUID id = UUID.fromString(name);
                 JsonFile jsonFile = jeccFiles.get(id);
 
