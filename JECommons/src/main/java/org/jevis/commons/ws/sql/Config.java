@@ -44,6 +44,8 @@ public class Config {
     private static final Logger logger = LogManager.getLogger(Config.class);
     private static final boolean _loadFromFile = true;
     private static final Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
+    private static final List<String> jeccFiles = new ArrayList<>();
+    private static final List<String> javaFiles = new ArrayList<>();
     //@Singleton
     public static String dbPort = "3306";
     public static String dbIP = "192.168.2.55";
@@ -68,9 +70,7 @@ public class Config {
     private static File classDir;
     private static File freemarkerDir;
     private static String latestJECCVersion = "0";
-    private static final List<String> jeccFiles = new ArrayList<>();
     private static String latestJavaVersion = "0";
-    private static final List<String> javaFiles = new ArrayList<>();
     private static String webDir = "";
     private static ConcurrentHashMap<String, JsonJEVisClass> classCache = new ConcurrentHashMap<>();
     private static String latestJECCPath;
@@ -282,10 +282,15 @@ public class Config {
 
             if (folderContent != null) {
                 Arrays.sort(folderContent, Comparator.comparingLong(File::lastModified).reversed());
-                File lastFile = folderContent[0];
 
-                latestJECCPath = lastFile.getAbsolutePath();
-                latestJECCVersion = lastFile.getName().replace("JEVisControlCenter-", "").replace("-jar-with-dependencies.jar", "");
+                for (File file : folderContent) {
+                    if (file.getName().contains("JEVisControlCenter-3.")) {
+                        latestJECCPath = file.getAbsolutePath();
+                        latestJECCVersion = file.getName().replace("JEVisControlCenter-", "").replace("-jar-with-dependencies.jar", "");
+                        break;
+                    }
+                }
+
 
                 for (final File fileEntry : folderContent) {
                     if (!fileEntry.isDirectory() && fileEntry.getName().contains("-jar-with-dependencies.jar")) {
@@ -336,9 +341,13 @@ public class Config {
 
             if (folderContent != null) {
                 Arrays.sort(folderContent, Comparator.comparingLong(File::lastModified).reversed());
-                File lastFile = folderContent[0];
-                latestJavaVersion = lastFile.getName().replace(".zip", "");
-                latestJavaPath = lastFile.getAbsolutePath();
+                for (File file : folderContent) {
+                    if (file.getName().contains("jre8")) {
+                        latestJavaVersion = file.getName().replace(".zip", "");
+                        latestJavaPath = file.getAbsolutePath();
+                        break;
+                    }
+                }
 
                 for (final File fileEntry : folderContent) {
                     if (!fileEntry.isDirectory()) {
