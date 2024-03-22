@@ -36,7 +36,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -45,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Path("/java")
 public class ResourceJavaVersion {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceJavaVersion.class);
-    private static final ConcurrentHashMap<UUID, JsonFile> javaFiles = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, JsonFile> javaFiles = new ConcurrentHashMap<>();
 
     @GET
     @Path("/version")
@@ -59,30 +58,15 @@ public class ResourceJavaVersion {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getFiles() {
         try {
-            List<String> pathList = Config.getJavaFilesPath();
+            if (javaFiles.isEmpty()) getJavaFiles();
+
             List<JsonFile> fileList = new ArrayList<>();
-            for (String s : pathList) {
-                File file = new File(s);
-                if (file.exists() && file.canRead()) {
-                    UUID uuid = UUID.randomUUID();
-
-                    JsonFile internJsonFile = new JsonFile();
-                    JsonFile externJsonFile = new JsonFile();
-
-                    internJsonFile.setName(file.getName());
-                    externJsonFile.setName(file.getName());
-                    internJsonFile.setPath(file.getAbsolutePath());
-
-                    DateTime mod = new DateTime(file.lastModified());
-                    String modString = mod.toString(JEVisDates.DEFAULT_DATE_FORMAT);
-                    internJsonFile.setLastModified(modString);
-                    externJsonFile.setLastModified(modString);
-                    internJsonFile.setSize(file.length());
-                    externJsonFile.setSize(file.length());
-
-                    javaFiles.put(uuid, internJsonFile);
-                    fileList.add(externJsonFile);
-                }
+            for (JsonFile jsonFile : javaFiles.values()) {
+                JsonFile externJsonFile = new JsonFile();
+                externJsonFile.setName(jsonFile.getName());
+                externJsonFile.setLastModified(jsonFile.getLastModified());
+                externJsonFile.setSize(jsonFile.getSize());
+                fileList.add(externJsonFile);
             }
 
             if (!fileList.isEmpty()) {
@@ -93,6 +77,28 @@ public class ResourceJavaVersion {
         } catch (Exception jex) {
             logger.catching(jex);
             return Response.serverError().build();
+        }
+    }
+
+    private void getJavaFiles() {
+        List<String> pathList = Config.getJavaFilesPath();
+
+        for (String s : pathList) {
+            File file = new File(s);
+            if (file.exists() && file.canRead()) {
+
+                JsonFile internJsonFile = new JsonFile();
+
+                internJsonFile.setName(file.getName());
+                internJsonFile.setPath(file.getAbsolutePath());
+
+                DateTime mod = new DateTime(file.lastModified());
+                String modString = mod.toString(JEVisDates.DEFAULT_DATE_FORMAT);
+                internJsonFile.setLastModified(modString);
+                internJsonFile.setSize(file.length());
+
+                javaFiles.put(file.getName(), internJsonFile);
+            }
         }
     }
 
@@ -108,8 +114,9 @@ public class ResourceJavaVersion {
     ) {
         try {
             if (name != null) {
-                UUID id = UUID.fromString(name);
-                JsonFile jsonFile = javaFiles.get(id);
+                if (javaFiles.isEmpty()) getFiles();
+
+                JsonFile jsonFile = javaFiles.get(name);
 
                 if (jsonFile != null) {
                     File file = new File(jsonFile.getPath());

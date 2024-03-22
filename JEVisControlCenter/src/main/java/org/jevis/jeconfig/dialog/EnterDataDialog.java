@@ -254,6 +254,9 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                                                 .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
                                                 .withSecondOfMinute(workDays.getWorkdayStart().getSecond())
                                                 .withMillisOfSecond(0);
+                                        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                            ts = ts.minusDays(1);
+                                        }
                                     }
                                     break;
                                 case SPECIFIC_DATETIME:
@@ -694,15 +697,26 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         if (periodAttribute != null) {
 
             Period p = Period.ZERO;
+            nextTS = lastTS.get();
             try {
                 p = new Period(periodAttribute.getLatestSample().getValueAsString());
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
 
-            nextTS = PeriodHelper.getNextPeriod(lastTS.get(), p, 1, true, workDays.getDateTimeZone());
+            if (!p.equals(Period.ZERO)) {
+                nextTS = PeriodHelper.getNextPeriod(lastTS.get(), p, 1, true, workDays.getDateTimeZone());
 
-            if (nextTS.equals(lastTS.get()))
+                if (workDays.isCustomWorkDay()) {
+                    if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                        nextTS = nextTS.plusDays(1);
+                        nextTS = nextTS.minusHours(workDays.getWorkdayStart().getHour()).minusMinutes(workDays.getWorkdayStart().getMinute())
+                                .minusSeconds(workDays.getWorkdayStart().getSecond()).withMillisOfSecond(0);
+                    }
+                }
+            }
+
+            if (nextTS.equals(lastTS.get()) && !p.equals(Period.ZERO))
                 try {
                     nextTS = lastTS.get().plus(p.toStandardDuration().getMillis());
                 } catch (Exception e) {
@@ -805,15 +819,16 @@ public class EnterDataDialog extends Dialog implements EventTarget {
 
                             getCleanDataSettings();
 
+                            DateTime lastTsForLabel;
                             if (workDays.isCustomWorkDay() && workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd()) && PeriodHelper.isGreaterThenDays(period.get())) {
-                                lastTS.set(lastTS.get().plusDays(1));
-                            }
+                                lastTsForLabel = lastTS.get().plusDays(1);
+                            } else lastTsForLabel = lastTS.get();
 
                             String normalPattern = PeriodHelper.getFormatString(period.get(), isConversionToDifferential.get());
-                            String valueString = numberFormat.format(lastValue) + unitString + " @ " + lastTS.get().toString(normalPattern);
+                            String valueString = numberFormat.format(lastValue) + unitString + " @ " + lastTsForLabel.toString(normalPattern);
 
                             Platform.runLater(() -> {
-                                lastTSLabel.setText(lastTS.get().toString(normalPattern) + " : ");
+                                lastTSLabel.setText(lastTsForLabel.toString(normalPattern) + " : ");
                                 lastValueLabel.setText(valueString);
                             });
 
@@ -852,11 +867,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
 
         try {
             DateTime nextTS = getNextTS();
-            yearBox.setTS(nextTS);
-            Platform.runLater(() -> {
-                monthBox.getSelectionModel().select(nextTS.getMonthOfYear() - 1);
-                dayBox.getSelectionModel().select(nextTS.getDayOfMonth() - 1);
-            });
+            monthBox.setRelations(yearBox, dayBox, nextTS);
         } catch (Exception e) {
             logger.error(e);
         }
