@@ -20,6 +20,7 @@ import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.jecc.application.Chart.ChartTools;
 import org.jevis.jecc.application.application.I18nWS;
 import org.jevis.jecc.application.table.TableFindScrollbar;
 import org.jevis.jecc.application.type.GUIConstants;

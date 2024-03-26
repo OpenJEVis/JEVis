@@ -61,9 +61,8 @@ public class TreeSelectionDialog extends Dialog {
     private final List<JEVisClass> allReportClasses = new ArrayList<>();
 
     private final JEVisTreeView treeView;
-    private final JFXTextField filterTextField = new JFXTextField();
-    private List<JEVisClass> classFilter;
     private final TextField filterTextField = new TextField();
+    private List<JEVisClass> classFilter;
     private Response response = Response.CANCEL;
 
     public TreeSelectionDialog(JEVisDataSource ds, List<JEVisClass> classFilter, SelectionMode selectionMode) {
