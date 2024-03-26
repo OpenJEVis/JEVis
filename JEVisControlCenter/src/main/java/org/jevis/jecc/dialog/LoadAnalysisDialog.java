@@ -47,6 +47,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import static org.jevis.jecc.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox.ANALYSIS_CLASS_NAME;
+import static org.jevis.jecc.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox.USER_CLASS_NAME;
+
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
  */
@@ -65,6 +68,7 @@ public class LoadAnalysisDialog extends Dialog {
     private List<CustomPeriodObject> finalListCustomPeriodObjects;
     private ComboBox<String> comboBoxCustomPeriods = null;
     private final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
+
     /**
      * drawOptimization.setOnAction(event -> {
      * HiddenConfig.CHART_PRECISION_ON = drawOptimization.isSelected();
@@ -114,7 +118,7 @@ public class LoadAnalysisDialog extends Dialog {
 
         filterInput.textProperty().addListener(obs -> {
             String filter = filterInput.getText();
-            if (filter == null || filter.length() == 0) {
+            if (filter == null || filter.isEmpty()) {
                 filteredData.setPredicate(s -> true);
             } else {
                 if (filter.contains(" ")) {
@@ -161,24 +165,36 @@ public class LoadAnalysisDialog extends Dialog {
                 if (empty || obj == null || obj.getName() == null) {
                     setText("");
                 } else {
-                    if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
-                        setText(obj.getName());
-                    else {
-                        String prefix = "";
-                        if (ChartTools.isMultiSite(ds))
-                            prefix += objectRelations.getObjectPath(obj);
-                        if (ChartTools.isMultiDir(ds, obj)) {
-                            prefix += objectRelations.getRelativePath(obj);
-                        }
+                    String name = "";
+                    try {
+                        if (obj.getJEVisClassName().equals(ANALYSIS_CLASS_NAME)) {
+                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
+                                name = obj.getName();
+                            else {
+                                String prefix = "";
+                                if (ChartTools.isMultiSite(ds))
+                                    prefix += objectRelations.getObjectPath(obj);
+                                if (ChartTools.isMultiDir(ds, obj)) {
+                                    prefix += objectRelations.getRelativePath(obj);
+                                }
 
-                        setText(prefix + obj.getName());
+                                name = prefix + obj.getName();
+                            }
+                        } else {
+                            if (obj.getJEVisClassName().equals(USER_CLASS_NAME)) {
+                                name = I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("could not get JEVisClassName", e);
                     }
+                    setText(name);
                 }
             }
         });
 
         if (chartPlugin.getDataSettings().getCurrentAnalysis() != null && chartPlugin.getDataSettings().getCurrentAnalysis().getName() != null
-                && !chartPlugin.getDataSettings().getCurrentAnalysis().getName().equals(""))
+                && !chartPlugin.getDataSettings().getCurrentAnalysis().getName().isEmpty())
             analysisListView.getSelectionModel().select(chartPlugin.getDataSettings().getCurrentAnalysis());
 
         initializeControls();
@@ -647,7 +663,7 @@ public class LoadAnalysisDialog extends Dialog {
 
     private void updateGridLayout(boolean isInit) {
         if (!isInit) {
-            Platform.runLater(() -> updateDialog());
+            Platform.runLater(this::updateDialog);
         } else {
             updateDialog();
         }

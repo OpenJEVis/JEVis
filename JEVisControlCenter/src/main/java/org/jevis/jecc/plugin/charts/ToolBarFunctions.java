@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
@@ -24,6 +25,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jecc.ControlCenter;
+import org.jevis.jecc.Icon;
 import org.jevis.jecc.TopMenu;
 import org.jevis.jecc.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jecc.application.Chart.data.ChartDataRow;
@@ -437,6 +439,14 @@ public class ToolBarFunctions {
         gp.add(insideBox, 0, row, 2, 1);
         row++;
 
+        Button forAllStart = new Button("", ControlCenter.getSVGImage(Icon.ARROW_DOWN, 12, 12));
+        Button forAllEnd = new Button("", ControlCenter.getSVGImage(Icon.ARROW_DOWN, 12, 12));
+        gp.add(forAllStart, 1, row);
+        gp.add(forAllEnd, 3, row);
+        GridPane.setHalignment(forAllStart, HPos.RIGHT);
+        GridPane.setHalignment(forAllEnd, HPos.RIGHT);
+        row++;
+
         for (int i = 1; i < 8; i++) {
             DaySchedule daySchedule = new DaySchedule(i);
             valuesSetting.getDaySchedule().put(i, daySchedule);
@@ -448,6 +458,22 @@ public class ToolBarFunctions {
             gp.add(daySchedule.getEnd(), 4, row);
             row++;
         }
+
+        forAllStart.setOnAction(actionEvent -> {
+            LocalTime value = valuesSetting.getDaySchedule().get(1).getStart().getLocalTime();
+            for (int i = 2; i < 8; i++) {
+                int finalI = i;
+                Platform.runLater(() -> valuesSetting.getDaySchedule().get(finalI).getStart().setLocalTime(value));
+            }
+        });
+
+        forAllEnd.setOnAction(actionEvent -> {
+            LocalTime value = valuesSetting.getDaySchedule().get(1).getEnd().getLocalTime();
+            for (int i = 2; i < 8; i++) {
+                int finalI = i;
+                Platform.runLater(() -> valuesSetting.getDaySchedule().get(finalI).getEnd().setLocalTime(value));
+            }
+        });
 
         ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);

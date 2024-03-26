@@ -45,8 +45,14 @@ public class Parameter implements VarFiller.VarFunction {
     private String format(String format, DateTime dateTime) {
         try {
             if (format != null) {
-                DateTimeFormatter fmt = DateTimeFormat.forPattern(format);
-                return fmt.print(dateTime.withZone(DateTimeZone.forID(timezone.get())));
+                if (format.equals("UNIX")) {
+                    return Long.toString(dateTime.getMillis() / 1000L);
+                } else {
+                    DateTimeFormatter fmt = DateTimeFormat.forPattern(format);
+                    return fmt.print(dateTime.withZone(DateTimeZone.forID(timezone.get())));
+                }
+
+
             } else {
                 return dateTime.toString();
             }
@@ -72,7 +78,7 @@ public class Parameter implements VarFiller.VarFunction {
 
             return format(getFormat(), getLastTS());
         } else {
-            return format(getFormat(), new DateTime(1980, 01, 01, 01, 01));
+            return format(getFormat(), new DateTime(1980, 1, 1, 1, 1));
         }
     }
 

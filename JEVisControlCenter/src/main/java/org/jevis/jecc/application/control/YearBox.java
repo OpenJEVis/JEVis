@@ -28,22 +28,13 @@ public class YearBox extends ComboBox<Integer> {
         ObservableList<Integer> integers = FXCollections.observableArrayList(list);
         setItems(integers);
 
-        Integer year = DateTime.now().getYear();
+        Integer y = DateTime.now().getYear();
 
         if (nextTS != null) {
             getSelectionModel().select(nextTS.getYear());
         } else {
-            getSelectionModel().select(year);
+            getSelectionModel().select(y);
         }
-    }
-
-    public YearBox() {
-        this(null);
-    }
-
-    public void setRelations(MonthBox monthBox, DayBox dayBox) {
-        this.monthBox = monthBox;
-        this.dayBox = dayBox;
 
         getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
@@ -53,6 +44,15 @@ public class YearBox extends ComboBox<Integer> {
                 dayBox.setDays(yearMonthObject.lengthOfMonth());
             }
         });
+    }
+
+    public YearBox() {
+        this(null);
+    }
+
+    public void setRelations(MonthBox monthBox, DayBox dayBox) {
+        this.monthBox = monthBox;
+        this.dayBox = dayBox;
     }
 
     public void setTS(DateTime nextTS) {

@@ -69,6 +69,7 @@ public class ChartTab extends Tab {
     private final ColorMappingBox colorMappingBox;
     private final Label chartNameLabel = new Label(I18n.getInstance().getString("graph.title"));
     private final TextField chartNameSecondTextField = new TextField();
+    private boolean showChartSettings = true;
     private ChartModel chartModel;
     private final ChangeListener<BigDecimal> groupingIntervalChangeListener = (observable, oldValue, newValue) -> {
         if (chartModel != null && !newValue.equals(oldValue)) {
@@ -191,6 +192,7 @@ public class ChartTab extends Tab {
         VBox.setVgrow(chartTable, Priority.ALWAYS);
 
         vBox.getChildren().setAll(chartSettings, tableMenu, chartTable);
+
         vBox.setSpacing(6);
         vBox.setPadding(new Insets(4, 4, 4, 4));
         VBox.setVgrow(chartSettings, Priority.ALWAYS);
@@ -199,7 +201,7 @@ public class ChartTab extends Tab {
         newButton.setOnAction(actionEvent -> {
             boolean isHeatMap = chartModel.getChartType() == ChartType.HEAT_MAP;
             boolean isPieChart = chartModel.getChartType() == ChartType.PIE;
-            if (isHeatMap && chartModel.getChartData().size() > 0) {
+            if (isHeatMap && !chartModel.getChartData().isEmpty()) {
                 return;
             }
             if (isPieChart && chartModel.getChartData().size() > 9) {
@@ -624,5 +626,15 @@ public class ChartTab extends Tab {
 
     public Table getChartTable() {
         return chartTable;
+    }
+
+    public void setShowChartSettings(boolean showChartSettings) {
+        this.showChartSettings = showChartSettings;
+
+        if (showChartSettings) {
+            vBox.getChildren().setAll(chartSettings, tableMenu, chartTable);
+        } else {
+            vBox.getChildren().setAll(tableMenu, chartTable);
+        }
     }
 }

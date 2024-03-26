@@ -5,12 +5,12 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -57,6 +57,7 @@ public class ImageViewerDialog {
     private final ImageView leftImage = ControlCenter.getImage("left.png", 20, 20);
     private Stage stage;
     private Label fileName;
+    private final BorderPane bp = new BorderPane();
 
     public ImageViewerDialog() {
 
@@ -111,22 +112,14 @@ public class ImageViewerDialog {
         stage.initStyle(StageStyle.DECORATED);
         stage.initOwner(owner);
 
-        double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
-        double maxScreenHeight = Screen.getPrimary().getBounds().getMaxY();
-        //stage.setWidth(maxScreenWidth * 0.85);
-        //stage.setHeight(maxScreenHeight * 0.85);
+//        double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
+//        double maxScreenHeight = Screen.getPrimary().getBounds().getMaxY();
+//        stage.setMaxWidth(maxScreenWidth * 0.85);
+//        stage.setMaxHeight(maxScreenHeight * 0.85);
 
         stage.setResizable(true);
 
-        ScrollPane sp = new ScrollPane(imageView);
-        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        sp.setFitToWidth(true);
-        sp.setFitToHeight(true);
-
-        imageView.fitWidthProperty().bind(sp.widthProperty());
-
-        BorderPane bp = new BorderPane();
+        imageView.setPreserveRatio(true);
 
         HBox headerBox = new HBox();
         headerBox.setSpacing(4);
@@ -198,9 +191,7 @@ public class ImageViewerDialog {
 
         ToggleButton rotateButton = new ToggleButton("", ControlCenter.getImage("Rotate.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(rotateButton);
-        rotateButton.setOnAction(event -> {
-            imageView.setRotate(imageView.getRotate() + 90);
-        });
+        rotateButton.setOnAction(event -> imageView.setRotate(imageView.getRotate() + 90));
 
         Region spacer = new Region();
         fileName = new Label(file.getFilename());
@@ -249,17 +240,11 @@ public class ImageViewerDialog {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         bp.setTop(headerBox);
-        bp.setCenter(sp);
+        bp.setCenter(imageView);
 
         Scene scene = new Scene(bp);
         TopMenu.applyActiveTheme(scene);
         stage.setScene(scene);
-
-        try {
-            createImage(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         fileComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue != null && newValue != null && !newValue.equals(oldValue)) {
@@ -271,7 +256,13 @@ public class ImageViewerDialog {
             }
         });
 
-        stage.showAndWait();
+        stage.show();
+
+        try {
+            createImage(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void createImage(JEVisFile file) throws IOException {
@@ -279,17 +270,27 @@ public class ImageViewerDialog {
         tempFile.deleteOnExit();
         file.saveToFile(tempFile);
         Image image = new Image(tempFile.toURI().toString());
-        Platform.runLater(() -> imageView.setImage(image));
+        double width = image.getWidth();
+        double height = image.getHeight();
+        double maxWidth = ControlCenter.getStage().getScene().getWindow().getWidth() * 0.85;
+        double maxHeight = ControlCenter.getStage().getScene().getWindow().getHeight() * 0.8;
+        if (width > maxWidth || height > maxHeight) {
+            imageView.setFitHeight(maxHeight);
+            imageView.setFitWidth(maxWidth);
+        }
+
         Platform.runLater(() -> fileName.setText(file.getFilename()));
 
         Platform.runLater(() -> {
             imageView.setImage(image);
+
+            Bounds layoutBounds = imageView.getLayoutBounds();
+
             fileName.setText(file.getFilename());
 
-            stage.setWidth(ScreenSize.fitScreenWidth(image.getWidth()));
-            stage.setHeight(ScreenSize.fitScreenHeight(image.getHeight()));
+            stage.setWidth(layoutBounds.getWidth() * 1.05);
+            stage.setHeight(layoutBounds.getHeight() * 1.15);
             stage.centerOnScreen();
-
         });
 
 

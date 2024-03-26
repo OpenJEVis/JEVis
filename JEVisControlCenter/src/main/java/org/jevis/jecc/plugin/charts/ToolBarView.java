@@ -386,7 +386,7 @@ public class ToolBarView {
         showL1L2 = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
 
         NumberSpinner numberSpinner = new NumberSpinner(new BigDecimal(2), new BigDecimal(1));
-        polyDegree = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.regression.type"), numberSpinner);
+        polyDegree = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.regression.degree"), numberSpinner);
         RegressionBox regressionBox = new RegressionBox();
         regressionType = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.regression.type"), regressionBox);
         calcRegression = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));

@@ -28,6 +28,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jecc.plugin.object.ObjectEditorExtension;
 import org.jevis.jecc.plugin.object.extension.role.Membership;
 import org.jevis.jecc.plugin.object.extension.role.Role;
@@ -476,8 +477,9 @@ public class RoleExtention implements ObjectEditorExtension {
 
     private boolean isInSameOrga(JEVisObject obj) {
         try {
-            if (orgaID.equals(obj.getParents().get(0).getParents().get(0).getID())) return true;
-
+            JEVisObject buildingParent = CommonMethods.getFirstParentalObjectOfClass(obj, "Building");
+            JEVisObject organisationParent = CommonMethods.getFirstParentalObjectOfClass(obj, "Organisation");
+            if (orgaID.equals(buildingParent.getID()) || orgaID.equals(organisationParent.getID())) return true;
         } catch (Exception ex) {
             logger.error(ex);
         }

@@ -441,16 +441,16 @@ public interface JC {
     interface Channel {
         String name = "Channel";
 
-        String a_LastReadout = "Last Readout";
+        public static String a_LastReadout = "Last Readout";
 
-        interface EMailChannel {
-            String name = "EMail Channel";
+        public interface EMailChannel {
+            public static String name = "EMail Channel";
 
-            String a_Sender = "Sender";
-            String a_Subject = "Subject";
-            String a_Filename = "Filename";
-            String a_DataInBody = "Data in body";
-            String a_LastReadout = "Last Readout";
+            public static String a_Sender = "Sender";
+            public static String a_Subject = "Subject";
+            public static String a_Filename = "Filename";
+            public static String a_DataInBody = "Data in body";
+            public static String a_LastReadout = "Last Readout";
         }
 
         interface FTPChannel {
@@ -3212,28 +3212,28 @@ public interface JC {
         String name = "Measurement Instrument";
 
 
-        String a_DecimalPlaces = "Decimal Places";
-        String a_VerificationDocumentation = "Verification Documentation";
-        String a_Location = "Location";
-        String a_Company = "Company";
-        String a_CostCenter = "Cost Center";
-        String a_MeterPoint = "Meter Point";
-        String a_Picture = "Picture";
-        String a_MeasuringPointID = "Measuring Point ID";
-        String a_MeasuringPointName = "Measuring Point Name";
-        String a_SerialNumber = "Serial Number";
-        String a_Type = "Type";
-        String a_Datasheet = "Datasheet";
-        String a_Accuracy = "Accuracy";
-        String a_ConversionFactor = "Conversion Factor";
-        String a_InstallationDate = "Installation Date";
-        String a_VerifiedDate = "Verified Date";
-        String a_VerificationDate = "Verification Date";
-        String a_OnlineID = "Online ID";
-        String a_DeviceIP = "Device IP";
-        String a_DeviceNumber = "Device Number";
-        String a_Connection = "Connection";
-        String a_Remarks = "Remarks";
+        public static String a_DecimalPlaces ="Decimal Places";
+        public static String a_VerificationDocumentation = "Verification Documentation";
+        public static String a_Location = "Location";
+        public static String a_Company = "Company";
+        public static String a_CostCenter = "Cost Center";
+        public static String a_MeterPoint = "Meter Point";
+        public static String a_Picture = "Picture";
+        public static String a_MeasuringPointID = "Measuring Point ID";
+        public static String a_MeasuringPointName = "Measuring Point Name";
+        public static String a_SerialNumber = "Serial Number";
+        public static String a_Type = "Type";
+        public static String a_Datasheet = "Datasheet";
+        public static String a_Accuracy = "Accuracy";
+        public static String a_ConversionFactor = "Conversion Factor";
+        public static String a_InstallationDate = "Installation Date";
+        public static String a_VerifiedDate = "Verified Date";
+        public static String a_VerificationDate = "Verification Date";
+        public static String a_OnlineID = "Online ID";
+        public static String a_DeviceIP = "Device IP";
+        public static String a_DeviceNumber = "Device Number";
+        public static String a_Connection = "Connection";
+        public static String a_Remarks = "Remarks";
 
         interface HeatMeasurementInstrument {
             String name = "Heat Measurement Instrument";
@@ -3550,8 +3550,8 @@ public interface JC {
 
         }
 
-        interface JSONParser {
-            String name = "JSON Parser";
+        public interface JSONParser{
+            public static String name = "JSON Parser";
 
             String a_dateTimeFormat = "Date Time Format";
             String a_dateTimePath = "Date Time Path";
@@ -3864,8 +3864,8 @@ public interface JC {
 
                 String a_Data = "Data";
 
-                interface NonconformityDirectory {
-                    String name = "Nonconformities Directory";
+                public interface NonconformityDirectory{
+                    public static String name = "Nonconformities Directory";
                 }
 
 
@@ -3887,8 +3887,8 @@ public interface JC {
 
                 String a_Data = "Data";
 
-                interface ObligationDirectory {
-                    String name = "Index of Legal Provisions Directory";
+                public interface ObligationDirectory{
+                    public static String name = "Index of Legal Provisions Directory";
                 }
             }
 

@@ -109,7 +109,7 @@ public class SQLDriver implements DataSource {
 
 
                             } catch (Exception ex) {
-                                logger.error("Error in Row: ", ex, ex);
+                                logger.error("Error in Row: ", ex);
                                 logStatus(5, new DateTime(), "SQL Error: " + ex);
                             }
                         }
@@ -136,8 +136,8 @@ public class SQLDriver implements DataSource {
                         }
 
 
-                        if (resultSamples.size() > 0) {
-                            requestParameters.logStatus(0, new DateTime(), "Import " + resultSamples.size() + " Samples");
+                        if (!resultSamples.isEmpty()) {
+                            requestParameters.logStatus(0, new DateTime(), "Import " + resultSamples.size() + " Samples into " + requestParameters.getTarget().getName() + ":" + requestParameters.getTarget().getObjectID());
                             requestParameters.updateLastReadout();
                         } else {
                             requestParameters.logStatus(0, new DateTime(), "Nothing to Import");
