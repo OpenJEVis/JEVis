@@ -240,7 +240,7 @@ public class Statistics {
                 int daysRunning = Days.daysBetween(actionData.doneDate.get().withTimeAtStartOfDay(), DateTime.now().withTimeAtStartOfDay()).getDays();
                 sum.set(sum.get() + ((daysRunning) * (actionData.npv.get().einsparung.get() / 365)));
 
-                logger.debug("Action Nr: " + actionData.nr.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
+                logger.debug("Action Nr: " + actionData.no.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
                 logger.debug("Sum: " + ((daysRunning) * (actionData.npv.get().einsparung.get() / 365)) + "= " + daysRunning + "*(" + actionData.npv.get().einsparung.get() + "/365)");
 
             }
@@ -281,7 +281,7 @@ public class Statistics {
                 }
 
 
-                logger.debug("Action Nr: " + actionData.nr.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
+                logger.debug("Action Nr: " + actionData.no.get() + " DoneDate: " + actionData.doneDate.get() + " Until: " + DateTime.now() + " Days: " + daysRunning + " Value: " + actionData.consumption.get().diff.get());
                 logger.debug("Sum: " + ((daysRunning) * (actionData.consumption.get().diff.get() / 365)) + "= " + daysRunning + "*(" + actionData.consumption.get().diff.get() + "/365)");
 
             }

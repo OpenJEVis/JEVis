@@ -75,7 +75,7 @@ public class ExcelExporter {
             selections.stream().filter(selection -> selection.exportDetail).forEach(selection -> {
                 logger.debug(selection.plan);
                 if (!selection.plan.getName().get().equals("Übersicht")) {
-                    selection.plan.getActionData().sorted(Comparator.comparingInt(o -> o.nr.get())).forEach(actionData -> {
+                    selection.plan.getActionData().sorted(Comparator.comparingInt(o -> o.no.get())).forEach(actionData -> {
                         try {
                             addActionDetailsSheet(workbook, actionData);
                         } catch (Exception ex) {
@@ -221,10 +221,10 @@ public class ExcelExporter {
                         Cell valueCell = getOrCreateCell(sheet, row, colldx);
                         valueCell.setCellStyle(tableCellStyle);
 
-                        if (actionDataTableColumn.getText().equals(fakeForName.nrProperty().getName())) {
-                            valueCell.setCellValue(data.getNrText());
+                        if (actionDataTableColumn.getText().equals(fakeForName.noProperty().getName())) {
+                            valueCell.setCellValue(data.getNoText());
                             CreationHelper createHelper = workbook.getCreationHelper();
-                            String linkStrg = "'" + data.getNrText() + "'!A1";
+                            String linkStrg = "'" + data.getNoText() + "'!A1";
                             Hyperlink link2 = createHelper.createHyperlink(HyperlinkType.DOCUMENT);
                             link2.setAddress(linkStrg);
                             valueCell.setHyperlink(link2);
@@ -240,7 +240,7 @@ public class ExcelExporter {
                             tableCellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
 
 
-                            if (data.nr.get() == lastElement.nr.get()) {
+                            if (data.no.get() == lastElement.no.get()) {
                                 Cell sumCell = getOrCreateCell(sheet, row + 2, colldx);
                                 sumCell.setCellValue(I18n.getInstance().getString("plugin.action.export.sum"));
                             }
@@ -261,8 +261,8 @@ public class ExcelExporter {
                             sheet.autoSizeColumn(colldx);
                         }
 
-                        if (actionDataTableColumn.getText().equals(fakeForName.desciptionProperty().getName())) {
-                            valueCell.setCellValue(data.desciptionProperty().get());
+                        if (actionDataTableColumn.getText().equals(fakeForName.descriptionProperty().getName())) {
+                            valueCell.setCellValue(data.descriptionProperty().get());
                             sheet.autoSizeColumn(colldx);
                         }
 
@@ -288,7 +288,7 @@ public class ExcelExporter {
                             CellStyle statusSumStyle = workbook.createCellStyle();
                             statusSumStyle.setAlignment(HorizontalAlignment.RIGHT);
 
-                            if (data.nr.get() == lastElement.nr.get()) {
+                            if (data.no.get() == lastElement.no.get()) {
                                 int statusIndex = 0;
                                 for (String s : actionPlanData.getStatustags()) {
                                     statusIndex++;
@@ -304,7 +304,7 @@ public class ExcelExporter {
                         if (actionDataTableColumn.getText().equals(fakeForName.title.getName())) {
                             valueCell.setCellValue(data.title.get());
 
-                            if (data.nr.get() == lastElement.nr.get()) {
+                            if (data.no.get() == lastElement.no.get()) {
                                 Cell sumCell = getOrCreateCell(sheet, row + 2, colldx);
                                 sumCell.setCellValue(statistics.getTextSumSinceImplementation());
                                 //einsparung seint umsetzung
@@ -340,7 +340,7 @@ public class ExcelExporter {
                             valueCell.setCellStyle(currencyStyle);
                             valueCell.setCellValue(data.npv.get().investmentProperty().get());
 
-                            if (data.nr.get() == lastElement.nr.get()) {
+                            if (data.no.get() == lastElement.no.get()) {
                                 Cell sumCell = getOrCreateCell(sheet, row + 2, colldx);
                                 String cellLetter = CellReference.convertNumToColString(sumCell.getColumnIndex());
                                 String formula = "SUM(" +
@@ -357,7 +357,7 @@ public class ExcelExporter {
                             valueCell.setCellStyle(currencyStyle);
                             valueCell.setCellValue(data.npv.get().einsparung.get());
 
-                            if (data.nr.get() == lastElement.nr.get()) {
+                            if (data.no.get() == lastElement.no.get()) {
                                 Cell sumCell = getOrCreateCell(sheet, row + 2, colldx);
                                 String cellLetter = CellReference.convertNumToColString(sumCell.getColumnIndex());
                                 String formula = "SUM(" +
@@ -377,7 +377,7 @@ public class ExcelExporter {
                             CellStyle mediumSumStyle = getConsumptionStyle(workbook);
                             mediumSumStyle.setAlignment(HorizontalAlignment.RIGHT);
 
-                            if (data.nr.get() == lastElement.nr.get()) {
+                            if (data.no.get() == lastElement.no.get()) {
                                 Cell sumCell = getOrCreateCell(sheet, row + 2, colldx);
                                 String cellLetter = CellReference.convertNumToColString(sumCell.getColumnIndex());
                                 String formula = "SUM(" +
@@ -466,7 +466,7 @@ public class ExcelExporter {
     }
 
     private Sheet addActionDetailsSheet(XSSFWorkbook workbook, ActionData actionData) {
-        logger.debug("Export Tab: " + actionData.nr.get() + " Name: " + actionData.title.get());
+        logger.debug("Export Tab: " + actionData.no.get() + " Name: " + actionData.title.get());
         CellStyle currencyStyle = getCurrencyStyle(workbook);//workbook.createCellStyle();;
         CellStyle dateStyle = workbook.createCellStyle();//getDateStyle(workbook);
         CellStyle stringStyle = workbook.createCellStyle();//getStringTableStyle(workbook);
@@ -482,7 +482,7 @@ public class ExcelExporter {
         stringStyle.setAlignment(HorizontalAlignment.LEFT);
         currencyStyle.setAlignment(HorizontalAlignment.RIGHT);
 
-        Sheet sheet = workbook.createSheet(actionData.getNrText());
+        Sheet sheet = workbook.createSheet(actionData.getNoText());
         if (true) {
             //return sheet;
         }
@@ -498,7 +498,7 @@ public class ExcelExporter {
         int secValueCol = 6;
         int colRightSpace = 7;
 
-        String titleName = actionData.getActionPlan().getName().get() + " #" + actionData.nr.get();
+        String titleName = actionData.getActionPlan().getName().get() + " #" + actionData.no.get();
         setBoxBorder(workbook, sheet, titleName, startRow - 2, boxWidth, 42);
 
         ActionData names = new ActionData();
@@ -558,7 +558,7 @@ public class ExcelExporter {
         //getOrCreateCell(sheet, startRow + 5, secLabelCol).setCellValue(names.titleProperty().getName());
 
         /* Values Left Side */
-        getOrCreateCell(sheet, startRow, firstValueCol).setCellValue(actionData.getNrText());
+        getOrCreateCell(sheet, startRow, firstValueCol).setCellValue(actionData.getNoText());
         getOrCreateCell(sheet, startRow, firstValueCol).setCellStyle(stringStyle);
         getOrCreateCell(sheet, startRow + 1, firstValueCol).setCellValue(actionData.title.getValue());
         getOrCreateCell(sheet, startRow + 1, firstValueCol).setCellStyle(stringStyle);
@@ -605,7 +605,7 @@ public class ExcelExporter {
         sheet.getRow(startRow + 9).setHeight(textBoxHeight);
         Cell descTextBox = getOrCreateCell(sheet, startRow + 9, firstLabelCol, 1, 2);
         descTextBox.setCellStyle(textBoxStyle);
-        descTextBox.setCellValue(actionData.desciptionProperty().getValue());
+        descTextBox.setCellValue(actionData.descriptionProperty().getValue());
         CellRangeAddress range1 = new CellRangeAddress(startRow + 9, startRow + 9, firstLabelCol, firstValueCol);
         setCellBoxBorder(sheet, range1, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT.getIndex());
 
@@ -650,7 +650,7 @@ public class ExcelExporter {
         getOrCreateCell(sheet, startRow + 18, firstLabelCol).setCellValue(I18n.getInstance().getString("plugin.action.consumption.diff"));
         getOrCreateCell(sheet, startRow + 18, firstLabelCol).setCellStyle(stringStyle);
 
-        getOrCreateCell(sheet, startRow + 15, secLabelCol).setCellValue(names.enpi.getName());
+        getOrCreateCell(sheet, startRow + 15, secLabelCol).setCellValue(names.EnPI.getName());
         getOrCreateCell(sheet, startRow + 16, secLabelCol).setCellValue(I18n.getInstance().getString("plugin.action.enpiabefore"));
         getOrCreateCell(sheet, startRow + 16, secLabelCol).setCellStyle(stringStyle);
         getOrCreateCell(sheet, startRow + 17, secLabelCol).setCellValue(I18n.getInstance().getString("plugin.action.enpiafter"));
@@ -660,24 +660,24 @@ public class ExcelExporter {
 
         getOrCreateCell(sheet, startRow + 15, firstValueCol).setCellValue(I18n.getInstance().getString("plugin.action.enpi"));
         getOrCreateCell(sheet, startRow + 15, firstValueCol).setCellStyle(stringStyle);
-        getOrCreateCell(sheet, startRow + 16, firstValueCol).setCellValue(actionData.enpi.get().actualProperty().get());
+        getOrCreateCell(sheet, startRow + 16, firstValueCol).setCellValue(actionData.EnPI.get().actualProperty().get());
         getOrCreateCell(sheet, startRow + 16, firstValueCol).setCellStyle(consumptionStyle);
-        getOrCreateCell(sheet, startRow + 17, firstValueCol).setCellValue(actionData.enpi.get().afterProperty().get());
+        getOrCreateCell(sheet, startRow + 17, firstValueCol).setCellValue(actionData.EnPI.get().afterProperty().get());
         getOrCreateCell(sheet, startRow + 17, firstValueCol).setCellStyle(consumptionStyle);
-        getOrCreateCell(sheet, startRow + 18, firstValueCol).setCellValue(actionData.enpi.get().diffProperty().get());
+        getOrCreateCell(sheet, startRow + 18, firstValueCol).setCellValue(actionData.EnPI.get().diffProperty().get());
         getOrCreateCell(sheet, startRow + 18, firstValueCol).setCellStyle(consumptionStyle);
 
         String enpiName = "";
         try {
-            enpiName = ConsumptionData.getObjectName(actionData.getObject().getDataSource(), names.enpi.get());
+            enpiName = ConsumptionData.getObjectName(actionData.getObject().getDataSource(), names.EnPI.get());
         } catch (Exception ex) {
         }
         getOrCreateCell(sheet, startRow + 15, secValueCol).setCellValue(enpiName);
-        getOrCreateCell(sheet, startRow + 16, secValueCol).setCellValue(actionData.enpi.get().actualProperty().get());
+        getOrCreateCell(sheet, startRow + 16, secValueCol).setCellValue(actionData.EnPI.get().actualProperty().get());
         getOrCreateCell(sheet, startRow + 16, secValueCol).setCellStyle(consumptionStyle);
-        getOrCreateCell(sheet, startRow + 17, secValueCol).setCellValue(actionData.enpi.get().afterProperty().get());
+        getOrCreateCell(sheet, startRow + 17, secValueCol).setCellValue(actionData.EnPI.get().afterProperty().get());
         getOrCreateCell(sheet, startRow + 17, secValueCol).setCellStyle(consumptionStyle);
-        getOrCreateCell(sheet, startRow + 18, secValueCol).setCellValue(actionData.enpi.get().diffProperty().get());
+        getOrCreateCell(sheet, startRow + 18, secValueCol).setCellValue(actionData.EnPI.get().diffProperty().get());
         getOrCreateCell(sheet, startRow + 18, secValueCol).setCellStyle(consumptionStyle);
 
         getOrCreateCell(sheet, startRow + 20, firstLabelCol).setCellValue(I18n.getInstance().getString("plugin.action.noteBewertet"));

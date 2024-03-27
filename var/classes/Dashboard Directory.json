@@ -8,6 +8,26 @@
       "type": 0
     },
     {
+      "start": "Dashboard Analysis",
+      "end": "Dashboard Directory",
+      "type": 3
+    },
+    {
+      "start": "Dashboard Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Dashboard Directory",
+      "end": "Building",
+      "type": 3
+    },
+    {
+      "start": "Dashboard Directory",
+      "end": "Dashboard Directory",
+      "type": 3
+    },
+    {
       "start": "Dashboard Directory",
       "end": "System",
       "type": 3
