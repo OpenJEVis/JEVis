@@ -176,7 +176,7 @@ public class DataServerTable extends AlarmTable {
             if (target != null) {
                 JEVisAttribute attribute = target.getAttribute(PERIOD_ATTRIBUTE_NAME);
                 try {
-                    if (new Period(attribute.getLatestSample().getValueAsString()).equals(Period.ZERO)) {
+                    if (!attribute.hasSample() || Period.ZERO.equals(new Period(attribute.getLatestSample().getValueAsString()))) {
                         asyncTargets.add(currentChannel);
                     }
                 } catch (Exception e) {
