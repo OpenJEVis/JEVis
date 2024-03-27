@@ -10,48 +10,48 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Role {
 
-    private ObservableList<Membership> memberships = FXCollections.observableArrayList();
-    private ObservableList<User> users =FXCollections.observableArrayList();
     private final JEVisObject roleObject;
-
-    public ObservableList<Membership> getMemberships() {
-        return memberships;
-    }
-    public ObservableList<User> getUsers() {
-        return users;
-    }
-    public void setUsers(ObservableList<User> users) {
-        this.users = users;
-    }
+    private final ObservableList<Membership> memberShips = FXCollections.observableArrayList();
+    private ObservableList<User> users = FXCollections.observableArrayList();
 
     public Role(JEVisObject roleObject) {
         this.roleObject = roleObject;
+    }
+
+    public ObservableList<Membership> getMemberShips() {
+        return memberShips;
+    }
+
+    public ObservableList<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(ObservableList<User> users) {
+        this.users = users;
     }
 
     public JEVisObject getRoleObject() {
         return roleObject;
     }
 
-    public boolean hasChanged(){
-        AtomicBoolean userChaned = new AtomicBoolean(false);
+    public boolean hasChanged() {
+        AtomicBoolean userChanged = new AtomicBoolean(false);
         AtomicBoolean membershipChanged = new AtomicBoolean(false);
 
         users.forEach(user -> {
-            if (user.getInitMember() != user.memberProperty().get()) userChaned.set(true);
+            if (user.getInitMember() != user.memberProperty().get()) userChanged.set(true);
         });
         membershipChanged.set(!getChangeMemberships().isEmpty());
-        return (membershipChanged.get()|| userChaned.get());
+        return (membershipChanged.get() || userChanged.get());
     }
 
-    public List<Membership> getChangeMemberships(){
+    public List<Membership> getChangeMemberships() {
         List<Membership> changedList = new ArrayList<>();
-        getMemberships().forEach(membership -> {
-            if(membership.hasChanged()){
+        getMemberShips().forEach(membership -> {
+            if (membership.hasChanged()) {
                 changedList.add(membership);
             }
         });
-
-
 
 
         return changedList;
