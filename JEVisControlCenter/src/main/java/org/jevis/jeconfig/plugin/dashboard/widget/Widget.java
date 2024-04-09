@@ -583,7 +583,7 @@ public abstract class Widget extends Region {
                 .put(JsonNames.Widget.SHOW_VALUE, this.config.getShowValue())
                 .put(JsonNames.Widget.X_POS, this.config.getxPosition())
                 .put(JsonNames.Widget.Y_POS, this.config.getyPosition())
-                .put(JsonNames.Widget.FIXED_TIMEFRAME, this.config.isFixedTimeframe());
+                .put(JsonNames.Widget.FIXED_TIMEFRAME, this.config.getFixedTimeframe());
 
 
         return dashBoardNode;
