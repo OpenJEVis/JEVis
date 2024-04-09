@@ -31,6 +31,8 @@ import org.jevis.commons.ws.json.JsonJEVisClass;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,113 +42,107 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Config {
 
     private static final Logger logger = LogManager.getLogger(Config.class);
-
-    //@Singleton
-    public static String _dbport = "3306";
-    public static String _dbip = "192.168.2.55";
-    public static String _ip = "localhost";
-    public static String _port = "5007";
-    public static String _dbuser = "jevis";
-    public static String _dbpw = "jevistest";
-    public static String _schema = "jevis";
-    public static String _options = "";
-    public static String _rootUser = "jevis";
-    public static String _rootPW = "jevis";
-    public static String _uri = "http://localhost:8080/JEWebservice/";
-    public static String _keyFile = "";
-    public static String _keyFilePW = "";
-    public static String _keyType = "";
-
-
-    public static long _demoRoot = -1;
-    public static long _demoGroup = -1;
-    public static String _registratioKey = "";
-
     private static final boolean _loadFromFile = true;
-    private static boolean _fileIsLoaded = false;
-
-    private static File _i18nDir;
-    private static File _fileDir;
-    private static File _classDir;
-    private static File _freemarkerDir;
-    private static String _jeccVersion = "0";
-    private static String _jeccFile = "";
-    private static String _javaVersion = "0";
-    private static String _javaFile = "";
-    private static String _webDir = "";
-    private static ConcurrentHashMap<String, JsonJEVisClass> _classCache = new ConcurrentHashMap<>();
-
+    private static final Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
+    private static final List<String> jeccFiles = new ArrayList<>();
+    private static final List<String> javaFiles = new ArrayList<>();
+    //@Singleton
+    public static String dbPort = "3306";
+    public static String dbIP = "192.168.2.55";
+    public static String ip = "localhost";
+    public static String port = "5007";
+    public static String dbUser = "jevis";
+    public static String dbPw = "jevistest";
+    public static String schema = "jevis";
+    public static String options = "";
+    public static String rootUser = "jevis";
+    public static String rootPW = "jevis";
+    public static String url = "http://localhost:8080/JEWebservice/";
+    public static String keyFile = "";
+    public static String keyFilePW = "";
+    public static String keyType = "";
+    public static long demoRoot = -1;
+    public static long demoGroup = -1;
+    public static String registrationKey = "";
+    private static boolean fileIsLoaded = false;
+    private static File i18nDir;
+    private static File fileDir;
+    private static File classDir;
+    private static File freemarkerDir;
+    private static String latestJECCVersion = "0";
+    private static String latestJavaVersion = "0";
+    private static String webDir = "";
+    private static ConcurrentHashMap<String, JsonJEVisClass> classCache = new ConcurrentHashMap<>();
+    private static String latestJECCPath;
+    private static String latestJavaPath;
 
     public static String getDBHost() {
-        return _dbip;
+        return dbIP;
     }
 
     public static String getDBPort() {
-        return _dbport;
+        return dbPort;
     }
 
     public static String getDBUser() {
-        return _dbuser;
+        return dbUser;
     }
 
     public static String getDBPW() {
-        return _dbpw;
+        return dbPw;
     }
 
     public static String getSchema() {
-        return _schema;
+        return schema;
     }
 
     public static String getConnectionOptions() {
-        return _options;
+        return options;
     }
 
-    private static final Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
-
     public static File getClassDir() {
-        return _classDir;
+        return classDir;
     }
 
     public static File getFileDir() {
-        return _fileDir;
+        return fileDir;
     }
 
     public static File getI18nDir() {
-        return _i18nDir;
+        return i18nDir;
     }
 
     public static String getURI() {
-        return _uri;
+        return url;
     }
 
     public static String getKeyStoreFile() {
-        return _keyFile;
+        return keyFile;
     }
 
     public static String getKeyStorePW() {
-        return _keyFilePW;
+        return keyFilePW;
     }
 
     public static String getKeyType() {
-        return _keyType;
+        return keyType;
     }
 
     public static File getFreemarkerDir() {
-        return _freemarkerDir;
-    }
-
-    public static String getWebDir() {
-        return _webDir;
+        return freemarkerDir;
     }
 
     public static void setFreemarkerDir(File _freemarkerDir) {
-        Config._freemarkerDir = _freemarkerDir;
+        Config.freemarkerDir = _freemarkerDir;
     }
 
+    public static String getWebDir() {
+        return webDir;
+    }
 
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
-        if (_classCache.isEmpty()) {
-            logger.info("initializing class cache");
+        if (classCache.isEmpty()) {
+            logger.debug("initializing class cache");
             try {
                 //        Gson gson = new GsonBuilder().create();
 
@@ -166,26 +162,26 @@ public class Config {
 //                    JsonJEVisClass data = gson.fromJson(reader, JsonJEVisClass.class);
 
                             JsonJEVisClass data = objectMapper.readValue(jsonFile, JsonJEVisClass.class);
-                            _classCache.put(data.getName(), data);
+                            classCache.put(data.getName(), data);
 
                         } catch (Exception ex) {
-                            logger.error("Error while loading Classfile: " + jsonFile.getName(), ex);
+                            logger.error("Error while loading Class file: {}", jsonFile.getName(), ex);
                         }
                     });
                 }
 
-                JEVisClassHelper.completeClasses(_classCache);
-                logger.info("initialized class cache");
+                JEVisClassHelper.completeClasses(classCache);
+                logger.debug("initialized class cache");
             } catch (Exception ex) {
                 logger.error("Error while caching classes", ex);
             }
 
         }
-        return _classCache;
+        return classCache;
     }
 
     public static void setClassCache(ConcurrentHashMap<String, JsonJEVisClass> map) {
-        _classCache = map;
+        classCache = map;
     }
 
     public static String getParameter(XMLConfiguration config, String key, String defaultValue) {
@@ -209,7 +205,7 @@ public class Config {
     public static void readConfigurationFile(File cfile) {
         try {
 
-            if (!_fileIsLoaded) {
+            if (!fileIsLoaded) {
 //                File cfile = new File("config.xml");
                 if (cfile.exists()) {
                     String homeDir = System.getProperty("user.home");
@@ -217,38 +213,38 @@ public class Config {
                     logger.info("using Configfile: {}", cfile.getAbsolutePath());
                     XMLConfiguration config = new XMLConfiguration(cfile);
 
-                    _dbport = getParameter(config, "datasource.port", "8000");
-                    _dbip = getParameter(config, "datasource.url", "localhost");
-                    _dbuser = getParameter(config, "datasource.login", "jevis");
-                    _dbpw = getParameter(config, "datasource.password", "jevispw");
-                    _schema = getParameter(config, "datasource.schema", "jevis");
-                    _options = getParameter(config, "datasource.options", "");
+                    dbPort = getParameter(config, "datasource.port", "8000");
+                    dbIP = getParameter(config, "datasource.url", "localhost");
+                    dbUser = getParameter(config, "datasource.login", "jevis");
+                    dbPw = getParameter(config, "datasource.password", "jevispw");
+                    schema = getParameter(config, "datasource.schema", "jevis");
+                    options = getParameter(config, "datasource.options", "");
 
-                    _rootUser = getParameter(config, "sysadmin.username", "Sys Admin");
-                    _rootPW = getParameter(config, "sysadmin.password", "jevispw");
+                    rootUser = getParameter(config, "sysadmin.username", "Sys Admin");
+                    rootPW = getParameter(config, "sysadmin.password", "jevispw");
 //                    _port = getParameter(config,"webservice.port","8000");//part of the uri now
-                    _uri = getParameter(config, "webservice.uri", "http://127.0.0.1:8000/");
+                    url = getParameter(config, "webservice.uri", "http://127.0.0.1:8000/");
 
-                    _keyFile = getParameter(config, "webservice.keystore", homeDir + "/etc/keystore.jks");
-                    _keyFilePW = getParameter(config, "webservice.keystorepw", "jevispw");
-                    _keyType = getParameter(config, "webservice.keystoretype", "");
+                    keyFile = getParameter(config, "webservice.keystore", homeDir + "/etc/keystore.jks");
+                    keyFilePW = getParameter(config, "webservice.keystorepw", "jevispw");
+                    keyType = getParameter(config, "webservice.keystoretype", "");
 
-                    _i18nDir = new File(getParameter(config, "webservice.i18ndir", homeDir + "/jevis/var/i18n/").replaceAll("%$", ""));
-                    _fileDir = new File(getParameter(config, "webservice.filedir", homeDir + "/jevis/var/files/").replaceAll("%$", ""));
-                    _classDir = new File(getParameter(config, "webservice.classdir", homeDir + "/jevis/var/classes/").replaceAll("%$", ""));
-                    _freemarkerDir = new File(getParameter(config, "webservice.freemarkerdir", homeDir + "/jevis/var/freemarker/").replaceAll("%$", ""));
+                    i18nDir = new File(getParameter(config, "webservice.i18ndir", homeDir + "/jevis/var/i18n/").replaceAll("%$", ""));
+                    fileDir = new File(getParameter(config, "webservice.filedir", homeDir + "/jevis/var/files/").replaceAll("%$", ""));
+                    classDir = new File(getParameter(config, "webservice.classdir", homeDir + "/jevis/var/classes/").replaceAll("%$", ""));
+                    freemarkerDir = new File(getParameter(config, "webservice.freemarkerdir", homeDir + "/jevis/var/freemarker/").replaceAll("%$", ""));
 
-                    //Woraround solution for the registration service
+                    //Workaround solution for the registration service
                     getJECCVersion();
                     getJavaVersion();
 
-                    _demoRoot = getParameter(config, "webservice.registration.root", -1);
-                    _demoGroup = getParameter(config, "webservice.registration.demogroup", -1);
-                    _registratioKey = getParameter(config, "webservice.registration.apikey", UUID.randomUUID().toString());
+                    demoRoot = getParameter(config, "webservice.registration.root", -1);
+                    demoGroup = getParameter(config, "webservice.registration.demogroup", -1);
+                    registrationKey = getParameter(config, "webservice.registration.apikey", UUID.randomUUID().toString());
 
-                    _webDir = getParameter(config, "webservice.webpage", "");
+                    webDir = getParameter(config, "webservice.webpage", "");
 
-                    _fileIsLoaded = true;
+                    fileIsLoaded = true;
                 } else {
                     logger.fatal("Warning config file does not exist: {}", cfile.getAbsolutePath());
 //                    Logger.getLogger(Config.class.getName()).log(Level.SEVERE, "Warning config file does not exist: " + cfile.getAbsolutePath());
@@ -262,20 +258,43 @@ public class Config {
         }
     }
 
+    public static String getLatestJECCVersion() {
+        return latestJECCVersion;
+    }
+
+    public static String getLatestJECCPath() {
+        return latestJECCPath;
+    }
+
     public static String getJECCVersion() {
         try {
             String homeDirectory = System.getProperty("user.home");
+            String relativePath = "/JEVisControlCenter/target/";
 
-            String jeccPathString = homeDirectory + File.separator + "/jevis/JEVisControlCenter/target/";
+            String jeccPathString = homeDirectory + File.separator + "/jevis" + relativePath;
             File jeccPath = new File(jeccPathString);
             File[] folderContent = jeccPath.listFiles();
 
+            if (folderContent == null) {
+                Path jarPath = Paths.get(Config.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent().getParent().getParent();
+                folderContent = new File(jarPath.toString() + relativePath).listFiles();
+            }
+
             if (folderContent != null) {
+                Arrays.sort(folderContent, Comparator.comparingLong(File::lastModified).reversed());
+
+                for (File file : folderContent) {
+                    if (file.getName().contains("JEVisControlCenter-3.")) {
+                        latestJECCPath = file.getAbsolutePath();
+                        latestJECCVersion = file.getName().replace("JEVisControlCenter-", "").replace("-jar-with-dependencies.jar", "");
+                        break;
+                    }
+                }
+
+
                 for (final File fileEntry : folderContent) {
                     if (!fileEntry.isDirectory() && fileEntry.getName().contains("-jar-with-dependencies.jar")) {
-                        _jeccVersion = fileEntry.getName().replace("JEVisControlCenter-", "").replace("-jar-with-dependencies.jar", "");
-                        _jeccFile = fileEntry.getAbsolutePath();
-                        break;
+                        jeccFiles.add(fileEntry.getAbsolutePath());
                     }
                 }
             }
@@ -283,57 +302,78 @@ public class Config {
             logger.error(e);
         }
 
-        return _jeccVersion;
+        return latestJECCVersion;
     }
 
-    public static String getJECCFilePath() {
-        return _jeccFile;
+    public static void setJECCVersion(String jeccVersion) {
+        Config.latestJECCVersion = latestJECCVersion;
     }
 
-    public static String getJavaFilePath() {
-        return _javaFile;
+    public static List<String> getJECCFilesPath() {
+        return jeccFiles;
+    }
+
+    public static List<String> getJavaFilesPath() {
+        return javaFiles;
+    }
+
+    public static String getLatestJavaVersion() {
+        return latestJavaVersion;
+    }
+
+    public static String getLatestJavaPath() {
+        return latestJavaPath;
     }
 
     public static String getJavaVersion() {
         try {
             String homeDirectory = System.getProperty("user.home");
+            String relativePath = "/java/";
 
-            String javaPathString = homeDirectory + File.separator + "/jevis/java/";
+            String javaPathString = homeDirectory + File.separator + "/jevis" + relativePath;
             File javaPath = new File(javaPathString);
             File[] folderContent = javaPath.listFiles();
 
+            if (folderContent == null) {
+                Path jarPath = Paths.get(Config.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent().getParent().getParent();
+                folderContent = new File(jarPath.toString() + relativePath).listFiles();
+            }
+
             if (folderContent != null) {
                 Arrays.sort(folderContent, Comparator.comparingLong(File::lastModified).reversed());
+                for (File file : folderContent) {
+                    if (file.getName().contains("jre8")) {
+                        latestJavaVersion = file.getName().replace(".zip", "");
+                        latestJavaPath = file.getAbsolutePath();
+                        break;
+                    }
+                }
 
-                File last = folderContent[0];
-
-                _javaVersion = last.getName().replace(".zip", "");
-                _javaFile = last.getAbsolutePath();
-
+                for (final File fileEntry : folderContent) {
+                    if (!fileEntry.isDirectory()) {
+                        javaFiles.add(fileEntry.getAbsolutePath());
+                    }
+                }
             }
         } catch (Exception e) {
             logger.error(e);
         }
-        return _javaVersion;
-    }
-
-    public static void setJECCVersion(String jeccVersion) {
-        Config._jeccVersion = _jeccVersion;
+        return latestJavaVersion;
     }
 
     public static String getRegistrationAPIKey() {
 //        readConfigurationFile();
-        return _registratioKey;
+        return registrationKey;
     }
 
     public static long getDemoGroup() {
 //        readConfigurationFile();
-        return _demoGroup;
+        return demoGroup;
     }
 
     public static long getDemoRoot() {
 //        readConfigurationFile();
-        return _demoRoot;
+        return demoRoot;
     }
 
 

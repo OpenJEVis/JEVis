@@ -37,6 +37,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.report.*;
 import org.jevis.commons.utils.CommonMethods;
+import org.jevis.commons.utils.NameFormatter;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
@@ -44,7 +45,6 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDia
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.control.ReportSheet;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
-import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -971,7 +971,7 @@ public class ReportWizardDialog {
                     attributeCell.setCellStyle(boldStyle);
 
                     Cell attributeCommand = getOrCreateCell(sheet, rowIndex, columnIndex + 2);
-                    String templateVariableName = CalculationNameFormatter.createVariableName(jeVisObject);
+                    String templateVariableName = NameFormatter.createVariableName(jeVisObject);
                     attributeCommand.setCellValue("${" + templateVariableName + "." + jeVisAttribute.getName() + ".value}");
                     attributeCommand.setCellStyle(defaultStyle);
 
@@ -1066,6 +1066,6 @@ public class ReportWizardDialog {
     }
 
     private enum Result {
-        OK, CANCEL;
+        OK, CANCEL
     }
 }

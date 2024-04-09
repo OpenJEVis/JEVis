@@ -42,17 +42,17 @@ public class CSVParser {
     private static final String UTF8_BOM = "\uFEFF";
     private DateTimeZone timeZone;
     private String dpType;
-    private String _quote;
-    private String _delim;
-    private Integer _headerLines;
-    private Integer _dateIndex;
-    private Integer _timeIndex;
-    private Integer _dpIndex;
-    private String _dateFormat;
-    private String _timeFormat;
-    private String _decimalSeparator;
-    private String _thousandSeparator;
-    private Integer _currLineIndex;
+    private String quote;
+    private String delimiter;
+    private Integer headerLines;
+    private Integer dateIndex;
+    private Integer timeIndex;
+    private Integer dpIndex;
+    private String dateFormat;
+    private String timeFormat;
+    private String decimalSeparator;
+    private String thousandSeparator;
+    private Integer currLineIndex;
     private Charset charset;
 
     private final List<Result> _results = new ArrayList<Result>();
@@ -61,8 +61,8 @@ public class CSVParser {
     private final ParserReport report = new ParserReport();
 
     private void calculateColumns(String stringArrayInput) {
-        String[] line = stringArrayInput.split(String.valueOf(_delim), -1);
-        if (_quote != null) {
+        String[] line = stringArrayInput.split(String.valueOf(delimiter), -1);
+        if (quote != null) {
             line = removeQuotes(line);
         }
         Map<String, Integer> columnMap = new HashMap<>();
@@ -103,13 +103,13 @@ public class CSVParser {
 
         List<String> columns = new ArrayList<>();
         for (String s : stringArrayInput) {
-            String[] line = s.split(String.valueOf(_delim), -1);
+            String[] line = s.split(String.valueOf(delimiter), -1);
             for (int i = 0, lineLength = line.length; i < lineLength; i++) {
                 String lineSub = line[i];
 
                 if (columns.size() > i) {
                     String s1 = columns.get(i);
-                    s1 += _delim + lineSub;
+                    s1 += delimiter + lineSub;
                     columns.set(i, s1);
                 } else {
                     columns.add(lineSub);
@@ -118,10 +118,10 @@ public class CSVParser {
             }
         }
 
-        if (_quote != null) {
+        if (quote != null) {
             List<String> columnsWOQuotes = new ArrayList<>();
             for (String s : columns) {
-                String newStr = s.replaceAll(_quote, "");
+                String newStr = s.replaceAll(quote, "");
                 columnsWOQuotes.add(newStr);
             }
 
@@ -157,7 +157,7 @@ public class CSVParser {
             if (mappingIdentifier != null) {
                 column = getIntByIdentifier(mappingIdentifier, columnMap);
             } else {
-                column = _dpIndex;
+                column = dpIndex;
             }
 
             dp.setValueIndex(column);
@@ -167,7 +167,7 @@ public class CSVParser {
     private Integer getIntByIdentifier(String mapIdent, Map<String, Integer> columnMap) {
         Integer result;
         for (Map.Entry<String, Integer> entry : columnMap.entrySet()) {
-            String[] line = entry.getKey().split(String.valueOf(_delim), -1);
+            String[] line = entry.getKey().split(String.valueOf(delimiter), -1);
 
             for (int i = 0; i < line.length; i++) {
                 if (line[i].equals(mapIdent)) {
@@ -206,7 +206,7 @@ public class CSVParser {
 
         for (DataPoint dp : _dataPoints) {
             try {
-                logger.debug("-DP: valueindex: {}, MappingIdentifiyer: '{}', target: {}", dp.getValueIndex(), dp.getMappingIdentifier(), dp.getTarget());
+                logger.debug("-DP: value index: {}, mapping identifier: '{}', target: {}", dp.getValueIndex(), dp.getMappingIdentifier(), dp.getTarget());
                 Integer valueIndex = dp.getValueIndex();
                 String target = dp.getTarget();
 
@@ -216,19 +216,19 @@ public class CSVParser {
                 logger.debug("-- ValueString: {}", sVal);
 
                 //todo bind locale to language or location?? ad thousands separator without regex
-                if (_decimalSeparator == null || _decimalSeparator.equals(",")) {
+                if (decimalSeparator == null || decimalSeparator.equals(",")) {
                     NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
                     value = nf_in.parse(sVal).doubleValue();
-                } else if (_decimalSeparator.equals(".")) {
+                } else if (decimalSeparator.equals(".")) {
                     NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
                     value = nf_out.parse(sVal).doubleValue();
                 }
 
                 Result tempResult = new Result(target, value, dateTime);
                 _results.add(tempResult);
-                report.addSuccess(_currLineIndex, valueIndex);
+                report.addSuccess(currLineIndex, valueIndex);
             } catch (Exception ex) {
-                report.addError(new LineError(_currLineIndex, -2, ex, "Unexpected Exception"));
+                report.addError(new LineError(currLineIndex, -2, ex, "Unexpected Exception"));
 //                ex.printStackTrace();
             }
         }
@@ -251,7 +251,7 @@ public class CSVParser {
 
             logger.info("Total count of lines {}", stringArrayInput.length);
             if (dpType != null && dpType.equals("ROW")) {
-                calculateColumns(stringArrayInput[_dpIndex]);
+                calculateColumns(stringArrayInput[dpIndex]);
             } else {
                 calculateColumnsColumn(stringArrayInput);
             }
@@ -259,40 +259,40 @@ public class CSVParser {
 
             if (dpType != null && dpType.equals("ROW")) {
                 logger.info("Traversing ROWs");
-                for (int i = _headerLines; i < stringArrayInput.length; i++) {
-                    _currLineIndex = i;
+                for (int i = headerLines; i < stringArrayInput.length; i++) {
+                    currLineIndex = i;
                     try {
                         //TODO 1,"1,1",1 is not working yet
-                        String[] line = stringArrayInput[i].split(String.valueOf(_delim), -1);
-                        if (_quote != null) {
+                        String[] line = stringArrayInput[i].split(String.valueOf(delimiter), -1);
+                        if (quote != null) {
                             line = removeQuotes(line);
                         }
 
                         parseLine(line);
                     } catch (Exception e) {
-                        report.addError(new LineError(_currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
-                        logger.error("Detected a Problem in the Parsing Process in line {}", _currLineIndex, e);
+                        report.addError(new LineError(currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
+                        logger.error("Detected a Problem in the Parsing Process in line {}", currLineIndex, e);
                     }
                 }
             } else {
-                logger.info("Traversing COLUMNNs");
-                for (int i = _headerLines; i < stringArrayInput.length; i++) {
-                    _currLineIndex = i;
+                logger.info("Traversing Columns");
+                for (int i = headerLines; i < stringArrayInput.length; i++) {
+                    currLineIndex = i;
                     try {
 
                         String[] line;
-                        if (_quote != null) {
-                            line = stringArrayInput[i].split(_delim + "(?=(?:[^" + _quote + "]*" + _quote + "[^" + _quote + "]*" + _quote + ")*[^" + _quote + "]*$)");
+                        if (quote != null) {
+                            line = stringArrayInput[i].split(delimiter + "(?=(?:[^" + quote + "]*" + quote + "[^" + quote + "]*" + quote + ")*[^" + quote + "]*$)");
                             line = removeQuotes(line);
                         } else {
-                            line = stringArrayInput[i].split(String.valueOf(_delim), -1);
+                            line = stringArrayInput[i].split(String.valueOf(delimiter), -1);
                         }
 
                         DateTime dateTime = getDateTime(line);
 
                         if (dateTime == null) {
                             report.addError(new LineError(-3, -2, null, "Date Error"));
-                            logger.error("Detected a Problem in the Parsing Process in line {}. Date Error", _currLineIndex);
+                            logger.error("Detected a Problem in the Parsing Process in line {}. Date Error", currLineIndex);
                             return;
                         }
 
@@ -313,25 +313,25 @@ public class CSVParser {
 
                             String sVal = null;
                             Double value = null;
-                            sVal = line[_dpIndex];
+                            sVal = line[dpIndex];
                             //todo bind locale to language or location?? add thousands separator without regex
-                            if (_decimalSeparator == null || _decimalSeparator.equals(",")) {
+                            if (decimalSeparator == null || decimalSeparator.equals(",")) {
                                 NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
                                 value = nf_in.parse(sVal).doubleValue();
-                            } else if (_decimalSeparator.equals(".")) {
+                            } else if (decimalSeparator.equals(".")) {
                                 NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
                                 value = nf_out.parse(sVal).doubleValue();
                             }
                             Result tempResult = new Result(target, value, dateTime);
                             _results.add(tempResult);
-                            report.addSuccess(_currLineIndex, _dpIndex);
+                            report.addSuccess(currLineIndex, dpIndex);
                         } catch (Exception ex) {
-                            report.addError(new LineError(_currLineIndex, -2, ex, "Unexpected Exception"));
-                            logger.error("Detect a Problem in the Parsing Process in line {}. Value parsing Error", _currLineIndex);
+                            report.addError(new LineError(currLineIndex, -2, ex, "Unexpected Exception"));
+                            logger.error("Detect a Problem in the Parsing Process in line {}. Value parsing Error", currLineIndex);
                         }
                     } catch (Exception e) {
-                        report.addError(new LineError(_currLineIndex, -2, e, "Detected a Problem in the Parsing Process"));
-                        logger.error("Detect a Problem in the Parsing Process in line {}", _currLineIndex, e);
+                        report.addError(new LineError(currLineIndex, -2, e, "Detected a Problem in the Parsing Process"));
+                        logger.error("Detect a Problem in the Parsing Process in line {}", currLineIndex, e);
                     }
                 }
             }
@@ -339,7 +339,7 @@ public class CSVParser {
             if (!_results.isEmpty()) {
                 logger.info("LastResult Date {}, Target {}, Value {}", _results.get(_results.size() - 1).getDate(), _results.get(_results.size() - 1).getTargetStr(), _results.get(_results.size() - 1).getValue());
             } else {
-                logger.error("Cant parse or cant find any parsable data");
+                logger.error("Cant parse or cant find any data to parse");
             }
         }
 
@@ -352,28 +352,28 @@ public class CSVParser {
     private String[] removeQuotes(String[] line) {
         String[] removed = new String[line.length];
         for (int i = 0; i < line.length; i++) {
-            removed[i] = line[i].replace(_quote, "");
+            removed[i] = line[i].replace(quote, "");
         }
         return removed;
     }
 
     private DateTime getDateTime(String[] line) {
-        logger.debug("getDateTime column: {} pattern: '{}' line: {}", _dateIndex, _dateFormat, line);
+        logger.debug("getDateTime column: {} pattern: '{}' line: {}", dateIndex, dateFormat, line);
 
-        if (_dateFormat == null) {
+        if (dateFormat == null) {
             logger.error("No date format found");
             return null;
         }
         String input = "";
         String pattern = "";
         try {
-            String date = line[_dateIndex].trim();
-            pattern = _dateFormat;
+            String date = line[dateIndex].trim();
+            pattern = dateFormat;
             input = date;
 
-            if (_timeFormat != null && _timeIndex > -1) {
-                String time = line[_timeIndex].trim();
-                pattern += " " + _timeFormat;
+            if (timeFormat != null && timeIndex > -1) {
+                String time = line[timeIndex].trim();
+                pattern += " " + timeFormat;
                 input += " " + time;
             }
             logger.debug("-Parse: pattern: {}, timezone: {}, input: '{}'", pattern, timeZone, input);
@@ -382,10 +382,10 @@ public class CSVParser {
             logger.warn("Pattern: {}", pattern);
             logger.warn("Date not parsable: {}", input);
             logger.warn("Line not parsable: {}", Arrays.toString(line));
-            logger.warn("DateFormat: {}", _dateFormat);
-            logger.warn("DateIndex: {}", _dateIndex);
-            logger.warn("TimeFormat: {}", _timeFormat);
-            logger.warn("TimeIndex: {}", _timeIndex);
+            logger.warn("DateFormat: {}", dateFormat);
+            logger.warn("DateIndex: {}", dateIndex);
+            logger.warn("TimeFormat: {}", timeFormat);
+            logger.warn("TimeIndex: {}", timeIndex);
             logger.warn("Exception: ", ex);
             return null;
         }
@@ -405,39 +405,39 @@ public class CSVParser {
     }
 
     public void setQuote(String _quote) {
-        this._quote = _quote;
+        this.quote = _quote;
     }
 
-    public void setDelim(String _delim) {
-        this._delim = _delim;
+    public void setDelimiter(String _delimiter) {
+        this.delimiter = _delimiter;
     }
 
     public void setDateIndex(Integer _dateIndex) {
-        this._dateIndex = _dateIndex;
+        this.dateIndex = _dateIndex;
     }
 
     public void setTimeIndex(Integer _timeIndex) {
-        this._timeIndex = _timeIndex;
+        this.timeIndex = _timeIndex;
     }
 
     public void setDpIndex(Integer _dpIndex) {
-        this._dpIndex = _dpIndex;
+        this.dpIndex = _dpIndex;
     }
 
     public void setDateFormat(String _dateFormat) {
-        this._dateFormat = _dateFormat;
+        this.dateFormat = _dateFormat;
     }
 
     public void setTimeFormat(String _timeFormat) {
-        this._timeFormat = _timeFormat;
+        this.timeFormat = _timeFormat;
     }
 
-    public void setDecimalSeperator(String _decimalSeperator) {
-        this._decimalSeparator = _decimalSeperator;
+    public void setDecimalSeparator(String _decimalSeparator) {
+        this.decimalSeparator = _decimalSeparator;
     }
 
-    public void setThousandSeperator(String _thousandSeperator) {
-        this._thousandSeparator = _thousandSeperator;
+    public void setThousandSeparator(String _thousandSeparator) {
+        this.thousandSeparator = _thousandSeparator;
     }
 
     public void setDataPoints(List<DataPoint> _dataPoints) {
@@ -449,7 +449,7 @@ public class CSVParser {
     }
 
     public void setHeaderLines(Integer _headerLines) {
-        this._headerLines = _headerLines;
+        this.headerLines = _headerLines;
     }
 
     public void setCharset(Charset charset) {
@@ -468,9 +468,9 @@ public class CSVParser {
         String QUOTE = "Quote";
         String TIME_INDEX = "Time Index";
         String DATE_FORMAT = "Date Format";
-        String DECIMAL_SEPERATOR = "Decimal Separator";
+        String DECIMAL_SEPARATOR = "Decimal Separator";
         String TIME_FORMAT = "Time Format";
-        String THOUSAND_SEPERATOR = "Thousand Separator";
+        String THOUSAND_SEPARATOR = "Thousand Separator";
     }
 
     interface CSVDataPointDirectory extends DataCollectorTypes.DataPointDirectory {

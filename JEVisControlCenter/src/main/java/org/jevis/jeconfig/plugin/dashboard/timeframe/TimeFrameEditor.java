@@ -1,11 +1,9 @@
 package org.jevis.jeconfig.plugin.dashboard.timeframe;
 
 import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.skins.JFXDatePickerContent;
 import com.jfoenix.skins.JFXDatePickerSkin;
-import com.sun.javafx.scene.control.skin.ComboBoxPopupControl;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Popup;
 import org.joda.time.DateTime;
@@ -17,8 +15,8 @@ import java.time.LocalDate;
 
 public class TimeFrameEditor extends Popup {
 
-    public ObjectProperty<Interval> intervalProperty;
-    public TimeFrame timeFrame;
+    private final SimpleObjectProperty<Interval> intervalProperty;
+    private TimeFrame timeFrame;
     private static Method getPopupContent;
 
     static {
@@ -34,15 +32,14 @@ public class TimeFrameEditor extends Popup {
 
     public TimeFrameEditor(TimeFrame timeFrame, Interval interval) {
         super();
-        this.intervalProperty = new SimpleObjectProperty<>(interval);
+        this.intervalProperty = new SimpleObjectProperty<>(this, "interval", interval);
         this.timeFrame = timeFrame;
         this.datePicker = new JFXDatePicker(LocalDate.now());
         this.datePicker.setShowWeekNumbers(true);
         JFXDatePickerSkin datePickerSkin = new JFXDatePickerSkin(this.datePicker);
-        ComboBoxPopupControl<LocalDate> comboBoxPopupControl = datePickerSkin;
-        Node popupContent = null;
+        JFXDatePickerContent popupContent = null;
         try {
-            popupContent = (Node) TimeFrameEditor.getPopupContent.invoke(datePickerSkin);
+            popupContent = (JFXDatePickerContent) TimeFrameEditor.getPopupContent.invoke(datePickerSkin);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
@@ -69,10 +66,6 @@ public class TimeFrameEditor extends Popup {
         this.timeFrame = timeFrame;
     }
 
-    public void setIntervalProperty(Interval interval) {
-        intervalProperty.setValue(interval);
-    }
-
     private void setIntervalResult() {
         LocalDate localDate = this.datePicker.valueProperty().getValue();
         if (this.datePicker.valueProperty().getValue().isAfter(LocalDate.now())) {
@@ -82,11 +75,19 @@ public class TimeFrameEditor extends Popup {
         }
 
         DateTime newDateTime = new DateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0);
-        this.intervalProperty.setValue(this.timeFrame.getInterval(newDateTime));
+        setInterval(this.timeFrame.getInterval(newDateTime, false));
     }
 
-    public ObjectProperty<Interval> getIntervalProperty() {
-        return this.intervalProperty;
+    public SimpleObjectProperty<Interval> intervalProperty() {
+        return intervalProperty;
+    }
+
+    public Interval getInterval() {
+        return intervalProperty.get();
+    }
+
+    public void setInterval(Interval interval) {
+        intervalProperty.setValue(interval);
     }
 
     public LocalDate toLocalDate(DateTime dateTime) {

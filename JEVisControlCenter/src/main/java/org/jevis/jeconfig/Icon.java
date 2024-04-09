@@ -1,10 +1,13 @@
 package org.jevis.jeconfig;
 
 
+import org.jevis.jeconfig.tool.DragResizeMod;
+
 public class Icon {
     public static final String CREATE_NEW_FOLDER = "/icons/MaterialDesignSVG/outlined/create_new_folder.svg";
     public static final String POST_ADD = "/icons/MaterialDesignSVG/outlined/post_add.svg";
     public static final String CSS_TOOLBAR = "toolbarSVG";
+    public static final String EXCEL = "/icons/MaterialDesignSVG/outlined/Excel.svg";
 
     public static final String CSS_PLUGIN = "pluginSVG";
     public static final String SAVE = "/icons/MaterialDesignSVG/outlined/save.svg";
@@ -130,4 +133,12 @@ public class Icon {
 
     public static final String FILTER_ALT = "/icons/MaterialDesignSVG/outlined/filter_alt.svg";
     public static final String FILTER_ALT_OFF = "/icons/MaterialDesignSVG/outlined/filter_alt_off.svg";
+    public static final String BALANCE = "/icons/MaterialDesignSVG/outlined/balance.svg";
+
+    public static final String CLOUD_UPLOAD = "/icons/MaterialDesignSVG/outlined/cloud_upload.svg";
+    public static final String DECIMAL_INCREASE= "/icons/MaterialDesignSVG/outlined/decimal_increase.svg";
+    public static final String DECIMAL_DECREASE= "/icons/MaterialDesignSVG/outlined/decimal_decrease.svg";
+
+    public static final String SWITCH = "/icons/MaterialDesignSVG/outlined/sync_alt.svg";
+
 }

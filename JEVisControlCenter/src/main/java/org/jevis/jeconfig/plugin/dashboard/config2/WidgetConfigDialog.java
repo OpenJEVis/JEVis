@@ -85,6 +85,7 @@ public class WidgetConfigDialog extends Alert {
             chartTab.setClosable(false);
             chartTab.setMenuVisible(true);
             chartTab.setIntervalColumnVisible(false);
+            chartTab.setShowChartSettings(false);
 
             if (widget instanceof ValueWidget) {
                 chartTab.setCommonChartSettingsVisible(false);

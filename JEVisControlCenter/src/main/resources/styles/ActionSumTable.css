@@ -1,0 +1,11 @@
+
+.table-view ,
+.table-view .column-header ,
+.table-view .column-header-background ,
+.table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-width: 0.0em;
+    -fx-border-color: transparent transparent transparent transparent;
+    -fx-alignment: baseline-left;
+}
+

@@ -141,7 +141,7 @@ public class TopMenu extends MenuBar {
             MenuItem addAnalysisToFavorites = new MenuItem(I18n.getInstance().getString("menu.plugins.chart.addfavorite"));
 
             addAnalysisToFavorites.setOnAction(event -> {
-                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectedAnalysis();
+                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectionModel().getSelectedItem();
                 DataSettings dataSettings = chartPlugin.getDataSettings();
 
                 if (selectedAnalysis != null) {
@@ -204,7 +204,7 @@ public class TopMenu extends MenuBar {
             MenuItem removeAnalysisFromFavorites = new MenuItem(I18n.getInstance().getString("menu.plugins.chart.removefavorite"));
 
             removeAnalysisFromFavorites.setOnAction(event -> {
-                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectedAnalysis();
+                JEVisObject selectedAnalysis = chartPlugin.getToolBarView().getAnalysesComboBox().getSelectionModel().getSelectedItem();
                 DataSettings dataSettings = chartPlugin.getDataSettings();
                 List<FavoriteAnalysis> toBeRemoved = new ArrayList<>();
                 favoriteAnalysisHandler.getFavoriteAnalysesList().forEach(favoriteAnalysis -> {
@@ -554,13 +554,14 @@ public class TopMenu extends MenuBar {
                     String note = String.format("Password set by %s", getActivePlugin().getDataSource().getCurrentUser().getAccountName());
 
                     JEVisSample sample;
+                    /*
                     if (getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").hasSample()) {
                         sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").getLatestSample();
                         sample.setValue(dia.getPassword());
-                    } else {
-                        sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").buildSample(new DateTime(), dia.getPassword(), note);
+                    } else {*/
+                    sample = getActivePlugin().getDataSource().getCurrentUser().getUserObject().getAttribute("Password").buildSample(new DateTime(), dia.getPassword(), note);
 
-                    }
+                    // }
                     sample.commit();
 
 
@@ -574,9 +575,50 @@ public class TopMenu extends MenuBar {
         CheckMenuItem expertMode = new CheckMenuItem(I18n.getInstance().getString("menu.options.expert"));
         expertMode.setSelected(prefExpert.getBoolean("show", false));
         expertMode.setOnAction(e -> {
-            prefExpert.putBoolean("show", !prefExpert.getBoolean("show", false));
-            getActivePlugin().updateToolbar();
-            Platform.runLater(() -> updateLayout());
+            Dialog<ButtonType> pinDialog = new Dialog<>();
+            pinDialog.setTitle("Security Question");
+            pinDialog.setHeaderText("Enter PIN");
+            pinDialog.setResizable(true);
+            pinDialog.initOwner(JEConfig.getStage());
+            pinDialog.initModality(Modality.APPLICATION_MODAL);
+            Stage stage = (Stage) pinDialog.getDialogPane().getScene().getWindow();
+            TopMenu.applyActiveTheme(stage.getScene());
+            stage.setAlwaysOnTop(true);
+
+            ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+            ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            pinDialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+            JFXTextField pinField = new JFXTextField();
+            pinDialog.getDialogPane().setContent(pinField);
+
+            Button okButton = (Button) pinDialog.getDialogPane().lookupButton(okType);
+            okButton.setDefaultButton(true);
+            okButton.setOnAction(event -> {
+                // J10 E5 V22 I9 S19
+                prefExpert.putBoolean("show", pinField.getText().equals("10522919"));
+
+                Platform.runLater(() -> {
+                    expertMode.setSelected(prefExpert.getBoolean("show", false));
+                    getActivePlugin().updateToolbar();
+                    this.updateLayout();
+                });
+            });
+
+            Button cancelButton = (Button) pinDialog.getDialogPane().lookupButton(cancelType);
+            cancelButton.setCancelButton(true);
+            cancelButton.setOnAction(actionEvent -> {
+                prefExpert.putBoolean("show", false);
+
+                Platform.runLater(() -> {
+                    expertMode.setSelected(prefExpert.getBoolean("show", false));
+                    getActivePlugin().updateToolbar();
+                    this.updateLayout();
+                });
+            });
+
+            pinDialog.show();
         });
 
         final Preferences prefThreads = Preferences.userRoot().node("JEVis.JEConfig.threads");
@@ -756,8 +798,14 @@ public class TopMenu extends MenuBar {
                 event.consume();
             });
 
+            MenuItem deleteDependencies = new MenuItem(I18n.getInstance().getString("plugin.objects.dialog.deletedependencies.title"));
+            deleteDependencies.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            deleteDependencies.setOnAction(actionEvent -> {
+                getActivePlugin().handleRequest(Constants.Plugin.Command.DELETE_DEPENDENCIES);
+                actionEvent.consume();
+            });
 
-            menuEdit.getItems().addAll(new SeparatorMenuItem(), deleteAllCleanAndRaw, setLimits, setSubstitutionSettings, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation);
+            menuEdit.getItems().addAll(new SeparatorMenuItem(), deleteAllCleanAndRaw, setLimits, setSubstitutionSettings, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation, deleteDependencies);
         }
 
         return menuEdit;

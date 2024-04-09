@@ -40,6 +40,7 @@ import javax.xml.ws.WebServiceContext;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This Class handels all the JEVisObject related requests
@@ -49,11 +50,10 @@ import java.util.List;
 @Path("/JEWebService/v1/objects")
 public class ResourceObject {
 
+    private static final Logger logger = LogManager.getLogger(ResourceObject.class);
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private SQLDataSource ds = null;
     private List<JsonObject> returnList;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private static final Logger logger = LogManager.getLogger(ResourceObject.class);
 
     /**
      * Get an list of JEVisObject Resource.
@@ -88,13 +88,13 @@ public class ResourceObject {
             @DefaultValue("") @QueryParam("name") String name,
             @DefaultValue("false") @QueryParam("detail") boolean detailed,
             @DefaultValue("true") @QueryParam("rel") boolean rel,
-            @DefaultValue("false") @QueryParam("deleted") boolean deleteObjects,
+            @DefaultValue("false") @QueryParam("deleted") boolean deletedObjects,
             @QueryParam("parent") long parent,
             @QueryParam("child") long child) {
 
         try {
             this.ds = new SQLDataSource(httpHeaders, request, url);
-            if (!deleteObjects) this.ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
+            if (!deletedObjects) this.ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
             this.ds.preload(SQLDataSource.PRELOAD.ALL_REL);
 
 
@@ -104,21 +104,9 @@ public class ResourceObject {
                 this.returnList = this.ds.getUserManager().filterList(this.ds.getObjects());
             }
 
-            /*
-            if (deleteObjects) {
-                System.out.println("Deleted Objects");
-                //System.out.println(Arrays.asList(this.ds.getDeletedObjects()));
-                this.returnList = this.ds.getUserManager().filterList(this.ds.getDeletedObjects());
-            } else {
-                if (root) {
-                    this.returnList = this.ds.getRootObjects();
-                } else {
-                    this.returnList = this.ds.getUserManager().filterList(this.ds.getObjects());
-                }
+            if (!deletedObjects) {
+                this.returnList = returnList.stream().filter(jsonObject -> jsonObject.getDeleteTS() == null).collect(Collectors.toList());
             }
-
-             */
-
 
             if (!jclass.isEmpty()) {
                 this.returnList = this.ds.filterObjectByClass(this.returnList, jclass, inherit);
@@ -267,7 +255,6 @@ public class ResourceObject {
 
                 if (parentObj != null && canCreate) {
 
-                    //restful way of moving and object to an other parent while keeping the IDs?
                     if (copyObject > 0) {
                         JsonObject toCopyObj = this.ds.getObject(copyObject);
 
@@ -287,7 +274,7 @@ public class ResourceObject {
                         JsonObject newObj = this.ds.buildObject(json, parentObj.getId(), jsonString);
                         ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_OBJECT, String.format("%s:%s", newObj.getId(), newObj.getName()));
                         try {
-                            CachedAccessControl.getInstance(ds).checkForChanges(json, CachedAccessControl.Change.DELETE);
+                            CachedAccessControl.getInstance(ds).checkForChanges(json, CachedAccessControl.Change.ADD);
                         } catch (Exception ex) {
                             logger.error(ex, ex);
                         }
@@ -349,14 +336,14 @@ public class ResourceObject {
                     jsonstring = objectMapper.writeValueAsString(json.getI18n());
                 }
 
+                if (existingObj.getDeleteTS() != null && json.getDeleteTS() == null) {
+                    ds.getObjectTable().restoreObjectAsDeleted(json);
+                }
+
                 try {
                     CachedAccessControl.getInstance(ds).checkForChanges(json, CachedAccessControl.Change.CHANGE);
                 } catch (Exception ex) {
                     logger.error(ex, ex);
-                }
-
-                if (existingObj.getDeleteTS() != null && json.getDeleteTS() == null) {
-                    ds.getObjectTable().restoreObjectAsDeleted(json);
                 }
 
 
@@ -371,6 +358,8 @@ public class ResourceObject {
                         return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(), jsonstring)).build();
                     }
                 } else {
+
+
                     return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(), jsonstring)).build();
                 }
             } else {

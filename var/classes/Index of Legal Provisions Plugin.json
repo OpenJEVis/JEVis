@@ -1,0 +1,27 @@
+﻿{
+  "name": "Index of Legal Provisions Plugin",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Index of Legal Provisions Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    },
+    {
+      "start": "Index of Legal Provisions Plugin",
+      "end": "Control Center",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Enable",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Index of Legal Provisions Plugin"
+    }
+  ]
+}

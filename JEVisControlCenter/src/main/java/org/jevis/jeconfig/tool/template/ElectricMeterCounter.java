@@ -13,15 +13,12 @@ public class ElectricMeterCounter extends Template {
 
     @Override
     public String getName() {
-        return I18n.getInstance().getString("datarow.template.electiccounter");
+        return I18n.getInstance().getString("datarow.template.electriccounter");
     }
 
     @Override
     public boolean supportsClass(JEVisClass jclass) throws JEVisException {
-        if (jclass.getName().equals("Data")) {
-            return true;
-        }
-        return false;
+        return jclass.getName().equals("Data");
     }
 
     @Override
@@ -80,12 +77,12 @@ public class ElectricMeterCounter extends Template {
                 "  \"referenceperiodcount\" : null\n" +
                 "}, {\n" +
                 "  \"name\" : \"Stufe 2\",\n" +
-                "  \"type\" : \"AVERAGE\",\n" +
+                "  \"type\" : \"INTERPOLATION\",\n" +
                 "  \"boundary\" : \"2592000000\",\n" +
                 "  \"defaultvalue\" : null,\n" +
-                "  \"referenceperiod\" : \"MONTH\",\n" +
-                "  \"bindtospecific\" : \"WEEKDAY\",\n" +
-                "  \"referenceperiodcount\" : \"1\"\n" +
+                "  \"referenceperiod\" : null,\n" +
+                "  \"bindtospecific\" : null,\n" +
+                "  \"referenceperiodcount\" : null\n" +
                 "}]";
     }
 

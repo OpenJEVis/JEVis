@@ -62,6 +62,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private final Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
     private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
     private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
+    private final JFXCheckBox fixedTimeFrame = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fixedtimeframe"));
     private final TimeFactoryBox timeFrameBox;
     private final Widget widget;
     private final DataModelDataHandler dataModelDataHandler;
@@ -191,7 +192,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         gridPane.addColumn(0, idLabel, nameLabel, tooltipLabel, bgColorLabel, fColorLabel, yPosLabel, xPosLabel,
                 shadowLabel, showValueLabel, borderSizeLabel, precisionLabel, fontSizeLabel, fontWeightLabel, fontPostureLabel, fontUnderlined, alignmentLabel, timeFrameLabel);
         gridPane.addColumn(1, idField, nameField, tooltipField, bgColorPicker, fColorPicker, yPosField, xPosField,
-                showShadowField, showValueField, borderSizeSpinner, precisionSpinner, fontSizeSpinner, fontWeightBox, fontPostureBox, new Region(), alignmentBox, timeFrameBox);
+                showShadowField, showValueField, borderSizeSpinner, precisionSpinner, fontSizeSpinner, fontWeightBox, fontPostureBox, new Region(), alignmentBox, timeFrameBox, fixedTimeFrame);
 
         setContent(gridPane);
 
@@ -216,10 +217,13 @@ public class GenericConfigNode extends Tab implements ConfigTab {
 
         if (dataModelDataHandler == null) {
             timeFrameBox.setDisable(true);
+            fixedTimeFrame.setDisable(true);
         } else if (dataModelDataHandler.isForcedInterval()) {
             timeFrameBox.setDisable(false);
+            fixedTimeFrame.setDisable(false);
             timeFrameBox.selectValue(dataModelDataHandler.getTimeFrameFactory());
         }
+        fixedTimeFrame.setSelected(widget.getConfig().getFixedTimeframe());
 
         DoubleValidator validator = new DoubleValidator();
         yPosField.getValidators().add(validator);
@@ -306,6 +310,12 @@ public class GenericConfigNode extends Tab implements ConfigTab {
 
         try {
             widget.getConfig().setFontUnderlined(fontUnderlined.isSelected());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            widget.getConfig().setFixedTimeframe(fixedTimeFrame.isSelected());
         } catch (Exception ex) {
             ex.printStackTrace();
         }

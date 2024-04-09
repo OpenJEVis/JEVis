@@ -16,15 +16,16 @@ import java.util.stream.Collectors;
 public class ActionPlanOverviewData extends ActionPlanData {
 
     protected static final Logger logger = LogManager.getLogger(ActionPlanOverviewData.class);
-    private ObservableList<String> statusTags;
-    private ObservableList<String> mediumTags;
-    private ObservableList<String> fieldsTags;
-    private ObservableList<String> significantEnergyUseTags;
-    private StringProperty name = new SimpleStringProperty("");
-    private StringProperty nrPrefix = new SimpleStringProperty("");
-    private String initNrPrefix = "";
-    private ObservableList<ActionData> actions;
-    private ActionController controller;
+    private final ObservableList<String> statusTags;
+    private final ObservableList<String> mediumTags;
+    private final ObservableList<String> fieldsTags;
+    private final ObservableList<Medium> medium;
+    private final ObservableList<String> significantEnergyUseTags;
+    private final StringProperty name = new SimpleStringProperty("");
+    private final StringProperty nrPrefix = new SimpleStringProperty("");
+    private final String initNrPrefix = "";
+    private final ObservableList<ActionData> actions;
+    private final ActionController controller;
 
     public ActionPlanOverviewData(ActionController controller) {
         //System.out.println("New OverViewData from Object: " + controller);
@@ -35,6 +36,8 @@ public class ActionPlanOverviewData extends ActionPlanData {
         fieldsTags = FXCollections.observableArrayList();
         mediumTags = FXCollections.observableArrayList();
         actions = FXCollections.observableArrayList();
+        medium = FXCollections.observableArrayList();
+
         significantEnergyUseTags = FXCollections.observableArrayList();
 
         controller.getActionPlans().addListener(new ListChangeListener<ActionPlanData>() {
@@ -72,11 +75,6 @@ public class ActionPlanOverviewData extends ActionPlanData {
             if (actionPlanData instanceof ActionPlanOverviewData) {
                 return;
             }
-            //System.out.println("Add actionPlan to overview: " + actionPlanData);
-
-            //actionPlanData.loadActionList();
-
-            // System.out.println("Action to add: " + actionPlanData.getName());
             actions.addAll(actionPlanData.getActionData());
             //actions.addAll(actionPlanData.getActionData().stream().filter(actionData -> !actions.contains(actionData)).collect(Collectors.toList()));
 
@@ -86,11 +84,16 @@ public class ActionPlanOverviewData extends ActionPlanData {
             fieldsTags.addAll(actionPlanData.getFieldsTags().stream().filter(obj -> !fieldsTags.contains(obj)).collect(Collectors.toList()));
             significantEnergyUseTags.addAll(actionPlanData.significantEnergyUseTags().stream().filter(obj -> !significantEnergyUseTags.contains(obj)).collect(Collectors.toList()));
 
+            actionPlanData.getMedium().forEach(medium1 -> {
+                if (!medium.contains(medium1)) {
+                    medium.add(medium1);
+                }
+            });
+
             actionPlanData.getActionData().addListener(new ListChangeListener<ActionData>() {
                 @Override
                 public void onChanged(Change<? extends ActionData> c) {
                     while (c.next()) {
-                        System.out.println("!!!!!! Overview.actions: " + c);
                         if (c.wasAdded()) {
                             actions.addAll(c.getAddedSubList());
                         }
@@ -115,40 +118,53 @@ public class ActionPlanOverviewData extends ActionPlanData {
 
     }
 
+    @Override
     public void delete() throws Exception {
 
     }
 
-
+    @Override
     public StringProperty getName() {
         return name;
     }
 
+    @Override
     public ObservableList<String> getStatustags() {
         return statusTags;
     }
 
+    @Override
     public ObservableList<String> getMediumTags() {
         return mediumTags;
     }
 
+    @Override
+    public ObservableList<Medium> getMedium() {
+        return medium;
+    }
+
+    @Override
     public ObservableList<String> getFieldsTags() {
         return fieldsTags;
     }
 
+    @Override
     public ObservableList<ActionData> getActionData() {
         return actions;
     }
 
+    @Override
     public ObservableList<String> significantEnergyUseTags() {
         return significantEnergyUseTags;
     }
 
-    public String getNrPrefix() {
+    @Override
+    public String getNoPrefix() {
         return nrPrefix.get();
     }
 
-    public StringProperty nrPrefixProperty() {
+    @Override
+    public StringProperty noPrefixProperty() {
         return nrPrefix;
     }
 }

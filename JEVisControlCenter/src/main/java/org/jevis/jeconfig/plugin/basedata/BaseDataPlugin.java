@@ -21,6 +21,7 @@ import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -28,11 +29,11 @@ import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.*;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
+import org.jevis.jeconfig.plugin.RegisterTableRow;
 import org.jevis.jeconfig.plugin.TablePlugin;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
-import org.jevis.jeconfig.plugin.meters.JEVisClassTab;
+import org.jevis.jeconfig.plugin.equipment.JEVisClassTab;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
-import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -201,7 +202,14 @@ public class BaseDataPlugin extends TablePlugin {
                                     boolean isCounter = CleanDataObject.isCounter(att.getObject(), latestSample);
                                     String normalPattern = PeriodHelper.getFormatString(period, isCounter);
 
-                                    String timeString = latestSample.getTimestamp().toString(normalPattern);
+                                    WorkDays workDays = registerTableRow.getWorkDays();
+                                    boolean enabled = workDays.isEnabled();
+                                    DateTime timestamp = latestSample.getTimestamp();
+                                    if (enabled && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart()) && PeriodHelper.isGreaterThenDays(period)) {
+                                        timestamp = timestamp.plusDays(1);
+                                    }
+
+                                    String timeString = timestamp.toString(normalPattern);
 
                                     return new ReadOnlyObjectWrapper<>(timeString);
                                 }

@@ -1,17 +1,24 @@
 package org.jevis.jeconfig.application.tools;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import com.sun.javafx.scene.control.skin.TableHeaderRow;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
+import org.jevis.jeconfig.application.Chart.ChartElements.TableSample;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 
 public class TableViewUtils {
@@ -36,7 +43,224 @@ public class TableViewUtils {
         col.setPrefWidth(textWidth + COLUMN_OFFSET_WIDTH);
     }
 
-    public static void setColumnMinSize(List<TableColumn> columns) {
+    public static void addCustomTableMenu(TableView<TableSample> tableView, HashMap<TableColumn<TableSample, ?>, String> columnTitles) {
+
+        // enable table menu
+        tableView.setTableMenuButtonVisible(true);
+
+        // get the table  header row
+        TableHeaderRow tableHeaderRow = getTableHeaderRow((TableViewSkin) tableView.getSkin());
+
+        // get context menu via reflection
+        ContextMenu contextMenu = getContextMenu(tableHeaderRow);
+
+        // setting the preferred height for the table header row
+        // if the preferred height isn't set, then the table header would disappear if there are no visible columns
+        // and with it the table menu button
+        // by setting the preferred height the header will always be visible
+        // note: this may need adjustments in case you have different heights in columns (eg when you use grouping)
+        double defaultHeight = tableHeaderRow.getHeight();
+        tableHeaderRow.setPrefHeight(defaultHeight);
+
+        // modify the table menu
+        contextMenu.getItems().clear();
+
+        addCustomMenuItems(contextMenu, tableView, columnTitles);
+    }
+
+    private static void addCustomMenuItems(ContextMenu cm, TableView<TableSample> table, HashMap<TableColumn<TableSample, ?>, String> columnTitles) {
+
+        // create new context menu
+        CustomMenuItem cmi;
+
+        // select all item
+        Label showAll = new Label("Show all");
+        showAll.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) {
+                for (TableColumn<TableSample, ?> obj : table.getColumns()) {
+                    obj.setVisible(true);
+                }
+            }
+
+        });
+
+        cmi = new CustomMenuItem(showAll);
+        cmi.setHideOnClick(false);
+        cm.getItems().add(cmi);
+
+        // separator
+        cm.getItems().add(new SeparatorMenuItem());
+
+        // menu item for each of the available columns
+        for (TableColumn<?, ?> obj : table.getColumns()) {
+
+            String customTitle = columnTitles.get(obj);
+
+            CheckBox cb = new CheckBox(obj.getText());
+
+            if (customTitle != null) {
+                cb.setText(customTitle);
+            }
+
+            cb.selectedProperty().bindBidirectional(obj.visibleProperty());
+
+            cmi = new CustomMenuItem(cb);
+            cmi.setHideOnClick(false);
+
+            cm.getItems().add(cmi);
+        }
+
+    }
+
+    /**
+     * Make table menu button visible and replace the context menu with a custom context menu via reflection.
+     * The preferred height is modified so that an empty header row remains visible. This is needed in case you remove all columns, so that the menu button won't disappear with the row header.
+     * IMPORTANT: Modification is only possible AFTER the table has been made visible, otherwise you'd get a NullPointerException
+     *
+     * @param tableView
+     */
+    public static void addCustomTableMenu(TableView<TableSample> tableView) {
+
+        // enable table menu
+        tableView.setTableMenuButtonVisible(true);
+
+        // get the table  header row
+        TableHeaderRow tableHeaderRow = getTableHeaderRow((TableViewSkin) tableView.getSkin());
+
+        // get context menu via reflection
+        ContextMenu contextMenu = getContextMenu(tableHeaderRow);
+
+        // setting the preferred height for the table header row
+        // if the preferred height isn't set, then the table header would disappear if there are no visible columns
+        // and with it the table menu button
+        // by setting the preferred height the header will always be visible
+        // note: this may need adjustments in case you have different heights in columns (eg when you use grouping)
+        double defaultHeight = tableHeaderRow.getHeight();
+        tableHeaderRow.setPrefHeight(defaultHeight);
+
+        // modify the table menu
+        contextMenu.getItems().clear();
+
+        addCustomMenuItems(contextMenu, tableView);
+
+    }
+
+    /**
+     * Create a menu with custom items. The important thing is that the menu remains open while you click on the menu items.
+     *
+     * @param cm
+     * @param table
+     */
+    private static void addCustomMenuItems(ContextMenu cm, TableView<TableSample> table) {
+
+        // create new context menu
+        CustomMenuItem cmi;
+
+        // select all item
+        Label showAll = new Label("Show all");
+        showAll.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) {
+                for (TableColumn<TableSample, ?> obj : table.getColumns()) {
+                    obj.setVisible(true);
+                }
+            }
+
+        });
+
+        cmi = new CustomMenuItem(showAll);
+        cmi.setHideOnClick(false);
+        cm.getItems().add(cmi);
+
+        // deselect all item
+        Label hideAll = new Label("Hide all");
+        hideAll.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) {
+
+                for (TableColumn<?, ?> obj : table.getColumns()) {
+                    obj.setVisible(false);
+                }
+            }
+
+        });
+
+        cmi = new CustomMenuItem(hideAll);
+        cmi.setHideOnClick(false);
+        cm.getItems().add(cmi);
+
+        // separator
+        cm.getItems().add(new SeparatorMenuItem());
+
+        // menu item for each of the available columns
+        for (TableColumn<?, ?> obj : table.getColumns()) {
+
+            CheckBox cb = new CheckBox(obj.getText());
+            cb.selectedProperty().bindBidirectional(obj.visibleProperty());
+
+            cmi = new CustomMenuItem(cb);
+            cmi.setHideOnClick(false);
+
+            cm.getItems().add(cmi);
+        }
+
+    }
+
+    /**
+     * Find the TableHeaderRow of the TableViewSkin
+     *
+     * @param tableSkin
+     * @return
+     */
+    private static TableHeaderRow getTableHeaderRow(TableViewSkin<?> tableSkin) {
+
+        // get all children of the skin
+        ObservableList<Node> children = tableSkin.getChildren();
+
+        // find the TableHeaderRow child
+        for (Node node : children) {
+
+            if (node instanceof TableHeaderRow) {
+                return (TableHeaderRow) node;
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * Get the table menu, i. e. the ContextMenu of the given TableHeaderRow via
+     * reflection
+     *
+     * @param headerRow
+     * @return
+     */
+    private static ContextMenu getContextMenu(TableHeaderRow headerRow) {
+
+        try {
+
+            // get columnPopupMenu field
+            Field privateContextMenuField = TableHeaderRow.class.getDeclaredField("columnPopupMenu");
+
+            // make field public
+            privateContextMenuField.setAccessible(true);
+
+            // get field
+
+            return (ContextMenu) privateContextMenuField.get(headerRow);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static void setColumnMinSize(List<TableColumn<TableSample, ?>> columns) {
         columns.forEach(TableViewUtils::setColumnMinSize);
     }
 
@@ -67,7 +291,7 @@ public class TableViewUtils {
         boolean needResize = false;
         double totalColSize = 0;
         for (int i = 0; i < view.getColumns().size(); i++) {
-            TableColumn col = view.getColumns().get(i);
+            TableColumn<?, ?> col = view.getColumns().get(i);
 //            System.out.println("Col: " + col.getText());
             totalColSize += col.getPrefWidth();
         }
@@ -75,7 +299,7 @@ public class TableViewUtils {
 
         if (totalColSize > view.getWidth()) {
             for (int i = 0; i < view.getColumns().size(); i++) {
-                TableColumn col = view.getColumns().get(i);
+                TableColumn<?, ?> col = view.getColumns().get(i);
                 for (TableColumn tc : column) {
                     if (!col.equals(tc)) {
                         col.setPrefWidth(col.getMinWidth());
@@ -129,7 +353,7 @@ public class TableViewUtils {
     /**
      * @param table
      */
-    public static void addAutoScrollbarResize(TableView table) {
+    public static void addAutoScrollbarResize(TableView<TableSample> table) {
         ScrollBar scrollBar = getTableScrollBar(table, Orientation.HORIZONTAL);
 //        scrollBar.visibleProperty().addListener((observable, oldValue, newValue) -> {
 //            System.out.println("ScrollbarEvent: " + newValue);
@@ -160,7 +384,7 @@ public class TableViewUtils {
 
     }
 
-    public static ScrollBar getTableScrollBar(TableView table, Orientation orientation) {
+    public static ScrollBar getTableScrollBar(TableView<TableSample> table, Orientation orientation) {
 
         ScrollBar sbar = new ScrollBar();
 
@@ -195,7 +419,7 @@ public class TableViewUtils {
         });
     }
 
-    public static void resizeColumnToFitContent(TableView<?> tableView, TableColumn tc, int maxRows) {
+    public static void resizeColumnToFitContent(TableView<?> tableView, TableColumn<TableSample, ?> tc, int maxRows) {
         if (!tc.isResizable()) return;
 
 //        final TableColumn<T, ?> col = tc;

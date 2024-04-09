@@ -1,0 +1,22 @@
+﻿{
+  "name": "Obligation",
+  "description": "Legislation",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Obligation",
+      "end": "Obligation Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Data",
+      "primitiveType": 3,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Directory"
+    }
+  ]
+}

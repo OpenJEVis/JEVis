@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.control;
 
 import com.jfoenix.controls.JFXButton;
+import javafx.scene.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -16,15 +17,26 @@ public class AnalysisLinkButton extends JFXButton {
     private static final Logger logger = LogManager.getLogger(AnalysisLinkButton.class);
     private AnalysisRequest analysisRequest;
 
+    public AnalysisLinkButton(Node icon, JEVisAttribute attribute) {
+
+        super("",icon);
+        init(attribute);
+    }
+    Node icon;
+
     public AnalysisLinkButton(JEVisAttribute attribute) {
         super("", JEConfig.getImage("1415314386_Graph.png", 20, 20));
 
+        init(attribute);
+    }
+
+    private void init(JEVisAttribute attribute) {
         setStyle("-fx-background-color: transparent;");
 
         if (attribute != null) {
             try {
 
-                DateTime timestampFromLastSample = attribute.getTimestampFromLastSample();
+                DateTime timestampFromLastSample = attribute.getTimestampOfLastSample();
 
                 DateTime startDateFromSampleRate = org.jevis.commons.utils.CommonMethods.getStartDateFromSampleRate(attribute);
 

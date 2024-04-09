@@ -41,24 +41,18 @@ public class DashBoardToolbar extends ToolBar {
 
     private final double iconSize = 20;
     private final DashboardControl dashboardControl;
-    private ToolBarIntervalSelector toolBarIntervalSelector;
     private final ToggleButton backgroundButton = new ToggleButton("", JEConfig.getSVGImage(Icon.IMAGE, this.iconSize, this.iconSize));
-    private JFXComboBox<Double> listZoomLevel;
     private final ObjectRelations objectRelations;
-    private Boolean multiSite = null;
-    private Boolean multiDir = null;
-
     private final Region lockIcon = JEConfig.getSVGImage(Icon.LOCK, this.iconSize, this.iconSize);
+    private final ToggleButton unlockButton = new ToggleButton("", this.lockIcon);
     private final Region snapToGridIcon = JEConfig.getSVGImage(Icon.SNAP_TO_GRID, this.iconSize, this.iconSize);
+    private final ToggleButton snapGridButton = new ToggleButton("", snapToGridIcon);
     private final Region unlockIcon = JEConfig.getSVGImage(Icon.UNLOCK, this.iconSize, this.iconSize);
     private final Region pauseIcon = JEConfig.getSVGImage(Icon.PAUSE, this.iconSize, this.iconSize);
     private final Region playIcon = JEConfig.getSVGImage(Icon.PLAY, this.iconSize, this.iconSize);
+    private final ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
     private final Region loadIcon = JEConfig.getSVGImage(Icon.FOLDER_OPEN, this.iconSize, this.iconSize);
     private final ToggleButton loadDialogButton = new ToggleButton("", this.loadIcon);
-    private final ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
-    private final ToggleButton unlockButton = new ToggleButton("", this.lockIcon);
-    private final ToggleButton snapGridButton = new ToggleButton("", snapToGridIcon);
-
     private final ToggleButton showGridButton = new ToggleButton("", JEConfig.getSVGImage(Icon.GRID, this.iconSize, this.iconSize));
     private final ToggleButton treeButton = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
     private final ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", this.iconSize, this.iconSize));
@@ -72,7 +66,6 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton zoomOut = new ToggleButton("", JEConfig.getSVGImage(Icon.ZOOM_OUT, this.iconSize, this.iconSize));
     private final ToggleButton enlarge = new ToggleButton("", JEConfig.getSVGImage(Icon.MAXIMIZE, this.iconSize, this.iconSize));
     private final ToggleButton newB = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, this.iconSize, this.iconSize));
-
     private final ToggleButton sidebarEditor = new ToggleButton("", JEConfig.getSVGImage(Icon.TUNE, this.iconSize, this.iconSize));
     private final ToggleButton reloadButton = new ToggleButton("", JEConfig.getSVGImage(Icon.REFRESH, this.iconSize, this.iconSize));
     private final ToggleButton navigator = new ToggleButton("", JEConfig.getSVGImage(Icon.SETTINGS, this.iconSize, this.iconSize));
@@ -80,16 +73,16 @@ public class DashBoardToolbar extends ToolBar {
     private final ToggleButton homeButton = new ToggleButton("", JEConfig.getSVGImage(Icon.HOME, iconSize, iconSize));
     //private final ToggleButton moveButton = new ToggleButton("", JEConfig.getImage("move.png", this.iconSize, this.iconSize));
     private final Menu newWidgetMenuItem = new Menu("New");
-
-    private JFXButton newWidget;
-    private NewWidgetSelector widgetSelector;
     private final Button copyButton = new Button("", JEConfig.getSVGImage(Icon.COPY, this.iconSize, this.iconSize));
-
-
     private final ToggleButton helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
     private final ToggleButton infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
-    private Separator separatorEditMode = new Separator();
-
+    private final Separator separatorEditMode = new Separator();
+    private ToolBarIntervalSelector toolBarIntervalSelector;
+    private JFXComboBox<Double> listZoomLevel;
+    private Boolean multiSite = null;
+    private Boolean multiDir = null;
+    private JFXButton newWidget;
+    private NewWidgetSelector widgetSelector;
     private boolean disableEventListener = false;
     private JFXComboBox<JEVisObject> listAnalysesComboBox;
 
@@ -487,45 +480,47 @@ public class DashBoardToolbar extends ToolBar {
     }
 
     public void updateView(final DashboardPojo dashboardSettings) {
-        logger.debug("updateDashboard: {}", dashboardSettings);
+        Platform.runLater(() -> {
+            logger.debug("updateDashboard: {}", dashboardSettings);
 
-        unlockButton.setSelected(this.dashboardControl.editableProperty.getValue());
-        showGridButton.setSelected(this.dashboardControl.showGridProperty.getValue());
-        snapGridButton.setSelected(this.dashboardControl.snapToGridProperty.getValue());
-        customWorkDay.setSelected(this.dashboardControl.customWorkdayProperty.getValue());
-        listZoomLevel.setValue(dashboardControl.getZoomFactory());
-        toolBarIntervalSelector.updateView();
-        infoButton.setSelected(this.dashboardControl.showWidgetHelpProperty.getValue());
-        sidebarEditor.setSelected(this.dashboardControl.showSideEditorProperty.getValue());
-        //toolTipDocu.showHelpTooltips(this.dashboardControl.showHelpProperty.getValue());
+            unlockButton.setSelected(this.dashboardControl.editableProperty.getValue());
+            showGridButton.setSelected(this.dashboardControl.showGridProperty.getValue());
+            snapGridButton.setSelected(this.dashboardControl.snapToGridProperty.getValue());
+            customWorkDay.setSelected(this.dashboardControl.customWorkdayProperty.getValue());
+            listZoomLevel.setValue(dashboardControl.getZoomFactory());
+            toolBarIntervalSelector.updateView();
+            infoButton.setSelected(this.dashboardControl.showWidgetHelpProperty.getValue());
+            sidebarEditor.setSelected(this.dashboardControl.showSideEditorProperty.getValue());
+            //toolTipDocu.showHelpTooltips(this.dashboardControl.showHelpProperty.getValue());
 
-        //Disable
-        widgetSelector.setDisable(!dashboardControl.editableProperty.get());
-        copyButton.setDisable(!dashboardControl.editableProperty.get());
-        deleteWidget.setDisable(!dashboardControl.editableProperty.get());
-        navigator.setDisable(!dashboardControl.editableProperty.get());
-        snapGridButton.setDisable(!dashboardControl.editableProperty.get());
-        showGridButton.setDisable(!dashboardControl.editableProperty.get());
-        navigator.setDisable(!dashboardControl.editableProperty.get());
-        sidebarEditor.setDisable(!dashboardControl.editableProperty.get());
-        newWidget.setDisable(!dashboardControl.editableProperty.get());
-        deleteDashboard.setDisable(!dashboardControl.editableProperty.get());
-
-
-        //Hide
-        widgetSelector.setVisible(dashboardControl.editableProperty.get());
-        copyButton.setVisible(dashboardControl.editableProperty.get());
-        deleteWidget.setVisible(dashboardControl.editableProperty.get());
-        navigator.setVisible(dashboardControl.editableProperty.get());
-        snapGridButton.setVisible(dashboardControl.editableProperty.get());
-        showGridButton.setVisible(dashboardControl.editableProperty.get());
-        navigator.setVisible(dashboardControl.editableProperty.get());
-        sidebarEditor.setVisible(dashboardControl.editableProperty.get());
-        newWidget.setVisible(dashboardControl.editableProperty.get());
-        separatorEditMode.setVisible(dashboardControl.editableProperty.get());
+            //Disable
+            widgetSelector.setDisable(!dashboardControl.editableProperty.get());
+            copyButton.setDisable(!dashboardControl.editableProperty.get());
+            deleteWidget.setDisable(!dashboardControl.editableProperty.get());
+            navigator.setDisable(!dashboardControl.editableProperty.get());
+            snapGridButton.setDisable(!dashboardControl.editableProperty.get());
+            showGridButton.setDisable(!dashboardControl.editableProperty.get());
+            navigator.setDisable(!dashboardControl.editableProperty.get());
+            sidebarEditor.setDisable(!dashboardControl.editableProperty.get());
+            newWidget.setDisable(!dashboardControl.editableProperty.get());
+            deleteDashboard.setDisable(!dashboardControl.editableProperty.get());
 
 
-        updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
+            //Hide
+            widgetSelector.setVisible(dashboardControl.editableProperty.get());
+            copyButton.setVisible(dashboardControl.editableProperty.get());
+            deleteWidget.setVisible(dashboardControl.editableProperty.get());
+            navigator.setVisible(dashboardControl.editableProperty.get());
+            snapGridButton.setVisible(dashboardControl.editableProperty.get());
+            showGridButton.setVisible(dashboardControl.editableProperty.get());
+            navigator.setVisible(dashboardControl.editableProperty.get());
+            sidebarEditor.setVisible(dashboardControl.editableProperty.get());
+            newWidget.setVisible(dashboardControl.editableProperty.get());
+            separatorEditMode.setVisible(dashboardControl.editableProperty.get());
+
+
+            updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
+        });
     }
 
 

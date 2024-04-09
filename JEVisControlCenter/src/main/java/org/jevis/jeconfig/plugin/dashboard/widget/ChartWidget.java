@@ -3,6 +3,8 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
@@ -12,14 +14,17 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartElements.CustomNumericAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.HeatMapChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChartV;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -27,7 +32,6 @@ import org.jevis.jeconfig.plugin.charts.DataSettings;
 import org.jevis.jeconfig.plugin.charts.ToolBarSettings;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
@@ -118,8 +122,16 @@ public class ChartWidget extends Widget implements DataModelWidget {
             toolBarSettings.setShowIcons(false);
             toolBarSettings.setCustomWorkday(customWorkDay);
 
+            ObjectProperty<JEVisObject> currentAnalysis = new SimpleObjectProperty<>();
             DataSettings dataSettings = new DataSettings();
+            dataSettings.setCurrentAnalysisProperty(currentAnalysis);
             dataSettings.setCurrentAnalysis(control.getActiveDashboard().getDashboardObject());
+            dataSettings.setForecastEnabled(false);
+
+            AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(control.getDataSource(), dataSettings.getCurrentAnalysis(), TimeFrame.CUSTOM_START_END);
+            analysisTimeFrame.setStart(sampleHandler.getDataModel().get(0).getSelectedStart());
+            analysisTimeFrame.setEnd(sampleHandler.getDataModel().get(0).getSelectedEnd());
+            dataSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
             ChartModel chartModel = this.sampleHandler.getChartModel();
             chartModel.setMinFractionDigits(getConfig().getDecimals());
@@ -283,7 +295,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), WIDGET_ID);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
         this.sampleHandler.setMultiSelect(true);
 
         this.legend.setAlignment(Pos.CENTER);

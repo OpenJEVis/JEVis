@@ -3,12 +3,14 @@ package org.jevis.commons.utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
 import java.util.*;
@@ -51,6 +53,87 @@ public class CommonMethods {
             }
         }
         return jeVisObject;
+    }
+
+    public static DateTimeZone getTimeZone(JEVisObject object) {
+        DateTimeZone timeZone = DateTimeZone.UTC;
+        if (object != null) {
+            try {
+                JEVisClass siteClass = object.getDataSource().getJEVisClass("Building");
+
+                JEVisObject site = getNextSiteRecursive(object, siteClass);
+
+                if (site != null) {
+                    return getTimeZoneFromAttribute(site);
+                } else {
+                    logger.warn("Could not get site object parent for object {}:{}. Trying to get next child site", object.getName(), object.getID());
+
+                    JEVisObject organisation = CommonMethods.getFirstParentalObjectOfClass(object, "Organization");
+
+                    if (organisation != null) {
+                        site = getNextChildSiteRecursive(organisation, siteClass);
+                        if (site != null) {
+                            return getTimeZoneFromAttribute(site);
+                        } else {
+                            logger.warn("Could not get site object parent for object {}:{}.", object.getName(), object.getID());
+
+                            for (JEVisObject foundSite : object.getDataSource().getObjects(siteClass, false)) {
+                                logger.warn("Falling back to first visible site {}:{}.", foundSite.getName(), foundSite.getID());
+                                return getTimeZoneFromAttribute(foundSite);
+                            }
+
+                        }
+                    } else {
+                        logger.warn("Could not get site object parent for object {}:{}.", object.getName(), object.getID());
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Could not get site for current object {}:{}", object.getName(), object.getID(), e);
+            }
+        }
+
+        return timeZone;
+    }
+
+    public static JEVisObject getNextChildSiteRecursive(JEVisObject object, JEVisClass siteClass) throws JEVisException {
+
+        for (JEVisObject child : object.getChildren()) {
+            if (child.getJEVisClass().equals(siteClass)) {
+                return child;
+            } else {
+                return getNextChildSiteRecursive(child, siteClass);
+            }
+        }
+
+        return null;
+    }
+
+    public static DateTimeZone getTimeZoneFromAttribute(JEVisObject site) {
+        DateTimeZone timeZone = DateTimeZone.UTC;
+        try {
+            JEVisAttribute zoneAtt = site.getAttribute("Timezone");
+
+            if (zoneAtt.hasSample()) {
+                String zoneStr = zoneAtt.getLatestSample().getValueAsString();
+                timeZone = DateTimeZone.forID(zoneStr);
+            }
+        } catch (Exception e) {
+            logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getID(), e);
+        }
+        return timeZone;
+    }
+
+    public static JEVisObject getNextSiteRecursive(JEVisObject object, JEVisClass siteClass) throws JEVisException {
+
+        for (JEVisObject parent : object.getParents()) {
+            if (parent.getJEVisClass().equals(siteClass)) {
+                return parent;
+            } else {
+                return getNextSiteRecursive(parent, siteClass);
+            }
+        }
+
+        return null;
     }
 
     public static void setEnabled(JEVisObject object, String selectedClass, boolean b) {
@@ -241,7 +324,7 @@ public class CommonMethods {
 
     public static DateTime getStartDateFromSampleRate(JEVisAttribute attribute) {
         if (attribute.hasSample()) {
-            DateTime start = attribute.getTimestampFromLastSample().minusDays(7);
+            DateTime start = attribute.getTimestampOfLastSample().minusDays(7);
             JEVisAttribute periodAttribute = null;
             try {
                 periodAttribute = attribute.getObject().getAttribute("Period");
@@ -258,19 +341,19 @@ public class CommonMethods {
                 }
 
                 if (p.equals(Period.years(1))) {
-                    start = attribute.getTimestampFromLastSample().minusYears(10);
+                    start = attribute.getTimestampOfLastSample().minusYears(10);
                 } else if (p.equals(Period.months(1))) {
-                    start = attribute.getTimestampFromLastSample().minusMonths(12);
+                    start = attribute.getTimestampOfLastSample().minusMonths(12);
                 } else if (p.equals(Period.weeks(1))) {
-                    start = attribute.getTimestampFromLastSample().minusWeeks(10);
+                    start = attribute.getTimestampOfLastSample().minusWeeks(10);
                 } else if (p.equals(Period.days(1))) {
-                    start = attribute.getTimestampFromLastSample().minusDays(14);
+                    start = attribute.getTimestampOfLastSample().minusDays(14);
                 } else if (p.equals(Period.hours(1))) {
-                    start = attribute.getTimestampFromLastSample().minusDays(2);
+                    start = attribute.getTimestampOfLastSample().minusDays(2);
                 } else if (p.equals(Period.minutes(15))) {
-                    start = attribute.getTimestampFromLastSample().minusHours(24);
+                    start = attribute.getTimestampOfLastSample().minusHours(24);
                 } else if (p.equals(Period.minutes(1))) {
-                    start = attribute.getTimestampFromLastSample().minusHours(6);
+                    start = attribute.getTimestampOfLastSample().minusHours(6);
                 }
             }
             return start;
@@ -359,7 +442,7 @@ public class CommonMethods {
 
                 try {
                     JEVisAttribute value = dependency.getAttribute("Value");
-                    DateTime lastSampleTS = value.getTimestampFromLastSample();
+                    DateTime lastSampleTS = value.getTimestampOfLastSample();
                     value.deleteSamplesBetween(from, lastSampleTS);
                 } catch (Exception e) {
                     logger.error("Could not delete samples from {}:{}:Value", dependency.getName(), dependency.getID());
@@ -368,7 +451,7 @@ public class CommonMethods {
         }
     }
 
-    private static Map<JEVisObject, List<JEVisObject>> createCalculationMap(JEVisDataSource ds) throws JEVisException {
+    public static Map<JEVisObject, List<JEVisObject>> createCalculationMap(JEVisDataSource ds) throws JEVisException {
         Map<JEVisObject, List<JEVisObject>> map = new HashMap<>();
 
         JEVisClass calculation = ds.getJEVisClass("Calculation");
@@ -423,13 +506,20 @@ public class CommonMethods {
         return map;
     }
 
-    private static List<JEVisObject> getAllDependentObjects(Map<JEVisObject, List<JEVisObject>> calculationMap, List<JEVisObject> objects) {
+    public static List<JEVisObject> getAllDependentObjects(Map<JEVisObject, List<JEVisObject>> calculationMap, List<JEVisObject> objects) {
         List<JEVisObject> dependentObjects = new ArrayList<>();
 
         for (JEVisObject object : objects) {
 
             try {
-                dependentObjects.addAll(getAllChildrenRecursive(object));
+                List<String> classes = new ArrayList<>();
+                classes.add(JC.Data.name);
+                classes.add(JC.Data.CleanData.name);
+                classes.add(JC.Data.MathData.name);
+                classes.add(JC.Data.MathData.name);
+
+                dependentObjects.addAll(getAllChildrenRecursive(object, classes));
+                dependentObjects.removeAll(objects);
             } catch (Exception e) {
                 logger.error(e);
             }
@@ -471,6 +561,25 @@ public class CommonMethods {
         list.add(firstObject);
         for (JEVisObject child : firstObject.getChildren()) {
             list.add(child);
+
+            for (JEVisObject secondChild : child.getChildren()) {
+                list.addAll(getAllChildrenRecursive(secondChild));
+            }
+        }
+
+        return list;
+    }
+
+    public static List<JEVisObject> getAllChildrenRecursive(JEVisObject firstObject, List<String> classNames) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+        if (classNames.contains(firstObject.getJEVisClassName())) {
+            list.add(firstObject);
+        }
+
+        for (JEVisObject child : firstObject.getChildren()) {
+            if (classNames.contains(child.getJEVisClassName())) {
+                list.add(child);
+            }
 
             for (JEVisObject secondChild : child.getChildren()) {
                 list.addAll(getAllChildrenRecursive(secondChild));

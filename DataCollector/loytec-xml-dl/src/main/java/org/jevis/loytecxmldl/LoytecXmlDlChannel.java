@@ -75,8 +75,8 @@ public class LoytecXmlDlChannel implements LoytecXmlDlChannelClass {
         //JEVisAttribute lastReadOut = channelObject.getAttribute(LAST_READOUT);
         //channelObject.getDataSource().reloadAttribute(lastReadOut);
         JEVisClass channelClass = channelObject.getJEVisClass();
-        JEVisType readoutType = channelClass.getType(LAST_READOUT);
-        lastReadout = DatabaseHelper.getObjectAsDate(channelObject, readoutType);
+        JEVisType lastReadoutType = channelClass.getType(LAST_READOUT);
+        lastReadout = DatabaseHelper.getObjectAsDate(channelObject, lastReadoutType);
 
         //targetObj.getDataSource().reloadAttribute(targetAtt);
         //lastSampleTimeStamp = targetAtt.getLatestSample().getTimestamp();

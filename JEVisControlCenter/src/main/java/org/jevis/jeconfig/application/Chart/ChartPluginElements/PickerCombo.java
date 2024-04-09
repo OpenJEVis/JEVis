@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
 
+import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM;
 import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END;
 
 public class PickerCombo {
@@ -80,8 +81,23 @@ public class PickerCombo {
 
         if (dataModel != null && !dataModel.getChartModels().isEmpty()) {
 
-            presetDateBox.getItems().stream().filter(timeFrame -> timeFrame.getTimeFrame() == dataSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == dataSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
+            if (dataSettings.getAnalysisTimeFrame() != null && dataSettings.getAnalysisTimeFrame().getTimeFrame() != CUSTOM_START_END && dataSettings.getAnalysisTimeFrame().getTimeFrame() != CUSTOM) {
+                for (AnalysisTimeFrame analysisTimeFrame : presetDateBox.getItems()) {
+                    if (analysisTimeFrame.getTimeFrame() == dataSettings.getAnalysisTimeFrame().getTimeFrame()) {
+                        if (analysisTimeFrame.getTimeFrame() != CUSTOM_START_END || analysisTimeFrame.getId() == dataSettings.getAnalysisTimeFrame().getId()) {
+                            presetDateBox.getSelectionModel().select(analysisTimeFrame);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                presetDateBox.getSelectionModel().select(0);
+            }
+        } else {
+            presetDateBox.getSelectionModel().select(0);
+        }
 
+        if (dataSettings != null && dataSettings.getAnalysisTimeFrame() != null) {
             DateTime start = dataSettings.getAnalysisTimeFrame().getStart();
             DateTime end = dataSettings.getAnalysisTimeFrame().getEnd();
 
@@ -146,23 +162,23 @@ public class PickerCombo {
     }
 
     private void setMinMax(JEVisAttribute att) {
-        DateTime timeStampFromFirstSample = att.getTimestampFromFirstSample();
-        DateTime timeStampFromLastSample = att.getTimestampFromLastSample();
+        DateTime timeStampOfFirstSample = att.getTimestampOfFirstSample();
+        DateTime timeStampOfLastSample = att.getTimestampOfLastSample();
 
         LocalDate min_check = null;
-        if (timeStampFromFirstSample != null) {
+        if (timeStampOfFirstSample != null) {
             min_check = LocalDate.of(
-                    timeStampFromFirstSample.getYear(),
-                    timeStampFromFirstSample.getMonthOfYear(),
-                    timeStampFromFirstSample.getDayOfMonth());
+                    timeStampOfFirstSample.getYear(),
+                    timeStampOfFirstSample.getMonthOfYear(),
+                    timeStampOfFirstSample.getDayOfMonth());
         }
 
         LocalDate max_check = null;
-        if (timeStampFromLastSample != null) {
+        if (timeStampOfLastSample != null) {
             max_check = LocalDate.of(
-                    timeStampFromLastSample.getYear(),
-                    timeStampFromLastSample.getMonthOfYear(),
-                    timeStampFromLastSample.getDayOfMonth());
+                    timeStampOfLastSample.getYear(),
+                    timeStampOfLastSample.getMonthOfYear(),
+                    timeStampOfLastSample.getDayOfMonth());
         }
 
 

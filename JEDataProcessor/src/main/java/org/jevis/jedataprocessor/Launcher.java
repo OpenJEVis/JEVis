@@ -15,12 +15,14 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessManager;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
 import org.jevis.commons.utils.CommonMethods;
-import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,10 +87,16 @@ public class Launcher extends AbstractCliApp {
                         logger.error("Failed Job: {}:{}", currentCleanDataObject.getName(), currentCleanDataObject.getID(), e);
 
                     } finally {
-
+                        StringBuilder finished = new StringBuilder();
+                        finished.append(currentCleanDataObject.getID()).append(" in ");
+                        String length = new Period(runningJobs.get(currentCleanDataObject.getID()), new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
                         removeJob(currentCleanDataObject);
+                        finished.append(length);
 
-                        logger.info("Planned Jobs: {} running Jobs: {} runnables: {}", plannedJobs.size(), runningJobs.size(), runnables.size());
+                        StringBuilder running = new StringBuilder();
+                        runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
+
+                        logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.toString(), running.toString());
 
                         checkLastJob();
                     }
@@ -128,7 +136,7 @@ public class Launcher extends AbstractCliApp {
                     logger.error("Error in process of object {}", l, e);
                 }
             }
-            runSingle(ids);
+            //runSingle(ids);
         }
     }
 
@@ -204,7 +212,9 @@ public class Launcher extends AbstractCliApp {
         List<JEVisObject> filteredObjects = new ArrayList<>();
 
         try {
-            ((JEVisDataSourceWS) ds).getObjectsWS();
+            DateTime start = new DateTime();
+            ds.reloadObjects();
+            logger.info("Reloaded objects in {}", new Period(new DateTime().getMillis() - start.getMillis()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
             cleanDataClass = ds.getJEVisClass(CleanDataObject.CLASS_NAME);
             cleanDataObjects = ds.getObjects(cleanDataClass, false);
             logger.info("Total amount of Clean Data Objects: {}", cleanDataObjects.size());

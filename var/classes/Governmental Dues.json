@@ -11,16 +11,25 @@
   ],
   "types": [
     {
-      "name": "Energy Source",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
+      "name": "VAT Gas",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 1,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Governmental Dues"
     },
     {
-      "name": "VAT",
+      "name": "VAT Electricity",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Governmental Dues"
+    },
+    {
+      "name": "VAT Community Heating",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 1,

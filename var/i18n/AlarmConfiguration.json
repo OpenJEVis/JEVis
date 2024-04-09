@@ -56,6 +56,25 @@
       }
     },
     {
+      "type": "Include Limits In Notification",
+      "descriptions": {
+        "de": "Die Ergebnisse der Grenzwertkontrolle, der Ersatzwertbildung und der Änderungsschwellen werden in der Benachrichtigung berücksichtigt.",
+        "ru": "В уведомлении учитываются результаты контроля предельного значения, формирования восстановительной стоимости и изменения порогов.",
+        "uk": "У повідомленні враховуються результати контролю граничної вартості, формування відновної вартості та порогів зміни.",
+        "th": "ผลลัพธ์ของการควบคุมค่าขีดจำกัด การสร้างมูลค่าการทดแทน และเกณฑ์การเปลี่ยนแปลงจะถูกนำมาพิจารณาในการแจ้งเตือน",
+        "en": "Include Limits, Value Substitution And Change Tresholds In Notification for automatic report.",
+        "ar": "يتم أخذ نتائج التحكم في القيمة الحدية وتكوين قيمة الاستبدال وحدود التغيير في الاعتبار في الإخطار."
+      },
+      "names": {
+        "de": "Systemalarme in Benachrichtigung",
+        "ru": "Системные тревоги в уведомлении",
+        "th": "ระบบแจ้งเตือนในการแจ้งเตือน",
+        "uk": "Системні сигнали сповіщення",
+        "en": "Include System Alarms In Notification",
+        "ar": "إنذارات النظام في الإخطار"
+      }
+    },
+    {
       "type": "Alarm Scope",
       "descriptions": {
         "de": "Definiert den Rahmen der beinhalteten Alarme; alle, ausgewählte, alle außer die ausgewählten oder keine. In jedem Fall werden die L1/L2 Grenzen protokolliert.",

@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -27,7 +28,7 @@ public class PercentPane extends GridPane {
     private final Percent percent;
     private final ObservableList<Widget> widgetList;
     private JFXComboBox<Widget> widgetBox;
-    private DashboardControl dashboardControl;
+    private final DashboardControl dashboardControl;
 
 
     public PercentPane(DashboardControl dashboardControl, Percent percent, ObservableList<Widget> widgetList) {
@@ -44,6 +45,7 @@ public class PercentPane extends GridPane {
 
         final Label minFractionDigitsLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.minfractiondigits"));
         final Label maxFractionDigitsLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.maxfractiondigits"));
+        final Label diffLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.diff"));
 
         int minFracs = percent.getMinFracDigits();
 
@@ -63,8 +65,17 @@ public class PercentPane extends GridPane {
             }
         });
 
+        final CheckBox diffBox = new CheckBox();
+        diffBox.setSelected(percent.isDiff());
+        diffBox.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
+            if (!t1.equals(aBoolean)) {
+                percent.setDiff(t1);
+            }
+        });
+
         addRow(1, minFractionDigitsLabel, minFractionDigits);
         addRow(2, maxFractionDigitsLabel, maxFractionDigits);
+        addRow(3, diffLabel, diffBox);
     }
 
     private void initControls() {

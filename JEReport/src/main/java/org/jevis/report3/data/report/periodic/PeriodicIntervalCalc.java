@@ -12,6 +12,7 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.report3.data.report.IntervalCalculator;
@@ -33,6 +34,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
     private JEVisObject reportObject = null;
     private DateTime start;
     private String schedule;
+    private WorkDays workDays;
 
     @Inject
     public PeriodicIntervalCalc(SampleHandler samplesHandler) {
@@ -56,6 +58,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
 
     private void initializeIntervalMap(JEVisObject reportObject) {
         this.reportObject = reportObject;
+        this.workDays = new WorkDays(reportObject);
 
         schedule = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
@@ -142,7 +145,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                 resultStartRecord = PeriodHelper.getPriorStartRecord(startRecord, schedule, dateHelper);
                 break;
             case ALL:
-                resultStartRecord = samplesHandler.getTimestampFromFirstSample(reportObject, "Start Record");
+                resultStartRecord = samplesHandler.getTimestampOfFirstSample(reportObject, "Start Record");
                 break;
             case FIXED:
                 switch (fixedPeriod) {

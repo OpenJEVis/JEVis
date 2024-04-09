@@ -79,7 +79,7 @@ public class DataDialog extends Dialog {
         stage.setAlwaysOnTop(true);
 
         this.attribute = attribute;
-        DateTime lastTs = attribute.getTimestampFromLastSample();
+        DateTime lastTs = attribute.getTimestampOfLastSample();
         logger.debug("Attribute {} of object {}:{} last ts - {}", attribute.getName(), attribute.getObject().getName(), attribute.getObject().getID(), lastTs);
 
         if (lastTs != null) {
@@ -220,7 +220,7 @@ public class DataDialog extends Dialog {
             for (DataSample selectedItem : selectedItems) {
                 int i = data.indexOf(selectedItem);
                 DateTime currentTS = selectedItem.getTs();
-                DateTime nextTS = currentTS.plus(CleanDataObject.getPeriodForDate(attribute.getObject(), currentTS));
+                DateTime nextTS = PeriodHelper.getNextPeriod(currentTS, CleanDataObject.getPeriodForDate(attribute.getObject(), currentTS), 1, true, workDays.getDateTimeZone());
                 VirtualSample sample = new VirtualSample(nextTS, 0d);
                 sample.setNote("");
                 DataSample nextSample = new DataSample(sample, nextTS, 0d, "");
@@ -310,14 +310,28 @@ public class DataDialog extends Dialog {
         confirmationDialog.setTitle(I18n.getInstance().getString("plugin.enterdata.history.confirmation.title"));
         confirmationDialog.setHeaderText(I18n.getInstance().getString("plugin.enterdata.history.confirmation.header"));
         confirmationDialog.setResizable(true);
+        confirmationDialog.initOwner(JEConfig.getStage());
+        confirmationDialog.initModality(Modality.APPLICATION_MODAL);
         Stage stage = (Stage) confirmationDialog.getDialogPane().getScene().getWindow();
         TopMenu.applyActiveTheme(stage.getScene());
         stage.setAlwaysOnTop(true);
 
         Label headerText = new Label(I18n.getInstance().getString("dialog.data.confirm.message"));
 
-        JFXButton ok = new JFXButton(I18n.getInstance().getString("graph.dialog.ok"));
-        ok.setOnAction(event -> {
+        ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        confirmationDialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+        Button okButton = (Button) confirmationDialog.getDialogPane().lookupButton(okType);
+        okButton.setDefaultButton(true);
+
+        Button cancelButton = (Button) confirmationDialog.getDialogPane().lookupButton(cancelType);
+        cancelButton.setCancelButton(true);
+
+        cancelButton.setOnAction(actionEvent -> confirmationDialog.close());
+
+        okButton.setOnAction(event -> {
             try {
                 List<JEVisSample> newSamples = new ArrayList<>();
                 for (DataSample dataSample : changedSamples) {
@@ -353,14 +367,8 @@ public class DataDialog extends Dialog {
             }
         });
 
-        JFXButton cancel = new JFXButton(I18n.getInstance().getString("graph.dialog.cancel"));
-        cancel.setOnAction(event -> confirmationDialog.close());
-
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        HBox buttonBar = new HBox(8, spacer, cancel, ok);
-        buttonBar.setAlignment(Pos.CENTER_RIGHT);
 
         VBox vBox = new VBox(12, headerText);
         vBox.setPadding(new Insets(15));
@@ -374,8 +382,6 @@ public class DataDialog extends Dialog {
             Label deletedLabel = new Label(I18n.getInstance().getString("dialog.data.confirm.table.deleted.label"));
             vBox.getChildren().addAll(deletedLabel, deleteView);
         }
-
-        vBox.getChildren().add(buttonBar);
 
         confirmationDialog.getDialogPane().setContent(vBox);
 

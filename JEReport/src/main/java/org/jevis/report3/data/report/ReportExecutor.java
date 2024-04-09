@@ -15,6 +15,7 @@ import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.report.ReportName;
+import org.jevis.commons.utils.NameFormatter;
 import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
@@ -45,8 +46,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ReportExecutor {
 
-    private final JEVisObject reportObject;
     private static final Logger logger = LogManager.getLogger(ReportExecutor.class);
+    private final JEVisObject reportObject;
     private final Precondition precondition;
     private final ContextBuilder contextBuilder;
     private final ReportLinkFactory reportLinkFactory;
@@ -119,7 +120,9 @@ public class ReportExecutor {
             String prefix = ReportName.getPrefix(reportObject, start);
             String startDate = new DateTime().toString(DateTimeFormat.forPattern("yyyyMMdd"));
 
-            String reportName = prefix + reportObject.getName().replaceAll("\\s", "_") + "_" + startDate;
+            String reportName = reportObject.getName().replaceAll("\\s", "_") + "_" + startDate;
+            reportName = NameFormatter.formatNames(reportName);
+            reportName = prefix + reportName;
             JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
             JEVisAttribute lastReportAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT);
             JEVisAttribute lastReportPDFAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT_PDF);
@@ -150,7 +153,7 @@ public class ReportExecutor {
             }
 
             JEVisObject notificationObject = property.getNotificationObject();
-            if (notificationObject != null) {
+            if (notificationObject != null && isEnabled(notificationObject)) {
                 JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
                 attachmentAttribute.buildSample(new DateTime(), fileForNotification).commit();
                 logger.info("Uploaded pdf file to notification in JEVis System");
@@ -164,6 +167,19 @@ public class ReportExecutor {
         } catch (IOException ex) {
             logger.error(ex);
         }
+    }
+
+    private boolean isEnabled(JEVisObject jeVisObject) {
+        JEVisAttribute enabledAtt = null;
+        try {
+            enabledAtt = jeVisObject.getAttribute("Enabled");
+            if (enabledAtt != null && enabledAtt.hasSample()) {
+                return enabledAtt.getLatestSample().getValueAsBoolean();
+            }
+        } catch (Exception e) {
+            logger.error("Could not get enabled status of {} with id {}", jeVisObject.getName(), jeVisObject.getID(), e);
+        }
+        return false;
     }
 
 

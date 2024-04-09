@@ -44,7 +44,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
@@ -62,21 +61,18 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
     public static String WIDGET_ID = "NetGraph";
     public static String PERCENT_NODE_NAME = "percent";
     public static String GAUGE_DESIGN_NODE_NAME = "NetGraph";
-    private Tile netGraph;
+    private final Tile netGraph;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
-    private NetGraphPojo netGraphPojo;
-    private Interval lastInterval = null;
     private final ChangeListener<Number> limitListener = null;
     private final ChangeListener<Number> percentListener = null;
     private final NetGraphWidget limitWidget = null;
     private final NetGraphWidget percentWidget = null;
     private final String percentText = "";
-    private Percent percent;
-
-
     Map<Long, ChartData> chartData = new HashMap<>();
-
+    private NetGraphPojo netGraphPojo;
+    private Interval lastInterval = null;
+    private Percent percent;
     private Boolean customWorkday = true;
 
     public NetGraphWidget(DashboardControl control, WidgetPojo config) {
@@ -161,8 +157,11 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
                             if (chartData.containsKey(dataModel.getObject().getID())) {
                                 chartData.get(dataModel.getObject().getID()).setValue(0);
                             } else {
-                                ChartData chartData1 = new ChartData(dataModel.getName(), getValue(netGraphPojo.isInPercent(), 0, netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMax(), netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMin(), this.config.getDecimals()), this.config.getFontColor(), this.config.getFontColor(), this.config.getFontColor(), Instant.now(), false, 0);
-                                chartData.put(dataModel.getObject().getID(), chartData1);
+                                try {
+                                    ChartData chartData1 = new ChartData(dataModel.getName(), getValue(netGraphPojo.isInPercent(), 0, netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMax(), netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMin(), this.config.getDecimals()), this.config.getFontColor(), this.config.getFontColor(), this.config.getFontColor(), Instant.now(), false, 0);
+                                    chartData.put(dataModel.getObject().getID(), chartData1);
+                                } catch (Exception ignored) {
+                                }
                             }
 
                         } catch (Exception e) {
@@ -172,7 +171,6 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
                     }
 
                 }
-                ;
                 netGraph.addChartData(chartData.entrySet().stream().map(longChartDataEntry -> longChartDataEntry.getValue()).collect(Collectors.toList()));
                 if (netGraphPojo.isInPercent()) {
                     netGraph.setUnit("%");
@@ -310,7 +308,7 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
     public void init() {
         logger.debug("init Value Widget: " + getConfig().getUuid());
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(true);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));

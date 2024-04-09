@@ -50,6 +50,7 @@ public class ForecastDataObject {
 
     private JEVisAttribute valueAttribute;
     private JEVisAttribute enabledAttribute;
+    private JEVisAttribute keepValuesAttribute;
     private JEVisAttribute typeAttribute;
     private JEVisAttribute referencePeriodAttribute;
     private JEVisAttribute referencePeriodCountAttribute;
@@ -73,6 +74,10 @@ public class ForecastDataObject {
     public void getAttributes() throws JEVisException {
         if (enabledAttribute == null) {
             enabledAttribute = getForecastDataObject().getAttribute(ENABLED.getAttributeName());
+        }
+
+        if (keepValuesAttribute == null) {
+            keepValuesAttribute = getForecastDataObject().getAttribute(KEEP_VALUES.getAttributeName());
         }
 
         if (valueAttribute == null) {
@@ -111,6 +116,7 @@ public class ForecastDataObject {
     public void reloadAttributes() throws JEVisException {
         getForecastDataObject().getDataSource().reloadAttribute(enabledAttribute);
         getForecastDataObject().getDataSource().reloadAttribute(valueAttribute);
+        getForecastDataObject().getDataSource().reloadAttribute(keepValuesAttribute);
         getForecastDataObject().getDataSource().reloadAttribute(typeAttribute);
         getForecastDataObject().getDataSource().reloadAttribute(referencePeriodAttribute);
         getForecastDataObject().getDataSource().reloadAttribute(referencePeriodCountAttribute);
@@ -140,7 +146,7 @@ public class ForecastDataObject {
             final JEVisClass dataNoteClass = parentDataObject.getDataSource().getJEVisClass("Data Notes");
             for (JEVisObject obj : forecastDataObject.getParents().get(0).getChildren(dataNoteClass, true)) {
                 if (obj.getName().contains(forecastDataObject.getName())) {
-                    JEVisAttribute userNoteAttribute = obj.getAttribute("User Notes");
+                    JEVisAttribute userNoteAttribute = obj.getAttribute("Value");
                     if (userNoteAttribute.hasSample()) {
                         for (JEVisSample smp : userNoteAttribute.getAllSamples()) {
                             notesMap.put(smp.getTimestamp(), smp);
@@ -161,6 +167,12 @@ public class ForecastDataObject {
         if (valueAttribute == null)
             valueAttribute = getForecastDataObject().getAttribute(VALUE.getAttributeName());
         return valueAttribute;
+    }
+
+    public JEVisAttribute getKeepValuesAttribute() throws JEVisException {
+        if (keepValuesAttribute == null)
+            keepValuesAttribute = getForecastDataObject().getAttribute(KEEP_VALUES.getAttributeName());
+        return keepValuesAttribute;
     }
 
     public JEVisAttribute getInputAttribute() throws JEVisException {
@@ -352,19 +364,20 @@ public class ForecastDataObject {
                 forecastDurationCount = getForecastDurationCountAttribute().getLatestSample().getValueAsLong().intValue();
             }
 
+            DateTime startDate = getStartDate().withZone(getTimeZone());
             switch (forecastDuration) {
                 case "MINUTES":
-                    return getStartDate().plusMinutes(forecastDurationCount);
+                    return startDate.plusMinutes(forecastDurationCount).withZone(DateTimeZone.UTC);
                 case "HOURS":
-                    return getStartDate().plusHours(forecastDurationCount);
+                    return startDate.plusHours(forecastDurationCount).withZone(DateTimeZone.UTC);
                 case "DAYS":
-                    return getStartDate().plusDays(forecastDurationCount);
+                    return startDate.plusDays(forecastDurationCount).withZone(DateTimeZone.UTC);
                 case "WEEKS":
-                    return getStartDate().plusWeeks(forecastDurationCount);
+                    return startDate.plusWeeks(forecastDurationCount).withZone(DateTimeZone.UTC);
                 case "MONTHS":
-                    return getStartDate().plusMonths(forecastDurationCount);
+                    return startDate.plusMonths(forecastDurationCount).withZone(DateTimeZone.UTC);
                 case "YEARS":
-                    return getStartDate().plusYears(forecastDurationCount);
+                    return startDate.plusYears(forecastDurationCount).withZone(DateTimeZone.UTC);
             }
         }
         return null;
@@ -445,10 +458,13 @@ public class ForecastDataObject {
     public void finishCurrentRun(JEVisObject object) {
         Long cycleTime = getCycleTime(object);
         DateTime lastRun = getLastRun(object);
+        DateTimeZone timeZone = getTimeZone();
+        int offset = timeZone.getOffset(lastRun);
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
             if (lastRunAttribute != null) {
                 DateTime dateTime = lastRun.plusMillis(cycleTime.intValue());
+                dateTime = fixTimeZoneOffset(timeZone, dateTime, offset);
                 JEVisSample newSample = lastRunAttribute.buildSample(DateTime.now(), dateTime);
                 newSample.commit();
             }
@@ -456,6 +472,17 @@ public class ForecastDataObject {
         } catch (JEVisException e) {
             logger.error("Could not get data source last run time: ", e);
         }
+    }
+    
+    private static DateTime fixTimeZoneOffset(DateTimeZone tz, DateTime start, int offset) {
+        int newOffset = tz.getOffset(start);
+
+        if (newOffset > offset) {
+            start = start.minus(newOffset - offset);
+        } else if (newOffset < offset) {
+            start = start.plus(offset - newOffset);
+        }
+        return start;
     }
 
     public JsonGapFillingConfig getJsonGapFillingConfig() throws JEVisException {
@@ -492,7 +519,8 @@ public class ForecastDataObject {
         REFERENCE_PERIOD_COUNT("Reference Period Count"),
         BIND_TO_SPECIFIC("Bind To Specific"),
         FORECAST_DURATION("Forecast Duration"),
-        FORECAST_DURATION_COUNT("Forecast Duration Count");
+        FORECAST_DURATION_COUNT("Forecast Duration Count"),
+        KEEP_VALUES("Keep Values");
 
         private final String attributeName;
 

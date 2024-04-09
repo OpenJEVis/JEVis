@@ -7,7 +7,6 @@ package org.jevis.commons.dataprocessing.processor.workflow;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.GapFillingReferencePeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -15,11 +14,7 @@ import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.joda.time.Interval;
-import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.DateTimeZone;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -44,6 +39,8 @@ public class ResourceManager {
     private List<JEVisSample> sampleCache = new ArrayList<>();
     private List<CleanInterval> rawIntervals = new ArrayList<>();
     private Boolean isClean = true;
+    private Boolean isForecast = false;
+    private DateTimeZone timeZone;
 
     public ResourceManager() {
         numberFormat.setMinimumFractionDigits(4);
@@ -136,7 +133,7 @@ public class ResourceManager {
                                     date = date.minusYears(c);
                                     break;
                                 case ALL:
-                                    date = getCleanDataObject().getValueAttribute().getTimestampFromFirstSample();
+                                    date = getCleanDataObject().getValueAttribute().getTimestampOfFirstSample();
                                     break;
                                 case NONE:
                                     break;
@@ -174,113 +171,6 @@ public class ResourceManager {
         return cleanDataObject.getCleanObject().getID();
     }
 
-    public List<CleanInterval> getRawIntervals() {
-        if (rawIntervals.isEmpty()) {
-            List<PeriodRule> rawPeriodAlignment = getCleanDataObject().getRawDataPeriodAlignment();
-            List<PeriodRule> cleanDataPeriodAlignment = getCleanDataObject().getCleanDataPeriodAlignment();
-
-            for (PeriodRule rawPeriodRule : rawPeriodAlignment) {
-                Period currentRawDataPeriod = rawPeriodRule.getPeriod();
-                DateTime nextRawDataPeriodTS = null;
-                if (rawPeriodAlignment.size() > rawPeriodAlignment.indexOf(rawPeriodRule) + 1) {
-                    nextRawDataPeriodTS = rawPeriodAlignment.get(rawPeriodAlignment.indexOf(rawPeriodRule) + 1).getStartOfPeriod();
-                }
-
-                Period currentCleanDataPeriod = CleanDataObject.getPeriodForDate(cleanDataPeriodAlignment, rawPeriodRule.getStartOfPeriod());
-
-                if (!currentRawDataPeriod.equals(Period.ZERO) && currentRawDataPeriod.getMonths() == 0 && currentRawDataPeriod.getYears() == 0
-                        && currentCleanDataPeriod.getMonths() == 0 && currentCleanDataPeriod.getYears() == 0) {
-                    Duration duration = currentRawDataPeriod.toStandardDuration();
-                    if (currentRawDataPeriod.toStandardMinutes().getMinutes() < 1) {
-                        throw new IllegalStateException("Cant calculate the intervals with rawDataPeriodAlignment " + rawPeriodAlignment);
-                    }
-                    //the interval with date x begins at x - (duration/2) and ends at x + (duration/2)
-                    //Todo Month has no well defined duration -> cant handle months atm
-                    long halfDuration = duration.getMillis() / 2;
-
-
-                    if (currentCleanDataPeriod.toStandardMinutes().getMinutes() < 1) {
-                        throw new IllegalStateException("Cant calculate the intervals with cleanDataPeriodAlignment " + cleanDataPeriodAlignment);
-                    }
-                    DateTime currentDate = getCleanDataObject().getFirstDate().minus(currentCleanDataPeriod).minus(currentCleanDataPeriod);
-                    DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-                    DateTime maxEndDate = getCleanDataObject().getMaxEndDate();
-                    if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
-                        throw new IllegalStateException("Cant calculate the intervals with start date " + datePattern.print(currentDate) + " and end date " + datePattern.print(maxEndDate));
-                    }
-                    logger.info("Calc interval between start date {} and end date {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
-
-                    while (currentDate.isBefore(maxEndDate) && (nextRawDataPeriodTS == null || currentDate.isBefore(nextRawDataPeriodTS))) {
-                        DateTime startInterval = currentDate.minus(halfDuration);
-                        DateTime endInterval = currentDate.plus(halfDuration);
-                        Interval interval = new Interval(startInterval, endInterval);
-
-                        CleanInterval currentInterval = new CleanInterval(interval, currentDate);
-                        rawIntervals.add(currentInterval);
-
-                        //calculate the next date
-                        currentDate = currentDate.plus(currentRawDataPeriod);
-                    }
-                } else if (currentRawDataPeriod.equals(Period.ZERO) && currentCleanDataPeriod.equals(Period.minutes(15))) {
-                    try {
-                        DateTime firstTs = cleanDataObject.getRawSamplesDown().get(0).getTimestamp();
-                        if (firstTs.getMinuteOfHour() < 15) {
-                            firstTs = firstTs.withMinuteOfHour(0);
-                        } else if (firstTs.getMinuteOfHour() < 30) {
-                            firstTs = firstTs.withMinuteOfHour(15);
-                        } else if (firstTs.getMinuteOfHour() < 45) {
-                            firstTs = firstTs.withMinuteOfHour(30);
-                        } else {
-                            firstTs = firstTs.withMinuteOfHour(45);
-                        }
-
-                        DateTime currentTs = firstTs;
-                        DateTime lastTs = cleanDataObject.getRawSamplesDown().get(rawSamplesDown.size() - 1).getTimestamp();
-
-                        while (currentTs.isBefore(lastTs) && (nextRawDataPeriodTS == null || currentTs.isBefore(nextRawDataPeriodTS))) {
-                            Interval interval = new Interval(currentTs, currentTs.plusMinutes(14).plusSeconds(59).plusMillis(999));
-                            CleanInterval CleanInterval = new CleanInterval(interval, currentTs);
-                            rawIntervals.add(CleanInterval);
-                            currentTs = currentTs.plusMinutes(15);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    /**
-                     * TODO: months and years
-                     */
-                    for (JEVisSample sample : cleanDataObject.getRawSamplesDown()) {
-                        try {
-                            DateTime timestamp = sample.getTimestamp();
-
-                            if (nextRawDataPeriodTS == null || timestamp.isBefore(nextRawDataPeriodTS)) {
-
-                                DateTime start = timestamp.minusMillis(1);
-                                DateTime end = timestamp;
-
-                                if (currentRawDataPeriod.equals(Period.months(1))) {
-                                    timestamp = timestamp.minusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                                    start = timestamp.plusMillis(1);
-                                    end = timestamp.plusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                                }
-
-                                Interval interval = new Interval(start, end);
-                                CleanInterval CleanInterval = new CleanInterval(interval, timestamp);
-                                rawIntervals.add(CleanInterval);
-                            }
-                        } catch (JEVisException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                logger.info("{} intervals calculated", rawIntervals.size());
-            }
-        }
-
-        return rawIntervals;
-    }
-
     public void setRawIntervals(List<CleanInterval> rawIntervals) {
         this.rawIntervals = rawIntervals;
     }
@@ -293,7 +183,23 @@ public class ResourceManager {
         isClean = clean;
     }
 
+    public Boolean isForecast() {
+        return isForecast;
+    }
+
+    public void setForecast(Boolean forecast) {
+        isForecast = forecast;
+    }
+
     public NumberFormat getNumberFormat() {
         return numberFormat;
+    }
+
+    public DateTimeZone getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(DateTimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 }

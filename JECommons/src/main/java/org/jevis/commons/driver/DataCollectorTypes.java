@@ -50,6 +50,8 @@ public interface DataCollectorTypes {
 
         String NAME = "Channel Directory";
 
+        String DATE_TIME_Path = "Date Time Path";
+
         interface SOAPChannelDirectory extends ChannelDirectory {
 
             String NAME = "SOAP Channel Directory";
@@ -68,6 +70,18 @@ public interface DataCollectorTypes {
         interface JEVisChannelDirectory extends ChannelDirectory {
             String NAME = "JEVis Channel Directory";
         }
+        interface RevolutionPiChannelDirectory extends ChannelDirectory {
+            String NAME = "Revolution PI Channel Directory";
+        }
+
+        interface JSONChannelDirectory extends ChannelDirectory {
+            String NAME = "JSON Data Point Directory";
+        }
+
+        interface MSCONShannelDirectory extends ChannelDirectory {
+            String NAME = "MSCONS Data Point Directory";
+        }
+
 
         interface DWDChannelDirectory extends ChannelDirectory {
             String NAME = "DWD Channel Directory";
@@ -179,12 +193,18 @@ public interface DataCollectorTypes {
                 String PASSWORD = "Password";
                 String SSL = "SSL";
             }
+            interface RevolutionPiServer extends DataServer {
+                String NAME = "JEVis Server";
+                String USER = "User";
+                String PASSWORD = "Password";
+                String SSL = "SSL";
+            }
 
             interface DWDServer extends DataServer {
                 String NAME = "DWD Server";
             }
 
-            interface HTTP extends DataServer {
+            interface HTTP extends DataServer{
                 String AUTHENTICATION = "Authentication";
             }
 
@@ -230,7 +250,37 @@ public interface DataCollectorTypes {
             String SOURCEID = "Source Id";
             String SOURCEATTRIBUTE = "Source Attribute";
             String TARGETID = "Target Id";
+
+
         }
+        interface RevolutionPiChannel extends Channel {
+            String NAME = "Revolution PI Channel";
+            String SOURCEID = "Source Id";
+            String SOURCEATTRIBUTE = "Source Attribute";
+            String TARGETID = "Target Id";
+            String STATUS = "Status Log";
+        }
+
+        interface JSONChannel extends Channel {
+            String NAME = "JSON Data Point";
+            String VALUE_FORMAT = "Value Format";
+            String DATA_POINT_PATH = "Data Point Path";
+            String TARGETID = "Target";
+            String STATUS = "Status Log";
+
+            String REGEX = "Regex Value";
+            String STATUS_PATH = "Status Path";
+            String STAUS_VALUE_OK = "Status Value OK";
+        }
+
+        interface MSCONSChannel extends Channel {
+            String NAME = "MSCONS Data Point";
+            String TARGETID = "Target";
+
+            String MESSLIKATION = "Messlukation";
+        }
+
+
     }
 
     interface Importer {

@@ -97,9 +97,9 @@ public class ColumnFactory {
 
 
                                       return new TreeTableCell<JEVisTreeRow, JEVisTreeRow>() {
-                                          HBox hbox = new HBox();
-                                          Label nameLabel = new Label();
-                                          Region spaceBetween = new Region();
+                                          final HBox hbox = new HBox();
+                                          final Label nameLabel = new Label();
+                                          final Region spaceBetween = new Region();
                                           Node icon = ResourceLoader.getImage("1393615831_unknown2.png", 18, 18);
 
                                           @Override
@@ -238,9 +238,9 @@ public class ColumnFactory {
 
                     if (value != null && value.getLatestSample() != null) {
                         if (max) {
-                            return new ReadOnlyObjectWrapper<>(dateTimeFormatter.print(value.getTimestampFromLastSample()));
+                            return new ReadOnlyObjectWrapper<>(dateTimeFormatter.print(value.getTimestampOfLastSample()));
                         } else {
-                            return new ReadOnlyObjectWrapper<>(dateTimeFormatter.print(value.getTimestampFromFirstSample()));
+                            return new ReadOnlyObjectWrapper<>(dateTimeFormatter.print(value.getTimestampOfFirstSample()));
                         }
 
                     } else {
@@ -342,8 +342,8 @@ public class ColumnFactory {
             public TreeTableCell<JEVisTreeRow, Long> call(TreeTableColumn<JEVisTreeRow, Long> param) {
 
                 return new TreeTableCell<JEVisTreeRow, Long>() {
-                    StackPane stackPane = new StackPane();
-                    Label label = new Label();
+                    final StackPane stackPane = new StackPane();
+                    final Label label = new Label();
 
                     @Override
                     public void commitEdit(Long newValue) {

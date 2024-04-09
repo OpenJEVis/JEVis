@@ -1,0 +1,33 @@
+{
+  "name": "Index of Legal Provisions",
+  "description": "Index of Legal Provisions",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Index of Legal Provisions",
+      "end": "Index of Legal Provisions Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Scope",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Index of Legal Provisions"
+    },
+    {
+      "name": "Category",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Index of Legal Provisions"
+    }
+  ]
+}
+
+
+

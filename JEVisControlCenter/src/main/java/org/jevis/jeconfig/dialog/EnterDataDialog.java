@@ -59,32 +59,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EnterDataDialog extends Dialog implements EventTarget {
-    private static final Logger logger = LogManager.getLogger(EnterDataDialog.class);
     public static final String CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME = "Conversion to Differential";
+    private static final Logger logger = LogManager.getLogger(EnterDataDialog.class);
     public static String ICON = "Startup Wizard_18228.png";
     private final JEVisDataSource ds;
     private final ObjectRelations objectRelations;
-
-    private JEVisObject selectedObject;
     private final JFXTextField doubleField = new JFXTextField();
-    private Response response;
-
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
-    private Double lastValue;
-    private JEVisClass dataClass;
-    private JEVisClass cleanDataClass;
     private final Label messageLabel = new Label(I18n.getInstance().getString("plugin.object.dialog.data.message.notdiffquantity"));
     private final ObjectProperty<JEVisSample> newSampleProperty = new SimpleObjectProperty<>();
     private final Label unitField = new Label();
     private final Label lastTSLabel = new Label();
     private final Label lastValueLabel = new Label();
-    private boolean showValuePrompt = false;
-    private JEVisSample initSample = null;
     private final SimpleBooleanProperty isConversionToDifferential = new SimpleBooleanProperty(false);
     private final SimpleBooleanProperty isQuantity = new SimpleBooleanProperty(false);
     private final SimpleObjectProperty<Period> period = new SimpleObjectProperty<>(Period.ZERO);
-    private JEVisAttribute target = null;
-    private JEVisClass baseDataClass;
     private final DataTypeBox dataTypeBox = new DataTypeBox();
     private final Label idLabel = new Label(I18n.getInstance().getString("plugin.graph.export.text.id"));
     private final Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
@@ -101,10 +90,20 @@ public class EnterDataDialog extends Dialog implements EventTarget {
     private final Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
     private final JFXDatePicker datePicker = new JFXDatePicker(LocalDate.now());
     private final JFXTimePicker timePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
-    private boolean selectable = true;
     private final SimpleObjectProperty<DateTime> lastTS = new SimpleObjectProperty<>(new DateTime(1990, 1, 1, 0, 0, 0, 0));
     private final GridPane gridPane = new GridPane();
+    private JEVisObject selectedObject;
+    private Response response;
+    private Double lastValue;
+    private JEVisClass dataClass;
+    private JEVisClass cleanDataClass;
+    private boolean showValuePrompt = false;
+    private JEVisSample initSample = null;
+    private JEVisAttribute target = null;
+    private JEVisClass baseDataClass;
+    private boolean selectable = true;
     private boolean showDetailedTarget = true;
+    private WorkDays workDays;
 
     public EnterDataDialog(JEVisDataSource dataSource) {
         super();
@@ -173,7 +172,11 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        this.getDialogPane().getButtonTypes().addAll(showMoreType, cancelType, okType);
+        if (JEConfig.getExpert()) {
+            this.getDialogPane().getButtonTypes().addAll(showMoreType, cancelType, okType);
+        } else {
+            this.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+        }
 
         Button okButton = (Button) this.getDialogPane().lookupButton(okType);
         okButton.setDefaultButton(true);
@@ -200,28 +203,6 @@ public class EnterDataDialog extends Dialog implements EventTarget {
 
                         if (newVal != null) {
 
-                            JEVisAttribute valueAttribute = null;
-                            JEVisAttribute periodAttribute = null;
-                            JEVisAttribute diffAttribute = null;
-                            Map<JsonLimitsConfig, JEVisObject> limitsConfigs = new HashMap<>();
-                            try {
-                                valueAttribute = selectedObject.getAttribute("Value");
-
-                                if (selectedObject != null && selectedObject.getJEVisClass().equals(baseDataClass)) {
-                                    diffAttribute = selectedObject.getAttribute(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
-                                }
-
-                                for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
-                                    diffAttribute = jeVisObject.getAttribute(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
-                                    CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject);
-                                    if (cleanDataObject.getLimitsConfig().size() > 0) {
-                                        limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
-                                    }
-                                }
-                                periodAttribute = selectedObject.getAttribute("Period");
-                            } catch (Exception e) {
-                                logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
-                            }
                             DateTime ts = null;
 
                             Integer year = yearBox.getSelectionModel().getSelectedItem();
@@ -233,18 +214,50 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                                             1,
                                             1,
                                             0, 0, 0);
+                                    if (workDays.isCustomWorkDay()) {
+                                        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                            ts = ts.withMonthOfYear(12);
+                                            int lastDayOfMonth = ts.dayOfMonth().getMaximumValue();
+                                            ts = ts.withDayOfMonth(lastDayOfMonth)
+                                                    .withHourOfDay(workDays.getWorkdayStart().getHour())
+                                                    .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
+                                                    .withSecondOfMinute(workDays.getWorkdayStart().getSecond())
+                                                    .withMillisOfSecond(0);
+                                        }
+
+                                    }
                                     break;
                                 case MONTH:
                                     ts = new DateTime(year,
                                             month,
                                             1,
                                             0, 0, 0);
+                                    if (workDays.isCustomWorkDay()) {
+                                        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                            int lastDayOfMonth = ts.dayOfMonth().getMaximumValue();
+                                            ts = ts.withDayOfMonth(lastDayOfMonth)
+                                                    .withHourOfDay(workDays.getWorkdayStart().getHour())
+                                                    .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
+                                                    .withSecondOfMinute(workDays.getWorkdayStart().getSecond())
+                                                    .withMillisOfSecond(0);
+                                        }
+
+                                    }
                                     break;
                                 case DAY:
                                     ts = new DateTime(year,
                                             month,
                                             day,
                                             0, 0, 0);
+                                    if (workDays.isCustomWorkDay()) {
+                                        ts = ts.withHourOfDay(workDays.getWorkdayStart().getHour())
+                                                .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
+                                                .withSecondOfMinute(workDays.getWorkdayStart().getSecond())
+                                                .withMillisOfSecond(0);
+                                        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                            ts = ts.minusDays(1);
+                                        }
+                                    }
                                     break;
                                 case SPECIFIC_DATETIME:
                                     ts = new DateTime(
@@ -257,73 +270,157 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                                     break;
                             }
 
-                            if (valueAttribute != null) {
 
-                                JEVisSample diffSample = null;
-                                Boolean isDiff = false;
-                                if (diffAttribute != null && diffAttribute.hasSample()) {
-                                    diffSample = diffAttribute.getLatestSample();
-                                    try {
-                                        isDiff = diffSample.getValueAsBoolean();
-                                    } catch (JEVisException e) {
-                                        e.printStackTrace();
+                            /** Generic attribute sample **/
+                            if (target != null && !target.getName().equals("Value")) {
+                                /*
+                                List<JEVisSample> oldSample = target.getSamples(ts, ts);
+                                JEVisSample newSample = null;
+                                if (oldSample.isEmpty()) {
+                                    newSample = target.buildSample(ts, newVal);
+                                } else {
+                                    newSample = oldSample.get(oldSample.size() - 1);
+                                    newSample.setValue(newVal);
+                                }
+                                newSample.commit();
+                                */
+                                buildSample(target, ts, newVal);
+
+
+                            } else { /** Value attribute sample with limit and other checks**/
+
+                                JEVisAttribute valueAttribute = null;
+                                JEVisAttribute periodAttribute = null;
+                                JEVisAttribute diffAttribute = null;
+                                Map<JsonLimitsConfig, JEVisObject> limitsConfigs = new HashMap<>();
+                                try {
+                                    valueAttribute = selectedObject.getAttribute("Value");
+
+                                    if (selectedObject != null && selectedObject.getJEVisClass().equals(baseDataClass)) {
+                                        diffAttribute = selectedObject.getAttribute(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
                                     }
+
+                                    for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
+                                        diffAttribute = jeVisObject.getAttribute(CONVERSION_TO_DIFFERENTIAL_ATTRIBUTE_NAME);
+                                        CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject);
+                                        if (cleanDataObject.getLimitsConfig().size() > 0) {
+                                            limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
+                                        }
+                                    }
+                                    periodAttribute = selectedObject.getAttribute("Period");
+                                } catch (Exception e) {
+                                    logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
                                 }
 
-                                if (isDiff) {
-                                    if (lastValue != null && lastValue > newVal) {
-                                        Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.differror"));
-                                        warning.setResizable(true);
-                                        JEVisAttribute finalValueAttribute = valueAttribute;
-                                        DateTime finalTs = ts;
-                                        warning.showAndWait().ifPresent(response -> {
-                                            if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                buildSample(finalValueAttribute, finalTs, newVal);
-                                                close();
-                                            } else {
 
-                                            }
-                                        });
+                                if (valueAttribute != null) {
 
-                                    } else {
-                                        boolean hasError = false;
-                                        Period periodForDate = CleanDataObject.getPeriodForDate(periodAttribute.getObject(), ts);
-                                        DateTime prevTs = ts.minus(periodForDate);
-                                        List<JEVisSample> previousSample = valueAttribute.getSamples(prevTs, prevTs);
-                                        Double prevValue = newVal;
+                                    JEVisSample diffSample = null;
+                                    Boolean isDiff = false;
+                                    if (diffAttribute != null && diffAttribute.hasSample()) {
+                                        diffSample = diffAttribute.getLatestSample();
                                         try {
-                                            prevValue = previousSample.get(previousSample.size() - 1).getValueAsDouble();
-                                        } catch (Exception e) {
+                                            isDiff = diffSample.getValueAsBoolean();
+                                        } catch (JEVisException e) {
                                             e.printStackTrace();
                                         }
+                                    }
+
+                                    if (isDiff) {
+                                        if (lastValue != null && lastValue > newVal) {
+                                            Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.differror"));
+                                            warning.setResizable(true);
+                                            JEVisAttribute finalValueAttribute = valueAttribute;
+                                            DateTime finalTs = ts;
+                                            warning.showAndWait().ifPresent(response -> {
+                                                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                    buildSample(finalValueAttribute, finalTs, newVal);
+                                                    close();
+                                                } else {
+
+                                                }
+                                            });
+
+                                        } else {
+                                            boolean hasError = false;
+                                            Period periodForDate = CleanDataObject.getPeriodForDate(periodAttribute.getObject(), ts);
+                                            DateTime prevTs = ts.minus(periodForDate);
+                                            List<JEVisSample> previousSample = valueAttribute.getSamples(prevTs, prevTs);
+                                            Double prevValue = newVal;
+                                            try {
+                                                prevValue = previousSample.get(previousSample.size() - 1).getValueAsDouble();
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
+                                                double newDiff = newVal - prevValue;
+                                                if (newDiff < Double.parseDouble(c.getKey().getMin())) {
+                                                    hasError = true;
+
+                                                    Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.smaller") + " " +
+                                                            newDiff + " < " + Double.parseDouble(c.getKey().getMin()));
+                                                    warning.setResizable(true);
+                                                    JEVisAttribute finalValueAttribute = valueAttribute;
+                                                    DateTime finalTs1 = ts;
+                                                    warning.showAndWait().ifPresent(response -> {
+                                                        if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                            buildSample(finalValueAttribute, finalTs1, newVal);
+                                                        } else {
+
+                                                        }
+                                                    });
+                                                } else if (newDiff > Double.parseDouble(c.getKey().getMax())) {
+                                                    hasError = true;
+
+                                                    Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.bigger") + " " +
+                                                            newDiff + " > " + Double.parseDouble(c.getKey().getMax()));
+                                                    warning.setResizable(true);
+                                                    JEVisAttribute finalValueAttribute = valueAttribute;
+                                                    DateTime finalTs2 = ts;
+                                                    warning.showAndWait().ifPresent(response -> {
+                                                        if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                            buildSample(finalValueAttribute, finalTs2, newVal);
+                                                        } else {
+
+                                                        }
+                                                    });
+                                                }
+                                            }
+
+                                            if (!hasError) {
+                                                buildSample(valueAttribute, ts, newVal);
+                                                close();
+                                            }
+                                        }
+                                    } else {
+                                        boolean hasError = false;
                                         for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
-                                            double newDiff = newVal - prevValue;
-                                            if (newDiff < Double.parseDouble(c.getKey().getMin())) {
+                                            if (newVal < Double.parseDouble(c.getKey().getMin())) {
                                                 hasError = true;
 
-                                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.smaller") + " " +
-                                                        newDiff + " < " + Double.parseDouble(c.getKey().getMin()));
+                                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.smaller") + " " +
+                                                        newVal + " < " + Double.parseDouble(c.getKey().getMin()));
                                                 warning.setResizable(true);
                                                 JEVisAttribute finalValueAttribute = valueAttribute;
-                                                DateTime finalTs1 = ts;
+                                                DateTime finalTs3 = ts;
                                                 warning.showAndWait().ifPresent(response -> {
                                                     if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                        buildSample(finalValueAttribute, finalTs1, newVal);
+                                                        buildSample(finalValueAttribute, finalTs3, newVal);
                                                     } else {
 
                                                     }
                                                 });
-                                            } else if (newDiff > Double.parseDouble(c.getKey().getMax())) {
+                                            } else if (newVal > Double.parseDouble(c.getKey().getMax())) {
                                                 hasError = true;
 
-                                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.bigger") + " " +
-                                                        newDiff + " > " + Double.parseDouble(c.getKey().getMax()));
+                                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.bigger") + " " +
+                                                        newVal + " > " + Double.parseDouble(c.getKey().getMax()));
                                                 warning.setResizable(true);
                                                 JEVisAttribute finalValueAttribute = valueAttribute;
-                                                DateTime finalTs2 = ts;
+                                                DateTime finalTs4 = ts;
                                                 warning.showAndWait().ifPresent(response -> {
                                                     if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                        buildSample(finalValueAttribute, finalTs2, newVal);
+                                                        buildSample(finalValueAttribute, finalTs4, newVal);
                                                     } else {
 
                                                     }
@@ -336,49 +433,12 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                                             close();
                                         }
                                     }
-                                } else {
-                                    boolean hasError = false;
-                                    for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
-                                        if (newVal < Double.parseDouble(c.getKey().getMin())) {
-                                            hasError = true;
 
-                                            Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.smaller") + " " +
-                                                    newVal + " < " + Double.parseDouble(c.getKey().getMin()));
-                                            warning.setResizable(true);
-                                            JEVisAttribute finalValueAttribute = valueAttribute;
-                                            DateTime finalTs3 = ts;
-                                            warning.showAndWait().ifPresent(response -> {
-                                                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                    buildSample(finalValueAttribute, finalTs3, newVal);
-                                                } else {
-
-                                                }
-                                            });
-                                        } else if (newVal > Double.parseDouble(c.getKey().getMax())) {
-                                            hasError = true;
-
-                                            Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.bigger") + " " +
-                                                    newVal + " > " + Double.parseDouble(c.getKey().getMax()));
-                                            warning.setResizable(true);
-                                            JEVisAttribute finalValueAttribute = valueAttribute;
-                                            DateTime finalTs4 = ts;
-                                            warning.showAndWait().ifPresent(response -> {
-                                                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                    buildSample(finalValueAttribute, finalTs4, newVal);
-                                                } else {
-
-                                                }
-                                            });
-                                        }
-                                    }
-
-                                    if (!hasError) {
-                                        buildSample(valueAttribute, ts, newVal);
-                                        close();
-                                    }
                                 }
 
+
                             }
+
 
                         } else {
                             Alert warning = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("plugin.object.dialog.data.error.number"));
@@ -398,18 +458,20 @@ public class EnterDataDialog extends Dialog implements EventTarget {
 
         cancelButton.setOnAction(event -> close());
 
-        showMoreButton.setOnAction(actionEvent -> {
-            JEVisAttribute value = null;
-            try {
-                value = selectedObject.getAttribute("Value");
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-            if (value != null) {
-                DataDialog dataDialog = new DataDialog(value);
-                dataDialog.show();
-            }
-        });
+        if (showMoreButton != null) {
+            showMoreButton.setOnAction(actionEvent -> {
+                JEVisAttribute value = null;
+                try {
+                    value = initSample.getAttribute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (value != null) {
+                    DataDialog dataDialog = new DataDialog(value);
+                    dataDialog.show();
+                }
+            });
+        }
     }
 
     private void updateView() {
@@ -452,6 +514,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                     }
 
                 } else {
+                    dataTypeBox.setVisible(true);
                     dateTypeLabel.setText(I18n.getInstance().getString("plugin.object.dialog.data.datetype.valid"));
                     valueLabel.setText(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
                     lastRawValueLabel.setText(I18n.getInstance().getString("status.table.captions.lastrawvalue"));
@@ -472,6 +535,8 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.selectable = selectable;
         this.target = target;
         this.selectedObject = target.getObject();
+        this.workDays = new WorkDays(target.getObject());
+        this.monthBox.setWorkDays(workDays);
 
         Platform.runLater(() -> {
             removeNode(0, 0, gridPane);
@@ -632,29 +697,31 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         if (periodAttribute != null) {
 
             Period p = Period.ZERO;
+            nextTS = lastTS.get();
             try {
                 p = new Period(periodAttribute.getLatestSample().getValueAsString());
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
 
-            if (p.equals(Period.minutes(15))) {
-                nextTS = lastTS.get().plusMinutes(15).withSecondOfMinute(0).withMillisOfSecond(0);
-            } else if (p.equals(Period.days(1))) {
-                nextTS = lastTS.get().plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            } else if (p.equals(Period.weeks(1))) {
-                nextTS = lastTS.get().plusWeeks(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            } else if (p.equals(Period.months(1))) {
-                nextTS = lastTS.get().plusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            } else if (p.equals(Period.years(1))) {
-                nextTS = lastTS.get().plusYears(1).withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-            } else {
+            if (!p.equals(Period.ZERO)) {
+                nextTS = PeriodHelper.getNextPeriod(lastTS.get(), p, 1, true, workDays.getDateTimeZone());
+
+                if (workDays.isCustomWorkDay()) {
+                    if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                        nextTS = nextTS.plusDays(1);
+                        nextTS = nextTS.minusHours(workDays.getWorkdayStart().getHour()).minusMinutes(workDays.getWorkdayStart().getMinute())
+                                .minusSeconds(workDays.getWorkdayStart().getSecond()).withMillisOfSecond(0);
+                    }
+                }
+            }
+
+            if (nextTS.equals(lastTS.get()) && !p.equals(Period.ZERO))
                 try {
                     nextTS = lastTS.get().plus(p.toStandardDuration().getMillis());
                 } catch (Exception e) {
                     logger.error("Could not determine period", e);
                 }
-            }
         }
 
         return nextTS;
@@ -726,7 +793,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
             WorkDays workDays = new WorkDays(selectedObject);
             String unitString = "";
             try {
-                valueAttribute = selectedObject.getAttribute("Value");
+                valueAttribute = selectedObject.getAttribute(target.getType());
 
                 JEVisUnit displayUnit = valueAttribute.getDisplayUnit();
                 unitString = UnitManager.getInstance().format(displayUnit);
@@ -752,15 +819,16 @@ public class EnterDataDialog extends Dialog implements EventTarget {
 
                             getCleanDataSettings();
 
+                            DateTime lastTsForLabel;
                             if (workDays.isCustomWorkDay() && workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd()) && PeriodHelper.isGreaterThenDays(period.get())) {
-                                lastTS.set(lastTS.get().plusDays(1));
-                            }
+                                lastTsForLabel = lastTS.get().plusDays(1);
+                            } else lastTsForLabel = lastTS.get();
 
                             String normalPattern = PeriodHelper.getFormatString(period.get(), isConversionToDifferential.get());
-                            String valueString = numberFormat.format(lastValue) + unitString + " @ " + lastTS.get().toString(normalPattern);
+                            String valueString = numberFormat.format(lastValue) + unitString + " @ " + lastTsForLabel.toString(normalPattern);
 
                             Platform.runLater(() -> {
-                                lastTSLabel.setText(lastTS.get().toString(normalPattern) + " : ");
+                                lastTSLabel.setText(lastTsForLabel.toString(normalPattern) + " : ");
                                 lastValueLabel.setText(valueString);
                             });
 
@@ -799,11 +867,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
 
         try {
             DateTime nextTS = getNextTS();
-            yearBox.setTS(nextTS);
-            Platform.runLater(() -> {
-                monthBox.getSelectionModel().select(nextTS.getMonthOfYear() - 1);
-                dayBox.getSelectionModel().select(nextTS.getDayOfMonth() - 1);
-            });
+            monthBox.setRelations(yearBox, dayBox, nextTS);
         } catch (Exception e) {
             logger.error(e);
         }

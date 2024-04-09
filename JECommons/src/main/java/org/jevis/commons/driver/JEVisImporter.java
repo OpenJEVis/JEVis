@@ -27,14 +27,11 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.commons.utils.CalcMethods;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author bf
@@ -183,7 +180,7 @@ public class JEVisImporter implements Importer {
             }
             logger.info("ok target configurations for: [" + okIDs + "]");
 
-            //build the Samples per attribute so we can bulk import them
+            //build the Samples per attribute, so we can bulk import them
             Map<JEVisAttribute, List<JEVisSample>> toImportList = new HashMap<>();
             for (Result s : results) {
                 try {
@@ -241,6 +238,14 @@ public class JEVisImporter implements Importer {
                 try {
                     JEVisAttribute key = entrySet.getKey();
                     List<JEVisSample> values = entrySet.getValue();
+                    values.sort(Comparator.comparing(jeVisSample -> {
+                        try {
+                            return jeVisSample.getTimestamp();
+                        } catch (Exception e) {
+                            logger.error(e);
+                        }
+                        return null;
+                    }));
 
                     //Bulk Import
                     logger.info("Import samples: key: {} , values: {}",key.getObject().getName(),values.size());
@@ -259,9 +264,12 @@ public class JEVisImporter implements Importer {
 
                     if (overwrite) {
                         try {
-                            CalcMethods.deleteAllCalculationDependencies(key.getObject(), values.get(0).getTimestamp());
+                            List<JEVisObject> objects = new ArrayList<>();
+                            objects.add(key.getObject());
+
+                            CommonMethods.cleanDependentObjects(objects, values.get(0).getTimestamp());
                         } catch (Exception e) {
-                            logger.error("Failed Calculation dependencies check", e);
+                            logger.error("Failed cleaning of dependencies", e);
                         }
                     }
 

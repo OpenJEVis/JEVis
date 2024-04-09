@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.data;
 
+import com.ibm.icu.text.NumberFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -14,8 +15,8 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
-import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
@@ -50,8 +51,8 @@ public class ChartDataRow extends ChartData {
     private boolean hasForecastData = false;
     private Double scaleFactor = 1d;
     private Double timeFactor = 1d;
-    private ValueWithDateTime min = new ValueWithDateTime(0d);
-    private ValueWithDateTime max = new ValueWithDateTime(0d);
+    private ValueWithDateTime min = new ValueWithDateTime(0d, NumberFormat.getInstance(I18n.getInstance().getLocale()));
+    private ValueWithDateTime max = new ValueWithDateTime(0d, NumberFormat.getInstance(I18n.getInstance().getLocale()));
     private Double avg = 0d;
     private Double sum = 0d;
     private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
@@ -64,18 +65,22 @@ public class ChartDataRow extends ChartData {
 
     public ChartDataRow(JEVisDataSource dataSource) {
         this(dataSource, null);
-
-        this.calculationProperty().addListener((observableValue, aBoolean, t1) -> {
-            if (t1) {
-                setCalculationId(ChartTools.isObjectCalculated(getObject()));
-            } else {
-                setCalculationId(-1);
-            }
-        });
     }
 
     public ChartDataRow(JEVisDataSource ds, ChartData chartData) {
         this.dataSource = ds;
+
+        this.calculationProperty().addListener((observableValue, aBoolean, t1) -> {
+            if (t1) {
+                long id = ChartTools.isObjectCalculated(getObject());
+                setCalculationId(id);
+                if (id == -1) {
+                    setCalculation(false);
+                }
+            } else {
+                setCalculationId(-1);
+            }
+        });
 
         if (chartData != null) {
             setId(chartData.getId());
@@ -103,6 +108,7 @@ public class ChartDataRow extends ChartData {
             setIntervalStart(chartData.getIntervalStart());
             setIntervalEnd(chartData.getIntervalEnd());
             setIntervalEnabled(chartData.isIntervalEnabled());
+            setDecimalDigits(chartData.getDecimalDigits());
             setCss(chartData.getCss());
 
             setSelectedStart(chartData.getIntervalStartDateTime());
@@ -118,10 +124,10 @@ public class ChartDataRow extends ChartData {
 
         userNoteMap.clear();
         try {
-            final JEVisClass noteclass = getObject().getDataSource().getJEVisClass("Data Notes");
-            for (JEVisObject obj : attribute.getObject().getParents().get(0).getChildren(noteclass, true)) {
+            final JEVisClass noteClass = getObject().getDataSource().getJEVisClass("Data Notes");
+            for (JEVisObject obj : attribute.getObject().getParents().get(0).getChildren(noteClass, true)) {
                 if (obj.getName().contains(attribute.getObject().getName())) {
-                    JEVisAttribute userNotesAttribute = obj.getAttribute("User Notes");
+                    JEVisAttribute userNotesAttribute = obj.getAttribute("Value");
                     if (userNotesAttribute.hasSample()) {
                         for (JEVisSample jeVisSample : userNotesAttribute.getSamples(selectedStart, selectedEnd)) {
                             userNoteMap.put(jeVisSample.getTimestamp(), jeVisSample);
@@ -394,7 +400,8 @@ public class ChartDataRow extends ChartData {
                                         List<JsonGapFillingConfig> gapFillingConfig = cleanDataObject.getGapFillingConfig();
 
                                         for (JsonGapFillingConfig jsonGapFillingConfig : gapFillingConfig) {
-                                            if (gapFillingConfig.indexOf(jsonGapFillingConfig) == 1 && jsonGapFillingConfig.getType().equals(GapFillingType.DEFAULT_VALUE.toString())) {
+                                            GapFillingType fillingType = GapFillingType.parse(jsonGapFillingConfig.getType());
+                                            if (gapFillingConfig.indexOf(jsonGapFillingConfig) == 1 && fillingType.equals(GapFillingType.DEFAULT_VALUE)) {
                                                 String defaultValue = jsonGapFillingConfig.getDefaultvalue();
                                                 try {
                                                     replacementValue = Double.parseDouble(defaultValue);
@@ -431,7 +438,7 @@ public class ChartDataRow extends ChartData {
                     try {
                         getNoteSamples();
                     } catch (Exception ex) {
-                        logger.error(ex);
+                        logger.error("Error while getting note samples", ex);
                     }
                 } else {
                     if (getDataProcessor() != null) {
@@ -493,7 +500,7 @@ public class ChartDataRow extends ChartData {
     }
 
     private void updateFormatString(List<JEVisSample> samples) {
-        if (samples.size() > 0) {
+        if (!samples.isEmpty()) {
             try {
                 boolean isCounter = false;
                 if (samples.get(0).getAttribute() != null) {
@@ -525,7 +532,7 @@ public class ChartDataRow extends ChartData {
                     samples = forecastDataAttribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString(), DateTimeZone.getDefault().getID());
 
                     if (!isStringData) {
-                        samples = factorizeSamples(samples);
+                        factorizeSamples(samples);
                     }
 
                 } catch (Exception ex) {
@@ -553,74 +560,38 @@ public class ChartDataRow extends ChartData {
         this.forecastSamples = forecastSamples;
     }
 
-    /**
-     * Workaround from FS, Gerrit find the right solution.
-     * This workaround is for the chart Sum function because it never calls the geSample with change function
-     * the scaleFactor is never set.
-     * <p>
-     * calling the factorizeSamples will add factor and will aso not work
-     *
-     * @throws JEVisException
-     */
     public void updateScaleFactor() throws JEVisException {
         String outputUnit = UnitManager.getInstance().format(getUnit()).replace("·", "");
-        if (outputUnit.equals("")) outputUnit = getUnit().getLabel();
+        if (outputUnit.isEmpty()) outputUnit = getUnit().getLabel();
 
         String inputUnit = UnitManager.getInstance().format(attribute.getDisplayUnit()).replace("·", "");
-        if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
+        if (inputUnit.isEmpty()) inputUnit = attribute.getDisplayUnit().getLabel();
 
         ChartUnits cu = new ChartUnits();
-        scaleFactor = cu.scaleValue(inputUnit, outputUnit);
+        Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+        Period rawPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+
+        scaleFactor = cu.scaleValue(rawPeriod, inputUnit, currentPeriod, outputUnit);
     }
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) {
         if (getUnit() != null && !inputList.isEmpty()) {
             try {
                 String outputUnit = UnitManager.getInstance().format(getUnit()).replace("·", "");
-                if (outputUnit.equals("")) outputUnit = getUnit().getLabel();
+                if (outputUnit.isEmpty()) outputUnit = getUnit().getLabel();
 
                 String inputUnit = UnitManager.getInstance().format(attribute.getDisplayUnit()).replace("·", "");
-                if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
+                if (inputUnit.isEmpty()) inputUnit = attribute.getDisplayUnit().getLabel();
 
                 ChartUnits cu = new ChartUnits();
-                scaleFactor = cu.scaleValue(inputUnit, outputUnit);
 
-                Period currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
-                PeriodComparator periodComparator = new PeriodComparator();
+                Period rawPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+                Period currentPeriod;
+                if (inputList.size() > 1) {
+                    currentPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+                } else currentPeriod = rawPeriod;
 
-                if ((inputUnit.equals("kWh") || inputUnit.equals("Wh") || inputUnit.equals("MWh") || inputUnit.equals("GWh"))
-                        && (outputUnit.equals("kW") || outputUnit.equals("W") || outputUnit.equals("MW") || outputUnit.equals("GW"))) {
-                    if (inputList.size() > 1) {
-                        Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
-                        int compare = periodComparator.compare(currentPeriod, rowPeriod);
-                        if (!currentPeriod.equals(rowPeriod) && compare > 0) {
-                            if (currentPeriod.equals(Period.hours(1))) {
-                                timeFactor *= 1 / 4d;
-                            } else if (currentPeriod.equals(Period.days(1))) {
-                                timeFactor *= 1 / 4d / 24;
-                            } else if (currentPeriod.equals(Period.weeks(1))) {
-                                timeFactor *= 1 / 4d / 24 / 7;
-                            } else if (currentPeriod.equals(Period.months(1))) {
-                                timeFactor *= 1 / 4d / 24 / 30.25;
-                            } else if (currentPeriod.equals(Period.months(3))) {
-                                timeFactor *= 1 / 4d / 24 / 30.25 / 3;
-                            } else if (currentPeriod.equals(Period.years(1))) {
-                                timeFactor *= 1 / 4d / 24 / 365.25;
-                            }
-                        }
-                    } else {
-                        logger.debug("Can not determine time factor for fewer than two samples");
-                    }
-                }
-
-                if (cu.areComplementary(inputUnit, outputUnit)) {
-                    Period rowPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
-                    int compare = periodComparator.compare(currentPeriod, rowPeriod);
-
-                    if (currentPeriod.equals(Period.hours(1)) && compare == 0) {
-                        timeFactor *= 1 / 4d;
-                    }
-                }
+                scaleFactor = cu.scaleValue(rawPeriod, inputUnit, currentPeriod, outputUnit);
 
                 inputList.forEach(sample -> {
                     try {
@@ -678,15 +649,15 @@ public class ChartDataRow extends ChartData {
         if (selectedStart != null) {
             return selectedStart;
         } else if (getAttribute() != null) {
-            DateTime timeStampFromLastSample = getAttribute().getTimestampFromLastSample();
+            DateTime timeStampFromLastSample = getAttribute().getTimestampOfLastSample();
             if (timeStampFromLastSample != null) {
                 timeStampFromLastSample = timeStampFromLastSample.minusDays(7);
 
-                DateTime timeStampFromFirstSample = getAttribute().getTimestampFromFirstSample();
-                if (timeStampFromFirstSample != null) {
-                    if (timeStampFromFirstSample.isBefore(timeStampFromLastSample))
+                DateTime timeStampOfFirstSample = getAttribute().getTimestampOfFirstSample();
+                if (timeStampOfFirstSample != null) {
+                    if (timeStampOfFirstSample.isBefore(timeStampFromLastSample))
                         selectedStart = timeStampFromLastSample;
-                } else selectedStart = timeStampFromFirstSample;
+                } else selectedStart = null;
 
             } else {
                 return null;
@@ -709,7 +680,7 @@ public class ChartDataRow extends ChartData {
         if (selectedEnd != null) {
             return selectedEnd;
         } else if (getAttribute() != null) {
-            DateTime timeStampFromLastSample = getAttribute().getTimestampFromLastSample();
+            DateTime timeStampFromLastSample = getAttribute().getTimestampOfLastSample();
             if (timeStampFromLastSample == null) selectedEnd = DateTime.now();
             else selectedEnd = timeStampFromLastSample;
             return selectedEnd;
@@ -796,7 +767,7 @@ public class ChartDataRow extends ChartData {
         return hasForecastData;
     }
 
-    public List<Integer> getSelectedcharts() {
+    public List<Integer> getSelectedCharts() {
         return selectedCharts;
     }
 
@@ -844,7 +815,7 @@ public class ChartDataRow extends ChartData {
             }
         }
         QuantityUnits qu = new QuantityUnits();
-        if (samples.size() > 0) {
+        if (!samples.isEmpty()) {
             avg = sum / samples.size();
         }
 
@@ -852,7 +823,11 @@ public class ChartDataRow extends ChartData {
             try {
                 JEVisUnit sumUnit = qu.getSumUnit(getUnit());
                 ChartUnits cu = new ChartUnits();
-                double newScaleFactor = cu.scaleValue(getUnit().toString(), sumUnit.toString());
+
+                Period currentPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                Period rawPeriod = CleanDataObject.getPeriodForDate(attribute.getObject(), selectedStart);
+
+                double newScaleFactor = cu.scaleValue(rawPeriod, getUnit().toString(), currentPeriod, sumUnit.toString());
                 JEVisUnit inputUnit = getAttribute().getInputUnit();
                 JEVisUnit sumUnitOfInputUnit = qu.getSumUnit(inputUnit);
 
@@ -904,6 +879,8 @@ public class ChartDataRow extends ChartData {
         newModel.setChartType(this.getChartType());
         newModel.setPeriod(this.getPeriod());
         newModel.setSomethingChanged(false);
+        newModel.setCss(this.getCss());
+        newModel.setDecimalDigits(this.getDecimalDigits());
 
         return newModel;
     }
@@ -1012,7 +989,7 @@ public class ChartDataRow extends ChartData {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Error while getting Period from object {}:{}", object.getName(), object.getID(), e);
             }
 
             period = p;
@@ -1043,7 +1020,7 @@ public class ChartDataRow extends ChartData {
 
     @Override
     public String getName() {
-        if (super.getName() == null || super.getName().equals("")) {
+        if (super.getName() == null || super.getName().isEmpty()) {
             return getObject().getName();
         } else {
             return super.getName();

@@ -18,6 +18,11 @@ public interface CommonUnits {
         JEVisUnit jevisUnit = new JEVisUnitImp(unit);
     }
 
+    interface kW {
+        Unit unit = SI.KILO(SI.WATT);
+        JEVisUnit jevisUnit = new JEVisUnitImp(unit);
+    }
+
     interface m3 {
         Unit unit = SI.CUBIC_METRE;
         JEVisUnit jevisUnit = new JEVisUnitImp(unit);

@@ -11,12 +11,16 @@ import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,9 +36,9 @@ public class ImportStep implements ProcessStep {
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-
+        DateTime benchStart = new DateTime();
         importIntoJEVis(resourceManager);
-
+        logger.debug("{} finished in {}", this.getClass().getSimpleName(), new Period(benchStart, new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
     }
 
     private void importIntoJEVis(ResourceManager resourceManager) throws Exception {
@@ -45,6 +49,18 @@ public class ImportStep implements ProcessStep {
             cleanObject = cleanAttr.getCleanObject();
             periodOffset = cleanAttr.getPeriodOffset();
 
+            for (CleanInterval currentInt : resourceManager.getIntervals()) {
+                VirtualSample sample = currentInt.getResult();
+                DateTime offsetTs = sample.getTimestamp();
+
+                if (!currentInt.getOutputPeriod().equals(Period.ZERO)) {
+
+                    offsetTs = PeriodHelper.getNextPeriod(offsetTs, currentInt.getOutputPeriod(), periodOffset, true, resourceManager.getTimeZone());
+
+                    sample.setTimeStamp(offsetTs);
+                }
+            }
+
 //            if (!resourceManager.getIntervals().isEmpty()) {
 //                DateTime lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
 //                removeOldForecastSamples(cleanObject, lastDateTimeOfResults);
@@ -52,9 +68,19 @@ public class ImportStep implements ProcessStep {
         } else if (resourceManager.getForecastDataObject() != null) {
             ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
             cleanObject = forecastDataObject.getForecastDataObject();
-            JEVisAttribute attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
-            if (!resourceManager.getIntervals().isEmpty()) {
-                attribute.deleteAllSample();
+            JEVisAttribute valueAttribute = forecastDataObject.getValueAttribute();
+            JEVisAttribute keepValuesAttribute = forecastDataObject.getKeepValuesAttribute();
+            boolean keepValues = false;
+
+            if (keepValuesAttribute != null && keepValuesAttribute.hasSample()) {
+                JEVisSample latestSample = keepValuesAttribute.getLatestSample();
+                if (latestSample != null) {
+                    keepValues = latestSample.getValueAsBoolean();
+                }
+            }
+
+            if (!resourceManager.getIntervals().isEmpty() && !keepValues) {
+                valueAttribute.deleteAllSample();
             }
         } else if (resourceManager.getMathDataObject() != null) {
             MathDataObject mathDataObject = resourceManager.getMathDataObject();
@@ -82,7 +108,7 @@ public class ImportStep implements ProcessStep {
             }
         }
 
-        if (resourceManager.isClean() && !resourceManager.getIntervals().isEmpty() && !monthPeriods) {
+        if ((resourceManager.isClean() && !resourceManager.getIntervals().isEmpty() && !monthPeriods) || resourceManager.isForecast() && !resourceManager.getIntervals().isEmpty()) {
 //            resourceManager.getIntervals().remove(0);
             firstDateTimeOfResults = resourceManager.getIntervals().get(0).getInterval().getStart();
             lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
@@ -102,9 +128,9 @@ public class ImportStep implements ProcessStep {
             }
             DateTime date = sample.getTimestamp();
             if (date != null) {
-                DateTime timestamp = sample.getTimestamp().plusSeconds(periodOffset);
+                DateTime timestamp = sample.getTimestamp();
 
-                if (hasSamples && resourceManager.isClean()) {
+                if (hasSamples && (resourceManager.isClean() || resourceManager.isForecast())) {
                     JEVisSample smp = listOldSamples.get(timestamp);
                     if (smp != null) {
                         attribute.deleteSamplesBetween(timestamp, timestamp);
@@ -114,7 +140,7 @@ public class ImportStep implements ProcessStep {
                 cleanSamples.add(sampleSql);
             }
         }
-        if (cleanSamples.size() > 0) {
+        if (!cleanSamples.isEmpty()) {
             logger.info("[{}] Start import of new Samples: {}", resourceManager.getID(), cleanSamples.size());
             insertSamples(attribute, cleanSamples);
             logger.info("[{}] Import finished for samples: {}", resourceManager.getID(), cleanSamples.size());
@@ -146,12 +172,12 @@ public class ImportStep implements ProcessStep {
         for (int i = 0; i < samples.size(); i += perChunk) {
             if ((i + perChunk) < samples.size()) {
                 List<JEVisSample> chunk = samples.subList(i, i + perChunk);
-                if (chunk.size() > 0) {
+                if (!chunk.isEmpty()) {
                     attribute.addSamples(chunk);
                 }
             } else {
                 List<JEVisSample> chunk = samples.subList(i, samples.size());
-                if (chunk.size() > 0) {
+                if (!chunk.isEmpty()) {
                     attribute.addSamples(chunk);
                 }
                 break;

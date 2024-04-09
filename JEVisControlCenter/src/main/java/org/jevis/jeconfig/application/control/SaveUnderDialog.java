@@ -40,7 +40,7 @@ public class SaveUnderDialog extends Dialog {
     public SaveUnderDialog(JEVisDataSource jeVisDataSource, String directoryClass, JEVisObject selectedObj, JEVisClass analysisClass, String promptName, Saver saver) {
         super();
         setTitle(I18n.getInstance().getString("plugin.trc.saveunderdialog.title"));
-        setHeaderText(I18n.getInstance().getString("plugin.trc.saveunderdialog.header"));
+        setHeaderText(I18n.getInstance().getString("plugin.dashboard.saveunderdialog.header"));
         setResizable(true);
         initOwner(JEConfig.getStage());
         initModality(Modality.APPLICATION_MODAL);
@@ -172,9 +172,9 @@ public class SaveUnderDialog extends Dialog {
                 Stage overwriteStage = (Stage) dialogOverwrite.getDialogPane().getScene().getWindow();
                 TopMenu.applyActiveTheme(overwriteStage.getScene());
                 overwriteStage.setAlwaysOnTop(true);
-                dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
+                dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.dashboard.dialog.overwrite.title"));
                 dialogOverwrite.setResizable(true);
-                Label message = new Label(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
+                Label message = new Label(I18n.getInstance().getString("plugin.dashboard.dialog.overwrite.message"));
 
                 ButtonType overwriteOkType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
                 ButtonType overwriteCancelType = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -201,6 +201,7 @@ public class SaveUnderDialog extends Dialog {
                         } else {
                             logger.error("Cancel save");
                         }
+
                         saver.save(target, false);
 
                         response = Response.OK;
@@ -210,27 +211,85 @@ public class SaveUnderDialog extends Dialog {
                         ex.printStackTrace();
                     }
                 });
-                dialogOverwrite.show();
+
+                boolean writeOk = true;
+                try {
+                    writeOk = jeVisDataSource.getCurrentUser().canWrite(toOverwriteObj.getID());
+                    if (!writeOk) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.object.permission.write.denied"));
+                        alert.initOwner(JEConfig.getStage());
+                        alert.initModality(Modality.APPLICATION_MODAL);
+                        Stage stageAlert = (Stage) alert.getDialogPane().getScene().getWindow();
+                        TopMenu.applyActiveTheme(stageAlert.getScene());
+                        stageAlert.setAlwaysOnTop(true);
+                        alert.showAndWait();
+                        this.close();
+                    }
+                } catch (Exception e) {
+                    logger.error("Could not do write check", e);
+                }
+
+                if (writeOk) {
+                    dialogOverwrite.show();
+                }
             } else if (selectedObj != null && selectedObj.getName().equals(name.getText())) {
                 target = selectedObj;
 
-                saver.save(target, true);
-
-                response = Response.OK;
-                this.close();
-            } else if (selectedObj == null || !selectedObj.getName().equals(name.getText())) {
-                JEVisObject newObject = null;
+                boolean writeOk = true;
                 try {
-                    newObject = currentSaveDirectory.get().buildObject(name.getText(), analysisClass);
+                    writeOk = jeVisDataSource.getCurrentUser().canWrite(target.getID());
+                    if (!writeOk) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.object.permission.write.denied"));
+                        alert.initOwner(JEConfig.getStage());
+                        alert.initModality(Modality.APPLICATION_MODAL);
+                        Stage stageAlert = (Stage) alert.getDialogPane().getScene().getWindow();
+                        TopMenu.applyActiveTheme(stageAlert.getScene());
+                        stageAlert.setAlwaysOnTop(true);
+                        alert.showAndWait();
+                        this.close();
+                    }
+                } catch (Exception e) {
+                    logger.error("Could not do write check", e);
+                }
 
-                    newObject.commit();
-
-                    target = newObject;
-
-                    saver.save(target, false);
+                if (writeOk) {
+                    saver.save(target, true);
 
                     response = Response.OK;
                     this.close();
+                }
+            } else if (selectedObj == null || !selectedObj.getName().equals(name.getText())) {
+                JEVisObject newObject = null;
+                try {
+                    boolean createOk = true;
+                    try {
+                        createOk = jeVisDataSource.getCurrentUser().canCreate(currentSaveDirectory.get().getID());
+                        if (!createOk) {
+                            Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.object.permission.write.denied"));
+                            alert.initOwner(JEConfig.getStage());
+                            alert.initModality(Modality.APPLICATION_MODAL);
+                            Stage stageAlert = (Stage) alert.getDialogPane().getScene().getWindow();
+                            TopMenu.applyActiveTheme(stageAlert.getScene());
+                            stageAlert.setAlwaysOnTop(true);
+                            alert.showAndWait();
+                            this.close();
+                        }
+                    } catch (Exception e) {
+                        logger.error("Could not do write check", e);
+                    }
+
+                    if (createOk) {
+                        newObject = currentSaveDirectory.get().buildObject(name.getText(), analysisClass);
+
+                        newObject.commit();
+
+                        target = newObject;
+
+                        saver.save(target, false);
+
+                        response = Response.OK;
+                        this.close();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -246,14 +305,14 @@ public class SaveUnderDialog extends Dialog {
         return target;
     }
 
+    public Response getResponse() {
+        return response;
+    }
+
     @FunctionalInterface
     public interface Saver {
 
         boolean save(JEVisObject target, boolean sameObject);
 
-    }
-
-    public Response getResponse() {
-        return response;
     }
 }

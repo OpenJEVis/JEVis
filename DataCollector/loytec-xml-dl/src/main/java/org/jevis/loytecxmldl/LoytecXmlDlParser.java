@@ -208,7 +208,7 @@ public class LoytecXmlDlParser {
                 try {
                     doubleValue = Double.parseDouble(valueString);
                 } catch (Exception e) {
-                    logger.warn("Could not get double value. continuing with object value");
+                    logger.warn("Could not get double value. Continuing with object value. Target {}, Value Identifier {}", target, valueIdentifier);
                     objectValue = valueString;
                 }
 

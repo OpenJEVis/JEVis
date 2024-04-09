@@ -49,6 +49,7 @@ public class StatusHandler {
     private JEVisDataSource _ds;
     private Config _conf;
     private JEVisObject notificationObject;
+    private DataServerTable dataServerTable = null;
 
     /**
      * Create an StatusHandler for the given Configuration
@@ -96,7 +97,6 @@ public class StatusHandler {
             logger.error("Could not generate wireless logic status", e);
         }
 
-        DataServerTable dataServerTable = null;
         try {
             dataServerTable = new DataServerTable(_ds, getLatestReported());
             sb.append(dataServerTable.getTableString());
@@ -161,6 +161,9 @@ public class StatusHandler {
             EmailNotification nofi = new EmailNotification();
             nofi.setNotificationObject(notificationObject);
             nofi.setIsHTML(true);
+            if (!dataServerTable.getDataServerLines().isEmpty()) {
+                nofi.setPriority(true);
+            }
 
             JEVisObject notiDriObj = notificationObject.getDataSource().getObject(service.getMailID());
             EmailNotificationDriver emailNofi = new EmailNotificationDriver();

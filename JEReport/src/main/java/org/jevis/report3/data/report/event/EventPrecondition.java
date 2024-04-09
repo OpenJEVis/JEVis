@@ -62,7 +62,7 @@ public class EventPrecondition implements Precondition {
                 }
             }
 
-            DateTime lastDate = samplesHandler.getTimeStampFromLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
+            DateTime lastDate = samplesHandler.getTimeStampOfLastSample(reportObject.getDataSource().getObject(jevisId), attributeName);
             String newStartTimeString = lastDate.toString(DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT));
             reportObject.getAttribute(ReportAttributes.START_RECORD).buildSample(new DateTime(), newStartTimeString).commit();
 

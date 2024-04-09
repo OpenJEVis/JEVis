@@ -14,11 +14,13 @@ import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
-import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -114,9 +116,16 @@ public class CalcLauncher extends AbstractCliApp {
                         logger.error("Failed Job: {}:{}", object.getName(), object.getID(), e);
 
                     } finally {
+                        StringBuilder finished = new StringBuilder();
+                        finished.append(object.getID()).append(" in ");
+                        String length = new Period(runningJobs.get(object.getID()), new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
                         removeJob(object);
+                        finished.append(length);
 
-                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
+                        StringBuilder running = new StringBuilder();
+                        runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
+
+                        logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.toString(), running.toString());
 
                         checkLastJob();
                     }
@@ -136,8 +145,10 @@ public class CalcLauncher extends AbstractCliApp {
         List<JEVisObject> jevisObjects = new ArrayList<>();
         try {
             JEVisClass calcClass = ds.getJEVisClass(CalcJobFactory.Calculation.CLASS.getName());
-            JEVisDataSourceWS dsWS = (JEVisDataSourceWS) ds;
-            jevisObjects = dsWS.getObjectsWS(calcClass, false);
+            DateTime start = new DateTime();
+            ds.reloadObjects();
+            logger.info("Reloaded objects in {}", new Period(new DateTime().getMillis() - start.getMillis()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale())));
+            jevisObjects = ds.getObjects(calcClass, false);
         } catch (JEVisException ex) {
             logger.error(ex.getMessage());
         }

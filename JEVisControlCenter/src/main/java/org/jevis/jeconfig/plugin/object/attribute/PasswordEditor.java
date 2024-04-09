@@ -44,8 +44,8 @@ import org.joda.time.DateTime;
 public class PasswordEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(PasswordEditor.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    public JEVisAttribute _attribute;
     private final HBox box = new HBox();
+    public JEVisAttribute _attribute;
     private boolean _hasChanged = false;
     private JFXButton _setPW;
     private boolean _readOnly = true;
@@ -59,24 +59,6 @@ public class PasswordEditor implements AttributeEditor {
     public boolean hasChanged() {
 //        logger.info(attribute.getName() + " changed: " + _hasChanged);
         return _hasChanged;
-    }
-
-    @Override
-    public void update() {
-        Platform.runLater(() -> {
-            box.getChildren().clear();
-            buildTextField();
-        });
-    }
-
-    @Override
-    public BooleanProperty getValueChangedProperty() {
-        return _changed;
-    }
-
-    @Override
-    public void setReadOnly(boolean canRead) {
-        _readOnly = canRead;
     }
 
     //    @Override
@@ -106,6 +88,35 @@ public class PasswordEditor implements AttributeEditor {
 //        return _field;
     }
 
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _readOnly = canRead;
+    }
+
+    @Override
+    public JEVisAttribute getAttribute() {
+        return _attribute;
+    }
+
+    @Override
+    public boolean isValid() {
+        //TODO: implement validation
+        return true;
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(() -> {
+            box.getChildren().clear();
+            buildTextField();
+        });
+    }
+
     private void buildTextField() {
         if (_setPW == null) {
             _setPW = new JFXButton(I18n.getInstance().getString("plugin.object.attribute.password.button"),
@@ -122,14 +133,15 @@ public class PasswordEditor implements AttributeEditor {
                             String note = String.format("Password set by %s", _attribute.getDataSource().getCurrentUser().getAccountName());
 
                             JEVisSample sample;
+                            /*
                             if (_attribute.hasSample()) {
                                 sample = _attribute.getLatestSample();
                                 sample.setValue(dia.getPassword());
                                 sample.setNote(note);
-                            } else {
-                                sample = _attribute.buildSample(new DateTime(), dia.getPassword(), note);
+                            } else {*/
+                            sample = _attribute.buildSample(new DateTime(), dia.getPassword(), note);
 
-                            }
+                            //}
                             sample.commit();
                             _hasChanged = true;
 
@@ -145,16 +157,5 @@ public class PasswordEditor implements AttributeEditor {
             initialized = true;
         }
 
-    }
-
-    @Override
-    public JEVisAttribute getAttribute() {
-        return _attribute;
-    }
-
-    @Override
-    public boolean isValid() {
-        //TODO: implement validation
-        return true;
     }
 }

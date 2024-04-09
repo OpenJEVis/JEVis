@@ -294,6 +294,11 @@ public interface JEVisDataSource {
     void preload() throws JEVisException;
 
     /**
+     * Request the datasource to preload object data.
+     */
+    void reloadObjects();
+
+    /**
      * Request the reloading of all Attributes.
      *
      * @return

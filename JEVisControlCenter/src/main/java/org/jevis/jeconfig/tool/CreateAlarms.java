@@ -141,7 +141,7 @@ public class CreateAlarms {
                                             alarmObjectsSample.commit();
 
                                             JEVisAttribute timeStampAttribute = foundCorrespondingAlarmObject.getAttribute("Time Stamp");
-                                            DateTime startOfData = dataChild.getAttribute("Value").getTimestampFromFirstSample();
+                                            DateTime startOfData = dataChild.getAttribute("Value").getTimestampOfFirstSample();
                                             if (startOfData == null) startOfData = new DateTime();
                                             JEVisSample timeStampSample = timeStampAttribute.buildSample(new DateTime(), startOfData);
                                             timeStampSample.commit();

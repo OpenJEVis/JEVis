@@ -1,0 +1,22 @@
+﻿{
+  "name": "Index of Legal Provisions Directory",
+  "description": "Index of Legal Provisions Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Index of Legal Provisions Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Index of Legal Provisions Directory",
+      "end": "Building",
+      "type": 3
+    },
+    {
+      "start": "Index of Legal Provisions Directory",
+      "end": "Directory",
+      "type": 0
+    }
+  ]
+}

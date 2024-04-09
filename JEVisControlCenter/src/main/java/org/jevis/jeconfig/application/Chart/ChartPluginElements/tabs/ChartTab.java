@@ -15,10 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
@@ -51,12 +48,16 @@ public class ChartTab extends Tab {
     private final ChartTypeComboBox chartTypeComboBox;
     private final Label labelGroupingInterval = new Label(I18n.getInstance().getString("graph.tabs.tab.groupinginterval"));
     private final Label labelFixYAxisToZero = new Label(I18n.getInstance().getString("graph.tabs.tab.fixyaxistozero"));
+    private final Label labelShowColumnSums = new Label(I18n.getInstance().getString("graph.tabs.tab.showcolumnsums"));
+    private final Label labelShowRowSums = new Label(I18n.getInstance().getString("graph.tabs.tab.showrowsums"));
     private final JFXCheckBox fixYAxisToZero = new JFXCheckBox();
     private final Table chartTable;
     private final GridPane chartSettings = new GridPane();
     private final VBox vBox = new VBox();
     private final ToolBar tableMenu;
     private final NumberSpinner groupingInterval;
+    private final JFXCheckBox showColumnSums = new JFXCheckBox();
+    private final JFXCheckBox showRowSums = new JFXCheckBox();
     private final List<JEVisClass> dataProcessorClasses = new ArrayList<>();
     private final List<JEVisClass> allDataClasses = new ArrayList<>();
     private final List<Color> usedColors = new ArrayList<>();
@@ -70,6 +71,7 @@ public class ChartTab extends Tab {
     private final ColorMappingBox colorMappingBox;
     private final Label chartNameLabel = new Label(I18n.getInstance().getString("graph.title"));
     private final JFXTextField chartNameSecondTextField = new JFXTextField();
+    private boolean showChartSettings = true;
     private ChartModel chartModel;
     private final ChangeListener<BigDecimal> groupingIntervalChangeListener = (observable, oldValue, newValue) -> {
         if (chartModel != null && !newValue.equals(oldValue)) {
@@ -79,6 +81,16 @@ public class ChartTab extends Tab {
     private final ChangeListener<Boolean> fixYAxisToZeroChangeListener = ((observable, oldValue, newValue) -> {
         if (chartModel != null && !newValue.equals(oldValue)) {
             this.chartModel.setFixYAxisToZero(newValue);
+        }
+    });
+    private final ChangeListener<Boolean> showColumnSumsChangeListener = ((observable, oldValue, newValue) -> {
+        if (chartModel != null && !newValue.equals(oldValue)) {
+            this.chartModel.setShowColumnSums(newValue);
+        }
+    });
+    private final ChangeListener<Boolean> showRowSumsChangeListener = ((observable, oldValue, newValue) -> {
+        if (chartModel != null && !newValue.equals(oldValue)) {
+            this.chartModel.setShowRowSums(newValue);
         }
     });
     private final ChangeListener<BigDecimal> minFractionDigitsChangeListener = (observable, oldValue, newValue) -> {
@@ -172,12 +184,17 @@ public class ChartTab extends Tab {
         int maxFracs = chartModel.getMaxFractionDigits();
         maxFractionDigits = new NumberSpinner(new BigDecimal(maxFracs), new BigDecimal(1));
 
+        fixYAxisToZero.setSelected(chartModel.isFixYAxisToZero());
+        showColumnSums.setSelected(chartModel.isShowColumnSums());
+        showRowSums.setSelected(chartModel.isShowRowSums());
+
         updateChartSettings(chartModel, chartSettings);
 
         chartTable.getItems().setAll(chartModel.getChartData());
         VBox.setVgrow(chartTable, Priority.ALWAYS);
 
         vBox.getChildren().setAll(chartSettings, tableMenu, chartTable);
+
         vBox.setSpacing(6);
         vBox.setPadding(new Insets(4, 4, 4, 4));
         VBox.setVgrow(chartSettings, Priority.ALWAYS);
@@ -186,7 +203,7 @@ public class ChartTab extends Tab {
         newButton.setOnAction(actionEvent -> {
             boolean isHeatMap = chartModel.getChartType() == ChartType.HEAT_MAP;
             boolean isPieChart = chartModel.getChartType() == ChartType.PIE;
-            if (isHeatMap && chartModel.getChartData().size() > 0) {
+            if (isHeatMap && !chartModel.getChartData().isEmpty()) {
                 return;
             }
             if (isPieChart && chartModel.getChartData().size() > 9) {
@@ -219,7 +236,10 @@ public class ChartTab extends Tab {
                             chartData.setId(object.getID());
                             chartData.setObjectName(object);
                             chartData.setAttributeString("Value");
-                            chartData.setUnit(object.getAttribute("Value").getDisplayUnit());
+                            JEVisAttribute value = object.getAttribute("Value");
+                            if (value != null) {
+                                chartData.setUnit(value.getDisplayUnit());
+                            }
                             Color nextColor = ColorTable.getNextColor(usedColors);
                             chartData.setColor(nextColor);
                             chartData.setChartType(ChartType.DEFAULT);
@@ -304,6 +324,15 @@ public class ChartTab extends Tab {
             chartSettings.add(fixYAxisToZero, 1, row);
         }
 
+        if (chartModel.getChartType() == ChartType.TABLE_V) {
+            chartSettings.add(labelShowColumnSums, 0, row);
+            chartSettings.add(showColumnSums, 1, row);
+            row++;
+
+            chartSettings.add(labelShowRowSums, 0, row);
+            chartSettings.add(showRowSums, 1, row);
+        }
+
         boolean isCustomPeriodEnabled = chartModel.getChartData().stream().anyMatch(ChartData::isIntervalEnabled);
 
         switch (chartModel.getChartType()) {
@@ -328,6 +357,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(true);
                 setCssColumnVisible(false);
                 break;
             case LOGICAL:
@@ -347,6 +377,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(false);
+                setDecimalDigitsColumnVisible(false);
                 setCssColumnVisible(false);
                 break;
             case BAR:
@@ -366,6 +397,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(false);
                 setCssColumnVisible(false);
                 break;
             case BUBBLE:
@@ -380,6 +412,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(true);
                 setCssColumnVisible(false);
                 break;
             case PIE:
@@ -394,6 +427,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(false);
                 setCssColumnVisible(false);
                 break;
             case TABLE:
@@ -408,6 +442,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(true);
                 setCssColumnVisible(false);
                 break;
             case HEAT_MAP:
@@ -422,6 +457,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(false);
                 setCssColumnVisible(false);
                 break;
             case TABLE_V:
@@ -436,6 +472,7 @@ public class ChartTab extends Tab {
                 setAggregationPeriodColumnVisible(false);
                 setManipulationModeColumnVisible(false);
                 setMathColumnVisible(true);
+                setDecimalDigitsColumnVisible(true);
                 setCssColumnVisible(true);
                 break;
         }
@@ -448,6 +485,8 @@ public class ChartTab extends Tab {
         minFractionDigits.numberProperty().addListener(minFractionDigitsChangeListener);
         maxFractionDigits.numberProperty().addListener(maxFractionChangeListener);
         fixYAxisToZero.selectedProperty().addListener(fixYAxisToZeroChangeListener);
+        showColumnSums.selectedProperty().addListener(showColumnSumsChangeListener);
+        showRowSums.selectedProperty().addListener(showRowSumsChangeListener);
     }
 
     private void disableListener() {
@@ -455,6 +494,8 @@ public class ChartTab extends Tab {
         minFractionDigits.numberProperty().removeListener(minFractionDigitsChangeListener);
         maxFractionDigits.numberProperty().removeListener(maxFractionChangeListener);
         fixYAxisToZero.selectedProperty().removeListener(fixYAxisToZeroChangeListener);
+        showColumnSums.selectedProperty().removeListener(showColumnSumsChangeListener);
+        showRowSums.selectedProperty().removeListener(showRowSumsChangeListener);
     }
 
     private void initializeClasses(JEVisDataSource ds) {
@@ -573,6 +614,10 @@ public class ChartTab extends Tab {
         chartTable.getMathColumn().setVisible(visible);
     }
 
+    public void setDecimalDigitsColumnVisible(boolean visible) {
+        chartTable.getDecimalDigitsColumn().setVisible(visible);
+    }
+
     public void setCssColumnVisible(boolean visible) {
         chartTable.getCssColumn().setVisible(visible);
     }
@@ -583,5 +628,15 @@ public class ChartTab extends Tab {
 
     public Table getChartTable() {
         return chartTable;
+    }
+
+    public void setShowChartSettings(boolean showChartSettings) {
+        this.showChartSettings = showChartSettings;
+
+        if (showChartSettings) {
+            vBox.getChildren().setAll(chartSettings, tableMenu, chartTable);
+        } else {
+            vBox.getChildren().setAll(tableMenu, chartTable);
+        }
     }
 }

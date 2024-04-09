@@ -32,7 +32,7 @@ public class AnalysisTimeFrame {
     private DateTime start = DateTime.now();
     private DateTime end = DateTime.now();
     private final DateHelper dateHelper = new DateHelper();
-    private final WorkDays workDays;
+    private WorkDays workDays = null;
     private JEVisObject currentAnalysis;
     private long id = -1;
     private DataModel dataModel;
@@ -60,7 +60,12 @@ public class AnalysisTimeFrame {
             if (chartPlugin.getDataSettings().getCurrentAnalysis() != null) {
                 this.workDays = new WorkDays(chartPlugin.getDataSettings().getCurrentAnalysis());
             } else {
-                workDays = new WorkDays(null);
+                try {
+                    workDays = new WorkDays(ds.getCurrentUser().getUserObject());
+                } catch (Exception e) {
+                    logger.error("Could not get User object", e);
+                    workDays = new WorkDays(null);
+                }
             }
         } else {
             workDays = new WorkDays(null);
@@ -69,25 +74,21 @@ public class AnalysisTimeFrame {
         this.dateHelper.setWorkDays(workDays);
     }
 
-    public AnalysisTimeFrame(JEVisDataSource ds, ChartPlugin chartPlugin, JEVisObject newAnalysis, TimeFrame timeFrame) {
-        this(ds, chartPlugin);
-        this.currentAnalysis = newAnalysis;
-        this.timeFrame = timeFrame;
-
-        updateDates();
-    }
-
     public AnalysisTimeFrame(JEVisDataSource ds, ChartPlugin chartPlugin, TimeFrame timeFrame) {
-        this(ds, chartPlugin);
-        this.timeFrame = timeFrame;
+        this(ds, chartPlugin, timeFrame, null);
 
-        updateDates();
     }
 
     public AnalysisTimeFrame(JEVisDataSource ds, ChartPlugin chartPlugin, TimeFrame timeFrame, JEVisObject customPeriodObject) {
-        this(ds, chartPlugin, timeFrame);
-        this.id = customPeriodObject.getID();
-        this.name = customPeriodObject.getLocalName(I18n.getInstance().getLocale().getLanguage());
+        this(ds, chartPlugin);
+        this.timeFrame = timeFrame;
+
+        if (customPeriodObject != null) {
+            this.id = customPeriodObject.getID();
+            this.name = customPeriodObject.getLocalName(I18n.getInstance().getLocale().getLanguage());
+        }
+
+        updateDates();
     }
 
     public TimeFrame getTimeFrame() {
@@ -289,9 +290,9 @@ public class AnalysisTimeFrame {
                     JEVisObject object = ds.getObject(chartData.getId());
                     if (object != null) {
                         JEVisAttribute valueAtt = object.getAttribute(chartData.getAttributeString());
-                        if (valueAtt != null && valueAtt.getTimestampFromLastSample() != null) {
-                            if (valueAtt.getTimestampFromLastSample().isBefore(end.get())) {
-                                end.set(valueAtt.getTimestampFromLastSample());
+                        if (valueAtt != null && valueAtt.getTimestampOfLastSample() != null) {
+                            if (valueAtt.getTimestampOfLastSample().isBefore(end.get())) {
+                                end.set(valueAtt.getTimestampOfLastSample());
                             }
 
                             DateTime newStart = CommonMethods.getStartDateFromSampleRate(valueAtt);

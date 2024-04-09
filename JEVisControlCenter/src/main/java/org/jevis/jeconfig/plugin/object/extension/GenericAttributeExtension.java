@@ -57,12 +57,12 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     private static final String TITLE = I18n.getInstance().getString("plugin.object.attribute.title");
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
     public static DoubleProperty editorWidth = new SimpleDoubleProperty(350);
+    private static JEVisTree tree;
     private final ScrollPane _view = new ScrollPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final JEVisObject _obj;
-    private boolean _needSave = false;
     private final List<AttributeEditor> _attributesEditor;
-    private static JEVisTree tree;
+    private boolean _needSave = false;
 
     public GenericAttributeExtension(JEVisObject obj, JEVisTree tree) {
         GenericAttributeExtension.tree = tree;
@@ -71,19 +71,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         _view.getStyleClass().add("generic-attribute-extension");
 
         _view.setFitToWidth(true);
-    }
-
-    @Override
-    public boolean isForObject(JEVisObject obj) {
-
-        //its for all in the moment
-        //TODO: handle the case that we have an special representation an don't want the generic
-        return true;
-    }
-
-    @Override
-    public BooleanProperty getValueChangedProperty() {
-        return _changed;
     }
 
     public static AttributeEditor getEditor(JEVisType type, JEVisAttribute att) throws JEVisException {
@@ -156,6 +143,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     editor = new FileEditor(att);
                 } else if (guiDisplayType.equals(GUIConstants.BASIC_FILER.getId())) {
                     editor = new FileEditor(att);
+                } else if (guiDisplayType.equals(GUIConstants.HTML_FORMAT.getId())) {
+                    editor = new FileHTML(att);
                 } else {
                     editor = new StringEditor(att);
                 }
@@ -195,6 +184,19 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     }
 
     @Override
+    public boolean isForObject(JEVisObject obj) {
+
+        //its for all in the moment
+        //TODO: handle the case that we have an special representation an don't want the generic
+        return true;
+    }
+
+    @Override
+    public Node getView() {
+        return _view;
+    }
+
+    @Override
     public void setVisible() {
         Platform.runLater(() -> buildGui(_obj));
     }
@@ -214,11 +216,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     public void dismissChanges() {
         _changed.setValue(false);
         //TODO delete changes
-    }
-
-    @Override
-    public void showHelp(boolean show) {
-
     }
 
     @Override
@@ -258,6 +255,16 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     }
 
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
+    }
+
+    @Override
+    public void showHelp(boolean show) {
+
+    }
+
     private boolean saveAll() {
         for (AttributeEditor editor : _attributesEditor) {
             try {
@@ -289,11 +296,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             }
         }
         return null;
-    }
-
-    @Override
-    public Node getView() {
-        return _view;
     }
 
     private void buildGui(JEVisObject obj) {
@@ -338,6 +340,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         Label name = new Label(I18nWS.getInstance().getAttributeName(att));
                         name.setWrapText(true);
                         name.setMinWidth(100);
+                        name.setMaxWidth(150);
+                        name.setAlignment(Pos.CENTER_LEFT);
 
                         try {
 
@@ -372,7 +376,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         Separator sep = new Separator(Orientation.HORIZONTAL);
                         sep.setOpacity(0.2d);
                         gridPane.add(sep, 0, coloum, 3, 1);
-                        name.setAlignment(Pos.CENTER_RIGHT);
+
 
                         coloum++;
                         _attributesEditor.add(editor);
@@ -406,5 +410,5 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     }
 
-    
+
 }

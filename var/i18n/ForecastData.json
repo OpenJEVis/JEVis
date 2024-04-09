@@ -37,6 +37,25 @@
       }
     },
     {
+      "type": "Keep Values",
+      "descriptions": {
+        "de": "Behält berechnete Werte",
+        "ru": "Сохраняет рассчитанные значения",
+        "uk": "Зберігає розрахункові значення",
+        "th": "เก็บค่าที่คำนวณได้",
+        "en": "Keeps old forecast values",
+        "ar": "يحتفظ بالقيم المحسوبة"
+      },
+      "names": {
+        "de": "Werte behalten",
+        "ru": "сохранить ценности",
+        "uk": "зберігати цінності",
+        "th": "รักษาค่า",
+        "en": "Keep Values",
+        "ar": "حافظ على القيم"
+      }
+    },
+    {
       "type": "Value",
       "descriptions": {
         "de": "Wert der Datenreihe",

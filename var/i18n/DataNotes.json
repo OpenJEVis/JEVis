@@ -14,7 +14,7 @@
   },
   "types": [
     {
-      "type": "User Notes",
+      "type": "Value",
       "descriptions": {
         "de": "Benutzernotiz der zugehörigen Datenreihe",
         "ru": "User notes of respective Data Rows",

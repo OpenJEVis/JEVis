@@ -1,0 +1,20 @@
+{
+  "jevisclass": "Action Plan Directory v2",
+  "names": {
+    "de": "Aktionsplan",
+    "ru": "План Действий",
+    "uk": "план дій",
+    "th": "แผนปฏิบัติการ",
+    "en": "Action Plan",
+    "ar": "خطة عمل"
+  },
+  "descriptions": {
+    "de": "In einem Aktionsplan werden Informationen zum Aktionsplan verwaltet",
+    "ru": "Информация о плане действий управляется в плане действий",
+    "uk": "Інформація про план дій міститься в плані дій",
+    "th": "ข้อมูลเกี่ยวกับแผนปฏิบัติการได้รับการจัดการในแผนปฏิบัติการ",
+    "en": "Information about the action plan is managed in an action plan",
+    "ar": "تدار المعلومات حول خطة العمل في خطة عمل."
+  },
+  "types": []
+}

@@ -8,6 +8,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.commons.datetime.Months;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 
@@ -16,6 +17,7 @@ import java.time.YearMonth;
 public class MonthBox extends JFXComboBox<Months> {
     private YearBox yearBox;
     private DayBox dayBox;
+    private WorkDays workDays;
 
     public MonthBox() {
         super();
@@ -82,6 +84,19 @@ public class MonthBox extends JFXComboBox<Months> {
         setCellFactory(cellFactory);
         setButtonCell(cellFactory.call(null));
 
+        getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                if (yearBox != null) {
+                    Integer year = yearBox.getSelectionModel().getSelectedItem();
+                    YearMonth yearMonthObject = YearMonth.of(year, newValue.intValue() + 1);
+
+                    if (dayBox != null) {
+                        dayBox.setDays(yearMonthObject.lengthOfMonth());
+                    }
+                }
+            }
+        });
+
         getSelectionModel().selectFirst();
     }
 
@@ -89,22 +104,32 @@ public class MonthBox extends JFXComboBox<Months> {
         this.yearBox = yearBox;
         this.dayBox = dayBox;
 
-        getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
-                Integer year = yearBox.getSelectionModel().getSelectedItem();
-                YearMonth yearMonthObject = YearMonth.of(year, newValue.intValue() + 1);
-                dayBox.setDays(yearMonthObject.lengthOfMonth());
-            }
-        });
-
         if (nextTS != null) {
+            DateTime localTS;
+            if (workDays != null) {
+                localTS = nextTS.withZone(workDays.getDateTimeZone());
+            } else {
+                localTS = nextTS;
+            }
+
             Platform.runLater(() -> {
-                getSelectionModel().select(nextTS.getMonthOfYear() - 1);
-                dayBox.getSelectionModel().select(Integer.valueOf(nextTS.getDayOfMonth()));
+                yearBox.getSelectionModel().select(Integer.valueOf(localTS.getYear()));
+                getSelectionModel().select(localTS.getMonthOfYear() - 1);
+                dayBox.getSelectionModel().select(Integer.valueOf(localTS.getDayOfMonth()));
             });
+
         } else {
-            Platform.runLater(() -> getSelectionModel().select(DateTime.now().getMonthOfYear() - 1));
+            Platform.runLater(() -> {
+                if (workDays != null) {
+                    getSelectionModel().select(DateTime.now().withZone(workDays.getDateTimeZone()).getMonthOfYear() - 1);
+                } else {
+                    getSelectionModel().select(DateTime.now().getMonthOfYear() - 1);
+                }
+            });
         }
     }
 
+    public void setWorkDays(WorkDays workDays) {
+        this.workDays = workDays;
+    }
 }

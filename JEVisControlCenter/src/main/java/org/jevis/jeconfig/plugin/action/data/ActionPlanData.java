@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.action.data;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -9,17 +10,19 @@ import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jeconfig.tool.gson.GsonBuilder;
+import org.jevis.jeconfig.plugin.action.ui.ActionTab;
+import org.jevis.jeconfig.plugin.action.ui.ActionTable;
 import org.joda.time.DateTime;
 
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static java.util.Locale.GERMANY;
 
@@ -30,37 +33,39 @@ public class ActionPlanData {
 
     public static String STATUS_DONE = I18n.getInstance().getString("plugin.action.status.done");
     public static String STATUS_OPEN = I18n.getInstance().getString("plugin.action.status.open");
-
+    private final StringProperty name = new SimpleStringProperty("");
+    private final StringProperty noPrefix = new SimpleStringProperty("");
+    private final ObservableList<ActionData> actions = FXCollections.observableArrayList();
+    private final AtomicInteger biggestActionNr = new AtomicInteger(0);
+    private final String ATTRIBUTE_CSTATUS = "Custom Status";
+    private final String ATTRIBUTE_CFIELD = "Custom Fields";
+    private final String ATTRIBUTE_CMEDIUM = "Custom Medium";
+    private final String ATTRIBUTE_SEU = "Custom SEU";
+    private final String ATTRIBUTE_EnPI = "EnPI";
+    private final String ATTRIBUTE_NrPrefix = "Nr Prefix";
+    private final AtomicBoolean actionsLoaded = new AtomicBoolean(false);
+    Type parameterListType = new TypeToken<List<Medium>>() {
+    }.getType();
+    Gson gson = GsonBuilder.createDefaultBuilder().create();
     private JEVisObject object;
     private ObservableList<String> statusTags;
-    private ObservableList<String> mediumTags;
+    private ObservableList<Medium> mediumTags;
     private ObservableList<String> fieldsTags;
     private ObservableList<String> significantEnergyUseTags;
     private ObservableList<JEVisObject> enpis;
-    private StringProperty name = new SimpleStringProperty("");
-    private StringProperty nrPrefix = new SimpleStringProperty("");
     private String initNrPrefix = "";
-    private ObservableList<ActionData> actions = FXCollections.observableArrayList();
-    private AtomicInteger biggestActionNr = new AtomicInteger(0);
     private String initCustomStatus = "";
     private String initCustomFields = "";
     private String initCustomMedium = "";
     private String initCustomSEU = "";
-    private String ATTRIBUTE_CSTATUS = "Custom Status";
-    private String ATTRIBUTE_CFIELD = "Custom Fields";
-    private String ATTRIBUTE_CMEDIUM = "Custom Medium";
-    private String ATTRIBUTE_SEU = "Custom SEU";
-    private String ATTRIBUTE_EnPI = "EnPI";
-    private String ATTRIBUTE_NrPrefix = "Nr Prefix";
-
-
-    private AtomicBoolean actionsLoaded = new AtomicBoolean(false);
+    private ActionTable tableView = null;
+    private ActionTab actionTab = null;
 
     public ActionPlanData() {
     }
 
     public ActionPlanData(JEVisObject obj) {
-        System.out.println("New ActionPlan from Object: " + obj);
+        logger.debug("New ActionPlan from Object: " + obj);
         this.object = obj;
 
         name.set(obj.getName());
@@ -71,9 +76,7 @@ public class ActionPlanData {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomStatus = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    statusTags.add(s);
-                }
+                Collections.addAll(statusTags, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -88,7 +91,7 @@ public class ActionPlanData {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_NrPrefix);
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
-                nrPrefix.set(sample.getValueAsString());
+                noPrefix.set(sample.getValueAsString());
                 initNrPrefix = sample.getValueAsString();
             }
 
@@ -103,9 +106,7 @@ public class ActionPlanData {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomFields = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    fieldsTags.add(s);
-                }
+                Collections.addAll(fieldsTags, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -118,9 +119,7 @@ public class ActionPlanData {
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomSEU = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    significantEnergyUseTags.add(s);
-                }
+                Collections.addAll(significantEnergyUseTags, sample.getValueAsString().split(";"));
             }
 
         } catch (Exception e) {
@@ -132,12 +131,20 @@ public class ActionPlanData {
         try {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CMEDIUM);
             JEVisSample sample = attribute.getLatestSample();
+
             if (sample != null && !sample.getValueAsString().isEmpty()) {
                 initCustomMedium = sample.getValueAsString();
-                for (String s : sample.getValueAsString().split(";")) {
-                    mediumTags.add(s);
-                }
             }
+
+            if (initCustomMedium.startsWith(";")) {//Fallback for old data structure
+                for (String s : initCustomMedium.split(";")) {
+                    mediumTags.add(new Medium(s, s, 0.400));
+                }
+            } else {
+                List<Medium> medium = gson.fromJson(initCustomMedium, parameterListType);
+                mediumTags.addAll(medium);
+            }
+
 
         } catch (Exception e) {
             logger.error(e);
@@ -150,9 +157,9 @@ public class ActionPlanData {
                 while (c.next()) {
                     //System.out.println("!!!!!! Plan: " + c);
                     if (c.wasAdded() || c.wasRemoved()) {
-                        Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
-                        //System.out.println("New Action Nr Max: " + maxNr.get().nrProperty().get());
-                        biggestActionNr.set(maxNr.get().nrProperty().get());
+                        Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.noProperty().get(), o2.noProperty().get()));
+                        logger.debug("New Action Nr Max: " + maxNr.get().noProperty().get());
+                        biggestActionNr.set(maxNr.get().noProperty().get());
                     }
 
                 }
@@ -165,35 +172,21 @@ public class ActionPlanData {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_EnPI);
             TargetHelper targetHelper = new TargetHelper(attribute.getDataSource(), attribute);
 
-            enpis.setAll(targetHelper.getObject());
+            if (!enpis.contains(EmptyObject.getInstance())) {
+                enpis.add(EmptyObject.getInstance());
+            }
+            if (!enpis.contains(FreeObject.getInstance())) {
+                enpis.add(FreeObject.getInstance());
+            }
+
+            enpis.addAll(targetHelper.getObject());
 
         } catch (Exception e) {
             logger.error(e);
         }
 
-        if (!enpis.contains(FreeObject.getInstance())) {
-            enpis.add(FreeObject.getInstance());
-        }
 
         // loadActionList();
-
-    }
-
-
-    /**
-     * Set default values for the Action Plan in a locale
-     * TODO: implement other locales
-     *
-     * @param lang
-     */
-    public void setDefaultValues(Locale lang) {
-
-        if (lang.equals(GERMANY)) {
-            mediumTags.setAll("Strom", "Gas");
-            fieldsTags.setAll("Produktion", "Verwaltung");
-            statusTags.setAll(STATUS_OPEN, STATUS_DONE, "Prüfen", "Abgebrochen");
-
-        }
 
     }
 
@@ -211,6 +204,38 @@ public class ActionPlanData {
         return string;
     }
 
+    public ActionTab getActionTab() {
+        return actionTab;
+    }
+
+    public void setActionTab(ActionTab actionTab) {
+        this.actionTab = actionTab;
+    }
+
+    public ActionTable getTableView() {
+        return tableView;
+    }
+
+    public void setTableView(ActionTable tableView) {
+        this.tableView = tableView;
+    }
+
+    /**
+     * Set default values for the Action Plan in a locale
+     * TODO: implement other locales
+     *
+     * @param lang
+     */
+    public void setDefaultValues(Locale lang) {
+
+        if (lang.equals(GERMANY)) {
+            mediumTags.setAll(new Medium("Strom", "Strom", 0.366), new Medium("Gas", "Gas", 0.201));
+            fieldsTags.setAll("Produktion", "Verwaltung");
+            statusTags.setAll(STATUS_OPEN, STATUS_DONE, "Prüfen", "Abgebrochen");
+        }
+
+    }
+
     public ObservableList<JEVisObject> getEnpis() {
         return enpis;
     }
@@ -223,44 +248,6 @@ public class ActionPlanData {
     public void loadActionList() {
         if (!actionsLoaded.get()) {
             actionsLoaded.set(true);
-            //System.out.println("loadIntoList for: " + name.get());
-            /*
-            Task task = new Task() {
-                @Override
-                protected Object call() throws Exception {
-                    try {
-
-                        JEVisClass actionDirClass = object.getDataSource().getJEVisClass("Action Plan Directory v2");
-                        JEVisClass actionClass = object.getDataSource().getJEVisClass("Action");
-                        for (JEVisObject dirObj : getObject().getChildren(actionDirClass, false)) {
-                            //System.out.println("Action Dir: " + dirObj);
-                            dirObj.getChildren(actionClass, false).forEach(actionObj -> {
-                                System.out.println("new Action from JEVis: " + actionObj);
-                                try {
-                                    ActionData action = loadAction(actionObj);
-                                    actions.add(action);
-                                    action.consumption.get().updateData();
-                                    // if (!action.isDeletedProperty().get()) actions.add(action);
-
-                                } catch (Exception e) {
-                                    logger.error("Could not load Action: {},{},{}", actionObj, e, e);
-                                }
-                            });
-                        }
-                        actions.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-
-                    super.done();
-                    return null;
-                }
-            };
-            Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
-           // JEConfig.getStatusBar().addTask(ActionPlugin.class.getName(), task, widgetTaskIcon, true);
-*/
-
             try {
 
                 JEVisClass actionDirClass = object.getDataSource().getJEVisClass("Action Directory");//"Action Plan Directory v2"
@@ -281,7 +268,7 @@ public class ActionPlanData {
                         }
                     });
                 }
-                actions.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
+                actions.sort(Comparator.comparingInt(value -> value.noProperty().get()));
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -331,10 +318,10 @@ public class ActionPlanData {
 
         DateTime now = new DateTime();
 
-        if (!initNrPrefix.equals(nrPrefix.get())) {
+        if (!initNrPrefix.equals(noPrefix.get())) {
             try {
                 JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_NrPrefix);
-                JEVisSample sample = attribute.buildSample(now, nrPrefix.get());
+                JEVisSample sample = attribute.buildSample(now, noPrefix.get());
                 sample.commit();
             } catch (Exception e) {
                 logger.error(e);
@@ -361,10 +348,14 @@ public class ActionPlanData {
             }
         }
 
-        if (!initCustomStatus.equals(listToString(mediumTags))) {
+
+        if (!initCustomStatus.equals(gson.toJson(mediumTags, parameterListType))) {
             try {
+
                 JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_CMEDIUM);
-                JEVisSample sample = attribute.buildSample(now, listToString(mediumTags));
+
+                System.out.println("---- Commit new JSON medium: " + gson.toJson(mediumTags, parameterListType));
+                JEVisSample sample = attribute.buildSample(now, gson.toJson(mediumTags, parameterListType));
                 sample.commit();
             } catch (Exception e) {
                 logger.error(e);
@@ -429,6 +420,11 @@ public class ActionPlanData {
     }
 
     public ObservableList<String> getMediumTags() {
+        return FXCollections.observableArrayList(mediumTags.stream().map(Medium::getName).collect(Collectors.toList()));
+        //return mediumTags;
+    }
+
+    public ObservableList<Medium> getMedium() {
         return mediumTags;
     }
 
@@ -444,11 +440,30 @@ public class ActionPlanData {
         return significantEnergyUseTags;
     }
 
-    public String getNrPrefix() {
-        return nrPrefix.get();
+    public String getNoPrefix() {
+        return noPrefix.get();
     }
 
-    public StringProperty nrPrefixProperty() {
-        return nrPrefix;
+    public StringProperty noPrefixProperty() {
+        return noPrefix;
     }
+
+    public Medium getMediumByID(String mediumID) {
+        Optional<Medium> medium = getMedium().stream().filter(m -> m.getId().equals(mediumID)).findFirst();
+        if (medium.isPresent()) {
+            return medium.get();
+        } else {
+            return new Medium(mediumID, mediumID.isEmpty() ? mediumID : "Error", 0);
+        }
+    }
+
+    public Medium getMediumByName(String mediumName) {
+        Optional<Medium> medium = getMedium().stream().filter(m -> m.getName().equals(mediumName)).findFirst();
+        if (medium.isPresent()) {
+            return medium.get();
+        } else {
+            return new Medium(mediumName, mediumName.isEmpty() ? mediumName : "Error", 0);
+        }
+    }
+
 }

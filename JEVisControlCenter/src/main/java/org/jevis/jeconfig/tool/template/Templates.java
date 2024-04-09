@@ -10,9 +10,13 @@ public class Templates {
 
         templateList.add(new ElectricMeterCounter());
         templateList.add(new ElectricMeterKWH());
+        templateList.add(new ElectricMeterKW());
+        templateList.add(new GasMeterCubicCounter());
+        templateList.add(new WaterCubicMetreCounter());
         templateList.add(new GasMeterCubic());
         templateList.add(new WaterCubicMetre());
         templateList.add(new Temperature());
+        templateList.add(new BuildingObject());
 
         return templateList;
     }

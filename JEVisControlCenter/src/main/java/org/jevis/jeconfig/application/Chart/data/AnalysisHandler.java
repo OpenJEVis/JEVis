@@ -92,6 +92,8 @@ public class AnalysisHandler {
                     chartDataNode.put("manipulationMode", chartData.getManipulationMode().toString());
                 }
 
+                chartDataNode.put("decimalDigits", chartData.getDecimalDigits());
+
                 chartDataNode.put("css", chartData.getCss());
 
                 chartDataNode.put("intervalStart", chartData.getIntervalStart());
@@ -123,6 +125,8 @@ public class AnalysisHandler {
 
             chartModelNode.put("filterEnabled", chartModel.isFilterEnabled());
             chartModelNode.put("fixYAxisToZero", chartModel.isFixYAxisToZero());
+            chartModelNode.put("showColumnSums", chartModel.isShowColumnSums());
+            chartModelNode.put("showRowSums", chartModel.isShowRowSums());
 
             chartModelNode.set("chartData", chartDataList);
 
@@ -155,7 +159,8 @@ public class AnalysisHandler {
                 for (ChartModel chartModel : dataModel.getChartModels()) {
                     for (ChartData chartData : chartModel.getChartData()) {
                         try {
-                            chartData.setObjectName(analysisObject.getDataSource().getObject(chartData.getId()));
+                            JEVisObject object = analysisObject.getDataSource().getObject(chartData.getId());
+                            chartData.setObjectName(object);
                         } catch (Exception ignored) {
                         }
                     }
@@ -210,7 +215,7 @@ public class AnalysisHandler {
             chartModel.setOrientation(listSetting.getOrientation());
 
             for (ChartDataRow chartDataRow : oldModel.getSelectedData()) {
-                if (chartDataRow.getSelectedcharts().contains(listSetting.getId())) {
+                if (chartDataRow.getSelectedCharts().contains(listSetting.getId())) {
                     ChartData chartData = new ChartData();
                     chartData.setId(chartDataRow.getObject().getID());
                     chartData.setObjectName(chartDataRow.getObject());

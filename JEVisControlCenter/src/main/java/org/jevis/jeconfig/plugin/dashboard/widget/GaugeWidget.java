@@ -37,7 +37,6 @@ import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
@@ -237,6 +236,13 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                     gauge.setUnit(displayedUnit.getValue());
                 }
                 List<Section> sections = gaugeSettings.getSections().stream().map(gaugeSection -> new Section(gaugeSection.getStart(), gaugeSection.getEnd(), gaugeSection.getColor())).collect(Collectors.toList());
+                if (gaugeSettings.getMaximum() > gaugeSettings.getMinimum()) {
+                    sections.get(0).setStart(Double.MIN_VALUE);
+                    sections.get(sections.size() - 1).setStop(Double.MAX_VALUE);
+                } else {
+                    sections.get(0).setStart(Double.MAX_VALUE);
+                    sections.get(sections.size() - 1).setStop(Double.MIN_VALUE);
+                }
                 gauge.setSections(sections);
             } else {
                 init();
@@ -267,7 +273,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         gauge.setPrefWidth(25);
         gauge.setPrefHeight(25);
 
-        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), this.getId());
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
         this.sampleHandler.setMultiSelect(false);
 
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
@@ -385,7 +391,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             dashBoardNode
                     .set(GAUGE_DESIGN_NODE_NAME, gaugeSettings.toJSON());
         }
-
+        System.out.println(dashBoardNode);
 
         return dashBoardNode;
     }

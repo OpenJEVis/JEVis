@@ -4,9 +4,11 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class NPVYearData {
-
+    private static final Logger logger = LogManager.getLogger(NPVYearData.class);
     public final SimpleIntegerProperty year = new SimpleIntegerProperty(0);
     /**
      * Positiver betrag
@@ -23,7 +25,7 @@ public class NPVYearData {
     public NPVYearData() {
         super();
         addListeners();
-        updateSums();
+        //updateSums();
     }
 
     public NPVYearData(int year, NPVData npvData) {
@@ -35,7 +37,7 @@ public class NPVYearData {
     }
 
     private void addListeners() {
-        System.out.println("Add NPVYearData. add Listeners");
+        logger.debug("Add NPVYearData. add Listeners");
         ChangeListener<Number> listener = new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -50,9 +52,12 @@ public class NPVYearData {
         this.npvData = npvData;
     }
 
+    /**
+     * @deprecated use NPVData.updateResults() fro now
+     */
     public void updateSums() {
         try {
-            System.out.println("---- NPVYearData Update sums");
+            //System.out.println("---- NPVYearData Update sums");
             netamount.setValue(round(deposit.get() - investment.getValue(), 2));
             discountedCashFlow.setValue(round(deposit.get() - investment.getValue(), 2));
             discountedCashFlow.setValue(round(netamount.get() / Math.pow((1 + (npvData.interestRate.get() / 100)), getYear()), 2));

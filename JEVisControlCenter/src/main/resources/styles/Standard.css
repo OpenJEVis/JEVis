@@ -16,6 +16,9 @@
     -fx-table-color-background: -fx-table-color-even;
     -fx-table-color-header: white;
 
+    -toolbarSVG-background-color: #535360;
+    -pluginSVG-background-color: #1d24a6;
+    -ToolBarDatePicker-default-color: #535360;
 }
 
 .jfx-tab-pane .tab-header-background {
@@ -94,15 +97,7 @@
     /* do not highlight the title pane arrow on focus */
     -fx-background-color: #b8b8b8;
 }
-.toolbarSVG{
-    -fx-background-color: #535360;
-}
-.pluginSVG{
-    -fx-background-color: #1d24a6;
-}
-.ToolBarDatePicker.jfx-date-picker {
-    -jfx-default-color: #535360;
-}
+
 
 .hyperlink {
     -fx-underline: #51aaa5;

@@ -78,17 +78,17 @@ public class ObjectPlugin implements Plugin {
     public static String PLUGIN_NAME = "Configuration Plugin";
     private final StringProperty name = new SimpleStringProperty("*NO_NAME*");
     private final StringProperty id = new SimpleStringProperty("*NO_ID*");
-    private JEVisDataSource ds;
     private final BorderPane viewPane = new BorderPane();
-    //    private ObjectTree tf;
-//    private ObjectTree tree;
-    private JEVisTree tree;
     private final LoadingPane editorLoadingPane = new LoadingPane();
     private final LoadingPane treeLoadingPane = new LoadingPane();
     private final ToolBar toolBar = new ToolBar();
     private final ObjectEditor _editor = new ObjectEditor();
     private final SimpleBooleanProperty loadingObjectProperty = new SimpleBooleanProperty();
     private final String tooltip = I18n.getInstance().getString("pluginmanager.object.tooltip");
+    private JEVisDataSource ds;
+    //    private ObjectTree tf;
+//    private ObjectTree tree;
+    private JEVisTree tree;
     private boolean initToolbar = false;
 
     public ObjectPlugin(JEVisDataSource ds, String newname) {
@@ -531,6 +531,7 @@ public class ObjectPlugin implements Plugin {
             case Constants.Plugin.Command.ENABLE_ALL:
             case Constants.Plugin.Command.REPLACE:
             case Constants.Plugin.Command.RESET_CALCULATION:
+            case Constants.Plugin.Command.DELETE_DEPENDENCIES:
             case Constants.Plugin.Command.SET_LIMITS:
             case Constants.Plugin.Command.SET_SUBSTITUTION_SETTINGS:
             case Constants.Plugin.Command.SET_UNITS_AND_PERIODS:
@@ -693,6 +694,9 @@ public class ObjectPlugin implements Plugin {
                     break;
                 case Constants.Plugin.Command.RESET_CALCULATION:
                     TreeHelper.EventDeleteAllCalculations(tree);
+                    break;
+                case Constants.Plugin.Command.DELETE_DEPENDENCIES:
+                    TreeHelper.EventDeleteAllDependencies(tree);
                     break;
                 case Constants.Plugin.Command.SET_LIMITS:
                     TreeHelper.EventSetLimitsRecursive(tree);

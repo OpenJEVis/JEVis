@@ -14,21 +14,19 @@ public class DashboardPojo {
 
     public static String DATA_HANDLER_NODE = "dataHandler";
     public static String WIDGET_SETTINGS_NODE = "extra";
-
+    private final List<WidgetPojo> widgetList = new ArrayList<>();
     public String version = "1.0";
     //private String name = "";
     public BorderWidths borderSize = new BorderWidths(0.2);
     public Color fontColor = Color.WHITE;
     public Color fontColorSecondary = Color.DODGERBLUE;
     public String title = "Default dashboard";
-
     public String backgroundMode = "default";
     public Color backgroundColor = Color.web("#f4f4f4");//#126597
     public Double xGridInterval = 25.0d;
     public Double yGridInterval = 25.0d;
-
     public Size size = Size.DEFAULT;
-
+    public Double zoomFactor = 1.0d;
     private TimeFrame timeFrame = new TimeFrame() {
         @Override
         public String getListName() {
@@ -51,7 +49,7 @@ public class DashboardPojo {
         }
 
         @Override
-        public Interval getInterval(DateTime dateTime) {
+        public Interval getInterval(DateTime dateTime, Boolean fixed) {
             return new Interval(dateTime, dateTime);
         }
 
@@ -70,17 +68,12 @@ public class DashboardPojo {
             return false;
         }
     };
-
     private Interval interval = new Interval(new DateTime(), new DateTime());
-    private Integer updateRate = 900;
+    private Integer updateRate = 10;//900;
     private Boolean snapToGrid = true;
     private Boolean showGrid = true;
     private JEVisObject jeVisObject = null;
     private Boolean isNew = false;
-
-    private final List<WidgetPojo> widgetList = new ArrayList<>();
-
-    public Double zoomFactor = 1.0d;
 
     public DashboardPojo() {
     }
@@ -99,16 +92,16 @@ public class DashboardPojo {
         return this.isNew;
     }
 
+    public void setNew(Boolean aNew) {
+        this.isNew = aNew;
+    }
+
     public String getVersion() {
         return this.version;
     }
 
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    public void setNew(Boolean aNew) {
-        this.isNew = aNew;
     }
 
     public List<WidgetPojo> getWidgetList() {
@@ -171,14 +164,6 @@ public class DashboardPojo {
         this.jeVisObject = jeVisObject;
     }
 
-    public void setxGridInterval(Double xGridInterval) {
-        this.xGridInterval = xGridInterval;
-    }
-
-    public void setyGridInterval(Double yGridInterval) {
-        this.yGridInterval = yGridInterval;
-    }
-
     public BorderWidths getBorderSize() {
         return this.borderSize;
     }
@@ -211,7 +196,6 @@ public class DashboardPojo {
         this.title = title;
     }
 
-
     public Color getBackgroundColor() {
         return this.backgroundColor;
     }
@@ -220,13 +204,20 @@ public class DashboardPojo {
         this.backgroundColor = backgroundColor;
     }
 
-
     public Double getxGridInterval() {
         return this.xGridInterval;
     }
 
+    public void setxGridInterval(Double xGridInterval) {
+        this.xGridInterval = xGridInterval;
+    }
+
     public Double getyGridInterval() {
         return this.yGridInterval;
+    }
+
+    public void setyGridInterval(Double yGridInterval) {
+        this.yGridInterval = yGridInterval;
     }
 
     public Size getSize() {

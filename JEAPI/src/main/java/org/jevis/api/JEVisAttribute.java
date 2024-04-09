@@ -177,18 +177,18 @@ public interface JEVisAttribute extends JEVisComponent, JEVisCommittable, Compar
     boolean hasSample();
 
     /**
-     * Get the timestamp from the first sample of the attribute
+     * Get the timestamp of the first sample of the attribute
      *
      * @return
      */
-    DateTime getTimestampFromFirstSample();
+    DateTime getTimestampOfFirstSample();
 
     /**
      * Get the last timestamp of the attribute
      *
      * @return
      */
-    DateTime getTimestampFromLastSample();
+    DateTime getTimestampOfLastSample();
 
     /**
      * Delete all samples this attribute may holds

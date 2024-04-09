@@ -19,9 +19,6 @@
  */
 package org.jevis.emaildatasource;
 
-import com.sun.mail.imap.IMAPFolder;
-import com.sun.mail.imap.IMAPSSLStore;
-import com.sun.mail.imap.IMAPStore;
 import jakarta.mail.Folder;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
@@ -29,6 +26,9 @@ import jakarta.mail.Store;
 import jakarta.mail.event.ConnectionEvent;
 import jakarta.mail.event.ConnectionListener;
 import org.apache.logging.log4j.LogManager;
+import org.eclipse.angus.mail.imap.IMAPFolder;
+import org.eclipse.angus.mail.imap.IMAPSSLStore;
+import org.eclipse.angus.mail.imap.IMAPStore;
 
 
 /**

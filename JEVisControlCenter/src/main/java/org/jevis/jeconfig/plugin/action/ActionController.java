@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -18,10 +19,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.action.data.ActionData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanData;
 import org.jevis.jeconfig.plugin.action.data.ActionPlanOverviewData;
-import org.jevis.jeconfig.plugin.action.ui.ActionForm;
-import org.jevis.jeconfig.plugin.action.ui.ActionPlanForm;
-import org.jevis.jeconfig.plugin.action.ui.ActionTab;
-import org.jevis.jeconfig.plugin.action.ui.NewActionDialog;
+import org.jevis.jeconfig.plugin.action.ui.*;
 
 import java.util.List;
 import java.util.Locale;
@@ -32,16 +30,21 @@ public class ActionController {
     private final ActionPlugin plugin;
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
+    private final TabPane tabPane = new TabPane();
+    private final BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
     private ObservableList<ActionPlanData> actionPlans;
     private ObservableList<ActionPlanData> actionPlansFilters;
-
     private ObservableList<String> actionPlanNames;
-    private TabPane tabPane = new TabPane();
-    private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
 
     public ActionController(ActionPlugin plugin) {
+
         this.plugin = plugin;
+        AnchorPane.setBottomAnchor(tabPane, 0.0);
+        AnchorPane.setTopAnchor(tabPane, 0.0);
+        AnchorPane.setRightAnchor(tabPane, 0.0);
+        AnchorPane.setLeftAnchor(tabPane, 0.0);
+        contentPane.getChildren().add(tabPane);
     }
 
     public void loadActionView() {
@@ -71,13 +74,39 @@ public class ActionController {
             isOverviewTab.set(getActiveActionPlan() instanceof ActionPlanOverviewData);
         });
 
+    }
 
-        AnchorPane.setBottomAnchor(tabPane, 0.0);
-        AnchorPane.setTopAnchor(tabPane, 0.0);
-        AnchorPane.setRightAnchor(tabPane, 0.0);
-        AnchorPane.setLeftAnchor(tabPane, 0.0);
-        contentPane.getChildren().add(tabPane);
+    public void reload() {
+        actionPlans.forEach(actionPlanData -> {
+            try {
+                JEConfig.getDataSource().reloadObject(actionPlanData.getObject());
+                JEConfig.getDataSource().reloadAttribute(actionPlanData.getObject());
 
+            } catch (Exception ex) {
+                logger.error("Error while reloading ActionPlan", ex);
+            }
+        });
+
+        try {
+            JEVisClass actionClass = JEConfig.getDataSource().getJEVisClass("Action");
+            List<JEVisObject> actions = JEConfig.getDataSource().getObjects(actionClass, true);
+            actions.forEach(jeVisObject -> {
+                try {
+                    JEConfig.getDataSource().reloadObject(jeVisObject);
+                    JEConfig.getDataSource().reloadAttribute(jeVisObject);
+                } catch (Exception ex) {
+
+                }
+            });
+
+        } catch (Exception exception) {
+
+        }
+
+        actionPlans.clear();
+        tabPane.getTabs().clear();
+        loadActionView();
+        loadActionPlans();
 
     }
 
@@ -86,6 +115,10 @@ public class ActionController {
         ActionTab tab = new ActionTab(this, plan);
         tab.setClosable(false);
         tabPane.getTabs().add(tab);
+    }
+
+    public TabPane getTabPane() {
+        return tabPane;
     }
 
     public ObservableList<ActionPlanData> getActionPlans() {
@@ -98,8 +131,9 @@ public class ActionController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(I18n.getInstance().getString("plugin.action.plan.deletetitle"));
         alert.setHeaderText(I18n.getInstance().getString("plugin.action.plan.delete"));
-        Label text = new Label(I18n.getInstance().getString("plugin.action.plan.content") + "\n" + getActiveActionPlan().getName());
+        Label text = new Label(I18n.getInstance().getString("plugin.action.plan.content") + "\n=>" + getActiveActionPlan().getName().get());
         text.setWrapText(true);
+        text.setTextFill(Color.web("#e45131"));
         alert.getDialogPane().setContent(text);
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
@@ -110,6 +144,27 @@ public class ActionController {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+        }
+
+
+    }
+
+    public void exportPDF() {
+        ObservableList<ActionPlanData> toExport = FXCollections.observableArrayList();
+        getTabPane().getTabs().forEach(tab -> {
+            toExport.add(((ActionTab) tab).getActionPlan());
+        });
+        ExportDialog exportDialog = new ExportDialog(toExport);
+
+        ButtonType buttonTypeOne = new ButtonType(I18n.getInstance().getString("plugin.action.form.save"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType buttonTypeTwo = new ButtonType(I18n.getInstance().getString("plugin.action.form.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        exportDialog.getDialogPane().getButtonTypes().setAll(buttonTypeTwo, buttonTypeOne);
+
+        Optional<ButtonType> optional = exportDialog.showAndWait();
+        if (optional.get() == buttonTypeOne) {
+            ExcelExporter excelExporter = new ExcelExporter(this, exportDialog.getSelection());
+        } else {
+
         }
 
 
@@ -149,7 +204,7 @@ public class ActionController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(I18n.getInstance().getString("plugin.action.action.deletetitle"));
         alert.setHeaderText(I18n.getInstance().getString("plugin.action.action.delete"));
-        Label text = new Label(I18n.getInstance().getString("plugin.action.action.content") + "\n" + getSelectedData().nrProperty().get() + " " + getSelectedData().titleProperty().get());
+        Label text = new Label(I18n.getInstance().getString("plugin.action.action.content") + "\n" + getSelectedData().noProperty().get() + " " + getSelectedData().titleProperty().get());
         text.setWrapText(true);
         alert.getDialogPane().setContent(text);
         Optional<ButtonType> result = alert.showAndWait();
@@ -182,7 +237,7 @@ public class ActionController {
             JEVisObject actionObject = actionDirObj.buildObject(nextNr + "", actionClass);
             actionObject.commit();
             ActionData newAction = new ActionData(tab.getActionPlan(), actionObject);
-            newAction.nrProperty().set(nextNr);
+            newAction.noProperty().set(nextNr);
             String userName = actionDirObj.getDataSource().getCurrentUser().getFirstName() + " " + actionDirObj.getDataSource().getCurrentUser().getLastName();
             if (userName.trim().isEmpty()) userName = actionDirObj.getDataSource().getCurrentUser().getFirstName();
             newAction.fromUser.set(userName);
@@ -220,10 +275,13 @@ public class ActionController {
                 plan.loadActionList();
                 actionPlans.add(plan);
             });
-            ActionPlanOverviewData overviewData = new ActionPlanOverviewData(this);
-            ActionTab overviewTab = new ActionTab(this, overviewData);
-            tabPane.getTabs().add(0, overviewTab);
-            overviewData.updateData();
+            if (planObjs.size() > 1) {
+                ActionPlanOverviewData overviewData = new ActionPlanOverviewData(this);
+                ActionTab overviewTab = new ActionTab(this, overviewData);
+                tabPane.getTabs().add(0, overviewTab);
+                overviewData.updateData();
+            }
+
 
             Platform.runLater(() -> tabPane.getSelectionModel().selectFirst());
 
@@ -265,7 +323,7 @@ public class ActionController {
     }
 
     public void openDataForm() {
-        System.out.println("openDataForm()");
+        logger.debug("openDataForm()");
         ActionData data = getSelectedData();
         ActionForm actionForm = new ActionForm(getActiveActionPlan(), data);
 
@@ -280,12 +338,18 @@ public class ActionController {
         if (optional.get() == buttonTypeOne) {
             data.setNew(false);
             data.commit();
+            getActiveTab().updateStatistics();
         } else {
             if (data.isNew()) {
-                data.getActionPlan().removeAction(data);
+                // data.getActionPlan().removeAction(data);
             } else {
                 try {
+                    int index = getActiveTab().getActionTable().getSelectionModel().getSelectedIndex();
                     getActiveActionPlan().reloadAction(data);
+                    Platform.runLater(() -> {
+                        getActiveTab().getActionTable().getSelectionModel().select(index);
+                    });
+
                 } catch (Exception ex) {
                     logger.error(ex, ex);
                 }

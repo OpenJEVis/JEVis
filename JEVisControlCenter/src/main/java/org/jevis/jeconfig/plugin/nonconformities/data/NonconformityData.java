@@ -22,7 +22,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesPlugin;
-import org.jevis.jeconfig.tool.gson.GsonBuilder;
+import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -232,11 +232,8 @@ public class NonconformityData {
     }
 
     public void commit() {
-
-        System.out.println(this);
-
-
         try {
+            getObject().setName(getPrefixPlusNumber().get());
             //if (!valueChanged.getValue()) return;
 
             Task task = new Task() {

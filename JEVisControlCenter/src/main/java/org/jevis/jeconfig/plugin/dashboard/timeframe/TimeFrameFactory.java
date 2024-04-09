@@ -47,7 +47,7 @@ public class TimeFrameFactory {
         }
 
         @Override
-        public Interval getInterval(DateTime dateTime) {
+        public Interval getInterval(DateTime dateTime, Boolean fixed) {
             return null;
         }
 
@@ -165,7 +165,9 @@ public class TimeFrameFactory {
 
             @Override
             public boolean equals(Object obj) {
-                return timeFrameEqual(obj);
+                if (obj instanceof TimeFrame)
+                    return timeFrameEqual(obj);
+                else return false;
             }
 
             @Override
@@ -176,25 +178,73 @@ public class TimeFrameFactory {
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
                 Long endMillis = null;
-                if (interval.getEnd().getSecondOfMinute() == 59) {
-                    endMillis = (interval.getEnd().plusSeconds(1)).getMillis();
+
+                DateTime intervalStart = interval.getStart();
+                int intervalStartOffset = intervalStart.getZone().getOffset(intervalStart);
+                DateTime intervalEnd = interval.getEnd();
+                int intervalEndOffset = intervalEnd.getZone().getOffset(intervalEnd);
+
+                if (intervalEnd.getSecondOfMinute() == 59) {
+                    endMillis = (intervalEnd.plusSeconds(1)).getMillis();
                 } else {
-                    endMillis = interval.getEnd().getMillis();
+                    endMillis = intervalEnd.getMillis();
                 }
-                long l = endMillis - interval.getStart().getMillis();
-                return new Interval(interval.getStart().plus(l), interval.getEnd().plus(l));
+                long l = endMillis - intervalStart.getMillis();
+                int offset = intervalEndOffset - intervalStartOffset;
+                if (offset > 0) l -= offset;
+                else l += offset;
+
+                DateTime newIntervalStart = intervalStart.plus(l);
+                int newIntervalStartOffset = newIntervalStart.getZone().getOffset(newIntervalStart);
+                DateTime newIntervalEnd = intervalEnd.plus(l);
+                int newIntervalEndOffset = newIntervalEnd.getZone().getOffset(newIntervalEnd);
+
+                int startCorrection = intervalStartOffset - newIntervalStartOffset;
+                int endCorrection = intervalEndOffset - newIntervalEndOffset;
+
+                if (startCorrection > 0) newIntervalStart = newIntervalStart.plus(startCorrection);
+                else newIntervalStart = newIntervalStart.minus(startCorrection);
+
+                if (endCorrection > 0) newIntervalEnd = newIntervalEnd.plus(endCorrection);
+                else newIntervalEnd = newIntervalEnd.minus(endCorrection);
+
+                return new Interval(newIntervalStart, newIntervalEnd);
             }
 
             @Override
             public Interval previousPeriod(Interval interval, int addAmount) {
                 Long endMillis = null;
+
+                DateTime intervalStart = interval.getStart();
+                int intervalStartOffset = intervalStart.getZone().getOffset(intervalStart);
+                DateTime intervalEnd = interval.getEnd();
+                int intervalEndOffset = intervalEnd.getZone().getOffset(intervalEnd);
+
                 if (interval.getEnd().getSecondOfMinute() == 59) {
                     endMillis = (interval.getEnd().plusSeconds(1)).getMillis();
                 } else {
                     endMillis = interval.getEnd().getMillis();
                 }
                 long l = endMillis - interval.getStart().getMillis();
-                return new Interval(interval.getStart().minus(l), interval.getEnd().minus(l));
+                int offset = intervalEndOffset - intervalStartOffset;
+                if (offset > 0) l -= offset;
+                else l += offset;
+
+                DateTime newIntervalStart = intervalStart.minus(l);
+                int newIntervalStartOffset = newIntervalStart.getZone().getOffset(newIntervalStart);
+                DateTime newIntervalEnd = intervalEnd.minus(l);
+                int newIntervalEndOffset = newIntervalEnd.getZone().getOffset(newIntervalEnd);
+
+                int startCorrection = intervalStartOffset - newIntervalStartOffset;
+                int endCorrection = intervalEndOffset - newIntervalEndOffset;
+
+                if (startCorrection > 0) newIntervalStart = newIntervalStart.minus(startCorrection);
+                else newIntervalStart = newIntervalStart.plus(startCorrection);
+
+                if (endCorrection > 0) newIntervalEnd = newIntervalEnd.minus(endCorrection);
+                else newIntervalEnd = newIntervalEnd.plus(endCorrection);
+
+                return new Interval(newIntervalStart, newIntervalEnd);
             }
 
             @Override
@@ -203,16 +253,40 @@ public class TimeFrameFactory {
             }
 
             @Override
-            public Interval getInterval(DateTime dateTime) {
+            public Interval getInterval(DateTime dateTime, Boolean fixed) {
 
                 DateHelper dateHelper = new DateHelper();
                 dateHelper.setCustomPeriodObject(cpo);
                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
+                if (!fixed) {
+                    dateHelper.setCurrentDate(dateTime);
+                }
                 if (wd != null) {
                     dateHelper.setWorkDays(wd);
                 }
 
-                return new Interval(dateHelper.getStartDate(), dateHelper.getEndDate());
+                DateTime startDate = dateHelper.getStartDate();
+                DateTime endDate = dateHelper.getEndDate();
+
+                Interval interval = new Interval(startDate, endDate);
+
+//                if (fixed) {
+//                    if (dateTime.isBefore(interval.getStart())) {
+//                        DateTime t = dateTime;
+//                        while (t.isBefore(interval.getStart())) {
+//                            interval = previousPeriod(interval, 1);
+//                            t = interval.getStart();
+//                        }
+//                    } else if (dateTime.isAfter(interval.getEnd())) {
+//                        DateTime t = dateTime;
+//                        while (t.isAfter(interval.getEnd())) {
+//                            interval = nextPeriod(interval, 1);
+//                            t = interval.getEnd();
+//                        }
+//                    }
+//                }
+
+                return interval;
             }
 
             @Override
@@ -265,7 +339,7 @@ public class TimeFrameFactory {
             }
 
             @Override
-            public Interval getInterval(DateTime dateTime) {
+            public Interval getInterval(DateTime dateTime, Boolean fixed) {
                 if (dateTime.isAfterNow()) {
                     dateTime = DateTime.now();
                 }
@@ -321,13 +395,13 @@ public class TimeFrameFactory {
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getEnd().plus(Period.days(addAmount)));
+                return getInterval(normalized.getEnd().plus(Period.days(addAmount)), false);
             }
 
             @Override
             public Interval previousPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getStart().minus(Period.days(addAmount)));
+                return getInterval(normalized.getStart().minus(Period.days(addAmount)), false);
             }
 
             @Override
@@ -339,7 +413,7 @@ public class TimeFrameFactory {
             }
 
             @Override
-            public Interval getInterval(DateTime dateTime) {
+            public Interval getInterval(DateTime dateTime, Boolean fixed) {
                 if (dateTime.isAfterNow()) {
                     dateTime = DateTime.now();
                 }
@@ -404,13 +478,13 @@ public class TimeFrameFactory {
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getEnd().plus(Period.weeks(addAmount)).withDayOfWeek(1));
+                return getInterval(normalized.getEnd().plus(Period.weeks(addAmount)).withDayOfWeek(1), false);
             }
 
             @Override
             public Interval previousPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getStart().minus(Period.weeks(addAmount)).withDayOfWeek(1));
+                return getInterval(normalized.getStart().minus(Period.weeks(addAmount)).withDayOfWeek(1), false);
             }
 
 
@@ -420,7 +494,7 @@ public class TimeFrameFactory {
             }
 
             @Override
-            public Interval getInterval(DateTime dateTime) {
+            public Interval getInterval(DateTime dateTime, Boolean fixed) {
                 if (dateTime.isAfterNow()) {
                     dateTime = DateTime.now();
                 }
@@ -477,13 +551,13 @@ public class TimeFrameFactory {
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getEnd().plus(Period.months(addAmount)).withDayOfMonth(1));
+                return getInterval(normalized.getEnd().plus(Period.months(addAmount)).withDayOfMonth(1), false);
             }
 
             @Override
             public Interval previousPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getStart().minus(Period.months(addAmount)).withDayOfMonth(1));
+                return getInterval(normalized.getStart().minus(Period.months(addAmount)).withDayOfMonth(1), false);
             }
 
 
@@ -493,7 +567,7 @@ public class TimeFrameFactory {
             }
 
             @Override
-            public Interval getInterval(DateTime dateTime) {
+            public Interval getInterval(DateTime dateTime, Boolean fixed) {
                 if (dateTime.isAfterNow()) {
                     dateTime = DateTime.now();
                 }
@@ -551,13 +625,13 @@ public class TimeFrameFactory {
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getEnd().plus(Period.years(addAmount)).withDayOfYear(1));
+                return getInterval(normalized.getEnd().plus(Period.years(addAmount)).withDayOfYear(1), false);
             }
 
             @Override
             public Interval previousPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getStart().minus(Period.years(addAmount)).withDayOfYear(1));
+                return getInterval(normalized.getStart().minus(Period.years(addAmount)).withDayOfYear(1), false);
             }
 
 
@@ -567,7 +641,7 @@ public class TimeFrameFactory {
             }
 
             @Override
-            public Interval getInterval(DateTime dateTime) {
+            public Interval getInterval(DateTime dateTime, Boolean fixed) {
                 if (dateTime.isAfterNow()) {
                     dateTime = DateTime.now();
                 }
@@ -620,13 +694,13 @@ public class TimeFrameFactory {
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getEnd().plus(Period.years(addAmount)).withDayOfYear(1));
+                return getInterval(normalized.getEnd().plus(Period.years(addAmount)).withDayOfYear(1), false);
             }
 
             @Override
             public Interval previousPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getStart().minus(Period.years(addAmount)).withDayOfYear(1));
+                return getInterval(normalized.getStart().minus(Period.years(addAmount)).withDayOfYear(1), false);
             }
 
 
@@ -636,7 +710,7 @@ public class TimeFrameFactory {
             }
 
             @Override
-            public Interval getInterval(DateTime dateTime) {
+            public Interval getInterval(DateTime dateTime, Boolean fixed) {
                 if (dateTime.isAfterNow()) {
                     dateTime = DateTime.now();
                 }
@@ -689,13 +763,13 @@ public class TimeFrameFactory {
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getEnd().plus(Period.years(addAmount)).withDayOfYear(1));
+                return getInterval(normalized.getEnd().plus(Period.years(addAmount)).withDayOfYear(1), false);
             }
 
             @Override
             public Interval previousPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getStart().minus(Period.years(addAmount)).withDayOfYear(1));
+                return getInterval(normalized.getStart().minus(Period.years(addAmount)).withDayOfYear(1), false);
             }
 
 
@@ -705,7 +779,7 @@ public class TimeFrameFactory {
             }
 
             @Override
-            public Interval getInterval(DateTime dateTime) {
+            public Interval getInterval(DateTime dateTime, Boolean fixed) {
                 if (dateTime.isAfterNow()) {
                     dateTime = DateTime.now();
                 }
@@ -758,13 +832,13 @@ public class TimeFrameFactory {
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getEnd().plus(Period.years(addAmount)).withDayOfYear(1));
+                return getInterval(normalized.getEnd().plus(Period.years(addAmount)).withDayOfYear(1), false);
             }
 
             @Override
             public Interval previousPeriod(Interval interval, int addAmount) {
                 Interval normalized = removeWorkdayInterval(interval);
-                return getInterval(normalized.getStart().minus(Period.years(addAmount)).withDayOfYear(1));
+                return getInterval(normalized.getStart().minus(Period.years(addAmount)).withDayOfYear(1), false);
             }
 
 
@@ -774,7 +848,7 @@ public class TimeFrameFactory {
             }
 
             @Override
-            public Interval getInterval(DateTime dateTime) {
+            public Interval getInterval(DateTime dateTime, Boolean fixed) {
                 if (dateTime.isAfterNow()) {
                     dateTime = DateTime.now();
                 }

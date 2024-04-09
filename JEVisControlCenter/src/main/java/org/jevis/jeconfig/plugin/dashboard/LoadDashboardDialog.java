@@ -43,18 +43,18 @@ import org.joda.time.Interval;
 public class LoadDashboardDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(LoadDashboardDialog.class);
     private final ObjectRelations objectRelations;
-    private Response response = Response.CANCEL;
-    private JEVisObject selectedDashboard = null;
     private final JFXTextField filterInput = new JFXTextField();
     private final JFXDatePicker pickerDateEnd = new JFXDatePicker();
     private final FilteredList<JEVisObject> filteredData;
     private final JFXListView<JEVisObject> analysisListView;
     private final JEVisDataSource ds;
     private final ToolBarIntervalSelector toolBarIntervalSelector;
-    private Interval selectedInterval = null;
     private final DateTime selectedDateTime = null;
     private final DashboardControl control;
     JFXButton dateButton = new JFXButton("");
+    private Response response = Response.CANCEL;
+    private JEVisObject selectedDashboard = null;
+    private Interval selectedInterval = null;
     private TimeFrame selectedTimeFactory = null;
 
     public LoadDashboardDialog(JEVisDataSource ds, DashboardControl control) {
@@ -65,6 +65,7 @@ public class LoadDashboardDialog extends Dialog {
         setTitle(I18n.getInstance().getString("plugin.dashboards.loaddashboard.title"));
         setHeaderText(I18n.getInstance().getString("plugin.dashboards.loaddashboard.header"));
         setResizable(true);
+        getDialogPane().setMinSize(800, 600);
         initOwner(JEConfig.getStage());
         initModality(Modality.APPLICATION_MODAL);
         Stage stage = (Stage) getDialogPane().getScene().getWindow();
@@ -210,7 +211,7 @@ public class LoadDashboardDialog extends Dialog {
             dateButton.setMinWidth(100);
             //init timefactory
             selectedTimeFactory = control.getAllTimeFrames().week();
-            selectedInterval = selectedTimeFactory.getInterval(new DateTime());
+            selectedInterval = selectedTimeFactory.getInterval(new DateTime(), false);
             updateDateText();
 
             TimeFrameEditor timeFrameEditor = new TimeFrameEditor(control.getActiveTimeFrame(), control.getInterval());
@@ -229,7 +230,7 @@ public class LoadDashboardDialog extends Dialog {
             //timeFactoryBox.selectValue(controller.getActiveTimeFrame());
 
 
-            timeFrameEditor.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
+            timeFrameEditor.intervalProperty().addListener((observable, oldValue, newValue) -> {
                 selectedInterval = newValue;
                 updateDateText();
             });

@@ -28,6 +28,7 @@ public class DateHelper {
     private DateTime minStartDateTime;
     private DateTime maxEndDateTime;
     private WorkDays workDays;
+    private DateTime currentDate = null;
 
     public DateHelper(TransformType type) {
         this.type = type;
@@ -36,23 +37,6 @@ public class DateHelper {
 
     public DateHelper() {
         now = DateTime.now();
-    }
-
-    private DateTime nowStartWithTime() {
-        if (startTime.isAfter(endTime)) {
-            DateTime now = DateTime.now();
-            return new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
-                    startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusDays(1);
-        } else {
-            return new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
-                    startTime.getHour(), startTime.getMinute(), startTime.getSecond());
-        }
-    }
-
-    private DateTime nowEndWithTime() {
-        DateTime now = DateTime.now();
-        return new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
-                endTime.getHour(), endTime.getMinute(), endTime.getSecond());
     }
 
     public DateHelper(InputType inputType, LocalDate localDate) {
@@ -71,8 +55,33 @@ public class DateHelper {
         this.now = DateTime.now();
     }
 
+    private DateTime nowStartWithTime() {
+        if (currentDate != null) {
+            this.now = currentDate;
+        } else this.now = DateTime.now();
+
+        if (startTime.isAfter(endTime)) {
+            return new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                    startTime.getHour(), startTime.getMinute(), startTime.getSecond()).minusDays(1);
+        } else {
+            return new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                    startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+        }
+    }
+
+    private DateTime nowEndWithTime() {
+        if (currentDate != null) {
+            this.now = currentDate;
+        } else this.now = DateTime.now();
+
+        return new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                endTime.getHour(), endTime.getMinute(), endTime.getSecond());
+    }
+
     public DateTime getStartDate() {
-        this.now = DateTime.now();
+        if (currentDate != null) {
+            this.now = currentDate;
+        } else this.now = DateTime.now();
         switch (type) {
             case CUSTOM:
                 break;
@@ -153,7 +162,7 @@ public class DateHelper {
                         Long startMinutes = 0L;
                         switch (customPeriodObject.getStartReferencePoint()) {
                             case "NOW":
-                                startDate = DateTime.now();
+                                startDate = now;
                                 break;
                             case "STARTTIMEDAY":
                                 startDate = startDate.minusMillis(startDate.getMillisOfDay());
@@ -164,6 +173,7 @@ public class DateHelper {
                                             new ObjectHandler(customPeriodObject.getObject().getDataSource()));
                                     DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
                                     dh.setWorkDays(workDays);
+                                    dh.setCurrentDate(currentDate);
                                     if (cpo.getStartReferencePoint().contains("DAY")) {
 
                                         Long startInterval = customPeriodObject.getStartInterval();
@@ -176,25 +186,34 @@ public class DateHelper {
                                 }
                                 break;
                             case "CURRENT_WEEK":
-                                now = DateTime.now();
                                 startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                                         startTime.getHour(), startTime.getMinute(), startTime.getSecond())
                                         .minusDays(now.getDayOfWeek() - 1);
+                                if (endTime.isBefore(startTime)) {
+                                    startDate = startDate.minusDays(1);
+                                }
                                 break;
                             case "CURRENT_MONTH":
-                                now = DateTime.now();
                                 startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                                         startTime.getHour(), startTime.getMinute(), startTime.getSecond())
                                         .minusDays(now.getDayOfMonth());
+                                if (endTime.isBefore(startTime)) {
+                                    startDate = startDate.minusDays(1);
+                                }
                                 break;
                             case "CURRENT_YEAR":
-                                now = DateTime.now();
-                                startDate = new DateTime(now.getYear(), 1, 1, 0, 0, 0, 0);
+                                startDate = new DateTime(now.getYear(), 1, 1,
+                                        startTime.getHour(), startTime.getMinute(), startTime.getSecond(), 0);
+                                if (endTime.isBefore(startTime)) {
+                                    startDate = startDate.minusDays(1);
+                                }
                                 break;
                             case "CURRENT_DAY":
-                                now = DateTime.now();
                                 startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                                         startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+                                if (endTime.isBefore(startTime)) {
+                                    startDate = startDate.minusDays(1);
+                                }
                                 break;
                             case "SPECIFIED_DATE":
                                 try {
@@ -352,7 +371,9 @@ public class DateHelper {
 
     public DateTime getEndDate() {
         //if (startTime.isAfter(endTime)) now = now.minusDays(1);
-        this.now = DateTime.now();
+        if (currentDate != null) {
+            this.now = currentDate;
+        } else this.now = DateTime.now();
         switch (type) {
             case PREVIEW:
             case CURRENT:
@@ -405,10 +426,14 @@ public class DateHelper {
                         Long endMinutes = 0L;
                         switch (customPeriodObject.getEndReferencePoint()) {
                             case "NOW":
-                                endDate = DateTime.now();
+                                endDate = now;
                                 break;
                             case "STARTTIMEDAY":
-                                endDate = endDate.minusMillis(endDate.getMillisOfDay());
+                                endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                                        startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+                                if (endTime.isBefore(startTime)) {
+                                    endDate = endDate.minusDays(1);
+                                }
                                 break;
                             case "CUSTOM_PERIOD":
                                 try {
@@ -416,6 +441,7 @@ public class DateHelper {
                                             new ObjectHandler(customPeriodObject.getObject().getDataSource()));
                                     DateHelper dh = new DateHelper(cpo, TransformType.CUSTOM_PERIOD);
                                     dh.setWorkDays(workDays);
+                                    dh.setCurrentDate(currentDate);
                                     if (cpo.getEndReferencePoint().contains("DAY")) {
 
                                         Long endInterval = customPeriodObject.getEndInterval();
@@ -441,11 +467,11 @@ public class DateHelper {
                                 endDate = endDate.minusDays(1);
                                 break;
                             case "CURRENT_YEAR":
-                                endDate = new DateTime(now.getYear(), 12, 31, 23, 59, 59, 999);
+                                endDate = new DateTime(now.getYear(), 12, 31, endTime.getHour(), endTime.getMinute(), endTime.getSecond(), 999);
                                 break;
                             case "CURRENT_DAY":
                                 endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
-                                        startTime.getHour(), startTime.getMinute(), startTime.getSecond());
+                                        endTime.getHour(), endTime.getMinute(), endTime.getSecond());
                                 break;
                             case "SPECIFIED_DATE":
                                 try {
@@ -526,9 +552,13 @@ public class DateHelper {
         }
     }
 
-    public enum TransformType {CUSTOM, CURRENT, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR, THEYEARBEFORELAST, PREVIEW}
+    public DateTime getCurrentDate() {
+        return currentDate;
+    }
 
-    public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
+    public void setCurrentDate(DateTime currentDate) {
+        this.currentDate = currentDate;
+    }
 
     public LocalTime getEndTime() {
         DateTime end = getEndDate();
@@ -614,19 +644,23 @@ public class DateHelper {
         return LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth());
     }
 
+    public DateTime getMinStartDateTime() {
+        return minStartDateTime;
+    }
+
     public void setMinStartDateTime(DateTime minStartDateTime) {
         this.minStartDateTime = minStartDateTime;
+    }
+
+    public DateTime getMaxEndDateTime() {
+        return maxEndDateTime;
     }
 
     public void setMaxEndDateTime(DateTime maxEndDateTime) {
         this.maxEndDateTime = maxEndDateTime;
     }
 
-    public DateTime getMinStartDateTime() {
-        return minStartDateTime;
-    }
+    public enum TransformType {CUSTOM, CURRENT, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR, THEYEARBEFORELAST, PREVIEW}
 
-    public DateTime getMaxEndDateTime() {
-        return maxEndDateTime;
-    }
+    public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
 }

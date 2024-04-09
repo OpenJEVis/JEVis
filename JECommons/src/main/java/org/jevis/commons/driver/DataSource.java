@@ -126,7 +126,7 @@ public interface DataSource {
     }
 
     default Long getCycleTime(JEVisObject object) {
-        Long aLong = 3600000l;// 1hour fallback
+        Long aLong = 3600000L;// 1hour fallback
 
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Cycle Time");
@@ -150,6 +150,8 @@ public interface DataSource {
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
             if (lastRunAttribute != null) {
+                lastRunAttribute.deleteSamplesBetween(new DateTime(1990, 1, 1, 0, 0, 0, 0), lastRun.minusMonths(1));
+
                 DateTime dateTime = lastRun.plusMillis(cycleTime.intValue());
                 JEVisSample newSample = lastRunAttribute.buildSample(DateTime.now(), dateTime);
                 newSample.commit();

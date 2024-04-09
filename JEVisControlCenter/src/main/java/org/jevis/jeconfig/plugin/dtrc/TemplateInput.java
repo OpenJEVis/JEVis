@@ -11,7 +11,8 @@ import org.jevis.api.*;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.object.plugin.RangingValues;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
-import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
+import org.jevis.commons.utils.NameFormatter;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.joda.time.DateTime;
@@ -24,6 +25,8 @@ import java.util.*;
 public class TemplateInput extends TemplateSelected {
     private static final Logger logger = LogManager.getLogger(TemplateInput.class);
     private final ObjectMapper mapper = new ObjectMapper();
+    @JsonIgnore
+    private final Map<DateTime, Double> resultMap = new HashMap<>();
     private String id;
     private Boolean quantity = false;
     private String objectClass;
@@ -31,8 +34,6 @@ public class TemplateInput extends TemplateSelected {
     private String variableName;
     private String variableType;
     private String templateFormula;
-    @JsonIgnore
-    private final Map<DateTime, Double> resultMap = new HashMap<>();
     private String filter;
     private Boolean group;
     private String dependency;
@@ -160,10 +161,19 @@ public class TemplateInput extends TemplateSelected {
 
     public void buildVariableName(JEVisClass jeVisClass, JEVisType jeVisType) {
         try {
-            setVariableName(CalculationNameFormatter.createVariableName(jeVisClass, jeVisType));
+            setVariableName(createVariableName(jeVisClass, jeVisType));
         } catch (JEVisException e) {
             logger.error("Could not create variable name", e);
         }
+    }
+
+    private String createVariableName(JEVisClass target, JEVisType attribute) throws JEVisException {
+        String name = I18nWS.getInstance().getClassName(target) + I18nWS.getInstance().getTypeName(target.getName(), attribute.getName());
+
+        name = NameFormatter.formatVariableText(name);
+
+        return name;
+
     }
 
     public void CreateValues(JEVisDataSource ds, IntervalSelector intervalSelector, DateTime start, DateTime end) {
@@ -183,7 +193,7 @@ public class TemplateInput extends TemplateSelected {
                 }
 
                 if (fixedTimeFrame != null && reducingTimeFrame != null && !fixedTimeFrame.equals(TimeFrameFactory.NONE)) {
-                    start = fixedTimeFrame.getInterval(start).getStart();
+                    start = fixedTimeFrame.getInterval(start, false).getStart();
                     end = end;
 
                     Period p = null;
@@ -197,7 +207,7 @@ public class TemplateInput extends TemplateSelected {
                         if (p != null) {
                             previousEndDate = PeriodHelper.minusPeriodToDate(end, p);
                         } else {
-                            previousEndDate = end.minus(reducingTimeFrame.getInterval(start).toDuration());
+                            previousEndDate = end.minus(reducingTimeFrame.getInterval(start, false).toDuration());
                         }
                     }
 
@@ -252,8 +262,8 @@ public class TemplateInput extends TemplateSelected {
 
                     for (int i = samples.size() - 1; i > -1; i--) {
                         JEVisSample sample = samples.get(i);
-                        filteredList.add(sample);
-                        if (sample.getTimestamp().isBefore(start)) {
+                        if (sample.getTimestamp().equals(start) || sample.getTimestamp().isBefore(start)) {
+                            filteredList.add(sample);
                             break;
                         }
                     }

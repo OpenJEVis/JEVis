@@ -31,11 +31,19 @@ import java.util.List;
  */
 public class JEVisImporterAdapter {
     private static final Logger logger = LogManager.getLogger(JEVisImporterAdapter.class);
-    private static String STATUS_LOG = "Status Log";
+    private static final String STATUS_LOG = "Status Log";
 
     public synchronized static void importResults(List<Result> results, Importer importer, JEVisObject channel) {
         DateTime date = importer.importResult(results);
         setLastReadout(channel, date);
+        logger.info("Result List was imported to JEVis Last Readout was set To: {}", date);
+    }
+
+    public synchronized static void importResultsWithOffset(List<Result> results, Importer importer, JEVisObject channel, int offset) {
+        DateTime date = importer.importResult(results);
+        date = date.plusSeconds(offset);
+        setLastReadout(channel, date);
+        logger.info("Result List was imported to JEVis Last Readout was set To: {}", date);
     }
 
     public synchronized static void importResults(List<Result> results, List<JEVisSample> statusResults, Importer importer, JEVisObject channel) {
@@ -71,6 +79,7 @@ public class JEVisImporterAdapter {
         try {
             String toString = lastDateTime.toString();
 
+            channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).deleteSamplesBetween(new DateTime(1990, 1, 1, 0, 0, 0, 0), new DateTime().minusMonths(1));
             JEVisSample buildSample = channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), toString);
             buildSample.commit();
         } catch (JEVisException ex) {
