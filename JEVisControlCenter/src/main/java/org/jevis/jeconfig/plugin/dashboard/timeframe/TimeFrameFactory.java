@@ -258,7 +258,7 @@ public class TimeFrameFactory {
                 DateHelper dateHelper = new DateHelper();
                 dateHelper.setCustomPeriodObject(cpo);
                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
-                if (fixed) {
+                if (!fixed) {
                     dateHelper.setCurrentDate(dateTime);
                 }
                 if (wd != null) {
@@ -270,21 +270,21 @@ public class TimeFrameFactory {
 
                 Interval interval = new Interval(startDate, endDate);
 
-                if (fixed) {
-                    if (dateTime.isBefore(interval.getStart())) {
-                        DateTime t = dateTime;
-                        while (t.isBefore(interval.getStart())) {
-                            interval = previousPeriod(interval, 1);
-                            t = interval.getStart();
-                        }
-                    } else if (dateTime.isAfter(interval.getEnd())) {
-                        DateTime t = dateTime;
-                        while (t.isAfter(interval.getEnd())) {
-                            interval = nextPeriod(interval, 1);
-                            t = interval.getEnd();
-                        }
-                    }
-                }
+//                if (fixed) {
+//                    if (dateTime.isBefore(interval.getStart())) {
+//                        DateTime t = dateTime;
+//                        while (t.isBefore(interval.getStart())) {
+//                            interval = previousPeriod(interval, 1);
+//                            t = interval.getStart();
+//                        }
+//                    } else if (dateTime.isAfter(interval.getEnd())) {
+//                        DateTime t = dateTime;
+//                        while (t.isAfter(interval.getEnd())) {
+//                            interval = nextPeriod(interval, 1);
+//                            t = interval.getEnd();
+//                        }
+//                    }
+//                }
 
                 return interval;
             }

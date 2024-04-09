@@ -217,7 +217,6 @@ public class RoleExtention implements ObjectEditorExtension {
 
     private JFXComboBox<JEVisObject> buildDashboardListView() {
         JFXComboBox<JEVisObject> view = new JFXComboBox<>();
-        List<JEVisObject> allDashboard = new ArrayList<>();
         try {
             Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<javafx.scene.control.ListView<JEVisObject>, ListCell<JEVisObject>>() {
                 @Override
@@ -241,7 +240,7 @@ public class RoleExtention implements ObjectEditorExtension {
             view.setButtonCell(cellFactory.call(null));
 
 
-            allDashboard.addAll(_obj.getDataSource().getObjects(_obj.getDataSource().getJEVisClass("Dashboard Analysis"), true));
+            List<JEVisObject> allDashboard = new ArrayList<>(_obj.getDataSource().getObjects(_obj.getDataSource().getJEVisClass("Dashboard Analysis"), true));
 
             view.setItems(FXCollections.observableArrayList(allDashboard));
 
@@ -363,12 +362,12 @@ public class RoleExtention implements ObjectEditorExtension {
         // user by relationship
         logger.error("buildGroupPane:");
 
-        groupTableView = new TableView();
+        groupTableView = new TableView<>();
         //groupTableView.setMinWidth(600);
 
         groupTableView.setEditable(true);
-        TableColumn nameCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.group"));
-        TableColumn idCol = new TableColumn<>("ID");
+        TableColumn<TableUser, String> nameCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.group"));
+        TableColumn<TableUser, String> idCol = new TableColumn<>("ID");
         TableColumn<Membership, Boolean> readCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.read"));
         TableColumn<Membership, Boolean> writeCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.write"));
         TableColumn<Membership, Boolean> deleteCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.delete"));
@@ -378,8 +377,8 @@ public class RoleExtention implements ObjectEditorExtension {
         groupTableView.getColumns().addAll(nameCol, idCol, readCol, writeCol, deleteCol, createCol, executeCol);
         userTableView.getSortOrder().add(nameCol);
 
-        nameCol.setCellValueFactory(new PropertyValueFactory<TableUser, String>("groupName"));
-        idCol.setCellValueFactory(new PropertyValueFactory<TableUser, String>("groupid"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("groupName"));
+        idCol.setCellValueFactory(new PropertyValueFactory<>("groupid"));
         readCol.setCellValueFactory(param -> param.getValue().readProperty());
         readCol.setCellFactory(param -> new CheckBoxTableCell<>());
         writeCol.setCellValueFactory(param -> param.getValue().writeProperty());
@@ -426,9 +425,9 @@ public class RoleExtention implements ObjectEditorExtension {
         }
         String lowerCaseFilterString = filterString.toLowerCase();
 
-        if (membership.getGroupName().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
+        if (membership.getGroupName().toLowerCase().contains(lowerCaseFilterString)) {
             return true;
-        } else return membership.getGroupName().toLowerCase().indexOf(lowerCaseFilterString) != -1;// Does not match
+        } else return membership.getGroupName().toLowerCase().contains(lowerCaseFilterString);// Does not match
     }
 
 
@@ -524,9 +523,9 @@ public class RoleExtention implements ObjectEditorExtension {
         }
         String lowerCaseFilterString = filterString.toLowerCase();
 
-        if (user.getUsername().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
+        if (user.getUsername().toLowerCase().contains(lowerCaseFilterString)) {
             return true;
-        } else return user.getUsername().toLowerCase().indexOf(lowerCaseFilterString) != -1;// Does not match
+        } else return user.getUsername().toLowerCase().contains(lowerCaseFilterString);// Does not match
     }
 
 

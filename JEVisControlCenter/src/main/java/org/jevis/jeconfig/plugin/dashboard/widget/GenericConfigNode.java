@@ -223,7 +223,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
             fixedTimeFrame.setDisable(false);
             timeFrameBox.selectValue(dataModelDataHandler.getTimeFrameFactory());
         }
-        fixedTimeFrame.setSelected(widget.getConfig().isFixedTimeframe());
+        fixedTimeFrame.setSelected(widget.getConfig().getFixedTimeframe());
 
         DoubleValidator validator = new DoubleValidator();
         yPosField.getValidators().add(validator);

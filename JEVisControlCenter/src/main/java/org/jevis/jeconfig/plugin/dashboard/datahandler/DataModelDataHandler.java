@@ -88,7 +88,7 @@ public class DataModelDataHandler {
                     this.dataModelNode = new DataModelNode();
                 }
 
-                setFixedTimeframe(config.isFixedTimeframe());
+                setFixedTimeframe(config.getFixedTimeframe());
             } else {
                 this.dataModelNode = new DataModelNode();
             }
