@@ -198,10 +198,10 @@ public class FTPDataSource implements DataSource {
         }
 //            ftpClient.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out), true));
 
-        if (connectionTimeout != 0) {
+        if (connectionTimeout != null) {
             ftpClient.setConnectTimeout(connectionTimeout * 1000);
         }
-        if (readTimeout != 0) {
+        if (readTimeout != null) {
             ftpClient.setDataTimeout(readTimeout * 1000);
         }
 

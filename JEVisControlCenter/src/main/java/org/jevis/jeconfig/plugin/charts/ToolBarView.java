@@ -87,7 +87,6 @@ public class ToolBarView {
     private ToggleButton zoomOut;
     private ToggleButton infoButton;
     private ToggleButton helpButton;
-    private ToggleButton testButton;
     private ToolBar toolBar;
     private Boolean changed = false;
     private ToggleButton runUpdateButton;
@@ -438,17 +437,6 @@ public class ToolBarView {
 
         helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
         infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
-        testButton = new ToggleButton("X");
-        testButton.setOnAction(actionEvent -> {
-            try {
-//                DWDBrowser dwdBrowser = new DWDBrowser(chartPlugin.getDialogContainer(), ds);
-//                dwdBrowser.show();
-//
-
-            } catch (Exception e) {
-                logger.error("Error while testing", e);
-            }
-        });
 
         List<Node> nodes = Arrays.asList(analysesComboBox,
                 presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,

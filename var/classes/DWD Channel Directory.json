@@ -1,0 +1,22 @@
+{
+  "name": "DWD Channel Directory",
+  "description": "The class DWD Directory represents a specific directory for the management of data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "DWD Channel",
+      "end": "DWD Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "DWD Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "DWD Channel Directory",
+      "end": "DWD Server",
+      "type": 3
+    }
+  ]
+}
