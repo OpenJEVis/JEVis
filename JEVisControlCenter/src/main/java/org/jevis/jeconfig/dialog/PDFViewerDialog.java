@@ -47,14 +47,14 @@ import java.util.Map;
 public class PDFViewerDialog {
     private static final Logger logger = LogManager.getLogger(PDFViewerDialog.class);
     private final int iconSize = 32;
-    private Stage stage;
     private final SimpleDoubleProperty zoomFactor = new SimpleDoubleProperty(0.3);
-    private PDFModel model;
     private final ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
     private final ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
     private final JFXComboBox<JEVisFileWithSample> fileComboBox = new JFXComboBox<>(FXCollections.observableArrayList());
     private final Map<JEVisFile, JEVisSample> sampleMap = new HashMap<>();
     private final ImageView pdfIcon = JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize);
+    private Stage stage;
+    private PDFModel model;
     private Label fileName;
 
     public PDFViewerDialog() {
@@ -96,6 +96,8 @@ public class PDFViewerDialog {
                             fileComboBox.getSelectionModel().selectLast();
                         });
                     }
+                } else {
+                    Platform.runLater(() -> fileComboBox.setDisable(true));
                 }
                 return null;
             }
@@ -207,7 +209,7 @@ public class PDFViewerDialog {
 
         rightImage.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
-            if (i < sampleMap.size()) {
+            if (i < fileComboBox.getItems().size() - 1) {
                 fileComboBox.getSelectionModel().select(i + 1);
             }
         });
