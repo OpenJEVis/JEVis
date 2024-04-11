@@ -36,7 +36,7 @@ public class DWDChannel {
             id = DatabaseHelper.getObjectAsLong(channelObject, idAttribute);
             name = channelObject.getName();
             attribute = Attribute.valueOf(DatabaseHelper.getObjectAsString(channelObject, attributeAttribute));
-            aggregation = Aggregation.valueOf(DatabaseHelper.getObjectAsString(channelObject, aggregationAttribute));
+            aggregation = Aggregation.getEnum(DatabaseHelper.getObjectAsString(channelObject, aggregationAttribute));
             dataName = DatabaseHelper.getObjectAsString(channelObject, dataNameAttribute);
             target = DatabaseHelper.getObjectAsString(channelObject, targetAttribute);
             lastReadout = DatabaseHelper.getObjectAsDate(channelObject, lastReadoutAttribute);

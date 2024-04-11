@@ -110,7 +110,7 @@ public class JEVisImporter implements Importer {
 
             int errorImport = 0;
 
-            Map<String, JEVisAttribute> targets = new HashMap<>();
+            List<JEVisAttribute> targets = new ArrayList<>();
             List<String> targetErrors = new ArrayList<>();
 
             //create an access map for the configured target once
@@ -120,48 +120,39 @@ public class JEVisImporter implements Importer {
                         continue;
                     }
 
-//                    Logger.getLogger(JEVisImporter.class.getName()).log(Level.DEBUG, "Target Sample.getID: " + s.getOnlineID());
-                    //logger.info("Target Sample.getID: " + s.getOnlineID());
-                    if (targets.containsKey(s.getTargetStr())) {
-                        continue;
-                    }
                     if (targetErrors.contains(s.getTargetStr())) {
-//                        errorImport++;
                         continue;
                     }
 
                     //Check the Object exists
                     TargetHelper targetHelper = new TargetHelper(dataSource.getDataSource(), s.getTargetStr());
 
-                    JEVisObject onlineData = null;
-                    if (!targetHelper.getObject().isEmpty()) {
-                        onlineData = targetHelper.getObject().get(0);
+                    for (JEVisObject onlineData : targetHelper.getObject()) {
+                        int index = targetHelper.getObject().indexOf(onlineData);
+                        JEVisAttribute valueAtt = null;
+                        if (targetHelper.getAttribute().isEmpty()) {
+                            valueAtt = onlineData.getAttribute("Value");
+                        } else {
+                            valueAtt = targetHelper.getAttribute().get(index);
+                        }
+
+                        if (valueAtt == null) {
+                            logger.error("Target has no Attribute 'Value'");
+                            targetErrors.add(s.getTargetStr());
+                            errorImport++;
+                            continue;
+                        }
+
+                        targets.add(valueAtt);
                     }
 
-                    if (onlineData == null) {
-                        logger.error("Target Object not found: " + s.getTargetStr());
-                        targetErrors.add(s.getTargetStr());//invalid Object, be keep it so the other with the smae id need not check again
+                    if (targetHelper.getObject().isEmpty()) {
+                        logger.error("Target Object not found: {}", s.getTargetStr());
+                        targetErrors.add(s.getTargetStr());//invalid Object, be keep it so the other with the same id need not check again
                         errorImport++;
-                        continue;
                     }
-
-                    JEVisAttribute valueAtt = null;
-                    if (targetHelper.getAttribute().isEmpty()) {
-                        valueAtt = onlineData.getAttribute("Value");
-                    } else {
-                        valueAtt = targetHelper.getAttribute().get(0);
-                    }
-
-                    if (valueAtt == null) {
-                        logger.error("Target has no Attribute 'Value'");
-                        targetErrors.add(s.getTargetStr());
-                        errorImport++;
-                        continue;
-                    }
-
-                    targets.put(s.getTargetStr(), valueAtt);
                 } catch (Exception ex) {
-                    logger.fatal("Unexpected error while sample creation: " + ex);
+                    logger.fatal("Unexpected error while sample creation: ", ex);
                     targetErrors.add(s.getTargetStr());
                 }
             }
@@ -170,15 +161,14 @@ public class JEVisImporter implements Importer {
             for (String targetError : targetErrors) {
                 errorIDs.append(targetError).append(",");
             }
-            logger.info("Erroneously target configurations for: [" + errorIDs + "]");
+            logger.info("Erroneously target configurations for: [{}]", errorIDs);
 
             StringBuilder okIDs = new StringBuilder();
-            for (Map.Entry<String, JEVisAttribute> entrySet : targets.entrySet()) {
-                String key = entrySet.getKey();
-                JEVisAttribute value = entrySet.getValue();
+            for (JEVisAttribute attribute : targets) {
+                String key = attribute.getObject().getName() + ":" + attribute.getObjectID() + ":" + attribute.getName();
                 okIDs.append(key).append(",");
             }
-            logger.info("ok target configurations for: [" + okIDs + "]");
+            logger.info("ok target configurations for: [{}]", okIDs);
 
             //build the Samples per attribute, so we can bulk import them
             Map<JEVisAttribute, List<JEVisSample>> toImportList = new HashMap<>();
@@ -189,42 +179,48 @@ public class JEVisImporter implements Importer {
                         logger.error("Skip import for missing target");
                         continue;
                     }
-                    JEVisAttribute target = targets.get(s.getTargetStr());
-                    if (target == null) {
-                        logger.error("Skipping Target, not found: {}", s.getTargetStr());
-                        continue;
+
+                    TargetHelper targetHelper = new TargetHelper(dataSource.getDataSource(), s.getTargetStr());
+                    for (JEVisObject targetObject : targetHelper.getObject()) {
+                        int index = targetHelper.getObject().indexOf(targetObject);
+                        JEVisAttribute targetAttribute = null;
+                        if (targetHelper.getAttribute().isEmpty()) {
+                            targetAttribute = targetObject.getAttribute("Value");
+                        } else {
+                            targetAttribute = targetHelper.getAttribute().get(index);
+                        }
+
+                        if (s.getValue() == null) {
+                            logger.error("Error: Value is empty");
+                            continue;
+                        }
+
+                        if (s.getDate() == null) {
+                            logger.error("Error: Value has no timestamp ignore");
+                            continue;
+                        }
+
+                        DateTime convertedDate = TimeConverter.convertTime(timezone, s.getDate());
+
+                        if (convertedDate == null) {
+                            logger.error("Error: Could not convert Date");
+                            continue;
+                        }
+
+                        if (!toImportList.containsKey(targetAttribute)) {
+                            toImportList.put(targetAttribute, new ArrayList<JEVisSample>());
+                        }
+
+                        List<JEVisSample> sList = toImportList.get(targetAttribute);
+
+                        if (overwrite) {
+                            logger.info("Overwrite is enabled, delete samples in between: {}-{}", convertedDate, convertedDate);
+                            targetAttribute.deleteSamplesBetween(convertedDate, convertedDate);
+                        }
+
+                        JEVisSample sample = targetAttribute.buildSample(convertedDate, s.getValue());
+                        sList.add(sample);
                     }
-
-                    if (s.getValue() == null) {
-                        logger.error("Error: Value is empty");
-                        continue;
-                    }
-
-                    if (s.getDate() == null) {
-                        logger.error("Error: Value has no timestamp ignore");
-                        continue;
-                    }
-
-                    DateTime convertedDate = TimeConverter.convertTime(timezone, s.getDate());
-
-                    if (convertedDate == null) {
-                        logger.error("Error: Could not convert Date");
-                        continue;
-                    }
-
-                    if (!toImportList.containsKey(target)) {
-                        toImportList.put(target, new ArrayList<JEVisSample>());
-                    }
-
-                    List<JEVisSample> sList = toImportList.get(target);
-
-                    if (overwrite) {
-                        logger.info("Overwrite is enabled, delete samples in between: {}-{}",convertedDate,convertedDate);
-                        target.deleteSamplesBetween(convertedDate, convertedDate);
-                    }
-
-                    JEVisSample sample = target.buildSample(convertedDate, s.getValue());
-                    sList.add(sample);
                 } catch (Exception ex) {
                     errorImport++;
                     logger.fatal("Unexpected error while sample creation: {}", ex, ex);
@@ -248,7 +244,7 @@ public class JEVisImporter implements Importer {
                     }));
 
                     //Bulk Import
-                    logger.info("Import samples: key: {} , values: {}",key.getObject().getName(),values.size());
+                    logger.info("Import samples: key: {} , values: {}", key.getObject().getName(), values.size());
                     key.addSamples(values);
 
                     DateTime lastTSForAtt = null;
@@ -273,11 +269,10 @@ public class JEVisImporter implements Importer {
                         }
                     }
 
-                    logger.info("Object: [" + key.getObject().getID() + "] " + key.getObject().getName()
-                            + "  Imported: " + values.size() + " LastTS: " + lastTSForAtt);
+                    logger.info("Object: [{}] {}  Imported: {} LastTS: {}", key.getObject().getID(), key.getObject().getName(), values.size(), lastTSForAtt);
 
                 } catch (Exception ex) {
-                    logger.fatal("Unexpected error while import: " + ex);
+                    logger.fatal("Unexpected error while import: ", ex);
                 }
             }
             if (lastTSTotal != null) {

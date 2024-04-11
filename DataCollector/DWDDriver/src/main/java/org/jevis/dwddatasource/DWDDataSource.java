@@ -15,14 +15,18 @@ import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.datasource.Station;
 import org.jevis.commons.datasource.StationData;
 import org.jevis.commons.driver.*;
-import org.jevis.commons.driver.dwd.Aggregation;
 import org.jevis.commons.driver.dwd.Attribute;
 import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Duration;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -42,7 +46,7 @@ public class DWDDataSource implements DataSource {
     private final DateTimeFormatter dayFormatter = DateTimeFormat.forPattern("yyyyMMdd").withZoneUTC();
     private final DateTimeFormatter monthFormatter = DateTimeFormat.forPattern("yyyyMM").withZoneUTC();
     private final DateTimeFormatter yearFormatter = DateTimeFormat.forPattern("yyyy").withZoneUTC();
-    private List<DWDChannel> channels = new ArrayList<>();
+    private final List<DWDChannel> channels = new ArrayList<>();
     private Importer importer;
     private ArrayList<Result> result;
     private boolean successful;
@@ -65,10 +69,13 @@ public class DWDDataSource implements DataSource {
             try {
                 result = new ArrayList<Result>();
 
-                List<String> stationFiles = new ArrayList<>();
-                findAllStationFiles(ftpClient, stationFiles, channel.getAggregation(), channel.getAttribute());
-
-                Station station = loadStation(channel, stationFiles, channel.getAttribute());
+                Station station = new Station();
+                station.setId(channel.getId());
+                List<String> pathList = new ArrayList<>();
+                pathList.add("/" + initialPath + channel.getAggregation().getValue().toLowerCase() + "/" + channel.getAttribute().toString().toLowerCase() + "/historical/");
+                pathList.add("/" + initialPath + channel.getAggregation().getValue().toLowerCase() + "/" + channel.getAttribute().toString().toLowerCase() + "/recent/");
+                pathList.add("/" + initialPath + channel.getAggregation().getValue().toLowerCase() + "/" + channel.getAttribute().toString().toLowerCase() + "/now/");
+                station.getIntervalPath().put(channel.getAttribute(), pathList);
 
                 logger.debug("sending request");
 
@@ -99,9 +106,7 @@ public class DWDDataSource implements DataSource {
 
                     if (!result.isEmpty()) {
                         logger.debug("result is not empty {}, start import", result.size());
-//                    this.importResult();
-//
-//                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
+
                         JEVisImporterAdapter.importResults(result, importer, channel.getObject());
                         logger.debug("import done");
                     }
@@ -139,10 +144,25 @@ public class DWDDataSource implements DataSource {
             for (Map.Entry<Attribute, List<String>> stationPathList : selectedStation.getIntervalPath().entrySet()) {
                 for (String stationPath : stationPathList.getValue()) {
                     for (FTPFile ftpFile : ftpClient.listFiles(stationPath, filter)) {
+
+                        if (!stationPath.endsWith("recent/") && !stationPath.endsWith("now/")) {
+                            String fileName = ftpFile.getName();
+
+                            fileName = fileName.substring(fileName.indexOf(idString.toString()) + idString.length() + 1);
+
+                            DateTime beginningOfFile = new DateTime(Integer.parseInt(fileName.substring(0, 4)), Integer.parseInt(fileName.substring(4, 6)), Integer.parseInt(fileName.substring(6, 8)), 0, 0);
+                            DateTime endOfFile = new DateTime(Integer.parseInt(fileName.substring(9, 13)), Integer.parseInt(fileName.substring(13, 15)), Integer.parseInt(fileName.substring(15, 17)), 23, 59, 59, 999);
+
+                            Interval interval = new Interval(beginningOfFile, endOfFile);
+                            if (!interval.contains(firstDate) && !firstDate.isBefore(beginningOfFile)) {
+                                continue;
+                            }
+                        }
+
                         ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        logger.info("FTPQuery " + ftpFile.getName());
+                        logger.info("FTPQuery {}", ftpFile.getName());
                         boolean retrieveFile = ftpClient.retrieveFile(stationPath + ftpFile.getName(), out);
-                        logger.info("retrieved file " + ftpFile.getName());
+                        logger.info("retrieved file {}", ftpFile.getName());
 
                         InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
                         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
@@ -187,9 +207,9 @@ public class DWDDataSource implements DataSource {
 
                                             if (dtf != null) {
                                                 DateTime dateTime = dtf.parseDateTime(split[1]);
-                                                dataMap.put(dateTime, columnMap);
-                                                if (dateTime.isBefore(firstDate)) firstDate = dateTime;
-                                                if (dateTime.isAfter(lastDate)) lastDate = dateTime;
+                                                if (dateTime.equals(firstDate) || (dateTime.isAfter(firstDate) && dateTime.isBefore(lastDate))) {
+                                                    dataMap.put(dateTime, columnMap);
+                                                }
                                             }
                                         } catch (Exception e) {
                                             logger.error("Could not create map for {}", split[1], e);
@@ -210,117 +230,6 @@ public class DWDDataSource implements DataSource {
         }
 
         return stationData;
-    }
-
-    private Station loadStation(DWDChannel channel, List<String> stationFiles, Attribute attribute) throws IOException {
-        List<Station> stations = new ArrayList<>();
-        for (String s : stationFiles) {
-            String stationPath = s.substring(0, s.lastIndexOf("/") + 1);
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            logger.info("FTPQuery " + s);
-            boolean retrieveFile = ftpClient.retrieveFile(s, out);
-            logger.info("Request status: " + retrieveFile);
-
-            InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
-            List<String> lines = new ArrayList<>();
-
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-                while (reader.ready()) {
-                    Station station = new Station();
-
-                    String line = reader.readLine();
-                    lines.add(line);
-
-                    if (line.startsWith("S") || line.startsWith("-")) continue;
-
-                    try {
-                        int indexOfFirstSpace = line.indexOf(" ");
-                        Long id = Long.parseLong(line.substring(0, indexOfFirstSpace));
-                        station.setId(id);
-                        line = line.substring(indexOfFirstSpace).trim();
-
-                        indexOfFirstSpace = line.indexOf(" ");
-
-                        DateTime from = dateFormatter.parseDateTime(line.substring(0, indexOfFirstSpace));
-                        station.setFrom(from);
-                        line = line.substring(indexOfFirstSpace).trim();
-
-                        indexOfFirstSpace = line.indexOf(" ");
-                        DateTime to = dateFormatter.parseDateTime(line.substring(0, indexOfFirstSpace));
-                        station.setTo(to);
-                        line = line.substring(indexOfFirstSpace).trim();
-
-                        List<String> stationPathList = new ArrayList<>();
-                        stationPathList.add(stationPath);
-                        station.getIntervalPath().put(attribute, stationPathList);
-
-                        indexOfFirstSpace = line.indexOf(" ");
-                        Long height = Long.parseLong(line.substring(0, indexOfFirstSpace));
-                        station.setHeight(height);
-                        line = line.substring(indexOfFirstSpace).trim();
-
-                        indexOfFirstSpace = line.indexOf(" ");
-                        Double geoWidth = Double.parseDouble(line.substring(0, indexOfFirstSpace));
-                        station.setGeoWidth(geoWidth);
-                        line = line.substring(indexOfFirstSpace).trim();
-
-                        indexOfFirstSpace = line.indexOf(" ");
-                        Double geoHeight = Double.parseDouble(line.substring(0, indexOfFirstSpace));
-                        station.setGeoHeight(geoHeight);
-                        line = line.substring(indexOfFirstSpace).trim();
-
-                        indexOfFirstSpace = line.indexOf(" ");
-                        String name = line.substring(0, indexOfFirstSpace);
-                        station.setName(name);
-                        line = line.substring(indexOfFirstSpace).trim();
-
-                        String state = line;
-                        station.setState(state);
-
-                    } catch (Exception e) {
-                        logger.error("Could not parse line {}", line, e);
-                    }
-
-                    if (!stations.contains(station)) {
-                        stations.add(station);
-                    } else {
-                        for (Station oldStation : stations) {
-                            if (oldStation.equals(station)) {
-                                if (station.getFrom().isBefore(oldStation.getFrom())) {
-                                    oldStation.setFrom(station.getFrom());
-                                }
-
-                                if (station.getTo().isAfter(oldStation.getTo())) {
-                                    oldStation.setTo(station.getTo());
-                                }
-
-                                if (oldStation.getIntervalPath().get(attribute) != null) {
-                                    oldStation.getIntervalPath().get(attribute).add(stationPath);
-                                } else {
-                                    List<String> stationPathList = new ArrayList<>();
-                                    stationPathList.add(stationPath);
-                                    oldStation.getIntervalPath().put(attribute, stationPathList);
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-                }
-            } catch (FileNotFoundException e) {
-                logger.error("File not found", e);
-            } catch (IOException e) {
-                logger.error("IOException", e);
-            }
-        }
-
-        for (Station station : stations) {
-            if (channel.getId().equals(station.getId())) {
-                return station;
-            }
-        }
-
-        return null;
     }
 
     @Override
@@ -365,38 +274,6 @@ public class DWDDataSource implements DataSource {
         return answerList;
     }
 
-    private void findAllStationFiles(FTPClient ftpClient, List<String> stationFiles, Aggregation aggregationFilter, Attribute attributeValue) throws IOException {
-
-        String workingDirectory = ftpClient.printWorkingDirectory();
-        FTPFileFilter filter = ftpFile -> (ftpFile.isFile() && ftpFile.getName().contains(".txt"));
-        for (FTPFile ftpFile : ftpClient.listFiles(workingDirectory, filter)) {
-            if (ftpFile.isFile() && ftpFile.getName().contains(".txt")) {
-                stationFiles.add(ftpClient.printWorkingDirectory() + "/" + ftpFile.getName());
-            }
-        }
-
-        List<String> attributeFilter = new ArrayList<>();
-        if (attributeValue == Attribute.ALL) {
-            for (Attribute attribute : Attribute.values()) {
-                if (attribute != Attribute.ALL) {
-                    attributeFilter.add(attribute.toString().toLowerCase());
-                }
-            }
-        } else {
-            attributeFilter.add(attributeValue.toString().toLowerCase());
-        }
-
-        for (FTPFile ftpFile : ftpClient.listDirectories()) {
-            if (ftpFile.isDirectory()
-                    && (ftpFile.getName().contains(aggregationFilter.toString().toLowerCase())
-                    || attributeFilter.contains(ftpFile.getName()))
-                    || ftpFile.getName().contains("historical") || ftpFile.getName().contains("now") || ftpFile.getName().contains("recent")) {
-                ftpClient.changeWorkingDirectory(workingDirectory + "/" + ftpFile.getName());
-                findAllStationFiles(ftpClient, stationFiles, aggregationFilter, attributeValue);
-            }
-        }
-    }
-
     private void initFTPClient() throws IOException {
 
         ftpClient = new FTPClient();
@@ -413,7 +290,7 @@ public class DWDDataSource implements DataSource {
             ftpClient.setConnectTimeout(connectionTimeout * 1000);
         }
         if (readTimeout != null) {
-            ftpClient.setDataTimeout(readTimeout * 1000);
+            ftpClient.setDataTimeout(Duration.ofMillis(readTimeout * 1000));
         }
 
         ftpClient.setUseEPSVwithIPv4(false);
@@ -429,7 +306,7 @@ public class DWDDataSource implements DataSource {
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
             List<JEVisObject> channels = CommonMethods.getChildrenRecursive(dwdServer, channelClass);
-            logger.info("Found " + channels.size() + " channel objects");
+            logger.info("Found {} channel objects", channels.size());
 
             channels.forEach(channelObject -> {
                 if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
@@ -446,8 +323,6 @@ public class DWDDataSource implements DataSource {
                     counterCheckForErrorInAPI.add(channelObject.getID());
                 }
             });
-
-//            logger.info(channelDir.getName() + ":" + channelDir.getID() + " has " + this.channels.size() + " channels.");
         } catch (Exception ex) {
             logger.error(ex);
         }

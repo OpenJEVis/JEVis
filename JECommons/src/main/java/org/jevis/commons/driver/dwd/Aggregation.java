@@ -1,31 +1,34 @@
 package org.jevis.commons.driver.dwd;
 
 public enum Aggregation {
-    TEN_MINUTES, ONE_MINUTE, FIVE_MINUTES, ANNUAL, DAILY, HOURLY, MONTHLY, MULTI_ANNUAL, SUBDAILY;
+    TEN_MINUTES("10_minutes"),
+    ONE_MINUTE("1_minute"),
+    FIVE_MINUTES("5_minutes"),
+    ANNUAL("annual"),
+    DAILY("daily"),
+    HOURLY("hourly"),
+    MONTHLY("monthly"),
+    MULTI_ANNUAL("multi_annual"),
+    SUBDAILY("subdaily");
 
+    private final String value;
+
+    Aggregation(String value) {
+        this.value = value;
+    }
+
+    public static Aggregation getEnum(String value) {
+        for (Aggregation v : values())
+            if (v.getValue().equalsIgnoreCase(value)) return v;
+        throw new IllegalArgumentException();
+    }
+
+    public String getValue() {
+        return value;
+    }
 
     @Override
     public String toString() {
-        switch (this) {
-            case TEN_MINUTES:
-                return "10_minutes";
-            case ONE_MINUTE:
-                return "1_minute";
-            case FIVE_MINUTES:
-                return "5_minutes";
-            case ANNUAL:
-                return "annual";
-            case DAILY:
-                return "daily";
-            case HOURLY:
-                return "hourly";
-            case MONTHLY:
-                return "monthly";
-            case MULTI_ANNUAL:
-                return "multi_annual";
-            case SUBDAILY:
-                return "subdaily";
-        }
-        return "hourly";
+        return this.getValue();
     }
 }
