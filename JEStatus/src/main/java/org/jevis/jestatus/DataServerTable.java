@@ -127,44 +127,43 @@ public class DataServerTable extends AlarmTable {
                 }
             }
 
-            if (channel.getJEVisClass().equals(getLoytecXMLDLChannelClass()) || channel.getJEVisClass().equals(getLoytecOPCUAChannelClass()) || channel.getJEVisClass().equals(getVida350ChannelClass())) {
+            if (channel.getJEVisClass().equals(getVida350ChannelClass())) {
+                targetAtt = channel.getAttribute("Target");
+            } else {
+                targetAtt = channel.getAttribute("Target ID");
+            }
 
-                if (channel.getJEVisClass().equals(getVida350ChannelClass())) {
-                    targetAtt = channel.getAttribute("Target");
-                } else {
-                    targetAtt = channel.getAttribute("Target ID");
-                }
+            if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
 
-                if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
+            TargetHelper th = null;
+            if (lastSampleTarget != null) {
+                th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
+                if (!th.getObject().isEmpty()) {
+                    JEVisObject target = th.getObject().get(0);
+                    if (target != null) {
 
-                TargetHelper th = null;
-                if (lastSampleTarget != null) {
-                    th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-                    if (!th.getObject().isEmpty()) {
-                        JEVisObject target = th.getObject().get(0);
-                        if (target != null) {
+                        channelAndTarget.put(channel, target);
+                        getListCheckedData().add(target);
 
-                            channelAndTarget.put(channel, target);
-                            getListCheckedData().add(target);
+                        JEVisAttribute resultAtt = null;
+                        if (!th.getAttribute().isEmpty()) resultAtt = th.getAttribute().get(0);
+                        if (resultAtt == null) resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
 
-                            JEVisAttribute resultAtt = null;
-                            if (!th.getAttribute().isEmpty()) resultAtt = th.getAttribute().get(0);
-                            if (resultAtt == null) resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
-
-                            if (resultAtt != null) {
-                                if (resultAtt.hasSample()) {
-                                    JEVisSample lastSample = resultAtt.getLatestSample();
-                                    if (lastSample != null) {
-                                        if (lastSample.getTimestamp().isBefore(lr)) {
-                                            if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
-                                        }
+                        if (resultAtt != null) {
+                            if (resultAtt.hasSample()) {
+                                JEVisSample lastSample = resultAtt.getLatestSample();
+                                if (lastSample != null) {
+                                    if (lastSample.getTimestamp().isBefore(lr)) {
+                                        if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
                                     }
                                 }
                             }
                         }
                     }
                 }
-            } else {
+            }
+
+            if (targetAtt == null) {
                 getOtherChannelsTarget(channel, channelAndTarget, outOfBounds, lr);
             }
         }
