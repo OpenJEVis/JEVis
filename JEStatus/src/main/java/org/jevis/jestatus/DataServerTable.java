@@ -128,10 +128,11 @@ public class DataServerTable extends AlarmTable {
             }
 
             if (channel.getJEVisClass().equals(getLoytecXMLDLChannelClass()) || channel.getJEVisClass().equals(getLoytecOPCUAChannelClass()) || channel.getJEVisClass().equals(getVida350ChannelClass())) {
-                if (channel.getJEVisClass().equals(getLoytecXMLDLChannelClass()) || channel.getJEVisClass().equals(getLoytecOPCUAChannelClass()))
-                    targetAtt = channel.getAttribute("Target ID");
-                else if (channel.getJEVisClass().equals(getVida350ChannelClass())) {
+
+                if (channel.getJEVisClass().equals(getVida350ChannelClass())) {
                     targetAtt = channel.getAttribute("Target");
+                } else {
+                    targetAtt = channel.getAttribute("Target ID");
                 }
 
                 if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
