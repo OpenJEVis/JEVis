@@ -204,7 +204,7 @@ public class ActionController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(I18n.getInstance().getString("plugin.action.action.deletetitle"));
         alert.setHeaderText(I18n.getInstance().getString("plugin.action.action.delete"));
-        Label text = new Label(I18n.getInstance().getString("plugin.action.action.content") + "\n" + getSelectedData().nrProperty().get() + " " + getSelectedData().titleProperty().get());
+        Label text = new Label(I18n.getInstance().getString("plugin.action.action.content") + "\n" + getSelectedData().noProperty().get() + " " + getSelectedData().titleProperty().get());
         text.setWrapText(true);
         alert.getDialogPane().setContent(text);
         Optional<ButtonType> result = alert.showAndWait();
@@ -237,7 +237,7 @@ public class ActionController {
             JEVisObject actionObject = actionDirObj.buildObject(nextNr + "", actionClass);
             actionObject.commit();
             ActionData newAction = new ActionData(tab.getActionPlan(), actionObject);
-            newAction.nrProperty().set(nextNr);
+            newAction.noProperty().set(nextNr);
             String userName = actionDirObj.getDataSource().getCurrentUser().getFirstName() + " " + actionDirObj.getDataSource().getCurrentUser().getLastName();
             if (userName.trim().isEmpty()) userName = actionDirObj.getDataSource().getCurrentUser().getFirstName();
             newAction.fromUser.set(userName);

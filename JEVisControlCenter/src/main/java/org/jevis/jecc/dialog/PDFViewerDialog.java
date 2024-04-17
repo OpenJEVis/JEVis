@@ -96,6 +96,8 @@ public class PDFViewerDialog {
                             fileComboBox.getSelectionModel().selectLast();
                         });
                     }
+                } else {
+                    Platform.runLater(() -> fileComboBox.setDisable(true));
                 }
                 return null;
             }
@@ -201,7 +203,7 @@ public class PDFViewerDialog {
 
         rightImage.setOnMouseClicked(event -> {
             int i = fileComboBox.getSelectionModel().getSelectedIndex();
-            if (i < sampleMap.size()) {
+            if (i < fileComboBox.getItems().size() - 1) {
                 fileComboBox.getSelectionModel().select(i + 1);
             }
         });

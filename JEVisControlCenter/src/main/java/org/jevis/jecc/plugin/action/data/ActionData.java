@@ -30,14 +30,6 @@ public class ActionData {
 
     private static final Logger logger = LogManager.getLogger(ActionData.class);
     @Expose
-    @SerializedName("Done Date")
-    public final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date",
-            I18n.getInstance().getString("plugin.action.donedate"), null);
-    @Expose
-    @SerializedName("SEU Tags")
-    private final SimpleObjectProperty<String> seuTags = new SimpleObjectProperty<>("");
-
-    @Expose
     @SerializedName("NPV")
     public final SimpleObjectProperty<NPVData> npv = new SimpleObjectProperty<>(new NPVData());
 
@@ -46,13 +38,13 @@ public class ActionData {
     public final SimpleStringProperty fromUser = new SimpleStringProperty("From User",
             I18n.getInstance().getString("plugin.action.fromuser"), "");
     @Expose
-    @SerializedName("Nr")
-    public final SimpleIntegerProperty nr = new SimpleIntegerProperty("Nr",
+    @SerializedName(value = "No", alternate = "Nr")
+    public final SimpleIntegerProperty no = new SimpleIntegerProperty("Nr",
             I18n.getInstance().getString("plugin.action.nr"), 0);
 
     @Expose
-    @SerializedName("Desciption")
-    public final SimpleStringProperty desciption = new SimpleStringProperty("Desciption",
+    @SerializedName(value = "Description", alternate = "Desciption")
+    public final SimpleStringProperty description = new SimpleStringProperty("Description",
             I18n.getInstance().getString("plugin.action.description"), "");
     @Expose
     @SerializedName("Note")
@@ -66,7 +58,10 @@ public class ActionData {
     @SerializedName("Planned Date")
     public final SimpleObjectProperty<DateTime> plannedDate = new SimpleObjectProperty<>("Planned Date",
             "Umsetzung", (new DateTime()));
-    private final StringProperty nrText = new SimpleStringProperty();
+    @Expose
+    @SerializedName("Done Date")
+    public final SimpleObjectProperty<DateTime> doneDate = new SimpleObjectProperty<>("Done Date",
+            I18n.getInstance().getString("plugin.action.donedate"), null);
     @Expose
     @SerializedName("Attachment")
     public final SimpleStringProperty attachment = new SimpleStringProperty("Attachment",
@@ -120,12 +115,16 @@ public class ActionData {
     public final SimpleStringProperty distributor = new SimpleStringProperty("Distributor",
             I18n.getInstance().getString("plugin.action.distributor"), "");
     @Expose
-    @SerializedName("EnpI")
-    public final SimpleObjectProperty<ConsumptionData> enpi = new SimpleObjectProperty<>(new ConsumptionData());
+    @SerializedName(value = "EnPI", alternate = "EnpI")
+    public final SimpleObjectProperty<ConsumptionData> EnPI = new SimpleObjectProperty<>(new ConsumptionData());
     @Expose
     @SerializedName("Consumption")
     public final SimpleObjectProperty<ConsumptionData> consumption = new SimpleObjectProperty<>(new ConsumptionData());
     public final SimpleBooleanProperty valueChanged = new SimpleBooleanProperty(false);
+    @Expose
+    @SerializedName("SEU Tags")
+    private final SimpleObjectProperty<String> seuTags = new SimpleObjectProperty<>("");
+    private final StringProperty noText = new SimpleStringProperty();
     @Expose
     @SerializedName("Check List")
     private final SimpleObjectProperty<CheckListData> checkListData = new SimpleObjectProperty<>(new CheckListData());
@@ -154,12 +153,12 @@ public class ActionData {
 
     public void update() {
         //System.out.println("-ActionData.update: " + this);
-        nr.addListener((observable, oldValue, newValue) -> updateNrText());
+        no.addListener((observable, oldValue, newValue) -> updateNoText());
         originalSettings = gson.toJson(this);
-        logger.debug("Update Consumption: " + getNrText());
+        logger.debug("Update Consumption: " + getNoText());
         consumption.get().update();
-        enpi.get().setEnPI(true);
-        enpi.get().update();
+        EnPI.get().setEnPI(true);
+        EnPI.get().update();
         npv.get().update();
     }
 
@@ -169,21 +168,21 @@ public class ActionData {
 
     public void setActionPlan(ActionPlanData actionPlan) {
         this.actionPlan = actionPlan;
-        actionPlan.nrPrefixProperty().addListener((observable, oldValue, newValue) -> updateNrText());
+        actionPlan.noPrefixProperty().addListener((observable, oldValue, newValue) -> updateNoText());
 
-        updateNrText();
+        updateNoText();
     }
 
-    private void updateNrText() {
-        nrText.set(String.format("%s %03d", actionPlan.getNrPrefix(), nrProperty().get()));
+    private void updateNoText() {
+        noText.set(String.format("%s %03d", actionPlan.getNoPrefix(), noProperty().get()));
     }
 
-    public String getNrText() {
-        return nrText.get();
+    public String getNoText() {
+        return noText.get();
     }
 
-    public StringProperty nrTextProperty() {
-        return nrText;
+    public StringProperty noTextProperty() {
+        return noText;
     }
 
     public JEVisObject getObject() {
@@ -208,7 +207,7 @@ public class ActionData {
 
     public void commit() {
         try {
-            logger.debug("ActonData.commit: " + nr.get() + " changes: " + valueChanged.getValue());
+            logger.debug("ActonData.commit: " + no.get() + " changes: " + valueChanged.getValue());
             // if (!hasChanged()) return;
 
             Task task = new Task() {
@@ -220,7 +219,7 @@ public class ActionData {
 
                             if (object != null) {
                                 String titleShort = (title.get().length() < 50) ? title.get() : title.get().substring(0, 50) + "..";
-                                object.setName(getNrText() + " - " + titleShort);
+                                object.setName(getNoText() + " - " + titleShort);
                                 object.commit();
 
                                 JEVisAttribute dataModel = object.getAttribute("Data");
@@ -268,13 +267,13 @@ public class ActionData {
     }
 
 
-    public SimpleIntegerProperty nrProperty() {
-        return nr;
+    public SimpleIntegerProperty noProperty() {
+        return no;
     }
 
 
-    public SimpleStringProperty desciptionProperty() {
-        return desciption;
+    public SimpleStringProperty descriptionProperty() {
+        return description;
     }
 
     public SimpleStringProperty noteProperty() {
@@ -368,12 +367,12 @@ public class ActionData {
         return checkListData;
     }
 
-    public ConsumptionData getEnpi() {
-        return enpi.get();
+    public ConsumptionData getEnPI() {
+        return EnPI.get();
     }
 
-    public SimpleObjectProperty<ConsumptionData> enpiProperty() {
-        return enpi;
+    public SimpleObjectProperty<ConsumptionData> EnPIProperty() {
+        return EnPI;
     }
 
 

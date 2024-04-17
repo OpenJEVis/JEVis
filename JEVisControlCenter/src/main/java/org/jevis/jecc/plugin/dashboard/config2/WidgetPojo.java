@@ -84,7 +84,7 @@ public class WidgetPojo {
 
                 /**
                  * Fallback, existing dashboards have only left,right,center
-                 * but the POJO expects an Pos with center_right and so on.
+                 * but the POJO expects a Pos with center_right and so on.
                  **/
                 if (jsonNode.get(TITLE_POSITION).asText().equalsIgnoreCase("left")) {
                     this.titlePosition = Pos.CENTER_LEFT;
@@ -105,91 +105,91 @@ public class WidgetPojo {
                 this.type = jsonNode.get(TYPE).asText("");
 //                System.out.println("p: " + this.type);
             } catch (Exception ex) {
-                logger.debug("Could not parse {}: {}", "WidgetType", ex.getMessage());
+                logger.debug("Could not parse {}: {}", "WidgetType", ex.getMessage(), ex);
             }
 
             try {
                 this.backgroundColor = Color.valueOf(jsonNode.get(BACKGROUND_COLOR).asText(Color.TRANSPARENT.toString()));
             } catch (Exception ex) {
-                logger.debug("Could not parse {}: {}", BACKGROUND_COLOR, ex.getMessage());
+                logger.debug("Could not parse {}: {}", BACKGROUND_COLOR, ex.getMessage(), ex);
             }
 
             try {
                 this.fontColor = Color.valueOf(jsonNode.get(FONT_COLOR).asText(Color.BLACK.toString()));
             } catch (Exception ex) {
-                logger.debug("Could not parse {}: {}", FONT_COLOR, ex.getMessage());
+                logger.debug("Could not parse {}: {}", FONT_COLOR, ex.getMessage(), ex);
             }
             try {
                 this.size = new Size(jsonNode.get(HEIGHT).asDouble(25), jsonNode.get(WIDTH).asDouble(25));
             } catch (Exception ex) {
-                logger.debug("Could not parse {} : {}", HEIGHT, ex.getMessage());
+                logger.debug("Could not parse {} : {}", HEIGHT, ex.getMessage(), ex);
             }
 
             try {
                 this.fontWeight = FontWeight.findByName(jsonNode.get(FONT_WEIGHT).asText());
             } catch (Exception ex) {
-                logger.debug("Could not parse {} : {}", FONT_WEIGHT, ex.getMessage());
+                logger.debug("Could not parse {} : {}", FONT_WEIGHT, ex.getMessage(), ex);
             }
 
             try {
                 this.fontPosture = FontPosture.findByName(jsonNode.get(FONT_POSTURE).asText());
             } catch (Exception ex) {
-                logger.debug("Could not parse {} : {}", FONT_POSTURE, ex.getMessage());
+                logger.debug("Could not parse {} : {}", FONT_POSTURE, ex.getMessage(), ex);
             }
 
             try {
                 this.fontUnderlined = jsonNode.get(FONT_UNDERLINED).asBoolean();
             } catch (Exception ex) {
-                logger.debug("Could not parse {} : {}", FONT_UNDERLINED, ex.getMessage());
+                logger.debug("Could not parse {} : {}", FONT_UNDERLINED, ex.getMessage(), ex);
             }
 
             try {
                 this.fontSize = jsonNode.get(FONT_SIZE).asDouble(13);
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", FONT_SIZE, ex.getMessage());
+                logger.error("Could not parse {}: {}", FONT_SIZE, ex.getMessage(), ex);
             }
 
             try {
                 this.xPosition = jsonNode.get(X_POS).asDouble(0);
                 this.yPosition = jsonNode.get(Y_POS).asDouble(0);
             } catch (Exception ex) {
-                logger.debug("Could not parse position: {}", ex.getMessage());
+                logger.debug("Could not parse position: {}", ex.getMessage(), ex);
             }
 
             try {
                 this.showShadow = jsonNode.get(SHOW_SHADOW).asBoolean(true);
             } catch (Exception ex) {
-                logger.debug("Could not parse {}: {}", SHOW_SHADOW, ex.getMessage());
+                logger.debug("Could not parse {}: {}", SHOW_SHADOW, ex.getMessage(), ex);
             }
 
             try {
                 this.showValue = jsonNode.get(SHOW_VALUE).asBoolean(true);
             } catch (Exception ex) {
-                logger.debug("Could not parse {}: {}", SHOW_VALUE, ex.getMessage());
+                logger.debug("Could not parse {}: {}", SHOW_VALUE, ex.getMessage(), ex);
             }
 
             try {
                 this.borderSize = new BorderWidths(jsonNode.get(BORDER_SIZE).asDouble(0.2));
             } catch (Exception ex) {
-                logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
+                logger.debug("Could not parse position: {}", BORDER_SIZE, ex);
             }
 
             try {
                 this.decimals = jsonNode.get(DECIMALS).asInt(2);
             } catch (Exception ex) {
-                logger.debug("Could not parse decimals: {}", DECIMALS, ex.getMessage());
+                logger.debug("Could not parse decimals: {}", DECIMALS, ex);
             }
 
             try {
                 this.layer = jsonNode.get(LAYER).asInt(1);
             } catch (Exception ex) {
-                logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
+                logger.debug("Could not parse position: {}", BORDER_SIZE, ex);
             }
 
             try {
                 this.fixedTimeframe = jsonNode.get(FIXED_TIMEFRAME).asBoolean(false);
             } catch (Exception ex) {
-                logger.debug("Could not parse fixed timeframe: {}", BORDER_SIZE, ex.getMessage());
+                logger.debug("Could not parse fixed timeframe: {}", BORDER_SIZE, ex);
             }
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
@@ -377,7 +377,7 @@ public class WidgetPojo {
         this.layer = layer;
     }
 
-    public boolean isFixedTimeframe() {
+    public boolean getFixedTimeframe() {
         return fixedTimeframe;
     }
 
@@ -407,7 +407,7 @@ public class WidgetPojo {
         copy.setType(this.getType());
         copy.setyPosition(this.getyPosition());
         copy.setLayer(this.getLayer());
-        copy.setFixedTimeframe(this.isFixedTimeframe());
+        copy.setFixedTimeframe(this.getFixedTimeframe());
 
         return copy;
     }

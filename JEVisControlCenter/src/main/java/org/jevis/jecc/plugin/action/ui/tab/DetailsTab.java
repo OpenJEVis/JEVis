@@ -85,7 +85,7 @@ public class DetailsTab extends Tab {
         f_consumptionDiff.setEditable(false);
         f_enpiDiff.setEditable(false);
 
-        data.enpi.get().jevisLinkProperty().addListener((observable, oldValue, newValue) -> {
+        data.EnPI.get().jevisLinkProperty().addListener((observable, oldValue, newValue) -> {
             f_enpiBefore.setEditable(newValue.equals(FreeObject.getInstance().getID().toString()));
             f_enpiAfter.setEditable(newValue.equals(FreeObject.getInstance().getID().toString()));
         });
@@ -109,9 +109,9 @@ public class DetailsTab extends Tab {
             JEVisObject obj = org.jevis.jecc.plugin.action.data.EmptyObject.getInstance();
 
             try {
-                Long id = Long.parseLong(data.enpiProperty().get().jevisLinkProperty().get());
-                if (id.equals(org.jevis.jecc.plugin.action.data.EmptyObject.getInstance().getID())) {
-                    obj = org.jevis.jecc.plugin.action.data.EmptyObject.getInstance();
+                Long id = Long.parseLong(data.EnPIProperty().get().jevisLinkProperty().get());
+                if (id.equals(EmptyObject.getInstance().getID())) {
+                    obj = EmptyObject.getInstance();
                 } else if (id.equals(FreeObject.getInstance().getID())) {
                     obj = FreeObject.getInstance();
                 } else {
@@ -132,18 +132,18 @@ public class DetailsTab extends Tab {
             @Override
             public void changed(ObservableValue<? extends JEVisObject> observable, JEVisObject oldValue, JEVisObject newValue) {
                 if (newValue == null) {
-                    data.enpiProperty().get().jevisLinkProperty().set("");
+                    data.EnPIProperty().get().jevisLinkProperty().set("");
                 } else {
-                    data.enpiProperty().get().jevisLinkProperty().set(newValue.getID().toString());
+                    data.EnPIProperty().get().jevisLinkProperty().set(newValue.getID().toString());
 
                     DateTime now = new DateTime();
-                    if (data.enpiProperty().get().afterFromDate.get() == null) {
-                        data.enpiProperty().get().afterFromDate.set(new DateTime(now.getYear(), 1, 1, 0, 0));
-                        data.enpiProperty().get().afterUntilDate.set(new DateTime(now.getYear(), 12, 31, 23, 59));
+                    if (data.EnPIProperty().get().afterFromDate.get() == null) {
+                        data.EnPIProperty().get().afterFromDate.set(new DateTime(now.getYear(), 1, 1, 0, 0));
+                        data.EnPIProperty().get().afterUntilDate.set(new DateTime(now.getYear(), 12, 31, 23, 59));
                     }
-                    if (data.enpiProperty().get().beforeFromDate.get() == null) {
-                        data.enpiProperty().get().beforeFromDate.set(new DateTime(now.getYear() - 1, 1, 1, 0, 0));
-                        data.enpiProperty().get().beforeUntilDate.set(new DateTime(now.getYear() - 1, 12, 31, 23, 59));
+                    if (data.EnPIProperty().get().beforeFromDate.get() == null) {
+                        data.EnPIProperty().get().beforeFromDate.set(new DateTime(now.getYear() - 1, 1, 1, 0, 0));
+                        data.EnPIProperty().get().beforeUntilDate.set(new DateTime(now.getYear() - 1, 12, 31, 23, 59));
                     }
                 }
             }
@@ -211,25 +211,25 @@ public class DetailsTab extends Tab {
 
         beforeDateButton.setOnAction(event -> {
             TimeRangeDialog timeRangeDialog = new TimeRangeDialog(
-                    data.enpiProperty().get().beforeFromDate.get(),
-                    data.enpiProperty().get().beforeUntilDate.get());
+                    data.EnPIProperty().get().beforeFromDate.get(),
+                    data.EnPIProperty().get().beforeUntilDate.get());
 
             Optional<ButtonType> result = timeRangeDialog.showAndWait();
             if (result.get() == ButtonType.OK) {
-                data.enpiProperty().get().beforeFromDate.set(timeRangeDialog.getFromDate());
-                data.enpiProperty().get().beforeUntilDate.set(timeRangeDialog.getUntilDate());
-                data.enpiProperty().get().updateEnPIData();
+                data.EnPIProperty().get().beforeFromDate.set(timeRangeDialog.getFromDate());
+                data.EnPIProperty().get().beforeUntilDate.set(timeRangeDialog.getUntilDate());
+                data.EnPIProperty().get().updateEnPIData();
             }
         });
         afterDateButton.setOnAction(event -> {
             TimeRangeDialog timeRangeDialog = new TimeRangeDialog(
-                    data.enpiProperty().get().afterFromDate.get(),
-                    data.enpiProperty().get().afterFromDate.get());
+                    data.EnPIProperty().get().afterFromDate.get(),
+                    data.EnPIProperty().get().afterFromDate.get());
             Optional<ButtonType> result = timeRangeDialog.showAndWait();
             if (result.get() == ButtonType.OK) {
-                data.enpiProperty().get().afterFromDate.set(timeRangeDialog.getFromDate());
-                data.enpiProperty().get().afterFromDate.set(timeRangeDialog.getUntilDate());
-                data.enpiProperty().get().updateEnPIData();
+                data.EnPIProperty().get().afterFromDate.set(timeRangeDialog.getFromDate());
+                data.EnPIProperty().get().afterFromDate.set(timeRangeDialog.getUntilDate());
+                data.EnPIProperty().get().updateEnPIData();
             }
 
         });
@@ -237,8 +237,8 @@ public class DetailsTab extends Tab {
 
         buttonOpenAnalysisBefore.setOnAction(event -> {
             try {
-                DateTime from = data.enpiProperty().get().beforeFromDate.get();
-                DateTime until = data.enpiProperty().get().beforeUntilDate.get();
+                DateTime from = data.EnPIProperty().get().beforeFromDate.get();
+                DateTime until = data.EnPIProperty().get().beforeUntilDate.get();
                 openAnalysis(data, from, until);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -247,8 +247,8 @@ public class DetailsTab extends Tab {
 
         buttonOpenAnalysisAfter.setOnAction(actionEvent -> {
             try {
-                DateTime from = data.enpiProperty().get().afterFromDate.get();
-                DateTime until = data.enpiProperty().get().afterUntilDate.get();
+                DateTime from = data.EnPIProperty().get().afterFromDate.get();
+                DateTime until = data.EnPIProperty().get().afterUntilDate.get();
                 openAnalysis(data, from, until);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -269,14 +269,14 @@ public class DetailsTab extends Tab {
         Bindings.bindBidirectional(f_consumptionDiff.getTextField().textProperty(), data.consumptionProperty().get().diffProperty(), nscNoUnit);
         Bindings.bindBidirectional(f_consumptionDiff.getUnitField().textProperty(), data.consumptionProperty().get().unitProperty());
         f_enpiBefore.getTextField().setTextFormatter(new TextFormatter<>(nscNoUnit));
-        Bindings.bindBidirectional(f_enpiBefore.getTextField().textProperty(), data.enpiProperty().get().actualProperty(), nscNoUnit);
-        Bindings.bindBidirectional(f_enpiBefore.getUnitField().textProperty(), data.enpiProperty().get().unitProperty());
+        Bindings.bindBidirectional(f_enpiBefore.getTextField().textProperty(), data.EnPIProperty().get().actualProperty(), nscNoUnit);
+        Bindings.bindBidirectional(f_enpiBefore.getUnitField().textProperty(), data.EnPIProperty().get().unitProperty());
         f_enpiAfter.getTextField().setTextFormatter(new TextFormatter<>(nscNoUnit));
-        Bindings.bindBidirectional(f_enpiAfter.getTextField().textProperty(), data.enpiProperty().get().afterProperty(), nscNoUnit);
-        Bindings.bindBidirectional(f_enpiAfter.getUnitField().textProperty(), data.enpiProperty().get().unitProperty());
+        Bindings.bindBidirectional(f_enpiAfter.getTextField().textProperty(), data.EnPIProperty().get().afterProperty(), nscNoUnit);
+        Bindings.bindBidirectional(f_enpiAfter.getUnitField().textProperty(), data.EnPIProperty().get().unitProperty());
         f_enpiDiff.getTextField().setTextFormatter(new TextFormatter<>(nscNoUnit));
-        Bindings.bindBidirectional(f_enpiDiff.getTextField().textProperty(), data.enpiProperty().get().diffProperty(), nscNoUnit);
-        Bindings.bindBidirectional(f_enpiDiff.getUnitField().textProperty(), data.enpiProperty().get().unitProperty());
+        Bindings.bindBidirectional(f_enpiDiff.getTextField().textProperty(), data.EnPIProperty().get().diffProperty(), nscNoUnit);
+        Bindings.bindBidirectional(f_enpiDiff.getUnitField().textProperty(), data.EnPIProperty().get().unitProperty());
 
 
         Bindings.bindBidirectional(f_nextActionIfNeeded.textProperty(), data.noteAlternativeMeasuresProperty());
@@ -329,7 +329,7 @@ public class DetailsTab extends Tab {
     }
 
     private void openAnalysis(ActionData data, DateTime from, DateTime until) throws Exception {
-        Long enpiData = Long.parseLong(data.enpiProperty().get().jevisLinkProperty().get().replace(";", ""));
+        Long enpiData = Long.parseLong(data.EnPIProperty().get().jevisLinkProperty().get().replace(";", ""));
         JEVisAttribute attribute = data.getObject().getDataSource().getObject(enpiData).getAttribute("Value");
 
         AnalysisRequest analysisRequest = new AnalysisRequest(attribute.getObject(),

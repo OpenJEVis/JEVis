@@ -159,12 +159,12 @@ public class ActionPlanOverviewData extends ActionPlanData {
     }
 
     @Override
-    public String getNrPrefix() {
+    public String getNoPrefix() {
         return nrPrefix.get();
     }
 
     @Override
-    public StringProperty nrPrefixProperty() {
+    public StringProperty noPrefixProperty() {
         return nrPrefix;
     }
 }

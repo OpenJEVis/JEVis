@@ -56,10 +56,10 @@ public class FixerDialog {
             try {
                 String oldTitle = actionData.title.get();
                 String oldMaßnahme = actionData.noteEnergieflussProperty().get();
-                String oldDescription = actionData.desciptionProperty().get();//Prozess
+                String oldDescription = actionData.descriptionProperty().get();//Prozess
 
-                logger.debug("Nr: " + actionData.nr.get() + " oldTitle: " + oldTitle + "  oldMaßnahme: " + oldMaßnahme);
-                actionData.desciptionProperty().set(oldTitle);
+                logger.debug("Nr: " + actionData.no.get() + " oldTitle: " + oldTitle + "  oldMaßnahme: " + oldMaßnahme);
+                actionData.descriptionProperty().set(oldTitle);
                 actionData.title.set(oldMaßnahme);
                 //actionData.commit();
 

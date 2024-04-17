@@ -539,6 +539,17 @@ public interface JC {
             String a_StatusLog = "Status Log";
             String a_LastReadout = "Last Readout";
         }
+
+        interface DWDChannel {
+            String name = "DWD Channel";
+
+            String a_Id = "Id";
+            String a_Attribute = "Attribute";
+            String a_Aggregation = "Aggregation";
+            String a_DataName = "Data Name";
+            String a_Target = "Target";
+            String a_LastReadout = "Last Readout";
+        }
     }
 
     interface Constants {
@@ -985,6 +996,10 @@ public interface JC {
                 String a_LastRun = "Last Run";
                 String a_CycleTime = "Cycle Time";
                 String a_LatestReported = "Latest reported";
+            }
+
+            interface DwdServer {
+                String name = "DWD Server";
             }
 
             interface LoytecXMLDLServer {
@@ -1470,6 +1485,10 @@ public interface JC {
             interface HTTPChannelDirectory {
                 String name = "HTTP Channel Directory";
 
+            }
+
+            interface DWDChannelDirectory {
+                String name = "DWD Channel Directory";
             }
 
             interface LoytecXMLDLChannelDirectory {
@@ -3214,7 +3233,7 @@ public interface JC {
         String name = "Measurement Instrument";
 
 
-        String a_DecimalPlaces ="Decimal Places";
+        String a_DecimalPlaces = "Decimal Places";
         String a_VerificationDocumentation = "Verification Documentation";
         String a_Location = "Location";
         String a_Company = "Company";
@@ -3552,7 +3571,7 @@ public interface JC {
 
         }
 
-        interface JSONParser{
+        interface JSONParser {
             String name = "JSON Parser";
 
             String a_dateTimeFormat = "Date Time Format";
@@ -3866,7 +3885,7 @@ public interface JC {
 
                 String a_Data = "Data";
 
-                interface NonconformityDirectory{
+                interface NonconformityDirectory {
                     String name = "Nonconformities Directory";
                 }
 
@@ -3874,6 +3893,7 @@ public interface JC {
             }
         }
     }
+
     interface IndexofLegalProvisions {
         String name = "Index of Legal Provisions";
 
@@ -3889,7 +3909,7 @@ public interface JC {
 
                 String a_Data = "Data";
 
-                interface ObligationDirectory{
+                interface ObligationDirectory {
                     String name = "Index of Legal Provisions Directory";
                 }
             }

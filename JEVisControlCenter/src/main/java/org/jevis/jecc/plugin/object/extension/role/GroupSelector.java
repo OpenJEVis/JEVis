@@ -28,7 +28,7 @@ public class GroupSelector extends TextField {
             allUsers.sort(Comparator.comparing(jeVisObject -> jeVisObject.getName()));
             for (JEVisObject group : allUsers) {
                 boolean contains = false;
-                for (Membership membership : role.getMemberships()) {
+                for (Membership membership : role.getMemberShips()) {
                     if (membership.getGroupid().equals(group.getID())) {
                         contains = true;
                         break;

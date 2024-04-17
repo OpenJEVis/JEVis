@@ -1064,11 +1064,12 @@ public class TopMenu extends MenuBar {
         Menu menuFile = new Menu(I18n.getInstance().getString("menu.file"));
         Menu subMenuImport = new Menu(I18n.getInstance().getString("menu.file.import"));
         MenuItem importCSV = new MenuItem(I18n.getInstance().getString("menu.file.import.csv"));
+        MenuItem importWeatherData = new MenuItem(I18n.getInstance().getString("menu.file.import.weather"));
         MenuItem importXML = new MenuItem(I18n.getInstance().getString("menu.file.import.XML"));
         MenuItem importJSON = new MenuItem(I18n.getInstance().getString("menu.file.import.jevis"));
         MenuItem manualData = new MenuItem(I18n.getInstance().getString("menu.file.import.manual"));
 
-        subMenuImport.getItems().addAll(importCSV);//, importXML, importJSON);
+        subMenuImport.getItems().addAll(importCSV, importWeatherData);//, importXML, importJSON);
 //        menuFile.getItems().add(new MenuItem("New"));
         menuFile.getItems().add(new SeparatorMenuItem());
         menuFile.getItems().addAll(subMenuImport, manualData);
@@ -1091,6 +1092,15 @@ public class TopMenu extends MenuBar {
             public void handle(ActionEvent t) {
                 CSVImportDialog impDia = new CSVImportDialog();
                 impDia.show(ControlCenter.getStage(), ControlCenter.getDataSource());
+            }
+        });
+
+        importWeatherData.setOnAction(actionEvent -> {
+            try {
+                DWDBrowser dwdBrowser = new DWDBrowser(JEConfig.getDataSource(), null);
+                dwdBrowser.show();
+            } catch (Exception e) {
+                logger.error("Error while testing", e);
             }
         });
 

@@ -18,6 +18,9 @@ import org.apache.commons.net.ftp.FTPFileFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.classes.JC;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datasource.Station;
 import org.jevis.commons.datasource.StationData;
 import org.jevis.commons.driver.dwd.Aggregation;
@@ -41,7 +44,7 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class DWDBrowser extends Dialog {
+public class DWDBrowser extends Dialog<ButtonType> {
     private static final Logger logger = LogManager.getLogger(DWDBrowser.class);
 
     private final String initialPath = "climate_environment/CDC/observations_germany/climate/";
@@ -68,8 +71,8 @@ public class DWDBrowser extends Dialog {
 
     public DWDBrowser(JEVisDataSource ds, JEVisObject targetObject) {
         this.targetObject = targetObject;
-        setTitle(I18n.getInstance().getString("DWD Browser"));
-        setHeaderText(I18n.getInstance().getString("Import data"));
+        setTitle(I18n.getInstance().getString("plugin.object.dwd.title"));
+        setHeaderText(I18n.getInstance().getString("plugin.object.dwd.subtitle"));
         setResizable(true);
         initOwner(ControlCenter.getStage());
         initModality(Modality.APPLICATION_MODAL);
@@ -115,44 +118,46 @@ public class DWDBrowser extends Dialog {
         gridPane.add(attributeBox, 1, row);
         row++;
 
-        Button loadStationsButton = new Button("Load Stations");
+        JFXButton loadStationsButton = new JFXButton(I18n.getInstance().getString("plugin.object.dwd.button.loadstations"));
 
         gridPane.add(loadStationsButton, 0, row);
         row++;
 
-        TextField stationFilter = new TextField();
-        ComboBox<Station> stationBox = new ComboBox<>();
-
-        stationBox.setConverter(new StringConverter<Station>() {
+        JFXTextField stationFilter = new JFXTextField();
+        JFXComboBox<Station> stationBox = new JFXComboBox<>();
+        StringConverter<Station> stationStringConverter = new StringConverter<Station>() {
             @Override
-            public String toString(Station object) {
-                if (object != null) {
-                    return object.getName();
-                } else return "";
+            public String toString(Station station) {
+                return station.getName();
             }
 
             @Override
-            public Station fromString(String string) {
-                return stationBox.getItems().stream().filter(station -> station.getName().equals(string)).findFirst().orElse(null);
+            public Station fromString(String s) {
+                return filteredStations.stream().filter(station -> station.getName().equals(s)).findFirst().orElse(null);
             }
-        });
+        };
+        stationBox.setConverter(stationStringConverter);
 
         gridPane.add(stationFilter, 0, row);
         gridPane.add(stationBox, 1, row);
         row++;
 
-        Button loadDataButton = new Button("Load Data for station");
+        JFXButton loadDataButton = new JFXButton(I18n.getInstance().getString("plugin.object.dwd.button.loaddata"));
         loadDataButton.setDisable(true);
 
-        gridPane.add(loadDataButton, 1, row);
+
+        gridPane.add(loadDataButton, 0, row);
         row++;
+
+        JFXButton showDescriptionButton = new JFXButton("", JEConfig.getSVGImage(Icon.INFO, 12, 12));
+        showDescriptionButton.setDisable(true);
 
         gridPane.add(dataLabel, 0, row);
         gridPane.add(dataBox, 1, row);
+        gridPane.add(showDescriptionButton, 2, row);
         row++;
 
-        Button targetButton = new Button(I18n
-                .getInstance().getString("plugin.object.attribute.target.button"),
+        Button targetButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.button"),
                 ControlCenter.getImage("folders_explorer.png", 18, 18));
         targetButton.wrapTextProperty().setValue(true);
         targetButton.setDisable(true);
@@ -170,12 +175,23 @@ public class DWDBrowser extends Dialog {
             }
         }
 
+        Label messageLabel = new Label(I18n.getInstance().getString("plugin.object.dwd.label.message"));
         TextField messageField = new TextField();
-        gridPane.add(messageField, 0, row, 2, 1);
+        gridPane.add(messageLabel, 0, row, 1, 1);
+        gridPane.add(messageField, 1, row, 2, 1);
+        row++;
+
+        Label importDataSelection = new Label(I18n.getInstance().getString("plugin.object.dwd.label.dataselection"));
+        gridPane.add(importDataSelection, 0, row, 1, 1);
         row++;
 
         gridPane.add(startDatePicker, 0, row, 1, 1);
         gridPane.add(endDatePicker, 1, row, 1, 1);
+        row++;
+
+        CheckBox createDataPoint = new CheckBox(I18n.getInstance().getString("plugin.object.dwd.label.createdatapoint"));
+        createDataPoint.setSelected(true);
+        gridPane.add(createDataPoint, 0, row, 1, 1);
 
         List<String> stationFiles = new ArrayList<>();
         FTPClient ftpClient = new FTPClient();
@@ -184,7 +200,7 @@ public class DWDBrowser extends Dialog {
         StationData stationData = new StationData();
         List<String> allDataNames = new ArrayList<>();
 
-        loadDataButton.setOnAction(actionEvent -> loadData(stationBox, targetButton, okButton, messageField, ftpClient, stationData, allDataNames));
+        loadDataButton.setOnAction(actionEvent -> loadData(stationBox, targetButton, showDescriptionButton, okButton, messageField, ftpClient, stationData, allDataNames));
 
         targetButton.setOnAction(actionEvent -> {
             try {
@@ -252,6 +268,72 @@ public class DWDBrowser extends Dialog {
                             logger.error("Could not commit samples", e);
                         }
 
+                        if (createDataPoint.isSelected()) {
+                            try {
+                                Station selectedStation = stationBox.getSelectionModel().getSelectedItem();
+                                long stationId = selectedStation.getId();
+                                Attribute selectedAttribute = attributeBox.getSelectionModel().getSelectedItem();
+                                Aggregation selectedAggregation = aggregationBox.getSelectionModel().getSelectedItem();
+                                String selectedDataName = dataBox.getSelectionModel().getSelectedItem();
+                                SampleHandler sampleHandler = new SampleHandler();
+
+                                JEVisClass dwdDataSourceClass = ds.getJEVisClass(JC.DataSource.DataServer.DwdServer.name);
+                                JEVisClass dwdChannelDirectoryClass = ds.getJEVisClass(JC.Directory.ChannelDirectory.DWDChannelDirectory.name);
+                                JEVisClass dwdChannelClass = ds.getJEVisClass(JC.Channel.DWDChannel.name);
+
+                                JEVisObject dwdServerObject = ds.getObjects(dwdDataSourceClass, false).stream().findFirst().orElse(null);
+
+                                JEVisObject foundExistingChannel = ds.getObjects(dwdChannelClass, false).stream().filter(dwdChannel -> isSameChannel(dwdChannel, stationId, selectedAttribute.toString(), selectedAggregation.toString(), selectedDataName)).findFirst().orElse(null);
+
+                                if (foundExistingChannel != null) {
+                                    if (target != null) {
+                                        String targetString = target.getObjectID() + ":" + target.getName();
+                                        String foundTargetString = sampleHandler.getLastSample(foundExistingChannel, JC.Channel.DWDChannel.a_Target, "");
+                                        if (!foundTargetString.contains(targetString)) {
+                                            foundTargetString += ";" + targetString;
+                                            JEVisSample updatedTarget = target.buildSample(DateTime.now(), foundTargetString);
+                                            updatedTarget.commit();
+                                        }
+                                    }
+
+                                } else if (dwdServerObject != null) {
+
+                                    for (JEVisObject channelDirectory : dwdServerObject.getChildren()) {
+                                        JEVisObject foundStationDirectory = channelDirectory.getChildren().stream().filter(stationDirectory -> selectedStation.getName().equals(stationDirectory.getName())).findFirst().orElse(null);
+
+                                        if (foundStationDirectory == null) {
+                                            foundStationDirectory = channelDirectory.buildObject(selectedStation.getName(), dwdChannelDirectoryClass);
+                                            foundStationDirectory.commit();
+                                        }
+
+                                        String channelName = selectedStation.getName() + " " + selectedAggregation + " " + selectedAttribute + " " + selectedDataName;
+
+                                        JEVisObject channel = foundStationDirectory.buildObject(channelName, dwdChannelClass);
+                                        channel.commit();
+
+                                        DateTime now = new DateTime();
+                                        JEVisSample idSample = channel.getAttribute(JC.Channel.DWDChannel.a_Id).buildSample(now, selectedStation.getId());
+                                        idSample.commit();
+                                        JEVisSample aggregationSample = channel.getAttribute(JC.Channel.DWDChannel.a_Aggregation).buildSample(now, selectedAggregation);
+                                        aggregationSample.commit();
+                                        JEVisSample attributeSample = channel.getAttribute(JC.Channel.DWDChannel.a_Attribute).buildSample(now, selectedAttribute);
+                                        attributeSample.commit();
+                                        JEVisSample dataNameSample = channel.getAttribute(JC.Channel.DWDChannel.a_DataName).buildSample(now, selectedDataName);
+                                        dataNameSample.commit();
+                                        JEVisSample targetSample = channel.getAttribute(JC.Channel.DWDChannel.a_Target).buildSample(now, target.getObjectID() + ":" + target.getName());
+                                        targetSample.commit();
+                                        JEVisSample lastReadoutSample = channel.getAttribute(JC.Channel.DWDChannel.a_LastReadout).buildSample(now, samples.get(samples.size() - 1).getTimestamp());
+                                        lastReadoutSample.commit();
+                                    }
+
+                                }
+
+
+                            } catch (JEVisException e) {
+                                logger.error("Could not create datapoints ");
+                            }
+                        }
+
                         succeeded();
                     } catch (Exception ex) {
                         failed();
@@ -269,7 +351,7 @@ public class DWDBrowser extends Dialog {
 
         stationFilter.textProperty().addListener(obs -> {
             String filter = stationFilter.getText();
-            if (filter == null || filter.length() == 0) {
+            if (filter == null || filter.isEmpty()) {
                 filteredStations.setPredicate(s -> true);
             } else {
                 if (filter.contains(" ")) {
@@ -291,12 +373,29 @@ public class DWDBrowser extends Dialog {
             }
         });
 
+        showDescriptionButton.setOnAction(actionEvent -> {
+            PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
+            pdfViewerDialog.show(null, stationBox.getSelectionModel().getSelectedItem().getDescriptionFile(), this.getDialogPane().getScene().getWindow());
+        });
+
         getDialogPane().setContent(gridPane);
 
 
     }
 
-    private void loadData(ComboBox<Station> stationBox, Button targetButton, Button okButton, TextField messageField, FTPClient ftpClient, StationData stationData, List<String> allDataNames) {
+    private boolean isSameChannel(JEVisObject dwdChannel, Long stationId, String selectedAttribute, String selectedAggregation, String selectedDataName) {
+
+        SampleHandler sampleHandler = new SampleHandler();
+
+        Long channelId = sampleHandler.getLastSample(dwdChannel, JC.Channel.DWDChannel.a_Id, -1L);
+        String channelAttribute = sampleHandler.getLastSample(dwdChannel, JC.Channel.DWDChannel.a_Attribute, "");
+        String channelAggregation = sampleHandler.getLastSample(dwdChannel, JC.Channel.DWDChannel.a_Aggregation, "");
+        String channelDataName = sampleHandler.getLastSample(dwdChannel, JC.Channel.DWDChannel.a_DataName, "");
+
+        return stationId.equals(channelId) && selectedAttribute.equals(channelAttribute) && selectedAggregation.equals(channelAggregation) && selectedDataName.equals(channelDataName);
+    }
+
+    private void loadData(ComboBox<Station> stationBox, Button targetButton, Button showDescriptionButton, Button okButton, TextField messageField, FTPClient ftpClient, StationData stationData, List<String> allDataNames) {
         try {
             Station selectedStation = stationBox.getSelectionModel().getSelectedItem();
             StringBuilder idString = new StringBuilder(String.valueOf(selectedStation.getId()));
@@ -309,13 +408,39 @@ public class DWDBrowser extends Dialog {
             stationData.setId(selectedStation.getId());
             Map<DateTime, Map<String, String>> dataMap = new HashMap<>();
 
+            for (Map.Entry<Attribute, List<String>> entry : selectedStation.getIntervalPath().entrySet()) {
+                if (!entry.getValue().isEmpty()) {
+                    String s = entry.getValue().get(0);
+                    s = s.substring(0, s.lastIndexOf("/"));
+                    s = s.substring(0, s.lastIndexOf("/") + 1);
+
+                    FTPFileFilter filter2 = ftpFile -> (ftpFile.isFile() && ftpFile.getName().contains(".pdf") && ftpFile.getName().contains("DESCRIPTION"));
+                    String fileName = "null";
+                    for (FTPFile ftpFile : ftpClient.listFiles(s, filter2)) {
+                        if (ftpFile.isFile() && ftpFile.getName().contains("en.pdf")) {
+                            s += ftpFile.getName();
+                            fileName = ftpFile.getName();
+                        }
+                    }
+
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    logger.info("FTPQuery {}", s);
+                    boolean retrieveFile = ftpClient.retrieveFile(s, out);
+                    logger.info("Request status: {}", retrieveFile);
+
+                    JEVisFile jeVisFile = new JEVisFileImp(fileName, out.toByteArray());
+                    selectedStation.setDescriptionFile(jeVisFile);
+                }
+                break;
+            }
+
             for (Map.Entry<Attribute, List<String>> stationPathList : selectedStation.getIntervalPath().entrySet()) {
                 for (String stationPath : stationPathList.getValue()) {
                     for (FTPFile ftpFile : ftpClient.listFiles(stationPath, filter)) {
                         ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        logger.info("FTPQuery " + ftpFile.getName());
+                        logger.info("FTPQuery {}", ftpFile.getName());
                         boolean retrieveFile = ftpClient.retrieveFile(stationPath + ftpFile.getName(), out);
-                        logger.info("retrieved file " + ftpFile.getName());
+                        logger.info("retrieved file {}", retrieveFile);
 
                         InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
                         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
@@ -384,6 +509,7 @@ public class DWDBrowser extends Dialog {
                 dataBox.getSelectionModel().selectFirst();
                 messageField.setText(firstDate.toString() + " - " + lastDate.toString());
                 targetButton.setDisable(false);
+                showDescriptionButton.setDisable(false);
                 if (targetObject != null) {
                     okButton.setDisable(false);
                 }

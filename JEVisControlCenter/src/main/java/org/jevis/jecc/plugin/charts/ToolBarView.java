@@ -86,7 +86,6 @@ public class ToolBarView {
     private ToggleButton zoomOut;
     private ToggleButton infoButton;
     private ToggleButton helpButton;
-    private ToggleButton testButton;
     private ToolBar toolBar;
     private Boolean changed = false;
     private ToggleButton runUpdateButton;
@@ -116,19 +115,6 @@ public class ToolBarView {
 
         analysesComboBox = new AnalysesComboBox(ds, dataModel);
         analysesComboBox.setPrefWidth(300);
-
-        //TODO: JFX17
-//        analysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-//            Platform.runLater(() -> {
-//                MFXComboBoxListViewSkin<?> skin = (MFXComboBoxListViewSkin<?>) analysesComboBox.getSkin();
-//                if (skin != null) {
-//                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-//                    if (popupContent != null) {
-//                        popupContent.scrollTo(analysesComboBox.getObservableListAnalyses().indexOf(chartPlugin.getDataSettings().getCurrentAnalysis()));
-//                    }
-//                }
-//            });
-//        });
 
         pickerCombo = new PickerCombo(ds, chartPlugin, true);
         presetDateBox = pickerCombo.getPresetDateBox();
@@ -250,7 +236,7 @@ public class ToolBarView {
             }
 
 //            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
-            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), testButton, helpButton, infoButton);
+            toolBar.getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
 
             addAnalysisComboBoxListener();
             setDisableToolBarIcons(disabledIcons.get());
@@ -444,17 +430,6 @@ public class ToolBarView {
 
         helpButton = JEVisHelp.getInstance().buildHelpButtons(iconSize, iconSize);
         infoButton = JEVisHelp.getInstance().buildInfoButtons(iconSize, iconSize);
-        testButton = new ToggleButton("X");
-        testButton.setOnAction(actionEvent -> {
-            try {
-//                DWDBrowser dwdBrowser = new DWDBrowser(chartPlugin.getDialogContainer(), ds);
-//                dwdBrowser.show();
-//
-
-            } catch (Exception e) {
-                logger.error("Error while testing", e);
-            }
-        });
 
         List<Node> nodes = Arrays.asList(analysesComboBox,
                 presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
@@ -603,10 +578,6 @@ public class ToolBarView {
 
         autoResize.setOnAction(event -> chartPlugin.update());
 
-    }
-
-    public AnalysesComboBox getAnalysesComboBox() {
-        return analysesComboBox;
     }    private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
@@ -634,6 +605,10 @@ public class ToolBarView {
             }
         }
     };
+
+    public AnalysesComboBox getAnalysesComboBox() {
+        return analysesComboBox;
+    }
 
     public void select(JEVisObject obj) {
         getAnalysesComboBox().getSelectionModel().select(obj);
@@ -672,8 +647,6 @@ public class ToolBarView {
         pickerTimeStart.setDisable(bool);
         pickerTimeEnd.setDisable(bool);
     }
-
-
 
 
 
@@ -716,8 +689,6 @@ public class ToolBarView {
     public ToolBarSettings getToolBarSettings() {
         return toolBarSettings;
     }
-
-
 
 
 }

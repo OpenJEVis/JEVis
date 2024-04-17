@@ -47,8 +47,8 @@ public class RoleExtention implements ObjectEditorExtension {
 
     private final BorderPane _view = new BorderPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private final ObservableList<Membership> filterdMemberships = FXCollections.observableArrayList();
-    private final ObservableList<User> filterdUsers = FXCollections.observableArrayList();
+    private final ObservableList<Membership> filteredMemberships = FXCollections.observableArrayList();
+    private final ObservableList<User> filteredUsers = FXCollections.observableArrayList();
     private final BooleanProperty filterMemberOnlyProperty = new SimpleBooleanProperty(true);
     private final BooleanProperty filterUserOnlyProperty = new SimpleBooleanProperty(true);
     private Role role;
@@ -58,8 +58,8 @@ public class RoleExtention implements ObjectEditorExtension {
     private TextField filterFieldGroup;
     private TextField filterFieldUser;
     private RoleManager roleManager;
-    private ComboBox<JEVisObject> dashboadList;
-    private CheckBox overwriteDashboad;
+    private ComboBox<JEVisObject> dashboardList;
+    private CheckBox overwriteDashboard;
     private Long orgaID = 0L;
 
     public RoleExtention(JEVisObject obj) {
@@ -72,7 +72,8 @@ public class RoleExtention implements ObjectEditorExtension {
             role = roleManager.getRole();
 
             try {
-                orgaID = obj.getParents().get(0).getParents().get(0).getID();
+
+                orgaID = CommonMethods.getFirstParentalObjectOfClass(obj, "Organization").getID();
 
             } catch (Exception ex) {
                 logger.error(ex);
@@ -150,7 +151,7 @@ public class RoleExtention implements ObjectEditorExtension {
             roleManager.commit();
             logger.debug("Done commit");
         }
-        saveDashboard();
+        saveRole();
         reload();
 
         return true;
@@ -168,9 +169,9 @@ public class RoleExtention implements ObjectEditorExtension {
         //TODO delete changes
     }
 
-    private void saveDashboard() {
+    private void saveRole() {
         DateTime now = new DateTime();
-        JEVisObject dashboard = dashboadList.getSelectionModel().getSelectedItem();
+        JEVisObject dashboard = dashboardList.getSelectionModel().getSelectedItem();
         if (dashboard == null) return;
 
 
@@ -186,7 +187,7 @@ public class RoleExtention implements ObjectEditorExtension {
         roleManager.getRole().getUsers().forEach(user -> {
             try {
                 boolean hasDashboard = user.getUserObject().getAttribute("Start Dashboard").hasSample();
-                if (!hasDashboard || overwriteDashboad.isSelected()) {
+                if (!hasDashboard || overwriteDashboard.isSelected()) {
                     if (user.memberProperty().getValue()) {
                         JEVisSample newSample = user.getUserObject().getAttribute("Start Dashboard").buildSample(now, dashboard.getID());
                         newSample.commit();
@@ -214,7 +215,6 @@ public class RoleExtention implements ObjectEditorExtension {
 
     private ComboBox<JEVisObject> buildDashboardListView() {
         ComboBox<JEVisObject> view = new ComboBox<>();
-        List<JEVisObject> allDashboard = new ArrayList<>();
         try {
 
             //TODO JFX17
@@ -231,7 +231,7 @@ public class RoleExtention implements ObjectEditorExtension {
             });
 
 
-            allDashboard.addAll(_obj.getDataSource().getObjects(_obj.getDataSource().getJEVisClass("Dashboard Analysis"), true));
+            List<JEVisObject> allDashboard = new ArrayList<>(_obj.getDataSource().getObjects(_obj.getDataSource().getJEVisClass("Dashboard Analysis"), true));
 
             view.setItems(FXCollections.observableArrayList(allDashboard));
 
@@ -296,11 +296,11 @@ public class RoleExtention implements ObjectEditorExtension {
             buildGroupTable();
             userTableView.setMinWidth(700);
             groupTableView.setMinWidth(700);
-            dashboadList = buildDashboardListView();
+            dashboardList = buildDashboardListView();
 
             int raw = 0;
 
-            gridPane.addRow(raw, dashboardLabel, dashboadList, overwriteDashboad);
+            gridPane.addRow(raw, dashboardLabel, dashboardList, overwriteDashboard);
             gridPane.add(new Separator(Orientation.HORIZONTAL), 0, ++raw, 3, 1);
             gridPane.addRow(++raw, groupTitle);
             gridPane.addRow(++raw, showActiveMember);
@@ -353,23 +353,23 @@ public class RoleExtention implements ObjectEditorExtension {
         // user by relationship
         logger.error("buildGroupPane:");
 
-        groupTableView = new TableView();
+        groupTableView = new TableView<>();
         //groupTableView.setMinWidth(600);
 
         groupTableView.setEditable(true);
-        TableColumn nameCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.group"));
-        TableColumn idCol = new TableColumn("ID");
-        TableColumn<Membership, Boolean> readCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.read"));
-        TableColumn<Membership, Boolean> writeCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.write"));
-        TableColumn<Membership, Boolean> deleteCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.delete"));
-        TableColumn<Membership, Boolean> createCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.create"));
-        TableColumn<Membership, Boolean> executeCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.execute"));
+        TableColumn<TableUser, String> nameCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.group"));
+        TableColumn<TableUser, String> idCol = new TableColumn<>("ID");
+        TableColumn<Membership, Boolean> readCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.read"));
+        TableColumn<Membership, Boolean> writeCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.write"));
+        TableColumn<Membership, Boolean> deleteCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.delete"));
+        TableColumn<Membership, Boolean> createCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.create"));
+        TableColumn<Membership, Boolean> executeCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.execute"));
 
         groupTableView.getColumns().addAll(nameCol, idCol, readCol, writeCol, deleteCol, createCol, executeCol);
         userTableView.getSortOrder().add(nameCol);
 
-        nameCol.setCellValueFactory(new PropertyValueFactory<TableUser, String>("groupName"));
-        idCol.setCellValueFactory(new PropertyValueFactory<TableUser, String>("groupid"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("groupName"));
+        idCol.setCellValueFactory(new PropertyValueFactory<>("groupid"));
         readCol.setCellValueFactory(param -> param.getValue().readProperty());
         readCol.setCellFactory(param -> new CheckBoxTableCell<>());
         writeCol.setCellValueFactory(param -> param.getValue().writeProperty());
@@ -381,12 +381,12 @@ public class RoleExtention implements ObjectEditorExtension {
         executeCol.setCellValueFactory(param -> param.getValue().executeProperty());
         executeCol.setCellFactory(param -> new CheckBoxTableCell<>());
 
-        filterdMemberships.addAll(role.getMemberships());
+        filteredMemberships.addAll(role.getMemberShips());
 
-        groupTableView.setItems(filterdMemberships);
+        groupTableView.setItems(filteredMemberships);
 
 
-        role.getMemberships().addListener(new ListChangeListener<Membership>() {
+        role.getMemberShips().addListener(new ListChangeListener<Membership>() {
             @Override
             public void onChanged(ListChangeListener.Change<? extends Membership> change) {
                 updateFilteredData();
@@ -416,9 +416,9 @@ public class RoleExtention implements ObjectEditorExtension {
         }
         String lowerCaseFilterString = filterString.toLowerCase();
 
-        if (membership.getGroupName().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
+        if (membership.getGroupName().toLowerCase().contains(lowerCaseFilterString)) {
             return true;
-        } else return membership.getGroupName().toLowerCase().indexOf(lowerCaseFilterString) != -1;// Does not match
+        } else return membership.getGroupName().toLowerCase().contains(lowerCaseFilterString);// Does not match
     }
 
 
@@ -427,12 +427,12 @@ public class RoleExtention implements ObjectEditorExtension {
         logger.error("buildUserTable:");
 
 
-        userTableView = new TableView();
+        userTableView = new TableView<>();
         userTableView.setEditable(true);
 
-        TableColumn<User, Boolean> memberCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.member"));
-        TableColumn<User, String> userNameCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.User"));
-        TableColumn<User, Number> idCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.ID"));
+        TableColumn<User, Boolean> memberCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.member"));
+        TableColumn<User, String> userNameCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.User"));
+        TableColumn<User, Number> idCol = new TableColumn<>(I18n.getInstance().getString("plugin.object.role.table.ID"));
         userTableView.getColumns().addAll(memberCol, userNameCol, idCol);
 
         memberCol.setCellValueFactory(param -> param.getValue().memberProperty());
@@ -442,8 +442,8 @@ public class RoleExtention implements ObjectEditorExtension {
         userNameCol.setEditable(false);
         idCol.setCellValueFactory(param -> param.getValue().idProperty());
 
-        filterdUsers.addAll(role.getUsers());
-        userTableView.setItems(filterdUsers);
+        filteredUsers.addAll(role.getUsers());
+        userTableView.setItems(filteredUsers);
         userTableView.getSortOrder().add(userNameCol);
 
         role.getUsers().addListener(new ListChangeListener<User>() {
@@ -457,16 +457,16 @@ public class RoleExtention implements ObjectEditorExtension {
     }
 
     private void updateFilteredData() {
-        filterdMemberships.clear();
+        filteredMemberships.clear();
 
-        for (Membership p : role.getMemberships()) {
+        for (Membership p : role.getMemberShips()) {
             boolean isFilerMatch = matchesFilter(p);
             if (filterMemberOnlyProperty.getValue()) {
                 if (isFilerMatch && (p.isRead() || p.isCreate() || p.isDelete() || p.isExecute() || p.isWrite() || isInSameOrga(p.getGroupObject()))) {
-                    filterdMemberships.add(p);
+                    filteredMemberships.add(p);
                 }
             } else if (isFilerMatch) {
-                filterdMemberships.add(p);
+                filteredMemberships.add(p);
             }
 
         }
@@ -487,16 +487,16 @@ public class RoleExtention implements ObjectEditorExtension {
     }
 
     private void updateUserFilteredData() {
-        filterdUsers.clear();
+        filteredUsers.clear();
 
         for (User u : role.getUsers()) {
             boolean isFilerMatch = matchesFilter(u);
             if (filterUserOnlyProperty.getValue()) {
                 if (isFilerMatch && (u.getMember() || isInSameOrga(u.getUserObject()))) {
-                    filterdUsers.add(u);
+                    filteredUsers.add(u);
                 }
             } else if (isFilerMatch) {
-                filterdUsers.add(u);
+                filteredUsers.add(u);
             }
 
         }
@@ -514,9 +514,9 @@ public class RoleExtention implements ObjectEditorExtension {
         }
         String lowerCaseFilterString = filterString.toLowerCase();
 
-        if (user.getUsername().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
+        if (user.getUsername().toLowerCase().contains(lowerCaseFilterString)) {
             return true;
-        } else return user.getUsername().toLowerCase().indexOf(lowerCaseFilterString) != -1;// Does not match
+        } else return user.getUsername().toLowerCase().contains(lowerCaseFilterString);// Does not match
     }
 
 

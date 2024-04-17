@@ -109,7 +109,7 @@ public class ActionPlanForm extends Alert {
         //nameField.setText(actionPlan.getName());
 
         nameField.textProperty().bindBidirectional(actionPlan.getName());
-        f_numberPrefix.textProperty().bindBidirectional(actionPlan.nrPrefixProperty());
+        f_numberPrefix.textProperty().bindBidirectional(actionPlan.noPrefixProperty());
         statusListView.setItems(actionPlan.getStatustags());
         fieldsListView.setItems(actionPlan.getFieldsTags());
 

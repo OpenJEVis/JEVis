@@ -16,7 +16,7 @@ public abstract class Template {
         return "";
     }
 
-    public boolean create(JEVisClass jclass, JEVisObject parent, String name) throws JEVisException {
+    public boolean create(JEVisClass jclass, JEVisObject parent, String name) throws JEVisException, InterruptedException {
         return false;
     }
 

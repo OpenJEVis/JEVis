@@ -3,6 +3,7 @@ package org.jevis.commons.datasource;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
+import org.jevis.api.JEVisFile;
 import org.jevis.commons.driver.dwd.Attribute;
 import org.joda.time.DateTime;
 
@@ -20,6 +21,7 @@ public class Station {
     private final SimpleStringProperty state = new SimpleStringProperty(this, "state", "");
     private final SimpleMapProperty<Attribute, List<String>> intervalPath = new SimpleMapProperty<>(this, "intervalPath", FXCollections.observableHashMap());
     private final SimpleMapProperty<Attribute, StationData> stationData = new SimpleMapProperty<>(this, "stationData", FXCollections.observableHashMap());
+    private JEVisFile descriptionFile;
 
     public long getId() {
         return id.get();
@@ -149,5 +151,13 @@ public class Station {
         }
 
         return false;
+    }
+
+    public JEVisFile getDescriptionFile() {
+        return descriptionFile;
+    }
+
+    public void setDescriptionFile(JEVisFile descriptionFile) {
+        this.descriptionFile = descriptionFile;
     }
 }

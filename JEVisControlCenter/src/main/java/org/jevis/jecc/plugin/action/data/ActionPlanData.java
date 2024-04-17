@@ -34,7 +34,7 @@ public class ActionPlanData {
     public static String STATUS_DONE = I18n.getInstance().getString("plugin.action.status.done");
     public static String STATUS_OPEN = I18n.getInstance().getString("plugin.action.status.open");
     private final StringProperty name = new SimpleStringProperty("");
-    private final StringProperty nrPrefix = new SimpleStringProperty("");
+    private final StringProperty noPrefix = new SimpleStringProperty("");
     private final ObservableList<ActionData> actions = FXCollections.observableArrayList();
     private final AtomicInteger biggestActionNr = new AtomicInteger(0);
     private final String ATTRIBUTE_CSTATUS = "Custom Status";
@@ -91,7 +91,7 @@ public class ActionPlanData {
             JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_NrPrefix);
             JEVisSample sample = attribute.getLatestSample();
             if (sample != null && !sample.getValueAsString().isEmpty()) {
-                nrPrefix.set(sample.getValueAsString());
+                noPrefix.set(sample.getValueAsString());
                 initNrPrefix = sample.getValueAsString();
             }
 
@@ -157,9 +157,9 @@ public class ActionPlanData {
                 while (c.next()) {
                     //System.out.println("!!!!!! Plan: " + c);
                     if (c.wasAdded() || c.wasRemoved()) {
-                        Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.nrProperty().get(), o2.nrProperty().get()));
-                        logger.debug("New Action Nr Max: " + maxNr.get().nrProperty().get());
-                        biggestActionNr.set(maxNr.get().nrProperty().get());
+                        Optional<ActionData> maxNr = actions.stream().max((o1, o2) -> Integer.compare(o1.noProperty().get(), o2.noProperty().get()));
+                        logger.debug("New Action Nr Max: " + maxNr.get().noProperty().get());
+                        biggestActionNr.set(maxNr.get().noProperty().get());
                     }
 
                 }
@@ -268,7 +268,7 @@ public class ActionPlanData {
                         }
                     });
                 }
-                actions.sort(Comparator.comparingInt(value -> value.nrProperty().get()));
+                actions.sort(Comparator.comparingInt(value -> value.noProperty().get()));
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -318,10 +318,10 @@ public class ActionPlanData {
 
         DateTime now = new DateTime();
 
-        if (!initNrPrefix.equals(nrPrefix.get())) {
+        if (!initNrPrefix.equals(noPrefix.get())) {
             try {
                 JEVisAttribute attribute = this.object.getAttribute(ATTRIBUTE_NrPrefix);
-                JEVisSample sample = attribute.buildSample(now, nrPrefix.get());
+                JEVisSample sample = attribute.buildSample(now, noPrefix.get());
                 sample.commit();
             } catch (Exception e) {
                 logger.error(e);
@@ -440,12 +440,12 @@ public class ActionPlanData {
         return significantEnergyUseTags;
     }
 
-    public String getNrPrefix() {
-        return nrPrefix.get();
+    public String getNoPrefix() {
+        return noPrefix.get();
     }
 
-    public StringProperty nrPrefixProperty() {
-        return nrPrefix;
+    public StringProperty noPrefixProperty() {
+        return noPrefix;
     }
 
     public Medium getMediumByID(String mediumID) {

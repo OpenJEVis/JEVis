@@ -11,15 +11,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Role {
 
     private final JEVisObject roleObject;
-    private ObservableList<Membership> memberships = FXCollections.observableArrayList();
+    private final ObservableList<Membership> memberShips = FXCollections.observableArrayList();
     private ObservableList<User> users = FXCollections.observableArrayList();
 
     public Role(JEVisObject roleObject) {
         this.roleObject = roleObject;
     }
 
-    public ObservableList<Membership> getMemberships() {
-        return memberships;
+    public ObservableList<Membership> getMemberShips() {
+        return memberShips;
     }
 
     public ObservableList<User> getUsers() {
@@ -35,19 +35,19 @@ public class Role {
     }
 
     public boolean hasChanged() {
-        AtomicBoolean userChaned = new AtomicBoolean(false);
+        AtomicBoolean userChanged = new AtomicBoolean(false);
         AtomicBoolean membershipChanged = new AtomicBoolean(false);
 
         users.forEach(user -> {
-            if (user.getInitMember() != user.memberProperty().get()) userChaned.set(true);
+            if (user.getInitMember() != user.memberProperty().get()) userChanged.set(true);
         });
         membershipChanged.set(!getChangeMemberships().isEmpty());
-        return (membershipChanged.get() || userChaned.get());
+        return (membershipChanged.get() || userChanged.get());
     }
 
     public List<Membership> getChangeMemberships() {
         List<Membership> changedList = new ArrayList<>();
-        getMemberships().forEach(membership -> {
+        getMemberShips().forEach(membership -> {
             if (membership.hasChanged()) {
                 changedList.add(membership);
             }

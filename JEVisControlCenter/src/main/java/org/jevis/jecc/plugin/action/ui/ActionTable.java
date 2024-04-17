@@ -34,11 +34,11 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.text.NumberFormat;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.prefs.Preferences;
 
 
 public class ActionTable extends TableView<ActionData> {
@@ -66,10 +66,10 @@ public class ActionTable extends TableView<ActionData> {
     private final TableColumn<ActionData, String> statusTagsPropertyCol = new TableColumn(fakeForName.statusTagsProperty().getName());
     private final TableColumn<ActionData, String> fromUserCol = new TableColumn(fakeForName.fromUserProperty().getName());
     private final TableColumn<ActionData, String> responsiblePropertyCol = new TableColumn(fakeForName.responsibleProperty().getName());
-    private final TableColumn<ActionData, String> desciptionPropertyCol = new TableColumn(fakeForName.desciptionProperty().getName());
-    private final TableColumn<ActionData, String> actionNrPropertyCol = new TableColumn(fakeForName.nrProperty().getName());
+    private final TableColumn<ActionData, String> descriptionPropertyCol = new TableColumn(fakeForName.descriptionProperty().getName());
+    private final TableColumn<ActionData, String> actionNoPropertyCol = new TableColumn(fakeForName.noProperty().getName());
     private final TableColumn<ActionData, String> fieldTagsPropertyCol = new TableColumn(fakeForName.fieldTagsProperty().getName());
-    private final TableColumn<ActionData, Double> savingYearPropertyCol = new TableColumn(fakeForName.npv.get().einsparung.getName());
+    private final TableColumn<ActionData, Double> savingsYearPropertyCol = new TableColumn(fakeForName.npv.get().einsparung.getName());
     private final TableColumn<ActionData, DateTime> doneDatePropertyCol = new TableColumn(fakeForName.doneDateProperty().getName());
     private final TableColumn<ActionData, DateTime> createDatePropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.created"));
     private final TableColumn<ActionData, String> planNameCol = new TableColumn(I18n.getInstance().getString("plugin.action.filter.plan"));
@@ -77,15 +77,15 @@ public class ActionTable extends TableView<ActionData> {
     private final TableColumn<ActionData, String> mediaTagsPropertyCol = new TableColumn(fakeForName.mediaTagsProperty().getName());
     private final TableColumn<ActionData, DateTime> plannedDatePropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.plandate"));
     private final TableColumn<ActionData, String> noteAlternativeMeasuresPropertyCol = new TableColumn(fakeForName.noteAlternativeMeasuresProperty().getName());
-    private final TableColumn<ActionData, String> noteBewertetPropertyCol = new TableColumn(fakeForName.noteBewertetProperty().getName());
+    private final TableColumn<ActionData, String> noteRatedPropertyCol = new TableColumn(fakeForName.noteBewertetProperty().getName());
     private final TableColumn<ActionData, String> noteCorrectionPropertyCol = new TableColumn(fakeForName.noteCorrectionProperty().getName());
-    private final TableColumn<ActionData, String> noteBetroffenerProzessPropertyCol = new TableColumn(fakeForName.noteBetroffenerProzessProperty().getName());
-    private final TableColumn<ActionData, String> noteEnergieflussPropertyCol = new TableColumn(fakeForName.noteEnergieflussProperty().getName());
+    private final TableColumn<ActionData, String> noteAffectedProcessPropertyCol = new TableColumn(fakeForName.noteBetroffenerProzessProperty().getName());
+    private final TableColumn<ActionData, String> noteEnergyFlowPropertyCol = new TableColumn(fakeForName.noteEnergieflussProperty().getName());
     private final TableColumn<ActionData, String> noteFollowUpActionPropertyCol = new TableColumn(fakeForName.noteFollowUpActionProperty().getName());
     private final TableColumn<ActionData, String> titlePropertyCol = new TableColumn(fakeForName.titleProperty().getName());
     private final TableColumn<ActionData, Double> investPropertyCol = new TableColumn(fakeForName.npv.get().investment.getName());
-    private final TableColumn<ActionData, DateTime> runntimePropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.donedays"));
-    private final TableColumn<ActionData, Double> savingTotalPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.doneruntime"));
+    private final TableColumn<ActionData, DateTime> durationPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.donedays"));
+    private final TableColumn<ActionData, Double> savingsTotalPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.doneruntime"));
     private final TableColumn<ActionData, Double> enpiDevelopmentPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.enpiabechange"));
     private final TableColumn<ActionData, Double> consumptionDevelopmentPropertyCol = new TableColumn(I18n.getInstance().getString("plugin.action.consumption.diff"));
     private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
@@ -99,7 +99,9 @@ public class ActionTable extends TableView<ActionData> {
     private ObservableList<String> planFilters = FXCollections.observableArrayList();
     private DateFilter dateFilter;
     private String containsTextFilter = "";
-
+    private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.ActionTable");
+    private final List<String> defaultList = new ArrayList<>(Arrays.asList("ActionNo", "Responsible", "CreateDate", "Title",
+            "MediaTags", "StatusTags", "DoneDate", "PlannedDate", "Invest", "SavingsYear", "ConsumptionDevelopment"));
 
     public ActionTable(ActionPlanData actionPlanData, ObservableList<ActionData> data, Statistics statistic) {
         this.data = data;
@@ -115,33 +117,31 @@ public class ActionTable extends TableView<ActionData> {
         setId("Action Table");
         setTableMenuButtonVisible(true);
 
-
         fromUserCol.setCellValueFactory(param -> param.getValue().fromUserProperty());
-        fromUserCol.setCellFactory(buildShotTextFactory());
-
+        fromUserCol.setCellFactory(buildShortTextFactory());
+        fromUserCol.setId("FromUser");
 
         responsiblePropertyCol.setCellValueFactory(param -> param.getValue().responsibleProperty());
+        responsiblePropertyCol.setId("Responsible");
 
+        actionNoPropertyCol.setCellValueFactory(param -> param.getValue().noTextProperty());
+        actionNoPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        actionNoPropertyCol.setSortable(true);
+        actionNoPropertyCol.setSortType(TableColumn.SortType.ASCENDING);
+        actionNoPropertyCol.setId("ActionNo");
 
-        actionNrPropertyCol.setCellValueFactory(param -> param.getValue().nrTextProperty());
-        actionNrPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        actionNrPropertyCol.setSortable(true);
-        actionNrPropertyCol.setSortType(TableColumn.SortType.ASCENDING);
-
-
-        desciptionPropertyCol.setCellValueFactory(param -> param.getValue().desciptionProperty());
-        desciptionPropertyCol.setCellFactory(buildShotTextFactory());
-        desciptionPropertyCol.setId("Desciption");
-
+        descriptionPropertyCol.setCellValueFactory(param -> param.getValue().descriptionProperty());
+        descriptionPropertyCol.setCellFactory(buildShortTextFactory());
+        descriptionPropertyCol.setId("Description");
 
         planNameCol.setCellValueFactory(param -> param.getValue().getActionPlan().getName());
-        planNameCol.setCellFactory(buildShotTextFactory());
-
+        planNameCol.setCellFactory(buildShortTextFactory());
+        planNameCol.setId("PlanName");
 
         notePropertyCol.setCellValueFactory(param -> param.getValue().noteProperty());
-        notePropertyCol.setCellFactory(buildShotTextFactory());
+        notePropertyCol.setCellFactory(buildShortTextFactory());
         notePropertyCol.setId("Note");
-
+        notePropertyCol.setPrefWidth(220);
 
         mediaTagsPropertyCol.setCellValueFactory(param -> param.getValue().mediaTagsProperty());
         mediaTagsPropertyCol.setCellFactory(new StringListColumnCell());
@@ -157,76 +157,78 @@ public class ActionTable extends TableView<ActionData> {
             }
         }));
         mediaTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
-
+        mediaTagsPropertyCol.setId("MediaTags");
 
         statusTagsPropertyCol.setCellValueFactory(param -> param.getValue().statusTagsProperty());
         statusTagsPropertyCol.setCellFactory(new StringListColumnCell());
         statusTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
         statusTagsPropertyCol.setPrefWidth(150);
-
+        statusTagsPropertyCol.setId("StatusTags");
 
         fieldTagsPropertyCol.setCellValueFactory(param -> param.getValue().fieldTagsProperty());
         fieldTagsPropertyCol.setCellFactory(new StringListColumnCell());
         fieldTagsPropertyCol.setStyle("-fx-alignment: CENTER;");
-
+        fieldTagsPropertyCol.setId("FieldTags");
 
         doneDatePropertyCol.setCellValueFactory(param -> param.getValue().doneDateProperty());
         doneDatePropertyCol.setCellFactory(buildDateTimeFactory());
-
+        doneDatePropertyCol.setId("DoneDate");
 
         createDatePropertyCol.setCellValueFactory(param -> param.getValue().createDateProperty());
         createDatePropertyCol.setCellFactory(buildDateTimeFactory());
         createDatePropertyCol.setMinWidth(95);
-
+        createDatePropertyCol.setId("CreateDate");
 
         plannedDatePropertyCol.setCellValueFactory(param -> param.getValue().plannedDateProperty());
         plannedDatePropertyCol.setCellFactory(buildDateTimeFactory());
-
+        plannedDatePropertyCol.setId("PlannedDate");
 
         noteAlternativeMeasuresPropertyCol.setCellValueFactory(param -> param.getValue().noteAlternativeMeasuresProperty());
-        noteAlternativeMeasuresPropertyCol.setCellFactory(buildShotTextFactory());
+        noteAlternativeMeasuresPropertyCol.setCellFactory(buildShortTextFactory());
+        noteAlternativeMeasuresPropertyCol.setId("NoteAlternativeMeasures");
 
-
-        noteBewertetPropertyCol.setCellValueFactory(param -> param.getValue().noteBewertetProperty());
-        noteBewertetPropertyCol.setCellFactory(buildShotTextFactory());
-
+        noteRatedPropertyCol.setCellValueFactory(param -> param.getValue().noteBewertetProperty());
+        noteRatedPropertyCol.setCellFactory(buildShortTextFactory());
+        noteRatedPropertyCol.setId("NoteRated");
 
         noteCorrectionPropertyCol.setCellValueFactory(param -> param.getValue().noteCorrectionProperty());
-        noteCorrectionPropertyCol.setCellFactory(buildShotTextFactory());
+        noteCorrectionPropertyCol.setCellFactory(buildShortTextFactory());
+        noteCorrectionPropertyCol.setId("NoteCorrection");
 
+        noteAffectedProcessPropertyCol.setCellValueFactory(param -> param.getValue().noteBetroffenerProzessProperty());
+        noteAffectedProcessPropertyCol.setCellFactory(buildShortTextFactory());
+        noteAffectedProcessPropertyCol.setId("NoteAffectedProcess");
 
-        noteBetroffenerProzessPropertyCol.setCellValueFactory(param -> param.getValue().noteBetroffenerProzessProperty());
-        noteBetroffenerProzessPropertyCol.setCellFactory(buildShotTextFactory());
-
-
-        noteEnergieflussPropertyCol.setCellValueFactory(param -> param.getValue().noteEnergieflussProperty());
-        noteEnergieflussPropertyCol.setCellFactory(buildShotTextFactory());
-
+        noteEnergyFlowPropertyCol.setCellValueFactory(param -> param.getValue().noteEnergieflussProperty());
+        noteEnergyFlowPropertyCol.setCellFactory(buildShortTextFactory());
+        noteEnergyFlowPropertyCol.setId("NoteEnergyFlow");
 
         noteFollowUpActionPropertyCol.setCellValueFactory(param -> param.getValue().noteFollowUpActionProperty());
-        noteFollowUpActionPropertyCol.setCellFactory(buildShotTextFactory());
-
+        noteFollowUpActionPropertyCol.setCellFactory(buildShortTextFactory());
+        noteFollowUpActionPropertyCol.setId("NoteFollowUpAction");
 
         titlePropertyCol.setCellValueFactory(param -> param.getValue().titleProperty());
-        titlePropertyCol.setCellFactory(buildShotTextFactory());
+        titlePropertyCol.setCellFactory(buildShortTextFactory());
         titlePropertyCol.setId("Title");
-
+        titlePropertyCol.setPrefWidth(420);
 
         investPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().investment.asObject());
         //investPropertyCol.setCellFactory(buildShotTextFactory());
         investPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         investPropertyCol.setCellFactory(new CurrencyColumnCell());
+        investPropertyCol.setId("Invest");
         //investPropertyCol.setPrefWidth(180);
 
-        savingYearPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().einsparung.asObject());
-        savingYearPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        savingYearPropertyCol.setCellFactory(new CurrencyColumnCell());
-        savingYearPropertyCol.setMinWidth(130);
+        savingsYearPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().einsparung.asObject());
+        savingsYearPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        savingsYearPropertyCol.setCellFactory(new CurrencyColumnCell());
+        savingsYearPropertyCol.setMinWidth(130);
+        savingsYearPropertyCol.setId("SavingsYear");
 
-
-        runntimePropertyCol.setCellValueFactory(param -> param.getValue().doneDateProperty());
-        runntimePropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        runntimePropertyCol.setCellFactory(new Callback<TableColumn<ActionData, DateTime>, TableCell<ActionData, DateTime>>() {
+        durationPropertyCol.setCellValueFactory(param -> param.getValue().doneDateProperty());
+        durationPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        durationPropertyCol.setId("Duration");
+        durationPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, DateTime>, TableCell<ActionData, DateTime>>() {
             @Override
             public TableCell<ActionData, DateTime> call(TableColumn<ActionData, DateTime> actionDataDoubleTableColumn) {
                 return new TableCell<ActionData, DateTime>() {
@@ -246,10 +248,10 @@ public class ActionTable extends TableView<ActionData> {
             }
         });
 
-
-        savingTotalPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().einsparung.asObject());
-        savingTotalPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        savingTotalPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
+        savingsTotalPropertyCol.setCellValueFactory(param -> param.getValue().npv.get().einsparung.asObject());
+        savingsTotalPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
+        savingsTotalPropertyCol.setId("SavingsTotal");
+        savingsTotalPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
             @Override
             public TableCell<ActionData, Double> call(TableColumn<ActionData, Double> actionDataDoubleTableColumn) {
                 return new TableCell<ActionData, Double>() {
@@ -272,12 +274,13 @@ public class ActionTable extends TableView<ActionData> {
                 };
             }
         });
-        savingTotalPropertyCol.setMinWidth(130);
+        savingsTotalPropertyCol.setMinWidth(130);
 
-        enpiDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().enpi.get().diffProperty().asObject());
+        enpiDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().EnPI.get().diffProperty().asObject());
         //savingYearPropertyCol.setCellFactory(buildShotTextFactory());
         enpiDevelopmentPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         enpiDevelopmentPropertyCol.setMinWidth(150);
+        enpiDevelopmentPropertyCol.setId("EnPIDevelopment");
         enpiDevelopmentPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
             @Override
             public TableCell<ActionData, Double> call(TableColumn<ActionData, Double> param) {
@@ -287,8 +290,8 @@ public class ActionTable extends TableView<ActionData> {
                         super.updateItem(item, empty);
 
                         if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
-                            ActionData actionData = getTableRow().getItem();
-                            setText(NumerFormating.getInstance().getDoubleFormate().format(item) + " " + actionData.enpi.get().unitProperty().get());
+                            ActionData actionData = (ActionData) getTableRow().getItem();
+                            setText(NumerFormating.getInstance().getDoubleFormate().format(item) + " " + actionData.EnPI.get().unitProperty().get());
                         } else {
                             setText(null);
                         }
@@ -297,11 +300,11 @@ public class ActionTable extends TableView<ActionData> {
             }
         });
 
-
         consumptionDevelopmentPropertyCol.setCellValueFactory(param -> param.getValue().consumption.get().diffProperty().asObject());
         //consumptionDevelopmentPropertyCol.setCellFactory(buildShotTextFactory());
         consumptionDevelopmentPropertyCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         consumptionDevelopmentPropertyCol.setPrefWidth(200);
+        consumptionDevelopmentPropertyCol.setId("ConsumptionDevelopment");
         //consumptionDevelopmentPropertyCol.setCellFactory(new CurrencyColumnCell());
         consumptionDevelopmentPropertyCol.setCellFactory(new Callback<TableColumn<ActionData, Double>, TableCell<ActionData, Double>>() {
             @Override
@@ -327,44 +330,39 @@ public class ActionTable extends TableView<ActionData> {
         });
 
         //planNameCol.setVisible(actionPlanData instanceof ActionPlanOverviewData);
-        actionNrPropertyCol.setVisible(true);
-        fromUserCol.setVisible(false);
-        responsiblePropertyCol.setVisible(true);
-        desciptionPropertyCol.setVisible(false);
-        notePropertyCol.setVisible(false);
-        createDatePropertyCol.setVisible(true);
-        titlePropertyCol.setVisible(true);
-        mediaTagsPropertyCol.setVisible(true);
-        statusTagsPropertyCol.setVisible(true);
-        doneDatePropertyCol.setVisible(true);
-        plannedDatePropertyCol.setVisible(true);
-        noteAlternativeMeasuresPropertyCol.setVisible(false);
-        noteBewertetPropertyCol.setVisible(false);
-        noteCorrectionPropertyCol.setVisible(false);
-        noteBetroffenerProzessPropertyCol.setVisible(false);
-        noteEnergieflussPropertyCol.setVisible(false);
-        noteFollowUpActionPropertyCol.setVisible(false);
-        investPropertyCol.setVisible(true);
-        savingYearPropertyCol.setVisible(true);
-        fieldTagsPropertyCol.setVisible(false);
-        enpiDevelopmentPropertyCol.setVisible(false);
-        consumptionDevelopmentPropertyCol.setVisible(true);
+        createVisibleSetting(actionNoPropertyCol);
+        createVisibleSetting(fromUserCol);
+        createVisibleSetting(responsiblePropertyCol);
+        createVisibleSetting(descriptionPropertyCol);
+        createVisibleSetting(notePropertyCol);
+        createVisibleSetting(createDatePropertyCol);
+        createVisibleSetting(titlePropertyCol);
+        createVisibleSetting(mediaTagsPropertyCol);
+        createVisibleSetting(statusTagsPropertyCol);
+        createVisibleSetting(doneDatePropertyCol);
+        createVisibleSetting(plannedDatePropertyCol);
+        createVisibleSetting(noteAlternativeMeasuresPropertyCol);
+        createVisibleSetting(noteRatedPropertyCol);
+        createVisibleSetting(noteCorrectionPropertyCol);
+        createVisibleSetting(noteAffectedProcessPropertyCol);
+        createVisibleSetting(noteEnergyFlowPropertyCol);
+        createVisibleSetting(noteFollowUpActionPropertyCol);
+        createVisibleSetting(investPropertyCol);
+        createVisibleSetting(savingsYearPropertyCol);
+        createVisibleSetting(fieldTagsPropertyCol);
+        createVisibleSetting(enpiDevelopmentPropertyCol);
+        createVisibleSetting(consumptionDevelopmentPropertyCol);
+        createVisibleSetting(savingsTotalPropertyCol);
+        createVisibleSetting(durationPropertyCol);
+        planNameCol.setVisible(actionPlanData instanceof ActionPlanOverviewData);
 
-        savingTotalPropertyCol.setVisible(false);
-        runntimePropertyCol.setVisible(false);
-
-        //setPrefHeight(1000);
-        titlePropertyCol.setPrefWidth(420);
-        notePropertyCol.setPrefWidth(220);
-
-
-        this.getColumns().addAll(actionNrPropertyCol, planNameCol, titlePropertyCol, fromUserCol,
-                responsiblePropertyCol, desciptionPropertyCol, notePropertyCol,
+        this.getColumns().addAll(actionNoPropertyCol, planNameCol, titlePropertyCol, fromUserCol,
+                responsiblePropertyCol, descriptionPropertyCol, notePropertyCol,
                 mediaTagsPropertyCol, statusTagsPropertyCol, fieldTagsPropertyCol,
-                createDatePropertyCol, plannedDatePropertyCol, doneDatePropertyCol, noteAlternativeMeasuresPropertyCol, noteBewertetPropertyCol,
-                noteCorrectionPropertyCol, noteEnergieflussPropertyCol, noteFollowUpActionPropertyCol,
-                investPropertyCol, savingYearPropertyCol, enpiDevelopmentPropertyCol, consumptionDevelopmentPropertyCol,
-                savingTotalPropertyCol, runntimePropertyCol
+                createDatePropertyCol, plannedDatePropertyCol, doneDatePropertyCol, noteAlternativeMeasuresPropertyCol, noteRatedPropertyCol,
+                noteCorrectionPropertyCol, noteEnergyFlowPropertyCol, noteFollowUpActionPropertyCol,
+                investPropertyCol, savingsYearPropertyCol, enpiDevelopmentPropertyCol, consumptionDevelopmentPropertyCol,
+                savingsTotalPropertyCol, durationPropertyCol
         );
 
 
@@ -375,7 +373,7 @@ public class ActionTable extends TableView<ActionData> {
             }
         });
 
-        getSortOrder().addAll(createDatePropertyCol, actionNrPropertyCol);
+        getSortOrder().addAll(createDatePropertyCol, actionNoPropertyCol);
 
         //StringProperty summeryNrProperty = new SimpleStringProperty("Summe:");
 
@@ -411,6 +409,12 @@ public class ActionTable extends TableView<ActionData> {
         });
     }
 
+    private void createVisibleSetting(TableColumn<ActionData, ?> column) {
+        boolean defaultVisible = defaultList.contains(column.getId());
+        column.setVisible(pref.getBoolean(column.getId(), defaultVisible));
+        column.visibleProperty().addListener((observable, oldValue, newValue) -> pref.putBoolean(column.getId(), newValue));
+    }
+
     public void updateStatisticsTable() {
         try {
             ObservableMap<TableColumn, StringProperty> summeryRow1 = FXCollections.observableHashMap();
@@ -427,7 +431,7 @@ public class ActionTable extends TableView<ActionData> {
 
             //summeryFunctionListA.put(actionNrPropertyCol, summeryNrProperty);
             summeryRow1.put(investPropertyCol, statistic.sumInvestStrPropertyProperty());
-            summeryRow1.put(savingYearPropertyCol, statistic.sumSavingsStrPropertyProperty());
+            summeryRow1.put(savingsYearPropertyCol, statistic.sumSavingsStrPropertyProperty());
             summeryRow1.put(consumptionDevelopmentPropertyCol, statistic.sumNPVResultStrPropertyProperty());
 
             //summeryRow1.put(titlePropertyCol, statistic.textSumSinceImplementationGrossProperty());
@@ -556,7 +560,7 @@ public class ActionTable extends TableView<ActionData> {
     public void autoFitTable() {
 //        for (TableColumn<ActionData, ?> column : this.getColumns()) {
 //            try {
-//                if (column.getId().equals("Note") || column.getId().equals("Title") || column.getId().equals("Desciption")) {
+//                if (column.getId().equals("Note") || column.getId().equals("Title") || (column.getId().equals("Description"))) {
 //                    /*ignore this columns for now, there are to big to autoresize*/
 //                } else {
 //                    if (getSkin() != null) {
@@ -570,7 +574,7 @@ public class ActionTable extends TableView<ActionData> {
 //        }
     }
 
-    private Callback<TableColumn<ActionData, String>, TableCell<ActionData, String>> buildShotTextFactory() {
+    private Callback<TableColumn<ActionData, String>, TableCell<ActionData, String>> buildShortTextFactory() {
 
 
         return new Callback<TableColumn<ActionData, String>, TableCell<ActionData, String>>() {
@@ -779,7 +783,7 @@ public class ActionTable extends TableView<ActionData> {
                                             || notesRow.responsible.get().toLowerCase().contains(containsTextFilter.toLowerCase())
                                             || notesRow.note.get().toLowerCase().contains(containsTextFilter.toLowerCase())
                                             || notesRow.title.get().toLowerCase().contains(containsTextFilter.toLowerCase())
-                                            || notesRow.desciption.get().toLowerCase().contains(containsTextFilter.toLowerCase())
+                                            || notesRow.description.get().toLowerCase().contains(containsTextFilter.toLowerCase())
                                             || notesRow.noteAlternativeMeasures.get().toLowerCase().contains(containsTextFilter.toLowerCase())
                                             || notesRow.noteCorrection.get().toLowerCase().contains(containsTextFilter.toLowerCase())
                                             || notesRow.noteBetroffenerProzess.get().toLowerCase().contains(containsTextFilter.toLowerCase())

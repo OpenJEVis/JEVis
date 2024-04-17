@@ -9,20 +9,23 @@ import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.application.Chart.ChartPluginElements.Boxes.TimeZoneBox;
+import org.jevis.jecc.plugin.object.extension.role.RoleManager;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Locale.GERMANY;
+import static org.jevis.api.JEVisConstants.Direction.FORWARD;
+import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
 
 public class BuildingObject extends Template {
+    public static final int THREAD_WAIT = 500;
     private final SimpleBooleanProperty withNoEntryPointGroups = new SimpleBooleanProperty(this, "withNoEntryPointGroups", false);
 
     private final SimpleObjectProperty<DateTimeZone> timeZone = new SimpleObjectProperty<>(this, "timeZone", DateTimeZone.UTC);
+
+    private final List<String> executeExceptions = new ArrayList<>(Arrays.asList("Alarms", "Data X", "Base Data"));
 
     @Override
     public String getName() {
@@ -30,7 +33,7 @@ public class BuildingObject extends Template {
     }
 
     @Override
-    public boolean create(JEVisClass jclass, JEVisObject parent, String name) throws JEVisException {
+    public boolean create(JEVisClass jclass, JEVisObject parent, String name) throws JEVisException, InterruptedException {
         JEVisDataSource ds = parent.getDataSource();
         JEVisClass buildingClass = ds.getJEVisClass("Building");
         String jscName = "JSC@" + name;
@@ -43,6 +46,7 @@ public class BuildingObject extends Template {
         JEVisClass groupDirectoryClass = ds.getJEVisClass("Group Directory");
         JEVisClass group = ds.getJEVisClass("Group");
         JEVisClass userRoleDirectoryClass = ds.getJEVisClass("User Role Directory");
+        JEVisClass userRoleClass = ds.getJEVisClass("User Role");
 
         JEVisClass accountingPluginClass = ds.getJEVisClass("Accounting Plugin");
         JEVisObject accountingPlugin = ds.getObjects(accountingPluginClass, true).stream().findFirst().orElse(null);
@@ -76,6 +80,12 @@ public class BuildingObject extends Template {
         JEVisObject trcPlugin = ds.getObjects(trcPluginClass, true).stream().findFirst().orElse(null);
         JEVisClass unitPluginClass = ds.getJEVisClass("Unit Plugin");
         JEVisObject unitPlugin = ds.getObjects(unitPluginClass, true).stream().findFirst().orElse(null);
+        JEVisClass actionPlanPluginClass = ds.getJEVisClass("Action Plan Plugin");
+        JEVisObject actionPlanPlugin = ds.getObjects(actionPlanPluginClass, true).stream().findFirst().orElse(null);
+        JEVisClass nonConformityPluginClass = ds.getJEVisClass("Nonconformities Plugin");
+        JEVisObject nonConformityPlugin = ds.getObjects(nonConformityPluginClass, true).stream().findFirst().orElse(null);
+        JEVisClass indexOfLegalProvisionsPluginClass = ds.getJEVisClass("Index of Legal Provisions Plugin");
+        JEVisObject indexOfLegalProvisionsPlugin = ds.getObjects(indexOfLegalProvisionsPluginClass, true).stream().findFirst().orElse(null);
 
         JEVisObject buildingObject = parent.buildObject("Building", buildingClass);
         buildingObject.setLocalName(I18n.getInstance().getLocale().getLanguage(), name);
@@ -84,6 +94,7 @@ public class BuildingObject extends Template {
         JEVisAttribute timezoneAttribute = buildingObject.getAttribute(JC.MonitoredObject.Building.a_Timezone);
         JEVisSample timeZoneSample = timezoneAttribute.buildSample(new DateTime(), this.timeZone.get().getID());
         timeZoneSample.commit();
+        Thread.sleep(THREAD_WAIT);
 
         JEVisObject administrationDirectory = buildTranslatedObject(buildingObject, "Administration", administrationDirectoryClass,
                 "Administration", "Адміністрація", "Администрация", "การบริหาร", "إدارة");
@@ -98,6 +109,12 @@ public class BuildingObject extends Template {
 
         JEVisObject userRoleDirectory = buildTranslatedObject(administrationDirectory, "Roles", userRoleDirectoryClass,
                 "Benutzerrollen", "ролі користувачів", "роли пользователей", "บทบาทของผู้ใช้", "أدوار المستخدمين");
+
+        JEVisObject standardRole = buildTranslatedObject(userRoleDirectory, "User Role", userRoleClass,
+                "Benutzer Rolle", "Роль користувача", "Роль пользователя", "บทบาทของผู้ใช้", "دور المستخدم");
+
+        JEVisObject adminRole = buildTranslatedObject(userRoleDirectory, "Admin Role", userRoleClass,
+                "Administrator Rolle", "Роль адміністратора", "Роль администратора", "บทบาทผู้ดูแลระบบ", "دور المسؤول");
 
         JEVisObject buildingGroup = null;
         Locale locale = I18n.getInstance().getLocale();
@@ -115,92 +132,164 @@ public class BuildingObject extends Template {
         } else {
             buildingGroup = buildTranslatedObject(groupDirectory, name, group, "", "", "", "", "");
         }
-        ds.buildRelationship(jscUser.getID(), buildingGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
 
-        buildGroupsWithEntryPoints(ds, groupDirectoryClass, group, groupDirectory, buildingObject, jscUser, name);
+        JEVisObject groupDirectoryWithEntryPoints = buildGroupsWithEntryPoints(ds, groupDirectoryClass, group, groupDirectory, buildingObject, jscUser, name);
+        JEVisObject groupDirectoryWithoutEntryPoints = null;
 
         if (withNoEntryPointGroups.get()) {
-            buildGroupsWithoutEntryPoints(ds, groupDirectoryClass, group, groupDirectory, buildingObject, jscUser, name);
+            groupDirectoryWithoutEntryPoints = buildGroupsWithoutEntryPoints(ds, groupDirectoryClass, group, groupDirectory, buildingObject, jscUser, name);
         }
 
         JEVisObject pluginsDirectory = buildTranslatedObject(groupDirectory, "Plugins", groupDirectoryClass,
                 "Module", "плагіни", "плагины", "ปลั๊กอิน", "الإضافات");
         String[] dashboardNames = new String[]{"Plugin", "Modul", "підключати", "плагин", "เสียบเข้าไป", "توصيل في"};
+
         JEVisObject dashboardPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Dashboard " + dashboardNames[0], group,
                 name + " Dashboard " + dashboardNames[1], name + " Панель приладів " + dashboardNames[2],
                 name + " Приборная панель " + dashboardNames[3], name + " แผงควบคุม " + dashboardNames[4], dashboardNames[5] + " لوحة القيادة " + name);
-        ds.buildRelationship(jscUser.getID(), dashboardPluginGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
         ds.buildRelationship(dashboardPlugin.getID(), dashboardPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
 
         JEVisObject chartPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Analyses " + dashboardNames[0], group,
                 name + " Analysen " + dashboardNames[1], name + " аналізи " + dashboardNames[2],
                 name + " анализы " + dashboardNames[3], name + " การวิเคราะห์ " + dashboardNames[4], dashboardNames[5] + " التحليلات " + name);
-        ds.buildRelationship(jscUser.getID(), chartPluginGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
         ds.buildRelationship(chartPlugin.getID(), chartPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
 
         JEVisObject objectPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Objects " + dashboardNames[0], group,
                 name + " Objekte " + dashboardNames[1], name + " об'єктів " + dashboardNames[2],
                 name + " объекты " + dashboardNames[3], name + " วัตถุ " + dashboardNames[4], dashboardNames[5] + " أشياء " + name);
-        ds.buildRelationship(jscUser.getID(), objectPluginGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
         ds.buildRelationship(objectPlugin.getID(), objectPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
 
         JEVisObject alarmPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Alarms " + dashboardNames[0], group,
                 name + " Alarme " + dashboardNames[1], name + " сигналізація " + dashboardNames[2],
                 name + " Аварийная сигнализация " + dashboardNames[3], name + " เตือน " + dashboardNames[4], dashboardNames[5] + " إنذار " + name);
-        ds.buildRelationship(jscUser.getID(), alarmPluginGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
         ds.buildRelationship(alarmPlugin.getID(), alarmPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
 
         JEVisObject reportsPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Reports " + dashboardNames[0], group,
                 name + " Berichte " + dashboardNames[1], name + " звіти " + dashboardNames[2],
                 name + " отчеты " + dashboardNames[3], name + " รายงาน " + dashboardNames[4], dashboardNames[5] + " التقارير " + name);
-        ds.buildRelationship(jscUser.getID(), reportsPluginGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
         ds.buildRelationship(reportPlugin.getID(), reportsPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
 
         JEVisObject notesPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Notes " + dashboardNames[0], group,
                 name + " Notizen " + dashboardNames[1], name + " примітки " + dashboardNames[2],
                 name + " примечания " + dashboardNames[3], name + " หมายเหตุ " + dashboardNames[4], dashboardNames[5] + " ملحوظات " + name);
-        ds.buildRelationship(jscUser.getID(), notesPluginGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
         ds.buildRelationship(notesPlugin.getID(), notesPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
 
         JEVisObject measurementPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Measurement " + dashboardNames[0], group,
                 name + " Messstellen " + dashboardNames[1], name + " точки вимірювання " + dashboardNames[2],
                 name + " точки измерения " + dashboardNames[3], name + " จุดวัด " + dashboardNames[4], dashboardNames[5] + " نقاط القياس " + name);
-        ds.buildRelationship(jscUser.getID(), measurementPluginGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
         ds.buildRelationship(meterPlugin.getID(), measurementPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
 
         JEVisObject baseDataPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Base Data " + dashboardNames[0], group,
                 name + " Stammdaten " + dashboardNames[1], name + " базові дані " + dashboardNames[2],
                 name + " базовые данные " + dashboardNames[3], name + " ข้อมูลพื้นฐาน " + dashboardNames[4], dashboardNames[5] + " البيانات الأساسية " + name);
-        ds.buildRelationship(jscUser.getID(), baseDataPluginGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
         ds.buildRelationship(baseDataPlugin.getID(), baseDataPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
+
+        JEVisObject actionPlanPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Action Plan " + dashboardNames[0], group,
+                name + " Aktionsplan " + dashboardNames[1], name + " План дій " + dashboardNames[2],
+                name + " План Действий " + dashboardNames[3], name + " แผนปฏิบัติการ " + dashboardNames[4], dashboardNames[5] + " خطة عمل " + name);
+        ds.buildRelationship(actionPlanPlugin.getID(), actionPlanPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
+
+        JEVisObject nonConformityPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Non Conformity " + dashboardNames[0], group,
+                name + " Abweichungen " + dashboardNames[1], name + " Відхилення " + dashboardNames[2],
+                name + " Отклонения " + dashboardNames[3], name + " การเบี่ยงเบน " + dashboardNames[4], dashboardNames[5] + " الانحرافات " + name);
+        ds.buildRelationship(nonConformityPlugin.getID(), nonConformityPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
+
+        JEVisObject indexOfLegalProvisionsPluginGroup = buildTranslatedObject(pluginsDirectory, name + " Legal " + dashboardNames[0], group,
+                name + " Rechtskataster " + dashboardNames[1], name + " Юридичний реєстр " + dashboardNames[2],
+                name + " Юридический реестр " + dashboardNames[3], name + " ทะเบียนทางกฎหมาย " + dashboardNames[4], dashboardNames[5] + " السجل القانوني " + name);
+        ds.buildRelationship(indexOfLegalProvisionsPlugin.getID(), indexOfLegalProvisionsPluginGroup.getID(), JEVisConstants.ObjectRelationship.OWNER);
+        Thread.sleep(THREAD_WAIT);
+
+        createRoleRelationships(groupDirectoryWithEntryPoints, buildingGroup, pluginsDirectory, standardRole, adminRole);
+
+        adminRole.buildRelationship(jscUser, ROLE_MEMBER, FORWARD);
+
+        RoleManager roleManager = new RoleManager(adminRole);
+        roleManager.commit();
 
         return true;
     }
 
-    private void buildGroupsWithEntryPoints(JEVisDataSource ds, JEVisClass groupDirectoryClass, JEVisClass groupClass, JEVisObject groupDirectory, JEVisObject buildingObject, JEVisObject jscUser, String buildingName) throws JEVisException {
+    private void createRoleRelationships(JEVisObject groupDirectoryWithEntryPoints, JEVisObject buildingGroup, JEVisObject pluginsDirectory, JEVisObject standardRole, JEVisObject adminRole) throws JEVisException, InterruptedException {
+
+        for (JEVisObject group : groupDirectoryWithEntryPoints.getChildren()) {
+            standardRole.buildRelationship(group, ROLE_READ, FORWARD);
+            Thread.sleep(THREAD_WAIT);
+
+            adminRole.buildRelationship(group, ROLE_READ, FORWARD);
+            Thread.sleep(THREAD_WAIT);
+            adminRole.buildRelationship(group, ROLE_WRITE, FORWARD);
+            Thread.sleep(THREAD_WAIT);
+
+            if (executeExceptions.stream().anyMatch(group.getLocalName("en")::contains)) {
+                standardRole.buildRelationship(group, ROLE_EXECUTE, FORWARD);
+                Thread.sleep(THREAD_WAIT);
+            }
+            adminRole.buildRelationship(group, ROLE_EXECUTE, FORWARD);
+            Thread.sleep(THREAD_WAIT);
+
+            adminRole.buildRelationship(group, ROLE_CREATE, FORWARD);
+            Thread.sleep(THREAD_WAIT);
+            adminRole.buildRelationship(group, ROLE_DELETE, FORWARD);
+            Thread.sleep(THREAD_WAIT);
+        }
+
+        standardRole.buildRelationship(buildingGroup, ROLE_READ, FORWARD);
+        adminRole.buildRelationship(buildingGroup, ROLE_READ, FORWARD);
+
+        for (JEVisObject group : pluginsDirectory.getChildren()) {
+            if (!group.getLocalName("en").contains("Objects")) {
+                standardRole.buildRelationship(group, ROLE_READ, FORWARD);
+                Thread.sleep(THREAD_WAIT);
+            }
+            adminRole.buildRelationship(group, ROLE_READ, FORWARD);
+            Thread.sleep(THREAD_WAIT);
+        }
+    }
+
+
+    private JEVisObject buildGroupsWithEntryPoints(JEVisDataSource ds, JEVisClass groupDirectoryClass, JEVisClass groupClass, JEVisObject groupDirectory, JEVisObject buildingObject, JEVisObject jscUser, String buildingName) throws JEVisException, InterruptedException {
         JEVisObject groupWithEntryPointsDirectory = buildTranslatedObject(groupDirectory, "Groups With Entry Points", groupDirectoryClass,
                 "Gruppen mit Einstiegspunkt", "Групи з точкою входу", "Группы с точкой входа", "กลุ่มที่มีจุดเริ่มต้น", "مجموعات مع نقطة دخول");
         buildGroups(ds, groupClass, buildingObject, jscUser, groupWithEntryPointsDirectory, buildingName, true);
+
+        return groupWithEntryPointsDirectory;
     }
 
-    private void buildGroupsWithoutEntryPoints(JEVisDataSource ds, JEVisClass groupDirectoryClass, JEVisClass groupClass, JEVisObject groupDirectory, JEVisObject buildingObject, JEVisObject jscUser, String buildingName) throws JEVisException {
+    private JEVisObject buildGroupsWithoutEntryPoints(JEVisDataSource ds, JEVisClass groupDirectoryClass, JEVisClass groupClass, JEVisObject groupDirectory, JEVisObject buildingObject, JEVisObject jscUser, String buildingName) throws JEVisException, InterruptedException {
         JEVisObject groupWithoutEntryPointsDirectory = buildTranslatedObject(groupDirectory, "Groups Without Entry Points", groupDirectoryClass,
                 "Gruppen ohne Einstiegspunkt", "Групи без точки входу", "Группы без точки входа", "กลุ่มที่ไม่มีจุดเริ่มต้น", "مجموعات بدون نقطة دخول");
 
         buildGroups(ds, groupClass, buildingObject, jscUser, groupWithoutEntryPointsDirectory, buildingName, false);
+        return groupWithoutEntryPointsDirectory;
     }
 
-    private void buildOwnerRelationship(JEVisDataSource ds, JEVisObject directory, JEVisObject group, boolean withEntryPoint) throws JEVisException {
+    private void buildOwnerRelationship(JEVisDataSource ds, JEVisObject directory, JEVisObject group, boolean withEntryPoint) throws JEVisException, InterruptedException {
         ds.buildRelationship(directory.getID(), group.getID(), JEVisConstants.ObjectRelationship.OWNER);
         if (withEntryPoint) {
-            group.buildRelationship(directory, JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD);
+            group.buildRelationship(directory, JEVisConstants.ObjectRelationship.ROOT, FORWARD);
+            Thread.sleep(THREAD_WAIT);
         }
     }
 
-    private void buildGroups(JEVisDataSource ds, JEVisClass groupClass, JEVisObject buildingObject, JEVisObject jscUser, JEVisObject groupDirectory, String buildingName, boolean withEntryPoints) throws JEVisException {
+    private void buildGroups(JEVisDataSource ds, JEVisClass groupClass, JEVisObject buildingObject, JEVisObject jscUser, JEVisObject groupDirectory, String buildingName, boolean withEntryPoints) throws JEVisException, InterruptedException {
 
         JEVisClass alarmDirectoryClass = ds.getJEVisClass("Alarm Directory");
+        JEVisClass actionPlanDirectoryClass = ds.getJEVisClass("Action Plan Directory");
+        JEVisClass nonConformityDirectoryClass = ds.getJEVisClass("NonconformityPlan Directory");
+        JEVisClass indexOfLegalProvisionsDirectoryClass = ds.getJEVisClass("Index of Legal Provisions Directory");
         JEVisClass analysesDirectoryClass = ds.getJEVisClass("Analyses Directory");
+        JEVisClass dashboardDirectoryClass = ds.getJEVisClass("Dashboard Directory");
         JEVisClass calculationDirectoryClass = ds.getJEVisClass("Calculation Directory");
         JEVisClass reportDirectoryClass = ds.getJEVisClass("Report Directory");
         JEVisClass dataDirectoryClass = ds.getJEVisClass("Data Directory");
@@ -210,138 +299,148 @@ public class BuildingObject extends Template {
         JEVisClass meterDirectoryClass = ds.getJEVisClass("Measurement Directory");
         JEVisClass baseDataDirectoryClass = ds.getJEVisClass("Base Data Directory");
 
-        JEVisObject alarmGroup = buildTranslatedObject(groupDirectory, buildingName + " Alarms", groupClass,
+        JEVisObject alarmGroup;
+        if (withEntryPoints)
+            alarmGroup = buildTranslatedObject(groupDirectory, buildingName + " Alarms X", groupClass,
+                    buildingName + " Alarme X", buildingName + " сигналізація X", buildingName + " Аварийная сигнализация X", buildingName + " เตือน X", "إنذار X " + buildingName);
+        else alarmGroup = buildTranslatedObject(groupDirectory, buildingName + " Alarms", groupClass,
                 buildingName + " Alarme", buildingName + " сигналізація", buildingName + " Аварийная сигнализация", buildingName + " เตือน", "إنذار " + buildingName);
-        if (withEntryPoints) {
-            ds.buildRelationship(jscUser.getID(), alarmGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
-            ds.buildRelationship(jscUser.getID(), alarmGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_WRITE);
-            ds.buildRelationship(jscUser.getID(), alarmGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
-            ds.buildRelationship(jscUser.getID(), alarmGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_DELETE);
-            ds.buildRelationship(jscUser.getID(), alarmGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_CREATE);
-        }
         JEVisObject alarmDirectory = buildTranslatedObject(buildingObject, "Alarms", alarmDirectoryClass,
                 "Alarme", "сигналізація", "Аварийная сигнализация", "เตือน", "إنذار");
         buildOwnerRelationship(ds, alarmDirectory, alarmGroup, withEntryPoints);
 
-        JEVisObject analysesGroup = buildTranslatedObject(groupDirectory, buildingName + " Analyses", groupClass,
+        JEVisObject actionPlanGroup;
+        if (withEntryPoints)
+            actionPlanGroup = buildTranslatedObject(groupDirectory, buildingName + " Action Plan X", groupClass,
+                    buildingName + " Aktionsplan X", buildingName + " План дій X", buildingName + " План Действий X", buildingName + " แผนปฏิบัติการ X", "خطة عمل X " + buildingName);
+        else actionPlanGroup = buildTranslatedObject(groupDirectory, buildingName + " Action Plan", groupClass,
+                buildingName + " Aktionsplan", buildingName + " План дій", buildingName + " План Действий", buildingName + " แผนปฏิบัติการ", "خطة عمل " + buildingName);
+        JEVisObject actionPlanDirectory = buildTranslatedObject(buildingObject, "Action Plan", actionPlanDirectoryClass,
+                "Aktionsplan", "План дій", "План Действий", "แผนปฏิบัติการ", "خطة عمل");
+        buildOwnerRelationship(ds, actionPlanDirectory, actionPlanGroup, withEntryPoints);
+
+        JEVisObject nonConformityGroup;
+        if (withEntryPoints)
+            nonConformityGroup = buildTranslatedObject(groupDirectory, buildingName + " Non Conformity X", groupClass,
+                    buildingName + " Abweichungen X", buildingName + " Відхилення X", buildingName + " Отклонения X", buildingName + " การเบี่ยงเบน X", "الانحرافات X " + buildingName);
+        else nonConformityGroup = buildTranslatedObject(groupDirectory, buildingName + " Non Conformity", groupClass,
+                buildingName + " Abweichungen", buildingName + " Відхилення", buildingName + " Отклонения", buildingName + " การเบี่ยงเบน", "الانحرافات " + buildingName);
+        JEVisObject nonConformityDirectory = buildTranslatedObject(buildingObject, "Non Conformity", nonConformityDirectoryClass,
+                "Abweichungen", "Відхилення", "Отклонения", "การเบี่ยงเบน", "الانحرافات");
+        buildOwnerRelationship(ds, nonConformityDirectory, nonConformityGroup, withEntryPoints);
+
+        JEVisObject indexOfLegalProvisionsGroup;
+        if (withEntryPoints)
+            indexOfLegalProvisionsGroup = buildTranslatedObject(groupDirectory, buildingName + " Legal X", groupClass,
+                    buildingName + " Rechtskataster X", buildingName + " Юридичний реєстр X", buildingName + " Юридический реестр X", buildingName + " ทะเบียนทางกฎหมาย X", "السجل القانوني X " + buildingName);
+        else indexOfLegalProvisionsGroup = buildTranslatedObject(groupDirectory, buildingName + " Legal", groupClass,
+                buildingName + " Rechtskataster", buildingName + " Юридичний реєстр", buildingName + " Юридический реестр", buildingName + " ทะเบียนทางกฎหมาย", "السجل القانوني " + buildingName);
+        JEVisObject indexOfLegalProvisionsDirectory = buildTranslatedObject(buildingObject, "Legal", indexOfLegalProvisionsDirectoryClass,
+                "Rechtskataster", "Юридичний реєстр", "Юридический реестр", "ทะเบียนทางกฎหมาย", "السجل القانوني");
+        buildOwnerRelationship(ds, indexOfLegalProvisionsDirectory, indexOfLegalProvisionsGroup, withEntryPoints);
+
+        JEVisObject analysesGroup;
+        if (withEntryPoints)
+            analysesGroup = buildTranslatedObject(groupDirectory, buildingName + " Analyses X", groupClass,
+                    buildingName + " Analysen X", buildingName + " аналізи X", buildingName + " анализы X", buildingName + " การวิเคราะห์ X", "التحليلات X " + buildingName);
+        else analysesGroup = buildTranslatedObject(groupDirectory, buildingName + " Analyses", groupClass,
                 buildingName + " Analysen", buildingName + " аналізи", buildingName + " анализы", buildingName + " การวิเคราะห์", "التحليلات " + buildingName);
-        if (withEntryPoints) {
-            ds.buildRelationship(jscUser.getID(), analysesGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
-            ds.buildRelationship(jscUser.getID(), analysesGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_WRITE);
-            ds.buildRelationship(jscUser.getID(), analysesGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
-            ds.buildRelationship(jscUser.getID(), analysesGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_DELETE);
-            ds.buildRelationship(jscUser.getID(), analysesGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_CREATE);
-        }
         JEVisObject analysesDirectory = buildTranslatedObject(buildingObject, "Analyses", analysesDirectoryClass,
                 "Analysen", "аналізи", "анализы", "การวิเคราะห์", "التحليلات");
         buildOwnerRelationship(ds, analysesDirectory, analysesGroup, withEntryPoints);
 
-        JEVisObject calculationsGroup = buildTranslatedObject(groupDirectory, buildingName + " Calculations", groupClass,
+        JEVisObject dashboardGroup;
+        if (withEntryPoints)
+            dashboardGroup = buildTranslatedObject(groupDirectory, buildingName + " Dashboards X", groupClass,
+                    buildingName + " Dashboards X", buildingName + " Приладові панелі X", buildingName + " Панели мониторинга X", buildingName + " แดชบอร์ด X", "لوحات المعلومات X " + buildingName);
+        else dashboardGroup = buildTranslatedObject(groupDirectory, buildingName + " Dashboards", groupClass,
+                buildingName + " Dashboards", buildingName + " Приладові панелі", buildingName + " Панели мониторинга", buildingName + " แดชบอร์ด", "لوحات المعلومات " + buildingName);
+        JEVisObject dashboardsDirectory = buildTranslatedObject(buildingObject, "Dashboards", dashboardDirectoryClass,
+                "Dashboards", "Приладові панелі", "Панели мониторинга", "แดชบอร์ด", "لوحات المعلومات");
+        buildOwnerRelationship(ds, dashboardsDirectory, dashboardGroup, withEntryPoints);
+
+        JEVisObject calculationsGroup;
+        if (withEntryPoints)
+            calculationsGroup = buildTranslatedObject(groupDirectory, buildingName + " Calculations X", groupClass,
+                    buildingName + " Berechnungen X", buildingName + " розрахунки X", buildingName + " расчеты X", buildingName + " การคำนวณ X", "العمليات الحسابية X " + buildingName);
+        else calculationsGroup = buildTranslatedObject(groupDirectory, buildingName + " Calculations", groupClass,
                 buildingName + " Berechnungen", buildingName + " розрахунки", buildingName + " расчеты", buildingName + " การคำนวณ", "العمليات الحسابية " + buildingName);
-        if (withEntryPoints) {
-            ds.buildRelationship(jscUser.getID(), calculationsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
-            ds.buildRelationship(jscUser.getID(), calculationsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_WRITE);
-            ds.buildRelationship(jscUser.getID(), calculationsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
-            ds.buildRelationship(jscUser.getID(), calculationsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_DELETE);
-            ds.buildRelationship(jscUser.getID(), calculationsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_CREATE);
-        }
         JEVisObject calculationDirectory = buildTranslatedObject(buildingObject, "Calculations", calculationDirectoryClass,
                 "Berechnungen", "розрахунки", "расчеты", "การคำนวณ", "العمليات الحسابية");
         buildOwnerRelationship(ds, calculationDirectory, calculationsGroup, withEntryPoints);
 
-        JEVisObject reportsGroup = buildTranslatedObject(groupDirectory, buildingName + " Reports", groupClass,
+        JEVisObject reportsGroup;
+        if (withEntryPoints)
+            reportsGroup = buildTranslatedObject(groupDirectory, buildingName + " Reports X", groupClass,
+                    buildingName + " Berichte X", buildingName + " звіти X", buildingName + " отчеты X", buildingName + " รายงาน X", "التقارير X " + buildingName);
+        else reportsGroup = buildTranslatedObject(groupDirectory, buildingName + " Reports", groupClass,
                 buildingName + " Berichte", buildingName + " звіти", buildingName + " отчеты", buildingName + " รายงาน", "التقارير " + buildingName);
-        if (withEntryPoints) {
-            ds.buildRelationship(jscUser.getID(), reportsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
-            ds.buildRelationship(jscUser.getID(), reportsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_WRITE);
-            ds.buildRelationship(jscUser.getID(), reportsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
-            ds.buildRelationship(jscUser.getID(), reportsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_DELETE);
-            ds.buildRelationship(jscUser.getID(), reportsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_CREATE);
-        }
         JEVisObject reportsDirectory = buildTranslatedObject(buildingObject, "Reports", reportDirectoryClass,
                 "Berichte", "звіти", "отчеты", "รายงาน", "التقارير");
         buildOwnerRelationship(ds, reportsDirectory, reportsGroup, withEntryPoints);
 
-        JEVisObject dataGroup = buildTranslatedObject(groupDirectory, buildingName + " Data", groupClass,
+        JEVisObject dataGroup;
+        if (withEntryPoints)
+            dataGroup = buildTranslatedObject(groupDirectory, buildingName + " Data X", groupClass,
+                    buildingName + " Daten X", buildingName + " Дані X", buildingName + " Данные X", buildingName + " ข้อมูล X", "بيانات X " + buildingName);
+        else dataGroup = buildTranslatedObject(groupDirectory, buildingName + " Data", groupClass,
                 buildingName + " Daten", buildingName + " Дані", buildingName + " Данные", buildingName + " ข้อมูล", "بيانات " + buildingName);
-        if (withEntryPoints) {
-            ds.buildRelationship(jscUser.getID(), dataGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
-            ds.buildRelationship(jscUser.getID(), dataGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_WRITE);
-            ds.buildRelationship(jscUser.getID(), dataGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
-            ds.buildRelationship(jscUser.getID(), dataGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_DELETE);
-            ds.buildRelationship(jscUser.getID(), dataGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_CREATE);
-        }
         JEVisObject dataDirectory = buildTranslatedObject(buildingObject, "Data", dataDirectoryClass,
                 "Daten", "Дані", "Данные", "ข้อมูล", "بيانات");
         buildOwnerRelationship(ds, dataDirectory, dataGroup, withEntryPoints);
 
-        JEVisObject dataSourcesGroup = buildTranslatedObject(groupDirectory, buildingName + " Data Sources", groupClass,
+        JEVisObject dataSourcesGroup;
+        if (withEntryPoints)
+            dataSourcesGroup = buildTranslatedObject(groupDirectory, buildingName + " Data Sources X", groupClass,
+                    buildingName + " Datenerfassung X", buildingName + " збір даних X", buildingName + " сбор информации X", buildingName + " การเก็บรวบรวมข้อมูล X", "جمع البيانات X " + buildingName);
+        else dataSourcesGroup = buildTranslatedObject(groupDirectory, buildingName + " Data Sources", groupClass,
                 buildingName + " Datenerfassung", buildingName + " збір даних", buildingName + " сбор информации", buildingName + " การเก็บรวบรวมข้อมูล", "جمع البيانات " + buildingName);
-        if (withEntryPoints) {
-            ds.buildRelationship(jscUser.getID(), dataSourcesGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
-            ds.buildRelationship(jscUser.getID(), dataSourcesGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_WRITE);
-            ds.buildRelationship(jscUser.getID(), dataSourcesGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
-            ds.buildRelationship(jscUser.getID(), dataSourcesGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_DELETE);
-            ds.buildRelationship(jscUser.getID(), dataSourcesGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_CREATE);
-        }
         JEVisObject dataSourceDirectory = buildTranslatedObject(buildingObject, "Data Sources", dataSourceDirectoryClass,
                 "Datenerfassung", "збір даних", "сбор информации", "การเก็บรวบรวมข้อมูล", "جمع البيانات");
         buildOwnerRelationship(ds, dataSourceDirectory, dataSourcesGroup, withEntryPoints);
 
-        JEVisObject documentsGroup = buildTranslatedObject(groupDirectory, buildingName + " Documents", groupClass,
+        JEVisObject documentsGroup;
+        if (withEntryPoints)
+            documentsGroup = buildTranslatedObject(groupDirectory, buildingName + " Documents X", groupClass,
+                    buildingName + " Dokumente X", buildingName + " Документи X", buildingName + " Документы X", buildingName + " เอกสาร X", "وثائق X " + buildingName);
+        else documentsGroup = buildTranslatedObject(groupDirectory, buildingName + " Documents", groupClass,
                 buildingName + " Dokumente", buildingName + " Документи", buildingName + " Документы", buildingName + " เอกสาร", "وثائق " + buildingName);
-        if (withEntryPoints) {
-            ds.buildRelationship(jscUser.getID(), documentsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
-            ds.buildRelationship(jscUser.getID(), documentsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_WRITE);
-            ds.buildRelationship(jscUser.getID(), documentsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
-            ds.buildRelationship(jscUser.getID(), documentsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_DELETE);
-            ds.buildRelationship(jscUser.getID(), documentsGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_CREATE);
-        }
         JEVisObject documentDirectory = buildTranslatedObject(buildingObject, "Documents", documentsDirectoryClass,
                 "Dokumente", "Документи", "Документы", "เอกสาร", "وثائق");
         buildOwnerRelationship(ds, documentDirectory, documentsGroup, withEntryPoints);
 
-        JEVisObject calendarGroup = buildTranslatedObject(groupDirectory, buildingName + " Calendar", groupClass,
+        JEVisObject calendarGroup;
+        if (withEntryPoints)
+            calendarGroup = buildTranslatedObject(groupDirectory, buildingName + " Calendar X", groupClass,
+                    buildingName + " Kalender X", buildingName + " календар X", buildingName + " календарь X", buildingName + " ปฏิทิน X", "التقويم X " + buildingName);
+        else calendarGroup = buildTranslatedObject(groupDirectory, buildingName + " Calendar", groupClass,
                 buildingName + " Kalender", buildingName + " календар", buildingName + " календарь", buildingName + " ปฏิทิน", "التقويم " + buildingName);
-        if (withEntryPoints) {
-            ds.buildRelationship(jscUser.getID(), calendarGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
-            ds.buildRelationship(jscUser.getID(), calendarGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_WRITE);
-            ds.buildRelationship(jscUser.getID(), calendarGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
-            ds.buildRelationship(jscUser.getID(), calendarGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_DELETE);
-            ds.buildRelationship(jscUser.getID(), calendarGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_CREATE);
-        }
         JEVisObject calendarDirectory = buildTranslatedObject(buildingObject, "Calendar", calendarDirectoryClass,
                 "Kalender", "календар", "календарь", "ปฏิทิน", "التقويم");
         buildOwnerRelationship(ds, calendarDirectory, calendarGroup, withEntryPoints);
 
-        JEVisObject meterGroup = buildTranslatedObject(groupDirectory, buildingName + " Measurement", groupClass,
+        JEVisObject meterGroup;
+        if (withEntryPoints)
+            meterGroup = buildTranslatedObject(groupDirectory, buildingName + " Measurement X", groupClass,
+                    buildingName + " Messstellen X", buildingName + " точки вимірювання X", buildingName + " точки измерения X", buildingName + " จุดวัด X", "نقاط القياس X " + buildingName);
+        else meterGroup = buildTranslatedObject(groupDirectory, buildingName + " Measurement", groupClass,
                 buildingName + " Messstellen", buildingName + " точки вимірювання", buildingName + " точки измерения", buildingName + " จุดวัด", "نقاط القياس " + buildingName);
-        if (withEntryPoints) {
-            ds.buildRelationship(jscUser.getID(), meterGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
-            ds.buildRelationship(jscUser.getID(), meterGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_WRITE);
-            ds.buildRelationship(jscUser.getID(), meterGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
-            ds.buildRelationship(jscUser.getID(), meterGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_DELETE);
-            ds.buildRelationship(jscUser.getID(), meterGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_CREATE);
-        }
         JEVisObject meterDirectory = buildTranslatedObject(buildingObject, "Measurement", meterDirectoryClass,
                 "Messstellen", "точки вимірювання", "точки измерения", "จุดวัด", "نقاط القياس");
         buildOwnerRelationship(ds, meterDirectory, meterGroup, withEntryPoints);
 
-        JEVisObject baseDataGroup = buildTranslatedObject(groupDirectory, buildingName + " Base Data", groupClass,
+        JEVisObject baseDataGroup;
+        if (withEntryPoints)
+            baseDataGroup = buildTranslatedObject(groupDirectory, buildingName + " Base Data X", groupClass,
+                    buildingName + " Stammdaten X", buildingName + " базові дані X", buildingName + " базовые данные X", buildingName + " ข้อมูลพื้นฐาน X", "البيانات الأساسية X " + buildingName);
+        else baseDataGroup = buildTranslatedObject(groupDirectory, buildingName + " Base Data", groupClass,
                 buildingName + " Stammdaten", buildingName + " базові дані", buildingName + " базовые данные", buildingName + " ข้อมูลพื้นฐาน", "البيانات الأساسية " + buildingName);
-        if (withEntryPoints) {
-            ds.buildRelationship(jscUser.getID(), baseDataGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_READ);
-            ds.buildRelationship(jscUser.getID(), baseDataGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_WRITE);
-            ds.buildRelationship(jscUser.getID(), baseDataGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
-            ds.buildRelationship(jscUser.getID(), baseDataGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_DELETE);
-            ds.buildRelationship(jscUser.getID(), baseDataGroup.getID(), JEVisConstants.ObjectRelationship.MEMBER_CREATE);
-        }
         JEVisObject baseDataDirectory = buildTranslatedObject(buildingObject, "Base Data", baseDataDirectoryClass,
                 "Stammdaten", "базові дані", "базовые данные", "ข้อมูลพื้นฐาน", "البيانات الأساسية");
         buildOwnerRelationship(ds, baseDataDirectory, baseDataGroup, withEntryPoints);
     }
 
-    private JEVisObject buildTranslatedObject(JEVisObject parent, String englishName, JEVisClass objectClass, String germanName, String ukrainianName, String russianName, String thaiName, String arabicName) throws JEVisException {
+    private JEVisObject buildTranslatedObject(JEVisObject parent, String englishName, JEVisClass objectClass, String germanName, String ukrainianName, String russianName, String thaiName, String arabicName) throws JEVisException, InterruptedException {
 
         List<JEVisObject> children = parent.getChildren(objectClass, true);
         JEVisObject child = null;
@@ -366,6 +465,7 @@ public class BuildingObject extends Template {
             languageMap.put("ar", arabicName);
             child.setLocalNames(languageMap);
             child.commit();
+            Thread.sleep(THREAD_WAIT);
         }
 
         return child;

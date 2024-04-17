@@ -70,11 +70,6 @@ public interface DataCollectorTypes {
         interface JEVisChannelDirectory extends ChannelDirectory {
             String NAME = "JEVis Channel Directory";
         }
-
-        interface DWDChannelDirectory extends ChannelDirectory {
-            String NAME = "DWD Channel Directory";
-        }
-
         interface RevolutionPiChannelDirectory extends ChannelDirectory {
             String NAME = "Revolution PI Channel Directory";
         }
@@ -88,6 +83,9 @@ public interface DataCollectorTypes {
         }
 
 
+        interface DWDChannelDirectory extends ChannelDirectory {
+            String NAME = "DWD Channel Directory";
+        }
     }
 
     interface JEDataCollector {
@@ -195,11 +193,6 @@ public interface DataCollectorTypes {
                 String PASSWORD = "Password";
                 String SSL = "SSL";
             }
-
-            interface DWDServer extends DataServer {
-                String NAME = "DWD Server";
-            }
-
             interface RevolutionPiServer extends DataServer {
                 String NAME = "JEVis Server";
                 String USER = "User";
@@ -207,7 +200,11 @@ public interface DataCollectorTypes {
                 String SSL = "SSL";
             }
 
-            interface HTTP extends DataServer {
+            interface DWDServer extends DataServer {
+                String NAME = "DWD Server";
+            }
+
+            interface HTTP extends DataServer{
                 String AUTHENTICATION = "Authentication";
             }
 

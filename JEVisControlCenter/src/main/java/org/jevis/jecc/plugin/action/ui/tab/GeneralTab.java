@@ -89,17 +89,17 @@ public class GeneralTab extends Tab {
         col3Spacer.setMinWidth(25);
 
         /* Readable if the workaround is not needed */
-        f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
+        f_ActionNr.setText(actionPlan.noPrefixProperty().get() + data.noProperty().get());
         f_ActionNr.setEditable(false);
         f_ActionNr.setOnMouseClicked(mouseEvent -> {
             if (mouseEvent.isAltDown() && mouseEvent.isControlDown()) {
-                TextInputDialog textInputDialog = new TextInputDialog(data.nrProperty().get() + "");
+                TextInputDialog textInputDialog = new TextInputDialog(data.noProperty().get() + "");
                 textInputDialog.setHeaderText("Set Nr");
                 textInputDialog.setContentText("Set Nr");
                 Optional<String> value = textInputDialog.showAndWait();
                 try {
-                    data.nr.set(Integer.parseInt(value.get()));
-                    f_ActionNr.setText(actionPlan.nrPrefixProperty().get() + data.nrProperty().get());
+                    data.no.set(Integer.parseInt(value.get()));
+                    f_ActionNr.setText(actionPlan.noPrefixProperty().get() + data.noProperty().get());
                 } catch (Exception ex) {
 
                 }
@@ -130,7 +130,7 @@ public class GeneralTab extends Tab {
         });
 
         f_Note.textProperty().bindBidirectional(data.noteProperty());
-        f_Description.textProperty().bindBidirectional(data.desciptionProperty());
+        f_Description.textProperty().bindBidirectional(data.descriptionProperty());
         f_Title.textProperty().bindBidirectional(data.titleProperty());
         f_NoteEnergiefluss.textProperty().bindBidirectional(data.noteEnergieflussProperty());
         f_NoteBewertet.textProperty().bindBidirectional(data.noteBewertetProperty());

@@ -122,6 +122,7 @@ public class ConfigManager {
                     .put(HEIGHT, dashboardPojo.getSize().getHeight())
                     .put(DEFAULT_PERIOD, dashboardPojo.getTimeFrame().getID());
 
+
             ArrayNode widgetArray = dashBoardNode.putArray(WIDGET_NODE);
             for (Widget widget : widgets) {
                 try {
