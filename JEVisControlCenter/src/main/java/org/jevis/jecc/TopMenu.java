@@ -57,6 +57,7 @@ import org.jevis.jecc.plugin.charts.DataSettings;
 import org.jevis.jecc.tool.PasswordDialog;
 import org.jevis.jecc.tool.PatchNotesPage;
 import org.jevis.jecc.tool.TrianglePerformanceTest;
+import org.jevis.jecc.tool.dwdbrowser.DWDBrowser;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -1097,7 +1098,7 @@ public class TopMenu extends MenuBar {
 
         importWeatherData.setOnAction(actionEvent -> {
             try {
-                DWDBrowser dwdBrowser = new DWDBrowser(JEConfig.getDataSource(), null);
+                DWDBrowser dwdBrowser = new DWDBrowser(ControlCenter.getDataSource(), null);
                 dwdBrowser.show();
             } catch (Exception e) {
                 logger.error("Error while testing", e);

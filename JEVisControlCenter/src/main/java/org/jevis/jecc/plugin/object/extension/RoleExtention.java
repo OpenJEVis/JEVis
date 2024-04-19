@@ -272,7 +272,7 @@ public class RoleExtention implements ObjectEditorExtension {
         Label filterUserTable = new Label(I18n.getInstance().getString("plugin.object.role.filter"));
         filterFieldGroup = new TextField();
         filterFieldUser = new TextField();
-        overwriteDashboad = new CheckBox(I18n.getInstance().getString("plugin.object.role.overwritedashboard"));
+        overwriteDashboard = new CheckBox(I18n.getInstance().getString("plugin.object.role.overwritedashboard"));
         filterFieldGroup.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         filterFieldUser.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         HBox userFilterBox = new HBox(8, filterUserTable, filterFieldUser);

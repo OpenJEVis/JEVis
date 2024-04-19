@@ -24,6 +24,7 @@ import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.Icon;
 import org.jevis.jecc.plugin.AnalysisRequest;
 import org.jevis.jecc.plugin.action.data.ActionData;
+import org.jevis.jecc.plugin.action.data.EmptyObject;
 import org.jevis.jecc.plugin.action.data.FreeObject;
 import org.jevis.jecc.plugin.action.data.Medium;
 import org.jevis.jecc.plugin.action.ui.NumerFormating;

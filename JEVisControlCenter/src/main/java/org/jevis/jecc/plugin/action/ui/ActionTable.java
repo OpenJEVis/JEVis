@@ -21,10 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.application.table.SummeryData;
 import org.jevis.jecc.application.table.SummeryTable;
-import org.jevis.jecc.plugin.action.data.ActionData;
-import org.jevis.jecc.plugin.action.data.ActionPlanData;
-import org.jevis.jecc.plugin.action.data.Medium;
-import org.jevis.jecc.plugin.action.data.TableFilter;
+import org.jevis.jecc.plugin.action.data.*;
 import org.jevis.jecc.plugin.action.ui.control.CurrencyColumnCell;
 import org.jevis.jecc.plugin.action.ui.control.StringListColumnCell;
 import org.jevis.jecc.plugin.action.ui.control.TagButton;
@@ -290,7 +287,7 @@ public class ActionTable extends TableView<ActionData> {
                         super.updateItem(item, empty);
 
                         if (item != null && !empty && getTableRow() != null && getTableRow().getItem() != null) {
-                            ActionData actionData = (ActionData) getTableRow().getItem();
+                            ActionData actionData = getTableRow().getItem();
                             setText(NumerFormating.getInstance().getDoubleFormate().format(item) + " " + actionData.EnPI.get().unitProperty().get());
                         } else {
                             setText(null);

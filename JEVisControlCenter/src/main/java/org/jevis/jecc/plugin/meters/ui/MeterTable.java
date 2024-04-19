@@ -13,7 +13,6 @@ import javafx.scene.control.ScrollToEvent;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.skin.TableViewSkin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -35,7 +34,6 @@ import org.jevis.jecc.plugin.meters.event.PrecisionEventHandler;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
@@ -48,16 +46,6 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
     private static final int MEDIUM_WIDTH = 120;
     private static final int BIG_WIDTH = 200;
     private static final int SMALL_WIDTH = 60;
-    private static Method columnToFitMethod;
-
-    static {
-        try {
-            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
-            columnToFitMethod.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
 
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
     private final JEVisDataSource ds;

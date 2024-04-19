@@ -24,8 +24,8 @@ public class RoleManager {
             ROLE_EXECUTE, ROLE_CREATE,
             JEVisConstants.ObjectRelationship.ROLE_DELETE
     );
-    private Map<Long, Membership> allMemberships = new HashMap<>();
-    private Map<Long, User> allUsers = new HashMap<>();
+    private final Map<Long, Membership> allMemberships = new HashMap<>();
+    private final Map<Long, User> allUsers = new HashMap<>();
 
 
     public RoleManager(JEVisObject roleObject) throws JEVisException {
@@ -36,7 +36,7 @@ public class RoleManager {
         getAllMemberships();
         getAllUser();
         parsRelationships(roleObject);
-        this.role.getMemberships().addAll(new ArrayList(allMemberships.values()));
+        this.role.getMemberShips().addAll(new ArrayList(allMemberships.values()));
         this.role.getUsers().addAll(new ArrayList(allUsers.values()));
     }
 
@@ -225,7 +225,7 @@ public class RoleManager {
         });
 
 
-        role.getMemberships().forEach(membership -> {
+        role.getMemberShips().forEach(membership -> {
             try {
                 /** Update User<->Role relationships **/
                 updateRoleMembership(membership);

@@ -28,11 +28,13 @@ import org.jevis.commons.driver.dwd.Attribute;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jecc.ControlCenter;
+import org.jevis.jecc.Icon;
 import org.jevis.jecc.TopMenu;
 import org.jevis.jecc.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jecc.application.jevistree.UserSelection;
 import org.jevis.jecc.application.jevistree.methods.DataMethods;
 import org.jevis.jecc.application.tools.DisabledItemsComboBox;
+import org.jevis.jecc.dialog.PDFViewerDialog;
 import org.jevis.jecc.dialog.Response;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -118,13 +120,13 @@ public class DWDBrowser extends Dialog<ButtonType> {
         gridPane.add(attributeBox, 1, row);
         row++;
 
-        JFXButton loadStationsButton = new JFXButton(I18n.getInstance().getString("plugin.object.dwd.button.loadstations"));
+        Button loadStationsButton = new Button(I18n.getInstance().getString("plugin.object.dwd.button.loadstations"));
 
         gridPane.add(loadStationsButton, 0, row);
         row++;
 
-        JFXTextField stationFilter = new JFXTextField();
-        JFXComboBox<Station> stationBox = new JFXComboBox<>();
+        TextField stationFilter = new TextField();
+        ComboBox<Station> stationBox = new ComboBox<>();
         StringConverter<Station> stationStringConverter = new StringConverter<Station>() {
             @Override
             public String toString(Station station) {
@@ -142,14 +144,14 @@ public class DWDBrowser extends Dialog<ButtonType> {
         gridPane.add(stationBox, 1, row);
         row++;
 
-        JFXButton loadDataButton = new JFXButton(I18n.getInstance().getString("plugin.object.dwd.button.loaddata"));
+        Button loadDataButton = new Button(I18n.getInstance().getString("plugin.object.dwd.button.loaddata"));
         loadDataButton.setDisable(true);
 
 
         gridPane.add(loadDataButton, 0, row);
         row++;
 
-        JFXButton showDescriptionButton = new JFXButton("", JEConfig.getSVGImage(Icon.INFO, 12, 12));
+        Button showDescriptionButton = new Button("", ControlCenter.getSVGImage(Icon.INFO, 12, 12));
         showDescriptionButton.setDisable(true);
 
         gridPane.add(dataLabel, 0, row);
