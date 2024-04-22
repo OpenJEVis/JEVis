@@ -971,6 +971,7 @@ public class ChartDataRow extends ChartData {
     public Period getPeriod() {
         if (period == null) {
             Period p = Period.ZERO;
+            this.getObjects();
             JEVisObject object = null;
             if (dataProcessorObject != null) {
                 object = this.dataProcessorObject;
