@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.report3.data.report.periodic;
+package org.jevis.report3.data.report.intervals;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.datetime.Period;
@@ -15,43 +16,42 @@ import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.utils.JEVisDates;
-import org.jevis.report3.data.report.IntervalCalculator;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 
-import javax.inject.Inject;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author broder
  */
-public class PeriodicIntervalCalc implements IntervalCalculator {
+public class IntervalCalculator {
 
-    private static final Logger logger = LogManager.getLogger(PeriodicIntervalCalc.class);
+    private static final Logger logger = LogManager.getLogger(IntervalCalculator.class);
     private final Map<String, Interval> intervalMap = new ConcurrentHashMap<>();
     private final SampleHandler samplesHandler;
     private JEVisObject reportObject = null;
     private DateTime start;
+    private DateTimeZone dateTimeZone;
     private String schedule;
     private WorkDays workDays;
 
-    @Inject
-    public PeriodicIntervalCalc(SampleHandler samplesHandler) {
+    public IntervalCalculator(SampleHandler samplesHandler) {
         this.samplesHandler = samplesHandler;
     }
 
-    @Override
+
     public Interval getInterval(String period) {
         return intervalMap.get(period);
     }
 
-    @Override
+
     public JEVisObject getReportObject() {
         return reportObject;
     }
 
-    @Override
+
     public String getSchedule() {
         return schedule;
     }
@@ -60,9 +60,11 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         this.reportObject = reportObject;
         this.workDays = new WorkDays(reportObject);
 
-        schedule = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
-        String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
-        start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
+        schedule = samplesHandler.getLastSample(reportObject, JC.Report.a_Schedule, Period.DAILY.toString());
+        String startRecordString = samplesHandler.getLastSample(reportObject, JC.Report.a_StartRecord, "");
+        dateTimeZone = samplesHandler.getLastSample(reportObject, JC.Report.a_TimeZone, DateTimeZone.UTC);
+
+        start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString).withZone(dateTimeZone);
 
         buildIntervals(schedule, start, false, Period.NONE);
     }
@@ -313,7 +315,6 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         return resultDateTime;
     }
 
-    @Override
     public void buildIntervals(JEVisObject reportObject) {
         initializeIntervalMap(reportObject);
     }

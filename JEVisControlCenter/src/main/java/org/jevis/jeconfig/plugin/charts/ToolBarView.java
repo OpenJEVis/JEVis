@@ -12,6 +12,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -221,12 +222,12 @@ public class ToolBarView {
             toolBar.getItems().addAll(analysesComboBox,
                     sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                     sep2, reload, zoomOut,
-//                    sep3, loadNew, save, delete, select, export, exportImage, printButton,
                     sep3, loadNew, save, delete, select2, export, exportImage, printButton,
                     sep4);
 
             if (isRegressionPossible) {
                 Separator regressionSeparator = new Separator(Orientation.HORIZONTAL);
+                regressionSeparator.setHalignment(HPos.RIGHT);
                 mathOperation.getItems().addAll(regressionType, polyDegree, calcRegression, new MenuItem("", regressionSeparator));
             }
 

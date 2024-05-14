@@ -3616,6 +3616,8 @@ public interface JC {
         String name = "Report";
 
         String a_Enabled = "Enabled";
+        String a_StartRecord = "Start Record";
+        String a_Schedule = "Schedule";
         String a_LastReport = "Last Report";
         String a_LastReportPDF = "Last Report PDF";
         String a_PDF = "PDF";

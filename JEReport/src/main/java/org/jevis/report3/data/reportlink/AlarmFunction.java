@@ -13,8 +13,8 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.PeriodMode;
-import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 

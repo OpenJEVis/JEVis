@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.report3.data.report.periodic;
+package org.jevis.report3.data.report.intervals;
 
 
 import org.apache.logging.log4j.LogManager;
@@ -13,30 +13,28 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
-import org.jevis.report3.data.report.*;
+import org.jevis.report3.data.report.Report;
+import org.jevis.report3.data.report.ReportAttributes;
+import org.jevis.report3.data.report.ReportConfiguration;
+import org.jevis.report3.data.report.ReportProperty;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
-import javax.inject.Inject;
-
 /**
- *
  * @author broder
  */
-public class PeriodFinisher implements Finisher {
-    private static final Logger logger = LogManager.getLogger(PeriodFinisher.class);
+public class Finisher {
+    private static final Logger logger = LogManager.getLogger(Finisher.class);
 
     private final SampleHandler sampleHandler;
     private Period schedule;
     private DateTime startRecord;
     private DateTime endRecord;
 
-    @Inject
-    public PeriodFinisher(SampleHandler sampleHandler) {
+    public Finisher(SampleHandler sampleHandler) {
         this.sampleHandler = sampleHandler;
     }
 
-    @Override
     public void finishReport(Report report, ReportProperty property) {
         try {
             JEVisObject reportObject = property.getReportObject();
@@ -61,7 +59,6 @@ public class PeriodFinisher implements Finisher {
         endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
     }
 
-    @Override
     public void continueWithNextReport(JEVisObject reportObject) {
         try {
             parseDates(reportObject);
