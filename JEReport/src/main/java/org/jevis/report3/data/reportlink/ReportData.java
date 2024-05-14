@@ -6,8 +6,8 @@
 package org.jevis.report3.data.reportlink;
 
 import org.jevis.api.JEVisObject;
-import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
 import org.joda.time.DateTime;
 
 import java.util.concurrent.ConcurrentHashMap;

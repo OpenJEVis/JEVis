@@ -8,16 +8,23 @@ package org.jevis.report3;
 import com.google.inject.Injector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
+import org.jevis.report3.context.ContextBuilder;
 import org.jevis.report3.data.report.ReportAttributes;
 import org.jevis.report3.data.report.ReportExecutor;
+import org.jevis.report3.data.report.intervals.Finisher;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
+import org.jevis.report3.data.report.intervals.Precondition;
+import org.jevis.report3.data.reportlink.ReportLinkFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
@@ -34,8 +41,8 @@ import java.util.concurrent.FutureTask;
 public class ReportLauncher extends AbstractCliApp {
 
     private static final Logger logger = LogManager.getLogger(ReportLauncher.class);
-    private static Injector injector;
     private static final String APP_INFO = "JEReport";
+    private static Injector injector;
     private final Command commands = new Command();
     private boolean firstRun = true;
 
@@ -49,6 +56,7 @@ public class ReportLauncher extends AbstractCliApp {
     public static void main(String[] args) {
 
         logger.info("-------Start JEReport-------");
+        System.setProperty("user.timezone", "UTC");
         ReportLauncher app = new ReportLauncher(args, APP_INFO);
         app.execute();
     }
@@ -59,6 +67,18 @@ public class ReportLauncher extends AbstractCliApp {
 
     public static void setInjector(Injector inj) {
         injector = inj;
+    }
+
+    private static @NotNull ReportExecutor getReportExecutor(JEVisObject reportObject) {
+        SampleHandler sampleHandler = new SampleHandler();
+        Precondition precondition = new Precondition(sampleHandler);
+        IntervalCalculator intervalCalculator = new IntervalCalculator(sampleHandler);
+        ContextBuilder contextBuilder = new ContextBuilder();
+        Finisher finisher = new Finisher(sampleHandler);
+        ReportLinkFactory reportLinkFactory = new ReportLinkFactory();
+
+        ReportExecutor reportExecutor = new ReportExecutor(precondition, intervalCalculator, contextBuilder, finisher, reportLinkFactory, reportObject);
+        return reportExecutor;
     }
 
     private void executeReports(List<JEVisObject> reportObjects) {
@@ -79,16 +99,10 @@ public class ReportLauncher extends AbstractCliApp {
                         logger.info("---------------------------------------------------------------------");
                         logger.info("current report object: {} with id: {}", reportObject.getName(), reportObject.getID());
 
-                        ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+                        ReportExecutor reportExecutor = getReportExecutor(reportObject);
+                        reportExecutor.executeReport();
 
-                        if (executor != null) {
-                            executor.executeReport();
-
-                            LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
-                        } else {
-                            LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
-                        }
-
+                        LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
 
@@ -147,7 +161,7 @@ public class ReportLauncher extends AbstractCliApp {
             }
 
             if (reportObject != null) {
-                ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+                ReportExecutor executor = getReportExecutor(reportObject);
                 Objects.requireNonNull(executor).executeReport();
             }
         }

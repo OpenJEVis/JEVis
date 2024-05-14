@@ -5,7 +5,6 @@
  */
 package org.jevis.report3.data.report;
 
-import com.google.inject.assistedinject.Assisted;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -26,13 +25,14 @@ import org.jevis.report3.PdfConverter;
 import org.jevis.report3.PdfFileSplitter;
 import org.jevis.report3.context.ContextBuilder;
 import org.jevis.report3.data.notification.ReportNotification;
-import org.jevis.report3.data.report.event.EventPrecondition;
+import org.jevis.report3.data.report.intervals.Finisher;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
+import org.jevis.report3.data.report.intervals.Precondition;
 import org.jevis.report3.data.reportlink.ReportData;
 import org.jevis.report3.data.reportlink.ReportLinkFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -54,8 +54,7 @@ public class ReportExecutor {
     private final IntervalCalculator intervalCalculator;
     private final Finisher finisher;
 
-    @Inject
-    public ReportExecutor(Precondition precondition, IntervalCalculator intervalCalc, ContextBuilder contextBuilder, Finisher finisher, ReportLinkFactory reportLinkFactory, @Assisted JEVisObject reportObject) {
+    public ReportExecutor(Precondition precondition, IntervalCalculator intervalCalc, ContextBuilder contextBuilder, Finisher finisher, ReportLinkFactory reportLinkFactory, JEVisObject reportObject) {
         this.reportObject = reportObject;
         this.intervalCalculator = intervalCalc;
         this.precondition = precondition;
@@ -206,8 +205,8 @@ public class ReportExecutor {
             DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
             List<JEVisSample> samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, endRecord);
 
-            if (!operator.equals("")) {
-                EventPrecondition.EventOperator eventOperator = EventPrecondition.EventOperator.getEventOperator(operator);
+            if (!operator.isEmpty()) {
+                Precondition.EventOperator eventOperator = Precondition.EventOperator.getEventOperator(operator);
                 for (JEVisSample sample : samplesInPeriod) {
                     String value = sample.getValueAsString();
                     boolean isFulfilled = Objects.requireNonNull(eventOperator).isFulfilled(value, limit);
@@ -228,17 +227,18 @@ public class ReportExecutor {
 
             EmailServiceProperty service = getReportService();
 
-            Notification nofi = new EmailNotification();
-            nofi.setNotificationObject(notificationObject, jeVisFileImp);
+            if (service != null) {
+                Notification notification = new EmailNotification();
+                notification.setNotificationObject(notificationObject, jeVisFileImp);
 
-            JEVisObject notiDriObj = notificationObject.getDataSource().getObject(service.getMailID());
+                JEVisObject notificationDriverObject = notificationObject.getDataSource().getObject(service.getMailID());
 
-            NotificationDriver emailNofi = new EmailNotificationDriver();
-            emailNofi.setNotificationDriverObject(notiDriObj);
+                NotificationDriver notificationDriver = new EmailNotificationDriver();
+                notificationDriver.setNotificationDriverObject(notificationDriverObject);
 
-            SendNotification sn = new SendNotification(nofi, emailNofi);
-            sn.run();
-
+                SendNotification sn = new SendNotification(notification, notificationDriver);
+                sn.run();
+            }
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -248,20 +248,21 @@ public class ReportExecutor {
         JEVisDataSource dataSource = null;
         try {
             dataSource = reportObject.getDataSource();
+
+            EmailServiceProperty service = new EmailServiceProperty();
+
+            JEVisClass jeVisClass = dataSource.getJEVisClass("JEReport");
+            List<JEVisObject> reportServices = dataSource.getObjects(jeVisClass, true);
+            if (reportServices.size() == 1) {
+                service.initialize(reportServices.get(0));
+            }
+
+            return service;
         } catch (JEVisException e) {
             logger.error(e);
         }
-        EmailServiceProperty service = new EmailServiceProperty();
-        try {
-            JEVisClass jeVisClass = dataSource.getJEVisClass("JEReport");
-            List<JEVisObject> reportServies = dataSource.getObjects(jeVisClass, true);
-            if (reportServies.size() == 1) {
-                service.initialize(reportServies.get(0));
-            }
-        } catch (JEVisException ex) {
-            logger.error("error while getting report service", ex);
-        }
-        return service;
+
+        return null;
     }
 
     private boolean isPeriodicReport(JEVisObject reportObject) {

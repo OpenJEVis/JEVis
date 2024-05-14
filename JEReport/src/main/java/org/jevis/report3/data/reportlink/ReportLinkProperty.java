@@ -23,9 +23,8 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.attribute.*;
-import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
-import org.jevis.report3.data.report.periodic.PeriodicIntervalCalc;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
 import org.jevis.report3.process.LastSampleGenerator;
 import org.jevis.report3.process.ProcessHelper;
 import org.joda.time.DateTime;
@@ -188,8 +187,8 @@ public class ReportLinkProperty implements ReportData {
                         switch (config.getConfigName()) {
                             case Period: {
                                 try {
-                                    PeriodicIntervalCalc periodicIntervalCalc = (PeriodicIntervalCalc) intervalCalc;
-                                    org.jevis.commons.datetime.Period schedule = org.jevis.commons.datetime.Period.valueOf(periodicIntervalCalc.getSchedule());
+                                    IntervalCalculator intervalCalculator = intervalCalc;
+                                    org.jevis.commons.datetime.Period schedule = org.jevis.commons.datetime.Period.valueOf(intervalCalculator.getSchedule());
 
                                     AttributeConfiguration periodConfiguration = attributeProperty.getAttributeConfiguration(AttributeConfigurationFactory.ReportConfigurationName.Period);
                                     JEVisObject dataObject = linkProperty.getDataObject();
@@ -248,12 +247,12 @@ public class ReportLinkProperty implements ReportData {
                                     String overrideSchedule = "NONE";
                                     if (overrideScheduleAttribute.hasSample() || mode == PeriodMode.RELATIVE) {
                                         overrideSchedule = overrideScheduleAttribute.getLatestSample().getValueAsString();
-                                        periodicIntervalCalc = new PeriodicIntervalCalc(new SampleHandler());
-                                        periodicIntervalCalc.buildIntervals(intervalCalc.getReportObject());
+                                        intervalCalculator = new IntervalCalculator(new SampleHandler());
+                                        intervalCalculator.buildIntervals(intervalCalc.getReportObject());
 
                                         if (!overrideSchedule.equals("NONE")) {
-                                            DateTime newStart = periodicIntervalCalc.alignDateToSchedule(overrideSchedule, periodicIntervalCalc.getStart());
-                                            periodicIntervalCalc.buildIntervals(overrideSchedule, newStart, true, schedule);
+                                            DateTime newStart = intervalCalculator.alignDateToSchedule(overrideSchedule, intervalCalculator.getStart());
+                                            intervalCalculator.buildIntervals(overrideSchedule, newStart, true, schedule);
                                         }
                                     }
 
@@ -261,7 +260,7 @@ public class ReportLinkProperty implements ReportData {
                                         case CURRENT:
                                         case LAST:
                                         case ALL:
-                                            interval = periodicIntervalCalc.getInterval(mode.toString().toUpperCase());
+                                            interval = intervalCalculator.getInterval(mode.toString().toUpperCase());
                                             break;
                                         case FIXED:
                                         case FIXED_TO_REPORT_END:
@@ -276,7 +275,7 @@ public class ReportLinkProperty implements ReportData {
                                                 name = PeriodMode.RELATIVE.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
                                             }
 
-                                            interval = periodicIntervalCalc.getInterval(name);
+                                            interval = intervalCalculator.getInterval(name);
                                             break;
                                     }
 
@@ -286,7 +285,7 @@ public class ReportLinkProperty implements ReportData {
                                     if (!isCalculation) {
                                         List<JEVisSample> samples;
                                         if (aggregationPeriod != AggregationPeriod.NONE && mode == PeriodMode.RELATIVE) {
-                                            DateTime newStart = periodicIntervalCalc.alignDateToSchedule(aggregationPeriod.toPeriod().toString(), interval.getStart());
+                                            DateTime newStart = intervalCalculator.alignDateToSchedule(aggregationPeriod.toPeriod().toString(), interval.getStart());
                                             samples = attribute.getSamples(newStart, interval.getEnd(), true, AggregationPeriod.NONE.toString(), manipulationMode.toString(), property.getTimeZone().getID());
                                             QuantityUnits qu = new QuantityUnits();
                                             JEVisUnit unit = attribute.getDisplayUnit();

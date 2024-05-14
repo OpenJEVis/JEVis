@@ -7,8 +7,8 @@ package org.jevis.report3.context;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
 import org.jevis.report3.data.reportlink.ReportData;
 
 import java.util.List;
