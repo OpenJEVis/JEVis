@@ -39,11 +39,11 @@ public class JEVisImporterAdapter {
         logger.info("Result List was imported to JEVis Last Readout was set To: {}", date);
     }
 
-    public synchronized static void importResultsWithOffset(List<Result> results, Importer importer, JEVisObject channel, int offset) {
+    public synchronized static void importResultsWithLastReadoutOffset(List<Result> results, Importer importer, JEVisObject channel, int offset) {
         DateTime date = importer.importResult(results);
         date = date.plusSeconds(offset);
         setLastReadout(channel, date);
-        logger.info("Result List was imported to JEVis Last Readout was set To: {}", date);
+        logger.info("Result List was imported to JEVis with Last Readout Offset set To: {}", date);
     }
 
     public synchronized static void importResults(List<Result> results, List<JEVisSample> statusResults, Importer importer, JEVisObject channel) {

@@ -20,12 +20,12 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class JEVisJSONParser implements Parser {
     private static final Logger logger = LogManager.getLogger(JEVisJSONParser.class);
@@ -61,23 +61,30 @@ public class JEVisJSONParser implements Parser {
         return regex;
     }
 
-    private static Map<DateTime, ?> getDateValueMap(List<DateTime> finalDateTimeList, List<?> valueList, List<String> stausList, String OK) {
-        Map<DateTime, ?> map;
-        if (stausList == null) {
-            map = IntStream.range(0, finalDateTimeList.size())
-                    .boxed()
-                    .collect(Collectors.toMap(finalDateTimeList::get, valueList::get));
+    private static Map<DateTime, ?> getDateValueMap(List<DateTime> finalDateTimeList, List<?> valueList, List<String> statusList, String OK) {
+        Map<DateTime, Object> map = new HashMap<>();
+        if (statusList == null) {
+            int bound = finalDateTimeList.size();
+            for (int i = 0; i < bound; i++) {
+                if (i < valueList.size()) {
+                    DateTime dateTime = finalDateTimeList.get(i);
+                    Object o = valueList.get(i);
+                    if (map.put(dateTime, o) != null) {
+                        logger.error("Duplicate key");
+                    }
+                }
+            }
 
         } else {
-            map = IntStream.range(0, finalDateTimeList.size())
-                    .filter(value -> {
-                        return stausList.get(value).equals(OK);
-                    })
-                    .boxed()
-                    .collect(Collectors.toMap(finalDateTimeList::get, valueList::get));
-
+            int bound = finalDateTimeList.size();
+            for (int i = 0; i < bound; i++) {
+                if (i < statusList.size() && statusList.get(i).equals(OK)) {
+                    if (map.put(finalDateTimeList.get(i), valueList.get(i)) != null) {
+                        logger.error("Duplicate key");
+                    }
+                }
+            }
         }
-
 
         return map;
     }
@@ -102,19 +109,30 @@ public class JEVisJSONParser implements Parser {
             String dateTimePath = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).getLatestSample().getValueAsString();
             input.forEach(inputStream -> {
                 JSONParser jsonParser = new JSONParser(inputStream);
-                List<DateTime> dateTimes = new ArrayList<>();
+
                 try {
                     if (!parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).hasSample()) return;
-                    dateTimes = getDateTimes(dateTimePath, jsonParser, dateTimes);
+
                 } catch (Exception e) {
                     logger.error(e);
                 }
-                List<DateTime> finalDateTimes = dateTimes;
+
                 jsonChannels.forEach(jsonChannel -> {
                     try {
                         if (!jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH).hasSample())
                             return;
-                        List<Result> resultList = getResults(jsonParser, finalDateTimes, jsonChannel);
+
+                        String valuePath = jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH).getLatestSample().getValueAsString();
+                        String[] splitDate = dateTimePath.split("\\.");
+                        String[] splitValue = valuePath.split("\\.");
+                        StringBuilder newDatePath = new StringBuilder(splitValue[0]);
+                        for (int i = 1; i < splitDate.length; i++) {
+                            String sd = splitDate[i];
+                            newDatePath.append(".").append(sd);
+                        }
+
+                        List<DateTime> dateTimes = getDateTimes(newDatePath.toString(), jsonParser);
+                        List<Result> resultList = getResults(valuePath, jsonParser, dateTimes, jsonChannel);
                         results.addAll(resultList);
                     } catch (Exception e) {
                         logger.error("Could not get results ", e);
@@ -128,25 +146,26 @@ public class JEVisJSONParser implements Parser {
 
     }
 
-    private List<DateTime> getDateTimes(String dateTimePath, JSONParser jsonParser, List<DateTime> dateTimes) throws JEVisException {
+    private List<DateTime> getDateTimes(String dateTimePath, JSONParser jsonParser) throws JEVisException {
+        List<DateTime> dateTimes = new ArrayList<>();
         String dateTimeFormat = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).getLatestSample().getValueAsString();
         dateTimes = convertDateTime(dateTimePath, jsonParser, dateTimeFormat);
         return dateTimes;
     }
 
-    private List<Result> getResults(JSONParser jsonParser, List<DateTime> finalDateTimes, JEVisObject jsonChannel) throws JEVisException {
+    private List<Result> getResults(String valuePath, JSONParser jsonParser, List<DateTime> finalDateTimes, JEVisObject jsonChannel) throws JEVisException {
         String valueFormat = jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.VALUE_FORMAT).hasSample() ?
                 jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.VALUE_FORMAT).getLatestSample().getValueAsString() :
                 "String";
         if (!jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH).hasSample())
             return new ArrayList<>();
-        String valuePath = jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH).getLatestSample().getValueAsString();
+
         List<String> statusValues = getStatusList(jsonParser, jsonChannel);
         String statusOK = getStatusOkCondition(jsonChannel, DataCollectorTypes.Channel.JSONChannel.STAUS_VALUE_OK);
         String regex = getRegex(jsonChannel);
         List<?> values = getValueList(jsonParser, valuePath, regex, valueFormat);
         String targetString = getTargetValueAttribute(jsonChannel);
-        Map map = getDateValueMap(finalDateTimes, values, statusValues, statusOK);
+        Map<DateTime, ?> map = getDateValueMap(finalDateTimes, values, statusValues, statusOK);
         List<Result> resultList = getResults(targetString, map);
         return resultList;
     }

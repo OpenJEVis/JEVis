@@ -16,7 +16,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.JC;
-import org.jevis.commons.driver.*;
+import org.jevis.commons.driver.DataCollectorTypes;
+import org.jevis.commons.driver.DataSourceHelper;
+import org.jevis.commons.driver.ParameterHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -285,10 +287,10 @@ public class HTTPDataSource {
 
             if (channel.getAttribute("Chunk Size(s)").hasSample()) {
                 if (DateTime.now().isBefore(lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue()))) {
-                    System.out.println("now");
+                    logger.debug("now");
                     return DateTime.now();
                 }else {
-                    System.out.println("plusSeconds(channel.getAttribute(\"Chunk Size(s)\").getLatestSample().getValueAsDouble().intValue()");
+                    logger.debug("plusSeconds(channel.getAttribute(\"Chunk Size(s)\").getLatestSample().getValueAsDouble().intValue()");
                     return lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue());
                 }
             }else {
