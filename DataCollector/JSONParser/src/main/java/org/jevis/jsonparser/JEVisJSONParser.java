@@ -123,12 +123,16 @@ public class JEVisJSONParser implements Parser {
                             return;
 
                         String valuePath = jsonChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH).getLatestSample().getValueAsString();
-                        String[] splitDate = dateTimePath.split("\\.");
-                        String[] splitValue = valuePath.split("\\.");
-                        StringBuilder newDatePath = new StringBuilder(splitValue[0]);
-                        for (int i = 1; i < splitDate.length; i++) {
-                            String sd = splitDate[i];
-                            newDatePath.append(".").append(sd);
+                        StringBuilder newDatePath = new StringBuilder(dateTimePath);
+
+                        if (dateTimePath.contains(".") && valuePath.contains(".")) {
+                            String[] splitDate = dateTimePath.split("\\.");
+                            String[] splitValue = valuePath.split("\\.");
+                            newDatePath = new StringBuilder(splitValue[0]);
+                            for (int i = 1; i < splitDate.length; i++) {
+                                String sd = splitDate[i];
+                                newDatePath.append(".").append(sd);
+                            }
                         }
 
                         List<DateTime> dateTimes = getDateTimes(newDatePath.toString(), jsonParser);

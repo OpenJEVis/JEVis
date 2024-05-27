@@ -27,9 +27,11 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
+import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
+import org.jevis.jeconfig.plugin.dashboard.config2.DashboardSorter;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameEditor;
@@ -123,23 +125,27 @@ public class LoadDashboardDialog extends Dialog {
                 if (empty || obj == null || obj.getName() == null) {
                     setText("");
                 } else {
-                    setText(obj.getName());
-                    /**
-                     if (!analysisDataModel.isMultiSite() && !analysisDataModel.isMultiDir())
-                     setText(obj.getName());
-                     else {
-                     String prefix = "";
-                     if (analysisDataModel.isMultiSite())
-                     prefix += objectRelations.getObjectPath(obj);
-                     if (analysisDataModel.isMultiDir()) {
-                     prefix += objectRelations.getRelativePath(obj);
-                     }
+                    String name = "";
+                    try {
+                        if (obj.getJEVisClassName().equals(DashboardSorter.ANALYSIS_CLASS_NAME)) {
+                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
+                                name = obj.getName();
+                            else {
+                                String prefix = "";
+                                if (ChartTools.isMultiSite(ds))
+                                    prefix += objectRelations.getObjectPath(obj);
+                                if (ChartTools.isMultiDir(ds, obj)) {
+                                    prefix += objectRelations.getRelativePath(obj);
+                                }
 
-                     setText(prefix + obj.getName());
-                     }
-                     **/
+                                name = prefix + obj.getName();
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("could not get JEVisClassName", e);
+                    }
+                    setText(name);
                 }
-
             }
         });
 

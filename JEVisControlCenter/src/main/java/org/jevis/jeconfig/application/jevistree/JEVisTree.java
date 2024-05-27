@@ -61,7 +61,7 @@ public class JEVisTree extends TreeTableView {
     private final Map<Long, Long> targetAndChannel = new HashMap<>();
 
     /**
-     * Create an default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
+     * Create a default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
      * root objects.
      *
      * @param ds
