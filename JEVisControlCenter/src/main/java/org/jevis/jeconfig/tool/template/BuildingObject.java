@@ -284,7 +284,7 @@ public class BuildingObject extends Template {
     private void buildGroups(JEVisDataSource ds, JEVisClass groupClass, JEVisObject buildingObject, JEVisObject jscUser, JEVisObject groupDirectory, String buildingName, boolean withEntryPoints) throws JEVisException, InterruptedException {
 
         JEVisClass alarmDirectoryClass = ds.getJEVisClass("Alarm Directory");
-        JEVisClass actionPlanDirectoryClass = ds.getJEVisClass("Action Plan Directory");
+        JEVisClass actionPlanDirectoryClass = ds.getJEVisClass("Action Plan Directory v2");
         JEVisClass nonConformityDirectoryClass = ds.getJEVisClass("NonconformityPlan Directory");
         JEVisClass indexOfLegalProvisionsDirectoryClass = ds.getJEVisClass("Index of Legal Provisions Directory");
         JEVisClass analysesDirectoryClass = ds.getJEVisClass("Analyses Directory");

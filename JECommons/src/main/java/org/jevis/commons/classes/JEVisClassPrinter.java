@@ -1,11 +1,13 @@
 package org.jevis.commons.classes;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisType;
 
 public class JEVisClassPrinter {
-
+    private static final Logger logger = LogManager.getLogger(JEVisClassPrinter.class);
     private final JEVisDataSource ds;
 
     public JEVisClassPrinter(JEVisDataSource dataSourceWS) {
@@ -14,7 +16,7 @@ public class JEVisClassPrinter {
     }
 
     public static String capitalizeWord(String str) {
-        String words[] = str.split("\\s");
+        String[] words = str.split("\\s");
         String capitalizeWord = "";
         for (String w : words) {
             String first = w.substring(0, 1);
@@ -60,31 +62,33 @@ public class JEVisClassPrinter {
     }
 
     public void printClassClass(JEVisClass jeVisClass) {
-        try {
-            String cName = capitalizeWord(jeVisClass.getName());
-            cName = cName.trim().replaceAll(" ", "");
-            cName = cName.replaceAll("-", "");
-            String s = String.format("public interface %s {\n" +
-                            "        public static String name = \"%s\";\n"
-                    , cName, jeVisClass.getName());
+        if (jeVisClass != null) {
+            try {
+                String cName = capitalizeWord(jeVisClass.getName());
+                cName = cName.trim().replaceAll(" ", "");
+                cName = cName.replaceAll("-", "");
+                String s = String.format("public interface %s {\n" +
+                                "        public static String name = \"%s\";\n"
+                        , cName, jeVisClass.getName());
 
-            for (JEVisType jeVisType : jeVisClass.getTypes()) {
-                if (!jeVisType.isInherited()) {
-                    String aName = capitalizeWord(jeVisType.getName());
-                    aName = aName.trim().replaceAll(" ", "");
-                    aName = aName.replaceAll("-", "");
-                    s += String.format("\n        public static String a_%s = \"%s\";", aName, jeVisType.getName());
-                } else {
-                    String aName = capitalizeWord(jeVisType.getName());
-                    aName = aName.trim().replaceAll(" ", "");
-                    s += String.format("\n        public static String i_%s = \"%s\";", aName, jeVisType.getName());
+                for (JEVisType jeVisType : jeVisClass.getTypes()) {
+                    if (!jeVisType.isInherited()) {
+                        String aName = capitalizeWord(jeVisType.getName());
+                        aName = aName.trim().replaceAll(" ", "");
+                        aName = aName.replaceAll("-", "");
+                        s += String.format("\n        public static String a_%s = \"%s\";", aName, jeVisType.getName());
+                    } else {
+                        String aName = capitalizeWord(jeVisType.getName());
+                        aName = aName.trim().replaceAll(" ", "");
+                        s += String.format("\n        public static String i_%s = \"%s\";", aName, jeVisType.getName());
+                    }
                 }
+
+                logger.debug(s);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-
-            System.out.println(s);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 }

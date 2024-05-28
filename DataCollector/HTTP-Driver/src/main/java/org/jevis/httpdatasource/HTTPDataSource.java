@@ -16,7 +16,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.classes.JC;
-import org.jevis.commons.driver.*;
+import org.jevis.commons.driver.DataCollectorTypes;
+import org.jevis.commons.driver.DataSourceHelper;
+import org.jevis.commons.driver.ParameterHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -41,15 +43,23 @@ public class HTTPDataSource {
     private String password;
     private DateTimeZone timeZone;
     private Boolean ssl = false;
+    private DateTime lastReadout;
+    private DateTime endDateTime;
+    private StatusLine statusLine;
+    private AUTH_SCHEME authScheme;
+    private Long id;
+    private String name;
+    private boolean needUrlConfig = true;
+
+    public static String FixURL(String url) {
+        url = url.replaceAll("(?<!(http:|https:))/+", "/");
+        url = url.replaceAll(" ", "%20");
+        return url;
+    }
 
     public DateTime getLastReadout() {
         return lastReadout;
     }
-
-    private DateTime lastReadout;
-    private DateTime endDateTime;
-
-    private StatusLine statusLine;
 
     public StatusLine getStatusLine() {
         return statusLine;
@@ -58,16 +68,6 @@ public class HTTPDataSource {
     public DateTime getEndDateTime() {
         return endDateTime;
     }
-
-    public enum AUTH_SCHEME {
-        BASIC, DIGEST, NONE
-    }
-
-    private AUTH_SCHEME authScheme;
-    private Long id;
-    private String name;
-    private boolean needUrlConfig = true;
-
 
     /**
      * @param channel
@@ -173,6 +173,10 @@ public class HTTPDataSource {
         statusLine = oResponse.getStatusLine();
 
         logger.info("[{}] HTTP response status code: {}", channelID, oResponse.getStatusLine());
+
+        if (oResponse.getStatusLine().getStatusCode() == 200) {
+            channel.setNextReadout(endDateTime);
+        }
         HttpEntity oEntity = oResponse.getEntity();
         String oXmlString = EntityUtils.toString(oEntity);
         logger.info("[{}] Content length to parse: {}", channelID, oXmlString.length());
@@ -181,20 +185,7 @@ public class HTTPDataSource {
         InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
         answer.add(stream);
 
-
         return answer;
-    }
-
-    public static String FixURL(String url) {
-        url = url.replaceAll("(?<!(http:|https:))/+", "/");
-        url = url.replaceAll(" ", "%20");
-        return url;
-    }
-
-
-    public void setDateTimeZone(DateTimeZone timeZone) {
-        logger.info("TIMEZONE: {}", timeZone);
-        this.timeZone = timeZone;
     }
 
     public AUTH_SCHEME getAuthScheme() {
@@ -215,23 +206,12 @@ public class HTTPDataSource {
         this.authScheme = authScheme;
     }
 
-    // interfaces
-    interface HTTP extends DataCollectorTypes.DataSource.DataServer {
-
-        String NAME = "HTTP Server";
-        String PASSWORD = "Password";
-        String SSL = "SSL";
-        String USER = "User";
-    }
-
-
-    interface HTTPChannelDirectory extends DataCollectorTypes.ChannelDirectory {
-
-        String NAME = "HTTP Channel Directory";
-    }
-
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setServerURL(String _serverURL) {
@@ -262,10 +242,6 @@ public class HTTPDataSource {
         this.ssl = _ssl;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -274,24 +250,18 @@ public class HTTPDataSource {
         this.name = _name;
     }
 
-    interface HTTPChannel extends DataCollectorTypes.Channel {
-
-        String NAME = "HTTP Channel";
-        String PATH = "Path";
-    }
-
     private DateTime getCurrentTime(JEVisObject channel, DateTime lastReadout) {
         try {
 
             if (channel.getAttribute("Chunk Size(s)").hasSample()) {
                 if (DateTime.now().isBefore(lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue()))) {
-                    System.out.println("now");
+                    logger.debug("now");
                     return DateTime.now();
-                }else {
-                    System.out.println("plusSeconds(channel.getAttribute(\"Chunk Size(s)\").getLatestSample().getValueAsDouble().intValue()");
+                } else {
+                    logger.debug("plusSeconds(channel.getAttribute(\"Chunk Size(s)\").getLatestSample().getValueAsDouble().intValue()");
                     return lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue());
                 }
-            }else {
+            } else {
                 DateTime.now();
             }
         } catch (Exception e) {
@@ -301,11 +271,37 @@ public class HTTPDataSource {
         return DateTime.now().withZone(getDateTimeZone());
     }
 
-
-
-
-
     public DateTimeZone getDateTimeZone() {
         return timeZone;
+    }
+
+    public void setDateTimeZone(DateTimeZone timeZone) {
+        logger.info("TIMEZONE: {}", timeZone);
+        this.timeZone = timeZone;
+    }
+
+    public enum AUTH_SCHEME {
+        BASIC, DIGEST, NONE
+    }
+
+    // interfaces
+    interface HTTP extends DataCollectorTypes.DataSource.DataServer {
+
+        String NAME = "HTTP Server";
+        String PASSWORD = "Password";
+        String SSL = "SSL";
+        String USER = "User";
+    }
+
+    interface HTTPChannelDirectory extends DataCollectorTypes.ChannelDirectory {
+
+        String NAME = "HTTP Channel Directory";
+    }
+
+
+    interface HTTPChannel extends DataCollectorTypes.Channel {
+
+        String NAME = "HTTP Channel";
+        String PATH = "Path";
     }
 }

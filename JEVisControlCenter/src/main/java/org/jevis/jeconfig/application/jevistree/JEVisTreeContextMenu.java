@@ -20,32 +20,36 @@
 package org.jevis.jeconfig.application.jevistree;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.export.TreeExporterDelux;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.JEVisDates;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
-import org.jevis.jeconfig.dialog.EnterDataDialog;
-import org.jevis.jeconfig.dialog.KPIWizard;
-import org.jevis.jeconfig.dialog.LocalNameDialog;
-import org.jevis.jeconfig.dialog.ReportWizardDialog;
+import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
 import org.jevis.jeconfig.plugin.object.extension.revpi.RevPiAssistant;
 import org.jevis.jeconfig.tool.AttributeCopy;
@@ -53,18 +57,21 @@ import org.jevis.jeconfig.tool.Calculations;
 import org.jevis.jeconfig.tool.CleanDatas;
 import org.jevis.jeconfig.tool.CreateAlarms;
 import org.jevis.jeconfig.tool.dwdbrowser.DWDBrowser;
+import org.joda.time.DateTime;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JEVisTreeContextMenu extends ContextMenu {
+    public static final int THREAD_WAIT = 500;
     private static final Logger logger = LogManager.getLogger(JEVisTreeContextMenu.class);
-
     private JEVisObject obj;
     private JEVisTree tree;
 
@@ -283,6 +290,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                     } else if (JEConfig.getExpert() && obj.getJEVisClassName().equals("Data Directory")) {
                         getItems().addAll(new SeparatorMenuItem(), buildKPIWizard());
                         getItems().add(buildCreateAlarms());
+                        getItems().add(buildJsonHTTP());
                     } else if (obj.getJEVisClassName().equals("Data") || obj.getJEVisClassName().equals("Base Data")) {
                         getItems().addAll(new SeparatorMenuItem(), buildGoToSource(), buildImportDWDData());
                         getItems().add(buildReCalcClean());
@@ -306,6 +314,172 @@ public class JEVisTreeContextMenu extends ContextMenu {
             }
 
         });
+    }
+
+    private MenuItem buildJsonHTTP() {
+        MenuItem menu = new MenuItem("JSON Wizard", JEConfig.getSVGImage(Icon.WIZARD_HAT, 20, 20));
+
+        menu.setOnAction(actionEvent -> {
+            ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+            List<JEVisObject> selectedObjects = new ArrayList<>();
+            items.forEach(jeVisTreeRowTreeItem -> selectedObjects.add(jeVisTreeRowTreeItem.getValue().getJEVisObject()));
+            JEVisDataSource ds = tree.getJEVisDataSource();
+
+            Dialog<ButtonType> buttonTypeDialog = new Dialog<>();
+            buttonTypeDialog.setResizable(true);
+            buttonTypeDialog.initOwner(JEConfig.getStage());
+            buttonTypeDialog.initModality(Modality.APPLICATION_MODAL);
+            Stage stage = (Stage) buttonTypeDialog.getDialogPane().getScene().getWindow();
+            TopMenu.applyActiveTheme(stage.getScene());
+
+            Button selectTemplateButton = new Button();
+            AtomicReference<JEVisObject> templateObject = new AtomicReference<>();
+
+            selectTemplateButton.setOnAction(getSelectTemplateEvent(templateObject));
+
+            ButtonType okType = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+            ButtonType cancelType = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            buttonTypeDialog.getDialogPane().getButtonTypes().addAll(cancelType, okType);
+
+            Button okButton = (Button) buttonTypeDialog.getDialogPane().lookupButton(okType);
+            okButton.setDefaultButton(true);
+
+            Button cancelButton = (Button) buttonTypeDialog.getDialogPane().lookupButton(cancelType);
+            cancelButton.setCancelButton(true);
+
+            Separator separator = new Separator(Orientation.HORIZONTAL);
+            separator.setPadding(new Insets(8, 0, 8, 0));
+
+            VBox vBox = new VBox(6, selectTemplateButton, separator);
+            buttonTypeDialog.getDialogPane().setContent(vBox);
+
+            Task<Void> upload = new Task<Void>() {
+                @Override
+                protected Void call() {
+                    try {
+                        JEVisObject targetFolder = templateObject.get().getParent();
+                        JEVisClass httpChannelClass = ds.getJEVisClass(JC.Channel.HTTPChannel.name);
+                        JEVisClass jsonParserClass = ds.getJEVisClass(JC.Parser.JSONParser.name);
+                        JEVisClass jsonDataPointDirectoryClass = ds.getJEVisClass(JC.Directory.DataPointDirectory.JSONDataPointDirectory.name);
+                        JEVisClass jsonDataPointClass = ds.getJEVisClass(JC.DataPoint.JSONDataPoint.name);
+
+                        JEVisObject templateJsonParser = templateObject.get().getChildren(jsonParserClass, false).get(0);
+                        String templatePathAttributeString = templateObject.get().getAttribute(JC.Channel.HTTPChannel.a_Path).getLatestSample().getValueAsString();
+                        String templateParserTimePathAttributeString = templateJsonParser.getAttribute(JC.Parser.JSONParser.a_dateTimePath).getLatestSample().getValueAsString();
+                        String templateParserTimeFormatAttributeString = templateJsonParser.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).getLatestSample().getValueAsString();
+
+                        JEVisObject templateJsonDataPointsDirectory = templateJsonParser.getChildren(jsonDataPointDirectoryClass, false).get(0);
+                        List<JEVisObject> templateJsonDataPoints = templateJsonDataPointsDirectory.getChildren();
+
+                        for (JEVisObject selectedObject : selectedObjects) {
+                            try {
+                                List<JEVisObject> dataObjects = selectedObject.getChildren();
+                                String name = selectedObject.getName();
+
+                                JEVisObject httpChannel = targetFolder.buildObject(name, httpChannelClass);
+                                httpChannel.commit();
+                                Thread.sleep(THREAD_WAIT);
+
+                                String newPathAttributeString = templatePathAttributeString.replace("(Template)", name);
+                                httpChannel.getAttribute(JC.Channel.HTTPChannel.a_Path).buildSample(new DateTime(), newPathAttributeString).commit();
+                                Thread.sleep(THREAD_WAIT);
+
+                                String configString = "[ {\n" +
+                                        "  \"format\" : \"yyyy-MM-dd'T'HH:mm:ss\",\n" +
+                                        "  \"Parameter\" : \"LAST_TS\",\n" +
+                                        "  \"Timezone\" : \"Europe/Berlin\"\n" +
+                                        "}, {\n" +
+                                        "  \"format\" : \"yyyy-MM-dd'T'HH:mm:ss\",\n" +
+                                        "  \"Parameter\" : \"CURRENT_TS\",\n" +
+                                        "  \"Timezone\" : \"Europe/Berlin\"\n" +
+                                        "} ]";
+                                JEVisFile parameterConfig = new JEVisFileImp("ParameterConfig" + JEVisDates.printDefaultDate(new DateTime()), configString.getBytes(StandardCharsets.UTF_8));
+                                httpChannel.getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).buildSample(new DateTime(), parameterConfig).commit();
+                                Thread.sleep(THREAD_WAIT);
+                                httpChannel.getAttribute(JC.Channel.HTTPChannel.a_ChunkSize).buildSample(new DateTime(), 1800).commit();
+                                Thread.sleep(THREAD_WAIT);
+
+                                JEVisObject jsonParser = httpChannel.buildObject("JsonParser", jsonParserClass);
+                                jsonParser.commit();
+                                Thread.sleep(THREAD_WAIT);
+
+                                jsonParser.getAttribute(JC.Parser.JSONParser.a_dateTimePath).buildSample(new DateTime(), templateParserTimePathAttributeString).commit();
+                                Thread.sleep(THREAD_WAIT);
+                                jsonParser.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).buildSample(new DateTime(), templateParserTimeFormatAttributeString).commit();
+                                Thread.sleep(THREAD_WAIT);
+
+                                JEVisObject jsonDataPointsDirectory = jsonParser.buildObject("Json Data Points", jsonDataPointDirectoryClass);
+                                jsonDataPointsDirectory.commit();
+                                Thread.sleep(THREAD_WAIT);
+
+                                for (JEVisObject templateDatapoint : templateJsonDataPoints) {
+                                    JEVisObject jsonDataPoint = jsonDataPointsDirectory.buildObject(templateDatapoint.getName(), jsonDataPointClass);
+                                    jsonDataPoint.commit();
+                                    Thread.sleep(THREAD_WAIT);
+
+                                    JEVisObject targetObject = dataObjects.stream().filter(o -> o.getName().toLowerCase().contains(jsonDataPoint.getName().toLowerCase())).findFirst().orElse(null);
+
+                                    for (JEVisAttribute attribute : jsonDataPoint.getAttributes()) {
+                                        JEVisAttribute templateAttribute = templateDatapoint.getAttributes().stream().filter(ta -> ta.getName().equals(attribute.getName())).findFirst().orElse(null);
+                                        if (templateAttribute != null && !attribute.getName().equals("Target") && templateAttribute.getLatestSample() != null) {
+                                            attribute.buildSample(templateAttribute.getLatestSample().getTimestamp(), templateAttribute.getLatestSample().getValue()).commit();
+                                            Thread.sleep(THREAD_WAIT);
+                                        } else if (templateAttribute != null && targetObject != null && attribute.getName().equals("Target")) {
+                                            attribute.buildSample(new DateTime(), targetObject.getID() + ":" + "Value").commit();
+                                            Thread.sleep(THREAD_WAIT);
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                logger.error(e);
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
+
+                    succeeded();
+                    return null;
+                }
+            };
+            okButton.setOnAction(actionEvent1 -> new Thread(upload).start());
+            buttonTypeDialog.show();
+        });
+
+        return menu;
+    }
+
+    private EventHandler<ActionEvent> getSelectTemplateEvent(AtomicReference<JEVisObject> templateObject) {
+        return t -> {
+            try {
+                List<JEVisClass> classes = new ArrayList<>();
+                List<UserSelection> openList = new ArrayList<>();
+                boolean showAttributes = false;
+
+                TreeSelectionDialog treeSelectionDialog = new TreeSelectionDialog(tree.getJEVisDataSource(), classes, SelectionMode.SINGLE, openList, showAttributes);
+
+                treeSelectionDialog.setOnCloseRequest(event -> {
+                    try {
+                        if (treeSelectionDialog.getResponse() == Response.OK) {
+                            logger.trace("Selection Done");
+
+                            List<UserSelection> selections = treeSelectionDialog.getUserSelection();
+
+                            for (UserSelection us : selections) {
+                                templateObject.set(us.getSelectedObject());
+                            }
+                        }
+                    } catch (Exception ex) {
+                        logger.catching(ex);
+                    }
+                });
+                treeSelectionDialog.show();
+
+            } catch (Exception ex) {
+                logger.catching(ex);
+            }
+        };
     }
 
     private MenuItem buildReCalcClean() {
