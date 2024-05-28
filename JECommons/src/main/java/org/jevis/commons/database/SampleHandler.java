@@ -20,7 +20,10 @@
 package org.jevis.commons.database;
 
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisFile;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.joda.time.DateTime;
@@ -53,7 +56,7 @@ public class SampleHandler {
                     lastBoolean = getValue(lastSample, defaultValue);
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastBoolean;
@@ -69,7 +72,7 @@ public class SampleHandler {
                     lastValue = getValue(lastSample, defaultValue);
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastValue;
@@ -85,7 +88,7 @@ public class SampleHandler {
                     lastString = getValue(lastSample, defaultValue);
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastString;
@@ -101,7 +104,7 @@ public class SampleHandler {
                     lastAggregationPeriod = AggregationPeriod.parseAggregation(lastSample.getValueAsString());
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastAggregationPeriod;
@@ -117,7 +120,7 @@ public class SampleHandler {
                     lastManipulationMode = ManipulationMode.parseManipulation(lastSample.getValueAsString());
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastManipulationMode;
@@ -133,7 +136,7 @@ public class SampleHandler {
                     lastValue = getValue(lastSample, defaultValue);
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastValue;
@@ -149,7 +152,7 @@ public class SampleHandler {
                     lastValue = getValue(lastSample, defaultValue);
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastValue;
@@ -181,7 +184,7 @@ public class SampleHandler {
                     lastValue = new DateTime(lastSample.getValueAsString());
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastValue;
@@ -197,7 +200,7 @@ public class SampleHandler {
                     lastValue = DateTimeZone.forID(lastSample.getValueAsString());
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastValue;
@@ -213,7 +216,7 @@ public class SampleHandler {
                     lastValue = getValue(lastSample, defaultValue);
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastValue;
@@ -281,7 +284,7 @@ public class SampleHandler {
                 JEVisSample smp = attribute.getLatestSample();
                 if (smp != null) lastDate = smp.getTimestamp();
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return lastDate;
@@ -294,7 +297,7 @@ public class SampleHandler {
             if (attribute != null && attribute.hasSample()) {
                 firstDate = attribute.getTimestampOfFirstSample();
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return firstDate;
@@ -311,7 +314,7 @@ public class SampleHandler {
                 }
 
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return firstSample;
@@ -324,7 +327,7 @@ public class SampleHandler {
             if (attribute != null) {
                 samples = attribute.getSamples(firstDate, lastDate);
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return samples;
@@ -334,7 +337,7 @@ public class SampleHandler {
         try {
             object.getAttribute(attribute).buildSample(new DateTime(), value).commit();
             object.commit();
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
     }
@@ -346,7 +349,7 @@ public class SampleHandler {
             if (attribute != null) {
                 samples = attribute.getAllSamples();
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return samples;
@@ -355,7 +358,7 @@ public class SampleHandler {
     public void importData(List<JEVisSample> aggregatedData, JEVisAttribute attribute) {
         try {
             attribute.addSamples(aggregatedData);
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
     }
@@ -369,7 +372,7 @@ public class SampleHandler {
             DateTime to = aggregatedData.get(aggregatedData.size() - 1).getTimestamp();
             attribute.deleteSamplesBetween(from, to);
             attribute.addSamples(aggregatedData);
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
     }
