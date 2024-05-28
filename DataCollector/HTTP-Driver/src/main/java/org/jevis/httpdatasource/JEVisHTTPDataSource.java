@@ -33,6 +33,7 @@ public class JEVisHTTPDataSource implements DataSource {
     private DateTimeZone timeZone;
     private Importer _importer;
     private HTTPDataSource _httpdatasource;
+    private final List<Channel> httpChannels = new ArrayList<>();
 
     @Override
     public void run() {
@@ -51,6 +52,7 @@ public class JEVisHTTPDataSource implements DataSource {
             Parser parser = ParserFactory.getParser(parserObject);
             parser.initialize(parserObject);
 
+            httpChannels.clear();
             List<Result> results = new ArrayList<>();
 
             try {
@@ -84,6 +86,11 @@ public class JEVisHTTPDataSource implements DataSource {
                         } catch (Exception ex) {
                             logger.warn("could not close input stream: {}", ex.getMessage());
                         }
+                    }
+                } else {
+                    Channel httpChannel = httpChannels.stream().filter(c -> c.getObject().equals(channel)).findFirst().orElse(null);
+                    if (httpChannel != null && httpChannel.getNextReadout() != null) {
+                        JEVisImporterAdapter.setLastReadout(httpChannel.getChannelObject(), httpChannel.getNextReadout());
                     }
                 }
             } catch (MalformedURLException ex) {
@@ -195,13 +202,14 @@ public class JEVisHTTPDataSource implements DataSource {
         try {
             Channel httpChannel = new Channel();
 
-
+            httpChannels.add(httpChannel);
             JEVisClass channelClass = channel.getJEVisClass();
             JEVisType pathType = channelClass.getType(HTTPChannelTypes.PATH);
             String path = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(HTTPChannelTypes.LAST_READOUT);
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
 
+            httpChannel.setObject(channel);
             httpChannel.setLastReadout(lastReadout);
             httpChannel.setPath(path);
             httpChannel.setChannelObject(channel);

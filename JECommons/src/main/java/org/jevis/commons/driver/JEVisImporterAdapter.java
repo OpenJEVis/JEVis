@@ -75,7 +75,7 @@ public class JEVisImporterAdapter {
         }
     }
 
-    private static void setLastReadout(JEVisObject channel, DateTime lastDateTime) {
+    public static void setLastReadout(JEVisObject channel, DateTime lastDateTime) {
         try {
             String toString = lastDateTime.toString();
 
