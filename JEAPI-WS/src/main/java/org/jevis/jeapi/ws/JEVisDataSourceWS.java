@@ -867,6 +867,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             if (!this.attributeCache.isEmpty()) this.attributeCache.clear();
             getAttributes();
             benchmark.printBenchmarkDetail("Reload - Attributes");
+            System.gc();
             Optimization.getInstance().printStatistics();
             logger.info("Reload Done");
             this.hasPreloaded = true;
