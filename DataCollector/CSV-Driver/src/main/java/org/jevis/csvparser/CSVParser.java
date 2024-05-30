@@ -40,6 +40,8 @@ import java.util.Map.Entry;
 public class CSVParser {
     private static final Logger logger = LogManager.getLogger(CSVParser.class);
     private static final String UTF8_BOM = "\uFEFF";
+    private final List<Result> _results = new ArrayList<Result>();
+    private final ParserReport report = new ParserReport();
     private DateTimeZone timeZone;
     private String dpType;
     private String quote;
@@ -54,11 +56,8 @@ public class CSVParser {
     private String thousandSeparator;
     private Integer currLineIndex;
     private Charset charset;
-
-    private final List<Result> _results = new ArrayList<Result>();
     private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
     private Converter _converter;
-    private final ParserReport report = new ParserReport();
 
     private void calculateColumns(String stringArrayInput) {
         String[] line = stringArrayInput.split(String.valueOf(delimiter), -1);
@@ -91,10 +90,10 @@ public class CSVParser {
         for (DataPoint dp : _dataPoints) {
             String mappingIdentifier = dp.getMappingIdentifier();
             //VERY VERY VERY DIRTY CODE, PLEASE DONT USE IT
-            Integer column = null;
+            Integer columnIndex = null;
             if (mappingIdentifier != null) {
-                column = columnMap.get(mappingIdentifier);
-                dp.setValueIndex(column);
+                columnIndex = columnMap.get(mappingIdentifier);
+                dp.setValueIndex(columnIndex);
             }
         }
     }
@@ -154,13 +153,15 @@ public class CSVParser {
         for (DataPoint dp : _dataPoints) {
             String mappingIdentifier = dp.getMappingIdentifier();
             Integer column = null;
-            if (mappingIdentifier != null) {
+            if (mappingIdentifier != null && dp.getValueIndex() == null) {
                 column = getIntByIdentifier(mappingIdentifier, columnMap);
-            } else {
+            } else if (dp.getValueIndex() == null) {
                 column = dpIndex;
             }
 
-            dp.setValueIndex(column);
+            if (column != null) {
+                dp.setValueIndex(column);
+            }
         }
     }
 
@@ -296,38 +297,35 @@ public class CSVParser {
                             return;
                         }
 
-                        DataPoint currentDP = null;
+
                         for (DataPoint dp : _dataPoints) {
                             for (String s : line) {
                                 if (s.equals(dp.getMappingIdentifier())) {
-                                    currentDP = dp;
-                                    break;
+                                    try {
+                                        String mappingIdentifier = dp.getMappingIdentifier();
+                                        Integer valueIndex = dp.getValueIndex();
+                                        String target = dp.getTarget();
+
+                                        String sVal = null;
+                                        Double value = null;
+                                        sVal = line[valueIndex];
+                                        //todo bind locale to language or location?? add thousands separator without regex
+                                        if (decimalSeparator == null || decimalSeparator.equals(",")) {
+                                            NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
+                                            value = nf_in.parse(sVal).doubleValue();
+                                        } else if (decimalSeparator.equals(".")) {
+                                            NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
+                                            value = nf_out.parse(sVal).doubleValue();
+                                        }
+                                        Result tempResult = new Result(target, value, dateTime);
+                                        _results.add(tempResult);
+                                        report.addSuccess(currLineIndex, valueIndex);
+                                    } catch (Exception ex) {
+                                        report.addError(new LineError(currLineIndex, -2, ex, "Unexpected Exception"));
+                                        logger.error("Detect a Problem in the Parsing Process in line {}. Value parsing Error", currLineIndex);
+                                    }
                                 }
                             }
-                        }
-
-                        try {
-                            String mappingIdentifier = currentDP.getMappingIdentifier();
-                            Integer valueIndex = currentDP.getValueIndex();
-                            String target = currentDP.getTarget();
-
-                            String sVal = null;
-                            Double value = null;
-                            sVal = line[dpIndex];
-                            //todo bind locale to language or location?? add thousands separator without regex
-                            if (decimalSeparator == null || decimalSeparator.equals(",")) {
-                                NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
-                                value = nf_in.parse(sVal).doubleValue();
-                            } else if (decimalSeparator.equals(".")) {
-                                NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
-                                value = nf_out.parse(sVal).doubleValue();
-                            }
-                            Result tempResult = new Result(target, value, dateTime);
-                            _results.add(tempResult);
-                            report.addSuccess(currLineIndex, dpIndex);
-                        } catch (Exception ex) {
-                            report.addError(new LineError(currLineIndex, -2, ex, "Unexpected Exception"));
-                            logger.error("Detect a Problem in the Parsing Process in line {}. Value parsing Error", currLineIndex);
                         }
                     } catch (Exception e) {
                         report.addError(new LineError(currLineIndex, -2, e, "Detected a Problem in the Parsing Process"));
