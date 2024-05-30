@@ -163,13 +163,7 @@ public class ExporterLauncher extends AbstractCliApp {
 
             checkForTimeout();
 
-            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                try {
-                    ds.clearCache();
-                    ds.preload();
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
+            if (plannedJobs.isEmpty() && runningJobs.isEmpty()) {
 
                 if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
 
@@ -177,6 +171,8 @@ public class ExporterLauncher extends AbstractCliApp {
 
                     /** reload drivers and set Config context drivers **/
                     try {
+                        ds.reloadObjects();
+
                         JEVisClass jenotifierClass = ds.getJEVisClass(APP_SERVICE_CLASS_NAME);
                         JEVisClass emailDriver = ds.getJEVisClass(EmailNotificationDriver._type);
                         JEVisObject jenotifierObjct = ds.getObjects(jenotifierClass, true).get(0);
@@ -188,7 +184,7 @@ public class ExporterLauncher extends AbstractCliApp {
 
                                     EmailNotificationDriver emailNotificationDriver = new EmailNotificationDriver();
                                     emailNotificationDriver.setNotificationDriverObject(eDriverObject);
-                                    logger.debug("---------------------- user: " + emailNotificationDriver.getUser());
+                                    logger.debug("---------------------- user: {}", emailNotificationDriver.getUser());
                                     this.jeNotifierConfig.setDefaultEmailNotificationDriver(emailNotificationDriver);
                                 }
                             }
