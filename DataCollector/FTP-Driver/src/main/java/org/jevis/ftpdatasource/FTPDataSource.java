@@ -19,6 +19,7 @@ import org.joda.time.DateTimeZone;
 
 import java.io.*;
 import java.net.MalformedURLException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,23 +91,19 @@ public class FTPDataSource implements DataSource {
                             JEVisImporterAdapter.importResults(result, importer, channel);
                             logger.debug("import done");
                         }
-                    } catch (
-                            MalformedURLException ex) {
+                    } catch (MalformedURLException ex) {
                         logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
                         logger.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
                         successful = false;
-                    } catch (
-                            ClientProtocolException ex) {
+                    } catch (ClientProtocolException ex) {
                         logger.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
                         logger.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
                         successful = false;
-                    } catch (
-                            IOException ex) {
+                    } catch (IOException ex) {
                         logger.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
                         logger.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
                         successful = false;
-                    } catch (
-                            ParseException ex) {
+                    } catch (ParseException ex) {
                         logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
                         logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
                         successful = false;
@@ -202,10 +199,11 @@ public class FTPDataSource implements DataSource {
             ftpClient.setConnectTimeout(connectionTimeout * 1000);
         }
         if (readTimeout != null) {
-            ftpClient.setDataTimeout(readTimeout * 1000);
+            ftpClient.setDataTimeout(Duration.ofSeconds(readTimeout));
         }
 
         ftpClient.connect(serverURL, port);
+        ftpClient.enterLocalPassiveMode();
 //            ftpClient.setFileType(FTP.BINARY_FILE_TYPE, FTP.BINARY_FILE_TYPE);
 
         if (!ftpClient.login(userName, password)) {
@@ -218,7 +216,6 @@ public class FTPDataSource implements DataSource {
         ftpClient.setBufferSize(1024000);
 
         ftpClient.setUseEPSVwithIPv4(false);
-        ftpClient.enterLocalPassiveMode();
 
         return ftpClient;
     }

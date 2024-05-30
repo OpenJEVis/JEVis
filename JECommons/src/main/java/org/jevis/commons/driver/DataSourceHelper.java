@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -25,6 +25,7 @@ import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
@@ -47,7 +48,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
  * @author Broder
  */
 public class DataSourceHelper {
@@ -60,19 +60,17 @@ public class DataSourceHelper {
     static public void doTrustToCertificates() throws Exception {
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
         TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
 
-                public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                    return;
-                }
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
 
-                public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    return;
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
                 }
-            }
         };
 
         SSLContext sc = SSLContext.getInstance("SSL");
@@ -98,11 +96,11 @@ public class DataSourceHelper {
             startPath = "/";
         }
 
-        List<String> folderPathes = getMatchingPathes(startPath, pathStream, new ArrayList<String>(), fc, lastReadout, new DateTimeFormatterBuilder());
-//        logger.info("foldersize,"+folderPathes.size());
+        List<String> matchingPaths = getMatchingPaths(startPath, pathStream, new ArrayList<String>(), fc, lastReadout, new DateTimeFormatterBuilder());
+//        logger.info("foldersize,"+matchingPaths.size());
         List<String> fileNames = new ArrayList<String>();
 
-        if (folderPathes.isEmpty()) {
+        if (matchingPaths.isEmpty()) {
             logger.error("Cant find suitable folder on the device");
             return fileNames;
         }
@@ -111,17 +109,31 @@ public class DataSourceHelper {
         String fileNameScheme = pathStream[pathStream.length - 1];
         String currentfolder = null;
         try {
-            for (String folder : folderPathes) {
-                //                fc.changeWorkingDirectory(folder);
-                //                logger.info("currentFolder,"+folder);
+            for (String folder : matchingPaths) {
                 currentfolder = folder;
-//                for (FTPFile file : fc.listFiles(folder)) {
-//                    logger.info(file.getName());
-//                }
                 fc.changeWorkingDirectory(folder);
+
                 for (FTPFile file : fc.listFiles()) {
-//                    org.apache.log4j.Logger.getLogger(Launcher.class.getName()).log(org.apache.log4j.Level.ALL, "CurrentFileName: " + fileName);
-//                    fileName = removeFoler(fileName, folder);
+                    boolean match = false;
+                    logger.debug(file.getName());
+
+                    if (DataSourceHelper.containsTokens(fileNameScheme)) {
+                        boolean matchDate = matchDateString(file.getName(), fileNameScheme);
+                        DateTime folderTime = getFileTime(folder + file.getName(), pathStream);
+                        boolean isLater = folderTime.isAfter(lastReadout);
+                        if (matchDate && isLater) {
+                            match = true;
+                        }
+                    } else {
+                        Pattern p = Pattern.compile(fileNameScheme);
+                        Matcher m = p.matcher(file.getName());
+                        match = m.matches();
+                    }
+
+                    if (!match) {
+                        continue;
+                    }
+
                     DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss").withZone(timeZone);
                     String fileName = file.getName();
                     logger.debug("Filename: {} , getModificationTime: {}", fileName, fc.getModificationTime(folder + fileName));
@@ -140,34 +152,15 @@ public class DataSourceHelper {
                         }
                     }
 
-                    boolean match = false;
-                    logger.info(file.getName());
-                    if (DataSourceHelper.containsTokens(fileNameScheme)) {
-                        boolean matchDate = matchDateString(file.getName(), fileNameScheme);
-                        DateTime folderTime = getFileTime(folder + file.getName(), pathStream);
-                        boolean isLater = folderTime.isAfter(lastReadout);
-                        if (matchDate && isLater) {
-                            match = true;
-                        }
-                    } else {
-                        Pattern p = Pattern.compile(fileNameScheme);
-                        Matcher m = p.matcher(file.getName());
-                        match = m.matches();
-                    }
-                    if (match) {
-                        fileNames.add(folder + file.getName());
-                    }
+                    fileNames.add(folder + file.getName());
                 }
             }
         } catch (IOException ex) {
             logger.error(ex.getMessage());
         } catch (Exception ex) {
-            logger.error("Error while searching a matching file");
-            logger.error("Folder: " + currentfolder);
-            logger.error("FileName: " + fileNameScheme);
-            logger.error(ex.getMessage(), ex);
+            logger.error("Error while searching a matching file, folder {}, filename {}", currentfolder, fileNameScheme, ex);
         }
-        if (folderPathes.isEmpty()) {
+        if (matchingPaths.isEmpty()) {
             logger.error("Cant find suitable files on the device");
         }
 //        logger.info("filenamesize"+fileNames.size());
@@ -219,7 +212,7 @@ public class DataSourceHelper {
         return compactDateString;
     }
 
-    private static String removeFoler(String fileName, String folder) {
+    private static String removeFolder(String fileName, String folder) {
         if (fileName.startsWith(folder)) {
             return fileName.substring(folder.length());
         }
@@ -236,7 +229,7 @@ public class DataSourceHelper {
         return m.matches();
     }
 
-    private static List<String> getMatchingPathes(String path, String[] pathStream, ArrayList<String> arrayList, FTPClient fc, DateTime lastReadout, DateTimeFormatterBuilder dtfbuilder) {
+    private static List<String> getMatchingPaths(String path, String[] pathStream, ArrayList<String> arrayList, FTPClient fc, DateTime lastReadout, DateTimeFormatterBuilder dtfbuilder) {
         int nextTokenPos = getPathTokens(path).length;
         if (nextTokenPos == pathStream.length - 1) {
             arrayList.add(path);
@@ -249,6 +242,11 @@ public class DataSourceHelper {
         try {
             if (containsDateToken(nextToken)) {
                 FTPFile[] listDirectories = fc.listFiles(path);
+                if (fc.getReplyCode() == 522) {
+                    // encrypt data channel and listFiles again
+                    ((FTPSClient) fc).execPROT("P");
+                    listDirectories = fc.listFiles(path);
+                }
 //                DateTimeFormatter ftmTemp = getDateFormatter(nextToken);
                 for (FTPFile folder : listDirectories) {
                     if (!matchDateString(folder.getName(), nextToken)) {
@@ -260,14 +258,24 @@ public class DataSourceHelper {
                     if (folderTime.isAfter(lastReadout)) {
                         nextFolder = folder.getName();
 //                        logger.info("dateFolder," + nextFolder);
-                        getMatchingPathes(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
+                        getMatchingPaths(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
                     }
 //                    }
+                }
+            } else if (nextToken.equals("(.*)")) {
+                FTPFile[] listDirectories = fc.listDirectories(path);
+                if (fc.getReplyCode() == 522) {
+                    // encrypt data channel and listFiles again
+                    ((FTPSClient) fc).execPROT("P");
+                    listDirectories = fc.listFiles(path);
+                }
+                for (FTPFile folder : listDirectories) {
+                    getMatchingPaths(path + folder.getName() + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
                 }
             } else {
                 nextFolder = nextToken;
 //                logger.info("normalFolder," + nextFolder);
-                getMatchingPathes(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
+                getMatchingPaths(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
             }
         } catch (IOException ex) {
             logger.error(ex.getMessage());
@@ -410,11 +418,11 @@ public class DataSourceHelper {
                 //                }
 //                Vector ls = _channel.ls(folder);
                 for (Object fileName : _channel.ls(folder)) {
-                    logger.debug("Check file: {}",fileName);
+                    logger.debug("Check file: {}", fileName);
                     LsEntry currentFile = (LsEntry) fileName;
 
                     String currentFileName = currentFile.getFilename();
-                    currentFileName = removeFoler(currentFileName, folder);
+                    currentFileName = removeFolder(currentFileName, folder);
                     boolean match = false;
                     /*
                     Note: this if seems false we cannot use variables and matcing filename at the same time?!
@@ -430,9 +438,9 @@ public class DataSourceHelper {
                     } else {
                         Pattern p = Pattern.compile(fileNameScheme);
                         Matcher m = p.matcher(currentFileName);
-                        Date dateModify = new Date( currentFile.getAttrs().getMTime() * 1000L);
+                        Date dateModify = new Date(currentFile.getAttrs().getMTime() * 1000L);
                         DateTime dateTime = new DateTime(dateModify);
-                        logger.trace("d1: {} , d2: {} = {}",dateTime,lastReadout, dateTime.isAfter(lastReadout));
+                        logger.trace("d1: {} , d2: {} = {}", dateTime, lastReadout, dateTime.isAfter(lastReadout));
 
                         boolean isLater = dateTime.isAfter(lastReadout);
                         if (m.matches() && isLater) {
@@ -448,7 +456,7 @@ public class DataSourceHelper {
                 }
             }
         } catch (Exception ex) {
-            logger.error("Error while searching a matching file",ex,ex);
+            logger.error("Error while searching a matching file", ex, ex);
             logger.error("Folder: " + currentfolder);
             logger.error("FileName: " + fileNameScheme);
         }
