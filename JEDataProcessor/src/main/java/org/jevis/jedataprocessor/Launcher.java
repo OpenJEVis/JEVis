@@ -147,16 +147,8 @@ public class Launcher extends AbstractCliApp {
 
             checkForTimeout();
 
-            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+            if (plannedJobs.isEmpty() && runningJobs.isEmpty()) {
                 TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-//                if (!firstRun) {
-//                    try {
-//                        ds.clearCache();
-//                        ds.preload();
-//                    } catch (JEVisException e) {
-//                        logger.error("Could not preload.");
-//                    }
-//                } else firstRun = false;
 
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
                 this.processingSize = CommonMethods.getProcessingSizeFromService(ds, APP_SERVICE_CLASS_NAME);
