@@ -1,0 +1,303 @@
+{
+  "jevisclass": "DWD Channel",
+  "names": {
+    "de": "DWD Kanal",
+    "ru": "DWD Channel",
+    "en": "DWD Channel"
+  },
+  "descriptions": {
+    "de": "The class DWD Channel ",
+    "ru": "The class DWD Channel ",
+    "en": "The class DWD Channel "
+  },
+  "types": [
+    {
+      "type": "Aggregation",
+      "descriptions": {
+        "de": "Die Aggregation gibt die Aggregation der Werte vor.",
+        "ru": "Агрегация определяет агрегацию значений.",
+        "en": "The aggregation specifies the aggregation of the values.",
+        "uk": "Агрегація вказує агрегацію значень.",
+        "th": "การรวมระบุการรวมของค่า"
+      },
+      "names": {
+        "de": "Aggregation",
+        "ru": "агрегирование",
+        "en": "Aggregation",
+        "uk": "Агрегація",
+        "th": "การรวมตัว"
+      },
+      "enums": {
+        "TEN_MINUTES": {
+          "descriptions": null,
+          "names": {
+            "de": "Zehn Minuten",
+            "en": "Ten Minutes",
+            "ru": "Десять минут",
+            "uk": "Десять хвилин",
+            "th": "สิบนาที"
+          }
+        },
+        "ONE_MINUTE": {
+          "descriptions": null,
+          "names": {
+            "de": "Eine Minute",
+            "en": "One Minute",
+            "ru": "Минута",
+            "uk": "Хвилина",
+            "th": "นาที"
+          }
+        },
+        "FIVE_MINUTES": {
+          "descriptions": null,
+          "names": {
+            "de": "Fünf Minuten",
+            "en": "Five Minutes",
+            "ru": "Пять минут",
+            "uk": "П'ять хвилин",
+            "th": "ห้านาที"
+          }
+        },
+        "HOURLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Stundenwerte",
+            "en": "Hourly values",
+            "ru": "часовые значения",
+            "uk": "часові значення",
+            "th": "ค่าชั่วโมง"
+          }
+        },
+        "DAILY": {
+          "descriptions": null,
+          "names": {
+            "de": "Tageswerte",
+            "en": "Daily values",
+            "ru": "Дневные значения",
+            "uk": "денні значення",
+            "th": "ค่าในชีวิตประจำวัน"
+          }
+        },
+        "MONTHLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Monatswerte",
+            "en": "Monthly values",
+            "ru": "месячные значения",
+            "uk": "місячні значення",
+            "th": "ค่าบริการรายเดือน"
+          }
+        },
+        "ANNUAL": {
+          "descriptions": null,
+          "names": {
+            "de": "Jahreswerte",
+            "en": "Yearly values",
+            "ru": "годовые значения",
+            "uk": "річні значення",
+            "th": "ค่าประจำปี"
+          }
+        },
+        "MULTI_ANNUAL": {
+          "descriptions": null,
+          "names": {
+            "de": "Mehrjährig",
+            "en": "Multi Annual",
+            "ru": "многолетний",
+            "uk": "багаторічник",
+            "th": "ไม้ยืนต้น"
+          }
+        },
+        "SUBDAILY": {
+          "descriptions": null,
+          "names": {
+            "de": "Untertägich",
+            "en": "Subdaily",
+            "ru": "внутридневной",
+            "uk": "внутрішньоденний",
+            "th": "ระหว่างวัน"
+          }
+        }
+      }
+    },
+    {
+      "type": "Attribute",
+      "descriptions": {
+        "de": "Das Attribut gibt das entsprechende Wettermerkmal vor",
+        "ru": "Атрибут указывает соответствующую характеристику погоды",
+        "en": "The attribute specifies the corresponding weather feature",
+        "uk": "Атрибут вказує на відповідну характеристику погоди",
+        "th": "แอตทริบิวต์ระบุคุณสมบัติสภาพอากาศที่สอดคล้องกัน"
+      },
+      "names": {
+        "de": "Attribut",
+        "ru": "Атрибут",
+        "en": "Attribute",
+        "uk": "Атрибут",
+        "th": "คุณลักษณะ"
+      },
+      "enums": {
+        "AIR_TEMPERATURE": {
+          "descriptions": null,
+          "names": {
+            "de": "Lufttemperatur",
+            "en": "Air Temperature",
+            "ru": "температура воздуха",
+            "uk": "температура повітря",
+            "th": "อุณหภูมิอากาศ"
+          }
+        },
+        "CLOUD_TYPE": {
+          "descriptions": null,
+          "names": {
+            "de": "Wolkenart",
+            "en": "Cloud Type",
+            "ru": "тип облака",
+            "uk": "тип хмари",
+            "th": "ประเภทเมฆ"
+          }
+        },
+        "CLOUDINESS": {
+          "descriptions": null,
+          "names": {
+            "de": "Bewölkung",
+            "en": "Cloudiness",
+            "ru": "облачность",
+            "uk": "хмарність",
+            "th": "เมฆครึ้ม"
+          }
+        },
+        "DEW_POINT": {
+          "descriptions": null,
+          "names": {
+            "de": "Taupunkt",
+            "en": "Dew Point",
+            "ru": "точка росы",
+            "uk": "точка роси",
+            "th": "จุดน้ำค้าง"
+          }
+        },
+        "EXTREME_TEMPERATURE": {
+          "descriptions": null,
+          "names": {
+            "de": "Extremtemperatur",
+            "en": "Extreme Temperature",
+            "ru": "экстремальная температура",
+            "uk": "екстремальна температура",
+            "th": "อุณหภูมิสุดขั้ว"
+          }
+        },
+        "EXTREME_WIND": {
+          "descriptions": null,
+          "names": {
+            "de": "Extremwind",
+            "en": "Extreme Wind",
+            "ru": "Экстремальный ветер",
+            "uk": "Екстремальний вітер",
+            "th": "ลมแรง"
+          }
+        },
+        "MOISTURE": {
+          "descriptions": null,
+          "names": {
+            "de": "Luftfeuchtigkeit",
+            "en": "Moisture",
+            "ru": "влажность",
+            "uk": "вологість",
+            "th": "ความชื้น"
+          }
+        },
+        "PRECIPITATION": {
+          "descriptions": null,
+          "names": {
+            "de": "Niederschlag",
+            "en": "Precipitation",
+            "ru": "осадки",
+            "uk": "опади",
+            "th": "หยาดน้ำฟ้า"
+          }
+        },
+        "PRESSURE": {
+          "descriptions": null,
+          "names": {
+            "de": "Luftdruck",
+            "en": "Pressure",
+            "ru": "давление воздуха",
+            "uk": "повітряний тиск",
+            "th": "ความกดอากาศ"
+          }
+        },
+        "SOIL": {
+          "descriptions": null,
+          "names": {
+            "de": "Erde",
+            "en": "Soil",
+            "ru": "Земля",
+            "uk": "земля",
+            "th": "โลก"
+          }
+        },
+        "SOIL_TEMPERATURE": {
+          "descriptions": null,
+          "names": {
+            "de": "Erdtemperatur",
+            "en": "Soil Temperature",
+            "ru": "Температура земли",
+            "uk": "Температура Землі",
+            "th": "อุณหภูมิโลก"
+          }
+        },
+        "SOLAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Solar",
+            "en": "Solar",
+            "ru": "Солнечная",
+            "uk": "Сонячна",
+            "th": "แสงอาทิตย์"
+          }
+        },
+        "SUN": {
+          "descriptions": null,
+          "names": {
+            "de": "Sonne",
+            "en": "Sun",
+            "ru": "Сонне",
+            "uk": "Сонне",
+            "th": "ซอนเน่"
+          }
+        },
+        "VISIBILITY": {
+          "descriptions": null,
+          "names": {
+            "de": "Sichtbarkeit",
+            "en": "Visibility",
+            "ru": "видимость",
+            "uk": "видимість",
+            "th": "ทัศนวิสัย"
+          }
+        },
+        "WEATHER_PHENOMENA": {
+          "descriptions": null,
+          "names": {
+            "de": "Wetterphänomene",
+            "en": "Weather Phenomena",
+            "ru": "погодные явления",
+            "uk": "погодні явища",
+            "th": "ปรากฏการณ์สภาพอากาศ"
+          }
+        },
+        "WIND": {
+          "descriptions": null,
+          "names": {
+            "de": "Wind",
+            "en": "Wind",
+            "ru": "внутридневной",
+            "uk": "внутрішньоденний",
+            "th": "ระหว่างวัน"
+          }
+        }
+      }
+    }
+  ]
+}

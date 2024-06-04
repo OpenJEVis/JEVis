@@ -121,6 +121,7 @@ public class Launcher extends AbstractCliApp {
                         StatusHandler ah = new StatusHandler(ds, latestReported);
                         ah.checkStatus();
                         finishCurrentRun(serviceObject);
+                        ds.clearCache();
 
                     } catch (Exception ex) {
                         logger.error(ex);
@@ -170,6 +171,7 @@ public class Launcher extends AbstractCliApp {
         DateTime dateTime = new DateTime(2001, 1, 1, 0, 0, 0);
 
         try {
+            ds.reloadObject(object);
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
             if (lastRunAttribute != null) {
                 JEVisSample lastSample = lastRunAttribute.getLatestSample();
