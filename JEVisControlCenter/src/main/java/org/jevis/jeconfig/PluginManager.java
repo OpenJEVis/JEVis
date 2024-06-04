@@ -46,6 +46,7 @@ import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dtrc.TRCPlugin;
 import org.jevis.jeconfig.plugin.equipment.EquipmentPlugin;
 import org.jevis.jeconfig.plugin.legal.LegalCatasdrePlugin;
+import org.jevis.jeconfig.plugin.loadprofile.LoadProfilePlugin;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesPlugin;
 import org.jevis.jeconfig.plugin.notes.NotesPlugin;
@@ -199,6 +200,8 @@ public class PluginManager {
                                     enabledPlugins.add(new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")));
                                 } else if (plugObj.getJEVisClassName().equals(LegalCatasdrePlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.indexoflegalprovisions.name")));
+                                } else if (plugObj.getJEVisClassName().equals(LoadProfilePlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new LoadProfilePlugin(this._ds, I18n.getInstance().getString("plugin.loadprofile.name")));
                                 } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new TRCPlugin(this._ds));
                                 } else if (plugObj.getJEVisClassName().equals(org.jevis.jeconfig.plugin.meters.MeterPlugin.PLUGIN_NAME)) {

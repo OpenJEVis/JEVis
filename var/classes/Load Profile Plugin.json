@@ -1,0 +1,19 @@
+{
+  "name": "Load Profile Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Load Profile Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Load Profile Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

@@ -320,7 +320,7 @@ public abstract class AbstractCliApp {
             JEVisAttribute threadCountAttribute = listServices.get(0).getAttribute(SERVICE_THREAD_COUNT);
             ds.reloadAttribute(threadCountAttribute);
             threadCount = threadCountAttribute.getLatestSample().getValueAsLong().intValue();
-            logger.info("Set Thread count to: " + threadCount);
+            logger.debug("Set Thread count to: {}", threadCount);
         } catch (Exception e) {
             logger.error("Couldn't get Service thread count from the JEVis System");
         }
