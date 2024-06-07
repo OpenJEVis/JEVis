@@ -1,0 +1,23 @@
+{
+  "name": "Modbus Master",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Modbus Channel Directory",
+      "end": "Modbus Master",
+      "type": 3
+    },
+    {
+      "start": "Modbus Master",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "Modbus Master",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+  ]
+}
