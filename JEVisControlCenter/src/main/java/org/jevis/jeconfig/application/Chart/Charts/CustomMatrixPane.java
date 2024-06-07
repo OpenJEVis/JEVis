@@ -105,6 +105,7 @@ public class CustomMatrixPane<T extends MatrixItem> extends Region implements Ch
         _upperBoundY = 100;
         _lowerBoundZ = 0;
         _upperBoundZ = 100;
+        tp.setAutoHide(true);
 
         initGraphics();
         registerListeners();
@@ -692,6 +693,7 @@ public class CustomMatrixPane<T extends MatrixItem> extends Region implements Ch
                                             Platform.runLater(() -> {
                                                 try {
                                                     tp.setText(nf.format(finalValue) + " " + getUnit());
+
                                                     tp.show(node, getScene().getWindow().getX() + t.getSceneX(), getScene().getWindow().getY() + t.getSceneY());
                                                 } catch (Exception np) {
                                                     logger.warn(np);

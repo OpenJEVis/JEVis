@@ -406,6 +406,7 @@ public class HeatMapChart implements Chart {
                 tsRight.setStyle("-fx-text-fill: red !important;");
                 if (!toolTipString.equals("")) {
                     Tooltip tooltip = new Tooltip(toolTipString);
+                    tooltip.setAutoHide(true);
                     Tooltip.install(tsRight, tooltip);
                 }
             }
