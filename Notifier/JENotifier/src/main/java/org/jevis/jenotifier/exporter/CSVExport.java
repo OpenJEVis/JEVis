@@ -35,7 +35,7 @@ public class CSVExport extends Export {
     public static String STATUS_ERROR = "Error";
 
 
-    private JEVisAttribute attSeperator;
+    protected String separator = ";";
     private JEVisAttribute attEnclosed;
     private JEVisAttribute attFilename;
     private JEVisAttribute attHeader;
@@ -61,7 +61,7 @@ public class CSVExport extends Export {
     };
     private DateTime lastUpdate;
     private String enclosed = "";
-    protected String seperator = ";";
+    private JEVisAttribute attSeparator;
     protected String filename = "export";
     protected String header = "";
     private DateTime logDate = null;
@@ -80,12 +80,11 @@ public class CSVExport extends Export {
         super.init();
     }
 
-
     @Override
     void initSettings() throws Exception {
         try {
-            attSeperator = exportObject.getAttribute(TYPE_SEPARATOR);
-            seperator = attSeperator.getLatestSample().getValueAsString();
+            attSeparator = exportObject.getAttribute(TYPE_SEPARATOR);
+            separator = attSeparator.getLatestSample().getValueAsString();
         } catch (Exception e) {
 //            e.printStackTrace();
             logger.error("Error in Separator Attribute: {}", PrettyError.getJEVisLineFilter(e));
@@ -307,7 +306,7 @@ public class CSVExport extends Export {
                 stringBuilder.append(enclosed);
                 stringBuilder.append(dateTimeFormatter.print(timeStamp.withZone(dateTimeZone)));
                 stringBuilder.append(enclosed);
-                stringBuilder.append(seperator);
+                stringBuilder.append(separator);
                 for (int i = 1; i <= maxColoum; i++) {
                     for (ExportLink exportLink : exportLinkListMap.keySet()) {
                         if (exportLink.getColumn() == i) {
@@ -323,7 +322,7 @@ public class CSVExport extends Export {
                             stringBuilder.append(enclosed);
 
                             if (i + 1 <= maxColoum) {
-                                stringBuilder.append(seperator);
+                                stringBuilder.append(separator);
                             }
 
                         }

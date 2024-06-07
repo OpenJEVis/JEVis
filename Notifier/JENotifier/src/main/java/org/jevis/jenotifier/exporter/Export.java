@@ -93,7 +93,9 @@ public abstract class Export {
                     SendNotification sn = new SendNotification(nofi, jeNotifierConfig.getDefaultEmailNotificationDriver(), "");
                     sn.run();
                     sn = null;
-                    setOnSuccess();
+                    if (nofi.isSendSuccessfully()) {
+                        setOnSuccess();
+                    }
                     cleanUp();
 
                 } catch (Exception ex) {
