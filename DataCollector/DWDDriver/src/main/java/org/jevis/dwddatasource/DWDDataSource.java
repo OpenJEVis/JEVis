@@ -122,7 +122,6 @@ public class DWDDataSource implements DataSource {
 
             } catch (Exception ex) {
                 logger.error(ex);
-                ex.printStackTrace();
             }
         }
     }
@@ -187,7 +186,7 @@ public class DWDDataSource implements DataSource {
                                                 allDataNames.add(dataName);
                                             }
                                         } else {
-                                            columnMap.put(dataNames.get(i - 2), split[i]);
+                                            columnMap.put(dataNames.get(i - 2), split[i - 2]);
                                         }
                                     }
 
