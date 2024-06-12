@@ -12,6 +12,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.report.ReportName;
 import org.jevis.commons.utils.NameFormatter;
@@ -115,11 +116,12 @@ public class ReportExecutor {
             byte[] outputBytes = report.getReportFile();
 
             DateTime start = new DateTime(reportObject.getAttribute(ReportAttributes.START_RECORD).getLatestSample().getValueAsString());
+            WorkDays wd = new WorkDays(reportObject);
 
             String prefix = ReportName.getPrefix(reportObject, start);
-            String startDate = new DateTime().toString(DateTimeFormat.forPattern("yyyyMMdd"));
+            String creationDate = new DateTime().toString(DateTimeFormat.forPattern("yyyyMMdd").withZone(wd.getDateTimeZone()));
 
-            String reportName = reportObject.getName().replaceAll("\\s", "_") + "_" + startDate;
+            String reportName = reportObject.getName().replaceAll("\\s", "_") + "_" + creationDate;
             reportName = NameFormatter.formatNames(reportName);
             reportName = prefix + reportName;
             JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
