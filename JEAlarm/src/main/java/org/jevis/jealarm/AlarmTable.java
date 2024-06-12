@@ -11,12 +11,14 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
 
 import javax.measure.unit.Unit;
 import java.text.NumberFormat;
@@ -81,6 +83,8 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 JEVisObject currentRawDataObject = CommonMethods.getFirstParentalDataObject(currentAlarm.getObject());
                 JEVisObject currentSiteObject = CommonMethods.getFirstParentalObjectOfClass(currentAlarm.getObject(), JC.MonitoredObject.Building.name);
                 DateTimeZone dateTimeZone = sampleHandler.getLastSample(currentSiteObject, JC.MonitoredObject.Building.a_Timezone, DateTimeZone.UTC);
+                Period periodForDate = CleanDataObject.getPeriodForDate(currentAlarm.getObject(), currentAlarm.getTimeStamp());
+                String formatString = PeriodHelper.getFormatString(periodForDate, false);
 
                 String currentUnit = null;
                 try {
@@ -159,7 +163,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                     logger.error("Could not get current Value.");
                 }
                 if (currentSample != null) {
-                    sb.append(currentSample.getTimestamp().withZone(dateTimeZone).toString("yyyy-MM-dd HH:mm:ss"));
+                    sb.append(currentSample.getTimestamp().withZone(dateTimeZone).toString(formatString));
                 }
                 sb.append("</td>");
 
@@ -337,6 +341,8 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 JEVisObject currentRawDataObject = CommonMethods.getFirstParentalDataObject(currentAlarm.getObject());
                 JEVisObject currentSiteObject = CommonMethods.getFirstParentalObjectOfClass(currentAlarm.getObject(), JC.MonitoredObject.Building.name);
                 DateTimeZone dateTimeZone = sampleHandler.getLastSample(currentSiteObject, JC.MonitoredObject.Building.a_Timezone, DateTimeZone.UTC);
+                Period periodForDate = CleanDataObject.getPeriodForDate(currentAlarm.getObject(), currentAlarm.getTimeStamp());
+                String formatString = PeriodHelper.getFormatString(periodForDate, false);
 
                 if (!currentRawDataObject.equals(currentAlarm.getObject())) {
                     nameRaw = currentRawDataObject.getName() + ":" + currentRawDataObject.getID().toString();
@@ -396,7 +402,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 sb.append("<td style=\"");
                 sb.append(css);
                 sb.append("\">");
-                sb.append(currentAlarm.getTimeStamp().withZone(dateTimeZone).toString("yyyy-MM-dd HH:mm:ss"));
+                sb.append(currentAlarm.getTimeStamp().withZone(dateTimeZone).toString(formatString));
                 sb.append("</td>");
                 /**
                  * Is Value
