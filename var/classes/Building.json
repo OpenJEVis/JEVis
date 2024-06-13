@@ -130,6 +130,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building"
+    },
+    {
+      "name": "Currency",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building"
     }
   ]
 }
