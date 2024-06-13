@@ -39,7 +39,6 @@
             <version>4.11.0</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
     <packaging>pom</packaging>
 
@@ -90,6 +89,7 @@
         <module>JSONParser</module>
         <module>MSCONSParser</module>
         <module>Shelly-Driver</module>
+        <module>Modbus-Driver</module>
     </modules>
 
 </project>

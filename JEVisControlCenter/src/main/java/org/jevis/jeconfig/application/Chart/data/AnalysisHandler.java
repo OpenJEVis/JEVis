@@ -123,6 +123,13 @@ public class AnalysisHandler {
                 chartModelNode.put("orientation", chartModel.getOrientation().toString());
             }
 
+            if (chartModel.getDayStart() != null) {
+                chartModelNode.put("dayStart", chartModel.getDayStart().toString());
+            }
+            if (chartModel.getDayEnd() != null) {
+                chartModelNode.put("dayEnd", chartModel.getDayEnd().toString());
+            }
+
             chartModelNode.put("filterEnabled", chartModel.isFilterEnabled());
             chartModelNode.put("fixYAxisToZero", chartModel.isFixYAxisToZero());
             chartModelNode.put("showColumnSums", chartModel.isShowColumnSums());

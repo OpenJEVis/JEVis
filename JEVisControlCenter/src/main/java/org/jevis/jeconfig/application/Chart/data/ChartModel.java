@@ -4,6 +4,7 @@ import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.beans.property.*;
 import javafx.geometry.Orientation;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.joda.time.LocalTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ public class ChartModel {
     private final SimpleBooleanProperty fixYAxisToZero = new SimpleBooleanProperty(this, "fixYAxisToZero", false);
     private final SimpleBooleanProperty showColumnSums = new SimpleBooleanProperty(this, "showColumnSums", false);
     private final SimpleBooleanProperty showRowSums = new SimpleBooleanProperty(this, "showRowSums", false);
+    private final SimpleObjectProperty<LocalTime> dayStart = new SimpleObjectProperty<>(this, "dayStart", null);
+    private final SimpleObjectProperty<LocalTime> dayEnd = new SimpleObjectProperty<>(this, "dayEnd", null);
 
     private List<ChartData> chartData = new ArrayList<>();
 
@@ -161,6 +164,7 @@ public class ChartModel {
     public void setFixYAxisToZero(boolean fixYAxisToZero) {
         this.fixYAxisToZero.set(fixYAxisToZero);
     }
+
     public SimpleBooleanProperty fixYAxisToZeroProperty() {
         return fixYAxisToZero;
     }
@@ -187,5 +191,29 @@ public class ChartModel {
 
     public SimpleBooleanProperty showRowSumsProperty() {
         return showRowSums;
+    }
+
+    public LocalTime getDayStart() {
+        return dayStart.get();
+    }
+
+    public void setDayStart(LocalTime dayStart) {
+        this.dayStart.set(dayStart);
+    }
+
+    public SimpleObjectProperty<LocalTime> dayStartProperty() {
+        return dayStart;
+    }
+
+    public LocalTime getDayEnd() {
+        return dayEnd.get();
+    }
+
+    public void setDayEnd(LocalTime dayEnd) {
+        this.dayEnd.set(dayEnd);
+    }
+
+    public SimpleObjectProperty<LocalTime> dayEndProperty() {
+        return dayEnd;
     }
 }

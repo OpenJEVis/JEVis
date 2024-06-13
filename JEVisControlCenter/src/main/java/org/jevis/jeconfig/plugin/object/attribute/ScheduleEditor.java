@@ -43,12 +43,14 @@ import java.util.Objects;
  */
 public class ScheduleEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(ScheduleEditor.class);
-    public JEVisAttribute _attribute;
     private final VBox box = new VBox();
     private final BooleanProperty hasChangedProperty = new SimpleBooleanProperty(false);
     private final SimpleStringProperty _newValue = new SimpleStringProperty("");
+    public JEVisAttribute _attribute;
     private JsonScheduler inputValue;
     private boolean initialized = false;
+    private final BooleanProperty showMonthsProperty = new SimpleBooleanProperty(this, "showMonts", true);
+    private final BooleanProperty showDaysOfMonthProperty = new SimpleBooleanProperty(this, "showDaysOfMonth", true);
 
     public ScheduleEditor(JEVisAttribute att) {
         _attribute = att;
@@ -99,13 +101,17 @@ public class ScheduleEditor implements AttributeEditor {
         Label timeLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.time.label"));
 
         int row = 0;
-        gridPane.add(monthLabel, 0, row, 1, 1);
-        gridPane.add(monthButtons, 1, row, 2, 1);
-        row++;
+        if (showMonthsProperty.get()) {
+            gridPane.add(monthLabel, 0, row, 1, 1);
+            gridPane.add(monthButtons, 1, row, 2, 1);
+            row++;
+        }
 
-        gridPane.add(dayOfMonthLabel, 0, row, 1, 1);
-        gridPane.add(dayOfMonthButtons, 1, row, 2, 1);
-        row++;
+        if (showDaysOfMonthProperty.get()) {
+            gridPane.add(dayOfMonthLabel, 0, row, 1, 1);
+            gridPane.add(dayOfMonthButtons, 1, row, 2, 1);
+            row++;
+        }
 
         gridPane.add(weekDayLabel, 0, row, 1, 1);
         gridPane.add(weekDayButtons, 1, row, 2, 1);
@@ -643,15 +649,39 @@ public class ScheduleEditor implements AttributeEditor {
         return true;
     }
 
-    public void setInputValue(JsonScheduler inputValue) {
-        this.inputValue = inputValue;
-    }
-
     public SimpleStringProperty _newValueProperty() {
         return _newValue;
     }
 
     public JsonScheduler getInputValue() {
         return inputValue;
+    }
+
+    public void setInputValue(JsonScheduler inputValue) {
+        this.inputValue = inputValue;
+    }
+
+    public boolean isShowMonthsProperty() {
+        return showMonthsProperty.get();
+    }
+
+    public void setShowMonthsProperty(boolean showMonthsProperty) {
+        this.showMonthsProperty.set(showMonthsProperty);
+    }
+
+    public BooleanProperty showMonthsPropertyProperty() {
+        return showMonthsProperty;
+    }
+
+    public boolean isShowDaysOfMonthProperty() {
+        return showDaysOfMonthProperty.get();
+    }
+
+    public void setShowDaysOfMonthProperty(boolean showDaysOfMonthProperty) {
+        this.showDaysOfMonthProperty.set(showDaysOfMonthProperty);
+    }
+
+    public BooleanProperty showDaysOfMonthPropertyProperty() {
+        return showDaysOfMonthProperty;
     }
 }

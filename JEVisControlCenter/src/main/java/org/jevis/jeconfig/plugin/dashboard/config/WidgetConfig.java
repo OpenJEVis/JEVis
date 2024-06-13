@@ -22,6 +22,7 @@ public class WidgetConfig {
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
     private static final Logger logger = LogManager.getLogger(WidgetConfig.class);
     public static String DATA_HANDLER_NODE = "dataHandler";
+    public static String EXTENDED_DATA_HANDLER_NODE = "extendedDataHandler";
     public static String WIDGET_SETTINGS_NODE = "extra";
     public final ObjectProperty<BorderWidths> borderSize = new SimpleObjectProperty(Double.class, "Border Size", new BorderWidths(0.2));
     public final ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);
@@ -39,10 +40,10 @@ public class WidgetConfig {
     public final IntegerProperty decimals = new SimpleIntegerProperty(Integer.class, "Decimals", 2);
 
     private String type = "";
-    private Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
-    private List<WidgetConfigProperty> additionalSetting = new ArrayList<>();
-    private Map<String, JsonNode> additionalConfigNodes = new HashMap<>();
-    private ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
+    private final Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
+    private final List<WidgetConfigProperty> additionalSetting = new ArrayList<>();
+    private final Map<String, JsonNode> additionalConfigNodes = new HashMap<>();
+    private final ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
     private JsonNode extraNode = this.mapper.createObjectNode();
     private String dataHandlerJson;
     private JsonNode jsonNode;

@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ControlPane extends GridPane {
 
     private static final Logger logger = LogManager.getLogger(ControlPane.class);
-    private final JFXButton ok = new JFXButton(I18n.getInstance().getString("csv.ok"));
+    private final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
     private final JFXDatePicker startDate = new JFXDatePicker();
     private final JFXDatePicker endDate = new JFXDatePicker();
     private final JFXButton cancel = new JFXButton(I18n.getInstance().getString("attribute.editor.cancel"));
