@@ -82,6 +82,7 @@ public class CustomMatrixPane<T extends MatrixItem> extends Region implements Ch
     private GridPane leftAxis;
     private GridPane rightAxis;
     private Canvas bottomXAxis;
+    private Color fontColor;
 
 
     // ******************** Constructors **************************************
@@ -635,6 +636,7 @@ public class CustomMatrixPane<T extends MatrixItem> extends Region implements Ch
             final double textHeight = text.getLayoutBounds().getHeight();
 
             gc.setFont(helvetica);
+            gc.setFill(fontColor);
 
             if (dateTime.getMinuteOfHour() == 0) {
 
@@ -770,5 +772,13 @@ public class CustomMatrixPane<T extends MatrixItem> extends Region implements Ch
 
     public void setBottomXAxis(Canvas bottomXAxis) {
         this.bottomXAxis = bottomXAxis;
+    }
+
+    public Color getFontColor() {
+        return fontColor;
+    }
+
+    public void setFontColor(Color fontColor) {
+        this.fontColor = fontColor;
     }
 }

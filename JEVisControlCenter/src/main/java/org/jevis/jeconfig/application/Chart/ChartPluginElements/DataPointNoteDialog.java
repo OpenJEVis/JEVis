@@ -112,7 +112,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
         table.getItems().forEach(tableSample -> {
             if (tableSample.isSelected()) {
                 try {
-                    JEVisSample jevisSample = tableSample.getJevisSample();
+                    JEVisSample jevisSample = tableSample.getJEVisSample();
                     timeStampLabel.setText(I18n.getInstance().getString("alarms.table.captions.timestamp") + ": "
                             + jevisSample.getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
 
@@ -134,9 +134,9 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                             protected Object call() throws Exception {
                                 try {
                                     if (value.getText().length() > 0) {
-                                        saveUserEntry(att, tableSample.getJevisSample(), validator.validate(value.getText(), I18n.getInstance().getLocale()));
+                                        saveUserEntry(att, tableSample.getJEVisSample(), validator.validate(value.getText(), I18n.getInstance().getLocale()));
                                     } else {
-                                        saveUserEntry(att, tableSample.getJevisSample(), null);
+                                        saveUserEntry(att, tableSample.getJEVisSample(), null);
                                     }
                                 } catch (Exception ex) {
                                     logger.error("Error while creating user value samples", ex);

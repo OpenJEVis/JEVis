@@ -47,6 +47,7 @@ public interface JsonNames {
         String DECIMALS = "decimals";
         String SHOW_VALUE = "showValue";
         String FIXED_TIMEFRAME = "fixedTimeframe";
+        String FORCED_PERIOD = "forcedPeriod";
 
     }
 

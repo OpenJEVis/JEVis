@@ -211,7 +211,16 @@ public class HeatMapChart implements Chart {
 
         ChartDataRow chartDataRow = chartDataRows.get(0);
         unit = UnitManager.getInstance().format(chartDataRow.getUnit());
-        Interval interval = new Interval(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
+        Interval interval;
+        org.joda.time.LocalTime dayStart = chartModel.getDayStart();
+        org.joda.time.LocalTime dayEnd = chartModel.getDayEnd();
+        if (dayStart != null && dayEnd != null) {
+            interval = new Interval(chartDataRow.getSelectedStart().withHourOfDay(dayStart.getHourOfDay()).withMinuteOfHour(dayStart.getMinuteOfHour()).withSecondOfMinute(dayStart.getSecondOfMinute()).withMillisOfSecond(dayStart.getMillisOfSecond())
+                    , chartDataRow.getSelectedEnd().withHourOfDay(dayEnd.getHourOfDay()).withMinuteOfHour(dayEnd.getMinuteOfHour()).withSecondOfMinute(dayEnd.getSecondOfMinute()).withMillisOfSecond(dayEnd.getMillisOfSecond()));
+        } else {
+            interval = new Interval(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
+        }
+
         Period inputSampleRate = chartDataRow.getPeriod();
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
         numberFormat.setMinimumFractionDigits(chartModel.getMinFractionDigits());
@@ -338,6 +347,7 @@ public class HeatMapChart implements Chart {
         matrixHeatMap.setColorMapping(chartModel.getColorMapping());
         matrixHeatMap.getMatrix().setUseSpacer(false);
         matrixHeatMap.getMatrix().setColsAndRows(COLS.intValue(), ROWS.intValue());
+        matrixHeatMap.setFontColor(fontColor);
 
         GridPane leftAxis = new GridPane();
         leftAxis.setPadding(new Insets(4));
