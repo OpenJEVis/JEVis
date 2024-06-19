@@ -44,26 +44,18 @@
     },
     {
       "start": "XLSX Parser",
-      "end": "CSV Parser",
+      "end": "XLSX Parser",
       "type": 0
     }
   ],
   "types": [
-    {
-      "name": "Charset",
-      "primitiveType": 0,
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "CSV Parser"
-    },
     {
       "name": "Datapoint Alignment",
       "primitiveType": 0,
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "CSV Parser"
+      "jevisClass": "XLSX Parser"
     },
     {
       "name": "Datapoint Index",
@@ -71,15 +63,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "CSV Parser"
-    },
-    {
-      "name": "Date Format",
-      "primitiveType": 0,
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "CSV Parser"
+      "jevisClass": "XLSX Parser"
     },
     {
       "name": "Date Index",
@@ -87,23 +71,15 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "CSV Parser"
+      "jevisClass": "XLSX Parser"
     },
     {
-      "name": "Decimal Separator",
+      "name": "Date Format",
       "primitiveType": 0,
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "CSV Parser"
-    },
-    {
-      "name": "Delimiter",
-      "primitiveType": 0,
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "CSV Parser"
+      "jevisClass": "XLSX Parser"
     },
     {
       "name": "Number Of Headlines",
@@ -111,31 +87,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "CSV Parser"
-    },
-    {
-      "name": "Quote",
-      "primitiveType": 0,
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "CSV Parser"
-    },
-    {
-      "name": "Thousand Separator",
-      "primitiveType": 0,
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "CSV Parser"
-    },
-    {
-      "name": "Time Format",
-      "primitiveType": 0,
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "CSV Parser"
+      "jevisClass": "XLSX Parser"
     },
     {
       "name": "Time Index",
@@ -143,7 +95,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "CSV Parser"
+      "jevisClass": "XLSX Parser"
     }
   ]
 }

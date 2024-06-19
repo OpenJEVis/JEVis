@@ -22,7 +22,7 @@ package org.jevis.xlsxparser;
 
 /**
  *
- * @author broder
+ * @author gerrit.schutz@envidatec.com
  */
 public class DataPoint {
 

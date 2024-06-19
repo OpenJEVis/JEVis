@@ -23,47 +23,41 @@ package org.jevis.xlsxparser;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.commons.datetime.JodaConverters;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.ParserReport;
 import org.jevis.commons.driver.Result;
+import org.jevis.commons.driver.TimeConverter;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author broder
+ * @author gerrit.schutz@envidatec.com
  */
 public class XLSXParser {
     private static final Logger logger = LogManager.getLogger(XLSXParser.class);
-    private final List<Result> _results = new ArrayList<Result>();
+    private final List<Result> results = new ArrayList<Result>();
     private final ParserReport report = new ParserReport();
     private DateTimeZone timeZone;
     private String dpType;
-    private String quote;
-    private String delimiter;
     private Integer headerLines;
     private Integer dateIndex;
     private Integer timeIndex;
     private Integer dpIndex;
+    private List<DataPoint> dataPoints = new ArrayList<DataPoint>();
     private String dateFormat;
     private String timeFormat;
-    private String decimalSeparator;
-    private String thousandSeparator;
-    private Integer currLineIndex;
-    private Charset charset;
-    private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
 
     public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
         this.timeZone = timeZone;
@@ -71,12 +65,12 @@ public class XLSXParser {
             logger.info("Importing importSteam");
 
             try {
-                POIFSFileSystem fs = new POIFSFileSystem(inputStream);
-                HSSFWorkbook wb = new HSSFWorkbook(fs);
-                HSSFSheet sheet = wb.getSheetAt(0);
-                HSSFRow row;
-                HSSFCell cell;
-                HSSFCell dateCell;
+                XSSFWorkbook wb = new XSSFWorkbook(inputStream);
+                XSSFSheet sheet = wb.getSheetAt(0);
+                XSSFRow row;
+                XSSFCell cell = null;
+                XSSFCell dateCell;
+                XSSFCell timeCell;
 
                 int rows; // No of rows
                 rows = sheet.getPhysicalNumberOfRows();
@@ -93,37 +87,111 @@ public class XLSXParser {
                     }
                 }
 
+                int currLineIndex = 0;
+                if (headerLines != null) {
+                    currLineIndex = currLineIndex + headerLines;
+                }
+
                 if (dpType != null && dpType.equals("ROW")) {
-                    logger.info("Traversing ROWs");
-                    for (int r = 0; r < rows; r++) {
+                    for (int r = currLineIndex; r < rows; r++) {
                         row = sheet.getRow(r);
+                        dateCell = null;
+                        timeCell = null;
+
                         if (row != null) {
                             dateCell = row.getCell(dateIndex);
-                            DateTime dateTime;
-                            if (DateUtil.isCellDateFormatted(dateCell)) {
-                                LocalDateTime dateCellValue = dateCell.getLocalDateTimeCellValue();
-                                dateTime = JodaConverters.javaToJodaLocalDateTime(dateCellValue).toDateTime();
+                            if (timeIndex != null) {
+                                timeCell = row.getCell(timeIndex);
                             }
+                            DateTime dateTime = null;
 
-                            for (DataPoint dataPoint : _dataPoints) {
-                                cell = row.getCell(dataPoint.getValueIndex());
-                                if (cell != null) {
-                                    // Your code here
+                            dateTime = getDateForCell(dateCell, timeCell);
+
+                            for (DataPoint dataPoint : dataPoints) {
+                                if (dataPoint.getValueIndex() != null) {
+                                    cell = row.getCell(dataPoint.getValueIndex());
+                                } else {
+                                    XSSFRow dpNameRow = sheet.getRow(dpIndex);
+                                    for (int c = 0; c < cols; c++) {
+                                        XSSFCell mappingCell = dpNameRow.getCell(c);
+                                        try {
+                                            if (mappingCell.getStringCellValue().equals(dataPoint.getMappingIdentifier())) {
+                                                cell = row.getCell(c);
+                                                break;
+                                            }
+                                        } catch (Exception e) {
+                                            logger.error(e);
+                                        }
+                                    }
+                                }
+
+                                if (dateTime != null && cell != null) {
+                                    Result result = null;
+                                    if (cell.getCellType() == CellType.STRING) {
+                                        result = new Result(dataPoint.getTarget(), cell.getStringCellValue(), dateTime);
+                                    } else if (cell.getCellType() == CellType.NUMERIC) {
+                                        result = new Result(dataPoint.getTarget(), cell.getNumericCellValue(), dateTime);
+                                    }
+
+                                    if (result != null) {
+                                        results.add(result);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    XSSFRow dateRow = sheet.getRow(dateIndex);
+                    for (int r = currLineIndex; r < rows; r++) {
+
+                        for (int c = dpIndex; c < cols; c++) {
+                            DataPoint currentDatapoint = null;
+                            dateCell = null;
+                            timeCell = null;
+                            DateTime dateTime = null;
+
+                            dateCell = dateRow.getCell(c);
+                            dateTime = getDateForCell(dateCell, timeCell);
+
+                            for (DataPoint dataPoint : dataPoints) {
+                                if (dataPoint.getValueIndex() != null && c == dataPoint.getValueIndex()) {
+                                    currentDatapoint = dataPoint;
+                                    break;
+                                } else {
+                                    for (int r1 = 0; r1 < rows; r1++) {
+                                        XSSFCell mappingCell = sheet.getRow(r1).getCell(c);
+                                        try {
+                                            if (mappingCell.getStringCellValue().equals(dataPoint.getMappingIdentifier())) {
+                                                currentDatapoint = dataPoint;
+                                                break;
+                                            }
+                                        } catch (Exception e) {
+                                            logger.error(e);
+                                        }
+                                    }
                                 }
                             }
 
-                            for (int c = 0; c < cols; c++) {
-                                cell = row.getCell((short) c);
-                                if (cell != null) {
-                                    // Your code here
+                            cell = sheet.getRow(r).getCell(c);
+
+                            if (currentDatapoint != null && dateTime != null && cell != null) {
+                                Result result = null;
+                                if (cell.getCellType() == CellType.STRING) {
+                                    result = new Result(currentDatapoint.getTarget(), cell.getStringCellValue(), dateTime);
+                                } else if (cell.getCellType() == CellType.NUMERIC) {
+                                    result = new Result(currentDatapoint.getTarget(), cell.getNumericCellValue(), dateTime);
+                                }
+
+                                if (result != null) {
+                                    results.add(result);
                                 }
                             }
                         }
                     }
                 }
 
-                if (!_results.isEmpty()) {
-                    logger.info("LastResult Date {}, Target {}, Value {}", _results.get(_results.size() - 1).getDate(), _results.get(_results.size() - 1).getTargetStr(), _results.get(_results.size() - 1).getValue());
+                if (!results.isEmpty()) {
+                    logger.info("LastResult Date {}, Target {}, Value {}", results.get(results.size() - 1).getDate(), results.get(results.size() - 1).getTargetStr(), results.get(results.size() - 1).getValue());
                 } else {
                     logger.error("Cant parse or cant find any data to parse");
                 }
@@ -138,6 +206,36 @@ public class XLSXParser {
 
     }
 
+    private DateTime getDateForCell(XSSFCell dateCell, XSSFCell timeCell) {
+
+        if (dateFormat == null && timeFormat == null) {
+            if (DateUtil.isCellDateFormatted(dateCell)) {
+                LocalDateTime dateCellValue = dateCell.getLocalDateTimeCellValue();
+                return JodaConverters.javaToJodaLocalDateTime(dateCellValue).toDateTime();
+            }
+        } else {
+            String input = "";
+            String pattern = "";
+            try {
+                String date = dateCell.getStringCellValue();
+                pattern = dateFormat;
+                input = date;
+
+                if (timeFormat != null && timeIndex > -1) {
+                    String time = timeCell.getStringCellValue();
+                    pattern += " " + timeFormat;
+                    input += " " + time;
+                }
+                logger.debug("-Parse: pattern: {}, timezone: {}, input: '{}'", pattern, timeZone, input);
+                return TimeConverter.parseDateTime(input, pattern, timeZone);
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        }
+
+        return null;
+    }
+
     public ParserReport getReport() {
         return report;
     }
@@ -147,15 +245,7 @@ public class XLSXParser {
     }
 
     public List<Result> getResult() {
-        return _results;
-    }
-
-    public void setQuote(String _quote) {
-        this.quote = _quote;
-    }
-
-    public void setDelimiter(String _delimiter) {
-        this.delimiter = _delimiter;
+        return results;
     }
 
     public void setDateIndex(Integer _dateIndex) {
@@ -170,59 +260,48 @@ public class XLSXParser {
         this.dpIndex = _dpIndex;
     }
 
-    public void setDateFormat(String _dateFormat) {
-        this.dateFormat = _dateFormat;
-    }
-
-    public void setTimeFormat(String _timeFormat) {
-        this.timeFormat = _timeFormat;
-    }
-
-    public void setDecimalSeparator(String _decimalSeparator) {
-        this.decimalSeparator = _decimalSeparator;
-    }
-
-    public void setThousandSeparator(String _thousandSeparator) {
-        this.thousandSeparator = _thousandSeparator;
-    }
-
     public void setDataPoints(List<DataPoint> _dataPoints) {
-        this._dataPoints = _dataPoints;
+        this.dataPoints = _dataPoints;
     }
 
     public void setHeaderLines(Integer _headerLines) {
         this.headerLines = _headerLines;
     }
 
-    public void setCharset(Charset charset) {
-        this.charset = charset;
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public String getTimeFormat() {
+        return timeFormat;
+    }
+
+    public void setTimeFormat(String timeFormat) {
+        this.timeFormat = timeFormat;
     }
 
     // interfaces
-    interface CSV extends DataCollectorTypes.Parser {
+    interface XLSX extends DataCollectorTypes.Parser {
 
-        String NAME = "CSV Parser";
+        String NAME = "XLSX Parser";
         String DATAPOINT_INDEX = "Datapoint Index";
-        //        public final static String DATAPOINT_TYPE = "Datapoint Type";
         String DATE_INDEX = "Date Index";
-        String DELIMITER = "Delimiter";
         String NUMBER_HEADLINES = "Number Of Headlines";
-        String QUOTE = "Quote";
         String TIME_INDEX = "Time Index";
-        String DATE_FORMAT = "Date Format";
-        String DECIMAL_SEPARATOR = "Decimal Separator";
-        String TIME_FORMAT = "Time Format";
-        String THOUSAND_SEPARATOR = "Thousand Separator";
     }
 
-    interface CSVDataPointDirectory extends DataCollectorTypes.DataPointDirectory {
+    interface XLSXDataPointDirectory extends DataCollectorTypes.DataPointDirectory {
 
-        String NAME = "CSV Data Point Directory";
+        String NAME = "XLSX Data Point Directory";
     }
 
-    interface CSVDataPoint extends DataCollectorTypes.DataPoint {
+    interface XLSXDataPoint extends DataCollectorTypes.DataPoint {
 
-        String NAME = "CSV Data Point";
+        String NAME = "XLSX Data Point";
         String MAPPING_IDENTIFIER = "Mapping Identifier";
         String VALUE_INDEX = "Value Index";
         String TARGET = "Target";
