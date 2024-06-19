@@ -1,0 +1,22 @@
+{
+  "name": "XLSX Data Point Directory",
+  "description": "The class XLSX Data Point Directory represents a specific directory for the management of CSV data points.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "XLSX Data Point",
+      "end": "XLSX Data Point Directory",
+      "type": 3
+    },
+    {
+      "start": "XLSX Data Point Directory",
+      "end": "XLSX Parser",
+      "type": 3
+    },
+    {
+      "start": "XLSX Data Point Directory",
+      "end": "Data Point Directory",
+      "type": 0
+    }
+  ]
+}

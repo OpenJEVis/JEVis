@@ -90,6 +90,7 @@
         <module>MSCONSParser</module>
         <module>Shelly-Driver</module>
         <module>Modbus-Driver</module>
+        <module>XLSX-Driver</module>
     </modules>
 
 </project>
