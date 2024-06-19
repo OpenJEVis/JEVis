@@ -1,0 +1,149 @@
+{
+  "name": "XLSX Parser",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "XLSX Data Point Directory",
+      "end": "XLSX Parser",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "EMail Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "sFTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "SOAP Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "VIDA350 Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "CSV Parser",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Charset",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Datapoint Alignment",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Datapoint Index",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Date Format",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Date Index",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Decimal Separator",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Delimiter",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Number Of Headlines",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Quote",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Thousand Separator",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Time Format",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    },
+    {
+      "name": "Time Index",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Parser"
+    }
+  ]
+}

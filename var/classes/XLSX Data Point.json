@@ -1,0 +1,43 @@
+{
+  "name": "XLSX Data Point",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "XLSX Data Point",
+      "end": "XLSX Data Point Directory",
+      "type": 3
+    },
+    {
+      "start": "XLSX Data Point",
+      "end": "Data Point",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Mapping Identifier",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XLSX Data Point"
+    },
+    {
+      "name": "Target",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XLSX Data Point"
+    },
+    {
+      "name": "Value Index",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XLSX Data Point"
+    }
+  ]
+}
