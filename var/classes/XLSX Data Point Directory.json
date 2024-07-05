@@ -1,6 +1,6 @@
 {
   "name": "XLSX Data Point Directory",
-  "description": "The class XLSX Data Point Directory represents a specific directory for the management of CSV data points.\n",
+  "description": "The class XLSX Data Point Directory represents a specific directory for the management of XLSX data points.\n",
   "unique": false,
   "relationships": [
     {
