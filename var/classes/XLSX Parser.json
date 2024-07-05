@@ -41,11 +41,6 @@
       "start": "XLSX Parser",
       "end": "VIDA350 Channel",
       "type": 3
-    },
-    {
-      "start": "XLSX Parser",
-      "end": "XLSX Parser",
-      "type": 0
     }
   ],
   "types": [
