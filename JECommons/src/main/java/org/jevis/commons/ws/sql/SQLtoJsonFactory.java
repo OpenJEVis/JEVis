@@ -79,6 +79,7 @@ public class SQLtoJsonFactory {
 
         String name = rs.getString(AttributeTable.COLUMN_NAME);
         Long objectID = rs.getLong(AttributeTable.COLUMN_OBJECT);
+
         String inputSRate = rs.getString(AttributeTable.COLUMN_INPUT_RATE);
         String inputUnit = rs.getString(AttributeTable.COLUMN_INPUT_UNIT);
         String displayRate = rs.getString(AttributeTable.COLUMN_DISPLAY_RATE);
@@ -94,7 +95,7 @@ public class SQLtoJsonFactory {
 
         try {
             jatt.setPrimitiveType(type.getPrimitiveType());
-            //TODO getLastSample bease on priType
+            //TODO getLastSample based on primitive type
 //            jatt.setLatestValue(rs.getString(SampleTable.COLUMN_VALUE));
             if (rs.getString(SampleTable.COLUMN_VALUE) != null) {
                 JsonSample sample = new JsonSample();
