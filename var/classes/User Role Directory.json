@@ -4,7 +4,7 @@
   "unique": true,
   "relationships": [
     {
-      "start": "User",
+      "start": "User Role",
       "end": "User Role Directory",
       "type": 3
     },
