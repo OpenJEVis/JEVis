@@ -22,7 +22,6 @@ public class WidgetConfig {
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
     private static final Logger logger = LogManager.getLogger(WidgetConfig.class);
     public static String DATA_HANDLER_NODE = "dataHandler";
-    public static String EXTENDED_DATA_HANDLER_NODE = "extendedDataHandler";
     public static String WIDGET_SETTINGS_NODE = "extra";
     public final ObjectProperty<BorderWidths> borderSize = new SimpleObjectProperty(Double.class, "Border Size", new BorderWidths(0.2));
     public final ObjectProperty<Color> fontColor = new SimpleObjectProperty<>(Color.class, "Font Color", Color.WHITE);

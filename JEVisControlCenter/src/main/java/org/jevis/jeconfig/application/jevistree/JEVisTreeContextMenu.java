@@ -38,7 +38,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.classes.JC;
-import org.jevis.commons.export.TreeExporterDelux;
+import org.jevis.commons.export.TreeExporter;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.JEVisDates;
@@ -173,7 +173,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     public static void exportAction(JEVisTree tree) {
-        TreeExporterDelux exportMaster = new TreeExporterDelux();
+        TreeExporter exportMaster = new TreeExporter();
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save");
@@ -202,7 +202,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
             try {
-                TreeExporterDelux exportMaster = new TreeExporterDelux();
+                TreeExporter exportMaster = new TreeExporter();
                 Task<Void> exportTask = exportMaster.importFromFile(selectedFile, obj);
                 JEConfig.getStatusBar().addTask("Tree Importer", exportTask, JEConfig.getImage("save.gif"), true);
                 //List<DimpexObject> objects = DimpEX.readFile(selectedFile);

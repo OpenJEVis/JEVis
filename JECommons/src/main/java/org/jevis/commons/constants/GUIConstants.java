@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jeconfig.application.type;
+package org.jevis.commons.constants;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,10 +14,10 @@ import java.util.List;
 
 /**
  * @author fs
- *
  */
 public class GUIConstants {
 
+    private static final Logger logger = LogManager.getLogger(GUIConstants.class);
     public static DisplayType BASIC_TEXT = new DisplayType("Text", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType TARGET_OBJECT = new DisplayType("Object Target", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType TARGET_ATTRIBUTE = new DisplayType("Attribute Target", JEVisConstants.PrimitiveType.STRING);
@@ -49,9 +49,6 @@ public class GUIConstants {
     public static DisplayType OPC_PROTOCOL = new DisplayType("OPC Protocol", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType PERIOD = new DisplayType("Period", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType RANGING_VALUE = new DisplayType("Ranging Value", JEVisConstants.PrimitiveType.STRING);
-
-    private static final Logger logger = LogManager.getLogger(GUIConstants.class);
-
     public static List<DisplayType> ALL = new ArrayList<DisplayType>() {
         {
             add(BASIC_TEXT);
