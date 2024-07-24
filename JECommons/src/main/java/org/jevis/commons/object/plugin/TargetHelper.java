@@ -34,7 +34,7 @@ public class TargetHelper {
 
     private final JEVisDataSource ds;
     private final static String SEPARATOR = ":";
-    private final static String MULTI_SELECT_SEPARATOR = ";";
+    public final static String MULTI_SELECT_SEPARATOR = ";";
     private String sourceValue = "";
     private Boolean isAttribute = false;
     private Boolean isObject = false;
@@ -259,7 +259,7 @@ public class TargetHelper {
     }
 
 
-    private List<String> multiSelectStringToList(String s) {
-        return new ArrayList<>(Arrays.asList(s.split(";")));
+    public static List<String> multiSelectStringToList(String s) {
+        return new ArrayList<>(Arrays.asList(s.split(MULTI_SELECT_SEPARATOR)));
     }
 }

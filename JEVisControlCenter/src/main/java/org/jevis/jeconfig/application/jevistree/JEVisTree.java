@@ -46,19 +46,19 @@ public class JEVisTree extends TreeTableView {
     private static final Logger logger = LogManager.getLogger(JEVisTree.class);
     private final ObservableList<TreePlugin> plugins = FXCollections.observableArrayList();
     private final JEVisDataSource ds;
-    private List<JEVisObject> copyObject = new ArrayList<>();
-    private JEVisTreeRow dragItem;
     private final UUID uuid = UUID.randomUUID();
-    private JEVisTreeFilter cellFilter;
-    private JEVisItemLoader itemLoader;
     private final ObservableList<JEVisObject> highlighterList = FXCollections.observableArrayList();
-    private boolean isCut = false;
-    private SearchFilterBar searchBar;
     private final HashMap<String, Object> configMap = new HashMap<>();
     private final Map<Long, Long> calculationIDs = new HashMap<>();
     private final ItemActionController itemActionController;
-    private JEVisObject recycleBinObject;
     private final Map<Long, Long> targetAndChannel = new HashMap<>();
+    private List<JEVisObject> copyObject = new ArrayList<>();
+    private JEVisTreeRow dragItem;
+    private JEVisTreeFilter cellFilter;
+    private JEVisItemLoader itemLoader;
+    private boolean isCut = false;
+    private SearchFilterBar searchBar;
+    private JEVisObject recycleBinObject;
 
     /**
      * Create a default Tree for the given JEVisDataSource by using all accessible JEVisObjects starting by the
@@ -331,7 +331,7 @@ public class JEVisTree extends TreeTableView {
     }
 
     public void toggleItemCollapse(TreeItem node) {
-        logger.debug("toggleItemCollapse: " + !node.isExpanded());
+        logger.debug("toggleItemCollapse: {}", !node.isExpanded());
         collapseAll(node, !node.isExpanded());
 
     }
@@ -392,7 +392,8 @@ public class JEVisTree extends TreeTableView {
     private void openPathNoChildren(List<JEVisObject> toOpen, TreeItem<JEVisTreeRow> parentNode, JEVisObject selectedObject) {
         for (TreeItem<JEVisTreeRow> child : parentNode.getChildren()) {
             for (JEVisObject findObj : toOpen) {
-                if (findObj.getID().equals(child.getValue().getJEVisObject().getID())) {
+                if (findObj != null && findObj.getID() != null && child.getValue() != null && child.getValue().getJEVisObject() != null
+                        && child.getValue().getJEVisObject().getID() != null && findObj.getID().equals(child.getValue().getJEVisObject().getID())) {
                     if (!findObj.getID().equals(selectedObject.getID())) {
                         child.expandedProperty().setValue(Boolean.TRUE);
                     } else {
@@ -407,13 +408,13 @@ public class JEVisTree extends TreeTableView {
 
     private void findNodePath(List<JEVisObject> parents, JEVisObject obj) {
         try {
-            if (obj.getParents().size() >= 1) {
+            if (!obj.getParents().isEmpty()) {
                 JEVisObject parent = obj.getParents().get(0);
                 parents.add(parent);
                 findNodePath(parents, parent);
             }
         } catch (Exception ex) {
-            logger.fatal("Error while searching parent: " + ex);
+            logger.error("Error while searching parent: ", ex);
         }
     }
 
@@ -483,7 +484,7 @@ public class JEVisTree extends TreeTableView {
                 JEVisObject toCopy = ((JEVisTreeItem) o).getValue().getJEVisObject();
                 if (!isParentInList(selection, toCopy)) {
                     selection.add(toCopy);
-                    logger.trace("--add: " + toCopy);
+                    logger.trace("--add: {}", toCopy);
                 }
 
             } catch (Exception ex) {
@@ -534,7 +535,7 @@ public class JEVisTree extends TreeTableView {
     }
 
     public TreeTableColumn getColumn(String columnName) {
-        logger.debug("getColumn: " + columnName + " list size: " + getColumns().size());
+        logger.debug("getColumn: {} list size: {}", columnName, getColumns().size());
         for (Object col : getColumns()) {
             TreeTableColumn column = (TreeTableColumn) col;
 
@@ -547,7 +548,7 @@ public class JEVisTree extends TreeTableView {
                 return childCol;
             }
         }
-        logger.debug("Did not find Column: " + columnName);
+        logger.debug("Did not find Column: {}", columnName);
         return null;
 
     }

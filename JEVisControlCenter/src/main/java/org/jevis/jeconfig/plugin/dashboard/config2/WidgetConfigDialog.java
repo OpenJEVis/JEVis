@@ -18,6 +18,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.tabs.ChartTab;
 import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.plugin.dashboard.widget.ChartWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.GenericConfigNode;
 import org.jevis.jeconfig.plugin.dashboard.widget.ValueWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
@@ -27,9 +28,9 @@ public class WidgetConfigDialog extends Alert {
 
     private static final Logger logger = LogManager.getLogger(WidgetConfigDialog.class);
     private final TabPane tabPane = new TabPane();
-    private DataModelDataHandler dataModelDataHandler;
     //private WidgetTreePlugin widgetTreePlugin;
     private final Widget widget;
+    private DataModelDataHandler dataModelDataHandler;
     private ChartModel chartModel;
 
     /**
@@ -96,12 +97,15 @@ public class WidgetConfigDialog extends Alert {
                 chartTab.setNameColumnVisible(false);
                 chartTab.setAggregationPeriodColumnVisible(true);
                 chartTab.setManipulationModeColumnVisible(true);
+            } else if (widget instanceof ChartWidget) {
+                chartTab.setShowChartSettings(true);
             }
 
             addTab(chartTab);
         }
 
     }
+
     public ObservableList<ChartData> addGeneralTabsDataModelNetGraph(DataModelDataHandler dataModelDataHandler) {
         addGeneralTab(dataModelDataHandler);
 

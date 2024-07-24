@@ -39,6 +39,7 @@ public class WidgetPojo {
     private Integer layer = 1;
     private boolean showValue = true;
     private boolean fixedTimeframe = false;
+    private String forcedPeriod = "";
 
     private JsonNode dataHandlerJson;
     private static final Logger logger = LogManager.getLogger(WidgetPojo.class);
@@ -183,13 +184,19 @@ public class WidgetPojo {
             try {
                 this.layer = jsonNode.get(LAYER).asInt(1);
             } catch (Exception ex) {
-                logger.debug("Could not parse position: {}", BORDER_SIZE, ex);
+                logger.debug("Could not parse position: {}", LAYER, ex);
             }
 
             try {
                 this.fixedTimeframe = jsonNode.get(FIXED_TIMEFRAME).asBoolean(false);
             } catch (Exception ex) {
-                logger.debug("Could not parse fixed timeframe: {}", BORDER_SIZE, ex);
+                logger.debug("Could not parse fixed timeframe: {}", FIXED_TIMEFRAME, ex);
+            }
+
+            try {
+                this.forcedPeriod = jsonNode.get(FORCED_PERIOD).asText("");
+            } catch (Exception ex) {
+                logger.debug("Could not parse forced period: {}", FORCED_PERIOD, ex);
             }
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
@@ -385,6 +392,14 @@ public class WidgetPojo {
         this.fixedTimeframe = fixedTimeframe;
     }
 
+    public String getForcedPeriod() {
+        return forcedPeriod;
+    }
+
+    public void setForcedPeriod(String forcedPeriod) {
+        this.forcedPeriod = forcedPeriod;
+    }
+
     public WidgetPojo copy() {
 
         WidgetPojo copy = new WidgetPojo();
@@ -408,6 +423,7 @@ public class WidgetPojo {
         copy.setyPosition(this.getyPosition());
         copy.setLayer(this.getLayer());
         copy.setFixedTimeframe(this.getFixedTimeframe());
+        copy.setForcedPeriod(this.getForcedPeriod());
 
         return copy;
     }
