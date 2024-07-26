@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -176,7 +175,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
 
                 if (isHeatMap) {
                     chartModel.setChartType(ChartType.HEAT_MAP);
-                    chartModel.setColorMapping(ColorMapping.BLUE_CYAN_GREEN_YELLOW_RED);
+//                    chartModel.setColorMapping(ColorMapping.BLUE_CYAN_GREEN_YELLOW_RED);
 
                     Platform.runLater(() -> {
                         this.legend.getItems().clear();
