@@ -17,9 +17,6 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.calculation.CalcJob;
-import org.jevis.commons.calculation.CalcJobFactory;
-import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
@@ -82,41 +79,24 @@ public class TableWidget extends Widget implements DataModelWidget {
             showProgressIndicator(true);
         }
 
-        this.sampleHandler.setInterval(interval);
-        this.sampleHandler.update();
+        this.sampleHandler.setAutoAggregation(true);
+        this.sampleHandler.update(interval);
 
+        ObservableList<TableData> tableData = FXCollections.observableArrayList();
+        List<String> alerts = new ArrayList<>();
 
-        ObservableList<TableData> tableDatas = FXCollections.observableArrayList();
-        List<String> alerts = new ArrayList();
-        this.sampleHandler.getDataModel().forEach(chartDataModel -> {
-
+        this.sampleHandler.getChartDataRows().forEach(chartDataModel -> {
             try {
                 chartDataModel.setCustomWorkDay(customWorkday);
-                List<JEVisSample> results;
-                if (chartDataModel.isCalculation()) {
-                    CalcJobFactory calcJobCreator = new CalcJobFactory();
-
-                    CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(
-                            new SampleHandler(), chartDataModel.getObject().getDataSource(),
-                            chartDataModel.getCalculationObject(), chartDataModel.getSelectedStart(),
-                            chartDataModel.getSelectedEnd(), true);
-
-                    results = calcJob.getResults();
-
-                } else {
-                    results = chartDataModel.getSamples();
-                }
+                List<JEVisSample> results = chartDataModel.getSamples();
 
                 if (!results.isEmpty()) {
-
-                    tableDatas.add(new TableData(
+                    tableData.add(new TableData(
                             chartDataModel.getName(),
-                            this.nf.format(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, chartDataModel)),
+                            this.nf.format(results.get(0).getValueAsDouble()),
                             chartDataModel.getUnitLabel()));
-
-
                 } else {
-                    tableDatas.add(new TableData(
+                    tableData.add(new TableData(
                             chartDataModel.getObject().getName(),
                             "n.a.",
                             chartDataModel.getUnitLabel()));
@@ -124,8 +104,7 @@ public class TableWidget extends Widget implements DataModelWidget {
                 }
             } catch (Exception ex) {
                 logger.error(ex);
-//                ex.printStackTrace();
-                tableDatas.add(new TableData("", "", ""));
+                tableData.add(new TableData("", "", ""));
             }
 
             if (!alerts.isEmpty()) {
@@ -136,16 +115,13 @@ public class TableWidget extends Widget implements DataModelWidget {
 
                 showAlertOverview(true, alertMessage);
             }
-
         });
 
         Platform.runLater(() -> {
             this.table.getItems().clear();
-            this.table.setItems(tableDatas);
+            this.table.setItems(tableData);
             showProgressIndicator(false);
         });
-
-
     }
 
     @Override
@@ -186,6 +162,7 @@ public class TableWidget extends Widget implements DataModelWidget {
         nf = NumberFormat.getInstance();
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
         this.sampleHandler.setMultiSelect(false);
+        this.sampleHandler.setAutoAggregation(true);
 
         this.table = new TableView<>();
         this.table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

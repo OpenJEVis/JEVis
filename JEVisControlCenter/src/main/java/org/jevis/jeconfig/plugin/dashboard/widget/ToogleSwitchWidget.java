@@ -56,10 +56,10 @@ public class ToogleSwitchWidget extends Widget implements DataModelWidget {
         toogleSwitch.setOnSwitchPressed(switchEvent ->{
             try {
                 if (toogleSwitch.isActive()) {
-                    System.out.println("switch is on");
+                    logger.debug("switch is on");
                     setData(1.0);
                 }else {
-                    System.out.println("switch is off");
+                    logger.debug("switch is off");
                     setData(0.0);
                 }
             }catch (Exception e){
@@ -197,7 +197,7 @@ public class ToogleSwitchWidget extends Widget implements DataModelWidget {
             showAlertOverview(false, "");
         });
 
-        if (sampleHandler == null || sampleHandler.getDataModel().isEmpty()) {
+        if (sampleHandler == null || sampleHandler.getChartDataRows().isEmpty()) {
             return;
         } else {
             showProgressIndicator(true);
@@ -216,7 +216,7 @@ public class ToogleSwitchWidget extends Widget implements DataModelWidget {
             if (forceLastValue) {
                 try {
 
-                    lastSample = sampleHandler.getDataModel().get(0).getAttribute().getLatestSample();
+                    lastSample = sampleHandler.getChartDataRows().get(0).getAttribute().getLatestSample();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -259,7 +259,7 @@ public class ToogleSwitchWidget extends Widget implements DataModelWidget {
         return value == 1;
     }
     private void setData(double value) throws JEVisException {
-       JEVisAttribute jeVisAttribute = sampleHandler.getDataModel().get(0).getObject().getAttribute(JC.Data.a_Value);
+        JEVisAttribute jeVisAttribute = sampleHandler.getChartDataRows().get(0).getObject().getAttribute(JC.Data.a_Value);
        logger.info("set data {} to objekt {}", value, jeVisAttribute.getObject().getID());
        JEVisSample jeVisSample = jeVisAttribute.buildSample(new DateTime(), value);
        jeVisSample.commit();

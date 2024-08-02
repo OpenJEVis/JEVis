@@ -23,6 +23,7 @@ import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.CommonMethods;
+import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -344,6 +345,14 @@ public class ChartDataRow extends ChartData {
                             if (!isStringData) {
                                 applyUserData(unmodifiedSamples);
                                 samples = factorizeSamples(unmodifiedSamples);
+
+                                if (absolute) {
+                                    logger.debug("Getting manipulated data");
+                                    Double manipulatedData = getManipulatedData(samples);
+                                    JEVisSample virtualSample = new VirtualSample(samples.get(0).getTimestamp(), manipulatedData, getUnit());
+                                    samples.clear();
+                                    samples.add(virtualSample);
+                                }
                             } else {
                                 samples = unmodifiedSamples;
                             }
@@ -354,6 +363,13 @@ public class ChartDataRow extends ChartData {
                             CalcJob calcJob;
 
                             if (!getAbsolute()) {
+                                if (getCalculationObject() == null) {
+                                    if (ChartTools.getCalculationId(dataSource, getCalculationId()) == -1) {
+                                        logger.error("This is not a calculation, getting normal samples");
+                                        setCalculation(false);
+                                        samples = getSamples();
+                                    }
+                                }
                                 logger.debug("Getting calc job not absolute for object {}:{} from {} to {} with period {}",
                                         getCalculationObject().getName(), getCalculationObject().getID(),
                                         selectedStart.toString("yyyy-MM-dd HH:mm:ss"), selectedEnd.toString("yyyy-MM-dd HH:mm:ss"),
@@ -432,7 +448,7 @@ public class ChartDataRow extends ChartData {
                         }
 
                     } catch (Exception ex) {
-                        logger.error(ex);
+                        logger.error("Error getting samples", ex);
                     }
 
                     try {
@@ -464,6 +480,66 @@ public class ChartDataRow extends ChartData {
 
     public void setSamples(List<JEVisSample> samples) {
         this.samples = samples;
+    }
+
+    private Double getManipulatedData(List<JEVisSample> samples) {
+        Double value = 0d;
+        if (samples.size() == 1) {
+            try {
+                value = samples.get(0).getValueAsDouble();
+            } catch (JEVisException e) {
+                logger.error("Could not get value for datarow {}:{}", getObject().getName(), getObject().getID(), e);
+            }
+        } else {
+            try {
+                QuantityUnits qu = new QuantityUnits();
+                boolean isQuantity = qu.isQuantityUnit(getUnit());
+                isQuantity = qu.isQuantityIfCleanData(getAttribute(), isQuantity);
+
+                Double min = Double.MAX_VALUE;
+                Double max = Double.MIN_VALUE;
+                List<Double> listMedian = new ArrayList<>();
+
+                DateTime dateTime = null;
+
+                List<JsonSample> listManipulation = new ArrayList<>();
+                for (JEVisSample sample : samples) {
+                    Double currentValue = sample.getValueAsDouble();
+                    value += currentValue;
+                    min = Math.min(min, currentValue);
+                    max = Math.max(max, currentValue);
+                    listMedian.add(currentValue);
+
+                    if (dateTime == null) dateTime = new DateTime(sample.getTimestamp());
+                }
+                if (!isQuantity) {
+                    value = value / samples.size();
+                }
+
+                switch (getManipulationMode()) {
+                    case AVERAGE:
+                        value = value / (double) samples.size();
+                        break;
+                    case MIN:
+                        value = min;
+                        break;
+                    case MAX:
+                        value = max;
+                        break;
+                    case MEDIAN:
+                        if (listMedian.size() > 1)
+                            listMedian.sort(Comparator.naturalOrder());
+                        value = listMedian.get((listMedian.size() - 1) / 2);
+                        break;
+                }
+
+            } catch (Exception ex) {
+                logger.error("Error in quantity check: {}", ex, ex);
+            }
+        }
+
+        return value;
+
     }
 
     private void applyUserData(List<JEVisSample> unmodifiedSamples) {
@@ -598,9 +674,7 @@ public class ChartDataRow extends ChartData {
                         sample.setValue(sample.getValueAsDouble() * scaleFactor * timeFactor);
                     } catch (Exception e) {
                         try {
-                            logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue()
-                                    + " of attribute: " + getAttribute().getName()
-                                    + " of object: " + getObject().getName() + ":" + getObject().getID());
+                            logger.error("Error in sample: {}:{} of attribute: {} of object: {}:{}", sample.getTimestamp(), sample.getValue(), getAttribute().getName(), getObject().getName(), getObject().getID());
                         } catch (Exception e1) {
                             logger.fatal(e1);
                         }
@@ -712,7 +786,7 @@ public class ChartDataRow extends ChartData {
             } else {
                 this.object = object;
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("No object selected", e);
         }
     }

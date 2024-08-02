@@ -219,7 +219,7 @@ public class DashBoardPane extends Pane {
 
         if (!getChildren().contains(dragBox)) {
             //dragBox.setVisible(false);
-            System.out.println("Add dragBox");
+            logger.debug("Add dragBox");
             getChildren().add(dragBox);
         }
     }

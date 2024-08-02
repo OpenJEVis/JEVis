@@ -115,6 +115,8 @@ public class XYChart implements Chart {
     public XYChart(JEVisDataSource ds, ChartModel chartModel) {
         this.ds = ds;
         this.chartModel = chartModel;
+        this.chartType = this.chartModel.getChartType();
+
         init();
     }
 
@@ -179,7 +181,6 @@ public class XYChart implements Chart {
         this.polyRegressionDegree = toolBarSettings.getPolyRegressionDegree();
         this.chartId = this.chartModel.getChartId();
         this.chartName = this.chartModel.getChartName();
-        this.chartType = this.chartModel.getChartType();
 
         if (chartDataRows.isEmpty()) {
             chartModel.getChartData().forEach(chartData -> chartDataRows.add(new ChartDataRow(ds, chartData)));
@@ -754,8 +755,9 @@ public class XYChart implements Chart {
     private ChartDataRow getRawDataModel(ChartModel dataModel, ChartDataRow singleRow) {
         try {
             ChartDataRow newModel = singleRow.clone();
+            String jeVisClassName = singleRow.getObject().getJEVisClassName();
             JEVisObject newObject;
-            if (singleRow.getObject().getJEVisClassName().equals(JC.Data.name)) {
+            if (jeVisClassName.equals(JC.Data.name) || jeVisClassName.equals(JC.Data.BaseData.name)) {
                 newObject = singleRow.getObject();
             } else {
                 newObject = singleRow.getObject().getParent();

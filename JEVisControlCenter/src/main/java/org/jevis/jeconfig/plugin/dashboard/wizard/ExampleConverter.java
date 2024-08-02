@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.wizard;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.plugin.dashboard.config.DataModelNode;
 import org.jevis.jeconfig.plugin.dashboard.config.DataPointNode;
 
@@ -11,7 +13,7 @@ import java.util.Map;
 
 public class ExampleConverter {
 
-
+    private static final Logger logger = LogManager.getLogger(ExampleConverter.class);
     private final Map<Integer, Double> yPos = new HashMap<>();
     private final Map<String, Double> columns = new HashMap<>();
 
@@ -131,8 +133,8 @@ public class ExampleConverter {
                     dataPointNode.getAggregationPeriod().toString(),
                     dataPointNode.getColor().toString()));
         } catch (Exception ex) {
-            System.err.println("dataPointNode: " + dataPointNode);
-            ex.printStackTrace();
+            logger.debug("dataPointNode: " + dataPointNode);
+            logger.error(ex);
         }
 
         stringBuilder.append("}]}},");

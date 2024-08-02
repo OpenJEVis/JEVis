@@ -63,17 +63,13 @@ public class TimeFrameWidget extends Widget {
     }
     @Override
     public void updateData(Interval interval) {
-        System.out.println(interval);
+        logger.debug(interval);
 
         this.sampleHandler.setAutoAggregation(true);
-        this.sampleHandler.setInterval(interval);
-//            setIntervalForLastValue(interval);
-        this.sampleHandler.update();
+        this.sampleHandler.update(interval);
 
-
-
-        if (sampleHandler.getDataModel().size() != 0) {
-           sampleHandler.getDataModel().get(0).setCustomWorkDay(true);
+        if (!sampleHandler.getChartDataRows().isEmpty()) {
+            sampleHandler.getChartDataRows().get(0).setCustomWorkDay(true);
             Platform.runLater(() -> {
                 timeFramePojo.getWidgetObjects().forEach(timeFrameWidgetObject -> {
                     timeFrameWidgetObject.setSelected(false);
@@ -83,18 +79,16 @@ public class TimeFrameWidget extends Widget {
                 DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(timeFramePojo.getParser());
                 this.label.setText(createTimeString(dateTimeFormatter,this.getMaxTimeStamps()));
             });
-            return;
 
+            return;
         }
 
-
         try{
-            System.out.println(this.sampleHandler.getMaxTimeStamps());
-
-
+            logger.debug(this.sampleHandler.getMaxTimeStamps());
         }catch (Exception e){
             e.printStackTrace();
         }
+
         Platform.runLater(() -> {
             if (!this.timeFramePojo.getSelectedWidget().isPresent()) {
             }
@@ -213,7 +207,7 @@ public class TimeFrameWidget extends Widget {
     private String getSmapleCount() {
         try {
                 ChartDataRow dataModel = this.timeFramePojo.getSelectedWidget().
-                        orElseThrow(RuntimeException::new).sampleHandler.getDataModel().get(0);
+                        orElseThrow(RuntimeException::new).sampleHandler.getChartDataRows().get(0);
                 return String.valueOf(dataModel.getSamples().size());
 
         } catch (Exception e) {
@@ -244,7 +238,7 @@ public class TimeFrameWidget extends Widget {
                 this.label.setUnderline(this.getConfig().getFontUnderlined());
                 this.label.setPrefWidth(this.config.getSize().getWidth());
                 this.label.setAlignment(this.config.getTitlePosition());
-                System.out.println(this.timeFramePojo.getSelectedWidget());
+                logger.debug(this.timeFramePojo.getSelectedWidget());
                 this.timeFramePojo.getSelectedWidget().orElseThrow(RuntimeException::new);
 
                 if (this.timeFramePojo.getSelectedWidget().isPresent()) {
@@ -270,7 +264,7 @@ public class TimeFrameWidget extends Widget {
     @Override
     public List<DateTime> getMaxTimeStamps() {
         List<DateTime> dateTimes = new ArrayList<>();
-        for (ChartDataRow chartDataRow : this.sampleHandler.getDataModel()) {
+        for (ChartDataRow chartDataRow : this.sampleHandler.getChartDataRows()) {
             try {
                 JEVisSample samples = chartDataRow.getObject().getAttribute("Value").getLatestSample();
                 dateTimes.add(samples.getTimestamp());
@@ -312,7 +306,7 @@ public class TimeFrameWidget extends Widget {
 
         Tab timeFrameTab = timeFramePojo.getConfigTab();
 
-        if (this.sampleHandler.getDataModel().size() != 0) {
+        if (!this.sampleHandler.getChartDataRows().isEmpty()) {
             timeFramePojo.getTimeFrameTable().setDisable(true);
         }
 
@@ -350,7 +344,7 @@ public class TimeFrameWidget extends Widget {
             dashBoardNode
                     .set(TIME_FRAME_DESIGN_NODE_NAME, timeFramePojo.toJSON());
         }
-        System.out.println(dashBoardNode);
+        logger.debug(dashBoardNode);
         return dashBoardNode;
     }
 

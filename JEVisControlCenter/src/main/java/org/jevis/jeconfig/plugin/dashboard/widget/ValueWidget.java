@@ -112,9 +112,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
         }
 
 
-        Platform.runLater(() -> {
-            this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
-        });
+        Platform.runLater(() -> this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading")));
 
         String widgetUUID = "-1";
 
@@ -123,11 +121,10 @@ public class ValueWidget extends Widget implements DataModelWidget {
         try {
             widgetUUID = getConfig().getUuid() + "";
             this.sampleHandler.setAutoAggregation(true);
-            this.sampleHandler.setInterval(interval);
-//            setIntervalForLastValue(interval);
-            this.sampleHandler.update();
-            if (!this.sampleHandler.getDataModel().isEmpty()) {
-                ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
+            this.sampleHandler.update(interval);
+
+            if (!this.sampleHandler.getChartDataRows().isEmpty()) {
+                ChartDataRow dataModel = this.sampleHandler.getChartDataRows().get(0);
                 dataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
 
@@ -137,7 +134,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
 
-                    total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
+                    total.set(results.get(0).getValueAsDouble());
 
                     displayedSample.setValue(total.get());
                     checkPercent();
@@ -458,7 +455,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 gp.setHgap(4);
                 gp.setVgap(8);
 
-                for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
+                for (ChartDataRow chartDataRow : sampleHandler.getChartDataRows()) {
                     if (chartDataRow.isCalculation()) {
                         try {
                             alert.setHeaderText(CalcMethods.getTranslatedFormula(chartDataRow.getCalculationObject()));

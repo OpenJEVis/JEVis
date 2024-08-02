@@ -9,6 +9,7 @@ import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.jeapi.ws.HTTPConnection;
 import org.jevis.jeapi.ws.REQUEST;
@@ -137,7 +138,8 @@ public class JEVisServer implements DataSource {
             JEVisClass channelClass = jevisServer.getDataSource().getJEVisClass(DataCollectorTypes.Channel.JEVisChannel.NAME);
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
-            List<JEVisObject> channels = channelDir.getChildren(channelClass, false);
+            List<JEVisObject> channels = CommonMethods.getChildrenRecursive(channelDir, channelClass);
+
             logger.info("Found " + channels.size() + " channel objects in " + channelDir.getName() + ":" + channelDir.getID());
 
             channels.forEach(channelObject -> {

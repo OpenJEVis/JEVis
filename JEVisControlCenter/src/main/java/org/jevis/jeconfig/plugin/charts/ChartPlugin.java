@@ -486,6 +486,99 @@ public class ChartPlugin implements Plugin {
         return JEConfig.getSVGImage(Icon.GRAPH, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
     }
 
+    public static Chart getChart(JEVisDataSource ds, ChartModel chartModel) {
+
+        switch (chartModel.getChartType()) {
+            case LOGICAL:
+                return new LogicalChart(ds, chartModel);
+            default:
+            case LINE:
+                return new LineChart(ds, chartModel);
+            case BAR:
+                return new BarChart(ds, chartModel);
+            case COLUMN:
+                return new ColumnChart(ds, chartModel);
+            case STACKED_COLUMN:
+                return new StackedColumnChart(ds, chartModel);
+            case BUBBLE:
+                return new BubbleChart(ds, chartModel);
+            case SCATTER:
+                return new ScatterChart(ds, chartModel);
+            case PIE:
+                return new PieChart(ds, chartModel);
+            case TABLE:
+                return new TableChart(ds, chartModel);
+            case TABLE_V:
+                return new TableChartV(ds, chartModel);
+            case HEAT_MAP:
+                return new HeatMapChart(ds, chartModel);
+            case AREA:
+                return new AreaChart(ds, chartModel);
+            case STACKED_AREA:
+                return new StackedAreaChart(ds, chartModel);
+        }
+    }
+
+    private void finalUpdates() throws InterruptedException {
+
+        AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
+        ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
+        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
+            String s = entry.getValue();
+            if (s.equals(XYChart.class.getName())) {
+                hasActiveChartTasks.set(true);
+                break;
+            }
+        }
+        if (!hasActiveChartTasks.get()) {
+            Platform.runLater(() -> {
+                toolBarView.updateLayout();
+
+                StringBuilder allFormulas = new StringBuilder();
+                for (Map.Entry<Integer, Chart> entry : allCharts.entrySet()) {
+                    dataRowMap.put(entry.getValue(), entry.getValue().getChartDataRows());
+
+                    List<Chart> notActive = new ArrayList<>(allCharts.values());
+                    notActive.remove(entry.getValue());
+                    ChartType chartType = entry.getValue().getChartType();
+
+                    setupListener(entry.getValue(), notActive, chartType);
+
+                    if (entry.getValue() instanceof XYChart && toolBarView.getToolBarSettings().isCalculateRegression()) {
+                        allFormulas.append(((XYChart) entry.getValue()).getRegressionFormula().toString());
+                    }
+                }
+
+                Platform.runLater(this::autoSize);
+
+                if (toolBarView.getToolBarSettings().isCalculateRegression()) {
+                    Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
+                    infoBox.setResizable(true);
+                    infoBox.setTitle(I18n.getInstance().getString("dialog.regression.title"));
+                    infoBox.setHeaderText(I18n.getInstance().getString("dialog.regression.headertext"));
+                    JFXTextArea textArea = new JFXTextArea(allFormulas.toString());
+                    textArea.setWrapText(true);
+                    textArea.setPrefWidth(450);
+                    textArea.setPrefHeight(200);
+                    infoBox.getDialogPane().setContent(textArea);
+                    infoBox.show();
+                }
+
+                Platform.runLater(() -> {
+                    JEConfig.getStatusBar().finishProgressJob(ChartPlugin.class.getName(), "");
+                    JEConfig.getStatusBar().getPopup().hide();
+                });
+            });
+        } else {
+            Thread.sleep(500);
+            finalUpdates();
+        }
+    }
+
+    public Map<Chart, List<ChartDataRow>> getDataRowMap() {
+        return dataRowMap;
+    }
+
     public void update() {
 
         try {
@@ -584,7 +677,7 @@ public class ChartPlugin implements Plugin {
 
                 Chart chart = null;
                 if (chartModel.getChartType() != ChartType.LOGICAL) {
-                    chart = getChart(chartModel);
+                    chart = getChart(ds, chartModel);
                     allCharts.put(chartModel.getChartId(), chart);
                 }
 
@@ -771,99 +864,6 @@ public class ChartPlugin implements Plugin {
 
         JEConfig.getStatusBar().addTask(ChartPlugin.class.getName(), task, taskImage, true);
 //        });
-    }
-
-    private void finalUpdates() throws InterruptedException {
-
-        AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
-        ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
-        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
-            String s = entry.getValue();
-            if (s.equals(XYChart.class.getName())) {
-                hasActiveChartTasks.set(true);
-                break;
-            }
-        }
-        if (!hasActiveChartTasks.get()) {
-            Platform.runLater(() -> {
-                toolBarView.updateLayout();
-
-                StringBuilder allFormulas = new StringBuilder();
-                for (Map.Entry<Integer, Chart> entry : allCharts.entrySet()) {
-                    dataRowMap.put(entry.getValue(), entry.getValue().getChartDataRows());
-
-                    List<Chart> notActive = new ArrayList<>(allCharts.values());
-                    notActive.remove(entry.getValue());
-                    ChartType chartType = entry.getValue().getChartType();
-
-                    setupListener(entry.getValue(), notActive, chartType);
-
-                    if (entry.getValue() instanceof XYChart && toolBarView.getToolBarSettings().isCalculateRegression()) {
-                        allFormulas.append(((XYChart) entry.getValue()).getRegressionFormula().toString());
-                    }
-                }
-
-                Platform.runLater(this::autoSize);
-
-                if (toolBarView.getToolBarSettings().isCalculateRegression()) {
-                    Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
-                    infoBox.setResizable(true);
-                    infoBox.setTitle(I18n.getInstance().getString("dialog.regression.title"));
-                    infoBox.setHeaderText(I18n.getInstance().getString("dialog.regression.headertext"));
-                    JFXTextArea textArea = new JFXTextArea(allFormulas.toString());
-                    textArea.setWrapText(true);
-                    textArea.setPrefWidth(450);
-                    textArea.setPrefHeight(200);
-                    infoBox.getDialogPane().setContent(textArea);
-                    infoBox.show();
-                }
-
-                Platform.runLater(() -> {
-                    JEConfig.getStatusBar().finishProgressJob(ChartPlugin.class.getName(), "");
-                    JEConfig.getStatusBar().getPopup().hide();
-                });
-            });
-        } else {
-            Thread.sleep(500);
-            finalUpdates();
-        }
-    }
-
-    public Map<Chart, List<ChartDataRow>> getDataRowMap() {
-        return dataRowMap;
-    }
-
-    private Chart getChart(ChartModel chartModel) {
-
-        switch (chartModel.getChartType()) {
-            case LOGICAL:
-                return new LogicalChart(ds, chartModel);
-            default:
-            case LINE:
-                return new LineChart(ds, chartModel);
-            case BAR:
-                return new BarChart(ds, chartModel);
-            case COLUMN:
-                return new ColumnChart(ds, chartModel);
-            case STACKED_COLUMN:
-                return new StackedColumnChart(ds, chartModel);
-            case BUBBLE:
-                return new BubbleChart(ds, chartModel);
-            case SCATTER:
-                return new ScatterChart(ds, chartModel);
-            case PIE:
-                return new PieChart(ds, chartModel);
-            case TABLE:
-                return new TableChart(ds, chartModel);
-            case TABLE_V:
-                return new TableChartV(ds, chartModel);
-            case HEAT_MAP:
-                return new HeatMapChart(ds, chartModel);
-            case AREA:
-                return new AreaChart(ds, chartModel);
-            case STACKED_AREA:
-                return new StackedAreaChart(ds, chartModel);
-        }
     }
 
     private void autoSize(Double autoMinSize, double maxHeight, Integer chartsPerScreen, VBox vBox) {
@@ -1276,7 +1276,7 @@ public class ChartPlugin implements Plugin {
             ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
 
             List<ChartDataRow> dataRows = Collections.singletonList(chartDataRow);
-            Chart subView = getChart(chartModel);
+            Chart subView = getChart(ds, chartModel);
 
             subView.getTableData().addListener((ListChangeListener<? super TableEntry>) c -> {
                 while (c.next())
