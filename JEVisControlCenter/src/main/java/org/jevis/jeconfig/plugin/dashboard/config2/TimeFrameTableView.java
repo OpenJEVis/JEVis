@@ -19,6 +19,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.table.ShortColumnCell;
 
+import java.util.List;
+
 public class TimeFrameTableView extends TableView<TimeFrameWidgetObject> {
 
 
@@ -26,19 +28,20 @@ public class TimeFrameTableView extends TableView<TimeFrameWidgetObject> {
 
     //private Property<Widget> selectedWidget = new SimpleObjectProperty<>();
 
-    public TimeFrameTableView(ObservableList<TimeFrameWidgetObject> list) {
+    public TimeFrameTableView(List<TimeFrameWidgetObject> list) {
+        super();
         this.setEditable(true);
         this.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         this.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
         TableColumn<TimeFrameWidgetObject, String> idCol = new TableColumn(I18n.getInstance().getString("plugin.dashboard.timeframe.table.id"));
-        idCol.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().config.getUuid())));
+        idCol.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().getConfig().getUuid())));
         idCol.setCellFactory(new ShortColumnCell<TimeFrameWidgetObject>());
         idCol.setStyle("-fx-alignment: LEFT;");
         // nrCol.setMinWidth(SMALL_WIDTH)
 
         TableColumn<TimeFrameWidgetObject, String> titleCol = new TableColumn(I18n.getInstance().getString("plugin.dashboard.timeframe.table.title"));
-        titleCol.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().config.getTitle())));
+        titleCol.setCellValueFactory(param -> new SimpleStringProperty(String.valueOf(param.getValue().getConfig().getTitle())));
         titleCol.setCellFactory(new ShortColumnCell<TimeFrameWidgetObject>());
         titleCol.setStyle("-fx-alignment: LEFT;");
 
@@ -138,7 +141,7 @@ public class TimeFrameTableView extends TableView<TimeFrameWidgetObject> {
                 )
         );
 
-        setItems(list);
+        getItems().addAll(list);
         getColumns().addAll(idCol, typeAttributeColumn(), titleCol, startCol, endCol,countOfSamplesCol, selectedCol);
 
 
