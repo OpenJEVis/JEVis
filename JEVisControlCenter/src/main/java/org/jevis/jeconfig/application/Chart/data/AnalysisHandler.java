@@ -146,6 +146,7 @@ public class AnalysisHandler {
         dataHandlerNode.put("chartsPerScreen", dataModel.getChartsPerScreen());
         dataHandlerNode.put("horizontalPies", dataModel.getHorizontalPies());
         dataHandlerNode.put("horizontalTables", dataModel.getHorizontalTables());
+        dataHandlerNode.put("forcedInterval", dataModel.getForcedInterval());
 
         dataHandlerNode.set("chartModels", chartModels);
 

@@ -16,7 +16,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.tabs.ChartTab;
 import org.jevis.jeconfig.application.Chart.data.ChartData;
-import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.widget.ChartWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.GenericConfigNode;
@@ -31,7 +30,6 @@ public class WidgetConfigDialog extends Alert {
     //private WidgetTreePlugin widgetTreePlugin;
     private final Widget widget;
     private DataModelDataHandler dataModelDataHandler;
-    private ChartModel chartModel;
 
     /**
      * Create a new Widget Config Dialog.
@@ -80,8 +78,7 @@ public class WidgetConfigDialog extends Alert {
         if (dataModelDataHandler != null) {
             this.dataModelDataHandler = dataModelDataHandler;
 
-            chartModel = dataModelDataHandler.getChartModel();
-            ChartTab chartTab = new ChartTab(dataModelDataHandler.getJeVisDataSource(), chartModel);
+            ChartTab chartTab = new ChartTab(dataModelDataHandler.getJeVisDataSource(), dataModelDataHandler.getDataModel().getChartModels().get(0));
             chartTab.setText(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
             chartTab.setClosable(false);
             chartTab.setMenuVisible(true);
@@ -112,8 +109,7 @@ public class WidgetConfigDialog extends Alert {
         if (dataModelDataHandler != null) {
             this.dataModelDataHandler = dataModelDataHandler;
 
-            chartModel = dataModelDataHandler.getChartModel();
-            ChartTab chartTab = new ChartTab(dataModelDataHandler.getJeVisDataSource(), chartModel);
+            ChartTab chartTab = new ChartTab(dataModelDataHandler.getJeVisDataSource(), dataModelDataHandler.getDataModel().getChartModels().get(0));
 
             chartTab.setText(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
             chartTab.setClosable(false);
@@ -133,8 +129,8 @@ public class WidgetConfigDialog extends Alert {
             chartTab.getChartTable().getItems().addListener(new ListChangeListener<ChartData>() {
                 @Override
                 public void onChanged(Change<? extends ChartData> c) {
-                    System.out.println("table changed");
-                    System.out.println(c);
+                    logger.debug("table changed");
+                    logger.debug(c);
                 }
             });
             return chartTab.getChartTable().getItems();
@@ -149,13 +145,14 @@ public class WidgetConfigDialog extends Alert {
             try {
                 if (tab instanceof ConfigTab) {
                     ((ConfigTab) tab).commitChanges();
-                } else if (tab instanceof ChartTab) {
-                    dataModelDataHandler.setChartModel(chartModel);
                 }
+//                else if (tab instanceof ChartTab) {
+//                    ((ChartTab) tab).commitChanges();
+//                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
-        logger.debug("done wigetconfig commit for: {}", getTitle());
+        logger.debug("done wiget config commit for: {}", getTitle());
     }
 }

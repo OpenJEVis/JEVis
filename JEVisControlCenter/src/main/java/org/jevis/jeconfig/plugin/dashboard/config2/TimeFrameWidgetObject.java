@@ -38,14 +38,11 @@ public class TimeFrameWidgetObject extends Widget {
             }
         });
         startObjectProperty.addListener((observableValue, start, t1) -> {
-            System.out.println(t1);
             if (!t1.equals(Start.NONE)) {
                 countOfSamples.set(false);
-
             }
         });
         endObjectProperty.addListener((observableValue, start, t1) -> {
-            System.out.println(t1);
             if (!t1.equals(End.NONE)) {
                 countOfSamples.set(false);
 

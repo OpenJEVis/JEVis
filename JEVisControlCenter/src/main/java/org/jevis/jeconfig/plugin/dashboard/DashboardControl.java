@@ -244,15 +244,15 @@ public class DashboardControl {
     }
 
     public Widget createNewWidget(WidgetPojo widgetPojo) {
-        System.out.println("Contol.createnewWidgets: " + widgetPojo);
+        logger.debug("Contol.createnewWidgets: " + widgetPojo);
 
-        System.out.println("---- newWidgetS.getSe...");
+        logger.debug("---- newWidgetS.getSe...");
         try {
             Class<?> clazz = Class.forName("org.jevis.jeconfig.plugin.dashboard.widget.TitleWidget");
             Constructor<?> ctor = clazz.getConstructor(DashboardControl.class);
             Object object = ctor.newInstance(this);
             Widget widget = (Widget) object;
-            System.out.println("hmmmmmmmm: " + widget.getControl());
+            logger.debug("hmmmmmmmm: " + widget.getControl());
         } catch (Exception exception) {
             exception.printStackTrace();
         }
