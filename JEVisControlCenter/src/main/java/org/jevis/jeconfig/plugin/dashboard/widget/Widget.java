@@ -627,16 +627,4 @@ public abstract class Widget extends Region {
 
         return null;
     }
-
-    public Interval getCurrentInterval(Interval interval) {
-        if (sampleHandler != null) {
-            sampleHandler.update(interval);
-            return new Interval(sampleHandler.getDuration().getStart(), sampleHandler.getDuration().getEnd());
-        } else {
-            return null;
-        }
-
-
-    }
-
 }

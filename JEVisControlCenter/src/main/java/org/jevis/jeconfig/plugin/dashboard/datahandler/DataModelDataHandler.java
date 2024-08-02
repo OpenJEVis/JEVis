@@ -436,6 +436,7 @@ public class DataModelDataHandler {
         });
 
         this.lastUpdate.setValue(new DateTime());
+
         notifyListeners(new SampleHandlerEvent(this, SampleHandlerEvent.TYPE.UPDATE));
     }
 
