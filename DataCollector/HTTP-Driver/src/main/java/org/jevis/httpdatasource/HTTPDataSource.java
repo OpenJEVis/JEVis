@@ -15,7 +15,6 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
-import org.jevis.commons.classes.JC;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSourceHelper;
 import org.jevis.commons.driver.ParameterHelper;
@@ -87,8 +86,9 @@ public class HTTPDataSource {
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
+
         ParameterHelper parameterHelper = new ParameterHelper(lastReadout, endDateTime);
-        path = parameterHelper.getNewPath(path, channel.getChannelObject().getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).getLatestSample());
+        path = parameterHelper.getNewPath(path, channel.getChannelObject());
 
         logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {}", channelID, serverURL, userName, password);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
