@@ -26,6 +26,8 @@ public class ChartModel {
     private final SimpleBooleanProperty showRowSums = new SimpleBooleanProperty(this, "showRowSums", false);
     private final SimpleObjectProperty<LocalTime> dayStart = new SimpleObjectProperty<>(this, "dayStart", null);
     private final SimpleObjectProperty<LocalTime> dayEnd = new SimpleObjectProperty<>(this, "dayEnd", null);
+    private final StringProperty xAxisTitle = new SimpleStringProperty(this, "xAxisTitle", null);
+    private final StringProperty yAxisTitle = new SimpleStringProperty(this, "yAxisTitle", null);
 
     private List<ChartData> chartData = new ArrayList<>();
 
@@ -215,5 +217,29 @@ public class ChartModel {
 
     public SimpleObjectProperty<LocalTime> dayEndProperty() {
         return dayEnd;
+    }
+
+    public String getxAxisTitle() {
+        return xAxisTitle.get();
+    }
+
+    public void setxAxisTitle(String title) {
+        this.xAxisTitle.set(title);
+    }
+
+    public StringProperty xAxisTitleProperty() {
+        return xAxisTitle;
+    }
+
+    public String getyAxisTitle() {
+        return yAxisTitle.get();
+    }
+
+    public void setyAxisTitle(String title) {
+        this.yAxisTitle.set(title);
+    }
+
+    public StringProperty yAxisTitleProperty() {
+        return yAxisTitle;
     }
 }
