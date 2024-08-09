@@ -5,10 +5,14 @@ import javafx.scene.control.Alert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +24,7 @@ import java.util.List;
 
 public class AlarmConfiguration {
     public static final String CLASS_NAME = "Alarm Configuration";
+    public final static String ALARM_CHECKED = "Alarm Checked";
     private static final Logger logger = LogManager.getLogger(AlarmConfiguration.class);
     private static final String TIME_STAMP = "Time Stamp";
     private static final String LOG = "Log";
@@ -30,7 +35,6 @@ public class AlarmConfiguration {
     private final String ALARM_PERIOD = "Alarm Period";
     private final String ALARM_OBJECTS = "Alarm Objects";
     private final String LOG_FILE = "Log File";
-    public final static String ALARM_CHECKED = "Alarm Checked";
     private final JEVisObject object;
     private final JEVisDataSource ds;
     private AlarmScope alarmScope = AlarmScope.NONE;
@@ -39,10 +43,19 @@ public class AlarmConfiguration {
     private JEVisAttribute timeStampAttribute;
     private JEVisAttribute logAttribute;
     private List<JEVisObject> alarmObjects;
+    private DateTimeZone dateTimeZone = DateTimeZone.UTC;
 
     public AlarmConfiguration(JEVisDataSource ds, JEVisObject jeVisObject) {
         this.ds = ds;
         this.object = jeVisObject;
+
+        try {
+            JEVisObject currentSiteObject = CommonMethods.getFirstParentalObjectOfClass(jeVisObject, JC.MonitoredObject.Building.name);
+            SampleHandler sampleHandler = new SampleHandler();
+            dateTimeZone = sampleHandler.getLastSample(currentSiteObject, JC.MonitoredObject.Building.a_Timezone, DateTimeZone.UTC);
+        } catch (Exception e) {
+            logger.error(e);
+        }
     }
 
     public Boolean isEnabled() {
@@ -272,5 +285,9 @@ public class AlarmConfiguration {
         }
 
         return alarmObjects;
+    }
+
+    public DateTimeZone getDateTimeZone() {
+        return dateTimeZone;
     }
 }

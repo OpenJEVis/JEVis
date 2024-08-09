@@ -298,7 +298,7 @@ public class AlarmPlugin implements Plugin {
         tableView.setItems(FXCollections.observableArrayList(data.subList(fromIndex, toIndex)));
 
         return tableView;
-    }    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
+    }    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
 
     private void checkForRunningTasks() throws InterruptedException {
         AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
@@ -323,16 +323,6 @@ public class AlarmPlugin implements Plugin {
             checkForRunningTasks();
         }
     }
-
-    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
 
     private void updateList() {
 
@@ -402,17 +392,6 @@ public class AlarmPlugin implements Plugin {
         JEConfig.getStatusBar().addTask(AlarmPlugin.class.getName(), task, taskImage, true);
     }
 
-
-    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList();
-            Platform.runLater(this::initToolBar);
-        }
-    };
-
     private void restartExecutor() {
         try {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -469,17 +448,16 @@ public class AlarmPlugin implements Plugin {
                         if (item == null || empty) {
                             setGraphic(null);
                             setText(null);
+                        } else if (getTableRow() != null && getTableRow().getItem() != null) {
+                            AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+                            setText(item.withZone(alarmRow.getAlarmConfiguration().getDateTimeZone()).toString(alarmRow.getFormatString()));
+                            if (!alarmRow.getAlarmConfiguration().isChecked()) {
+                                activeAlarms.put(alarmRow.getTimeStamp(), true);
+                            } else {
+                                activeAlarms.remove(alarmRow.getTimeStamp());
+                            }
                         } else {
                             setText(item.toString("yyyy-MM-dd HH:mm:ss"));
-
-                            if (getTableRow() != null && getTableRow().getItem() != null) {
-                                AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
-                                if (!alarmRow.getAlarmConfiguration().isChecked()) {
-                                    activeAlarms.put(alarmRow.getTimeStamp(), true);
-                                } else {
-                                    activeAlarms.remove(alarmRow.getTimeStamp());
-                                }
-                            }
                         }
                     }
                 };
@@ -958,7 +936,17 @@ public class AlarmPlugin implements Plugin {
         });
 
 
-    }
+    }    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+            Platform.runLater(this::initToolBar);
+        }
+    };
+
+
 
     private String getFullName(JEVisObject item) throws JEVisException {
         String name = "";
@@ -982,6 +970,16 @@ public class AlarmPlugin implements Plugin {
         }
         return name;
     }
+
+    private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+            Platform.runLater(this::initToolBar);
+        }
+    };
 
     private Object getAnalysisRequest(AlarmRow alarmRow, JEVisObject item) {
 
@@ -1240,7 +1238,6 @@ public class AlarmPlugin implements Plugin {
         return borderPane;
     }
 
-
     private synchronized boolean allJobsDone(List<Future<?>> futures) {
         boolean allDone = true;
         Iterator<Future<?>> itr = futures.iterator();
@@ -1277,7 +1274,6 @@ public class AlarmPlugin implements Plugin {
         }
         return list;
     }
-
 
     @Override
     public Region getIcon() {

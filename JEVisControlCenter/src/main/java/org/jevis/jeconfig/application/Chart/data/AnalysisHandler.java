@@ -135,6 +135,14 @@ public class AnalysisHandler {
             chartModelNode.put("showColumnSums", chartModel.isShowColumnSums());
             chartModelNode.put("showRowSums", chartModel.isShowRowSums());
 
+            if (chartModel.getxAxisTitle() != null) {
+                chartModelNode.put("xAxisTitle", chartModel.getxAxisTitle());
+            }
+
+            if (chartModel.getyAxisTitle() != null) {
+                chartModelNode.put("yAxisTitle", chartModel.getyAxisTitle());
+            }
+
             chartModelNode.set("chartData", chartDataList);
 
             chartModels.add(chartModelNode);
