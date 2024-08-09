@@ -18,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisUser;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -518,6 +519,26 @@ public class DashBoardToolbar extends ToolBar {
             newWidget.setVisible(dashboardControl.editableProperty.get());
             separatorEditMode.setVisible(dashboardControl.editableProperty.get());
 
+            boolean writeOk = false;
+            boolean deleteOk = false;
+            boolean createOk = false;
+
+            try {
+                JEVisUser currentUser = dashboardControl.getDataSource().getCurrentUser();
+                Long id = dashboardControl.getActiveDashboard().getDashboardObject().getID();
+                writeOk = currentUser.canWrite(id);
+                deleteOk = currentUser.canDelete(id);
+                createOk = currentUser.canCreate(id);
+
+                logger.debug("User {} can write: {} delete: {} create: {}", currentUser.getAccountName(), writeOk, deleteOk, createOk);
+            } catch (Exception e) {
+                logger.error(e);
+            }
+
+            save.setDisable(!writeOk);
+            unlockButton.setDisable(!writeOk);
+            settingsButton.setDisable(!writeOk);
+            deleteDashboard.setDisable(!deleteOk);
 
             updateDashboardList(dashboardControl.getAllDashboards(), dashboardSettings);
         });
