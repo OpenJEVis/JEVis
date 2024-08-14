@@ -41,27 +41,17 @@ public class SQLDataSource {
 
     private static final Logger logger = LogManager.getLogger(SQLDataSource.class);
     private final Connection dbConn;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private JEVisUserNew user;
-
     private LoginTable lTable;
     private ObjectTable oTable;
     private AttributeTable aTable;
     private SampleTable sTable;
     private RelationshipTable rTable;
-
     private List<JsonRelationship> allRelationships = Collections.synchronizedList(new LinkedList<>());
     private List<JsonObject> allObjects = Collections.synchronizedList(new LinkedList<>());
     private List<JsonObject> allDeletedObjects = Collections.synchronizedList(new LinkedList<>());
     private UserRightManagerForWS um;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public enum LOG_EVENT {
-        USER_LOGIN,
-        DELETE_OBJECT, MARK_AS_DELETE_OBJECT, DELETE_SAMPLE, DELETE_RELATIONSHIP,
-        CREATE_OBJECT, CREATE_SAMPLE, CREATE_RELATIONSHIP,
-        UPDATE_OBJECT, UPDATE_ATTRIBUTE
-
-    }
 
     public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
 
@@ -100,7 +90,6 @@ public class SQLDataSource {
         return this.dbConn;
     }
 
-
     public void logUserAction(LOG_EVENT event, String msg) {
         if (getCurrentUser().isSysAdmin()) {
             /** we do not log SysAdmin because of the huge amount of event for the services. The Logging is for user events. **/
@@ -111,12 +100,11 @@ public class SQLDataSource {
             JsonSample newSample = new JsonSample();
             newSample.setTs(JsonFactory.sampleDTF.print(DateTime.now()));
             newSample.setValue(String.format("%s|%s|%s", user.getAccountName(), event, msg));
-            getSampleTable().insertSamples(getCurrentUser().getUserID(), "Activities", JEVisConstants.PrimitiveType.STRING, Arrays.asList(newSample));
+            getSampleTable().insertSamples(getCurrentUser().getUserID(), "Activities", JEVisConstants.PrimitiveType.STRING, Collections.singletonList(newSample));
         } catch (Exception ex) {
             logger.error("Error while logging Event: {}:{}:{}", event, msg, ex);
         }
     }
-
 
     /**
      * Clean up User Event for "General Data Protection Regulations"
@@ -126,7 +114,6 @@ public class SQLDataSource {
         logger.error("Starting user log cleanup for Data Protection");
         getSampleTable().deleteOldLogging();
     }
-
 
     public List<JsonClassRelationship> getClassRelationships() {
         List<JsonJEVisClass> list = new ArrayList<>(Config.getClassCache().values());
@@ -189,7 +176,6 @@ public class SQLDataSource {
         return new ArrayList<>(Config.getClassCache().values());
     }
 
-
     public UserRightManagerForWS getUserManager() {
         return this.um;
     }
@@ -229,7 +215,6 @@ public class SQLDataSource {
         return this.lTable;
     }
 
-
     public SampleTable getSampleTable() {
         return this.sTable;
     }
@@ -237,7 +222,6 @@ public class SQLDataSource {
     public AttributeTable getAttributeTable() {
         return this.aTable;
     }
-
 
     public List<JsonObject> filterObjectByClass(List<JsonObject> objects, String jClass, boolean inherit) {
         List<JsonObject> filtered = new ArrayList<>();
@@ -312,7 +296,6 @@ public class SQLDataSource {
 
 
     }
-
 
     public JEVisRelationship buildRelationship(Long fromObject, Long toObject, int type) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -448,7 +431,6 @@ public class SQLDataSource {
         return this.allDeletedObjects;
     }
 
-
     public List<JsonRelationship> setRelationships(List<JsonRelationship> rels) {
         List<JsonRelationship> newRels = new ArrayList<>();
         for (JsonRelationship rel : rels) {
@@ -471,7 +453,7 @@ public class SQLDataSource {
 
     public JEVisUserNew getCurrentUser() {
         if (this.user == null) {
-            return new JEVisUserNew(this, "Unkown", -1l, false, false);
+            return new JEVisUserNew(this, "Unkown", -1L, false, false);
         }
         return this.user;
     }
@@ -526,7 +508,6 @@ public class SQLDataSource {
         return getRelationshipTable().getGroupOwnerObject(object);
 
     }
-
 
     public List<JsonRelationship> getRelationships(long object, int type) {
         if (!this.allRelationships.isEmpty()) {
@@ -642,18 +623,6 @@ public class SQLDataSource {
         return new ArrayList<>();
     }
 
-    /*
-    public JsonAttribute getAttribute(long objectID, String name) {
-        for (JsonAttribute att : getAttributes(objectID)) {
-            if (att.getType().equals(name)) {
-                return att;
-            }
-        }
-        return null;
-    }
-    */
-
-
     public JsonAttribute getAttribute(long objectID, String name) {
         try {
             JsonObject ob = getObject(objectID);
@@ -700,6 +669,17 @@ public class SQLDataSource {
             return null;
         }
     }
+
+    /*
+    public JsonAttribute getAttribute(long objectID, String name) {
+        for (JsonAttribute att : getAttributes(objectID)) {
+            if (att.getType().equals(name)) {
+                return att;
+            }
+        }
+        return null;
+    }
+    */
 
     public List<JsonAttribute> getAttributes(long objectID) {
         try {
@@ -811,7 +791,6 @@ public class SQLDataSource {
         buildRelationship(original, newParentID, JEVisConstants.ObjectRelationship.PARENT);
     }
 
-
     private void addRelationshipsRecursion(List<JsonRelationship> rels, long oID, long oldID) throws JEVisException {
         for (JsonRelationship rel : getRelationships(oID)) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && rel.getTo() == oID) {
@@ -857,7 +836,6 @@ public class SQLDataSource {
         return getRelationshipTable().delete(fromObject, toObject, type);
     }
 
-
     /**
      * Let us try to help the garbage collector to clean up
      */
@@ -878,11 +856,19 @@ public class SQLDataSource {
         this.allObjects = null;
     }
 
-    public enum PRELOAD {
-        ALL_REL, ALL_CLASSES, ALL_OBJECT
-    }
-
     public ObjectMapper getObjectMapper() {
         return objectMapper;
+    }
+
+    public enum LOG_EVENT {
+        USER_LOGIN,
+        DELETE_OBJECT, MARK_AS_DELETE_OBJECT, DELETE_SAMPLE, DELETE_RELATIONSHIP,
+        CREATE_OBJECT, CREATE_SAMPLE, CREATE_RELATIONSHIP,
+        UPDATE_OBJECT, UPDATE_ATTRIBUTE
+
+    }
+
+    public enum PRELOAD {
+        ALL_REL, ALL_CLASSES, ALL_OBJECT
     }
 }

@@ -36,9 +36,7 @@ public class SideConfigPanel extends GridPane {
 
     private static final Logger logger = LogManager.getLogger(SideConfigPanel.class);
     private final DashboardControl control;
-    private boolean isUpdating = false;
     private final double iconSize = 16;
-
     private final JFXComboBox<Integer> layerComboBox = new JFXComboBox<>();
     private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
     private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
@@ -67,24 +65,25 @@ public class SideConfigPanel extends GridPane {
     private final JFXTextField heightText = new JFXTextField();
     private final JFXTextField xPosText = new JFXTextField();
     private final JFXTextField yPosText = new JFXTextField();
-    //-----------
-    //ObservableList<String> dataItems = FXCollections.observableArrayList("One", "Two", "Three", "Four", "Five", "Six","Seven", "Eight", "Nine", "Ten");
-    JFXComboBox<JEVisObject> objectSelectionBox = new JFXComboBox<>();
     private final JFXButton leftButton = new JFXButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
     private final JFXButton rightButton = new JFXButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
     private final JFXButton downButton = new JFXButton("", JEConfig.getImage("arrow_down.png", iconSize, iconSize));
     private final JFXButton upButton = new JFXButton("", JEConfig.getImage("arrow_up.png", iconSize, iconSize));
     private final JFXButton switchSide = new JFXButton("", JEConfig.getImage("Arrow_BothDirections.png", 20, 20));
     private final JFXButton equalizeDataModelButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
-    ListView<JEVisObject> selectedObjectsListView = new ListView();
     private final JFXComboBox<Pos> alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+    private final JFXTextField titleText = new JFXTextField();
+    private final TextField pixels = new TextField("25");
+    private final GridPane dataPointConfigPane = new GridPane();
+    //-----------
+    //ObservableList<String> dataItems = FXCollections.observableArrayList("One", "Two", "Three", "Four", "Five", "Six","Seven", "Eight", "Nine", "Ten");
+    JFXComboBox<JEVisObject> objectSelectionBox = new JFXComboBox<>();
+    ListView<JEVisObject> selectedObjectsListView = new ListView();
     ObservableList<JEVisObject> dataItems = FXCollections.observableArrayList();
     FilteredList<JEVisObject> filteredItems = new FilteredList<>(dataItems, p -> true);
     FlowPane dataEditor = new FlowPane();
-    private final JFXTextField titleText = new JFXTextField();
-    private final TextField pixels = new TextField("25");
+    private boolean isUpdating = false;
     private Widget selectedWidget = null;
-    private final GridPane dataPointConfigPane = new GridPane();
 
 
     public SideConfigPanel(DashboardControl control) {
@@ -165,7 +164,7 @@ public class SideConfigPanel extends GridPane {
                         this.control.getDataSource(), this.control,
                         widget.getConfig(), widget.getId());
 
-                sampleHandler.getDataModel().forEach(chartDataRow -> {
+                sampleHandler.getChartDataRows().forEach(chartDataRow -> {
 
                     Platform.runLater(() -> {
                         try {
@@ -687,29 +686,16 @@ public class SideConfigPanel extends GridPane {
                         this.selectedWidget.getId());
 
 
-                sampleHandler.getDataModel().forEach(chartDataRow -> {
+                sampleHandler.getChartDataRows().forEach(chartDataRow -> {
 
                     if (chartDataRow.getObject().equals(newValue)) {
-                        // System.out.println("Auswahl gefunde");
                         Platform.runLater(() -> {
                             TextField color = new TextField(chartDataRow.getUnit().toString());
                             dataPointConfigPane.add(color, 0, 0);
                         });
 
                     } else {
-                        //System.out.println("nö");
                     }
-
-
-                    /*
-                    Platform.runLater(() -> {
-                        try {
-                            selectedObjectsListView.getItems().add(chartDataRow.getObject());
-                        } catch (Exception ex) {
-
-                        }
-                    });
-*/
                 });
 
             } catch (Exception ex) {

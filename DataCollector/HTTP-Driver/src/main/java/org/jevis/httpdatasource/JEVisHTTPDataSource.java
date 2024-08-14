@@ -88,7 +88,7 @@ public class JEVisHTTPDataSource implements DataSource {
                         }
                     }
                 } else {
-                    Channel httpChannel = httpChannels.stream().filter(c -> c.getObject().equals(channel)).findFirst().orElse(null);
+                    Channel httpChannel = httpChannels.stream().filter(c -> c.getChannelObject().equals(channel)).findFirst().orElse(null);
                     if (httpChannel != null && httpChannel.getNextReadout() != null) {
                         JEVisImporterAdapter.setLastReadout(httpChannel.getChannelObject(), httpChannel.getNextReadout());
                     }
@@ -209,7 +209,6 @@ public class JEVisHTTPDataSource implements DataSource {
             JEVisType readoutType = channelClass.getType(HTTPChannelTypes.LAST_READOUT);
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
 
-            httpChannel.setObject(channel);
             httpChannel.setLastReadout(lastReadout);
             httpChannel.setPath(path);
             httpChannel.setChannelObject(channel);

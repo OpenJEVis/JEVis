@@ -116,21 +116,31 @@ public class BuildingObject extends Template {
                 "Administrator Rolle", "Роль адміністратора", "Роль администратора", "บทบาทผู้ดูแลระบบ", "دور المسؤول");
 
         JEVisObject buildingGroup = null;
+        JEVisObject buildingGroupX = null;
         Locale locale = I18n.getInstance().getLocale();
 
         if (locale.equals(GERMANY)) {
             buildingGroup = buildTranslatedObject(groupDirectory, "", group, name, "", "", "", "");
+            buildingGroupX = buildTranslatedObject(groupDirectory, "", group, name + " X", "", "", "", "");
         } else if (locale.getLanguage().equals("ru")) {
             buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", "", name, "", "");
+            buildingGroupX = buildTranslatedObject(groupDirectory, "", group, "", "", name + " X", "", "");
         } else if (locale.getLanguage().equals("th")) {
             buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", "", "", name, "");
+            buildingGroupX = buildTranslatedObject(groupDirectory, "", group, "", "", "", name + " X", "");
         } else if (locale.getLanguage().equals("uk")) {
             buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", name, "", "", "");
+            buildingGroupX = buildTranslatedObject(groupDirectory, "", group, "", name + " X", "", "", "");
         } else if (locale.getLanguage().equals("ar")) {
             buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", "", "", "", name);
+            buildingGroupX = buildTranslatedObject(groupDirectory, "", group, "", "", "", "", name + " X");
         } else {
             buildingGroup = buildTranslatedObject(groupDirectory, name, group, "", "", "", "", "");
+            buildingGroupX = buildTranslatedObject(groupDirectory, name + " X", group, "", "", "", "", "");
         }
+
+        buildOwnerRelationship(ds, buildingObject, buildingGroup, false);
+        buildOwnerRelationship(ds, buildingObject, buildingGroupX, true);
 
         JEVisObject groupDirectoryWithEntryPoints = buildGroupsWithEntryPoints(ds, groupDirectoryClass, group, groupDirectory, buildingObject, jscUser, name);
         JEVisObject groupDirectoryWithoutEntryPoints = null;

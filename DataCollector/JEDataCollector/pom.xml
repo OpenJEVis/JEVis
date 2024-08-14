@@ -137,6 +137,11 @@
             <artifactId>mssql-jdbc</artifactId>
             <version>8.2.2.jre8</version>
         </dependency>
+        <dependency>
+            <groupId>com.intelligt.modbus</groupId>
+            <artifactId>jlibmodbus</artifactId>
+            <version>1.2.9.11</version>
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>org.jevis.jeconfig.application</groupId>-->
         <!--<artifactId>jeapplication</artifactId>-->

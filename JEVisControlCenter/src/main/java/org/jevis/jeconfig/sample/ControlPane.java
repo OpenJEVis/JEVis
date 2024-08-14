@@ -20,9 +20,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationPeriodBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
@@ -42,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ControlPane extends GridPane {
 
     private static final Logger logger = LogManager.getLogger(ControlPane.class);
-    private final JFXButton ok = new JFXButton(I18n.getInstance().getString("csv.ok"));
+    private final JFXButton ok = new JFXButton(I18n.getInstance().getString("newobject.ok"));
     private final JFXDatePicker startDate = new JFXDatePicker();
     private final JFXDatePicker endDate = new JFXDatePicker();
     private final JFXButton cancel = new JFXButton(I18n.getInstance().getString("attribute.editor.cancel"));
@@ -66,14 +69,14 @@ public class ControlPane extends GridPane {
     private final Region spacerRow = new Region();
     private final Region spacerRow2 = new Region();
     private final TimeZoneBox timeZoneBox = new TimeZoneBox();
+    private final AtomicBoolean updating = new AtomicBoolean(false);
+    private final Separator separator = new Separator(Orientation.HORIZONTAL);
     private DateTimeZone dateTimeZone = DateTimeZone.getDefault();
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(dateTimeZone);
     private JEVisAttribute attribute;
     private AggregationPeriod period = AggregationPeriod.NONE;
     private EventHandler<ActionEvent> okEvent;
     private EventHandler<ActionEvent> cancelEvent;
-    private final AtomicBoolean updating = new AtomicBoolean(false);
-    private final Separator separator = new Separator(Orientation.HORIZONTAL);
     private DateTime from = null;
     private DateTime until = null;
     private EventHandler<ActionEvent> timeChangeEvent = new EventHandler<ActionEvent>() {
@@ -157,6 +160,14 @@ public class ControlPane extends GridPane {
         processorField.setMaxWidth(Double.MAX_VALUE);
         aggregationField.setMaxWidth(Double.MAX_VALUE);
         timeZoneBox.setMaxWidth(Double.MAX_VALUE);
+        try {
+            JEVisObject building = CommonMethods.getFirstParentalObjectOfClass(attribute.getObject(), "Building");
+            SampleHandler sampleHandler = new SampleHandler();
+            DateTimeZone lastSample = sampleHandler.getLastSample(building, JC.MonitoredObject.Building.a_Timezone, DateTimeZone.getDefault());
+            timeZoneBox.getSelectionModel().select(lastSample);
+        } catch (Exception e) {
+            logger.error("Error while getting building object for timezone", e);
+        }
 
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setHgrow(ok, Priority.NEVER);
@@ -355,15 +366,6 @@ public class ControlPane extends GridPane {
         return from;
     }
 
-    public DateTime getUntilDate() {
-        return until;
-    }
-
-//    private DateTime toDateTime(LocalDate date){
-//        return
-//        return LocalDate.of(date.getYear(), date.getMonth(), date.getDayOfMonth());
-//    }
-
     public void setFromDate(DateTime from) {
 
 
@@ -377,6 +379,15 @@ public class ControlPane extends GridPane {
 //        dateSlider.setLowValue(from.getMillis());
 
         updating.set(false);
+    }
+
+//    private DateTime toDateTime(LocalDate date){
+//        return
+//        return LocalDate.of(date.getYear(), date.getMonth(), date.getDayOfMonth());
+//    }
+
+    public DateTime getUntilDate() {
+        return until;
     }
 
     public void setUntilDate(DateTime until) {

@@ -43,6 +43,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.dashboard.widget.TimeFrameWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.ValueWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.ScreenSize;
@@ -244,15 +245,15 @@ public class DashboardControl {
     }
 
     public Widget createNewWidget(WidgetPojo widgetPojo) {
-        System.out.println("Contol.createnewWidgets: " + widgetPojo);
+        logger.debug("Contol.createnewWidgets: " + widgetPojo);
 
-        System.out.println("---- newWidgetS.getSe...");
+        logger.debug("---- newWidgetS.getSe...");
         try {
             Class<?> clazz = Class.forName("org.jevis.jeconfig.plugin.dashboard.widget.TitleWidget");
             Constructor<?> ctor = clazz.getConstructor(DashboardControl.class);
             Object object = ctor.newInstance(this);
             Widget widget = (Widget) object;
-            System.out.println("hmmmmmmmm: " + widget.getControl());
+            logger.debug("hmmmmmmmm: " + widget.getControl());
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -734,9 +735,12 @@ public class DashboardControl {
                 try {
                     List<Widget> objects = new ArrayList<>();
                     List<ValueWidget> valueWidgets = new ArrayList<>();
+                    List<TimeFrameWidget> timeFrameWidgets = new ArrayList<>();
 
                     for (Widget widget : DashboardControl.this.widgetList) {
-                        if (widget instanceof ValueWidget && !valueWidgets.contains((ValueWidget) widget)) {
+                        if (widget instanceof TimeFrameWidget) {
+                            timeFrameWidgets.add((TimeFrameWidget) widget);
+                        } else if (widget instanceof ValueWidget && !valueWidgets.contains((ValueWidget) widget)) {
                             valueWidgets.add((ValueWidget) widget);
                         } else if (!widget.isStatic()) {
                             if (objects.contains(widget)) {
@@ -758,6 +762,11 @@ public class DashboardControl {
 
                     for (ValueWidget valueWidget : valueWidgets) {
                         Task<Object> updateTask = addWidgetUpdateTask(valueWidget, activeInterval);
+                        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
+                    }
+
+                    for (TimeFrameWidget timeFrameWidget : timeFrameWidgets) {
+                        Task<Object> updateTask = addWidgetUpdateTask(timeFrameWidget, activeInterval);
                         JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
                     }
 

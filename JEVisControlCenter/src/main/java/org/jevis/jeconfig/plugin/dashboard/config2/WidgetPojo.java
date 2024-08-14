@@ -183,13 +183,13 @@ public class WidgetPojo {
             try {
                 this.layer = jsonNode.get(LAYER).asInt(1);
             } catch (Exception ex) {
-                logger.debug("Could not parse position: {}", BORDER_SIZE, ex);
+                logger.debug("Could not parse position: {}", LAYER, ex);
             }
 
             try {
                 this.fixedTimeframe = jsonNode.get(FIXED_TIMEFRAME).asBoolean(false);
             } catch (Exception ex) {
-                logger.debug("Could not parse fixed timeframe: {}", BORDER_SIZE, ex);
+                logger.debug("Could not parse fixed timeframe: {}", FIXED_TIMEFRAME, ex);
             }
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {

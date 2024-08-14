@@ -41,11 +41,6 @@
       "start": "CSV Parser",
       "end": "VIDA350 Channel",
       "type": 3
-    },
-    {
-      "start": "XLS Parser",
-      "end": "CSV Parser",
-      "type": 0
     }
   ],
   "types": [

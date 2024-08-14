@@ -1,0 +1,104 @@
+{
+  "name": "XLSX Parser",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "XLSX Data Point Directory",
+      "end": "XLSX Parser",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "EMail Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "FTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "HTTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "sFTP Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "SOAP Channel",
+      "type": 3
+    },
+    {
+      "start": "XLSX Parser",
+      "end": "VIDA350 Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Datapoint Alignment",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XLSX Parser"
+    },
+    {
+      "name": "Datapoint Index",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XLSX Parser"
+    },
+    {
+      "name": "Date Index",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XLSX Parser"
+    },
+    {
+      "name": "Date Format",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XLSX Parser"
+    },
+    {
+      "name": "Number Of Headlines",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XLSX Parser"
+    },
+    {
+      "name": "Time Format",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XLSX Parser"
+    },
+    {
+      "name": "Time Index",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "XLSX Parser"
+    }
+  ]
+}

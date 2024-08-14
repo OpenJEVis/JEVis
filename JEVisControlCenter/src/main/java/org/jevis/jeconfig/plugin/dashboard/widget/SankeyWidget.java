@@ -96,8 +96,8 @@ public class SankeyWidget extends Widget implements DataModelWidget {
         showProgressIndicator(true);
         showAlertOverview(false, "");
 
-        this.sampleHandler.setInterval(interval);
-        this.sampleHandler.update();
+        this.sampleHandler.setAutoAggregation(true);
+        this.sampleHandler.update(interval);
 
         updateChart();
         try {
@@ -197,7 +197,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
             for (SankeyDataRow sankeyDataRow : sankeyPojo.getNetGraphDataRows()) {
                 JEVisPlotItem jeVisPlotItem = getFromJEvisObject(sankeyDataRow.getJeVisObject());
-                Optional<ChartDataRow> dataRowOptional = this.sampleHandler.getDataModel().stream().filter(chartDataRow -> {
+                Optional<ChartDataRow> dataRowOptional = this.sampleHandler.getChartDataRows().stream().filter(chartDataRow -> {
                     try {
                         return chartDataRow.getObject().equals(sankeyDataRow.getJeVisObject().getParent());
                     } catch (JEVisException e) {
@@ -263,13 +263,17 @@ public class SankeyWidget extends Widget implements DataModelWidget {
     private JEVisValueUnitPair getJevisValueUnitPair(SankeyDataRow sankeyDataRow) {
         JEVisValueUnitPair jeVisValueUnitPair = new JEVisValueUnitPair(0, null);
 
-        for (ChartDataRow dataModel : this.sampleHandler.getDataModel()) {
+        for (ChartDataRow dataModel : this.sampleHandler.getChartDataRows()) {
             jeVisValueUnitPair.setJeVisUnit(dataModel.getUnit());
             AtomicDouble total = new AtomicDouble(0);
             if (dataModel.getId() == sankeyDataRow.getJeVisObject().getID().doubleValue()) {
                 List<JEVisSample> results = dataModel.getSamples();
                 if (!results.isEmpty()) {
-                    total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
+                    try {
+                        total.set(dataModel.getSamples().get(0).getValueAsDouble());
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
                     jeVisValueUnitPair.setValue(total.get());
                 }
             }
@@ -474,7 +478,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
 
 
     private boolean isSelected(JEVisPlotItem parent, JEVisPlotItem item) {
-        System.out.println("isSelected: " + parent + " item: " + item);
+        logger.debug("isSelected: " + parent + " item: " + item);
         for (Map.Entry<PlotItem, Double> entry : parent.getOutgoing().entrySet()) {
             JEVisPlotItem plotItem = (JEVisPlotItem) entry.getKey();
             if (plotItem.getObject().getID().equals(item.getObject().getID())) {

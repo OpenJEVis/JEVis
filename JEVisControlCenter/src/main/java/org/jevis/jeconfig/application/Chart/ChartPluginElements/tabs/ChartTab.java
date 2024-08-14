@@ -3,6 +3,7 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements.tabs;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -13,6 +14,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -33,6 +35,8 @@ import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,6 +54,10 @@ public class ChartTab extends Tab {
     private final Label labelFixYAxisToZero = new Label(I18n.getInstance().getString("graph.tabs.tab.fixyaxistozero"));
     private final Label labelShowColumnSums = new Label(I18n.getInstance().getString("graph.tabs.tab.showcolumnsums"));
     private final Label labelShowRowSums = new Label(I18n.getInstance().getString("graph.tabs.tab.showrowsums"));
+    private final Label labelDayStart = new Label(I18n.getInstance().getString("graph.tabs.tab.daystart"));
+    private final Label labelDayEnd = new Label(I18n.getInstance().getString("graph.tabs.tab.dayend"));
+    private final Label labelxAxisTitle = new Label(I18n.getInstance().getString("graph.tabs.tab.xaxistitle"));
+    private final Label labelyAxisTitle = new Label(I18n.getInstance().getString("graph.tabs.tab.yaxistitle"));
     private final JFXCheckBox fixYAxisToZero = new JFXCheckBox();
     private final Table chartTable;
     private final GridPane chartSettings = new GridPane();
@@ -58,6 +66,8 @@ public class ChartTab extends Tab {
     private final NumberSpinner groupingInterval;
     private final JFXCheckBox showColumnSums = new JFXCheckBox();
     private final JFXCheckBox showRowSums = new JFXCheckBox();
+    private final JFXTimePicker dayStartPicker = new JFXTimePicker();
+    private final JFXTimePicker dayEndPicker = new JFXTimePicker();
     private final List<JEVisClass> dataProcessorClasses = new ArrayList<>();
     private final List<JEVisClass> allDataClasses = new ArrayList<>();
     private final List<Color> usedColors = new ArrayList<>();
@@ -65,12 +75,15 @@ public class ChartTab extends Tab {
     private final ToggleButton newButton = new ToggleButton("", JEConfig.getSVGImage(Icon.PLUS, this.iconSize, this.iconSize));
     private final ToggleButton copyButton = new ToggleButton("", JEConfig.getSVGImage(Icon.COPY, this.iconSize, this.iconSize));
     private final ToggleButton deleteButton = new ToggleButton("", JEConfig.getSVGImage(Icon.DELETE, this.iconSize, this.iconSize));
+
     private final Label orientationLabel = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.orientation"));
     private final OrientationBox orientationBox;
     private final Label labelColorMapping = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.colormapping"));
     private final ColorMappingBox colorMappingBox;
     private final Label chartNameLabel = new Label(I18n.getInstance().getString("graph.title"));
     private final JFXTextField chartNameSecondTextField = new JFXTextField();
+    private final JFXTextField xAxisTitleTextField = new JFXTextField();
+    private final JFXTextField yAxisTitleTextField = new JFXTextField();
     private boolean showChartSettings = true;
     private ChartModel chartModel;
     private final ChangeListener<BigDecimal> groupingIntervalChangeListener = (observable, oldValue, newValue) -> {
@@ -147,6 +160,12 @@ public class ChartTab extends Tab {
             setGraphic(nameLabel);
         });
 
+        xAxisTitleTextField.setText(chartModel.getxAxisTitle());
+        xAxisTitleTextField.textProperty().bindBidirectional(chartModel.xAxisTitleProperty());
+
+        yAxisTitleTextField.setText(chartModel.getyAxisTitle());
+        yAxisTitleTextField.textProperty().bindBidirectional(chartModel.yAxisTitleProperty());
+
         chartNameTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
                 chartModel.setChartName(chartNameTextField.getText());
@@ -175,6 +194,24 @@ public class ChartTab extends Tab {
         groupingInterval = new NumberSpinner(new BigDecimal(gi), new BigDecimal("0.1"));
 
         colorMappingBox = new ColorMappingBox(chartModel);
+
+        if (chartModel.getDayStart() != null) {
+            dayStartPicker.setValue(LocalTime.of(chartModel.getDayStart().getHourOfDay(), chartModel.getDayStart().getMinuteOfHour(), chartModel.getDayStart().getSecondOfMinute(), chartModel.getDayStart().getMillisOfSecond() * 1000000));
+        }
+        dayStartPicker.valueProperty().addListener((observableValue, localTime, t1) -> chartModel.setDayStart(new org.joda.time.LocalTime(t1.getHour(), t1.getMinute(), t1.getSecond(), t1.getNano() / 1000000)));
+        dayStartPicker.setPrefWidth(100d);
+        dayStartPicker.setMaxWidth(100d);
+        dayStartPicker.set24HourView(true);
+        dayStartPicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+        if (chartModel.getDayStart() != null) {
+            dayEndPicker.setValue(LocalTime.of(chartModel.getDayEnd().getHourOfDay(), chartModel.getDayEnd().getMinuteOfHour(), chartModel.getDayEnd().getSecondOfMinute(), chartModel.getDayEnd().getMillisOfSecond() * 1000000));
+        }
+        dayEndPicker.valueProperty().addListener((observableValue, localTime, t1) -> chartModel.setDayEnd(new org.joda.time.LocalTime(t1.getHour(), t1.getMinute(), t1.getSecond(), t1.getNano() / 1000000)));
+        dayEndPicker.setPrefWidth(100d);
+        dayEndPicker.setMaxWidth(100d);
+        dayEndPicker.set24HourView(true);
+        dayEndPicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         orientationBox = new OrientationBox(chartModel);
 
@@ -303,9 +340,25 @@ public class ChartTab extends Tab {
         chartSettings.add(maxFractionDigits, 1, row);
         row++;
 
+        chartSettings.add(labelxAxisTitle, 0, row);
+        chartSettings.add(xAxisTitleTextField, 1, row);
+        row++;
+
+        chartSettings.add(labelyAxisTitle, 0, row);
+        chartSettings.add(yAxisTitleTextField, 1, row);
+        row++;
+
         if (chartModel.getChartType() == ChartType.HEAT_MAP) {
             chartSettings.add(labelColorMapping, 0, row);
             chartSettings.add(colorMappingBox, 1, row);
+            row++;
+
+            chartSettings.add(labelDayStart, 0, row);
+            chartSettings.add(dayStartPicker, 1, row);
+            row++;
+
+            chartSettings.add(labelDayEnd, 0, row);
+            chartSettings.add(dayEndPicker, 1, row);
             row++;
         }
 

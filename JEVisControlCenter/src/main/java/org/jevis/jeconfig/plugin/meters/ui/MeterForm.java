@@ -23,16 +23,19 @@ public class MeterForm extends Dialog {
     List<Tab> tabs;
 
     private final TabPane tabPane = new TabPane();
+    private final ScrollPane scrollPane = new ScrollPane(tabPane);
 
     public MeterForm(MeterData meterData, JEVisDataSource ds, boolean switchMeter) {
         this.meterData = meterData;
         this.ds = ds;
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
 
         Stage stage = (Stage) this.getDialogPane().getScene().getWindow();
         TopMenu.applyActiveTheme(stage.getScene());
         stage.setAlwaysOnTop(false);
+        stage.setResizable(true);
 
         tabs = new ArrayList<>();
         try {
@@ -52,7 +55,7 @@ public class MeterForm extends Dialog {
         tabPane.getTabs().addAll(tabs);
         setHeaderText(meterData.getName());
 
-        getDialogPane().setContent(tabPane);
+        getDialogPane().setContent(scrollPane);
 
 
     }

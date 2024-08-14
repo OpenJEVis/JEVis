@@ -43,11 +43,11 @@ public class BubbleChart extends XYChart {
     private final Map<Double, Double> modifiedY = new HashMap<>();
     private final Map<Double, List<Boolean>> visibleSamples = new HashMap<>();
     private final TreeMap<Double, Double> sampleTreeMap = new TreeMap<>();
-    private TableEntry tableEntry;
     private final Double nearest = 0d;
+    private final List<Bubble> bubbles = new ArrayList<>();
+    private TableEntry tableEntry;
     private String xUnit;
     private String yUnit;
-    private final List<Bubble> bubbles = new ArrayList<>();
 
     public BubbleChart(JEVisDataSource ds, ChartModel chartModel) {
         super(ds, chartModel);
@@ -92,23 +92,19 @@ public class BubbleChart extends XYChart {
             }
         }
 
-        chartDataRows.clear();
-        for (ChartData chartData : chartModel.getChartData()) {
-            ChartDataRow chartDataRow = new ChartDataRow(ds, chartData);
-            chartDataRows.add(chartDataRow);
+        if (chartDataRows.isEmpty()) {
+            chartModel.getChartData().forEach(chartData -> chartDataRows.add(new ChartDataRow(ds, chartData)));
         }
 
         if (!chartDataRows.isEmpty()) {
             workDays = new WorkDays(chartDataRows.get(0).getObject());
             workDays.setEnabled(toolBarSettings.isCustomWorkday());
-            chartDataRows.forEach(chartDataRow -> {
-                chartDataRow.setAggregationPeriod(dataSettings.getAggregationPeriod());
-                chartDataRow.setManipulationMode(dataSettings.getManipulationMode());
-            });
         }
 
         hexColors.clear();
-        chart.getDatasets().clear();
+        if (chart != null) {
+            chart.getDatasets().clear();
+        }
         tableData.clear();
 
         changedBoth = new Boolean[]{false, false};
@@ -157,11 +153,11 @@ public class BubbleChart extends XYChart {
 
         Map<Double, List<DateTime>> yDates = new HashMap<>();
         AtomicReference<Double> startXAxis = new AtomicReference<>(0d);
-        if (minX.get() < 0) {
+        if (minX.get() != Double.MAX_VALUE && minX.get() < 0) {
             while (startXAxis.get() > minX.get()) {
                 startXAxis.set(startXAxis.get() - groupingInterval);
             }
-        } else {
+        } else if (minX.get() != Double.MAX_VALUE) {
             while (startXAxis.get() + groupingInterval < minX.get()) {
                 startXAxis.set(startXAxis.get() + groupingInterval);
             }

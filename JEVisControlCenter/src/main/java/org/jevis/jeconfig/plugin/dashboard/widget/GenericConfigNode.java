@@ -327,6 +327,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
 
                 if (timeFrameBox.isOffValue()) {
                     dataModelDataHandler.setForcedInterval(false);
+                    dataModelDataHandler.setForcedPeriod("");
                 } else {
                     dataModelDataHandler.setForcedPeriod(timeFrame);
                 }

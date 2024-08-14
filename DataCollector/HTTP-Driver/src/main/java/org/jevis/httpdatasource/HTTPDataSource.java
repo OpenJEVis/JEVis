@@ -15,7 +15,6 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
-import org.jevis.commons.classes.JC;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSourceHelper;
 import org.jevis.commons.driver.ParameterHelper;
@@ -74,7 +73,7 @@ public class HTTPDataSource {
      * @return
      */
     public List<InputStream> sendSampleRequest(Channel channel) throws Exception {
-        logger.info("sendSampleRequest to http channel: {}", channel);
+        logger.info("sendSampleRequest to http channel: {}:{}", channel.getChannelObject().getName(), channel.getChannelObject().getID());
 
         String channelID = channel.getChannelObject().getID().toString();
         List<InputStream> answer = new ArrayList<InputStream>();
@@ -87,8 +86,9 @@ public class HTTPDataSource {
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
+
         ParameterHelper parameterHelper = new ParameterHelper(lastReadout, endDateTime);
-        path = parameterHelper.getNewPath(path, channel.getChannelObject().getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).getLatestSample());
+        path = parameterHelper.getNewPath(path, channel.getChannelObject());
 
         logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {}", channelID, serverURL, userName, password);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
@@ -117,7 +117,7 @@ public class HTTPDataSource {
             serverURL += "/";
 
 
-            /** Fallback if the URL does contain the port and the Port attribute has non **/
+            /** Fallback if the URL does contain the port and the Port attribute has none **/
             URL url = new URL(serverURL);
             if (port == null && url.getPort() > -1) {
                 logger.info("[{}] Port not set in Attribute, using port from URL: {}", channelID, port);
@@ -156,7 +156,7 @@ public class HTTPDataSource {
 
         String getRequest = "";
         if (pathFollower.isActive()) {
-            logger.debug("[{}] Using Dynamic Link", channelID, channelID);
+            logger.debug("[{}] Using Dynamic Link", channelID);
             pathFollower.setConnection(httpClient, requestConfig);
             getRequest = pathFollower.startFetching(serverURL, contentURL);
             logger.debug("[{}] Final target url after following links: {}", channelID, getRequest);
