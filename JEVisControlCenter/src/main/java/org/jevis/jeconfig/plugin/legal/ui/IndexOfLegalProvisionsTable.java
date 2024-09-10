@@ -5,7 +5,6 @@ import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -14,7 +13,9 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.scene.control.*;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
@@ -31,7 +32,6 @@ import org.jevis.jeconfig.plugin.dashboard.config2.SankeyDataRow;
 import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
 import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 import org.jevis.jeconfig.plugin.legal.data.TableFilter;
-import org.jevis.jeconfig.tool.DragResizeMod;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -61,9 +61,9 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
     FilteredList<ObligationData> filteredData;
 
     SortedList<ObligationData> sortedData;
-    private DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private TableFilter tableFilter = new TableFilter();
-    private ObligationData sumRow = new ObligationData();
+    private final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+    private final TableFilter tableFilter = new TableFilter();
+    private final ObligationData sumRow = new ObligationData();
     private DateFilter dateFilter;
     private String relevantFilter;
     private boolean showSumRow = false;
@@ -73,10 +73,10 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
     private ObservableList<String> scope = FXCollections.observableArrayList();
     private ObservableList<String> seu = FXCollections.observableArrayList();
 
-    private static int DATE_TIME_WIDTH = 120;
-    private static int BIG_WIDTH = 200;
-    private static int VERY_BIG_WIDTH = 400;
-    private static int SMALL_WIDTH = 60;
+    private static final int DATE_TIME_WIDTH = 120;
+    private static final int BIG_WIDTH = 200;
+    private static final int VERY_BIG_WIDTH = 400;
+    private static final int SMALL_WIDTH = 60;
 
     public static final String ALL = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.all");
     public static final String ONLY_RELVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlyrelevant");
@@ -266,7 +266,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                 summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.relevant"), true));
                 break;
             case 1:
-                summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.notrrelevant"), false));
+                summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.notrelevant"), false));
                 break;
         }
         String category = null;
@@ -381,7 +381,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                                             if (notesRow.getRelevant()) {
                                                 relevanceMatch.set(true);
                                             }
-                                        } else if (s.equals(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.notrrelevant"))) {
+                                        } else if (s.equals(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.notrelevant"))) {
                                             if (!notesRow.getRelevant()) {
                                                 relevanceMatch.set(true);
                                             }
@@ -403,7 +403,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                                 }
 
                                 //TODO: may also check if column is visible
-                                if (!containString.get()) return false;
+                                return containString.get();
                             }
                             return true;
                         } catch (Exception ex) {

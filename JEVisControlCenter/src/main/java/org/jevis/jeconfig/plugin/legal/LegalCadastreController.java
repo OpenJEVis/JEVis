@@ -17,8 +17,6 @@ import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.legal.data.IndexOfLegalProvisions;
-
-
 import org.jevis.jeconfig.plugin.legal.data.ObligationData;
 import org.jevis.jeconfig.plugin.legal.ui.*;
 
@@ -34,26 +32,26 @@ public class LegalCadastreController {
     private final ScrollPane scrollPane = new ScrollPane();
     private final AnchorPane contentPane = new AnchorPane();
     private ObservableList<IndexOfLegalProvisions> indexOfLegalProvisions;
-    private TabPane tabPane = new TabPane();
+    private final TabPane tabPane = new TabPane();
 
-    private BooleanProperty updateTrigger = new SimpleBooleanProperty(false);
+    private final BooleanProperty updateTrigger = new SimpleBooleanProperty(false);
 //    private BooleanProperty isOverviewTab = new SimpleBooleanProperty(true);
 
-    private BooleanProperty inAlarm = new SimpleBooleanProperty();
+    private final BooleanProperty inAlarm = new SimpleBooleanProperty();
 
     public LegalCadastreController(LegalCatasdrePlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void loadActionView() {
+    public void loadIndexOfLegalProvisions() {
         indexOfLegalProvisions = FXCollections.observableArrayList();
         indexOfLegalProvisions.addListener(new ListChangeListener<IndexOfLegalProvisions>() {
             @Override
             public void onChanged(Change<? extends IndexOfLegalProvisions> c) {
                 while (c.next()) {
                     if (c.wasAdded()) {
-                        c.getAddedSubList().forEach(actionPlan -> {
-                            buildTabPane(actionPlan);
+                        c.getAddedSubList().forEach(indexOfLegalProvisions -> {
+                            buildTabPane(indexOfLegalProvisions);
                         });
 
                     }
@@ -86,7 +84,7 @@ public class LegalCadastreController {
 
             if (newValue instanceof LegalCadastreTab) {
                 IndexOfLegalProvisions legalPlan = ((LegalCadastreTab) newValue).getLegalCadastre();
-                //actionPlan.loadActionList();
+                legalPlan.loadLegalList();
             }
 
         });
@@ -101,9 +99,9 @@ public class LegalCadastreController {
         LegalCadastreTab tab = getActiveTab();
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformityPlan.deletetitle"));
-        alert.setHeaderText(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformityPlan.delete"));
-        Label text = new Label(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformityPlan.content") + "\n" + getActivePlan().getName());
+        alert.setTitle(I18n.getInstance().getString("plugin.indexoflegalprovisions.delete.deletetitle"));
+        alert.setHeaderText(I18n.getInstance().getString("plugin.indexoflegalprovisions.delete.delete"));
+        Label text = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.delete.content") + "\n" + getActivePlan().getName());
         text.setWrapText(true);
         alert.getDialogPane().setContent(text);
         Optional<ButtonType> result = alert.showAndWait();
@@ -152,9 +150,9 @@ public class LegalCadastreController {
         LegalCadastreTab tab = getActiveTab();
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.deletetitle"));
-        alert.setHeaderText(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.delete"));
-        Label text = new Label(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.content") + "\n" + getSelectedData().nrProperty().get() + " " + getSelectedData().titleProperty().get());
+        alert.setTitle(I18n.getInstance().getString("plugin.indexoflegalprovisions.delete.obligation.deletetitle"));
+        alert.setHeaderText(I18n.getInstance().getString("plugin.indexoflegalprovisions.delete.obligation.delete"));
+        Label text = new Label(I18n.getInstance().getString("plugin.indexoflegalprovisions.delete.obligation.content") + "\n" + getSelectedData().nrProperty().get() + " " + getSelectedData().titleProperty().get());
         text.setWrapText(true);
         alert.getDialogPane().setContent(text);
         Optional<ButtonType> result = alert.showAndWait();
@@ -211,13 +209,13 @@ public class LegalCadastreController {
 
     public void loadLegalPlans() {
         try {
-            JEVisClass actionPlanClass = plugin.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.name);
-            List<JEVisObject> planObjs = plugin.getDataSource().getObjects(actionPlanClass, true);
+            JEVisClass indexOfLegalProvisionsClass = plugin.getDataSource().getJEVisClass(JC.IndexofLegalProvisions.name);
+            List<JEVisObject> indexOfLegalProvisionPlans = plugin.getDataSource().getObjects(indexOfLegalProvisionsClass, true);
 
 
             AtomicBoolean isFirstPlan = new AtomicBoolean(true);
 
-            planObjs.forEach(jeVisObject -> {
+            indexOfLegalProvisionPlans.forEach(jeVisObject -> {
                 IndexOfLegalProvisions plan = new IndexOfLegalProvisions(jeVisObject);
                 indexOfLegalProvisions.add(plan);
                 if (isFirstPlan.get()) plan.loadLegalList();
