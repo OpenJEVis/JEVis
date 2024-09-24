@@ -514,10 +514,11 @@ public class CommonMethods {
 
             try {
                 List<String> classes = new ArrayList<>();
+
                 classes.add(JC.Data.name);
                 classes.add(JC.Data.CleanData.name);
                 classes.add(JC.Data.MathData.name);
-                classes.add(JC.Data.MathData.name);
+                classes.add(JC.Data.ForecastData.name);
 
                 dependentObjects.addAll(getAllChildrenRecursive(object, classes));
                 dependentObjects.removeAll(objects);
@@ -532,6 +533,7 @@ public class CommonMethods {
                 List<JEVisObject> calculationDependencies = new ArrayList<>();
                 if (value.stream().anyMatch(dependentObjects::contains)) {
                     calculationDependencies.add(key);
+                    dependentObjects.add(key);
                 }
 
                 if (!calculationDependencies.isEmpty()) {
