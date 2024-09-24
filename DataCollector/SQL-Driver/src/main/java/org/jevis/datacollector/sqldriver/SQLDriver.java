@@ -5,6 +5,7 @@ import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSource;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -130,6 +131,15 @@ public class SQLDriver implements DataSource {
                                 requestParameters.getTarget().deleteSamplesBetween(
                                         Iterables.getFirst(resultSamples, null).getTimestamp(),
                                         Iterables.getLast(resultSamples, null).getTimestamp());
+
+                                try {
+                                    List<JEVisObject> objects = new ArrayList<>();
+                                    objects.add(requestParameters.getTarget().getObject());
+
+                                    CommonMethods.cleanDependentObjects(objects, Iterables.getFirst(resultSamples, null).getTimestamp());
+                                } catch (Exception e) {
+                                    logger.error("Failed cleaning of dependencies", e);
+                                }
                             }
 
                             requestParameters.getTarget().addSamples(resultSamples);
