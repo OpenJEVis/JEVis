@@ -7,6 +7,7 @@ import org.jevis.commons.dataprocessing.processor.workflow.CleanInterval;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -21,17 +22,19 @@ public class PrepareMath implements ProcessStep {
     public void run(ResourceManager resourceManager) throws Exception {
         MathDataObject mathDataObject = resourceManager.getMathDataObject();
 
-        List<PeriodRule> periodRules = mathDataObject.getInputDataPeriodAlignment();
+        List<PeriodRule> inputPeriodRules = mathDataObject.getInputDataPeriodAlignment();
+        List<PeriodRule> outputPeriodRules = mathDataObject.getPeriodAlignment();
         List<CleanInterval> intervals = new ArrayList<>();
 
         DateTime start = mathDataObject.getStartDate();
         DateTime end = mathDataObject.getEndDate();
-        Period inputPeriod = CleanDataObject.getPeriodForDate(periodRules, start);
+        Period inputPeriod = CleanDataObject.getPeriodForDate(inputPeriodRules, start);
+        Period outputPeriod = CleanDataObject.getPeriodForDate(outputPeriodRules, start);
 
         AggregationPeriod aggregationPeriod = mathDataObject.getReferencePeriod();
         WorkDays workDays = new WorkDays(mathDataObject.getMathDataObject());
 
-        if (aggregationPeriod.isGreaterThenDays() && workDays.isCustomWorkDay()) {
+        if ((aggregationPeriod.isGreaterThenDays() && workDays.isCustomWorkDay()) || (aggregationPeriod == AggregationPeriod.CUSTOM && PeriodHelper.isGreaterThenDays(outputPeriod))) {
             java.time.LocalTime wdStart = workDays.getWorkdayStart();
             java.time.LocalTime wdEnd = workDays.getWorkdayEnd();
             LocalTime dtStart = new LocalTime(wdStart.getHour(), wdStart.getMinute(), wdStart.getSecond(), 0);
@@ -49,44 +52,55 @@ public class PrepareMath implements ProcessStep {
         Long referencePeriodCount = mathDataObject.getReferencePeriodCount();
         Long periodOffset = mathDataObject.getPeriodOffset();
 
-        boolean periodHasYear = inputPeriod.getYears() > 0;
-        boolean periodHasMonths = inputPeriod.getMonths() > 0;
-        boolean periodHasWeeks = inputPeriod.getWeeks() > 0;
-        boolean periodHasDays = inputPeriod.getDays() > 0;
-        boolean periodHasHours = inputPeriod.getHours() > 0;
-        boolean periodHasMinutes = inputPeriod.getMinutes() > 0;
-        boolean periodHasSeconds = inputPeriod.getSeconds() > 0;
-        boolean periodHasMillis = inputPeriod.getMillis() > 0;
+        Period relevantPeriod;
+        List<PeriodRule> relevantRules;
+        if (aggregationPeriod == AggregationPeriod.CUSTOM) {
+            relevantPeriod = outputPeriod;
+            relevantRules = outputPeriodRules;
+        } else {
+            relevantPeriod = inputPeriod;
+            relevantRules = inputPeriodRules;
+        }
+
+        boolean periodHasYear = relevantPeriod.getYears() > 0;
+        boolean periodHasMonths = relevantPeriod.getMonths() > 0;
+        boolean periodHasWeeks = relevantPeriod.getWeeks() > 0;
+        boolean periodHasDays = relevantPeriod.getDays() > 0;
+        boolean periodHasHours = relevantPeriod.getHours() > 0;
+        boolean periodHasMinutes = relevantPeriod.getMinutes() > 0;
+        boolean periodHasSeconds = relevantPeriod.getSeconds() > 0;
+        boolean periodHasMillis = relevantPeriod.getMillis() > 0;
+
 
         if (periodHasMonths || periodHasYear || periodHasWeeks || periodHasDays || periodHasHours || periodHasMinutes || periodHasSeconds || periodHasMillis) {
             if (mathDataObject.isFillPeriod()) {
                 if (start != null && end != null) {
                     while (start.isBefore(end)) {
-                        inputPeriod = CleanDataObject.getPeriodForDate(periodRules, start);
+                        relevantPeriod = CleanDataObject.getPeriodForDate(relevantRules, start);
                         DateTime endOfInterval;
                         if (periodHasYear) {
-                            endOfInterval = start.plusYears(inputPeriod.getYears());
-                            endOfInterval = endOfInterval.plusMonths(inputPeriod.getMonths());
-                            endOfInterval = addLesserPeriods(endOfInterval, inputPeriod);
+                            endOfInterval = start.plusYears(relevantPeriod.getYears());
+                            endOfInterval = endOfInterval.plusMonths(relevantPeriod.getMonths());
+                            endOfInterval = addLesserPeriods(endOfInterval, relevantPeriod);
 
-                            if (inputPeriod.getMonths() == 0 && inputPeriod.getYears() == 1 && inputPeriod.getWeeks() == 0
-                                    && inputPeriod.getDays() == 0 && inputPeriod.getHours() == 0 && inputPeriod.getMinutes() == 0
-                                    && inputPeriod.getMillis() == 0) {
+                            if (relevantPeriod.getMonths() == 0 && relevantPeriod.getYears() == 1 && relevantPeriod.getWeeks() == 0
+                                    && relevantPeriod.getDays() == 0 && relevantPeriod.getHours() == 0 && relevantPeriod.getMinutes() == 0
+                                    && relevantPeriod.getMillis() == 0) {
                                 endOfInterval = endOfInterval.withMonthOfYear(endOfInterval.monthOfYear().getMaximumValue());
                                 endOfInterval = endOfInterval.withDayOfMonth(endOfInterval.dayOfMonth().getMaximumValue());
                             }
                         } else if (periodHasMonths) {
-                            endOfInterval = start.plusMonths(inputPeriod.getMonths());
-                            endOfInterval = endOfInterval.plusYears(inputPeriod.getYears());
-                            endOfInterval = addLesserPeriods(endOfInterval, inputPeriod);
+                            endOfInterval = start.plusMonths(relevantPeriod.getMonths());
+                            endOfInterval = endOfInterval.plusYears(relevantPeriod.getYears());
+                            endOfInterval = addLesserPeriods(endOfInterval, relevantPeriod);
 
-                            if (inputPeriod.getMonths() == 1 && inputPeriod.getYears() == 0 && inputPeriod.getWeeks() == 0
-                                    && inputPeriod.getDays() == 0 && inputPeriod.getHours() == 0 && inputPeriod.getMinutes() == 0
-                                    && inputPeriod.getMillis() == 0) {
+                            if (relevantPeriod.getMonths() == 1 && relevantPeriod.getYears() == 0 && relevantPeriod.getWeeks() == 0
+                                    && relevantPeriod.getDays() == 0 && relevantPeriod.getHours() == 0 && relevantPeriod.getMinutes() == 0
+                                    && relevantPeriod.getMillis() == 0) {
                                 endOfInterval = endOfInterval.withDayOfMonth(endOfInterval.dayOfMonth().getMaximumValue());
                             }
                         } else {
-                            endOfInterval = start.plus(inputPeriod);
+                            endOfInterval = start.plus(relevantPeriod);
                         }
                         endOfInterval = endOfInterval.minusMillis(1);
                         Interval interval = new Interval(start, endOfInterval);
@@ -94,28 +108,28 @@ public class PrepareMath implements ProcessStep {
                         intervals.add(cleanInterval);
 
                         if (periodHasYear) {
-                            start = start.plusYears(inputPeriod.getYears());
-                            start = start.plusMonths(inputPeriod.getMonths());
-                            start = addLesserPeriods(start, inputPeriod);
+                            start = start.plusYears(relevantPeriod.getYears());
+                            start = start.plusMonths(relevantPeriod.getMonths());
+                            start = addLesserPeriods(start, relevantPeriod);
 
-                            if (inputPeriod.getMonths() == 0 && inputPeriod.getYears() == 1 && inputPeriod.getWeeks() == 0
-                                    && inputPeriod.getDays() == 0 && inputPeriod.getHours() == 0 && inputPeriod.getMinutes() == 0
-                                    && inputPeriod.getMillis() == 0) {
+                            if (relevantPeriod.getMonths() == 0 && relevantPeriod.getYears() == 1 && relevantPeriod.getWeeks() == 0
+                                    && relevantPeriod.getDays() == 0 && relevantPeriod.getHours() == 0 && relevantPeriod.getMinutes() == 0
+                                    && relevantPeriod.getMillis() == 0) {
                                 start = start.withMonthOfYear(start.monthOfYear().getMaximumValue());
                                 start = start.withDayOfMonth(start.dayOfMonth().getMaximumValue());
                             }
                         } else if (periodHasMonths) {
-                            start = start.plusMonths(inputPeriod.getMonths());
-                            start = start.plusYears(inputPeriod.getYears());
-                            start = addLesserPeriods(start, inputPeriod);
+                            start = start.plusMonths(relevantPeriod.getMonths());
+                            start = start.plusYears(relevantPeriod.getYears());
+                            start = addLesserPeriods(start, relevantPeriod);
 
-                            if (inputPeriod.getMonths() == 1 && inputPeriod.getYears() == 0 && inputPeriod.getWeeks() == 0
-                                    && inputPeriod.getDays() == 0 && inputPeriod.getHours() == 0 && inputPeriod.getMinutes() == 0
-                                    && inputPeriod.getMillis() == 0) {
+                            if (relevantPeriod.getMonths() == 1 && relevantPeriod.getYears() == 0 && relevantPeriod.getWeeks() == 0
+                                    && relevantPeriod.getDays() == 0 && relevantPeriod.getHours() == 0 && relevantPeriod.getMinutes() == 0
+                                    && relevantPeriod.getMillis() == 0) {
                                 start = start.withDayOfMonth(start.dayOfMonth().getMaximumValue());
                             }
                         } else {
-                            start = start.plus(inputPeriod);
+                            start = start.plus(relevantPeriod);
                         }
                     }
                     resourceManager.setIntervals(intervals);

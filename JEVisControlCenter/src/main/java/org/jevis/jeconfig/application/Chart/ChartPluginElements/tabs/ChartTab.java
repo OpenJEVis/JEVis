@@ -56,6 +56,8 @@ public class ChartTab extends Tab {
     private final Label labelShowRowSums = new Label(I18n.getInstance().getString("graph.tabs.tab.showrowsums"));
     private final Label labelDayStart = new Label(I18n.getInstance().getString("graph.tabs.tab.daystart"));
     private final Label labelDayEnd = new Label(I18n.getInstance().getString("graph.tabs.tab.dayend"));
+    private final Label labelxAxisTitle = new Label(I18n.getInstance().getString("graph.tabs.tab.xaxistitle"));
+    private final Label labelyAxisTitle = new Label(I18n.getInstance().getString("graph.tabs.tab.yaxistitle"));
     private final JFXCheckBox fixYAxisToZero = new JFXCheckBox();
     private final Table chartTable;
     private final GridPane chartSettings = new GridPane();
@@ -80,6 +82,8 @@ public class ChartTab extends Tab {
     private final ColorMappingBox colorMappingBox;
     private final Label chartNameLabel = new Label(I18n.getInstance().getString("graph.title"));
     private final JFXTextField chartNameSecondTextField = new JFXTextField();
+    private final JFXTextField xAxisTitleTextField = new JFXTextField();
+    private final JFXTextField yAxisTitleTextField = new JFXTextField();
     private boolean showChartSettings = true;
     private ChartModel chartModel;
     private final ChangeListener<BigDecimal> groupingIntervalChangeListener = (observable, oldValue, newValue) -> {
@@ -155,6 +159,12 @@ public class ChartTab extends Tab {
             chartModel.setChartName(chartNameTextField.getText());
             setGraphic(nameLabel);
         });
+
+        xAxisTitleTextField.setText(chartModel.getxAxisTitle());
+        xAxisTitleTextField.textProperty().bindBidirectional(chartModel.xAxisTitleProperty());
+
+        yAxisTitleTextField.setText(chartModel.getyAxisTitle());
+        yAxisTitleTextField.textProperty().bindBidirectional(chartModel.yAxisTitleProperty());
 
         chartNameTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
@@ -328,6 +338,14 @@ public class ChartTab extends Tab {
 
         chartSettings.add(maxFractionDigitsLabel, 0, row);
         chartSettings.add(maxFractionDigits, 1, row);
+        row++;
+
+        chartSettings.add(labelxAxisTitle, 0, row);
+        chartSettings.add(xAxisTitleTextField, 1, row);
+        row++;
+
+        chartSettings.add(labelyAxisTitle, 0, row);
+        chartSettings.add(yAxisTitleTextField, 1, row);
         row++;
 
         if (chartModel.getChartType() == ChartType.HEAT_MAP) {

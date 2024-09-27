@@ -468,6 +468,7 @@ public class LoadProfilePlugin implements Plugin {
                 Platform.runLater(() -> {
                     allDaysLoadProfileList.clear();
                     allDaysLoadProfileList.addAll(allDaysLoadProfileSamples);
+                    allDaysLoadProfileView.sort();
                 });
 
                 List<MixedLoadProfile> standardLoadProfileSamples = new ArrayList<>();
@@ -479,6 +480,7 @@ public class LoadProfilePlugin implements Plugin {
                 Platform.runLater(() -> {
                     mixedLoadProfileList.clear();
                     mixedLoadProfileList.addAll(standardLoadProfileSamples);
+                    mixedLoadProfileView.sort();
                 });
 
                 try {
@@ -555,6 +557,11 @@ public class LoadProfilePlugin implements Plugin {
         TableColumn<MixedLoadProfile, Object> workdayValueCol = createWorkdayValueColumn(I18n.getInstance().getString("plugins.loadprofile.cols.workdayvalue"));
         TableColumn<MixedLoadProfile, Object> holidayValueCol = createHolidayValueColumn(I18n.getInstance().getString("plugins.loadprofile.cols.holidayvalue"));
         tableView.getColumns().addAll(timeStampColumn, workdayValueCol, holidayValueCol);
+        tableView.sortPolicyProperty().set(t -> {
+            Comparator<MixedLoadProfile> comparator = Comparator.comparing(MixedLoadProfile::getDateTime);
+            FXCollections.sort(tableView.getItems(), comparator);
+            return true;
+        });
 
         return loadProfileTab;
     }
@@ -622,6 +629,11 @@ public class LoadProfilePlugin implements Plugin {
         TableColumn<TableSample, Object> valueCol = createValueColumn(I18n.getInstance().getString("plugins.loadprofile.cols.value"));
         TableColumn<TableSample, Object> diffCol = createDiffColumn(I18n.getInstance().getString("plugins.loadprofile.cols.diff"));
         tableView.getColumns().addAll(timeStampColumn, valueCol, diffCol);
+        tableView.sortPolicyProperty().set(t -> {
+            Comparator<TableSample> comparator = Comparator.comparing(TableSample::getDateTime);
+            FXCollections.sort(tableView.getItems(), comparator);
+            return true;
+        });
 
         return loadProfileTab;
     }

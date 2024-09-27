@@ -234,7 +234,6 @@ public class XYChart implements Chart {
         addManipulationToTitle = (dataSettings.getManipulationMode().equals(RUNNING_MEAN)
                 || dataSettings.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN));
 
-
         if (chartType != ChartType.BUBBLE) {
             List<ChartDataRow> toRemove = chartDataRows.stream().filter(chartDataRow -> chartDataRow.getName().contains(" - " + I18n.getInstance().getString("graph.processing.raw"))).collect(Collectors.toList());
             List<XYChartSerie> toRemoveChartSeries = xyChartSerieList.stream().filter(xyChartSerie -> xyChartSerie.getTableEntryName().contains(" - " + I18n.getInstance().getString("graph.processing.raw"))).collect(Collectors.toList());
@@ -1395,6 +1394,9 @@ public class XYChart implements Chart {
         if (!unitY1.isEmpty()) Platform.runLater(() -> y1Axis.setUnit(allUnitsY1.toString()));
         if (!unitY2.isEmpty()) Platform.runLater(() -> y2Axis.setUnit(allUnitsY2.toString()));
 
+        if (chartModel.getyAxisTitle() != null) {
+            Platform.runLater(() -> y1Axis.setName(chartModel.getyAxisTitle()));
+        }
     }
 
     public void generateXAxis(Boolean[] changedBoth) {
@@ -1410,7 +1412,9 @@ public class XYChart implements Chart {
 //            dateAxis.setFirstTS(timeStampOfFirstSample.get());
 //        }
         Platform.runLater(() -> {
-            primaryDateAxis.setName("");
+            if (chartModel.getxAxisTitle() != null) {
+                primaryDateAxis.setName(chartModel.getxAxisTitle());
+            } else primaryDateAxis.setName("");
             secondaryDateAxis.setName("");
         });
 

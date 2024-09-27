@@ -3927,7 +3927,7 @@ public interface JC {
                 String a_Data = "Data";
 
                 interface ObligationDirectory {
-                    String name = "Index of Legal Provisions Directory";
+                    String name = "Obligation Directory";
                 }
             }
 
