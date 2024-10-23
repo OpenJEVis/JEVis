@@ -19,10 +19,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -205,29 +202,33 @@ public class JEVisJSONParser implements Parser {
         logger.debug("Converter value class {}", valueClass);
 
         if (valueClass.equals("Double")) {
-            return strings.stream().map(s -> {
-                try {
-                    return Double.valueOf(s);
-                } catch (Exception e) {
-                    logger.error("could not parse {}", s);
-                    logger.error(e);
-                    return 0;
-                }
-
-            }).collect(Collectors.toList());
+            return strings.stream()
+                    .map(s -> {
+                        try {
+                            return Double.valueOf(s);
+                        } catch (Exception e) {
+                            logger.error("Could not parse {}", s,e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
         } else if (valueClass.equals("String") || valueClass.isEmpty()) {
             return strings;
         } else if (valueClass.equals("Boolean")) {
-            return strings.stream().map(s -> {
-                try {
-                    return Boolean.valueOf(s);
-                } catch (Exception e) {
-                    logger.error("Could not parse {}", s);
-                    logger.error(e);
-                    return false;
-                }
-            }).collect(Collectors.toList());
+            return strings.stream()
+                    .map(s -> {
+                        try {
+                            return Boolean.valueOf(s);
+                        } catch (Exception e) {
+                            logger.error("Could not parse {}", s,e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
         }
+
         return strings;
 
 
