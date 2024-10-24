@@ -361,7 +361,15 @@ public class ResourceSample {
                 list = sg.getAggregatedSamples();
             }
 
-            return Response.ok(list).build();
+            return Response
+                    .ok(list)
+                    .header( "Access-Control-Allow-Origin", "localhost")
+                    .header("Access-Control-Allow-Credentials", "true")
+                    .header("Access-Control-Allow-Headers",
+                            "origin, content-type, accept, authorization")
+                    .header("Access-Control-Allow-Methods",
+                            "GET")
+                    .build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } catch (Exception jex) {
