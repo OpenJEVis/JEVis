@@ -138,7 +138,11 @@ public class ChartDataRow extends ChartData {
                 }
             }
         } catch (Exception e) {
-            logger.error("Error while creating note map for object {}:{}", getDataProcessor().getName(), getDataProcessor().getID(), e);
+            if (getDataProcessor() != null) {
+                logger.error("Error while creating note map for clean data object {}:{}", getDataProcessor().getName(), getDataProcessor().getID(), e);
+            } else {
+                logger.error("Error while creating note map for object {}:{}", getObject().getName(), getObject().getID(), e);
+            }
         }
         return userNoteMap;
     }
@@ -163,7 +167,11 @@ public class ChartDataRow extends ChartData {
                 }
             }
         } catch (Exception e) {
-            logger.error("Error while creating user data map for object {}:{}", getDataProcessor().getName(), getDataProcessor().getID(), e);
+            if (getDataProcessor() != null) {
+                logger.error("Error while creating user data map for clean data object {}:{}", getDataProcessor().getName(), getDataProcessor().getID(), e);
+            } else {
+                logger.error("Error while creating user data map for object {}:{}", getObject().getName(), getObject().getID(), e);
+            }
         }
 
         return userDataMap;
@@ -233,7 +241,7 @@ public class ChartDataRow extends ChartData {
                                         }
 
                                         if (compareSample == null) {
-                                            logger.error("Could not find sample to compare with value." + ts);
+                                            logger.warn("Could not find sample to compare with value for ts: {}", ts);
                                             continue;
                                         }
                                     }
@@ -309,13 +317,21 @@ public class ChartDataRow extends ChartData {
                                     }
                                 }
                             } catch (Exception e) {
-                                logger.error("Could not create alarm for sample {} of object {}:{}", valueSample.getTimestamp(), getDataProcessor().getName(), getDataProcessor().getID(), e);
+                                if (getDataProcessor() != null) {
+                                    logger.error("Could not create alarm for sample {} of clean data object {}:{}", valueSample.getTimestamp(), getDataProcessor().getName(), getDataProcessor().getID(), e);
+                                } else {
+                                    logger.error("Could not create alarm for sample {} of object {}:{}", valueSample.getTimestamp(), getObject().getName(), getObject().getID(), e);
+                                }
                             }
                         }
                     }
                 }
             } catch (Exception e) {
-                logger.error("Error while creating alarm map for object {}:{}", getDataProcessor().getName(), getDataProcessor().getID(), e);
+                if (getDataProcessor() != null) {
+                    logger.error("Error while creating alarm map for clean data object {}:{}", getDataProcessor().getName(), getDataProcessor().getID(), e);
+                } else {
+                    logger.error("Error while creating alarm map for object {}:{}", getObject().getName(), getObject().getID(), e);
+                }
             }
         }
 
@@ -365,7 +381,7 @@ public class ChartDataRow extends ChartData {
                             if (!getAbsolute()) {
                                 if (getCalculationObject() == null) {
                                     if (ChartTools.getCalculationId(dataSource, getCalculationId()) == -1) {
-                                        logger.error("This is not a calculation, getting normal samples");
+                                        logger.warn("This is not a calculation, getting normal samples");
                                         setCalculation(false);
                                         samples = getSamples();
                                     }
@@ -438,7 +454,11 @@ public class ChartDataRow extends ChartData {
                                                         jeVisSample.setNote(note);
                                                     }
                                                 } catch (Exception e) {
-                                                    logger.error("Could not get replacement value for ts {} of sample for object {}:{}", jeVisSample.getTimestamp(), dataProcessorObject.getName(), dataProcessorObject.getID());
+                                                    if (getDataProcessor() != null) {
+                                                        logger.error("Could not get replacement value for ts {} of sample for clean data object {}:{}", jeVisSample.getTimestamp(), getDataProcessor().getName(), getDataProcessor().getID());
+                                                    } else {
+                                                        logger.error("Could not get replacement value for ts {} of sample for object {}:{}", jeVisSample.getTimestamp(), getObject().getName(), getObject().getID());
+                                                    }
                                                 }
                                             }
                                         }
@@ -458,7 +478,7 @@ public class ChartDataRow extends ChartData {
                     }
                 } else {
                     if (getDataProcessor() != null) {
-                        logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                        logger.error("No interval between timestamps for clean data object {}:{}. The end instant must be greater the start. ",
                                 getDataProcessor().getName(), getDataProcessor().getID());
                     } else {
                         logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
@@ -487,8 +507,8 @@ public class ChartDataRow extends ChartData {
         if (samples.size() == 1) {
             try {
                 value = samples.get(0).getValueAsDouble();
-            } catch (JEVisException e) {
-                logger.error("Could not get value for datarow {}:{}", getObject().getName(), getObject().getID(), e);
+            } catch (Exception e) {
+                logger.error("Could not get value for data row {}:{}", getObject().getName(), getObject().getID(), e);
             }
         } else {
             try {
@@ -571,7 +591,11 @@ public class ChartDataRow extends ChartData {
                 }
             }
         } catch (Exception e) {
-            logger.error("Could not apply user data correctly for object {}:{}", dataProcessorObject.getName(), dataProcessorObject.getID(), e);
+            if (getDataProcessor() != null) {
+                logger.error("Could not apply user data correctly for object {}:{}", getDataProcessor().getName(), getDataProcessor().getID(), e);
+            } else {
+                logger.error("Could not apply user data correctly for object {}:{}", getObject().getName(), getObject().getID(), e);
+            }
         }
     }
 
@@ -619,7 +643,7 @@ public class ChartDataRow extends ChartData {
                     logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
                             getDataProcessor().getName(), getDataProcessor().getID());
                 } else {
-                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                    logger.error("No interval between timestamps for clean data object {}:{}. The end instant must be greater the start. ",
                             getObject().getName(), getObject().getID());
                 }
             }
@@ -674,7 +698,11 @@ public class ChartDataRow extends ChartData {
                         sample.setValue(sample.getValueAsDouble() * scaleFactor * timeFactor);
                     } catch (Exception e) {
                         try {
-                            logger.error("Error in sample: {}:{} of attribute: {} of object: {}:{}", sample.getTimestamp(), sample.getValue(), getAttribute().getName(), getObject().getName(), getObject().getID());
+                            if (getDataProcessor() != null) {
+                                logger.error("Error in sample: {}:{} of attribute: {} of clean data object: {}:{}", sample.getTimestamp(), sample.getValue(), getAttribute().getName(), getDataProcessor().getName(), getDataProcessor().getID());
+                            } else {
+                                logger.error("Error in sample: {}:{} of attribute: {} of object: {}:{}", sample.getTimestamp(), sample.getValue(), getAttribute().getName(), getObject().getName(), getObject().getID());
+                            }
                         } catch (Exception e1) {
                             logger.fatal(e1);
                         }
@@ -785,6 +813,7 @@ public class ChartDataRow extends ChartData {
                 this.object = CommonMethods.getFirstParentalDataObject(object);
             } else {
                 this.object = object;
+                this.dataProcessorObject = null;
             }
         } catch (Exception e) {
             logger.error("No object selected", e);
@@ -1064,7 +1093,11 @@ public class ChartDataRow extends ChartData {
                 }
 
             } catch (Exception e) {
-                logger.error("Error while getting Period from object {}:{}", object.getName(), object.getID(), e);
+                if (getDataProcessor() != null) {
+                    logger.error("Error while getting Period from clean data object {}:{}", getDataProcessor().getName(), getDataProcessor().getID(), e);
+                } else {
+                    logger.error("Error while getting Period from object {}:{}", object.getName(), object.getID(), e);
+                }
             }
 
             period = p;
