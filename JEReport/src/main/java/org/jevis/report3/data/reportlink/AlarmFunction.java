@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author broder
@@ -67,8 +66,8 @@ public class AlarmFunction implements ReportData {
      * @return
      */
     @Override
-    public ConcurrentHashMap<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
-        ConcurrentHashMap<String, Object> functionMap = new ConcurrentHashMap<>();
+    public Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
+        Map<String, Object> functionMap = new HashMap<>();
         Interval interval = intervalCalc.getInterval(PeriodMode.CURRENT.toString().toUpperCase());
         DateTime start = interval.getStart();
         DateTime end = interval.getEnd();

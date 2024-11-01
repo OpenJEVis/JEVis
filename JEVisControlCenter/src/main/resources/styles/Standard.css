@@ -98,11 +98,6 @@
     -fx-background-color: #b8b8b8;
 }
 
-
-.hyperlink {
-    -fx-underline: #51aaa5;
-}
-
 .nonconformityOK{
     -fx-border-color: black ;
     -fx-border-width: 0 ;

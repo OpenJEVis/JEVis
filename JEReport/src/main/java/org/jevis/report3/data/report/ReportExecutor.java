@@ -124,45 +124,48 @@ public class ReportExecutor {
             String reportName = reportObject.getName().replaceAll("\\s", "_") + "_" + creationDate;
             reportName = NameFormatter.formatNames(reportName);
             reportName = prefix + reportName;
-            JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
-            JEVisAttribute lastReportAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT);
-            JEVisAttribute lastReportPDFAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT_PDF);
-            lastReportAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
-            logger.info("Uploaded report file to JEVis System");
 
-            JEVisFile fileForNotification = jeVisFileImp;
-            if (property.getToPdf()) {
-                File pdfFile = null;
-                try {
-                    logger.info("Creating pdf file.");
-                    File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
-                    wholePdfFile.deleteOnExit();
-                    PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
-                    pdfFileSplitter.splitPDF();
-                    pdfFile = pdfFileSplitter.getOutputFile();
-                    pdfFile.deleteOnExit();
-                    JEVisFile jeVisFilePDFImp = new JEVisFileImp(reportName + ".pdf", pdfFile);
-                    lastReportPDFAttribute.buildSample(new DateTime(), jeVisFilePDFImp).commit();
+            if (outputBytes != null && outputBytes.length > 0) {
+                JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
+                JEVisAttribute lastReportAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT);
+                JEVisAttribute lastReportPDFAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT_PDF);
+                lastReportAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
+                logger.info("Uploaded report file to JEVis System");
 
-                    if (pdfFile != null) {
-                        fileForNotification = new JEVisFileImp(reportName + ".pdf", pdfFile);
+                JEVisFile fileForNotification = jeVisFileImp;
+                if (property.getToPdf()) {
+                    File pdfFile = null;
+                    try {
+                        logger.info("Creating pdf file.");
+                        File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
+                        wholePdfFile.deleteOnExit();
+                        PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
+                        pdfFileSplitter.splitPDF();
+                        pdfFile = pdfFileSplitter.getOutputFile();
+                        pdfFile.deleteOnExit();
+                        JEVisFile jeVisFilePDFImp = new JEVisFileImp(reportName + ".pdf", pdfFile);
+                        lastReportPDFAttribute.buildSample(new DateTime(), jeVisFilePDFImp).commit();
+
+                        if (pdfFile != null) {
+                            fileForNotification = new JEVisFileImp(reportName + ".pdf", pdfFile);
+                        }
+
+                    } catch (Exception e) {
+                        logger.error("Could not initialize pdf converter. ", e);
                     }
-
-                } catch (Exception e) {
-                    logger.error("Could not initialize pdf converter. ", e);
                 }
+
+                JEVisObject notificationObject = property.getNotificationObject();
+                if (notificationObject != null && isEnabled(notificationObject)) {
+                    JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
+                    attachmentAttribute.buildSample(new DateTime(), fileForNotification).commit();
+                    logger.info("Uploaded pdf file to notification in JEVis System");
+
+                    sendNotification(notificationObject, fileForNotification);
+                }
+
+                finisher.finishReport(report, property);
             }
-
-            JEVisObject notificationObject = property.getNotificationObject();
-            if (notificationObject != null && isEnabled(notificationObject)) {
-                JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
-                attachmentAttribute.buildSample(new DateTime(), fileForNotification).commit();
-                logger.info("Uploaded pdf file to notification in JEVis System");
-
-                sendNotification(notificationObject, fileForNotification);
-            }
-
-            finisher.finishReport(report, property);
         } catch (JEVisException ex) {
             logger.error(ex);
         } catch (IOException ex) {

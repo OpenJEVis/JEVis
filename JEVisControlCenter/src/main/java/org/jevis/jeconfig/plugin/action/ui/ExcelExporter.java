@@ -41,15 +41,23 @@ public class ExcelExporter {
     private static final Logger logger = LogManager.getLogger(ExcelExporter.class);
 
 
-    private final XSSFColor backgroundColor = new XSSFColor(new Color(231, 230, 230));
-    private final XSSFColor boxColor = backgroundColor;
-    private final XSSFColor borderColor = backgroundColor;
-    private final XSSFColor linkColor = new XSSFColor(new Color(81, 171, 165));
+    private final XSSFColor backgroundColor;
+    private final XSSFColor boxColor;
+    private final XSSFColor borderColor;
+    private final XSSFColor linkColor;
     private final short defaultFontSite = (short) 9;
     private final short textBoxHeight = (short) 4000;
 
 
     public ExcelExporter(ActionController actionController, List<ExportDialog.Selection> selections) {
+        XSSFWorkbook workbook = new XSSFWorkbook(); //create workbook
+        addStyles(workbook);
+        IndexedColorMap colorMap = workbook.getStylesSource().getIndexedColors();
+        backgroundColor = new XSSFColor(new Color(231, 230, 230), colorMap);
+        boxColor = backgroundColor;
+        borderColor = backgroundColor;
+        linkColor = new XSSFColor(new Color(81, 171, 165), colorMap);
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("XLSX File Destination");
         FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", ".xlsx");
@@ -64,8 +72,7 @@ public class ExcelExporter {
         if (selectedFile != null) {
             JEConfig.setLastPath(selectedFile);
             // createExcelFile(selectedFile);
-            XSSFWorkbook workbook = new XSSFWorkbook(); //create workbook
-            addStyles(workbook);
+
 
             selections.stream().filter(selection -> selection.exportPlan).forEach(selection -> {
                 logger.debug(selection.plan);
@@ -137,10 +144,11 @@ public class ExcelExporter {
         sumCurrencyStyle.setFont(font);
 
         XSSFSheet sheet = workbook.createSheet(actionPlanData.getName().get());
+        IndexedColorMap colorMap = workbook.getStylesSource().getIndexedColors();
         if (actionPlanData.getName().get().equals("Übersicht")) {
-            sheet.setTabColor(new XSSFColor(new java.awt.Color(37, 150, 190)));
+            sheet.setTabColor(new XSSFColor(new java.awt.Color(37, 150, 190), colorMap));
         } else {
-            sheet.setTabColor(new XSSFColor(new java.awt.Color(55, 72, 148)));
+            sheet.setTabColor(new XSSFColor(new java.awt.Color(55, 72, 148), colorMap));
         }
 
 
