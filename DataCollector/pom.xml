@@ -16,8 +16,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>4.1.2</version>
+            <artifactId>poi-ooxml-full</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.mail</groupId>

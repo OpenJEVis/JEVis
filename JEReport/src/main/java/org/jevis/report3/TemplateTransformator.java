@@ -9,12 +9,11 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jxls.common.Context;
-import org.jxls.transform.Transformer;
+import org.jxls.transform.poi.PoiTransformer;
 import org.jxls.util.JxlsHelper;
-import org.jxls.util.TransformerFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.File;
 
 /**
  * @author broder
@@ -23,20 +22,23 @@ public class TemplateTransformator {
 
     private byte[] outputBytes;
 
-    public void transform(byte[] templateBytes, Context context) throws Exception {
-        InputStream input = new ByteArrayInputStream(templateBytes);
+    public void transform(File templateFile, Context context) throws Exception {
+//        InputStream input = new ByteArrayInputStream(templateFile);
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-        Transformer transformer = TransformerFactory.createTransformer(input, output);
+//        Transformer transformer = TransformerFactory.createTransformer(input, output);
         JxlsHelper jxlsHelper = JxlsHelper.getInstance();
         jxlsHelper.setUseFastFormulaProcessor(false);
         jxlsHelper.setProcessFormulas(true);
 
-        jxlsHelper.processTemplate(context, transformer);
+        XSSFWorkbook template = new XSSFWorkbook(templateFile);
+        PoiTransformer poiTransformer = PoiTransformer.createTransformer(template);
+        poiTransformer.setOutputStream(output);
+        jxlsHelper.processTemplate(context, poiTransformer);
 
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(output.toByteArray());
-
         XSSFWorkbook workbook = new XSSFWorkbook(byteArrayInputStream);
+        workbook.setForceFormulaRecalculation(true);
         XSSFFormulaEvaluator.evaluateAllFormulaCells(workbook);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -46,7 +48,7 @@ public class TemplateTransformator {
             bos.close();
             workbook.close();
             byteArrayInputStream.close();
-            input.close();
+//            input.close();
             output.close();
         }
         outputBytes = bos.toByteArray();

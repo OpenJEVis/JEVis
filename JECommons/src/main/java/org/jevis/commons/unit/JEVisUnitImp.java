@@ -34,7 +34,6 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
-import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Objects;
 
@@ -45,12 +44,13 @@ import java.util.Objects;
  */
 public class JEVisUnitImp implements JEVisUnit {
 
-    private Unit unit = Unit.ONE;
-    private String label = "";
-    private String prefix = "";
     private static final Logger logger = LogManager.getLogger(JEVisUnitImp.class);
+    private Unit unit;
+    private String label;
+    private String prefix;
 
     public JEVisUnitImp(Unit unit) {
+        this();
         this.unit = unit;
         UnitFormat unitFormat = UnitFormat.getInstance();
         String uString = unitFormat.format(unit);
@@ -59,25 +59,28 @@ public class JEVisUnitImp implements JEVisUnit {
     }
 
     public JEVisUnitImp(org.jevis.commons.ws.json.JsonUnit json) {
-
+        this();
         this.label = json.getLabel();
         this.prefix = json.getPrefix();
         try {
-            try {
-                this.unit = (Unit) UnitFormat.getInstance().parseObject(json.getFormula());
-            } catch (ParseException pe) {
+            if (json.getFormula() != null) {
                 try {
-                    if (!json.getLabel().equals("")) {
-                        for (MoneyUnit mu : MoneyUnit.values()) {
-                            if (json.getFormula().equals(mu.toString())) {
-                                JEVisUnit jeVisUnit = ChartUnits.parseUnit(json.getLabel());
-                                this.unit = jeVisUnit.getUnit();
-                                break;
+                    ParsePosition parsePosition = new ParsePosition(0);
+                    this.unit = UnitFormat.getInstance().parseObject(json.getFormula(), parsePosition);
+                } catch (Exception | Error pe) {
+                    try {
+                        if (!json.getLabel().isEmpty()) {
+                            for (MoneyUnit mu : MoneyUnit.values()) {
+                                if (json.getFormula().equals(mu.toString())) {
+                                    JEVisUnit jeVisUnit = ChartUnits.parseUnit(json.getLabel());
+                                    this.unit = jeVisUnit.getUnit();
+                                    break;
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        logger.warn("Warning! Could not parse unit from json: '" + JsonTools.prettyObjectMapper().writeValueAsString(json) + "' " + pe.getMessage());
                     }
-                } catch (Exception e) {
-                    logger.warn("Warning! Could not parse unit from json: '" + JsonTools.prettyObjectMapper().writeValueAsString(json) + "' " + pe.getMessage());
                 }
             }
         } catch (JsonProcessingException ex) {
@@ -90,6 +93,9 @@ public class JEVisUnitImp implements JEVisUnit {
     }
 
     public JEVisUnitImp() {
+        this.unit = Unit.ONE;
+        this.prefix = "";
+        this.label = "";
     }
 
     /**
@@ -101,6 +107,7 @@ public class JEVisUnitImp implements JEVisUnit {
      * @TODO example of a string
      */
     public JEVisUnitImp(String unit, String label, String prefix) {
+        this();
         UnitFormula up = new UnitFormula(unit, label);
         this.unit = up.getUnit();
         this.label = label;
@@ -113,6 +120,7 @@ public class JEVisUnitImp implements JEVisUnit {
      * @param prefix
      */
     public JEVisUnitImp(Unit unit, String label, String prefix) {
+        this();
         try {
             this.unit = unit;
         } catch (Exception ex) {
@@ -175,7 +183,9 @@ public class JEVisUnitImp implements JEVisUnit {
 
     @Override
     public String getFormula() {
-        return this.unit.toString();
+        if (unit != null) {
+            return this.unit.toString();
+        } else return "";
     }
 
     @Override
