@@ -75,6 +75,7 @@ public class Config {
     private static ConcurrentHashMap<String, JsonJEVisClass> classCache = new ConcurrentHashMap<>();
     private static String latestJECCPath;
     private static String latestJavaPath;
+    private static List<String> cors = new ArrayList<>();
 
     public static String getDBHost() {
         return dbIP;
@@ -140,6 +141,8 @@ public class Config {
         return webDir;
     }
 
+    public static List<String> getCORS(){ return cors;};
+
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
         if (classCache.isEmpty()) {
             logger.debug("initializing class cache");
@@ -186,8 +189,9 @@ public class Config {
 
     public static String getParameter(XMLConfiguration config, String key, String defaultValue) {
         try {
+            if(config.getString(key)==null) return defaultValue;
             return config.getString(key);
-        } catch (NullPointerException nex) {
+        } catch (Exception nex) {
             logger.error("Missing parameter in config file: '{}' using default value: '{}'", key, defaultValue);
             return defaultValue;
         }
@@ -196,7 +200,7 @@ public class Config {
     public static long getParameter(XMLConfiguration config, String key, long defaultValue) {
         try {
             return config.getLong(key);
-        } catch (NullPointerException nex) {
+        } catch (Exception nex) {
             logger.error("Missing parameter in config file: '{}' using default value: '{}'", key, defaultValue);
             return defaultValue;
         }
@@ -243,6 +247,8 @@ public class Config {
                     registrationKey = getParameter(config, "webservice.registration.apikey", UUID.randomUUID().toString());
 
                     webDir = getParameter(config, "webservice.webpage", "");
+
+                    cors.addAll( Arrays.asList(getParameter(config, "webservice.cors", "").split(";")));
 
                     fileIsLoaded = true;
                 } else {
