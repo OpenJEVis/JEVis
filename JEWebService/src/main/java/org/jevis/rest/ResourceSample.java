@@ -361,7 +361,9 @@ public class ResourceSample {
                 list = sg.getAggregatedSamples();
             }
 
-            return Response.ok(list).build();
+            return Response
+                    .ok(list)
+                    .build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } catch (Exception jex) {
