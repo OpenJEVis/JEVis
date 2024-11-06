@@ -31,19 +31,19 @@ public class QuantityUnits {
     /**
      * Time Units
      */
-    private final Unit _sec = SI.MILLI(SI.SECOND);
+    private final Unit _sec = SI.SECOND;
     private final JEVisUnit sec = new JEVisUnitImp(_sec);
-    private final Unit _min = SI.MILLI(NonSI.MINUTE);
+    private final Unit _min = NonSI.MINUTE;
     private final JEVisUnit min = new JEVisUnitImp(_min);
-    private final Unit _hour = SI.MILLI(NonSI.HOUR);
+    private final Unit _hour = NonSI.HOUR;
     private final JEVisUnit hour = new JEVisUnitImp(_hour);
-    private final Unit _day = SI.MILLI(NonSI.DAY);
+    private final Unit _day = NonSI.DAY;
     private final JEVisUnit day = new JEVisUnitImp(_day);
-    private final Unit _week = SI.MILLI(NonSI.WEEK);
+    private final Unit _week = NonSI.WEEK;
     private final JEVisUnit week = new JEVisUnitImp(_week);
-    private final Unit _month = SI.MILLI(NonSI.MONTH);
+    private final Unit _month = NonSI.MONTH;
     private final JEVisUnit month = new JEVisUnitImp(_month);
-    private final Unit _year = SI.MILLI(NonSI.YEAR);
+    private final Unit _year = NonSI.YEAR;
     private final JEVisUnit year = new JEVisUnitImp(_year);
 
     /**
