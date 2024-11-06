@@ -241,7 +241,7 @@ public class DataModelDataHandler {
         }
 
         try {
-            LastPeriod lastPeriod = new LastPeriod(Period.parse(this.dataModel.getForcedInterval()));
+            LastPeriod lastPeriod = new LastPeriod(this.dataModel.getForcedInterval());
             return lastPeriod;
         } catch (Exception ex) {
             logger.error(ex);
