@@ -19,19 +19,19 @@ public class LastPeriod implements TimeFrame {
         this.periodCode = periodCode;
 
         switch (periodCode) {
-            case LAST24H:
+            case PT24H:
                 this.period = new Period("PT24H");
                 this.listName = I18n.getInstance().getString("plugin.dashboard.timefactory.pt24h");
                 break;
-            case LAST7D:
+            case P7D:
                 this.period = new Period("P7D");
                 this.listName = I18n.getInstance().getString("plugin.dashboard.timefactory.p7d");
                 break;
-            case LAST30D:
+            case P30D:
                 this.period = new Period("P30D");
                 this.listName = I18n.getInstance().getString("plugin.dashboard.timefactory.p30d");
                 break;
-            case LAST365D:
+            case P365D:
                 this.period = new Period("P365D");
                 this.listName = I18n.getInstance().getString("plugin.dashboard.timefactory.p365d");
                 break;

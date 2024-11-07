@@ -104,16 +104,16 @@ public class TimeFrameFactory {
         list.add(fiveYears());
         list.add(tenYears());
 
-        LastPeriod pt24H = new LastPeriod(PeriodCode.LAST24H);
+        LastPeriod pt24H = new LastPeriod(PeriodCode.PT24H);
         list.add(pt24H);
         listLastPeriods.add(pt24H);
-        LastPeriod p7D = new LastPeriod(PeriodCode.LAST7D);
+        LastPeriod p7D = new LastPeriod(PeriodCode.P7D);
         list.add(p7D);
         listLastPeriods.add(p7D);
-        LastPeriod p30D = new LastPeriod(PeriodCode.LAST30D);
+        LastPeriod p30D = new LastPeriod(PeriodCode.P30D);
         list.add(p30D);
         listLastPeriods.add(p30D);
-        LastPeriod p365D = new LastPeriod(PeriodCode.LAST365D);
+        LastPeriod p365D = new LastPeriod(PeriodCode.P365D);
         list.add(p365D);
         listLastPeriods.add(p365D);
         LastPeriod lastPeriod = new LastPeriod(PeriodCode.LASTVALUE);
