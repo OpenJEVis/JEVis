@@ -33,7 +33,6 @@ public class DashBoardPane extends Pane {
 
 
     private static final Logger logger = LogManager.getLogger(DashBoardPane.class);
-    private DashboardPojo analysis;
     private final List<Double> xGrids = new ArrayList<>();
     private final List<Double> yGrids = new ArrayList<>();
     private final Scale scale = new Scale();
@@ -41,8 +40,9 @@ public class DashBoardPane extends Pane {
     private final JEVisDataSource jeVisDataSource;
     private final DashboardControl control;
     private final Background defaultBackground;
-    private boolean gridIsVisible = false;
     Rectangle dragBox = new Rectangle(0, 0, 0, 0);
+    private DashboardPojo analysis;
+    private boolean gridIsVisible = false;
     private double mouseDownX;
     private double mouseDownY;
 
@@ -357,26 +357,20 @@ public class DashBoardPane extends Pane {
 
     public void showGrid(boolean show) {
         gridIsVisible = show;
-        Platform.runLater(() -> {
-            if (show) {
-                if (!DashBoardPane.this.getChildren().contains(visibleGrid.get(0))) {
-                    DashBoardPane.this.getChildren().addAll(this.visibleGrid);
-                }
-            } else {
+        if (show) {
+            if (!DashBoardPane.this.getChildren().contains(visibleGrid.get(0))) {
+                Platform.runLater(() -> DashBoardPane.this.getChildren().addAll(this.visibleGrid));
+            }
+
+            if (!DashBoardPane.this.getChildren().contains(dragBox)) {
+                Platform.runLater(() -> DashBoardPane.this.getChildren().add(dragBox));
+            }
+        } else {
+            Platform.runLater(() -> {
                 DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
-            }
-
-        });
-
-        Platform.runLater(() -> {
-            if (show) {
-                DashBoardPane.this.getChildren().add(dragBox);
-            } else {
                 DashBoardPane.this.getChildren().remove(dragBox);
-            }
-        });
-
-
+            });
+        }
     }
 
     /**
