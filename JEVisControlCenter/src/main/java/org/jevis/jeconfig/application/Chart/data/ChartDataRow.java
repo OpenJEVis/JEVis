@@ -362,7 +362,7 @@ public class ChartDataRow extends ChartData {
                                 applyUserData(unmodifiedSamples);
                                 samples = factorizeSamples(unmodifiedSamples);
 
-                                if (absolute) {
+                                if (absolute && !samples.isEmpty()) {
                                     logger.debug("Getting manipulated data");
                                     Double manipulatedData = getManipulatedData(samples);
                                     JEVisSample virtualSample = new VirtualSample(samples.get(0).getTimestamp(), manipulatedData, getUnit());
@@ -510,7 +510,7 @@ public class ChartDataRow extends ChartData {
             } catch (Exception e) {
                 logger.error("Could not get value for data row {}:{}", getObject().getName(), getObject().getID(), e);
             }
-        } else {
+        } else if (samples.size() > 1) {
             try {
                 QuantityUnits qu = new QuantityUnits();
                 boolean isQuantity = qu.isQuantityUnit(getUnit());
@@ -830,7 +830,8 @@ public class ChartDataRow extends ChartData {
             try {
 
                 String jevisClassName = getObject().getJEVisClassName();
-                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data") || jevisClassName.equals("Base Data") || jevisClassName.equals("Math Data")) {
+                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data")
+                        || jevisClassName.equals("Base Data") || jevisClassName.equals("Math Data") || jevisClassName.equals("Data Notes")) {
                     if (dataProcessorObject == null) {
                         this.attribute = getObject().getAttribute("Value");
                     } else {

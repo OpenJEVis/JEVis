@@ -560,9 +560,8 @@ public abstract class Widget extends Region {
     public ObjectNode createDefaultNode() {
         ObjectMapper mapper = new ObjectMapper();
 
-
-        ObjectNode dashBoardNode = mapper.createObjectNode();
-        dashBoardNode
+        ObjectNode widgetNode = mapper.createObjectNode();
+        widgetNode
                 .put(JsonNames.Widget.UUID, this.config.getUuid())
                 .put(JsonNames.Widget.TYPE, typeID())
                 .put(JsonNames.Widget.TITLE, this.config.getTitle())
@@ -583,10 +582,10 @@ public abstract class Widget extends Region {
                 .put(JsonNames.Widget.SHOW_VALUE, this.config.getShowValue())
                 .put(JsonNames.Widget.X_POS, this.config.getxPosition())
                 .put(JsonNames.Widget.Y_POS, this.config.getyPosition())
-                .put(JsonNames.Widget.FIXED_TIMEFRAME, this.config.getFixedTimeframe());
+                .put(JsonNames.Widget.FIXED_TIMEFRAME, this.config.getFixedTimeframe())
+                .put(JsonNames.Widget.FORCED_TIMEFRAME, this.config.getForcedTimeFrame());
 
-
-        return dashBoardNode;
+        return widgetNode;
     }
 
     public Tooltip getTt() {

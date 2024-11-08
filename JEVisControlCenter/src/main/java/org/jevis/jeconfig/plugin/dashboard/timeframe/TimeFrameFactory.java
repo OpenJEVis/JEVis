@@ -68,16 +68,12 @@ public class TimeFrameFactory {
     };
     private static final Logger logger = LogManager.getLogger(TimeFrameFactory.class);
     private final ObservableList<TimeFrame> list = FXCollections.observableArrayList();
+    private final ObservableList<TimeFrame> listLastPeriods = FXCollections.observableArrayList();
     private JEVisDataSource ds;
     private WorkDays wd;
 
     public TimeFrameFactory(JEVisDataSource ds) {
         this.ds = ds;
-    }
-
-    public TimeFrame getTimeframe(String periode, String name) {
-        LastPeriod lastPeriod = new LastPeriod(new Period(periode), name);
-        return lastPeriod;
     }
 
     public List<TimeFrame> getReduced() {
@@ -108,11 +104,21 @@ public class TimeFrameFactory {
         list.add(fiveYears());
         list.add(tenYears());
 
-        list.add(new LastPeriod(new Period("PT24H"), I18n.getInstance().getString("plugin.dashboard.timefactory.pt24h")));
-        list.add(new LastPeriod(new Period("P7D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p7d")));
-        list.add(new LastPeriod(new Period("P30D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p30d")));
-        list.add(new LastPeriod(new Period("P365D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p365d")));
-        list.add(new LastPeriod(Period.ZERO, I18n.getInstance().getString("plugin.dashboard.timefactory.lastValue")));
+        LastPeriod pt24H = new LastPeriod(PeriodCode.PT24H);
+        list.add(pt24H);
+        listLastPeriods.add(pt24H);
+        LastPeriod p7D = new LastPeriod(PeriodCode.P7D);
+        list.add(p7D);
+        listLastPeriods.add(p7D);
+        LastPeriod p30D = new LastPeriod(PeriodCode.P30D);
+        list.add(p30D);
+        listLastPeriods.add(p30D);
+        LastPeriod p365D = new LastPeriod(PeriodCode.P365D);
+        list.add(p365D);
+        listLastPeriods.add(p365D);
+        LastPeriod lastPeriod = new LastPeriod(PeriodCode.LASTVALUE);
+        list.add(lastPeriod);
+        listLastPeriods.add(lastPeriod);
 
         if (this.ds != null) {
             try {
@@ -150,6 +156,13 @@ public class TimeFrameFactory {
         return list;
     }
 
+    public ObservableList<TimeFrame> getListLastPeriods() {
+        if (listLastPeriods.isEmpty()) {
+            getAll();
+        }
+
+        return listLastPeriods;
+    }
 
     public TimeFrame customPeriodObject(CustomPeriodObject cpo) {
         return new TimeFrame() {
