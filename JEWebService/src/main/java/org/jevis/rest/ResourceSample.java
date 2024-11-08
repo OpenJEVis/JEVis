@@ -386,7 +386,7 @@ public class ResourceSample {
             @PathParam("attribute") String attribute,
             String input) {
 
-        if (input != null && input.length() > 0) {
+        if (input != null && !input.isEmpty()) {
             try {
                 ds = new SQLDataSource(httpHeaders, request, url);
                 logger.debug("Post: {}-{}  input: {}", id, attribute, input);

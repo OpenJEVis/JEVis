@@ -83,7 +83,8 @@
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml-full</artifactId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.3.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.mail</groupId>

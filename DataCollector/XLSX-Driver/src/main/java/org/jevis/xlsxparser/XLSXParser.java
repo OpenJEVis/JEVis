@@ -127,10 +127,14 @@ public class XLSXParser {
 
                                 if (dateTime != null && cell != null) {
                                     Result result = null;
-                                    if (cell.getCellType() == CellType.STRING) {
+                                    if (cell.getCellType() == CellType.STRING && !cell.getStringCellValue().isEmpty()) {
                                         result = new Result(dataPoint.getTarget(), cell.getStringCellValue(), dateTime);
                                     } else if (cell.getCellType() == CellType.NUMERIC) {
-                                        result = new Result(dataPoint.getTarget(), cell.getNumericCellValue(), dateTime);
+                                        try {
+                                            result = new Result(dataPoint.getTarget(), cell.getNumericCellValue(), dateTime);
+                                        } catch (Exception e) {
+                                            logger.error("Numeric cell type but no valid number", e);
+                                        }
                                     }
 
                                     if (result != null) {
