@@ -116,6 +116,9 @@ public class TimeFrameFactory {
         LastPeriod p365D = new LastPeriod(PeriodCode.P365D);
         list.add(p365D);
         listLastPeriods.add(p365D);
+        LastPeriod pAll = new LastPeriod(PeriodCode.PALL);
+        list.add(pAll);
+        listLastPeriods.add(pAll);
         LastPeriod lastPeriod = new LastPeriod(PeriodCode.LASTVALUE);
         list.add(lastPeriod);
         listLastPeriods.add(lastPeriod);
