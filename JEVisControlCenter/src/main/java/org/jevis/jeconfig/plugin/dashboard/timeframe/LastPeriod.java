@@ -35,6 +35,10 @@ public class LastPeriod implements TimeFrame {
                 this.period = new Period("P365D");
                 this.listName = I18n.getInstance().getString("plugin.dashboard.timefactory.p365d");
                 break;
+            case PALL:
+                this.period = Period.ZERO;
+                this.listName = I18n.getInstance().getString("plugin.dashboard.timefactory.pall");
+                break;
             case LASTVALUE:
             default:
                 this.period = Period.ZERO;

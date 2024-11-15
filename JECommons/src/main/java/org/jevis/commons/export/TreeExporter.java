@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.constants.GUIConstants;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.JEVisUnitImp;
@@ -27,6 +28,7 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -104,10 +106,13 @@ public class TreeExporter {
 
                     Map<JEVisAttribute, JsonNode> targets = new HashMap<>();
                     Map<Long, JEVisObject> createdObjects = new HashMap<>();
+                    List<JEVisAttribute> fileAttributes = new ArrayList<>();
 
-                    readTmpFilesToJEVis(messages, tmpDir, parent, createdObjects, targets);
+                    readTmpFilesToJEVis(messages, tmpDir, parent, createdObjects, targets, fileAttributes);
 
                     updateTargetAttributes(createdObjects, targets);
+
+                    updateTargetsInFiles(createdObjects, fileAttributes);
 
                     logger.info("All Done");
 
@@ -121,6 +126,38 @@ public class TreeExporter {
                 return null;
             }
         };
+    }
+
+    private void updateTargetsInFiles(Map<Long, JEVisObject> createdObjects, List<JEVisAttribute> fileAttributes) throws JEVisException, IOException {
+        for (JEVisAttribute fileAttribute : fileAttributes) {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+            if (fileAttribute.getName().equals(JC.Analysis.a_DataModel) || fileAttribute.getName().equals(JC.DashboardAnalysis.a_DataModelFile)) {
+                JEVisSample latestSample = fileAttribute.getLatestSample();
+                if (latestSample != null) {
+                    JEVisFile file = fileAttribute.getLatestSample().getValueAsFile();
+
+                    JsonNode jsonNode = mapper.readTree(file.getBytes());
+                    String jsonNodePrettyString = jsonNode.toPrettyString();
+
+                    for (JsonNode id : jsonNode.findValues("id")) {
+                        JEVisObject jeVisObject = createdObjects.get(id);
+                        String oldValue = "\"id\" : " + id;
+                        String newValue = "\"id\" : " + jeVisObject.getID();
+                        jsonNodePrettyString.replaceAll(oldValue, newValue);
+                    }
+
+                    JEVisFileImp jsonFile = new JEVisFileImp(
+                            file.getFilename(), jsonNodePrettyString.getBytes(StandardCharsets.UTF_8));
+                    JEVisSample newSample = fileAttribute.buildSample(new DateTime(), jsonFile);
+                    newSample.commit();
+                }
+            }
+        }
     }
 
     private void updateTargetAttributes(Map<Long, JEVisObject> createdObjects, Map<JEVisAttribute, JsonNode> targets) {
@@ -169,7 +206,7 @@ public class TreeExporter {
         }
     }
 
-    private void readTmpFilesToJEVis(StringProperty message, Path directory, JEVisObject parent, Map<Long, JEVisObject> createdObjects, Map<JEVisAttribute, JsonNode> targets) {
+    private void readTmpFilesToJEVis(StringProperty message, Path directory, JEVisObject parent, Map<Long, JEVisObject> createdObjects, Map<JEVisAttribute, JsonNode> targets, List<JEVisAttribute> fileAttributes) {
         try {
 
             Set<Path> objectFiles = listObjectFiles(directory);
@@ -267,6 +304,8 @@ public class TreeExporter {
                     }
 
                 }
+
+                fileAttributes.add(jevisAttribute);
             }
 
             Set<Path> folderPaths = listFileFolders(directory);
@@ -307,7 +346,7 @@ public class TreeExporter {
 
                 JEVisObject correspondingJEVisObject = createdObjects.get(oldObjectId);
 
-                readTmpFilesToJEVis(message, objectFolderPath, correspondingJEVisObject, createdObjects, targets);
+                readTmpFilesToJEVis(message, objectFolderPath, correspondingJEVisObject, createdObjects, targets, fileAttributes);
             }
 
         } catch (Exception e) {
