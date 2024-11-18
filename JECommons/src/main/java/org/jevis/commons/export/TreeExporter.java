@@ -116,10 +116,10 @@ public class TreeExporter {
 
                     logger.info("All Done");
 
-
                     succeeded();
                 } catch (Exception ex) {
                     failed();
+                    logger.error("Failed extracting files from archive.", ex);
                 } finally {
                     done();
                 }
@@ -184,11 +184,17 @@ public class TreeExporter {
                         if (i > 0) newTarget.append(";");
 
                         String target = targetStrings.get(i);
-                        int index = target.indexOf(":");
-                        Long oldId = Long.parseLong(target.substring(0, index));
-                        String attributeString = target.substring(index + 1);
+                        if (target.contains(":")) {
+                            int index = target.indexOf(":");
+                            Long oldId = Long.parseLong(target.substring(0, index));
+                            String attributeString = target.substring(index + 1);
 
-                        newTarget.append(createdObjects.get(oldId).getID()).append(":").append(attributeString);
+                            newTarget.append(createdObjects.get(oldId).getID()).append(":").append(attributeString);
+                        } else {
+                            Long oldId = Long.parseLong(target);
+
+                            newTarget.append(createdObjects.get(oldId).getID()).append(":").append("Value");
+                        }
                     }
 
                     JEVisSample sample = jeVisAttribute.buildSample(dateTime, newTarget.toString(), jSample.get(NOTE).asText());
@@ -448,44 +454,54 @@ public class TreeExporter {
         };
     }
 
-    private void writeZipOutputStream(ZipOutputStream zipOutputStream, List<JEVisObject> objects, String folder, StringProperty message, AtomicReference<Integer> jobNo, int jobCount) throws Exception {
+    private void writeZipOutputStream(ZipOutputStream zipOutputStream, List<JEVisObject> objects, String folder, StringProperty message, AtomicReference<Integer> jobNo, int jobCount) {
         for (JEVisObject object : objects) {
-            jobNo.set(jobNo.get() + 1);
-            message.set("Prepare Export Job [" + jobNo.get() + "/" + jobCount + "] object: [" + object.getID() + "] " + object.getName());
-            ZipEntry objectZipEntry = new ZipEntry(folder + "o_" + object.getID() + ".json");
-            zipOutputStream.putNextEntry(objectZipEntry);
-            ObjectNode objectNode = toJson(object);
-            mapper.writeValue(zipOutputStream, objectNode);
+            try {
+                jobNo.set(jobNo.get() + 1);
+                message.set("Prepare Export Job [" + jobNo.get() + "/" + jobCount + "] object: [" + object.getID() + "] " + object.getName());
+                logger.debug("Exporting object: {}:{}", object.getName(), object.getID());
+                ZipEntry objectZipEntry = new ZipEntry(folder + "o_" + object.getID() + ".json");
+                zipOutputStream.putNextEntry(objectZipEntry);
+                ObjectNode objectNode = toJson(object);
+                mapper.writeValue(zipOutputStream, objectNode);
 
-            for (JEVisAttribute jeVisAttribute : object.getAttributes()) {
-
-                if (jeVisAttribute.getPrimitiveType() != JEVisConstants.PrimitiveType.FILE && jeVisAttribute.getPrimitiveType() != JEVisConstants.PrimitiveType.PASSWORD_PBKDF2) {
-                    ZipEntry attributeZipEntry = new ZipEntry(folder + "a_" + object.getID() + "_" + jeVisAttribute.getName() + ".json");
-                    zipOutputStream.putNextEntry(attributeZipEntry);
-                    ObjectNode attributeNode = toJson(jeVisAttribute);
-                    mapper.writeValue(zipOutputStream, attributeNode);
-                } else if (jeVisAttribute.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
-                    if (jeVisAttribute.hasSample()) {
-                        List<JEVisSample> allSamples = jeVisAttribute.getAllSamples();
-                        for (JEVisSample sample : allSamples) {
-                            JEVisFile sampleValueAsFile = sample.getValueAsFile();
-                            ZipEntry sampleFileZipEntry = new ZipEntry(folder + "a_" + object.getID() + "_" + jeVisAttribute.getName() + "/" + sample.getTimestamp().toString(FILE_DATE_FORMAT) + "/" + sampleValueAsFile.getFilename());
-                            zipOutputStream.putNextEntry(sampleFileZipEntry);
-                            zipOutputStream.write(sampleValueAsFile.getBytes());
+                for (JEVisAttribute jeVisAttribute : object.getAttributes()) {
+                    try {
+                        logger.debug("Exporting attribute {} of object {}:{}", jeVisAttribute.getName(), object.getName(), object.getID());
+                        if (jeVisAttribute.getPrimitiveType() != JEVisConstants.PrimitiveType.FILE && jeVisAttribute.getPrimitiveType() != JEVisConstants.PrimitiveType.PASSWORD_PBKDF2) {
+                            ZipEntry attributeZipEntry = new ZipEntry(folder + "a_" + object.getID() + "_" + jeVisAttribute.getName() + ".json");
+                            zipOutputStream.putNextEntry(attributeZipEntry);
+                            ObjectNode attributeNode = toJson(jeVisAttribute);
+                            mapper.writeValue(zipOutputStream, attributeNode);
+                        } else if (jeVisAttribute.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
+                            if (jeVisAttribute.hasSample()) {
+                                List<JEVisSample> allSamples = jeVisAttribute.getAllSamples();
+                                logger.debug("Found {} file samples for attribute {} of object {}:{}. Writing to export file...", allSamples.size(), jeVisAttribute.getName(), object.getName(), object.getID());
+                                for (JEVisSample sample : allSamples) {
+                                    JEVisFile sampleValueAsFile = sample.getValueAsFile();
+                                    ZipEntry sampleFileZipEntry = new ZipEntry(folder + "a_" + object.getID() + "_" + jeVisAttribute.getName() + "/" + sample.getTimestamp().toString(FILE_DATE_FORMAT) + "/" + sampleValueAsFile.getFilename().trim());
+                                    zipOutputStream.putNextEntry(sampleFileZipEntry);
+                                    zipOutputStream.write(sampleValueAsFile.getBytes());
+                                }
+                            }
                         }
+                    } catch (Exception e) {
+                        logger.error("Failed to write attribute {} of object {}:{}", jeVisAttribute.getName(), object.getName(), object.getID(), e);
                     }
                 }
-            }
 
-            String newFolder = folder + object.getID() + "/";
-            writeZipOutputStream(zipOutputStream, object.getChildren(), newFolder, message, jobNo, jobCount);
+                String newFolder = folder + object.getID() + "/";
+                writeZipOutputStream(zipOutputStream, object.getChildren(), newFolder, message, jobNo, jobCount);
+            } catch (Exception e) {
+                logger.error("Failed to write object {}:{}", object.getName(), object.getID(), e);
+            }
         }
     }
 
     public ObjectNode toJson(JEVisAttribute jeVisAttribute) throws Exception {
         ObjectNode attributeNode = JsonNodeFactory.instance.objectNode();
         attributeNode.put(ATTRIBUTE_NAME, jeVisAttribute.getName());
-        logger.info("Created attribute {} from object {}", jeVisAttribute.getName(), jeVisAttribute.getObjectID());
+        logger.info("Created attribute {} from object {}:{}", jeVisAttribute.getName(), jeVisAttribute.getObject().getName(), jeVisAttribute.getObject().getID());
 
         try {
             if (jeVisAttribute.getInputSampleRate() != null) {
