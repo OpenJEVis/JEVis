@@ -375,14 +375,22 @@ public class JEVisTreeContextMenu extends ContextMenu {
                         for (JEVisObject selectedObject : selectedObjects) {
                             try {
                                 List<JEVisObject> dataObjects = selectedObject.getChildren();
-                                String name = selectedObject.getName();
+                                String name = dataObjects.get(0).getName().substring(0, dataObjects.get(0).getName().indexOf(" - "));
 
-                                JEVisObject httpChannel = targetFolder.buildObject(name, httpChannelClass);
-                                httpChannel.commit();
+                                JEVisObject mainHttpChannel = targetFolder.buildObject(name + "_main", httpChannelClass);
+                                mainHttpChannel.commit();
                                 Thread.sleep(THREAD_WAIT);
 
-                                String newPathAttributeString = templatePathAttributeString.replace("(Template)", name);
-                                httpChannel.getAttribute(JC.Channel.HTTPChannel.a_Path).buildSample(new DateTime(), newPathAttributeString).commit();
+                                JEVisObject secondaryHttpChannel = targetFolder.buildObject(name + "_secondary", httpChannelClass);
+                                secondaryHttpChannel.commit();
+                                Thread.sleep(THREAD_WAIT);
+
+                                String newMainPathAttributeString = "/thermostat/" + name + "/data?startdate={LAST_TS}&enddate={CURRENT_TS}";
+                                mainHttpChannel.getAttribute(JC.Channel.HTTPChannel.a_Path).buildSample(new DateTime(), newMainPathAttributeString).commit();
+                                Thread.sleep(THREAD_WAIT);
+
+                                String newSecondaryPathAttributeString = "/thermostat/" + name + "/controllogs?startdate={LAST_TS}&enddate={CURRENT_TS}";
+                                secondaryHttpChannel.getAttribute(JC.Channel.HTTPChannel.a_Path).buildSample(new DateTime(), newSecondaryPathAttributeString).commit();
                                 Thread.sleep(THREAD_WAIT);
 
                                 String configString = "[ {\n" +
@@ -395,26 +403,45 @@ public class JEVisTreeContextMenu extends ContextMenu {
                                         "  \"Timezone\" : \"Europe/Berlin\"\n" +
                                         "} ]";
                                 JEVisFile parameterConfig = new JEVisFileImp("ParameterConfig" + JEVisDates.printDefaultDate(new DateTime()), configString.getBytes(StandardCharsets.UTF_8));
-                                httpChannel.getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).buildSample(new DateTime(), parameterConfig).commit();
+                                mainHttpChannel.getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).buildSample(new DateTime(), parameterConfig).commit();
                                 Thread.sleep(THREAD_WAIT);
-                                httpChannel.getAttribute(JC.Channel.HTTPChannel.a_ChunkSize).buildSample(new DateTime(), 1800).commit();
+                                mainHttpChannel.getAttribute(JC.Channel.HTTPChannel.a_ChunkSize).buildSample(new DateTime(), 86400).commit();
+                                Thread.sleep(THREAD_WAIT);
+                                secondaryHttpChannel.getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).buildSample(new DateTime(), parameterConfig).commit();
+                                Thread.sleep(THREAD_WAIT);
+                                secondaryHttpChannel.getAttribute(JC.Channel.HTTPChannel.a_ChunkSize).buildSample(new DateTime(), 86400).commit();
                                 Thread.sleep(THREAD_WAIT);
 
-                                JEVisObject jsonParser = httpChannel.buildObject("JsonParser", jsonParserClass);
+                                JEVisObject jsonParser = mainHttpChannel.buildObject("JsonParser", jsonParserClass);
                                 jsonParser.commit();
+                                Thread.sleep(THREAD_WAIT);
+                                JEVisObject json2Parser = secondaryHttpChannel.buildObject("JsonParser", jsonParserClass);
+                                json2Parser.commit();
                                 Thread.sleep(THREAD_WAIT);
 
                                 jsonParser.getAttribute(JC.Parser.JSONParser.a_dateTimePath).buildSample(new DateTime(), templateParserTimePathAttributeString).commit();
                                 Thread.sleep(THREAD_WAIT);
                                 jsonParser.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).buildSample(new DateTime(), templateParserTimeFormatAttributeString).commit();
                                 Thread.sleep(THREAD_WAIT);
+                                json2Parser.getAttribute(JC.Parser.JSONParser.a_dateTimePath).buildSample(new DateTime(), templateParserTimePathAttributeString).commit();
+                                Thread.sleep(THREAD_WAIT);
+                                json2Parser.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).buildSample(new DateTime(), templateParserTimeFormatAttributeString).commit();
+                                Thread.sleep(THREAD_WAIT);
 
                                 JEVisObject jsonDataPointsDirectory = jsonParser.buildObject("Json Data Points", jsonDataPointDirectoryClass);
                                 jsonDataPointsDirectory.commit();
                                 Thread.sleep(THREAD_WAIT);
+                                JEVisObject json2DataPointsDirectory = json2Parser.buildObject("Json Data Points", jsonDataPointDirectoryClass);
+                                json2DataPointsDirectory.commit();
+                                Thread.sleep(THREAD_WAIT);
 
                                 for (JEVisObject templateDatapoint : templateJsonDataPoints) {
-                                    JEVisObject jsonDataPoint = jsonDataPointsDirectory.buildObject(templateDatapoint.getName(), jsonDataPointClass);
+                                    JEVisObject jsonDataPoint;
+                                    if (!templateDatapoint.getName().contains("Temperatur Benutzer") && !templateDatapoint.getName().contains("Relative Ventilposition")) {
+                                        jsonDataPoint = jsonDataPointsDirectory.buildObject(templateDatapoint.getName(), jsonDataPointClass);
+                                    } else {
+                                        jsonDataPoint = json2DataPointsDirectory.buildObject(templateDatapoint.getName(), jsonDataPointClass);
+                                    }
                                     jsonDataPoint.commit();
                                     Thread.sleep(THREAD_WAIT);
 
@@ -430,6 +457,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                                             Thread.sleep(THREAD_WAIT);
                                         }
                                     }
+
                                 }
                             } catch (Exception e) {
                                 logger.error(e);

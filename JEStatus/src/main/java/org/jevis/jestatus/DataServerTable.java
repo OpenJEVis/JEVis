@@ -340,16 +340,18 @@ public class DataServerTable extends AlarmTable {
             dps.addAll(getChildrenRecursive(channel, getCsvDataPointClass()));
             dps.addAll(getChildrenRecursive(channel, getDwdDataPointClass()));
             dps.addAll(getChildrenRecursive(channel, getXmlDataPointClass()));
+            dps.addAll(getChildrenRecursive(channel, getJsonDataPointClass()));
             dps.addAll(getChildrenRecursive(channel, getDataPointClass()));
         } else {
             dps.addAll(getChildrenRecursive(channel, getCsvDataPointClass()));
             dps.addAll(getChildrenRecursive(channel, getXmlDataPointClass()));
+            dps.addAll(getChildrenRecursive(channel, getJsonDataPointClass()));
             dps.addAll(getChildrenRecursive(channel, getDataPointClass()));
         }
 
         for (JEVisObject dp : dps) {
 
-            if (dp.getJEVisClass().equals(getCsvDataPointClass()) || dp.getJEVisClass().equals(getXmlDataPointClass())) {
+            if (dp.getJEVisClass().equals(getCsvDataPointClass()) || dp.getJEVisClass().equals(getXmlDataPointClass()) || dp.getJEVisClass().equals(getJsonDataPointClass())) {
                 JEVisAttribute targetAtt = null;
                 JEVisSample lastSampleTarget = null;
 
