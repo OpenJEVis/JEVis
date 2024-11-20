@@ -112,7 +112,7 @@ public class TreeExporter {
 
                     updateTargetAttributes(createdObjects, targets);
 
-                    updateTargetsInFiles(createdObjects, fileAttributes);
+                    updateTargetsInFiles(parent.getDataSource(), createdObjects, fileAttributes);
 
                     logger.info("All Done");
 
@@ -128,7 +128,11 @@ public class TreeExporter {
         };
     }
 
-    private void updateTargetsInFiles(Map<Long, JEVisObject> createdObjects, List<JEVisAttribute> fileAttributes) throws JEVisException, IOException {
+    private void updateTargetsInFiles(JEVisDataSource ds, Map<Long, JEVisObject> createdObjects, List<JEVisAttribute> fileAttributes) throws JEVisException, IOException {
+        JEVisType analysisFileType = ds.getJEVisClass(JC.Analysis.name).getType(JC.Analysis.a_AnalysisFile);
+        JEVisType analysisDataModelType = ds.getJEVisClass(JC.Analysis.name).getType(JC.Analysis.a_DataModel);
+        JEVisType dashboardFileType = ds.getJEVisClass(JC.DashboardAnalysis.name).getType(JC.DashboardAnalysis.a_DataModelFile);
+
         for (JEVisAttribute fileAttribute : fileAttributes) {
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -136,25 +140,29 @@ public class TreeExporter {
             objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
             objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-            if (fileAttribute.getName().equals(JC.Analysis.a_DataModel) || fileAttribute.getName().equals(JC.DashboardAnalysis.a_DataModelFile)) {
+
+            if (fileAttribute.getType().equals(analysisFileType) || fileAttribute.getType().equals(dashboardFileType)) {
                 JEVisSample latestSample = fileAttribute.getLatestSample();
                 if (latestSample != null) {
-                    JEVisFile file = fileAttribute.getLatestSample().getValueAsFile();
+                    JEVisFile file = latestSample.getValueAsFile();
 
-                    JsonNode jsonNode = mapper.readTree(file.getBytes());
-                    String jsonNodePrettyString = jsonNode.toPrettyString();
+                    if (file != null && file.getBytes() != null && file.getBytes().length > 0) {
 
-                    for (JsonNode id : jsonNode.findValues("id")) {
-                        JEVisObject jeVisObject = createdObjects.get(id);
-                        String oldValue = "\"id\" : " + id;
-                        String newValue = "\"id\" : " + jeVisObject.getID();
-                        jsonNodePrettyString.replaceAll(oldValue, newValue);
+                        JsonNode jsonNode = mapper.readTree(file.getBytes());
+                        String jsonNodePrettyString = jsonNode.toPrettyString();
+
+                        for (JsonNode id : jsonNode.findValues("id")) {
+                            JEVisObject jeVisObject = createdObjects.get(id.asLong());
+                            String oldValue = "\"id\" : " + id;
+                            String newValue = "\"id\" : " + jeVisObject.getID();
+                            jsonNodePrettyString = jsonNodePrettyString.replaceAll(oldValue, newValue);
+                        }
+
+                        JEVisFileImp jsonFile = new JEVisFileImp(
+                                file.getFilename(), jsonNodePrettyString.getBytes(StandardCharsets.UTF_8));
+                        JEVisSample newSample = fileAttribute.buildSample(new DateTime(), jsonFile);
+                        newSample.commit();
                     }
-
-                    JEVisFileImp jsonFile = new JEVisFileImp(
-                            file.getFilename(), jsonNodePrettyString.getBytes(StandardCharsets.UTF_8));
-                    JEVisSample newSample = fileAttribute.buildSample(new DateTime(), jsonFile);
-                    newSample.commit();
                 }
             }
         }
