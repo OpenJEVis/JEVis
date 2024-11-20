@@ -55,7 +55,7 @@ public class LegalCadastreTab extends Tab {
 
         org.jevis.jeconfig.plugin.nonconformities.ui.TagButton categoryButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.category"), indexOfLegalProvisions.getCategories(), indexOfLegalProvisions.getCategories());
         org.jevis.jeconfig.plugin.nonconformities.ui.TagButton scopeButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.scope"), indexOfLegalProvisions.getScopes(), indexOfLegalProvisions.getScopes());
-        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton relevanceButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.relvance"), indexOfLegalProvisions.getRelevanzTags(), indexOfLegalProvisions.getRelevanzTags());
+        org.jevis.jeconfig.plugin.nonconformities.ui.TagButton relevanceButton = new org.jevis.jeconfig.plugin.nonconformities.ui.TagButton(I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.relevance"), indexOfLegalProvisions.getRelevanzTags(), indexOfLegalProvisions.getRelevanzTags());
 
 
         indexOfLegalProvisionsTable.setCategories(categoryButton.getSelectedTags());

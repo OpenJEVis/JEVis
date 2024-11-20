@@ -12,10 +12,11 @@ import org.jevis.api.JEVisFile;
 import org.jevis.report3.TemplateTransformator;
 import org.jxls.common.Context;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Map;
 
 /**
- *
  * @author broder
  */
 public class Report {
@@ -38,7 +39,14 @@ public class Report {
         context.getConfig().setIsFormulaProcessingRequired(true);
 
         try {
-            templateTransformator.transform(template.getBytes(), context);
+            File templateFile = File.createTempFile("template", ".xlsx");
+            templateFile.deleteOnExit();
+
+            try (FileOutputStream fos = new FileOutputStream(templateFile)) {
+                fos.write(template.getBytes());
+            }
+
+            templateTransformator.transform(templateFile, context);
         } catch (Exception ex) {
             logger.fatal("error while transformation of the template", ex);
         }

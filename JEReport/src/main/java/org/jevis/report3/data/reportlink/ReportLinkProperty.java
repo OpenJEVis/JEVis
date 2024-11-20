@@ -33,7 +33,9 @@ import org.joda.time.Period;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -161,15 +163,15 @@ public class ReportLinkProperty implements ReportData {
     }
 
     @Override
-    public ConcurrentHashMap<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
-        ConcurrentHashMap<String, Object> templateMap = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, Object> reportLinkMap = getMapFromReportLink(this, property, intervalCalc);
+    public Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
+        Map<String, Object> templateMap = new ConcurrentHashMap<>();
+        Map<String, Object> reportLinkMap = getMapFromReportLink(this, property, intervalCalc);
         templateMap.put(this.getTemplateVariableName(), reportLinkMap);
         return templateMap;
     }
 
-    private ConcurrentHashMap<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
-        ConcurrentHashMap<String, Object> linkMap = new ConcurrentHashMap<>();
+    private Map<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
+        Map<String, Object> linkMap = new HashMap<>();
         List<ReportAttributeProperty> attributeProperties = linkProperty.getAttributeProperties();
         attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
         for (ReportAttributeProperty attributeProperty : attributeProperties) {

@@ -27,6 +27,7 @@ import org.jevis.commons.driver.dwd.Aggregation;
 import org.jevis.commons.driver.dwd.Attribute;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
@@ -270,7 +271,7 @@ public class DWDBrowser extends Dialog<ButtonType> {
                             logger.error("Could not commit samples", e);
                         }
 
-                        if (createDataPoint.isSelected()) {
+                        if (createDataPoint.isSelected() && target != null) {
                             try {
                                 Station selectedStation = stationBox.getSelectionModel().getSelectedItem();
                                 long stationId = selectedStation.getId();
@@ -282,13 +283,40 @@ public class DWDBrowser extends Dialog<ButtonType> {
                                 JEVisClass dwdDataSourceClass = ds.getJEVisClass(JC.DataSource.DataServer.DwdServer.name);
                                 JEVisClass dwdChannelDirectoryClass = ds.getJEVisClass(JC.Directory.ChannelDirectory.DWDChannelDirectory.name);
                                 JEVisClass dwdChannelClass = ds.getJEVisClass(JC.Channel.DWDChannel.name);
+                                JEVisClass siteClass = ds.getJEVisClass(JC.MonitoredObject.Building.name);
+                                JEVisClass dataSourceDirectoryClass = ds.getJEVisClass(JC.Directory.DataSourceDirectory.name);
+                                JEVisClass dwdServerClass = ds.getJEVisClass(JC.DataSource.DataServer.DwdServer.name);
 
-                                JEVisObject dwdServerObject = ds.getObjects(dwdDataSourceClass, false).stream().findFirst().orElse(null);
+                                JEVisObject nextSite = CommonMethods.getNextSiteRecursive(target.getObject(), siteClass);
+                                if (nextSite != null) {
+                                    JEVisObject dwdServerObject = null;
+                                    JEVisObject dataSourceDirectory = null;
+                                    for (JEVisObject dataSourceDir : nextSite.getChildren(dataSourceDirectoryClass, true)) {
+                                        dataSourceDirectory = dataSourceDir;
+                                        for (JEVisObject dataSource : dataSourceDirectory.getChildren(dwdDataSourceClass, true)) {
+                                            dwdServerObject = dataSource;
+                                            break;
+                                        }
+                                    }
 
-                                JEVisObject foundExistingChannel = ds.getObjects(dwdChannelClass, false).stream().filter(dwdChannel -> isSameChannel(dwdChannel, stationId, selectedAttribute.toString(), selectedAggregation.toString(), selectedDataName)).findFirst().orElse(null);
+                                    if (dwdServerObject == null && dataSourceDirectory != null) {
+                                        JEVisObject dwdServer = dataSourceDirectory.buildObject("DWD Server", dwdServerClass);
+                                        dwdServer.commit();
+                                        dwdServerObject = dwdServer;
 
-                                if (foundExistingChannel != null) {
-                                    if (target != null) {
+                                        JEVisObject dwdChannels = dwdServer.buildObject("DWD Channels", dwdChannelDirectoryClass);
+                                        dwdChannels.commit();
+                                    }
+
+                                    JEVisObject foundExistingChannel = null;
+                                    for (JEVisObject dwdServerChild : CommonMethods.getChildrenRecursive(dwdServerObject, dwdChannelClass)) {
+                                        if (isSameChannel(dwdServerChild, stationId, selectedAttribute.toString(), selectedAggregation.toString(), selectedDataName)) {
+                                            foundExistingChannel = dwdServerChild;
+                                            break;
+                                        }
+                                    }
+
+                                    if (foundExistingChannel != null) {
                                         String targetString = target.getObjectID() + ":" + target.getName();
                                         String foundTargetString = sampleHandler.getLastSample(foundExistingChannel, JC.Channel.DWDChannel.a_Target, "");
                                         if (!foundTargetString.contains(targetString)) {
@@ -296,38 +324,38 @@ public class DWDBrowser extends Dialog<ButtonType> {
                                             JEVisSample updatedTarget = target.buildSample(DateTime.now(), foundTargetString);
                                             updatedTarget.commit();
                                         }
-                                    }
 
-                                } else if (dwdServerObject != null) {
+                                    } else {
 
-                                    for (JEVisObject channelDirectory : dwdServerObject.getChildren()) {
-                                        JEVisObject foundStationDirectory = channelDirectory.getChildren().stream().filter(stationDirectory -> selectedStation.getName().equals(stationDirectory.getName())).findFirst().orElse(null);
+                                        for (JEVisObject channelDirectory : dwdServerObject.getChildren()) {
+                                            JEVisObject foundStationDirectory = channelDirectory.getChildren().stream().filter(stationDirectory -> selectedStation.getName().equals(stationDirectory.getName())).findFirst().orElse(null);
 
-                                        if (foundStationDirectory == null) {
-                                            foundStationDirectory = channelDirectory.buildObject(selectedStation.getName(), dwdChannelDirectoryClass);
-                                            foundStationDirectory.commit();
+                                            if (foundStationDirectory == null) {
+                                                foundStationDirectory = channelDirectory.buildObject(selectedStation.getName(), dwdChannelDirectoryClass);
+                                                foundStationDirectory.commit();
+                                            }
+
+                                            String channelName = selectedStation.getName() + " " + selectedAggregation + " " + selectedAttribute + " " + selectedDataName;
+
+                                            JEVisObject channel = foundStationDirectory.buildObject(channelName, dwdChannelClass);
+                                            channel.commit();
+
+                                            DateTime now = new DateTime();
+                                            JEVisSample idSample = channel.getAttribute(JC.Channel.DWDChannel.a_Id).buildSample(now, selectedStation.getId());
+                                            idSample.commit();
+                                            JEVisSample aggregationSample = channel.getAttribute(JC.Channel.DWDChannel.a_Aggregation).buildSample(now, selectedAggregation);
+                                            aggregationSample.commit();
+                                            JEVisSample attributeSample = channel.getAttribute(JC.Channel.DWDChannel.a_Attribute).buildSample(now, selectedAttribute);
+                                            attributeSample.commit();
+                                            JEVisSample dataNameSample = channel.getAttribute(JC.Channel.DWDChannel.a_DataName).buildSample(now, selectedDataName);
+                                            dataNameSample.commit();
+                                            JEVisSample targetSample = channel.getAttribute(JC.Channel.DWDChannel.a_Target).buildSample(now, target.getObjectID() + ":" + target.getName());
+                                            targetSample.commit();
+                                            JEVisSample lastReadoutSample = channel.getAttribute(JC.Channel.DWDChannel.a_LastReadout).buildSample(now, samples.get(samples.size() - 1).getTimestamp());
+                                            lastReadoutSample.commit();
                                         }
 
-                                        String channelName = selectedStation.getName() + " " + selectedAggregation + " " + selectedAttribute + " " + selectedDataName;
-
-                                        JEVisObject channel = foundStationDirectory.buildObject(channelName, dwdChannelClass);
-                                        channel.commit();
-
-                                        DateTime now = new DateTime();
-                                        JEVisSample idSample = channel.getAttribute(JC.Channel.DWDChannel.a_Id).buildSample(now, selectedStation.getId());
-                                        idSample.commit();
-                                        JEVisSample aggregationSample = channel.getAttribute(JC.Channel.DWDChannel.a_Aggregation).buildSample(now, selectedAggregation);
-                                        aggregationSample.commit();
-                                        JEVisSample attributeSample = channel.getAttribute(JC.Channel.DWDChannel.a_Attribute).buildSample(now, selectedAttribute);
-                                        attributeSample.commit();
-                                        JEVisSample dataNameSample = channel.getAttribute(JC.Channel.DWDChannel.a_DataName).buildSample(now, selectedDataName);
-                                        dataNameSample.commit();
-                                        JEVisSample targetSample = channel.getAttribute(JC.Channel.DWDChannel.a_Target).buildSample(now, target.getObjectID() + ":" + target.getName());
-                                        targetSample.commit();
-                                        JEVisSample lastReadoutSample = channel.getAttribute(JC.Channel.DWDChannel.a_LastReadout).buildSample(now, samples.get(samples.size() - 1).getTimestamp());
-                                        lastReadoutSample.commit();
                                     }
-
                                 }
 
 

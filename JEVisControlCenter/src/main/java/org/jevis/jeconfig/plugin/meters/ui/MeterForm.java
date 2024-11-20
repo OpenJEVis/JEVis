@@ -35,6 +35,7 @@ public class MeterForm extends Dialog {
         Stage stage = (Stage) this.getDialogPane().getScene().getWindow();
         TopMenu.applyActiveTheme(stage.getScene());
         stage.setAlwaysOnTop(false);
+        
         stage.setResizable(true);
 
         tabs = new ArrayList<>();

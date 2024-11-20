@@ -3,6 +3,7 @@ package org.jevis.datacollector.sqldriver;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTimeZone;
 
 import java.util.ArrayList;
@@ -109,32 +110,22 @@ public class Parameters {
     }
 
 
-    public List<RequestParameters> getRequest() throws JEVisException {
+    public List<RequestParameters> getSQLRequests() throws JEVisException {
         List<RequestParameters> requestParametersList = new ArrayList<>();
-        JEVisClass requestDirClass = sqlServerObj.getDataSource().getJEVisClass("SQL Request Directory");
         JEVisClass requestClass = sqlServerObj.getDataSource().getJEVisClass("SQL Request");
 
-        logger.info("Found {} request Directory's", sqlServerObj.getChildren(requestDirClass, true));
-        sqlServerObj.getChildren(requestDirClass, true).forEach(dir -> {
+        List<JEVisObject> requestObjects = CommonMethods.getChildrenRecursive(sqlServerObj, requestClass);
+        logger.info("Found {} request Directory's", requestObjects);
+
+        for (JEVisObject jeVisObject : requestObjects) {
             try {
-                logger.info("Enter SQL Dir: {}", dir.getName());
-                dir.getChildren(requestClass, true).forEach(jeVisObject -> {
-                    try {
-                        RequestParameters requestParameters = new RequestParameters(jeVisObject);
-
-
-                        requestParametersList.add(requestParameters);
-
-
-                    } catch (Exception ex) {
-                        logger.error("Error in SQL Request: {}:{}", jeVisObject.getID(), jeVisObject.getName(), ex);
-                    }
-                });
+                RequestParameters requestParameters = new RequestParameters(jeVisObject);
+                requestParametersList.add(requestParameters);
             } catch (Exception ex) {
-                logger.error("Error in SQL Request Directory: {}:{}", dir.getID(), dir.getName(), ex);
+                logger.error("Error in SQL Request: {}:{}", jeVisObject.getID(), jeVisObject.getName(), ex);
             }
+        }
 
-        });
         return requestParametersList;
     }
 

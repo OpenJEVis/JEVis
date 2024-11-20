@@ -33,6 +33,7 @@ public class ChartUnitBox extends JFXComboBox<JEVisUnit> {
         List<JEVisUnit> proNames = new ArrayList<>();
         QuantityUnits qu = new QuantityUnits();
 
+        boolean isTimeUnit = qu.isTimeUnit(currentUnit);
         boolean isEnergyUnit = qu.isEnergyUnit(currentUnit);
         boolean isVolumeUnit = qu.isVolumeUnit(currentUnit);
         boolean isMassUnit = qu.isMassUnit(currentUnit);
@@ -40,6 +41,10 @@ public class ChartUnitBox extends JFXComboBox<JEVisUnit> {
         boolean isVolumeFlowUnit = qu.isVolumeFlowUnit(currentUnit);
         boolean isMassFlowUnit = qu.isMassFlowUnit(currentUnit);
         boolean isMoneyUnit = qu.isMoneyUnit(currentUnit);
+
+        if (isTimeUnit) {
+            proNames.addAll(qu.getTimeUnits());
+        }
 
         if (isEnergyUnit) {
             proNames.addAll(qu.getEnergyUnits());

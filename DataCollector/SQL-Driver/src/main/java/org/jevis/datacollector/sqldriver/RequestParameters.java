@@ -31,6 +31,7 @@ public class RequestParameters {
     private final JEVisAttribute readoutOffsetAttribute;
     private final JEVisAttribute statusAttribute;
     private final DateTime lastLog = new DateTime();
+    private final DateTime lastReadout;
 
     public RequestParameters(JEVisObject queryObject) throws Exception {
 
@@ -49,7 +50,7 @@ public class RequestParameters {
         readoutOffsetAttribute = queryObject.getAttribute(JC.Channel.a_ReadoutOffset);
         Long readoutOffset = sampleHandler.getLastSample(queryObject, JC.Channel.a_ReadoutOffset, 0L);
 
-        DateTime lastReadout = sampleHandler.getLastSample(queryObject, JC.Channel.a_LastReadout, initialDate).minus(readoutOffset);
+        lastReadout = sampleHandler.getLastSample(queryObject, JC.Channel.a_LastReadout, initialDate).minus(readoutOffset);
 
         statusAttribute = queryObject.getAttribute("Status Log");
 
@@ -102,6 +103,10 @@ public class RequestParameters {
 
     public String valueFormate() {
         return valueFormate;
+    }
+
+    public DateTime getLastReadout() {
+        return lastReadout;
     }
 
     public void updateLastReadout() {

@@ -68,11 +68,6 @@
             <artifactId>JEAPI-WS</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
             <version>2.0.9</version>
@@ -80,13 +75,8 @@
 
         <dependency>
             <groupId>org.jxls</groupId>
-            <artifactId>jxls</artifactId>
-            <version>2.12.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jxls</groupId>
             <artifactId>jxls-poi</artifactId>
-            <version>2.12.0</version>
+            <version>2.14.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -97,22 +87,27 @@
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
-            <version>5.5.13.3</version>
+            <version>5.5.13.4</version>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
         </dependency>
         <dependency>
             <groupId>org.jodconverter</groupId>
             <artifactId>jodconverter-local</artifactId>
-            <version>4.4.6</version>
+            <version>4.4.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.26.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
+            <version>5.3.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.mail</groupId>
@@ -132,8 +127,8 @@
             <artifactId>log4j-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -25,6 +25,7 @@ import org.jevis.jeconfig.plugin.dashboard.config.DataPointNode;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.LastPeriod;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.PeriodCode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.widget.ChartWidget;
@@ -241,7 +242,7 @@ public class DataModelDataHandler {
         }
 
         try {
-            LastPeriod lastPeriod = new LastPeriod(Period.parse(this.dataModel.getForcedInterval()));
+            LastPeriod lastPeriod = new LastPeriod(this.dataModel.getForcedInterval());
             return lastPeriod;
         } catch (Exception ex) {
             logger.error(ex);
@@ -423,8 +424,17 @@ public class DataModelDataHandler {
                 }
             }
 
+            if (getTimeFrameFactory() != null && getTimeFrameFactory().getID().equals(PeriodCode.LASTVALUE.toString())) {
+                start = chartDataModel.getAttribute().getTimestampOfLastSample();
+                end = chartDataModel.getAttribute().getTimestampOfLastSample();
+            } else if (getTimeFrameFactory() != null && getTimeFrameFactory().getID().equals(PeriodCode.PALL.toString())) {
+                start = chartDataModel.getAttribute().getTimestampOfFirstSample();
+                end = chartDataModel.getAttribute().getTimestampOfLastSample();
+            }
+
             chartDataModel.setSelectedStart(start);
             chartDataModel.setSelectedEnd(end);
+
             List<JEVisSample> samples = chartDataModel.getSamples();
 
             if (forcedZeroInterval != null) {

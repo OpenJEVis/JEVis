@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="trace">
+<Configuration status="TRACE">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <!--<PatternLayout pattern="[%d{HH:mm:ss} %logger{1}.%M | %L] - %msg%n"/>-->
-            <PatternLayout pattern="[%logger{1}.%M|%L] - %msg%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n"/>
         </Console>
     </Appenders>
     <Loggers>
@@ -70,10 +69,8 @@
         <Logger name="org.jevis.ws" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <!--
-        <Root level="trace">
+        <Root level="debug">
             <AppenderRef ref="Console"/>
         </Root>
-        -->
     </Loggers>
 </Configuration>

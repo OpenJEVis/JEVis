@@ -13,8 +13,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 /**
  * @author broder
@@ -29,28 +30,28 @@ public class ProcessHelper {
      * @param attribute
      * @return
      */
-    public static ConcurrentHashMap<String, Object> getAttributeSamples(List<JEVisSample> samples, JEVisAttribute attribute, DateTimeZone timeZone) {
-        List<ConcurrentHashMap<String, Object>> sampleList = new ArrayList<>();
+    public static Map<String, Object> getAttributeSamples(List<JEVisSample> samples, JEVisAttribute attribute, DateTimeZone timeZone) {
+        List<Map<String, Object>> sampleList = new ArrayList<>();
 //        for (JEVisSample sample : samples) {
 //            Map<String, Object> valueMap = getSampleMap(sample, attribute);
 //            sampleList.add(valueMap);
 
         if (samples.isEmpty()) {
-            ConcurrentHashMap<String, Object> defMap = defSampleMap();
+            Map<String, Object> defMap = defSampleMap();
             sampleList.add(defMap);
         } else {
             for (JEVisSample sample : samples) {
-                ConcurrentHashMap<String, Object> valueMap = getSampleMap(sample, attribute, timeZone);
+                Map<String, Object> valueMap = getSampleMap(sample, attribute, timeZone);
                 sampleList.add(valueMap);
             }
         }
         //parse the attributes
-        ConcurrentHashMap<String, Object> attributeMap = getAttributeMap(sampleList, attribute.getName());
+        Map<String, Object> attributeMap = getAttributeMap(sampleList, attribute.getName());
         return attributeMap;
     }
 
-    static ConcurrentHashMap<String, Object> defSampleMap() {
-        ConcurrentHashMap<String, Object> valueMap = new ConcurrentHashMap<>();
+    static Map<String, Object> defSampleMap() {
+        Map<String, Object> valueMap = new HashMap<>();
         valueMap.put("unit", "NO UNIT");
         valueMap.put("value", "NO DATA");
         valueMap.put("timestamp", "NO DATE");
@@ -64,25 +65,25 @@ public class ProcessHelper {
      * @param attribute
      * @return
      */
-    public static ConcurrentHashMap<String, Object> getAttributeSample(JEVisSample sample, JEVisAttribute attribute, DateTimeZone timeZone) {
-        ConcurrentHashMap<String, Object> sampleMap = getSampleMap(sample, attribute, timeZone);
+    public static Map<String, Object> getAttributeSample(JEVisSample sample, JEVisAttribute attribute, DateTimeZone timeZone) {
+        Map<String, Object> sampleMap = getSampleMap(sample, attribute, timeZone);
 
         //parse the attributes
         String attributeName = attribute.getName().trim().replaceAll("\\s+", "");
-        ConcurrentHashMap<String, Object> attributeMap = getAttributeMap(sampleMap, attributeName);
+        Map<String, Object> attributeMap = getAttributeMap(sampleMap, attributeName);
         return attributeMap;
     }
 
-    private static ConcurrentHashMap<String, Object> getAttributeMap(Object sampleMap, String name) {
-        ConcurrentHashMap<String, Object> attributeMap = new ConcurrentHashMap<>();
+    private static Map<String, Object> getAttributeMap(Object sampleMap, String name) {
+        Map<String, Object> attributeMap = new HashMap<>();
         String attributeName = name.trim().replaceAll("\\s+", "");
         attributeMap.put(attributeName, sampleMap);
         attributeMap.put(attributeName.toLowerCase(), sampleMap);
         return attributeMap;
     }
 
-    static ConcurrentHashMap<String, Object> getSampleMap(JEVisSample sample, JEVisAttribute attribute, DateTimeZone timeZone) {
-        ConcurrentHashMap<String, Object> valueMap = new ConcurrentHashMap<>();
+    static Map<String, Object> getSampleMap(JEVisSample sample, JEVisAttribute attribute, DateTimeZone timeZone) {
+        Map<String, Object> valueMap = new HashMap<>();
         try {
             Object value = getValue(attribute, sample);
             DateTime utcTimestamp = sample.getTimestamp();
