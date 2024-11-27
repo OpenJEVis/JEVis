@@ -194,7 +194,7 @@ public class SaveAnalysisDialog extends Dialog {
                     e.printStackTrace();
                 }
                 if (createOk && newAnalysisObject != null) {
-                    chartPlugin.getAnalysisHandler().saveDataModel(newAnalysisObject, chartPlugin.getDataModel(), toolBarView.getToolBarSettings(), dataSettings);
+                    chartPlugin.getAnalysisHandler().saveDataModel(newAnalysisObject, chartPlugin.getDataModel());
                     toolBarView.setChanged(false);
 
                     analysesComboBox.updateListAnalyses();
@@ -232,7 +232,7 @@ public class SaveAnalysisDialog extends Dialog {
 
                 okOverwriteButton.setOnAction(event1 -> {
                     if (currentAnalysis.get() != null) {
-                        chartPlugin.getAnalysisHandler().saveDataModel(currentAnalysis.get(), chartPlugin.getDataModel(), toolBarView.getToolBarSettings(), dataSettings);
+                        chartPlugin.getAnalysisHandler().saveDataModel(currentAnalysis.get(), chartPlugin.getDataModel());
                         toolBarView.setChanged(false);
 
                         analysesComboBox.updateListAnalyses();

@@ -1148,7 +1148,7 @@ public class ChartPlugin implements Plugin {
 
                     dataModel.getChartModels().add(chartModel);
 
-                    analysisHandler.saveDataModel(ds.getCurrentUser().getUserObject(), dataModel, toolBarView.getToolBarSettings(), dataSettings);
+                    analysisHandler.saveDataModel(ds.getCurrentUser().getUserObject(), dataModel);
 
                     Platform.runLater(() -> getToolBarView().getAnalysesComboBox().updateListAnalyses());
 
