@@ -4,7 +4,7 @@
   "unique": false,
   "relationships": [
     {
-      "start": "Dashboard Analysis",
+      "start": "Dashboard Collection",
       "end": "Dashboard Directory",
       "type": 3
     }
@@ -13,16 +13,16 @@
     {
       "name": "Timer",
       "primitiveType": 0,
-      "guiType": "String",
+      "guiType": "Text",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Dashboard Collection"
     },
     {
-      "name": "Dasboards",
+      "name": "Dashboards",
       "primitiveType": 0,
-      "guiType": "String",
+      "guiType": "Text",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
