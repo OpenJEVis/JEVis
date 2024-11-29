@@ -47,30 +47,30 @@ public class JEVisXMLParser implements Parser {
             JEVisType charsetElementType = jeClass.getType(XMLParserTypes.CHARSET);
 
             String dateFormat = DatabaseHelper.getObjectAsString(parserObject, dateFormatType);
-            logger.info("DateFormat: {}", dateFormat);
+            logger.debug("DateFormat: {}", dateFormat);
             String timeFormat = DatabaseHelper.getObjectAsString(parserObject, timeFormatType);
-            logger.info("TimeFormat: {}", timeFormat);
+            logger.debug("TimeFormat: {}", timeFormat);
             String decimalSeperator = DatabaseHelper.getObjectAsString(parserObject, decimalSeperatorType);
-            logger.info("DecimalSeperator: {}", decimalSeperator);
+            logger.debug("DecimalSeperator: {}", decimalSeperator);
             String thousandSeperator = DatabaseHelper.getObjectAsString(parserObject, thousandSeperatorType);
-            logger.info("ThousandSeperator: {}", thousandSeperator);
+            logger.debug("ThousandSeperator: {}", thousandSeperator);
 
             String mainElement = DatabaseHelper.getObjectAsString(parserObject, mainElementType);
-            logger.info("MainElement: {}", mainElement);
+            logger.debug("MainElement: {}", mainElement);
             String mainAttribute = DatabaseHelper.getObjectAsString(parserObject, mainAttributeType);
-            logger.info("MainAttribute: {}", mainAttribute);
+            logger.debug("MainAttribute: {}", mainAttribute);
             String valueElement = DatabaseHelper.getObjectAsString(parserObject, valueElementType);
-            logger.info("ValueElement: {}", valueElement);
+            logger.debug("ValueElement: {}", valueElement);
             String valueAtribute = DatabaseHelper.getObjectAsString(parserObject, valueAttributeType);
-            logger.info("ValueAttribute: {}", valueAtribute);
+            logger.debug("ValueAttribute: {}", valueAtribute);
             Boolean valueInElement = DatabaseHelper.getObjectAsBoolean(parserObject, valueInElementType);
-            logger.info("ValueInElement: {}", valueInElement);
+            logger.debug("ValueInElement: {}", valueInElement);
             String dateElement = DatabaseHelper.getObjectAsString(parserObject, dateElementType);
-            logger.info("DateElement: {}", dateElement);
+            logger.debug("DateElement: {}", dateElement);
             String dateAttribute = DatabaseHelper.getObjectAsString(parserObject, dateAttributeType);
-            logger.info("DateAttribute: {}", dateAttribute);
+            logger.debug("DateAttribute: {}", dateAttribute);
             Boolean dateInElement = DatabaseHelper.getObjectAsBoolean(parserObject, dateInElementType);
-            logger.info("DateInElement: {}", dateInElement);
+            logger.debug("DateInElement: {}", dateInElement);
             String charsetInElement = DatabaseHelper.getObjectAsString(parserObject, charsetElementType);
             Charset charset;
             if (charsetInElement == null || charsetInElement.equals("")) {
@@ -78,7 +78,7 @@ public class JEVisXMLParser implements Parser {
             } else {
                 charset = Charset.forName(charsetInElement);
             }
-            logger.info("CharsetElement: {}", charset.displayName());
+            logger.debug("CharsetElement: {}", charset.displayName());
 
             _xmlParser = new XMLParser();
             _xmlParser.setDateFormat(dateFormat);
