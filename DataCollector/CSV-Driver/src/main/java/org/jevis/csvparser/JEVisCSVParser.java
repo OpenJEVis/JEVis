@@ -188,7 +188,7 @@ public class JEVisCSVParser implements Parser {
      */
     @Override
     public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
-        logger.info("CSV Parser.parse Streams: {} tz: {}", inputList.size(), timeZone);
+        logger.debug("CSV Parser.parse Streams: {} tz: {}", inputList.size(), timeZone);
         _csvParser.parse(inputList, timeZone);
     }
 
