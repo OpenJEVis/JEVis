@@ -244,7 +244,7 @@ public class DashBoardToolbar extends ToolBar {
 
         listZoomLevel = buildZoomLevelListView();
 
-        this.listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+        listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (disableEventListener) return;
                 if (oldValue != newValue) {
@@ -261,7 +261,7 @@ public class DashBoardToolbar extends ToolBar {
             }
         });
 
-        this.listZoomLevel.valueProperty().addListener((observable, oldValue, newValue) -> {
+        listZoomLevel.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (disableEventListener) return;
             dashboardControl.setZoomFactor(newValue);
         });
@@ -294,11 +294,11 @@ public class DashBoardToolbar extends ToolBar {
             this.dashboardControl.showGrid(!dashboardControl.showGridProperty.getValue());
         });
 
-        this.runUpdateButton.setOnAction(event -> {
+        runUpdateButton.setOnAction(event -> {
             this.dashboardControl.switchUpdating();
         });
 
-        this.backgroundButton.setOnAction(event -> {
+        backgroundButton.setOnAction(event -> {
             this.dashboardControl.startWallpaperSelection();
         });
 
@@ -524,11 +524,15 @@ public class DashBoardToolbar extends ToolBar {
             boolean createOk = false;
 
             try {
-                JEVisUser currentUser = dashboardControl.getDataSource().getCurrentUser();
-                Long id = dashboardControl.getActiveDashboard().getDashboardObject().getID();
-                writeOk = currentUser.canWrite(id);
-                deleteOk = currentUser.canDelete(id);
-                createOk = currentUser.canCreate(id);
+                JEVisUser currentUser = dashboardControl.getDataSource().getCurrentUser();//new dashboard
+                if (dashboardControl.getActiveDashboard().getDashboardObject() == null) {
+                    writeOk = true;
+                } else {
+                    Long id = dashboardControl.getActiveDashboard().getDashboardObject().getID();
+                    writeOk = currentUser.canWrite(id);
+                    deleteOk = currentUser.canDelete(id);
+                    createOk = currentUser.canCreate(id);
+                }
 
                 logger.debug("User {} can write: {} delete: {} create: {}", currentUser.getAccountName(), writeOk, deleteOk, createOk);
             } catch (Exception e) {

@@ -34,15 +34,13 @@ import java.util.concurrent.TimeUnit;
 public class DashBordPlugIn implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(DashBordPlugIn.class);
+    private static final double scrollBarSize = 18;
     public static String CLASS_ANALYSIS = "Dashboard Analysis", CLASS_ANALYSIS_DIR = "Analyses Directory", ATTRIBUTE_DATA_MODEL_FILE = "Data Model File", ATTRIBUTE_DATA_MODEL = "Data Model", ATTRIBUTE_BACKGROUND = "Background";
     public static String PLUGIN_NAME = "Dashboard Plugin";
-    private static final double scrollBarSize = 18;
     private final StringProperty nameProperty = new SimpleStringProperty("Dashboard");
-    private boolean isInitialized = false;
     private final StringProperty uuidProperty = new SimpleStringProperty("Dashboard");
     private final NotificationPane notificationPane;
     private final DashboardControl dashboardControl;
-    private JEVisDataSource jeVisDataSource;
     private final DashBoardPane dashBoardPane;
     private final ScrollPane widgetControlPane;
     private final DashBoardToolbar toolBar;
@@ -54,6 +52,8 @@ public class DashBordPlugIn implements Plugin {
      * Group() is not working because of Chart problems
      */
     private final Pane zoomPane = new Pane();
+    private boolean isInitialized = false;
+    private JEVisDataSource jeVisDataSource;
 
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
