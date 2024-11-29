@@ -26,6 +26,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
@@ -234,6 +235,14 @@ public class PluginManager {
 
     public void setWatermark(boolean water) {
         boolean _watermark = water;
+    }
+
+    public Tab getActiveTab() {
+        return this.tabPane.getSelectionModel().getSelectedItem();
+    }
+
+    public TabPane getTabPane() {
+        return this.tabPane;
     }
 
     public Node getView() {
