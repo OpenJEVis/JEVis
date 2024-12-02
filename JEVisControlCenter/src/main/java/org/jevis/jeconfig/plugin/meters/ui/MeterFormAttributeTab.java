@@ -162,19 +162,17 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
     private void buildFileChooser(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
 
-
-        Label label = null;
-        HBox hBox = null;
-        JFXButton uploadButton = null;
+        Label fileName = new Label();
+        Label label = new Label();
+        JFXButton uploadButton = new JFXButton("", JEConfig.getSVGImage(Icon.CLOUD_UPLOAD, 18, 18));
+        HBox hBox = new HBox(uploadButton, fileName);
+        hBox.setSpacing(5);
+        hBox.setAlignment(Pos.CENTER_RIGHT);
 
         try {
-            Label fileName = new Label();
+
             fileName.setText(optionalJEVisSample.isPresent() ? optionalJEVisSample.get().getValueAsString() : "");
-            uploadButton = new JFXButton("", JEConfig.getSVGImage(Icon.CLOUD_UPLOAD, 18, 18));
-            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
-            hBox = new HBox(uploadButton, fileName);
-            hBox.setSpacing(5);
-            hBox.setAlignment(Pos.CENTER_RIGHT);
+            label.setText(I18nWS.getInstance().getTypeName(jeVisType));
 
             uploadButton.setOnAction(actionEvent -> {
                 FileChooser fileChooser = new FileChooser();
@@ -216,12 +214,12 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
     }
 
     private void buildCal(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
-        Label label = null;
+        Label label = new Label();
         JFXDatePicker jfxDatePicker = new JFXDatePicker();
         jfxDatePicker.getEditor().setAlignment(Pos.CENTER_RIGHT);
         JEVisObject jeVisObject = meterData.getJeVisObject();
         try {
-            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
+            label.setText(I18nWS.getInstance().getTypeName(jeVisType));
             DateTime dateTime = DatabaseHelper.getObjectAsDate(jeVisObject, jeVisType);
             jfxDatePicker.setValue(toLocalDate(dateTime));
             jfxDatePicker.valueProperty().addListener((observableValue, localDate, t1) -> {
@@ -262,13 +260,13 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
     public void buildTargetSelect(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
 
-        Label label = null;
-        Label linkName = null;
-        JFXButton jfxButton = null;
+        Label label = new Label();
+        Label linkName = new Label();
+        JFXButton jfxButton = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 18, 18));
+        jfxButton.setAlignment(Pos.CENTER_RIGHT);
+
         try {
-            jfxButton = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 18, 18));
-            jfxButton.setAlignment(Pos.CENTER_RIGHT);
-            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
+            label.setText(I18nWS.getInstance().getTypeName(jeVisType));
 
             TargetHelper th = null;
             try {
@@ -278,19 +276,19 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             }
 
             if (th.isValid() && th.targetObjectAccessible()) {
-                logger.info("Target Is valid");
-            }
-            linkName = new Label(th.getObject().get(0).getName());
+                logger.info("Target is valid");
 
+                linkName.setText(th.getObject().get(0).getName());
+            }
             TargetHelper finalTh = th;
-            Label finalLinkName = linkName;
+
             jfxButton.setOnAction(actionEvent -> {
 
                 List<JEVisTreeFilter> allFilter = new ArrayList<>();
                 JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataFilter();
                 allFilter.add(allDataFilter);
                 List<UserSelection> openList = new ArrayList<>();
-                if (finalTh != null && !finalTh.getObject().isEmpty()) {
+                if (!finalTh.getObject().isEmpty()) {
                     for (JEVisObject obj : finalTh.getObject()) {
                         openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
                     }
@@ -308,7 +306,7 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
                                 if (index > 0) newTarget += ";";
 
                                 newTarget += us.getSelectedObject().getID();
-                                finalLinkName.setText(us.getSelectedObject().getName());
+                                linkName.setText(us.getSelectedObject().getName());
                                 if (us.getSelectedAttribute() != null) {
                                     newTarget += ":" + us.getSelectedAttribute().getName();
 
@@ -345,12 +343,14 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
     }
 
     private void buildTextArea(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
-        Label label = null;
-        TextArea textArea = null;
+        Label label = new Label();
+        TextArea textArea = new TextArea();
+        textArea.setPrefWidth(200);
         try {
-            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
-            textArea = optionalJEVisSample.isPresent() ? new TextArea(optionalJEVisSample.get().getValueAsString()) : new TextArea();
-            textArea.setPrefWidth(200);
+            label.setText(I18nWS.getInstance().getTypeName(jeVisType));
+            if (optionalJEVisSample.isPresent()) {
+                textArea.setText(optionalJEVisSample.get().getValueAsString());
+            }
 
             textArea.textProperty().addListener((observableValue, s, t1) -> {
                 int primitiveType = 0;
@@ -361,7 +361,6 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
                     return;
                 }
                 if (t1.isEmpty()) return;
-
 
                 try {
                     switch (primitiveType) {
@@ -406,13 +405,16 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
     }
 
     private void buildTextField(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
-        Label label = null;
-        JFXTextField textField = null;
+        Label label = new Label();
+        JFXTextField textField = new JFXTextField();
+        textField.setPrefWidth(200);
+        textField.setAlignment(Pos.CENTER_RIGHT);
+
         try {
-            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
-            textField = optionalJEVisSample.isPresent() ? new JFXTextField(optionalJEVisSample.get().getValueAsString()) : new JFXTextField();
-            textField.setPrefWidth(200);
-            textField.setAlignment(Pos.CENTER_RIGHT);
+            label.setText(I18nWS.getInstance().getTypeName(jeVisType));
+            if (optionalJEVisSample.isPresent()) {
+                textField.setText(optionalJEVisSample.get().getValueAsString());
+            }
 
             textField.textProperty().addListener((observableValue, s, t1) -> {
                 int primitiveType = 0;
