@@ -25,10 +25,10 @@ import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.attribute.*;
 import org.jevis.report3.data.report.ReportProperty;
 import org.jevis.report3.data.report.intervals.IntervalCalculator;
+import org.jevis.report3.data.report.intervals.ReportInterval;
 import org.jevis.report3.process.LastSampleGenerator;
 import org.jevis.report3.process.ProcessHelper;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.time.LocalTime;
@@ -225,7 +225,7 @@ public class ReportLinkProperty implements ReportData {
                                     }
                                     logger.debug("manipulationMode: {}", manipulationMode.toString());
 
-                                    Interval interval = null;
+                                    ReportInterval interval = null;
 
                                     JEVisAttribute periodAttribute = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD);
                                     String modeName = PeriodMode.CURRENT.toString();
@@ -315,7 +315,7 @@ public class ReportLinkProperty implements ReportData {
                                                     start = start.minusDays(1);
                                                 }
 
-                                                interval = new Interval(start, end);
+                                                interval = new ReportInterval(start, end);
                                             }
 
                                             samples = attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString(), property.getTimeZone().getID());

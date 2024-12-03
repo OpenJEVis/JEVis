@@ -15,8 +15,8 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.report3.data.report.ReportProperty;
 import org.jevis.report3.data.report.intervals.IntervalCalculator;
+import org.jevis.report3.data.report.intervals.ReportInterval;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,7 +68,7 @@ public class AlarmFunction implements ReportData {
     @Override
     public Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
         Map<String, Object> functionMap = new HashMap<>();
-        Interval interval = intervalCalc.getInterval(PeriodMode.CURRENT.toString().toUpperCase());
+        ReportInterval interval = intervalCalc.getInterval(PeriodMode.CURRENT.toString().toUpperCase());
         DateTime start = interval.getStart();
         DateTime end = interval.getEnd();
 

@@ -12,11 +12,13 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.report3.data.report.ReportConfiguration;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import java.math.BigDecimal;
@@ -42,10 +44,11 @@ public class Precondition {
         Period schedule = Period.valueOf(scheduleString.toUpperCase());
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         DateTime startRecord = DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
+        DateTimeZone dateTimeZone = samplesHandler.getLastSample(reportObject, JC.Report.a_TimeZone, DateTimeZone.UTC);
 
         org.jevis.commons.datetime.DateHelper dateHelper = null;
         dateHelper = PeriodHelper.getDateHelper(reportObject, schedule, dateHelper, startRecord);
-        DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
+        DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateTimeZone, dateHelper);
 
         String operator = samplesHandler.getLastSample(reportObject, "Operator", "");
         String limit = samplesHandler.getLastSample(reportObject, "Limit", "");

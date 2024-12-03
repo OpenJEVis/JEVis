@@ -74,9 +74,9 @@ public class PeriodHelper {
         return resultingDate;
     }
 
-    public static DateTime getNextPeriod(DateTime start, Period schedule, int i, org.joda.time.Period customPeriod) {
-        DateTime resultDate = start;
-        boolean wasLastDay = start.getDayOfMonth() == start.dayOfMonth().getMaximumValue();
+    public static DateTime getNextPeriod(DateTime start, Period schedule, DateTimeZone dateTimeZone, int i, org.joda.time.Period customPeriod) {
+        DateTime resultDate = start.withZone(dateTimeZone);
+        boolean wasLastDay = resultDate.getDayOfMonth() == resultDate.dayOfMonth().getMaximumValue();
         switch (schedule) {
             case MINUTELY:
                 resultDate = resultDate.plusMinutes(i);
@@ -176,7 +176,7 @@ public class PeriodHelper {
         return resultDate.withZone(DateTimeZone.UTC);
     }
 
-    public static DateTime calcEndRecord(DateTime start, Period schedule, org.jevis.commons.datetime.DateHelper dateHelper) {
+    public static DateTime calcEndRecord(DateTime start, Period schedule, DateTimeZone dateTimeZone, org.jevis.commons.datetime.DateHelper dateHelper) {
         DateTime resultDate = start;
         switch (schedule) {
             case MINUTELY:
@@ -209,6 +209,10 @@ public class PeriodHelper {
                 resultDate = resultDate.plus(temp.toDurationMillis()).minusMillis(1);
                 break;
         }
+
+        int dateTimeZoneOffset = dateTimeZone.getOffset(resultDate);
+        resultDate = resultDate.withZoneRetainFields(DateTimeZone.forOffsetMillis(dateTimeZoneOffset));
+
         return resultDate;
     }
 
