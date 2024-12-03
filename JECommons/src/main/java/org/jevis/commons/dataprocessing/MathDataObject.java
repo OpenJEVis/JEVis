@@ -573,7 +573,7 @@ public class MathDataObject {
                 period = org.jevis.commons.datetime.Period.YEARLY;
             }
         }
-        return PeriodHelper.getNextPeriod(lastRun, period, referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
+        return PeriodHelper.getNextPeriod(lastRun, period, getTimeZone(), referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
     }
 
     private DateTime getLastRun(JEVisObject object) {

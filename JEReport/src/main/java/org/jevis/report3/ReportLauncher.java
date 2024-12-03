@@ -74,11 +74,10 @@ public class ReportLauncher extends AbstractCliApp {
         Precondition precondition = new Precondition(sampleHandler);
         IntervalCalculator intervalCalculator = new IntervalCalculator(sampleHandler);
         ContextBuilder contextBuilder = new ContextBuilder();
-        Finisher finisher = new Finisher(sampleHandler);
+        Finisher finisher = new Finisher(reportObject, sampleHandler);
         ReportLinkFactory reportLinkFactory = new ReportLinkFactory();
 
-        ReportExecutor reportExecutor = new ReportExecutor(precondition, intervalCalculator, contextBuilder, finisher, reportLinkFactory, reportObject);
-        return reportExecutor;
+        return new ReportExecutor(precondition, intervalCalculator, contextBuilder, finisher, reportLinkFactory, reportObject);
     }
 
     private void executeReports(List<JEVisObject> reportObjects) {
