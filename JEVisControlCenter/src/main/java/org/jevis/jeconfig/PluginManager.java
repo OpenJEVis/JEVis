@@ -159,7 +159,7 @@ public class PluginManager {
                         new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")),
                         new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")),
                         new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")),
-                        new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.Legalcadastre.name")),
+                        new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.indexoflegalprovisions.name")),
                         new LoadProfilePlugin(this._ds, I18n.getInstance().getString("plugin.loadprofile.name")),
                         new TRCPlugin(this._ds)
                 ));
