@@ -48,19 +48,15 @@ public class Main {
 
     /**
      * Main method.
-     *
-     * @param args
      */
     public static void main(String[] args) throws SQLException, AuthenticationException, JEVisException {
         //read Config
         File configfile;
-        String newestVerion = "";
-        String jarCreationDate = "";
         boolean cleanFiles = false;
 
         try {
             Path jarPath = Paths.get(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            newestVerion = jarPath.getFileName().toString().replace("JEWebService-", "").replace("-jar-with-dependencies.jar", "");
+            String newestVerion = jarPath.getFileName().toString().replace("JEWebService-", "").replace("-jar-with-dependencies.jar", "");
             VERSION += " " + newestVerion;
         } catch (Exception e) {
             logger.error(e);
@@ -71,7 +67,7 @@ public class Main {
             BasicFileAttributes basicFileAttributes = Files.readAttributes(jarPath, BasicFileAttributes.class);
             FileTime fileTime = basicFileAttributes.creationTime();
             DateTime fileDate = new DateTime(fileTime.toMillis());
-            jarCreationDate = (fileDate.toString(JEVisDates.DEFAULT_DATE_FORMAT));
+            String jarCreationDate = (fileDate.toString(JEVisDates.DEFAULT_DATE_FORMAT));
             VERSION += " " + jarCreationDate;
         } catch (URISyntaxException | IOException e) {
             logger.error(e);
@@ -235,16 +231,3 @@ public class Main {
         }
     }
 }
-
-
-/**
- * KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
- * <p>
- * char[] password = "some password".toCharArray();
- * ks.load(null, password);
- * <p>
- * // Store away the keystore.
- * FileOutputStream fos = new FileOutputStream("newKeyStoreFileName");
- * ks.store(fos, password);
- * fos.close();
- */
