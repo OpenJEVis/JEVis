@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
-import com.google.common.collect.Iterables;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import javafx.application.Platform;
@@ -29,11 +28,11 @@ import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.NewWidgetSelector;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
-import org.jevis.jeconfig.plugin.dashboard.widget.ImageWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class DashBoardToolbar extends ToolBar {
@@ -177,6 +176,7 @@ public class DashBoardToolbar extends ToolBar {
         this.listAnalysesComboBox.setPrefWidth(350);
         this.listAnalysesComboBox.setMinWidth(350);
 
+
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(treeButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(settingsButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
@@ -213,28 +213,32 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(copyButton);
         copyButton.setOnAction(event -> {
             try {
-                logger.debug("Copy widget:");
+                logger.debug("Copy widgets: " + dashboardControl.getSelectedWidgets());
                 if (!dashboardControl.getSelectedWidgets().isEmpty()) {
-                    Widget oldWidget = Iterables.getLast(dashboardControl.getSelectedWidgets());
-                    Widget newWidget = oldWidget.clone();
-                    newWidget.getConfig().setUuid(dashboardControl.getNextFreeUUID());
+                    Widget widgetX = dashboardControl.getSelectedWidgets().stream().min(Comparator.comparing(Widget::getXPos)).orElseThrow(NullPointerException::new);
+                    Widget widgetY = dashboardControl.getSelectedWidgets().stream().min(Comparator.comparing(Widget::getYPos)).orElseThrow(NullPointerException::new);
 
-                    /* shift the widget a bit to so it not over the original */
-                    double newXPos = newWidget.getConfig().getxPosition() + newWidget.getConfig().getSize().getWidth() + 50;
-                    if (newXPos > dashboardControl.getDashboardPane().getWidth()) {
-                        newWidget.getConfig().setxPosition(newWidget.getConfig().getxPosition() + 50);
-                    } else {
-                        newWidget.getConfig().setxPosition(newXPos);
-                    }
-                    dashboardControl.addWidget(newWidget);
-                    newWidget.updateConfig();
-                    newWidget.setEditable(true);
-                    dashboardControl.setSelectedWidget(newWidget);
+                    
+                    double leftOffset = 50;
+                    double topOffset = 50;
+                    List<Widget> newWidgets = new ArrayList<>();
 
-                    /* Workaround for the ImageWidget, we need to reset the image object, or we overwrite the old one*/
-                    if (newWidget instanceof ImageWidget) {
-                        ((ImageWidget) newWidget).restImageConfig();
-                    }
+                    dashboardControl.getSelectedWidgets().forEach(widget -> {
+                        System.out.println("--- " + widget.getConfig().getTitle());
+                        double newX = widget.getXPos() - widgetX.getXPos() + leftOffset;
+                        double newY = widget.getYPos() - widgetY.getYPos() + topOffset;
+
+                        Widget newWidget = widget.clone();
+                        newWidget.getConfig().setUuid(dashboardControl.getNextFreeUUID());
+                        newWidget.getConfig().setTitle(newWidget.getConfig().getTitle() + " #2");
+                        newWidget.getConfig().setxPosition(newX);
+                        newWidget.getConfig().setyPosition(newY);
+                        dashboardControl.addWidget(newWidget);
+                        newWidget.updateConfig();
+                        newWidget.setEditable(true);
+                        newWidgets.add(newWidget);
+                    });
+                    dashboardControl.setSelectedWidgets(newWidgets);
                 }
 
             } catch (Exception ex) {
