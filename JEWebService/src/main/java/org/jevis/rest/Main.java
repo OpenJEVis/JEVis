@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.grizzly.http.CompressionConfig;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
+import org.glassfish.grizzly.http.util.MimeType;
 import org.glassfish.grizzly.ssl.SSLContextConfigurator;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -47,19 +48,15 @@ public class Main {
 
     /**
      * Main method.
-     *
-     * @param args
      */
     public static void main(String[] args) throws SQLException, AuthenticationException, JEVisException {
         //read Config
         File configfile;
-        String newestVerion = "";
-        String jarCreationDate = "";
         boolean cleanFiles = false;
 
         try {
             Path jarPath = Paths.get(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            newestVerion = jarPath.getFileName().toString().replace("JEWebService-", "").replace("-jar-with-dependencies.jar", "");
+            String newestVerion = jarPath.getFileName().toString().replace("JEWebService-", "").replace("-jar-with-dependencies.jar", "");
             VERSION += " " + newestVerion;
         } catch (Exception e) {
             logger.error(e);
@@ -70,7 +67,7 @@ public class Main {
             BasicFileAttributes basicFileAttributes = Files.readAttributes(jarPath, BasicFileAttributes.class);
             FileTime fileTime = basicFileAttributes.creationTime();
             DateTime fileDate = new DateTime(fileTime.toMillis());
-            jarCreationDate = (fileDate.toString(JEVisDates.DEFAULT_DATE_FORMAT));
+            String jarCreationDate = (fileDate.toString(JEVisDates.DEFAULT_DATE_FORMAT));
             VERSION += " " + jarCreationDate;
         } catch (URISyntaxException | IOException e) {
             logger.error(e);
@@ -151,11 +148,20 @@ public class Main {
         }
 
 
+        MimeType.add("msix", "application/msix");
+        MimeType.add("appx", "application/appx");
+        MimeType.add("msixbundle", "application/msixbundle");
+        MimeType.add("appxbundle", "application/appxbundle");
+        MimeType.add("appinstaller", "application/appinstaller");
+
         CompressionConfig compressionConfig =
                 server.getListener("grizzly").getCompressionConfig();
         compressionConfig.setCompressionMode(CompressionConfig.CompressionMode.ON); // the mode
         compressionConfig.setCompressionMinSize(2048); // the min amount of bytes to compress
-        compressionConfig.setCompressableMimeTypes("text/plain", "text/html", "application/json, ");
+        compressionConfig.setCompressableMimeTypes("text/plain", "text/html"
+                , "application/json", "application/msixbundle", "application/appxbundle", "application/appinstaller"
+                , "application/msix", "application/appx");
+
 
         // register shutdown hook
         Runtime.getRuntime().addShutdownHook(
@@ -225,16 +231,3 @@ public class Main {
         }
     }
 }
-
-
-/**
- * KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
- * <p>
- * char[] password = "some password".toCharArray();
- * ks.load(null, password);
- * <p>
- * // Store away the keystore.
- * FileOutputStream fos = new FileOutputStream("newKeyStoreFileName");
- * ks.store(fos, password);
- * fos.close();
- */

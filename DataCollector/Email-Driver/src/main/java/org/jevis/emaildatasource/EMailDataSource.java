@@ -56,14 +56,13 @@ public class EMailDataSource implements DataSource {
                 JEVisObject parser = channel.getChildren(parserJevisClass, true).get(0);
 
                 _parser = ParserFactory.getParser(parser);
-                logger.info("parser to string: {}", _parser.toString());
+                logger.debug("parser to string: {}", _parser.toString());
                 _parser.initialize(parser);
                 logger.debug("done loading parser: {} ", DataCollectorTypes.Parser.NAME);
 
                 Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
                 List<InputStream> input = this.sendSampleRequest(channel);
 
-                logger.info("Answer list is empty: {}", input.isEmpty());
                 logger.info("Answer list size: {}", input.size());
 
                 if (!input.isEmpty()) {

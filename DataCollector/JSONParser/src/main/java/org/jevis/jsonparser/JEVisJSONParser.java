@@ -83,7 +83,11 @@ public class JEVisJSONParser implements Parser {
             }
         }
 
-        return map;
+        /* remove null values */
+        return map.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     @Override
@@ -205,13 +209,15 @@ public class JEVisJSONParser implements Parser {
             return strings.stream()
                     .map(s -> {
                         try {
+                            if (s==null) return null;
+
                             return Double.valueOf(s);
                         } catch (Exception e) {
                             logger.info("Could not parse {}", s, e);
                             return null;
                         }
                     })
-                    .filter(Objects::nonNull)
+                    //.filter(Objects::nonNull)
                     .collect(Collectors.toList());
         } else if (valueClass.equals("String") || valueClass.isEmpty()) {
             return strings;
@@ -225,7 +231,7 @@ public class JEVisJSONParser implements Parser {
                             return null;
                         }
                     })
-                    .filter(Objects::nonNull)
+                    //.filter(Objects::nonNull)
                     .collect(Collectors.toList());
         }
 

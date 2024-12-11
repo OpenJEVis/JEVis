@@ -201,7 +201,7 @@ public class SQLDriver implements DataSource {
                                 }
                             }
 
-                            logger.info("First relevant date for changed/new samples is {}", firstRelevantDate);
+                            logger.debug("First relevant date for changed/new samples is {}", firstRelevantDate);
 
                             if (logger.isInfoEnabled()) {
                                 samplesString.delete(0, samplesString.length());
