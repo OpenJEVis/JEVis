@@ -518,11 +518,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //            return result;
 
         } catch (ProtocolException ex) {
-            logger.error(ex);
+            logger.error(ex.getMessage(), ex);
             //TODO: throw excption?! so the other function can handel it?
 //            return new ArrayList<>();
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.error(ex.getMessage(), ex);
 //            return new ArrayList<>();
         }
     }

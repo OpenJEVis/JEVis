@@ -468,7 +468,7 @@ public abstract class Widget extends Region {
             size.setHeight(height);
             size.setWidth(width);
             this.config.setSize(size);
-            /** performance workaround, update y/x if the drag&Drop event moves and resize at the same time **/
+            /* performance workaround, update y/x if the drag&Drop event moves and resize at the same time */
             this.config.setxPosition(getLayoutX());
             this.config.setyPosition(getLayoutY());
         });
@@ -591,6 +591,15 @@ public abstract class Widget extends Region {
     public Tooltip getTt() {
         return tt;
     }
+
+    public Double getXPos() {
+        return getConfig().getxPosition();
+    }
+
+    public Double getYPos() {
+        return getConfig().getyPosition();
+    }
+
 
     @Override
     public boolean equals(Object object) {
