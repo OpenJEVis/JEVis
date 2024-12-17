@@ -26,7 +26,6 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.commons.ws.json.JsonClassRelationship;
 import org.jevis.commons.ws.json.JsonJEVisClass;
 
 import java.io.File;
@@ -42,15 +41,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Config {
 
     private static final Logger logger = LogManager.getLogger(Config.class);
-    private static final boolean _loadFromFile = true;
-    private static final Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
     private static final List<String> jeccFiles = new ArrayList<>();
     private static final List<String> javaFiles = new ArrayList<>();
+    private static final List<String> cors = new ArrayList<>();
     //@Singleton
     public static String dbPort = "3306";
-    public static String dbIP = "192.168.2.55";
-    public static String ip = "localhost";
-    public static String port = "5007";
+    public static String dbIP = "127.0.0.1";
+    public static String port = "80";
     public static String dbUser = "jevis";
     public static String dbPw = "jevistest";
     public static String schema = "jevis";
@@ -76,7 +73,6 @@ public class Config {
     private static ConcurrentHashMap<String, JsonJEVisClass> classCache = new ConcurrentHashMap<>();
     private static String latestJECCPath;
     private static String latestJavaPath;
-    private static List<String> cors = new ArrayList<>();
 
     public static String getDBHost() {
         return dbIP;
@@ -134,10 +130,6 @@ public class Config {
         return freemarkerDir;
     }
 
-    public static void setFreemarkerDir(File _freemarkerDir) {
-        Config.freemarkerDir = _freemarkerDir;
-    }
-
     public static String getWebDir() {
         return webDir;
     }
@@ -146,14 +138,10 @@ public class Config {
         return cors;
     }
 
-    ;
-
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
         if (classCache.isEmpty()) {
             logger.debug("initializing class cache");
             try {
-                //        Gson gson = new GsonBuilder().create();
-
                 File classDir = Config.getClassDir();
 
                 if (classDir.exists()) {
@@ -166,8 +154,6 @@ public class Config {
                     final ObjectMapper objectMapper = new ObjectMapper();
                     Arrays.stream(Objects.requireNonNull(classDir.listFiles(jsonFilter))).parallel().forEach(jsonFile -> {
                         try {
-//                    JsonReader reader = new JsonReader(new FileReader(jsonFile));
-//                    JsonJEVisClass data = gson.fromJson(reader, JsonJEVisClass.class);
 
                             JsonJEVisClass data = objectMapper.readValue(jsonFile, JsonJEVisClass.class);
                             classCache.put(data.getName(), data);
@@ -186,10 +172,6 @@ public class Config {
 
         }
         return classCache;
-    }
-
-    public static void setClassCache(ConcurrentHashMap<String, JsonJEVisClass> map) {
-        classCache = map;
     }
 
     public static String getParameter(XMLConfiguration config, String key, String defaultValue) {
@@ -316,10 +298,6 @@ public class Config {
         return latestJECCVersion;
     }
 
-    public static void setJECCVersion(String jeccVersion) {
-        Config.latestJECCVersion = latestJECCVersion;
-    }
-
     public static List<String> getJECCFilesPath() {
         return jeccFiles;
     }
@@ -377,17 +355,6 @@ public class Config {
         return registrationKey;
     }
 
-    public static long getDemoGroup() {
-//        readConfigurationFile();
-        return demoGroup;
-    }
-
-    public static long getDemoRoot() {
-//        readConfigurationFile();
-        return demoRoot;
-    }
-
-
     public static void CloseDS(JEVisDataSource ds) {
         try {
             if (ds != null) {
@@ -401,10 +368,7 @@ public class Config {
     public static void CloseDS(SQLDataSource ds) {
         try {
             if (ds != null) {
-//                ds.getProfiler().printLog();
                 ds.disconnect();
-//                ds.clear();
-//                ds = null;
             }
         } catch (Exception ex) {
             logger.catching(org.apache.logging.log4j.Level.TRACE, ex);
