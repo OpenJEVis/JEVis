@@ -72,6 +72,7 @@ public class Config {
     private static String latestJECCVersion = "0";
     private static String latestJavaVersion = "0";
     private static String webDir = "";
+    private static String installerDir = "/var/www/html/installer";
     private static ConcurrentHashMap<String, JsonJEVisClass> classCache = new ConcurrentHashMap<>();
     private static String latestJECCPath;
     private static String latestJavaPath;
@@ -141,7 +142,11 @@ public class Config {
         return webDir;
     }
 
-    public static List<String> getCORS(){ return cors;};
+    public static List<String> getCORS() {
+        return cors;
+    }
+
+    ;
 
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
         if (classCache.isEmpty()) {
@@ -189,7 +194,7 @@ public class Config {
 
     public static String getParameter(XMLConfiguration config, String key, String defaultValue) {
         try {
-            if(config.getString(key)==null) return defaultValue;
+            if (config.getString(key) == null) return defaultValue;
             return config.getString(key);
         } catch (Exception nex) {
             logger.error("Missing parameter in config file: '{}' using default value: '{}'", key, defaultValue);
@@ -247,8 +252,8 @@ public class Config {
                     registrationKey = getParameter(config, "webservice.registration.apikey", UUID.randomUUID().toString());
 
                     webDir = getParameter(config, "webservice.webpage", "");
-
-                    cors.addAll( Arrays.asList(getParameter(config, "webservice.cors", "").split(";")));
+                    installerDir = getParameter(config, "webservice.installer", "");
+                    cors.addAll(Arrays.asList(getParameter(config, "webservice.cors", "").split(";")));
 
                     fileIsLoaded = true;
                 } else {
@@ -407,4 +412,7 @@ public class Config {
     }
 
 
+    public static String getInstallerDir() {
+        return installerDir;
+    }
 }
