@@ -84,7 +84,7 @@ public class CSVParser {
                 sb.append(',').append(' ');
             }
         }
-        logger.info("MAP: {}", sb.toString());
+        logger.debug("MAP: {}", sb.toString());
 
 
         for (DataPoint dp : _dataPoints) {
@@ -147,7 +147,7 @@ public class CSVParser {
                 sb.append(',').append(' ');
             }
         }
-        logger.info("MAP: {}", sb.toString());
+        logger.debug("MAP: {}", sb.toString());
 
 
         for (DataPoint dp : _dataPoints) {
@@ -178,7 +178,7 @@ public class CSVParser {
         }
         result = columnMap.get(mapIdent);
         if (result == null) {
-            logger.info("FIND MAP failed: {}", mapIdent);
+            logger.debug("FIND MAP failed: {}", mapIdent);
             mapIdent = mapIdent.replace("ä", "?");
             mapIdent = mapIdent.replace("Ä", "?");
             mapIdent = mapIdent.replace("ü", "?");
@@ -186,9 +186,9 @@ public class CSVParser {
             mapIdent = mapIdent.replace("ö", "?");
             mapIdent = mapIdent.replace("Ö", "?");
             mapIdent = mapIdent.replace("ß", "?");
-            logger.info("FIND MAP replaced: {}", mapIdent);
+            logger.debug("FIND MAP replaced: {}", mapIdent);
             result = columnMap.get(mapIdent);
-            logger.info("FIND MAP result: {}", result);
+            logger.debug("FIND MAP result: {}", result);
         }
         return result;
     }
@@ -259,7 +259,7 @@ public class CSVParser {
             logger.error("Total lines/columns: {}", stringArrayInput.length);
 
             if (dpType != null && dpType.equals("ROW")) {
-                logger.info("Traversing ROWs");
+                logger.debug("Traversing ROWs");
                 for (int i = headerLines; i < stringArrayInput.length; i++) {
                     currLineIndex = i;
                     try {
@@ -276,7 +276,7 @@ public class CSVParser {
                     }
                 }
             } else {
-                logger.info("Traversing Columns");
+                logger.debug("Traversing Columns");
                 for (int i = headerLines; i < stringArrayInput.length; i++) {
                     currLineIndex = i;
                     try {

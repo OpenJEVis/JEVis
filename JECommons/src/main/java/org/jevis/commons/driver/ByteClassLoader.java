@@ -55,7 +55,7 @@ public class ByteClassLoader extends URLClassLoader {
 
         // Load jar from temporary file
         URL url = tmpJar.toURI().toURL();
-        logger.info("jarURL: " + url.toString());
+        logger.debug("jarURL: " + url.toString());
         ClassLoader cl = new ByteClassLoader(url);
         Class c = cl.loadClass(className);
 

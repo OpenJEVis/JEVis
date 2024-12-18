@@ -363,7 +363,7 @@ public class DashBoardPane extends Pane {
             }
 
             if (!DashBoardPane.this.getChildren().contains(dragBox)) {
-                Platform.runLater(() -> DashBoardPane.this.getChildren().add(dragBox));
+               // Platform.runLater(() -> DashBoardPane.this.getChildren().add(dragBox));
             }
         } else {
             Platform.runLater(() -> {

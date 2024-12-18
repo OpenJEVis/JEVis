@@ -28,14 +28,17 @@ import javafx.concurrent.Task;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.CacheHint;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Tab;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
@@ -112,6 +115,12 @@ public class JEConfig extends Application {
     private static PluginManager pluginManager;
     private static Statusbar statusBar;
     private TopMenu menu;
+    private BorderPane mainBorderPane;
+    private VBox topMenuBox;
+
+    /* pointers for the fullscreen workaround */
+    private Node fullScreenNode = null;
+    private Tab fullScreenTab = null;
 
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
@@ -395,6 +404,31 @@ public class JEConfig extends Application {
         });
 
 
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+            if (KeyCode.F11.equals(keyEvent.getCode())) {
+                primaryStage.setFullScreen(!primaryStage.isFullScreen());
+            }
+        });
+        primaryStage.fullScreenProperty().addListener((observableValue, aBoolean, t1) -> {
+            if (t1) {
+                fullScreenNode = pluginManager.getActiveTab().getContent();
+                fullScreenTab = pluginManager.getActiveTab();
+                fullScreenTab.setContent(null);
+
+                mainBorderPane.setTop(null);
+                mainBorderPane.setBottom(null);
+                mainBorderPane.setCenter(fullScreenNode);
+
+            } else {
+                fullScreenTab.setContent(fullScreenNode);
+
+                mainBorderPane.setTop(topMenuBox);
+                mainBorderPane.setBottom(statusBar);
+                mainBorderPane.setBottom(pluginManager.getTabPane());
+            }
+        });
+
+
         if (System.getProperty("os.name").toLowerCase().contains("linux")) {
             try {
                 java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
@@ -499,12 +533,12 @@ public class JEConfig extends Application {
                 });
 
 
-                VBox vbox = new VBox();
+                topMenuBox = new VBox();
 
-                BorderPane border = new BorderPane();
+                mainBorderPane = new BorderPane();
 
-                vbox.setStyle("-fx-background-color: black;");
-                border.setTop(vbox);
+                topMenuBox.setStyle("-fx-background-color: black;");
+                mainBorderPane.setTop(topMenuBox);
 
                 menu = new TopMenu();
 
@@ -519,26 +553,26 @@ public class JEConfig extends Application {
 
 
                 Platform.runLater(() -> {
-                    border.setCenter(pluginManager.getView());
-                    vbox.getChildren().addAll(menu, pluginManager.getToolbar());
+                    mainBorderPane.setCenter(pluginManager.getView());
+                    topMenuBox.getChildren().addAll(menu, pluginManager.getToolbar());
                 });
 
                 statusBar.setDataSource(_mainDS);
                 statusBar.initView();
 
-                Platform.runLater(() -> border.setBottom(statusBar));
+                Platform.runLater(() -> mainBorderPane.setBottom(statusBar));
 
                 //Disable GUI if StatusBar detects a disconnect
-                border.disableProperty().bind(statusBar.connectedProperty.not());
+                mainBorderPane.disableProperty().bind(statusBar.connectedProperty.not());
 
                 Platform.runLater(() -> {
 
-                    AnchorPane.setTopAnchor(border, 0.0);
-                    AnchorPane.setRightAnchor(border, 0.0);
-                    AnchorPane.setLeftAnchor(border, 0.0);
-                    AnchorPane.setBottomAnchor(border, 0.0);
+                    AnchorPane.setTopAnchor(mainBorderPane, 0.0);
+                    AnchorPane.setRightAnchor(mainBorderPane, 0.0);
+                    AnchorPane.setLeftAnchor(mainBorderPane, 0.0);
+                    AnchorPane.setBottomAnchor(mainBorderPane, 0.0);
 
-                    jeconfigRoot.getChildren().setAll(border);
+                    jeconfigRoot.getChildren().setAll(mainBorderPane);
                     try {
                         WelcomePage welcome = new WelcomePage();
                         welcome.show(primaryStage, _config.getWelcomeURL());

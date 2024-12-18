@@ -382,11 +382,10 @@ public class ConfigManager {
 
     public void openSaveUnder(DashboardPojo dashboardPojo, ObservableList<Widget> widgetList, File wallpaper) {
         try {
-            logger.error("openSaveUnder: {},{},{},{}", dashboardPojo, wallpaper);
+            logger.debug("openSaveUnder: {},{},{},{}", dashboardPojo, wallpaper);
             JEVisClass dashboardClass = jeVisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
 
             SaveUnderDialog saveUnderDialog = new SaveUnderDialog(jeVisDataSource, dashboardPojo.getDashboardObject(), dashboardClass, dashboardPojo.getTitle(), (target, sameObject) -> {
-                logger.error("Start save");
                 try {
 
                     JEVisAttribute bgFile = null;
@@ -394,7 +393,7 @@ public class ConfigManager {
                         bgFile = dashboardPojo.getDashboardObject().getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
                     }
 
-                    logger.error("Wallpaper: {},{},{}", sameObject, wallpaper, bgFile);
+                    logger.debug("Wallpaper: {},{},{}", sameObject, wallpaper, bgFile);
                     if (!sameObject && wallpaper == null && bgFile != null && bgFile.hasSample()) {
                         JEVisSample wallPaperCopy = target.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND).buildSample(new DateTime(), bgFile.getLatestSample().getValueAsFile());
                         wallPaperCopy.commit();

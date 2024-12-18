@@ -11,13 +11,13 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,44 +91,48 @@ public class BatteryWidget extends Widget implements DataModelWidget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
-        lastInterval = interval;
+        try {
+            lastInterval = interval;
 
-        showAlertOverview(false, "");
+            showAlertOverview(false, "");
 
-        if (sampleHandler == null) {
-            return;
-        } else {
-            showProgressIndicator(true);
-        }
-
-        String widgetUUID = "-1";
-        AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
-        //try {
-        widgetUUID = getConfig().getUuid() + "";
-        this.sampleHandler.setAutoAggregation(true);
-        this.sampleHandler.update(interval);
-
-        if (!this.sampleHandler.getChartDataRows().isEmpty()) {
-            ChartDataRow dataModel = this.sampleHandler.getChartDataRows().get(0);
-            dataModel.setCustomWorkDay(customWorkday);
-            List<JEVisSample> results;
-
-            String unit = dataModel.getUnitLabel();
-            displayedUnit.setValue(unit);
-
-            results = dataModel.getSamples();
-
-            if (!results.isEmpty()) {
-                try {
-                    total.set(results.get(0).getValueAsDouble());
-                } catch (Exception e) {
-                    logger.error(e);
-                }
-                Platform.runLater(() -> battery.setValue(Helper.convertToPercent(total.get(), batteryGaugePojo.getMaximum(), batteryGaugePojo.getMinimum(), this.config.getDecimals())));
+            if (sampleHandler == null) {
+                return;
             } else {
-                Platform.runLater(() -> battery.setValue(0));
-                showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
+                showProgressIndicator(true);
             }
+
+            String widgetUUID = "-1";
+            AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
+            //try {
+            widgetUUID = getConfig().getUuid() + "";
+            this.sampleHandler.setAutoAggregation(true);
+            this.sampleHandler.update(interval);
+
+            if (!this.sampleHandler.getChartDataRows().isEmpty()) {
+                ChartDataRow dataModel = this.sampleHandler.getChartDataRows().get(0);
+                dataModel.setCustomWorkDay(customWorkday);
+                List<JEVisSample> results;
+
+                String unit = dataModel.getUnitLabel();
+                displayedUnit.setValue(unit);
+
+                results = dataModel.getSamples();
+
+                if (!results.isEmpty()) {
+                    try {
+                        total.set(results.get(0).getValueAsDouble());
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
+                    Platform.runLater(() -> battery.setValue(Helper.convertToPercent(total.get(), batteryGaugePojo.getMaximum(), batteryGaugePojo.getMinimum(), this.config.getDecimals())));
+                } else {
+                    Platform.runLater(() -> battery.setValue(0));
+                    showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
+                }
+            }
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
         }
     }
 
@@ -228,7 +232,6 @@ public class BatteryWidget extends Widget implements DataModelWidget {
         battery.setDecimals(config.getDecimals());
         Platform.runLater(() -> {
             try {
-                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 updateSkin();
                 updateText();
             } catch (Exception e) {

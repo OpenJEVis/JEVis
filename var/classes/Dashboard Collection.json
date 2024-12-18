@@ -1,0 +1,42 @@
+{
+  "name": "Dashboard Collection",
+  "description": "",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Dashboard Collection",
+      "end": "Dashboard Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Timer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Dashboard Collection"
+    },
+    {
+      "name": "Dashboards",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Dashboard Collection"
+    },
+    {
+      "name": "Autostart",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Dashboard Collection"
+    }
+  ]
+}
+

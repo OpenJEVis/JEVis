@@ -41,6 +41,7 @@ import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
 import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
+import org.jevis.jeconfig.plugin.dashboard.slideshow.SlideshowControl;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.widget.TimeFrameWidget;
@@ -109,7 +110,8 @@ public class DashboardControl {
      **/
     private boolean firstDashboard = true;
     private TimerTask updateTask;
-    private WorkDays wd;
+    private WorkDays workDays;
+    private SlideshowControl slideshowControl = null;
 
 
     public DashboardControl(DashBordPlugIn plugin) {
@@ -205,7 +207,7 @@ public class DashboardControl {
     }
 
     public void setSnapToGrid(boolean snapToGrid) {
-        logger.error("setSnapToGrid: " + snapToGrid);
+        logger.debug("setSnapToGrid: " + snapToGrid);
         snapToGridProperty.setValue(snapToGrid);
         toolBar.updateView(activeDashboard);
         /**
@@ -218,7 +220,7 @@ public class DashboardControl {
     }
 
     public void setCustomWorkday(boolean customWorkday) {
-        logger.error("setCustomWorkday: " + customWorkday);
+        logger.debug("setCustomWorkday: " + customWorkday);
 
         customWorkdayProperty.setValue(customWorkday);
         toolBar.updateView(activeDashboard);
@@ -267,13 +269,25 @@ public class DashboardControl {
     public void loadFirstDashboard() {
         try {
             loadDashboardObjects();
+            JEVisObject userDashboard = getUserSelectedDashboard();
 
-            JEVisObject userDashboad = getUserSelectedDashboard();
+            if (userDashboard != null && userDashboard.getJEVisClassName().equals("Dashboard Collection")) {
+                try {
+                    slideshowControl = new SlideshowControl(userDashboard, this);
+                    if (slideshowControl.isAutoplay()) {
+                        slideshowControl.start();
+                        firstDashboard = false;
+                    } else {
+                        selectDashboard(slideshowControl.getFirstDashboard());
+                    }
+                } catch (Exception ex) {
+                    logger.error("Dashboard Collection could not be loaded", ex);
+                }
 
-            if (this.dashboardObjects.isEmpty()) {
+            } else if (this.dashboardObjects.isEmpty()) {
                 selectDashboard(null);
-            } else if (userDashboad != null) {
-                selectDashboard(userDashboad);
+            } else if (userDashboard != null) {
+                selectDashboard(userDashboard);
             } else if (!this.dashboardObjects.isEmpty()) {
                 selectDashboard(this.dashboardObjects.get(0));
             }
@@ -383,8 +397,8 @@ public class DashboardControl {
 
     private void loadDashboardObjects() {
         try {
-            JEVisClass scadaAnalysis = this.getDataSource().getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
-            this.dashboardObjects = this.getDataSource().getObjects(scadaAnalysis, false);
+            JEVisClass dashboards = this.getDataSource().getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+            this.dashboardObjects = this.getDataSource().getObjects(dashboards, false);
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -408,6 +422,10 @@ public class DashboardControl {
             }
         }
 
+    }
+
+    public SlideshowControl getSlideshowControl() {
+        return slideshowControl;
     }
 
     public ObservableList<JEVisObject> getAllDashboards() {
@@ -487,7 +505,7 @@ public class DashboardControl {
             } else { /* load existing Dashboard*/
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
-                    this.wd = new WorkDays(object);
+                    this.workDays = new WorkDays(object);
                 } catch (Exception ex) {
                     dashBordPlugIn.showMessage(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
                 }
@@ -620,7 +638,7 @@ public class DashboardControl {
         logger.debug("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
         this.activeTimeFrame = activeTimeFrame;
         DateTime start = activeInterval.getStart();
-        if (wd != null && wd.getWorkdayEnd().isBefore(wd.getWorkdayStart()) && activeInterval.toDuration().getStandardDays() > 1) {
+        if (workDays != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart()) && activeInterval.toDuration().getStandardDays() > 1) {
             start = start.plusDays(1);
         }
 
@@ -688,14 +706,28 @@ public class DashboardControl {
     }
 
     public void switchUpdating() {
-        logger.error("switchUpdating");
+        logger.debug("switchUpdating");
+
         if (this.isUpdateRunning) {
-            stopAllUpdates();
+            if (slideshowControl != null) {
+                slideshowControl.stop();
+            } else {
+                stopAllUpdates();
+            }
+
         } else {
-            runDataUpdateTasks(false);
+            if (slideshowControl != null) {
+                slideshowControl.start();
+            } else {
+                runDataUpdateTasks(false);
+            }
         }
 
         this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(isUpdateRunning);
+    }
+
+    public void setUpdateRunning(boolean updateRunning) {
+        isUpdateRunning = updateRunning;
     }
 
     private void removeNode(Widget widget) {
@@ -705,7 +737,7 @@ public class DashboardControl {
 
     private void stopAllUpdates() {
         try {
-            logger.error("stopAllUpdates: " + JEConfig.getStatusBar().getTaskList().size());
+            logger.debug("stopAllUpdates: " + JEConfig.getStatusBar().getTaskList().size());
             JEConfig.getStatusBar().stopTasks(DashBordPlugIn.class.getName());
             this.updateTask.cancel();
             this.isUpdateRunning = false;

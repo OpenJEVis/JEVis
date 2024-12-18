@@ -207,17 +207,15 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateConfig() {
-        try {
-            logger.debug("UpdateConfig");
-            Platform.runLater(() -> {
+        logger.debug("UpdateConfig");
+        Platform.runLater(() -> {
+            try {
                 updateText();
                 updateSkin();
-            });
-        } catch (Exception e) {
-            logger.error(e);
-        }
-
-
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        });
     }
 
     private void updateSkin() {
