@@ -83,6 +83,9 @@ public class IntervalCalculator {
         org.jevis.commons.datetime.DateHelper dateHelper = null;
 
         dateHelper = PeriodHelper.getDateHelper(reportObject, schedule, dateHelper, start);
+        if (dateHelper != null) {
+            dateHelper.setWorkDays(workDays);
+        }
 
         for (PeriodMode mode : PeriodMode.values()) {
             DateTime startRecord = calcStartRecord(start, schedule, mode, FixedPeriod.NONE, dateHelper);

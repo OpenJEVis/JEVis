@@ -30,7 +30,6 @@ import org.jevis.commons.ws.json.JsonClassRelationship;
 import org.jevis.commons.ws.json.JsonJEVisClass;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -75,7 +74,8 @@ public class Config {
     private static ConcurrentHashMap<String, JsonJEVisClass> classCache = new ConcurrentHashMap<>();
     private static String latestJECCPath;
     private static String latestJavaPath;
-    private static List<String> cors = new ArrayList<>();
+    private static final List<String> cors = new ArrayList<>();
+    private static List<File> classFiles;
 
     public static String getDBHost() {
         return dbIP;
@@ -141,7 +141,9 @@ public class Config {
         return webDir;
     }
 
-    public static List<String> getCORS(){ return cors;};
+    public static List<String> getCORS() {
+        return cors;
+    }
 
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
         if (classCache.isEmpty()) {
@@ -152,25 +154,19 @@ public class Config {
                 File classDir = Config.getClassDir();
 
                 if (classDir.exists()) {
-                    FileFilter jsonFilter = new FileFilter() {
-                        @Override
-                        public boolean accept(File pathname) {
-                            return pathname.getName().endsWith(".json");
-                        }
-                    };
                     final ObjectMapper objectMapper = new ObjectMapper();
-                    Arrays.stream(Objects.requireNonNull(classDir.listFiles(jsonFilter))).parallel().forEach(jsonFile -> {
+                    if (classFiles == null) {
+                        classFiles = listClassFiles(Config.getClassDir());
+                    }
+
+                    for (File file : classFiles) {
                         try {
-//                    JsonReader reader = new JsonReader(new FileReader(jsonFile));
-//                    JsonJEVisClass data = gson.fromJson(reader, JsonJEVisClass.class);
-
-                            JsonJEVisClass data = objectMapper.readValue(jsonFile, JsonJEVisClass.class);
+                            JsonJEVisClass data = objectMapper.readValue(file, JsonJEVisClass.class);
                             classCache.put(data.getName(), data);
-
                         } catch (Exception ex) {
-                            logger.error("Error while loading Class file: {}", jsonFile.getName(), ex);
+                            logger.error("Error while loading Class file: {}", file.getName(), ex);
                         }
-                    });
+                    }
                 }
 
                 JEVisClassHelper.completeClasses(classCache);
@@ -189,7 +185,7 @@ public class Config {
 
     public static String getParameter(XMLConfiguration config, String key, String defaultValue) {
         try {
-            if(config.getString(key)==null) return defaultValue;
+            if (config.getString(key) == null) return defaultValue;
             return config.getString(key);
         } catch (Exception nex) {
             logger.error("Missing parameter in config file: '{}' using default value: '{}'", key, defaultValue);
@@ -248,7 +244,7 @@ public class Config {
 
                     webDir = getParameter(config, "webservice.webpage", "");
 
-                    cors.addAll( Arrays.asList(getParameter(config, "webservice.cors", "").split(";")));
+                    cors.addAll(Arrays.asList(getParameter(config, "webservice.cors", "").split(";")));
 
                     fileIsLoaded = true;
                 } else {
@@ -382,7 +378,6 @@ public class Config {
         return demoRoot;
     }
 
-
     public static void CloseDS(JEVisDataSource ds) {
         try {
             if (ds != null) {
@@ -404,6 +399,23 @@ public class Config {
         } catch (Exception ex) {
             logger.catching(org.apache.logging.log4j.Level.TRACE, ex);
         }
+    }
+
+    private static List<File> listClassFiles(File dir) {
+        List<File> fileTree = new ArrayList<>();
+        if (dir == null || dir.listFiles() == null) {
+            return fileTree;
+        }
+        for (File entry : dir.listFiles()) {
+            if (entry.isFile()) {
+                if (entry.getName().endsWith(".json")) {
+                    fileTree.add(entry);
+                }
+            } else {
+                fileTree.addAll(listClassFiles(entry));
+            }
+        }
+        return fileTree;
     }
 
 
