@@ -119,6 +119,10 @@ public class PeriodHelper {
                 }
                 break;
         }
+
+        int dateTimeZoneOffset = dateTimeZone.getOffset(resultDate);
+        resultDate = resultDate.withZoneRetainFields(DateTimeZone.forOffsetMillis(dateTimeZoneOffset));
+
         return resultDate;
     }
 

@@ -31,7 +31,6 @@ import org.jevis.report3.process.ProcessHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,8 +47,6 @@ public class ReportLinkProperty implements ReportData {
     private final List<JEVisObject> attributePropertyObjects = new ArrayList<>();
     private final List<ReportAttributeProperty> attributeProperties = new ArrayList<>();
     private final List<ReportAttributeProperty> defaultAttributeProperties = new ArrayList<>();
-    private final LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
-    private final LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private String templateVariableName;
     //    private Long jevisID;
     private JEVisObject dataObject;
@@ -58,8 +55,9 @@ public class ReportLinkProperty implements ReportData {
     private JEVisObject linkObject;
 
     private ReportLinkProperty(JEVisObject reportLinkObject) {
-        initialize(reportLinkObject);
         this.workDays = new WorkDays(reportLinkObject);
+
+        initialize(reportLinkObject);
     }
 
     //    private DateTime latestTimestamp;
@@ -307,17 +305,6 @@ public class ReportLinkProperty implements ReportData {
                                             samples.clear();
                                             samples.add(resultSum);
                                         } else {
-                                            if (workDays.isEnabled()) {
-                                                DateTime start = interval.getStart().withHourOfDay(workDays.getWorkdayStart().getHour()).withMinuteOfHour(workDays.getWorkdayStart().getMinute()).withSecondOfMinute(workDays.getWorkdayStart().getSecond());
-                                                DateTime end = interval.getEnd().withHourOfDay(workDays.getWorkdayEnd().getHour()).withMinuteOfHour(workDays.getWorkdayEnd().getMinute()).withSecondOfMinute(workDays.getWorkdayEnd().getSecond());
-
-                                                if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
-                                                    start = start.minusDays(1);
-                                                }
-
-                                                interval = new ReportInterval(start, end);
-                                            }
-
                                             samples = attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString(), property.getTimeZone().getID());
                                         }
 
