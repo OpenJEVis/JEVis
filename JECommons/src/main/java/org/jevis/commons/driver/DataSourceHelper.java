@@ -31,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Instant;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
@@ -87,7 +88,7 @@ public class DataSourceHelper {
         HttpsURLConnection.setDefaultHostnameVerifier(hv);
     }
 
-    public static List<String> getFTPMatchedFileNames(FTPClient fc, DateTime lastReadout, DateTimeZone timeZone, String filePath, boolean overwrite) {
+    public static List<String> getFTPMatchedFileNames(FTPClient fc, DateTime lastReadout, Long maxReadout, DateTimeZone timeZone, String filePath, boolean overwrite) {
         filePath = filePath.replace("\\", "/");
         String[] pathStream = getPathTokens(filePath);
 
@@ -96,7 +97,7 @@ public class DataSourceHelper {
             startPath = "/";
         }
 
-        List<String> matchingPaths = getMatchingPaths(startPath, pathStream, new ArrayList<String>(), fc, lastReadout, new DateTimeFormatterBuilder());
+        List<String> matchingPaths = getMatchingPaths(startPath, pathStream, new ArrayList<String>(), fc, lastReadout, maxReadout, new DateTimeFormatterBuilder());
 //        logger.info("foldersize,"+matchingPaths.size());
         List<String> fileNames = new ArrayList<String>();
 
@@ -121,13 +122,22 @@ public class DataSourceHelper {
                         boolean matchDate = matchDateString(file.getName(), fileNameScheme);
                         DateTime folderTime = getFileTime(folder + file.getName(), pathStream);
                         boolean isLater = folderTime.isAfter(lastReadout);
-                        if (matchDate && isLater) {
+                        boolean isBefore = true;
+                        if (maxReadout != null) {
+                            isBefore = folderTime.isBefore(lastReadout.plusSeconds(maxReadout.intValue()));
+                        }
+                        if (matchDate && isLater && isBefore) {
                             match = true;
                         }
                     } else {
                         Pattern p = Pattern.compile(fileNameScheme);
                         Matcher m = p.matcher(file.getName());
-                        match = m.matches();
+                        DateTime fileTime = Instant.ofEpochMilli(file.getTimestamp().getTimeInMillis()).toDateTime();
+                        boolean isBefore = true;
+                        if (maxReadout != null) {
+                            isBefore = fileTime.isBefore(lastReadout.plusSeconds(maxReadout.intValue()));
+                        }
+                        match = m.matches() && isBefore;
                     }
 
                     if (!match) {
@@ -229,7 +239,7 @@ public class DataSourceHelper {
         return m.matches();
     }
 
-    private static List<String> getMatchingPaths(String path, String[] pathStream, ArrayList<String> arrayList, FTPClient fc, DateTime lastReadout, DateTimeFormatterBuilder dtfbuilder) {
+    private static List<String> getMatchingPaths(String path, String[] pathStream, ArrayList<String> arrayList, FTPClient fc, DateTime lastReadout, Long maxReadout, DateTimeFormatterBuilder dtfbuilder) {
         int nextTokenPos = getPathTokens(path).length;
         if (nextTokenPos == pathStream.length - 1) {
             arrayList.add(path);
@@ -255,10 +265,11 @@ public class DataSourceHelper {
 //                    logger.info("listdir," + folder.getName());
 //                    if (containsDate(folder.getName(), ftmTemp)) {
                     DateTime folderTime = getFolderTime(path + folder.getName() + "/", pathStream);
+
                     if (folderTime.isAfter(lastReadout)) {
                         nextFolder = folder.getName();
 //                        logger.info("dateFolder," + nextFolder);
-                        getMatchingPaths(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
+                        getMatchingPaths(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, maxReadout, dtfbuilder);
                     }
 //                    }
                 }
@@ -270,12 +281,12 @@ public class DataSourceHelper {
                     listDirectories = fc.listFiles(path);
                 }
                 for (FTPFile folder : listDirectories) {
-                    getMatchingPaths(path + folder.getName() + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
+                    getMatchingPaths(path + folder.getName() + "/", pathStream, arrayList, fc, lastReadout, maxReadout, dtfbuilder);
                 }
             } else {
                 nextFolder = nextToken;
 //                logger.info("normalFolder," + nextFolder);
-                getMatchingPaths(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
+                getMatchingPaths(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, maxReadout, dtfbuilder);
             }
         } catch (IOException ex) {
             logger.error(ex.getMessage());
