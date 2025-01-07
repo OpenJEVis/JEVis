@@ -1,0 +1,23 @@
+{
+  "name": "Temperature Measurement Directory",
+  "description": "The class Channel Directory represents a specific directory for Temperature measurement instruments.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Temperature Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 0
+    },
+    {
+      "start": "Temperature Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Temperature Measurement Directory",
+      "end": "Temperature Measurement Instrument",
+      "type": 3
+    }
+  ]
+}
+
