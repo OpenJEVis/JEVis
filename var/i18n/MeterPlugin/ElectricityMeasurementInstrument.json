@@ -14,33 +14,72 @@
   },
   "types": [
     {
+      "type": "Current Transformer Type",
+      "descriptions": {
+        "de": "Typ des eingesetzten Stromwandlers",
+        "en": "Identification of the current transformer"
+      },
+      "names": {
+        "de": "Stromwandler",
+        "en": "Current Transformer"
+      }
+    },
+    {
       "type": "Current Transformer",
       "descriptions": {
         "de": "Gibt das Verhältnis des Stromwandlers an.",
-        "ru": "Specifies the ratio of the current transformer.",
         "en": "Specifies the ratio of the current transformer.",
         "ar": "يحدد نسبة المحولات الحالية."
       },
       "names": {
         "de": "CT",
-        "ru": "CT",
-        "en": "CT",
-        "ar": "CT"
+        "en": "CT"
+      }
+    },
+    {
+      "type": "Current Transformer Accuracy",
+      "descriptions": {
+        "de": "Gibt das Verhältnis des Stromwandlers an.",
+        "en": "Specifies the ratio of the current transformer.",
+        "ar": "يحدد نسبة المحولات الحالية."
+      },
+      "names": {
+        "de": "Genauigkeit des Stromwandlers",
+        "en": "Current Transformer Accuracy"
+      }
+    },
+    {
+      "type": "Voltage Transformer Type",
+      "descriptions": {
+        "de": "Typ des eingesetzten Spannungswandler",
+        "en": "Identification of the voltage transformer"
+      },
+      "names": {
+        "de": "Spannungswandler",
+        "en": "Voltage Transformer"
       }
     },
     {
       "type": "Voltage Transformer",
       "descriptions": {
         "de": "Gibt das Verhältnis des Spannungswandlers an.",
-        "ru": "Specifies the ratio of the voltage transformer.",
         "en": "Specifies the ratio of the voltage transformer.",
         "ar": "محولات الجهد"
       },
       "names": {
         "de": "VT",
-        "ru": "VT",
-        "en": "VT",
-        "ar": "VT"
+        "en": "VT"
+      }
+    },
+    {
+      "type": "Voltage Transformer Accuracy",
+      "descriptions": {
+        "de": "Genauigkeit des Spannungswandlers",
+        "en": "Voltage Transformer Accuracy"
+      },
+      "names": {
+        "de": "VT",
+        "en": "VT"
       }
     }
   ]
