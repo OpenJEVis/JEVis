@@ -48,18 +48,15 @@ public class MeterListTab extends Tab {
     private final MeterList plan;
     private final JEVisDataSource ds;
     private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
+    private final SummeryTable summeryTable;
+    private final JFXComboBox<Integer> yearComboBox;
     JEVisTypeWrapper typeWrapper;
     JEVisTypeWrapper locationWrapper;
     JEVisTypeWrapper verificationDateWrapper;
-
     JFXToggleButton jfxToggleButton = new JFXToggleButton();
     private MeterTable meterTable;
-
-    private final SummeryTable summeryTable;
     private List<String> type;
     private List<JEVisClass> jeVisClasses;
-
-    private final JFXComboBox<Integer> yearComboBox;
 
 
     public MeterListTab(MeterList plan, MeterController controller, JEVisDataSource ds) {
@@ -239,7 +236,7 @@ public class MeterListTab extends Tab {
     private TagButton buildClassFilterButton(MeterTable meterTable) {
 
 
-        List<String> clasNAmes = plan.getMeterDataList().stream().map(meterData -> {
+        List<String> classNames = plan.getMeterDataList().stream().map(meterData -> {
             try {
                 return meterData.getJeVisClass().getName();
 
@@ -247,17 +244,23 @@ public class MeterListTab extends Tab {
                 throw new RuntimeException(e);
             }
         }).distinct().collect(Collectors.toList());
-        ObservableList<String> observableList = FXCollections.observableArrayList(clasNAmes);
-        TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), observableList, observableList);
+
+        ObservableList<String> translatedClassNames = FXCollections.observableArrayList();
+        for (String s : classNames) {
+            String className = I18nWS.getInstance().getClassName(s);
+            translatedClassNames.add(className);
+        }
+
+        TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), translatedClassNames, translatedClassNames);
 
         mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
                 logger.debug("List Changed: {}", c);
-                while (c.next()) {
-                    meterTable.setMedium((ObservableList<String>) c.getList());
-                    meterTable.filter();
-                }
+
+                meterTable.setMedium((ObservableList<String>) c.getList());
+
+                meterTable.filter();
             }
         });
 
