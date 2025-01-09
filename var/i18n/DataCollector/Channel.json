@@ -27,6 +27,28 @@
         "en": "Last Readout",
         "ar": "القراءة الأخيرة"
       }
+    },
+    {
+      "type": "Readout Offset",
+      "descriptions": {
+        "de": "Versatz ab wo Daten ausgelesen werden",
+        "en": "Date from which data is read"
+      },
+      "names": {
+        "de": "Versatz der Auslesung",
+        "en": "Readout Offset"
+      }
+    },
+    {
+      "type": "Max Readout",
+      "descriptions": {
+        "de": "Zeitspanne in Sekunden die maximal ausgelesen wird",
+        "en": "Maximum time span in seconds which is read"
+      },
+      "names": {
+        "de": "Maximale Auslesung",
+        "en": "Max Readout"
+      }
     }
   ]
 }

@@ -1,0 +1,101 @@
+{
+  "name": "Flow Measurement Instrument",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Flow Measurement Instrument",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Flow Measurement Instrument",
+      "end": "Flow Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Flow Measurement Instrument",
+      "end": "Flow Measurement Instrument",
+      "type": 3
+    },
+    {
+      "start": "Flow Measurement Instrument",
+      "end": "Measurement Instrument",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Nominal Diameter",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 70,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Flow Measurement Instrument"
+    },
+    {
+      "name": "Nominal Pressure",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 71,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Flow Measurement Instrument"
+    },
+    {
+      "name": "Min Flow Rate",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 72,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Flow Measurement Instrument"
+    },
+    {
+      "name": "Nominal Flow Rate",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 73,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Flow Measurement Instrument"
+    },
+    {
+      "name": "Max Flow Rate",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 74,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Flow Measurement Instrument"
+    },
+    {
+      "name": "Operating Temperature",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 75,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Flow Measurement Instrument"
+    },
+    {
+      "name": "Operating Pressure",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 76,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Flow Measurement Instrument"
+    },
+    {
+      "name": "Operating Humidity",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 77,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Flow Measurement Instrument"
+    }
+  ]
+}
+

@@ -1,0 +1,101 @@
+{
+  "jevisclass": "Flow Measurement Instrument",
+  "names": {
+    "de": "Durchflussmesser",
+    "en": "Flow Measurement Instrument"
+  },
+  "descriptions": {
+    "de": "Stellt einen Durchflusszähler in einem Messaufbau dar.",
+    "en": "Represents an Flow meter in a test setup."
+  },
+  "types": [
+    {
+      "type": "Nominal Diameter",
+      "descriptions": {
+        "de": "Gibt den Rohrdurchmesser des Durchflussmessers an.",
+        "en": "Specifies the pipe diameter of the air meter."
+      },
+      "names": {
+        "de": "Nennweite",
+        "en": "Nominal Diameter"
+      }
+    },
+    {
+      "type": "Nominal Pressure",
+      "descriptions": {
+        "de": "Die Angabe erfolgt nach DIN, EN, ISO durch die Bezeichnung PN (Pressure Nominal) gefolgt von einer dimensionslosen ganzen Zahl, die den Auslegungsdruck in bar bei Raumtemperatur (20 °C) angibt.",
+        "en": "In accordance with DIN, EN, ISO, this is indicated by the designation PN (Pressure Nominal) followed by a dimensionless whole number which indicates the design pressure in bar at room temperature (20 °C)."
+      },
+      "names": {
+        "de": "Nenndruck",
+        "en": "Nominal Pressure"
+      }
+    },
+    {
+      "type": "Min Flow Rate",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Min Durchfluss",
+        "en": "Min Flow Rate"
+      }
+    },
+    {
+      "type": "Nominal Flow Rate",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Nenndurchfluss",
+        "en": "Nominal Flow Rate"
+      }
+    },
+    {
+      "type": "Max Flow Rate",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Max Durchfluss",
+        "en": "Max Flow Rate"
+      }
+    },
+    {
+      "type": "Operating Temperature",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Betriebstemperatur",
+        "en": "Operating Temperature"
+      }
+    },
+    {
+      "type": "Operating Pressure",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Betriebsdruck",
+        "en": "Operating Pressure"
+      }
+    },
+    {
+      "type": "Operating Humidity",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Betriebsfeuchte",
+        "en": "Operating Humidity"
+      }
+    }
+  ]
+}

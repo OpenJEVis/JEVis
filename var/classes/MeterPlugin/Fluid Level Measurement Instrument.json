@@ -1,0 +1,74 @@
+{
+  "name": "Fluid Level Measurement Instrument",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Fluid Level Measurement Instrument",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Fluid Level Measurement Instrument",
+      "end": "Fluid Level Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Fluid Level Measurement Instrument",
+      "end": "Fluid Level Measurement Instrument",
+      "type": 3
+    },
+    {
+      "start": "Fluid Level Measurement Instrument",
+      "end": "Measurement Instrument",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Fluid Compatibility",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 70,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Fluid Level Measurement Instrument"
+    },
+    {
+      "name": "Level Range",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 71,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Fluid Level Measurement Instrument"
+    },
+    {
+      "name": "Level Resolution",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 72,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Fluid Level Measurement Instrument"
+    },
+    {
+      "name": "Level Accuracy",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 73,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Fluid Level Measurement Instrument"
+    },
+    {
+      "name": "Operating Temperature",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 74,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Fluid Level Measurement Instrument"
+    }
+  ]
+}
+

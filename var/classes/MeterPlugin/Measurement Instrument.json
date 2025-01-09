@@ -15,6 +15,60 @@
   ],
   "types": [
     {
+      "name": "Meter Point",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Measuring Point ID",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 2,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Company",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 3,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Online ID",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 5,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Device Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 6,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Decimal Places",
+      "primitiveType": 2,
+      "guiType": "Text",
+      "guiposition": 7,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
       "name": "Location",
       "primitiveType": 0,
       "guiType": "Text",
@@ -33,55 +87,10 @@
       "jevisClass": "Measurement Instrument"
     },
     {
-      "name": "Company",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 22,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
       "name": "Cost Center",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 12,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
-      "name": "Meter Point",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 1,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
-      "name": "Picture",
-      "primitiveType": 3,
-      "guiType": "File Selector",
-      "guiposition": 34,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
-      "name": "Measuring Point ID",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 2,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
-      "name": "Serial Number",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 22,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -96,10 +105,55 @@
       "jevisClass": "Measurement Instrument"
     },
     {
+      "name": "Connection",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 21,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Serial Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 22,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Device IP",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 25,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
       "name": "Datasheet",
       "primitiveType": 3,
       "guiType": "File Selector",
       "guiposition": 30,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Verification Documentation",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 32,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
+      "name": "Picture",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 34,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"
@@ -150,64 +204,10 @@
       "jevisClass": "Measurement Instrument"
     },
     {
-      "name": "Verification Documentation",
-      "primitiveType": 3,
-      "guiType": "File Selector",
-      "guiposition": 32,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
-      "name": "Online ID",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "guiposition": 5,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
-      "name": "Device IP",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 25,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
-      "name": "Device Number",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 6,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
-      "name": "Connection",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 21,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
       "name": "Remarks",
       "primitiveType": 0,
       "guiType": "Text Area",
       "guiposition": 99,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Measurement Instrument"
-    },
-    {
-      "name": "Decimal Places",
-      "primitiveType": 2,
-      "guiType": "Text",
-      "guiposition": 7,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"

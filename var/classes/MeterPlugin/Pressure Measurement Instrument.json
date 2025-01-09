@@ -1,0 +1,101 @@
+{
+  "name": "Pressure Measurement Instrument",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Pressure Measurement Instrument",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Pressure Measurement Instrument",
+      "end": "Pressure Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Pressure Measurement Instrument",
+      "end": "Pressure Measurement Instrument",
+      "type": 3
+    },
+    {
+      "start": "Pressure Measurement Instrument",
+      "end": "Measurement Instrument",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Nominal Pressure",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 70,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pressure Measurement Instrument"
+    },
+    {
+      "name": "Over Pressure",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 71,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pressure Measurement Instrument"
+    },
+    {
+      "name": "Burst Pressure",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 72,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pressure Measurement Instrument"
+    },
+    {
+      "name": "Pressure Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 73,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pressure Measurement Instrument"
+    },
+    {
+      "name": "Accuracy",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 74,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pressure Measurement Instrument"
+    },
+    {
+      "name": "Resolution",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 75,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pressure Measurement Instrument"
+    },
+    {
+      "name": "Operating Temperature",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 76,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pressure Measurement Instrument"
+    },
+    {
+      "name": "Media Compatibility",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 77,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Pressure Measurement Instrument"
+    }
+  ]
+}
+

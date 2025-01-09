@@ -23,8 +23,9 @@ public class SampleMerger {
     private final List<List<Sample>> allSamples = new ArrayList<>();
     private final List<Sample> constants = new ArrayList<>();
     private final List<List<Sample>> periodConstants = new ArrayList<>();
-    private int noOfAsyncVariables = 0;
     private final List<String> asyncVariables = new ArrayList<>();
+    private int noOfAsyncVariables = 0;
+    private int noOfAsyncAndPeriodicVariables = 0;
 
     private void addPeriodic(List<JEVisSample> jevisSamples, String variable, CalcInputType calcInputType) {
         List<Sample> samples = new ArrayList<>();
@@ -52,10 +53,12 @@ public class SampleMerger {
     public void addSamples(List<JEVisSample> jevisSamples, String variable, CalcInputType inputType) {
         switch (inputType) {
             case PERIODIC:
+                noOfAsyncAndPeriodicVariables++;
                 addPeriodic(jevisSamples, variable, inputType);
                 break;
             case ASYNC:
                 noOfAsyncVariables++;
+                noOfAsyncAndPeriodicVariables++;
                 asyncVariables.add(variable);
                 addPeriodic(jevisSamples, variable, inputType);
                 break;
@@ -115,6 +118,32 @@ public class SampleMerger {
             logger.debug("not every input data with datetime {}, will delete this datetime from calculation", key.toString(DateTimeFormat.fullDateTime()));
             sampleMap.remove(key);
         });
+
+        boolean allAsync = noOfAsyncAndPeriodicVariables == noOfAsyncVariables;
+        if (allAsync) {
+            logger.debug("Only Async Variables found. Removing all values after last of variable with the least values");
+            DateTime dateTime = null;
+            for (List<Sample> samples : allSamples) {
+                DateTime sampleDateTime = samples.get(samples.size() - 1).getDate();
+                if (dateTime == null || dateTime.isAfter(sampleDateTime)) {
+                    dateTime = sampleDateTime;
+                }
+            }
+
+            if (dateTime != null) {
+                List<DateTime> toRemoveList = new ArrayList<>();
+                for (Map.Entry<DateTime, List<Sample>> entry : sampleMap.entrySet()) {
+                    DateTime dateTimeKey = entry.getKey();
+                    if (dateTimeKey.equals(dateTime) || dateTimeKey.isAfter(dateTime)) {
+                        toRemoveList.add(dateTimeKey);
+                    }
+                }
+
+                logger.debug("Least date found is {}. Removing {} samples after", dateTime, toRemoveList.size());
+                toRemoveList.forEach(sampleMap::remove);
+            }
+        }
+
         return sampleMap;
     }
 
