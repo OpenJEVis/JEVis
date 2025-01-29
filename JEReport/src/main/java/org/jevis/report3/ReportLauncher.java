@@ -92,7 +92,7 @@ public class ReportLauncher extends AbstractCliApp {
 
             } finally {
                 logger.info("Queued Jobs: {} | Finished {}", plannedJobs.size(), finishedJobs);
-
+                removeJob(reportObject);
                 checkLastJob();
             }
         }
