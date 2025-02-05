@@ -66,7 +66,16 @@
       "guiposition": 1,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Data Point"
+      "jevisClass": "Channel"
+    },
+    {
+      "name": "Max Readout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 2,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Channel"
     }
   ]
 }

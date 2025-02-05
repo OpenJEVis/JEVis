@@ -205,7 +205,7 @@ public class PrepareStep implements ProcessStep {
                 }
             }
             if (compare < 0 && firstRawPeriod.getYears() > 0) {
-                currentDateLocal = currentDateLocal.minusYears(1).withMonthOfYear(1).withDayOfMonth(1);
+                currentDateLocal = currentDateLocal.withMonthOfYear(1).withDayOfMonth(1);
             }
 
             if (firstCleanPeriod.getMonths() > 0) {

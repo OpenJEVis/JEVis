@@ -62,7 +62,7 @@ public class LimitsStep implements ProcessStep {
 
         List<JsonLimitsConfig> confLimitsStep1 = new ArrayList<>();
         List<JsonLimitsConfig> confLimitsStep2 = new ArrayList<>();
-        if (cleanDataObject.getLimitsConfig().size() > 0) {
+        if (!cleanDataObject.getLimitsConfig().isEmpty()) {
             confLimitsStep1.add(cleanDataObject.getLimitsConfig().get(0));
         }
         if (cleanDataObject.getLimitsConfig().size() > 1) {
@@ -188,7 +188,7 @@ public class LimitsStep implements ProcessStep {
         CleanInterval lastInterval = null;
         for (CleanInterval currentInterval : intervals) {
             for (JsonLimitsConfig lc : conf) {
-                if (lc.getMin() != null && !lc.getMin().equals("") && lc.getMax() != null && !lc.getMax().equals("")) {
+                if (lc.getMin() != null && !lc.getMin().isEmpty() && lc.getMax() != null && !lc.getMax().isEmpty()) {
                     Double min = Double.parseDouble(lc.getMin());
                     Double max = Double.parseDouble(lc.getMax());
                     VirtualSample sample = currentInterval.getResult();
@@ -233,7 +233,7 @@ public class LimitsStep implements ProcessStep {
 
         if (!limitBreaks.contains(currentLimitBreak)) {
             if (currentLimitBreak != null) {
-                if (currentLimitBreak.getIntervals().size() > 0) {
+                if (!currentLimitBreak.getIntervals().isEmpty()) {
                     CleanInterval last = currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1);
 
                     VirtualSample lastSample = last.getResult();

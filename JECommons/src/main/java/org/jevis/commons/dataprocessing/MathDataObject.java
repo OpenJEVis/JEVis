@@ -14,6 +14,7 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
@@ -466,8 +467,7 @@ public class MathDataObject {
             if (latestSample != null) {
                 try {
                     DateTime latestSampleTS = latestSample.getTimestamp().withZone(getTimeZone());
-
-                    boolean ready = latestSampleTS.equals(nextRun) || latestSampleTS.isAfter(nextRun);
+                    boolean ready = latestSampleTS.getMillis() >= nextRun.getMillis();
 
                     return ready;
                 } catch (JEVisException e) {
@@ -573,7 +573,31 @@ public class MathDataObject {
                 period = org.jevis.commons.datetime.Period.YEARLY;
             }
         }
-        return PeriodHelper.getNextPeriod(lastRun, period, referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
+
+        switch (period) {
+            case MINUTELY:
+            case QUARTER_HOURLY:
+            case HOURLY:
+                break;
+            case DAILY:
+            case WEEKLY:
+            case MONTHLY:
+            case QUARTERLY:
+            case YEARLY:
+            case CUSTOM:
+            case CUSTOM2:
+                WorkDays workDays = new WorkDays(getMathDataObject());
+                if (workDays.isEnabled() && workDays.isCustomWorkDay()) {
+                    if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                        lastRun = lastRun.minusDays(1).withHourOfDay(workDays.getWorkdayStart().getHour()).withMinuteOfHour(workDays.getWorkdayStart().getMinute()).withSecondOfMinute(workDays.getWorkdayStart().getSecond()).withMillisOfSecond(0);
+                    }
+                }
+                break;
+            case NONE:
+                break;
+        }
+
+        return PeriodHelper.getNextPeriod(lastRun, period, getTimeZone(), referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
     }
 
     private DateTime getLastRun(JEVisObject object) {

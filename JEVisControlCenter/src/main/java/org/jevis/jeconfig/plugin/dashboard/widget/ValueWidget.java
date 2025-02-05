@@ -355,7 +355,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
             try {
                 logger.debug("checkLimit: {}", config.getUuid());
                 Color fontColor = this.config.getFontColor();
-                this.label.setFont(new Font(this.config.getFontSize()));
+                Font font = Font.font(this.label.getFont().getFamily(), this.getConfig().getFontWeight(), this.getConfig().getFontPosture(), this.config.getFontSize());
+                this.label.setFont(font);
 
                 if (limit != null) {
                     if (percent != null && !percent.isDiff()) {

@@ -35,7 +35,12 @@ import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class handel all the JEVIsObjects related requests
@@ -46,8 +51,26 @@ import java.io.*;
 public class ResourceClasses {
 
     private static final Logger logger = LogManager.getLogger(ResourceClasses.class);
-    private SQLDataSource ds = null;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private SQLDataSource ds = null;
+    private List<File> classIconFiles;
+
+    private static List<File> listClassIconFiles(File dir) {
+        List<File> fileTree = new ArrayList<>();
+        if (dir == null || dir.listFiles() == null) {
+            return fileTree;
+        }
+        for (File entry : dir.listFiles()) {
+            if (entry.isFile()) {
+                if (entry.getName().endsWith(".png") || entry.getName().endsWith(".jpg") || entry.getName().endsWith(".gif")) {
+                    fileTree.add(entry);
+                }
+            } else {
+                fileTree.addAll(listClassIconFiles(entry));
+            }
+        }
+        return fileTree;
+    }
 
     /**
      * Returns an List of JEVisClasses as Json
@@ -217,18 +240,11 @@ public class ResourceClasses {
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
-            FileFilter ff = new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    if (pathname.getName().endsWith(".png")) {
-                        return true;
-                    } else if (pathname.getName().endsWith(".jpg")) {
-                        return true;
-                    } else return pathname.getName().endsWith(".gif");
-                }
-            };
+            if (classIconFiles == null) {
+                classIconFiles = listClassIconFiles(Config.getClassDir());
+            }
 
-            for (File icon : Config.getClassDir().listFiles(ff)) {
+            for (File icon : classIconFiles) {
                 int lastDot = icon.getName().lastIndexOf(".");
                 if (name.equalsIgnoreCase(icon.getName().substring(0, lastDot))) {
                     return Response.ok(ImageIO.read(icon)).build();
@@ -250,7 +266,6 @@ public class ResourceClasses {
         }
 
     }
-
 
     public Response getClassResponse(String classname) {
         if (classname == null || classname.isEmpty()) {

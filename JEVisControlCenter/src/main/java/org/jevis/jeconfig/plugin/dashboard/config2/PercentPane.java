@@ -27,8 +27,8 @@ public class PercentPane extends GridPane {
     private final Label sourceLabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.source"));
     private final Percent percent;
     private final ObservableList<Widget> widgetList;
-    private JFXComboBox<Widget> widgetBox;
     private final DashboardControl dashboardControl;
+    private JFXComboBox<Widget> widgetBox;
 
 
     public PercentPane(DashboardControl dashboardControl, Percent percent, ObservableList<Widget> widgetList) {
@@ -81,11 +81,19 @@ public class PercentPane extends GridPane {
     private void initControls() {
         //EmptyValueWidget emptyWidget = new EmptyValueWidget(dashboardControl, null);
         //emptyWidget.getConfig().setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.nolink"));
+        widgetList.sort((o1, o2) -> {
+            try {
+                return Integer.compare(o1.getConfig().getUuid(), o2.getConfig().getUuid());
+            } catch (Exception e) {
+                logger.error("Could not get uuid for widgets {} and {}", o1, o2);
+            }
+            return 0;
+        });
         if (!widgetList.contains(Widgets.emptyValueWidget(dashboardControl))) {
             widgetList.add(0, Widgets.emptyValueWidget(dashboardControl));
         }
 
-        widgetBox = new JFXComboBox<>(widgetList.filtered(widget -> widget.typeID() == Widgets.emptyValueWidget(dashboardControl).TYPE_ID || widget.typeID().equals(ValueWidget.WIDGET_ID)));
+        widgetBox = new JFXComboBox<>(widgetList.filtered(widget -> widget.typeID().equals(Widgets.emptyValueWidget(dashboardControl).TYPE_ID) || widget.typeID().equals(ValueWidget.WIDGET_ID)));
 
 
         Callback<ListView<Widget>, ListCell<Widget>> cellFactory = new Callback<ListView<Widget>, ListCell<Widget>>() {

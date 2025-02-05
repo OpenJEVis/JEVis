@@ -29,7 +29,6 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.ws.json.JsonJEVisClass;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -73,6 +72,8 @@ public class Config {
     private static ConcurrentHashMap<String, JsonJEVisClass> classCache = new ConcurrentHashMap<>();
     private static String latestJECCPath;
     private static String latestJavaPath;
+    private static final List<String> cors = new ArrayList<>();
+    private static List<File> classFiles;
 
     public static String getDBHost() {
         return dbIP;
@@ -145,23 +146,21 @@ public class Config {
                 File classDir = Config.getClassDir();
 
                 if (classDir.exists()) {
-                    FileFilter jsonFilter = new FileFilter() {
-                        @Override
-                        public boolean accept(File pathname) {
-                            return pathname.getName().endsWith(".json");
-                        }
-                    };
                     final ObjectMapper objectMapper = new ObjectMapper();
                     Arrays.stream(Objects.requireNonNull(classDir.listFiles(jsonFilter))).parallel().forEach(jsonFile -> {
                         try {
+                    if (classFiles == null) {
+                        classFiles = listClassFiles(Config.getClassDir());
+                    }
 
-                            JsonJEVisClass data = objectMapper.readValue(jsonFile, JsonJEVisClass.class);
+                    for (File file : classFiles) {
+                        try {
+                            JsonJEVisClass data = objectMapper.readValue(file, JsonJEVisClass.class);
                             classCache.put(data.getName(), data);
-
                         } catch (Exception ex) {
-                            logger.error("Error while loading Class file: {}", jsonFile.getName(), ex);
+                            logger.error("Error while loading Class file: {}", file.getName(), ex);
                         }
-                    });
+                    }
                 }
 
                 JEVisClassHelper.completeClasses(classCache);
@@ -355,6 +354,16 @@ public class Config {
         return registrationKey;
     }
 
+    public static long getDemoGroup() {
+//        readConfigurationFile();
+        return demoGroup;
+    }
+
+    public static long getDemoRoot() {
+//        readConfigurationFile();
+        return demoRoot;
+    }
+                                                                                                             
     public static void CloseDS(JEVisDataSource ds) {
         try {
             if (ds != null) {
@@ -373,6 +382,23 @@ public class Config {
         } catch (Exception ex) {
             logger.catching(org.apache.logging.log4j.Level.TRACE, ex);
         }
+    }
+
+    private static List<File> listClassFiles(File dir) {
+        List<File> fileTree = new ArrayList<>();
+        if (dir == null || dir.listFiles() == null) {
+            return fileTree;
+        }
+        for (File entry : dir.listFiles()) {
+            if (entry.isFile()) {
+                if (entry.getName().endsWith(".json")) {
+                    fileTree.add(entry);
+                }
+            } else {
+                fileTree.addAll(listClassFiles(entry));
+            }
+        }
+        return fileTree;
     }
 
 

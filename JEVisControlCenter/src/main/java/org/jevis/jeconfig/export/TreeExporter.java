@@ -1,4 +1,4 @@
-package org.jevis.commons.export;
+package org.jevis.jeconfig.export;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -23,6 +23,10 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonUnit;
+import org.jevis.jeconfig.application.Chart.data.AnalysisHandler;
+import org.jevis.jeconfig.application.Chart.data.ChartData;
+import org.jevis.jeconfig.application.Chart.data.ChartModel;
+import org.jevis.jeconfig.application.Chart.data.DataModel;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -129,9 +133,6 @@ public class TreeExporter {
     }
 
     private void updateTargetsInFiles(JEVisDataSource ds, Map<Long, JEVisObject> createdObjects, List<JEVisAttribute> fileAttributes) throws JEVisException, IOException {
-        JEVisType analysisFileType = ds.getJEVisClass(JC.Analysis.name).getType(JC.Analysis.a_AnalysisFile);
-        JEVisType analysisDataModelType = ds.getJEVisClass(JC.Analysis.name).getType(JC.Analysis.a_DataModel);
-        JEVisType dashboardFileType = ds.getJEVisClass(JC.DashboardAnalysis.name).getType(JC.DashboardAnalysis.a_DataModelFile);
 
         for (JEVisAttribute fileAttribute : fileAttributes) {
 
@@ -140,8 +141,24 @@ public class TreeExporter {
             objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
             objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
+            if (fileAttribute.getName().equals(JC.Analysis.a_AnalysisFile)) {
+                AnalysisHandler analysisHandler = new AnalysisHandler();
+                DataModel dataModel = new DataModel();
+                analysisHandler.loadDataModel(fileAttribute.getObject(), dataModel);
 
-            if (fileAttribute.getType().equals(analysisFileType) || fileAttribute.getType().equals(dashboardFileType)) {
+                for (ChartModel chartModel : dataModel.getChartModels()) {
+                    for (ChartData chartData : chartModel.getChartData()) {
+                        long oldId = chartData.getId();
+                        JEVisObject newObject = createdObjects.get(oldId);
+                        Long newId = newObject.getID();
+                        chartData.setId(newId);
+                    }
+                }
+
+                analysisHandler.saveDataModel(fileAttribute.getObject(), dataModel);
+
+            } else if (fileAttribute.getName().equals(JC.DashboardAnalysis.a_DataModelFile)) {
+
                 JEVisSample latestSample = fileAttribute.getLatestSample();
                 if (latestSample != null) {
                     JEVisFile file = latestSample.getValueAsFile();
@@ -152,7 +169,7 @@ public class TreeExporter {
                         String jsonNodePrettyString = jsonNode.toPrettyString();
 
                         for (JsonNode id : jsonNode.findValues("id")) {
-                            JEVisObject jeVisObject = createdObjects.get(id.asLong());
+                            JEVisObject jeVisObject = createdObjects.get(id);
                             String oldValue = "\"id\" : " + id;
                             String newValue = "\"id\" : " + jeVisObject.getID();
                             jsonNodePrettyString = jsonNodePrettyString.replaceAll(oldValue, newValue);

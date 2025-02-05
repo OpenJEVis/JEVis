@@ -1,0 +1,65 @@
+{
+  "name": "Temperature Measurement Instrument",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Temperature Measurement Instrument",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Temperature Measurement Instrument",
+      "end": "Temperature Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Temperature Measurement Instrument",
+      "end": "Temperature Measurement Instrument",
+      "type": 3
+    },
+    {
+      "start": "Temperature Measurement Instrument",
+      "end": "Measurement Instrument",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Operating Temperature Range",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 70,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Temperature Measurement Instrument"
+    },
+    {
+      "name": "Resolution",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 71,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Temperature Measurement Instrument"
+    },
+    {
+      "name": "Nominal Resistance",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 72,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Temperature Measurement Instrument"
+    },
+    {
+      "name": "Measurement Precision",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 73,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Temperature Measurement Instrument"
+    }
+  ]
+}
+

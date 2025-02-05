@@ -7,7 +7,9 @@ package org.jevis.report3.data.report.intervals;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.FixedPeriod;
@@ -15,10 +17,8 @@ import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
-import org.jevis.commons.utils.JEVisDates;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Interval;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class IntervalCalculator {
 
     private static final Logger logger = LogManager.getLogger(IntervalCalculator.class);
-    private final Map<String, Interval> intervalMap = new ConcurrentHashMap<>();
+    private final Map<String, ReportInterval> intervalMap = new ConcurrentHashMap<>();
     private final SampleHandler samplesHandler;
     private JEVisObject reportObject = null;
     private DateTime start;
@@ -42,7 +42,7 @@ public class IntervalCalculator {
     }
 
 
-    public Interval getInterval(String period) {
+    public ReportInterval getInterval(String period) {
         return intervalMap.get(period);
     }
 
@@ -64,7 +64,13 @@ public class IntervalCalculator {
         String startRecordString = samplesHandler.getLastSample(reportObject, JC.Report.a_StartRecord, "");
         dateTimeZone = samplesHandler.getLastSample(reportObject, JC.Report.a_TimeZone, DateTimeZone.UTC);
 
-        start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString).withZone(dateTimeZone);
+        start = DateTime.parse(startRecordString);
+        DateTimeZone startZone = start.getZone();
+
+        if (!startZone.equals(dateTimeZone)) {
+            int dateTimeZoneOffset = dateTimeZone.getOffset(start);
+            start = start.withZone(DateTimeZone.forOffsetMillis(dateTimeZoneOffset));
+        }
 
         buildIntervals(schedule, start, false, Period.NONE);
     }
@@ -77,30 +83,33 @@ public class IntervalCalculator {
         org.jevis.commons.datetime.DateHelper dateHelper = null;
 
         dateHelper = PeriodHelper.getDateHelper(reportObject, schedule, dateHelper, start);
+        if (dateHelper != null) {
+            dateHelper.setWorkDays(workDays);
+        }
 
         for (PeriodMode mode : PeriodMode.values()) {
             DateTime startRecord = calcStartRecord(start, schedule, mode, FixedPeriod.NONE, dateHelper);
-            DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
+            DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateTimeZone, dateHelper);
 
-            Interval interval = new Interval(startRecord, endRecord);
+            ReportInterval interval = new ReportInterval(startRecord, endRecord);
             intervalMap.put(mode.toString().toUpperCase(), interval);
         }
 
         for (FixedPeriod fixedPeriod : FixedPeriod.values()) {
             DateTime startRecordFixed = calcStartRecord(start, schedule, PeriodMode.FIXED, fixedPeriod, dateHelper);
             DateTime startRecordFixedToReportEnd = calcStartRecord(start, schedule, PeriodMode.FIXED_TO_REPORT_END, fixedPeriod, dateHelper);
-            DateTime endRecord = PeriodHelper.calcEndRecord(start, schedule, dateHelper);
-            DateTime endRecordFixedOverride = PeriodHelper.calcEndRecord(startRecordFixedToReportEnd, originalPeriod, dateHelper);
-            DateTime endRecordRelative = PeriodHelper.calcEndRecord(startRecordFixedToReportEnd, schedule, dateHelper);
+            DateTime endRecord = PeriodHelper.calcEndRecord(start, schedule, dateTimeZone, dateHelper);
+            DateTime endRecordFixedOverride = PeriodHelper.calcEndRecord(startRecordFixedToReportEnd, originalPeriod, dateTimeZone, dateHelper);
+            DateTime endRecordRelative = PeriodHelper.calcEndRecord(startRecordFixedToReportEnd, schedule, dateTimeZone, dateHelper);
 
-            Interval intervalFixed = new Interval(startRecordFixed, endRecord);
-            Interval intervalFixedToReportEnd;
+            ReportInterval intervalFixed = new ReportInterval(startRecordFixed, endRecord);
+            ReportInterval intervalFixedToReportEnd;
             if (!isOverride) {
-                intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecord);
+                intervalFixedToReportEnd = new ReportInterval(startRecordFixedToReportEnd, endRecord);
             } else {
-                intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecordFixedOverride);
+                intervalFixedToReportEnd = new ReportInterval(startRecordFixedToReportEnd, endRecordFixedOverride);
             }
-            Interval intervalRelative = new Interval(startRecordFixedToReportEnd, endRecordRelative);
+            ReportInterval intervalRelative = new ReportInterval(startRecordFixedToReportEnd, endRecordRelative);
 
             String nameFixed = PeriodMode.FIXED + "_" + fixedPeriod.toString().toUpperCase();
             String nameFixedToReportEnd = PeriodMode.FIXED_TO_REPORT_END + "_" + fixedPeriod.toString().toUpperCase();
@@ -147,7 +156,15 @@ public class IntervalCalculator {
                 resultStartRecord = PeriodHelper.getPriorStartRecord(startRecord, schedule, dateHelper);
                 break;
             case ALL:
-                resultStartRecord = samplesHandler.getTimestampOfFirstSample(reportObject, "Start Record");
+                JEVisSample startRecordSample = samplesHandler.getFirstSample(reportObject, "Start Record");
+                if (startRecordSample != null) {
+                    try {
+                        resultStartRecord = DateTime.parse(startRecordSample.getValueAsString());
+                    } catch (JEVisException e) {
+                        logger.error("Could not parse first sample of start record of object {}", reportObject, e);
+                    }
+                }
+
                 break;
             case FIXED:
                 switch (fixedPeriod) {
@@ -193,6 +210,7 @@ public class IntervalCalculator {
                     default:
                         break;
                 }
+                break;
             case RELATIVE:
             case FIXED_TO_REPORT_END:
                 int weekOfWeekyear = startRecord.getWeekOfWeekyear();
@@ -268,10 +286,15 @@ public class IntervalCalculator {
                     default:
                         break;
                 }
+                break;
             case CURRENT:
             default:
                 break;
         }
+
+        int dateTimeZoneOffset = dateTimeZone.getOffset(resultStartRecord);
+        resultStartRecord = resultStartRecord.withZoneRetainFields(DateTimeZone.forOffsetMillis(dateTimeZoneOffset));
+
         return resultStartRecord;
     }
 

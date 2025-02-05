@@ -519,9 +519,9 @@ public class CommonMethods {
                 classes.add(JC.Data.CleanData.name);
                 classes.add(JC.Data.MathData.name);
                 classes.add(JC.Data.ForecastData.name);
+                classes.add(JC.Data.BaseData.name);
 
                 dependentObjects.addAll(getAllChildrenRecursive(object, classes));
-                dependentObjects.removeAll(objects);
             } catch (Exception e) {
                 logger.error(e);
             }
@@ -541,6 +541,8 @@ public class CommonMethods {
                 }
             }
         }
+
+        dependentObjects.removeAll(objects);
 
         return dependentObjects;
     }
