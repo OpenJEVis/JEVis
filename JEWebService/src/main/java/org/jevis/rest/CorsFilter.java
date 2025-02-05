@@ -14,14 +14,14 @@ public class CorsFilter implements ContainerResponseFilter {
     @Override
     public void filter(ContainerRequestContext requestContext,
                        ContainerResponseContext responseContext) throws IOException {
-        String origin= requestContext.getHeaderString("Origin");
-        if(!Config.getCORS().isEmpty()){
-            if (Config.getCORS().contains("*") | Config.getCORS().contains(origin)){
-                if(Config.getCORS().contains("*")){
+        String origin = requestContext.getHeaderString("Origin");
+        if (!Config.getCORS().isEmpty()) {
+            if (Config.getCORS().contains("*") | Config.getCORS().contains(origin)) {
+                if (Config.getCORS().contains("*")) {
                     responseContext.getHeaders().add(
                             "Access-Control-Allow-Origin",
                             requestContext.getHeaderString("*"));
-                }else{
+                } else {
                     responseContext.getHeaders().add(
                             "Access-Control-Allow-Origin", origin);
                 }
@@ -36,5 +36,7 @@ public class CorsFilter implements ContainerResponseFilter {
                         "GET, OPTIONS, HEAD"); //, POST, PUT, DELETE, OPTIONS, HEAD
             }
         }
+
+
     }
 }
