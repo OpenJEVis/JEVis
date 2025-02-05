@@ -69,10 +69,9 @@ public class Config {
     private static String latestJavaVersion = "0";
     private static String webDir = "";
     private static String installerDir = "/var/www/html/installer";
-    private static ConcurrentHashMap<String, JsonJEVisClass> classCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, JsonJEVisClass> classCache = new ConcurrentHashMap<>();
     private static String latestJECCPath;
     private static String latestJavaPath;
-    private static final List<String> cors = new ArrayList<>();
     private static List<File> classFiles;
 
     public static String getDBHost() {
@@ -147,8 +146,6 @@ public class Config {
 
                 if (classDir.exists()) {
                     final ObjectMapper objectMapper = new ObjectMapper();
-                    Arrays.stream(Objects.requireNonNull(classDir.listFiles(jsonFilter))).parallel().forEach(jsonFile -> {
-                        try {
                     if (classFiles == null) {
                         classFiles = listClassFiles(Config.getClassDir());
                     }
@@ -363,7 +360,7 @@ public class Config {
 //        readConfigurationFile();
         return demoRoot;
     }
-                                                                                                             
+
     public static void CloseDS(JEVisDataSource ds) {
         try {
             if (ds != null) {

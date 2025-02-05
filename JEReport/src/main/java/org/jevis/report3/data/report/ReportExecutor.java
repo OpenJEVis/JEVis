@@ -74,8 +74,13 @@ public class ReportExecutor {
 
         if (!precondition.isPreconditionReached(reportObject)) {
 
-            logger.info("Precondition not reached");
+            logger.info("Precondition not reached.");
             finisher.continueWithNextReport();
+            return;
+        }
+
+        if (end.isAfter(DateTime.now().withZone(end.getZone()))) {
+            logger.info("Time has not reached report period end.");
             return;
         }
 
