@@ -15,7 +15,6 @@
         <mainClass>org.jevis.opcuawrite.OPCUAWriterLauncher</mainClass>
         <additionalparam>-Xdoclint:none</additionalparam>
         <skipjnlp>none</skipjnlp>
-        <openfx.version>11.0.2</openfx.version>
     </properties>
 
     <organization>
@@ -43,7 +42,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>32.0.0-jre</version>
+            <version>33.0.0-jre</version>
         </dependency>
     </dependencies>
 
@@ -56,7 +55,7 @@
                 <goals></goals>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.7.1</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -91,7 +90,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.13.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -101,7 +100,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
+                <version>3.5.0</version>
                 <configuration>
                     <rules>
                         <dependencyConvergence/>
