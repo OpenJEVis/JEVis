@@ -3,17 +3,20 @@ package org.jevis.jeconfig.tool.template;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.unit.CommonUnits;
+import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-public class WaterCubicMetreCounter extends Template {
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
+
+public class VolumeMeterLiter extends Template {
 
 
     @Override
     public String getName() {
-        return I18n.getInstance().getString("datarow.template.watercubiccounter");
+        return I18n.getInstance().getString("datarow.template.volumemeterliter");
     }
 
     @Override
@@ -26,10 +29,10 @@ public class WaterCubicMetreCounter extends Template {
         JEVisClass dataClass = parent.getDataSource().getJEVisClass("Data");
         JEVisClass cleanDataClass = parent.getDataSource().getJEVisClass("Clean Data");
 
-        JEVisObject newRowData = parent.buildObject(name, dataClass);
-        newRowData.commit();
+        JEVisObject newRawData = parent.buildObject(name, dataClass);
+        newRawData.commit();
 
-        JEVisObject newCleanData = newRowData.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
+        JEVisObject newCleanData = newRawData.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
         newCleanData.commit();
 
         Period p15m = Period.minutes(15);
@@ -37,21 +40,23 @@ public class WaterCubicMetreCounter extends Template {
         JEVisAttribute valueAttributeClean = newCleanData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
         valueAttributeClean.setInputSampleRate(p15m);
         valueAttributeClean.setDisplaySampleRate(p15m);
-        valueAttributeClean.setInputUnit(CommonUnits.m3.jevisUnit);
-        valueAttributeClean.setDisplayUnit(CommonUnits.m3.jevisUnit);
+        Unit _l = NonSI.LITER;
+        JEVisUnit liter = new JEVisUnitImp(_l);
+        valueAttributeClean.setInputUnit(liter);
+        valueAttributeClean.setDisplayUnit(liter);
         valueAttributeClean.commit();
 
-        JEVisAttribute valueAttributeRaw = newRowData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+        JEVisAttribute valueAttributeRaw = newRawData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
         valueAttributeRaw.setInputSampleRate(p15m);
         valueAttributeRaw.setDisplaySampleRate(p15m);
-        valueAttributeRaw.setInputUnit(CommonUnits.m3.jevisUnit);
-        valueAttributeRaw.setDisplayUnit(CommonUnits.m3.jevisUnit);
+        valueAttributeRaw.setInputUnit(liter);
+        valueAttributeRaw.setDisplayUnit(liter);
         valueAttributeRaw.commit();
 
-        DateTime startDate = new DateTime(2001, 01, 01, 0, 0, 0);
+        DateTime startDate = new DateTime(1990, 1, 1, 0, 0, 0);
 
 
-        setAttribute(newRowData, "Period", startDate, p15m.toString());
+        setAttribute(newRawData, "Period", startDate, p15m.toString());
         setAttribute(newCleanData, "Period", startDate, p15m.toString());
         setAttribute(newCleanData, "Conversion to Differential", startDate, false);
         setAttribute(newCleanData, "Enabled", startDate, true);
@@ -77,12 +82,12 @@ public class WaterCubicMetreCounter extends Template {
                 "  \"referenceperiodcount\" : null\n" +
                 "}, {\n" +
                 "  \"name\" : \"Stufe 2\",\n" +
-                "  \"type\" : \"INTERPOLATION\",\n" +
-                "  \"boundary\" : \"3600000\",\n" +
+                "  \"type\" : \"AVERAGE\",\n" +
+                "  \"boundary\" : \"2592000000\",\n" +
                 "  \"defaultvalue\" : null,\n" +
-                "  \"referenceperiod\" : null,\n" +
-                "  \"bindtospecific\" : null,\n" +
-                "  \"referenceperiodcount\" : null\n" +
+                "  \"referenceperiod\" : \"MONTH\",\n" +
+                "  \"bindtospecific\" : \"WEEKDAY\",\n" +
+                "  \"referenceperiodcount\" : \"1\"\n" +
                 "}]";
     }
 
