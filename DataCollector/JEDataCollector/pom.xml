@@ -102,12 +102,6 @@
         </dependency>
         <dependency>
             <groupId>org.jevis</groupId>
-            <artifactId>DWDDriver</artifactId>
-            <version>1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jevis</groupId>
             <artifactId>HTTPDataSource</artifactId>
         </dependency>
         <dependency>
