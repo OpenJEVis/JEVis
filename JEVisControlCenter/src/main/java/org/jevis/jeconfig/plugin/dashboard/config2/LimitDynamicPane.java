@@ -48,7 +48,16 @@ public class LimitDynamicPane extends GridPane {
 
     public LimitDynamicPane(Limit limit, ObservableList<Widget> widgetList) {
         this.limit = limit;
+        widgetList.sort((o1, o2) -> {
+            try {
+                return Integer.compare(o1.getConfig().getUuid(), o2.getConfig().getUuid());
+            } catch (Exception e) {
+                logger.error("Could not get uuid for widgets {} and {}", o1, o2);
+            }
+            return 0;
+        });
         this.widgetList = widgetList;
+
         initControls();
 
         setPadding(new Insets(10));

@@ -5,15 +5,13 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.JEVisFileImp;
@@ -44,10 +42,10 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
     private final JEVisTypeWrapper targetType;
 
     private final DateTime commitDateTime;
-    private final Map<Integer, List<Node>> fields = new TreeMap<>(new Comparator<Integer>() {
+    private final Map<Integer, Node> fields = new TreeMap<>(new Comparator<Integer>() {
         @Override
         public int compare(Integer o1, Integer o2) {
-            if (o1 == o2) {
+            if (Objects.equals(o1, o2)) {
                 return 0;
             }
             if (o1 == null) {
@@ -70,13 +68,9 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
         this.targetType = new JEVisTypeWrapper(getJEVisType(JC.MeasurementInstrument.a_OnlineID));
         this.commitDateTime = DateTime.now();
 
-        gridPane.setPadding(new Insets(30, 30, 30, 30));
+        gridPane.setPadding(new Insets(6, 6, 6, 6));
         gridPane.setVgap(10);
         gridPane.setHgap(10);
-
-
-        initializeMap();
-
 
         for (Map.Entry<JEVisTypeWrapper, SampleData> entry : meterData.getJeVisAttributeJEVisSampleMap().entrySet()) {
             JEVisType jeVisType = entry.getKey().getJeVisType();
@@ -98,65 +92,47 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis error", ButtonType.OK);
                 alert.showAndWait();
             }
-
         }
 
+        List<Map.Entry<Integer, Node>> listOfFields = new ArrayList<>(fields.entrySet());
+        listOfFields.sort(Map.Entry.comparingByKey());
 
-        boolean firstRow = true;
-        for (Map.Entry<Integer, List<Node>> entryMap : fields.entrySet()) {
-            int rowcount = getMaxRow();
-
-            if (entryMap.getValue().get(1) instanceof TextArea) {
-                gridPane.add(entryMap.getValue().get(0), 0, ++rowcount, 1, 1);
-                gridPane.add(entryMap.getValue().get(1), 0, ++rowcount, 5, 1);
-                firstRow = true;
-                continue;
+        boolean changedRow = false;
+        int counter = 0;
+        int row = 0;
+        int col = 0;
+        for (Map.Entry<Integer, Node> entryMap : listOfFields) {
+            if (counter % 4 == 0) {
+                row++;
+                col = 0;
             }
 
-            if (entryMap.getKey() % 10 == 0 && entryMap.getKey() != 0) {
-                gridPane.add(new Region(), 0, ++rowcount, 5, 1);
-                gridPane.add(new Separator(), 0, ++rowcount, 5, 1);
-                gridPane.add(new Region(), 0, ++rowcount, 5, 1);
-                firstRow = true;
+            boolean isTextArea = false;
+            if (entryMap.getValue() instanceof VBox) {
+                VBox value = (VBox) entryMap.getValue();
+                isTextArea = value.getChildren().stream().anyMatch(node -> node instanceof TextArea);
             }
-            if (firstRow) {
-                Region region = new Region();
-                region.setMinWidth(40);
-                gridPane.addRow(++rowcount, entryMap.getValue().get(0), entryMap.getValue().get(1), region);
-                firstRow = false;
+
+            if (isTextArea) {
+                row++;
+                gridPane.add(entryMap.getValue(), 0, row, 4, 1);
+                row++;
+            } else if (changedRow) {
+                gridPane.add(entryMap.getValue(), col, row, 1, 1);
+                col++;
+                changedRow = false;
             } else {
-                gridPane.addRow(rowcount, entryMap.getValue().get(0), entryMap.getValue().get(1));
-                firstRow = true;
+                gridPane.add(entryMap.getValue(), col, row, 1, 1);
+                col++;
+                changedRow = true;
             }
+
+            counter++;
         }
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(gridPane);
         setContent(scrollPane);
-
-
-    }
-
-
-    private int getMaxRow() {
-        int rowcount = gridPane.getChildren().stream().mapToInt(value -> {
-            Integer row = GridPane.getRowIndex(value);
-            Integer rowSpan = GridPane.getRowSpan(value);
-            return (row == null ? 0 : row) + (rowSpan == null ? 0 : rowSpan - 1);
-        }).max().orElse(-1);
-        return rowcount;
-    }
-
-    @NotNull
-    private TargetHelper createTargetHelper() {
-        try {
-            JEVisAttribute onlineIdAttribute = meterData.getJeVisObject().getAttribute(targetType.getJeVisType());
-            TargetHelper targetHelper = new TargetHelper(ds, onlineIdAttribute);
-            return targetHelper;
-
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     public void commit() {
@@ -164,20 +140,9 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             for (Map.Entry<JEVisType, JEVisSample> entry : newSamples.entrySet()) {
                 entry.getValue().commit();
             }
-
         } catch (JEVisException e) {
             logger.error(e);
         }
-
-    }
-
-    private void setVisibility(List<Node> nodes, boolean visible) {
-        nodes.forEach(node -> {
-            node.setVisible(visible);
-        });
-    }
-
-    private void initializeMap() {
 
     }
 
@@ -197,19 +162,17 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
     private void buildFileChooser(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
 
-
-        Label label = null;
-        HBox hBox = null;
-        JFXButton uploadButton = null;
+        Label fileName = new Label();
+        Label label = new Label();
+        JFXButton uploadButton = new JFXButton("", JEConfig.getSVGImage(Icon.CLOUD_UPLOAD, 18, 18));
+        HBox hBox = new HBox(uploadButton, fileName);
+        hBox.setSpacing(5);
+        hBox.setAlignment(Pos.CENTER_RIGHT);
 
         try {
-            Label fileName = new Label();
-            fileName.setText(optionalJEVisSample.isPresent() ? optionalJEVisSample.get().getValueAsString() : "");
-            uploadButton = new JFXButton("", JEConfig.getSVGImage(Icon.CLOUD_UPLOAD, 18, 18));
-            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
-            hBox = new HBox(uploadButton, fileName);
-            hBox.setSpacing(5);
 
+            fileName.setText(optionalJEVisSample.isPresent() ? optionalJEVisSample.get().getValueAsString() : "");
+            label.setText(I18nWS.getInstance().getTypeName(jeVisType));
 
             uploadButton.setOnAction(actionEvent -> {
                 FileChooser fileChooser = new FileChooser();
@@ -230,7 +193,14 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis error", ButtonType.OK);
             alert.showAndWait();
         }
-        fields.put(getGuiPosition(jeVisType), Arrays.asList(label, hBox));
+
+        Region region = new Region();
+        VBox labelAlignBox = new VBox(label);
+        HBox fieldBox = new HBox(labelAlignBox, region, hBox);
+        HBox.setHgrow(region, Priority.ALWAYS);
+        fieldBox.setPadding(new Insets(6));
+
+        fields.put(getGuiPosition(jeVisType), fieldBox);
 
     }
 
@@ -244,11 +214,12 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
     }
 
     private void buildCal(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
-        Label label = null;
+        Label label = new Label();
         JFXDatePicker jfxDatePicker = new JFXDatePicker();
+        jfxDatePicker.getEditor().setAlignment(Pos.CENTER_RIGHT);
         JEVisObject jeVisObject = meterData.getJeVisObject();
         try {
-            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
+            label.setText(I18nWS.getInstance().getTypeName(jeVisType));
             DateTime dateTime = DatabaseHelper.getObjectAsDate(jeVisObject, jeVisType);
             jfxDatePicker.setValue(toLocalDate(dateTime));
             jfxDatePicker.valueProperty().addListener((observableValue, localDate, t1) -> {
@@ -268,9 +239,12 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             logger.error(e);
         }
 
-        fields.put(getGuiPosition(jeVisType), Arrays.asList(label, jfxDatePicker));
-
-
+        Region region = new Region();
+        VBox labelAlignBox = new VBox(label);
+        HBox fieldBox = new HBox(labelAlignBox, region, jfxDatePicker);
+        HBox.setHgrow(region, Priority.ALWAYS);
+        fieldBox.setPadding(new Insets(6));
+        fields.put(getGuiPosition(jeVisType), fieldBox);
     }
 
     private LocalDate toLocalDate(DateTime dateTime) {
@@ -286,35 +260,38 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
     public void buildTargetSelect(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
 
-        Label label = null;
-        JFXButton jfxButton = null;
-        try {
-            jfxButton = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 18, 18));
-            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
+        Label label = new Label();
+        Label linkName = new Label();
+        JFXButton jfxButton = new JFXButton("", JEConfig.getSVGImage(Icon.TREE, 18, 18));
+        jfxButton.setAlignment(Pos.CENTER_RIGHT);
 
-            JEVisSample latestSample = meterData.getJeVisObject().getAttribute(jeVisType).getLatestSample();
+        try {
+            label.setText(I18nWS.getInstance().getTypeName(jeVisType));
+
+            TargetHelper th = null;
+            try {
+                th = new TargetHelper(ds, meterData.getJeVisObject().getAttribute(targetType.getJeVisType()));
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
+
+            if (th.isValid() && th.targetObjectAccessible()) {
+                logger.info("Target is valid");
+
+                linkName.setText(th.getObject().get(0).getName());
+            }
+            TargetHelper finalTh = th;
 
             jfxButton.setOnAction(actionEvent -> {
-                TargetHelper th = null;
-                try {
-                    th = new TargetHelper(ds, meterData.getJeVisObject().getAttribute(targetType.getJeVisType()));
-                } catch (JEVisException e) {
-                    logger.error(e);
-                }
 
-                if (th.isValid() && th.targetObjectAccessible()) {
-                    logger.info("Target Is valid");
-                }
                 List<JEVisTreeFilter> allFilter = new ArrayList<>();
                 JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataFilter();
                 allFilter.add(allDataFilter);
                 List<UserSelection> openList = new ArrayList<>();
-                if (th != null && !th.getObject().isEmpty()) {
-                    for (JEVisObject obj : th.getObject()) {
+                if (!finalTh.getObject().isEmpty()) {
+                    for (JEVisObject obj : finalTh.getObject()) {
                         openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
                     }
-
-
                 }
                 SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE, ds, openList);
                 selectTargetDialog.setOnCloseRequest(event1 -> {
@@ -329,6 +306,7 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
                                 if (index > 0) newTarget += ";";
 
                                 newTarget += us.getSelectedObject().getID();
+                                linkName.setText(us.getSelectedObject().getName());
                                 if (us.getSelectedAttribute() != null) {
                                     newTarget += ":" + us.getSelectedAttribute().getName();
 
@@ -354,16 +332,25 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis Exception", ButtonType.OK);
             alert.showAndWait();
         }
-        fields.put(getGuiPosition(jeVisType), Arrays.asList(label, jfxButton));
+
+        Region region = new Region();
+        VBox labelAlignBox = new VBox(label);
+        VBox linkNameAlignBox = new VBox(linkName);
+        HBox fieldBox = new HBox(labelAlignBox, region, jfxButton, linkNameAlignBox);
+        HBox.setHgrow(region, Priority.ALWAYS);
+        fieldBox.setPadding(new Insets(6));
+        fields.put(getGuiPosition(jeVisType), fieldBox);
     }
 
     private void buildTextArea(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
-        Label label = null;
-        TextArea textArea = null;
+        Label label = new Label();
+        TextArea textArea = new TextArea();
+        textArea.setPrefWidth(200);
         try {
-            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
-            textArea = optionalJEVisSample.isPresent() ? new TextArea(optionalJEVisSample.get().getValueAsString()) : new TextArea();
-            textArea.setPrefWidth(200);
+            label.setText(I18nWS.getInstance().getTypeName(jeVisType));
+            if (optionalJEVisSample.isPresent()) {
+                textArea.setText(optionalJEVisSample.get().getValueAsString());
+            }
 
             textArea.textProperty().addListener((observableValue, s, t1) -> {
                 int primitiveType = 0;
@@ -374,7 +361,6 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
                     return;
                 }
                 if (t1.isEmpty()) return;
-
 
                 try {
                     switch (primitiveType) {
@@ -412,16 +398,23 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             logger.error(e);
             return;
         }
-        fields.put(getGuiPosition(jeVisType), Arrays.asList(label, textArea));
+
+        VBox fieldBox = new VBox(label, textArea);
+        fieldBox.setPadding(new Insets(6));
+        fields.put(getGuiPosition(jeVisType), fieldBox);
     }
 
     private void buildTextField(MeterData meterData, JEVisType jeVisType, Optional<JEVisSample> optionalJEVisSample) {
-        Label label = null;
-        JFXTextField textField = null;
+        Label label = new Label();
+        JFXTextField textField = new JFXTextField();
+        textField.setPrefWidth(200);
+        textField.setAlignment(Pos.CENTER_RIGHT);
+
         try {
-            label = new Label(I18nWS.getInstance().getTypeName(jeVisType));
-            textField = optionalJEVisSample.isPresent() ? new JFXTextField(optionalJEVisSample.get().getValueAsString()) : new JFXTextField();
-            textField.setPrefWidth(200);
+            label.setText(I18nWS.getInstance().getTypeName(jeVisType));
+            if (optionalJEVisSample.isPresent()) {
+                textField.setText(optionalJEVisSample.get().getValueAsString());
+            }
 
             textField.textProperty().addListener((observableValue, s, t1) -> {
                 int primitiveType = 0;
@@ -470,7 +463,13 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             logger.error(e);
             return;
         }
-        fields.put(getGuiPosition(jeVisType), Arrays.asList(label, textField));
+
+        Region region = new Region();
+        VBox labelAlignBox = new VBox(label);
+        HBox fieldBox = new HBox(labelAlignBox, region, textField);
+        HBox.setHgrow(region, Priority.ALWAYS);
+        fieldBox.setPadding(new Insets(6));
+        fields.put(getGuiPosition(jeVisType), fieldBox);
     }
 
 }

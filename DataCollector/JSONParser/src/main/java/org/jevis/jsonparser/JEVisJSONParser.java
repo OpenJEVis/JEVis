@@ -213,7 +213,7 @@ public class JEVisJSONParser implements Parser {
 
                             return Double.valueOf(s);
                         } catch (Exception e) {
-                            logger.error("Could not parse {}", s,e);
+                            logger.info("Could not parse {}", s, e);
                             return null;
                         }
                     })
@@ -227,7 +227,7 @@ public class JEVisJSONParser implements Parser {
                         try {
                             return Boolean.valueOf(s);
                         } catch (Exception e) {
-                            logger.error("Could not parse {}", s,e);
+                            logger.info("Could not parse {}", s, e);
                             return null;
                         }
                     })

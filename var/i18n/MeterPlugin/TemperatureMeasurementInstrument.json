@@ -1,0 +1,57 @@
+{
+  "jevisclass": "Temperature Measurement Instrument",
+  "names": {
+    "de": "Temperatursensor",
+    "en": "Temperature Measurement Instrument"
+  },
+  "descriptions": {
+    "de": "Stellt einen Temperatursensor in einem Messaufbau dar.",
+    "en": "Represents an Temperature Sensor in a test setup."
+  },
+  "types": [
+    {
+      "type": "Operating Temperature Range",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Betriebstemperatur",
+        "en": "Operating Temperature Range"
+      }
+    },
+    {
+      "type": "Resolution",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Auflösung",
+        "en": "Resolution"
+      }
+    },
+    {
+      "type": "Nominal Resistance",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Nennwiederstand",
+        "en": "Nominal Resistance"
+      }
+    },
+    {
+      "type": "Measurement Precision",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Messgenauigkeit",
+        "en": "Measurement Precision"
+      }
+    }
+  ]
+}

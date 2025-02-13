@@ -1,0 +1,68 @@
+{
+  "jevisclass": "Fluid Level Measurement Instrument",
+  "names": {
+    "de": "Füllstandmesser",
+    "en": "Fluid Level Measurement Instrument"
+  },
+  "descriptions": {
+    "de": "Stellt einen Füllstandmesser in einem Messaufbau dar.",
+    "en": "Represents an Fluid Level meter in a test setup."
+  },
+  "types": [
+    {
+      "type": "Fluid Compatibility",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Flüsskeitverträglichkeit",
+        "en": "Fluid Compatibility"
+      }
+    },
+    {
+      "type": "Level Range",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Füllstandbereich",
+        "en": "Level Range"
+      }
+    },
+    {
+      "type": "Level Resolution",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Füllstandauflösung",
+        "en": "Level Resolution"
+      }
+    },
+    {
+      "type": "Level Accuracy",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Füllstandgenauigkeit",
+        "en": "Level Accuracy"
+      }
+    },
+    {
+      "type": "Operating Temperature",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Betriebstemperatur",
+        "en": "Operating Temperature"
+      }
+    }
+  ]
+}

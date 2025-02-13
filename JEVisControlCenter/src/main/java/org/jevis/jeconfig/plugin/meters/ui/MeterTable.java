@@ -295,7 +295,7 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
 
                             AtomicBoolean mediumMatch = new AtomicBoolean(false);
                             if (!medium.contains("*")) {
-                                if (medium.contains(meterData.getjEVisClassName())) {
+                                if (medium.contains(I18nWS.getInstance().getClassName(meterData.getjEVisClassName()))) {
                                     mediumMatch.set(true);
                                 }
                                 if (!mediumMatch.get()) return false;

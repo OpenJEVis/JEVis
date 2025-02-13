@@ -1,0 +1,81 @@
+{
+  "name": "Channel",
+  "description": "The class Channel represents a none-specific directory for the structuring of the system. The class Channel is only used for the inheritance of specific channel types.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "EMail Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "FTP Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "HTTP Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "Loytec XML-DL Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "sFTP Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "SOAP Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "SQL Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "VIDA350 Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "ZIP Converter",
+      "end": "Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Last Readout",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Channel"
+    },
+    {
+      "name": "Readout Offset",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Channel"
+    },
+    {
+      "name": "Max Readout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 2,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Channel"
+    }
+  ]
+}

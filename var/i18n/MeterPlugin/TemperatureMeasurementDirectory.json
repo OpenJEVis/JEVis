@@ -1,0 +1,11 @@
+{
+  "jevisclass": "Temperature Measurement Directory",
+  "names": {
+    "de": "Messstellen (Temperatur)",
+    "en": "Measurement (Temperature)"
+  },
+  "descriptions": {
+    "de": "Dient der Verwaltung von Messstellen (Temperatur).",
+    "en": "For managing measurements (Temperature)."
+  }
+}

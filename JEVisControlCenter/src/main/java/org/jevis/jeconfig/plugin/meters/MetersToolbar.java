@@ -16,7 +16,6 @@ import org.jevis.jeconfig.plugin.meters.data.MeterData;
 import org.jevis.jeconfig.plugin.meters.event.PrecisionEvent;
 import org.jevis.jeconfig.plugin.meters.export.MetersExport;
 import org.jevis.jeconfig.plugin.meters.ui.MeterTable;
-import org.jevis.jeconfig.plugin.nonconformities.NonconformitiesPlugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -139,7 +138,7 @@ public class MetersToolbar extends ToolBar {
 
 
         getItems().addAll(JEVisHelp.getInstance().buildSpacerNode(), helpButton, infoButton);
-        Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(NonconformitiesPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
+        Platform.runLater(() -> JEVisHelp.getInstance().addHelpItems(MeterPlugin.class.getSimpleName(), "", JEVisHelp.LAYOUT.VERTICAL_BOT_CENTER, getItems()));
 
 
     }

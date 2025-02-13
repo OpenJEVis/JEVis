@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
@@ -32,6 +33,7 @@ import org.jevis.report3.data.report.intervals.Precondition;
 import org.jevis.report3.data.reportlink.ReportData;
 import org.jevis.report3.data.reportlink.ReportLinkFactory;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
@@ -72,8 +74,13 @@ public class ReportExecutor {
 
         if (!precondition.isPreconditionReached(reportObject)) {
 
-            logger.info("Precondition not reached");
-            finisher.continueWithNextReport(reportObject);
+            logger.info("Precondition not reached.");
+            finisher.continueWithNextReport();
+            return;
+        }
+
+        if (end.isAfter(DateTime.now().withZone(end.getZone()))) {
+            logger.info("Time has not reached report period end.");
             return;
         }
 
@@ -107,7 +114,7 @@ public class ReportExecutor {
 
         if (isPeriodicReport(reportObject) && !isPeriodicConditionReached(reportObject, new SampleHandler())) {
             logger.info("condition not reached");
-            finisher.finishReport(report, property);
+            finisher.finishReport();
             return;
         }
 
@@ -164,7 +171,7 @@ public class ReportExecutor {
                     sendNotification(notificationObject, fileForNotification);
                 }
 
-                finisher.finishReport(report, property);
+                finisher.finishReport();
             }
         } catch (JEVisException ex) {
             logger.error(ex);
@@ -207,7 +214,8 @@ public class ReportExecutor {
             Period schedule = Period.valueOf(scheduleString.toUpperCase());
             org.jevis.commons.datetime.DateHelper dateHelper = null;
             dateHelper = PeriodHelper.getDateHelper(reportObject, schedule, dateHelper, startRecord);
-            DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
+            DateTimeZone dateTimeZone = samplesHandler.getLastSample(reportObject, JC.Report.a_TimeZone, DateTimeZone.UTC);
+            DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateTimeZone, dateHelper);
             List<JEVisSample> samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, endRecord);
 
             if (!operator.isEmpty()) {

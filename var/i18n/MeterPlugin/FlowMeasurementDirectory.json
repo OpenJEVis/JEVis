@@ -1,0 +1,11 @@
+{
+  "jevisclass": "Flow Measurement Directory",
+  "names": {
+    "de": "Messstellen (Fluss)",
+    "en": "Measurement (Flow)"
+  },
+  "descriptions": {
+    "de": "Dient der Verwaltung von Messstellen (Fluss).",
+    "en": "For managing measurements (Flow)."
+  }
+}

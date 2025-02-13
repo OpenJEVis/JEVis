@@ -1,0 +1,23 @@
+{
+  "name": "Pressure Measurement Directory",
+  "description": "The class Channel Directory represents a specific directory for Pressure measurement instruments.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Pressure Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 0
+    },
+    {
+      "start": "Pressure Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Pressure Measurement Directory",
+      "end": "Pressure Measurement Instrument",
+      "type": 3
+    }
+  ]
+}
+

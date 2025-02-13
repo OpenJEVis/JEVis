@@ -46,7 +46,24 @@ public class ResourceI18n {
 
     private static final Logger logger = LogManager.getLogger(ResourceI18n.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private List<JsonI18nClass> files;
 
+    private static List<File> listClassI18nFiles(File dir) {
+        List<File> fileTree = new ArrayList<>();
+        if (dir == null || dir.listFiles() == null) {
+            return fileTree;
+        }
+        for (File entry : dir.listFiles()) {
+            if (entry.isFile()) {
+                if (entry.getName().endsWith(".json")) {
+                    fileTree.add(entry);
+                }
+            } else {
+                fileTree.addAll(listClassI18nFiles(entry));
+            }
+        }
+        return fileTree;
+    }
 
     /**
      * @param jclass
@@ -63,24 +80,22 @@ public class ResourceI18n {
             @Context Request request,
             @Context UriInfo url,
             @Context HttpHeaders httpHeaders) {
-
-
         try {
-            List<JsonI18nClass> files = new ArrayList<>();
-            if (Config.getI18nDir().exists() && Config.getI18nDir().isDirectory()) {
-                for (File file : Config.getI18nDir().listFiles()) {
+
+            if (files == null) {
+                files = new ArrayList<>();
+
+                for (File file : listClassI18nFiles(Config.getI18nDir())) {
                     try {
                         if (file.getName().endsWith(".json")) {
                             files.add(loadFile(file));
                         }
                     } catch (Exception fex) {
                         logger.error("Error while loading i18n file '{}':", file.getName(), fex);
-                        // return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(fex.getMessage()).build();
                     }
                 }
             }
 
-            //@TODO add single class only support
             if (!jclass.isEmpty()) {
                 for (JsonI18nClass i18class : files) {
                     if (i18class.getJevisclass().equalsIgnoreCase(jclass)) {
@@ -89,14 +104,10 @@ public class ResourceI18n {
                 }
             }
 
-
             return Response.ok(files).build();
-
-
         } catch (Exception ex) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
-
     }
 
     private JsonI18nClass loadFile(File file) throws IOException {
@@ -105,6 +116,4 @@ public class ResourceI18n {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         return objectMapper.readValue(file, JsonI18nClass.class);
     }
-
-
 }

@@ -16,8 +16,6 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.plugin.charts.DataSettings;
-import org.jevis.jeconfig.plugin.charts.ToolBarSettings;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
@@ -192,7 +190,7 @@ public class AnalysisHandler {
         }
     }
 
-    public void saveDataModel(JEVisObject analysisObject, DataModel dataModel, ToolBarSettings toolBarSettings, DataSettings dataSettings) {
+    public void saveDataModel(JEVisObject analysisObject, DataModel dataModel) {
 
         try {
             JsonNode analysisNode = toJsonNode(dataModel);

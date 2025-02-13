@@ -131,13 +131,6 @@
             <artifactId>sdk-client</artifactId>
             <version>0.5.0</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.eclipse.milo</groupId>
-            <artifactId>stack-client</artifactId>
-            <version>0.5.0</version>
-        </dependency>
-        -->
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
@@ -157,11 +150,6 @@
             <artifactId>MockFtpServer</artifactId>
             <version>2.0.2</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.apache.commons</groupId>-->
-        <!--<artifactId>commons-lang3</artifactId>-->
-        <!--<version>3.0</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
@@ -212,10 +200,6 @@
             <artifactId>jlibmodbus</artifactId>
             <version>1.2.9.11</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.jevis.jeconfig.application</groupId>-->
-        <!--<artifactId>jeapplication</artifactId>-->
-        <!--</dependency>-->
     </dependencies>
     <repositories>
         <repository>
@@ -224,13 +208,4 @@
             <url>https://repo.maven.apache.org/maven2/</url>
         </repository>
     </repositories>
-
-
-    <!--    <repositories>
-            <repository>
-                <id>java.net2</id>
-                <name>Java.net</name>
-                <url>https://oss.sonatype.org/content/repositories/java.net2</url>
-            </repository>
-        </repositories>-->
 </project>

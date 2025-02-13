@@ -1,0 +1,11 @@
+{
+  "jevisclass": "Fluid Level Measurement Directory",
+  "names": {
+    "de": "Messstellen (Füllstand)",
+    "en": "Measurement (Fluid Level)"
+  },
+  "descriptions": {
+    "de": "Dient der Verwaltung von Messstellen (Füllstand).",
+    "en": "For managing measurements (Fluid Level)."
+  }
+}

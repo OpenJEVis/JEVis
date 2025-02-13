@@ -1,0 +1,11 @@
+{
+  "jevisclass": "Pressure Measurement Directory",
+  "names": {
+    "de": "Messstellen (Druck)",
+    "en": "Measurement (Pressure)"
+  },
+  "descriptions": {
+    "de": "Dient der Verwaltung von Messstellen (Druck).",
+    "en": "For managing measurements (Pressure)."
+  }
+}

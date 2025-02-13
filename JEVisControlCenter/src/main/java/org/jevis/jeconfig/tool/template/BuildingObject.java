@@ -303,7 +303,7 @@ public class BuildingObject extends Template {
         JEVisClass reportDirectoryClass = ds.getJEVisClass("Report Directory");
         JEVisClass dataDirectoryClass = ds.getJEVisClass("Data Directory");
         JEVisClass dataSourceDirectoryClass = ds.getJEVisClass("Data Source Directory");
-        JEVisClass documentsDirectoryClass = ds.getJEVisClass("Documents Directory");
+        JEVisClass documentsDirectoryClass = ds.getJEVisClass("Document Directory");
         JEVisClass calendarDirectoryClass = ds.getJEVisClass("Calendar Directory");
         JEVisClass meterDirectoryClass = ds.getJEVisClass("Measurement Directory");
         JEVisClass baseDataDirectoryClass = ds.getJEVisClass("Base Data Directory");

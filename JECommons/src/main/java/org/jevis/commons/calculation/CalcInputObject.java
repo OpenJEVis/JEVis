@@ -24,22 +24,36 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
+import static org.jevis.commons.utils.CommonMethods.getNextSiteRecursive;
 
 /**
  * @author broder
  */
 public class CalcInputObject {
 
+    private static final Logger logger = LogManager.getLogger(CalcInputObject.class);
     private final String identifier;
     private final JEVisAttribute valueAttribute;
-    private static final Logger logger = LogManager.getLogger(CalcInputObject.class);
-    private List<JEVisSample> samples;
     private final CalcInputType inputType;
+    private List<JEVisSample> samples;
+    private DateTimeZone dateTimeZone = DateTimeZone.getDefault();
 
     public CalcInputObject(String identifier, CalcInputType inputType, JEVisAttribute valueAttribute) {
         this.identifier = identifier;
         this.inputType = inputType;
         this.valueAttribute = valueAttribute;
+
+        try {
+            JEVisClass siteClass = valueAttribute.getObject().getDataSource().getJEVisClass("Building");
+            JEVisObject site = getNextSiteRecursive(valueAttribute.getObject(), siteClass);
+            JEVisAttribute zoneAtt = site.getAttribute("Timezone");
+            if (zoneAtt.hasSample()) {
+                String zoneStr = zoneAtt.getLatestSample().getValueAsString();
+                dateTimeZone = DateTimeZone.forID(zoneStr);
+            }
+        } catch (Exception e) {
+            logger.error("Could not get Site timezone", e);
+        }
     }
 
     public CalcInputType getInputType() {
@@ -155,7 +169,7 @@ public class CalcInputObject {
         switch (inputType) {
             case ASYNC:
             case PERIODIC:
-                returnSamples = valueAttribute.getSamples(startTime, endTime, true, aggregationPeriod.toString(), ManipulationMode.NONE.toString(), DateTimeZone.getDefault().getID());
+                returnSamples = valueAttribute.getSamples(startTime, endTime, true, aggregationPeriod.toString(), ManipulationMode.NONE.toString(), dateTimeZone.getID());
 
                 if (foundUserDataObject) {
                     returnSamples = getUserData(startTime, endTime, correspondingUserDataObject, returnSamples);
@@ -217,7 +231,7 @@ public class CalcInputObject {
             case PERIODIC:
                 try {
                     QuantityUnits qu = new QuantityUnits();
-                    List<JEVisSample> tempList = valueAttribute.getSamples(startTime, endTime, true, AggregationPeriod.NONE.toString(), ManipulationMode.NONE.toString(), DateTimeZone.getDefault().getID());
+                    List<JEVisSample> tempList = valueAttribute.getSamples(startTime, endTime, true, AggregationPeriod.NONE.toString(), ManipulationMode.NONE.toString(), dateTimeZone.getID());
 
                     if (!tempList.isEmpty()) {
 
