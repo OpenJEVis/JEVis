@@ -30,10 +30,10 @@ import java.util.List;
 public class JEVisHTTPDataSource implements DataSource {
     private static final Logger logger = LogManager.getLogger(JEVisHTTPDataSource.class);
     private final List<JEVisObject> _channels = new ArrayList<>();
+    private final List<Channel> httpChannels = new ArrayList<>();
     private DateTimeZone timeZone;
     private Importer _importer;
     private HTTPDataSource _httpdatasource;
-    private final List<Channel> httpChannels = new ArrayList<>();
 
     @Override
     public void run() {
@@ -68,7 +68,7 @@ public class JEVisHTTPDataSource implements DataSource {
                 }
 
 
-                if (this._httpdatasource.getStatusLine().getStatusCode() != 200) {
+                if (this._httpdatasource.getStatusLine().getStatusCode() >= 200 && this._httpdatasource.getStatusLine().getStatusCode() < 300) {
                     logger.error("API Returned Error Code :{}", this._httpdatasource.getStatusLine().getStatusCode());
                     return;
                 }
