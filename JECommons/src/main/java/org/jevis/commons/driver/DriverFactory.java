@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author bf
  */
 public class DriverFactory {
@@ -56,16 +55,21 @@ public class DriverFactory {
                             continue;
                         }
 
-                        JEVisType fileType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.SOURCE_FILE);
-                        JEVisFile file = DatabaseHelper.getObjectAsFile(driver, fileType);
-
                         JEVisType classType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.MAIN_CLASS);
                         String className = DatabaseHelper.getObjectAsString(driver, classType);
 
                         JEVisType jevisType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.JEVIS_CLASS);
                         String jevisName = DatabaseHelper.getObjectAsString(driver, jevisType);
-                        Class tmpClass = ByteClassLoader.loadDriver(file, className);
-                        classes.put(jevisName, tmpClass);
+
+                        Class aClass;
+                        try {
+                            aClass = Class.forName(className);
+                        } catch (ClassNotFoundException classNotFoundException) {
+                            JEVisType fileType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.SOURCE_FILE);
+                            JEVisFile file = DatabaseHelper.getObjectAsFile(driver, fileType);
+                            aClass = ByteClassLoader.loadDriver(file, className);
+                        }
+                        classes.put(jevisName, aClass);
                     }
                 }
             }
