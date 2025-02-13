@@ -172,18 +172,13 @@ public class DriverHelper {
                             continue;
                         }
 
-                        JEVisType classType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.MAIN_CLASS);
-                        String className = DatabaseHelper.getObjectAsString(driver, classType);
-                        logger.debug("Main Class: {}", className);
-                        try {
-                            Class.forName(className);
-                            continue;
-                        } catch (ClassNotFoundException classNotFoundException) {
-                        }
-
                         JEVisType fileType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.SOURCE_FILE);
                         DateTime fileDate = driver.getAttribute(fileType).getTimestampOfLastSample();
                         logger.debug("Driver file date: {}", fileDate);
+
+                        JEVisType classType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.MAIN_CLASS);
+                        String className = DatabaseHelper.getObjectAsString(driver, classType);
+                        logger.debug("Main Class: {}", className);
 
                         JEVisType jevisType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.JEVIS_CLASS);
                         String jevisName = DatabaseHelper.getObjectAsString(driver, jevisType);
