@@ -8,7 +8,7 @@ public class VarFiller {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(VarFiller.class);
     private String uriString = "";
-    private Map<Variable, VarFunction> values;
+    private final Map<Variable, VarFunction> values;
 
     public VarFiller(String uriString, Map<Variable, VarFunction> values) {
         this.uriString = uriString;
@@ -32,11 +32,12 @@ public class VarFiller {
 
     public interface VarFunction {
 
-        public String getVarValue();
+        String getVarValue();
     }
 
     public enum Variable {
         LAST_TS,// Last timestamp of the existing data in JEVis
-        CURRENT_TS
+        CURRENT_TS,
+        CURRENT_TS2
     }
 }
