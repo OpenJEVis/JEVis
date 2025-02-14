@@ -38,6 +38,8 @@ public class Parameter implements VarFiller.VarFunction {
 
         } else if (getVariable().equals(VarFiller.Variable.CURRENT_TS)) {
             return getCurrentTs();
+        } else if (getVariable().equals(VarFiller.Variable.CURRENT_TS2)) {
+            return getCurrentTs();
         }
         return null;
     }
