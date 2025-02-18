@@ -3251,6 +3251,7 @@ public interface JC {
         String a_DecimalPlaces = "Decimal Places";
         String a_VerificationDocumentation = "Verification Documentation";
         String a_Location = "Location";
+        String a_GPSPosition = "GPS Position";
         String a_Company = "Company";
         String a_CostCenter = "Cost Center";
         String a_MeterPoint = "Meter Point";

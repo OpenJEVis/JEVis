@@ -27,7 +27,7 @@ public class MeterEventHandler {
     }
 
     private synchronized void notifyListeners(MeterPlanEvent event) {
-        logger.error("SampleHandlerEvent: {}", event);
+        logger.debug("SampleHandlerEvent: {}", event);
         for (MeterPlanEventListener l : this.listeners.getListeners(MeterPlanEventListener.class)) {
             l.fireEvent(event);
         }
