@@ -1,6 +1,5 @@
 package org.jevis.jecc.application.table;
 
-
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
@@ -46,7 +45,7 @@ public class JumpCell<T> implements Callback<TableColumn<T, SampleData>, TableCe
                     if (item != null && item.getOptionalJEVisSample().isPresent()) {
                         TargetHelper th = new TargetHelper(ds, item.getOptionalJEVisSample().get().getAttribute());
                         JEVisObject firstCleanObject = CommonMethods.getFirstCleanObject(th.getObject().get(0));
-                        analysisLinkButton = new AnalysisLinkButton(ControlCenter.getSVGImage(Icon.GRAPH, 20, 20), firstCleanObject.getAttribute("Value"));
+                        analysisLinkButton = new AnalysisLinkButton(firstCleanObject.getAttribute("Value"));
                         hBox.getChildren().setAll(manSampleButton, analysisLinkButton);
                         manSampleButton.setOnAction(event -> {
 

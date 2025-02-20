@@ -60,14 +60,6 @@ public class CalcLauncher extends AbstractCliApp {
 
             if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
                 TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-//                if (!firstRun) {
-//                    try {
-//                        ds.clearCache();
-//                        ds.preload();
-//                    } catch (JEVisException e) {
-//                        logger.error(e);
-//                    }
-//                } else firstRun = false;
 
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 

@@ -26,6 +26,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
@@ -46,6 +47,7 @@ import org.jevis.jecc.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jecc.plugin.dtrc.TRCPlugin;
 import org.jevis.jecc.plugin.equipment.EquipmentPlugin;
 import org.jevis.jecc.plugin.legal.LegalCatasdrePlugin;
+import org.jevis.jecc.plugin.loadprofile.LoadProfilePlugin;
 import org.jevis.jecc.plugin.meters.MeterPlugin;
 import org.jevis.jecc.plugin.nonconformities.NonconformitiesPlugin;
 import org.jevis.jecc.plugin.notes.NotesPlugin;
@@ -157,7 +159,8 @@ public class PluginManager {
                         new AccountingPlugin(this._ds, I18n.getInstance().getString("plugin.accounting.title")),
                         new ActionPlugin(this._ds, I18n.getInstance().getString("plugin.action.name")),
                         new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")),
-                        new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.Legalcadastre.name")),
+                        new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.indexoflegalprovisions.name")),
+                        new LoadProfilePlugin(this._ds, I18n.getInstance().getString("plugin.loadprofile.name")),
                         new TRCPlugin(this._ds)
                 ));
                 return;
@@ -199,6 +202,8 @@ public class PluginManager {
                                     enabledPlugins.add(new NonconformitiesPlugin(this._ds, I18n.getInstance().getString("plugin.nonconformities.name")));
                                 } else if (plugObj.getJEVisClassName().equals(LegalCatasdrePlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new LegalCatasdrePlugin(this._ds, I18n.getInstance().getString("plugin.indexoflegalprovisions.name")));
+                                } else if (plugObj.getJEVisClassName().equals(LoadProfilePlugin.PLUGIN_NAME)) {
+                                    enabledPlugins.add(new LoadProfilePlugin(this._ds, I18n.getInstance().getString("plugin.loadprofile.name")));
                                 } else if (plugObj.getJEVisClassName().equals(TRCPlugin.PLUGIN_NAME)) {
                                     enabledPlugins.add(new TRCPlugin(this._ds));
                                 } else if (plugObj.getJEVisClassName().equals(org.jevis.jecc.plugin.meters.MeterPlugin.PLUGIN_NAME)) {
@@ -210,7 +215,6 @@ public class PluginManager {
                         ex.printStackTrace();
                     }
                 }
-
 
                 this._plugins.addAll(enabledPlugins);
             }
@@ -231,6 +235,14 @@ public class PluginManager {
 
     public void setWatermark(boolean water) {
         boolean _watermark = water;
+    }
+
+    public Tab getActiveTab() {
+        return this.tabPane.getSelectionModel().getSelectedItem();
+    }
+
+    public TabPane getTabPane() {
+        return this.tabPane;
     }
 
     public Node getView() {
@@ -260,7 +272,8 @@ public class PluginManager {
                 /*
                  * Special case Alarming beginning
                  */
-                if (plugin instanceof AlarmPlugin alarmPlugin) {
+                if (plugin instanceof AlarmPlugin) {
+                    AlarmPlugin alarmPlugin = (AlarmPlugin) plugin;
                     Timeline flasher = new Timeline(
 
                             new KeyFrame(Duration.seconds(0.5), e -> {
@@ -284,15 +297,13 @@ public class PluginManager {
                         });
                     });
                     /** Start Loading Alarms in the background after a delay **/
-
                     Timer updateTimer = new Timer(true);
                     updateTimer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            Platform.runLater(alarmPlugin::updateList);
+                            Platform.runLater(plugin::setHasFocus);
                         }
                     }, 4000);
-
 
                 }
 

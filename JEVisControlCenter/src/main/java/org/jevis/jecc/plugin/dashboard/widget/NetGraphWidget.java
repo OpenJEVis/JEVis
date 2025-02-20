@@ -118,70 +118,71 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
-        Platform.runLater(() -> {
-            showAlertOverview(false, "");
-        });
+
+        showAlertOverview(false, "");
 
         if (sampleHandler == null) {
             return;
         } else {
             showProgressIndicator(true);
         }
-        Platform.runLater(() -> {
-            String widgetUUID = "-1";
-            AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
-            //try {
-            widgetUUID = getConfig().getUuid() + "";
-            this.sampleHandler.setAutoAggregation(true);
-            this.sampleHandler.setInterval(interval);
-            this.sampleHandler.update();
-            if (!this.sampleHandler.getDataModel().isEmpty()) {
-                for (ChartDataRow dataModel : this.sampleHandler.getDataModel()) {
-                    dataModel.setCustomWorkDay(customWorkday);
-                    List<JEVisSample> results;
-                    String unit = dataModel.getUnitLabel();
-                    displayedUnit.setValue(unit);
-                    results = dataModel.getSamples();
-                    if (!results.isEmpty()) {
-                        total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
-                        double value = getValue(netGraphPojo.isInPercent(), total.get(), netGraphPojo.getNetGraphDataRow(dataModel.getId()).getMax(), netGraphPojo.getNetGraphDataRow(dataModel.getId()).getMin(), 1);
-                        if (chartData.containsKey(dataModel.getObject().getID())) {
-                            chartData.get(dataModel.getObject().getID()).setValue(value);
-                        } else {
-                            ChartData chartData1 = new ChartData(dataModel.getName(), value, this.config.getFontColor(), this.config.getFontColor(), this.config.getFontColor(), Instant.now(), false, 0);
-                            chartData.put(dataModel.getObject().getID(), chartData1);
-                        }
 
+        String widgetUUID = "-1";
+        AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
+        //try {
+        widgetUUID = getConfig().getUuid() + "";
+        this.sampleHandler.setAutoAggregation(true);
+        this.sampleHandler.update(interval);
+
+        if (!this.sampleHandler.getChartDataRows().isEmpty()) {
+            for (ChartDataRow dataModel : this.sampleHandler.getChartDataRows()) {
+                dataModel.setCustomWorkDay(customWorkday);
+                List<JEVisSample> results;
+                String unit = dataModel.getUnitLabel();
+                displayedUnit.setValue(unit);
+                results = dataModel.getSamples();
+                if (!results.isEmpty()) {
+                    try {
+                        total.set(results.get(0).getValueAsDouble());
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
+                    double value = getValue(netGraphPojo.isInPercent(), total.get(), netGraphPojo.getNetGraphDataRow(dataModel.getId()).getMax(), netGraphPojo.getNetGraphDataRow(dataModel.getId()).getMin(), 1);
+                    if (chartData.containsKey(dataModel.getObject().getID())) {
+                        chartData.get(dataModel.getObject().getID()).setValue(value);
                     } else {
-                        try {
-                            if (chartData.containsKey(dataModel.getObject().getID())) {
-                                chartData.get(dataModel.getObject().getID()).setValue(0);
-                            } else {
-                                try {
-                                    ChartData chartData1 = new ChartData(dataModel.getName(), getValue(netGraphPojo.isInPercent(), 0, netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMax(), netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMin(), this.config.getDecimals()), this.config.getFontColor(), this.config.getFontColor(), this.config.getFontColor(), Instant.now(), false, 0);
-                                    chartData.put(dataModel.getObject().getID(), chartData1);
-                                } catch (Exception ignored) {
-                                }
-                            }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
+                        ChartData chartData1 = new ChartData(dataModel.getName(), value, this.config.getFontColor(), this.config.getFontColor(), this.config.getFontColor(), Instant.now(), false, 0);
+                        chartData.put(dataModel.getObject().getID(), chartData1);
                     }
 
-                }
-                netGraph.addChartData(chartData.entrySet().stream().map(longChartDataEntry -> longChartDataEntry.getValue()).collect(Collectors.toList()));
-                if (netGraphPojo.isInPercent()) {
-                    netGraph.setUnit("%");
                 } else {
-                    netGraph.setUnit(displayedUnit.get());
-                }
-                logger.debug(chartData);
+                    try {
+                        if (chartData.containsKey(dataModel.getObject().getID())) {
+                            chartData.get(dataModel.getObject().getID()).setValue(0);
+                        } else {
+                            try {
+                                ChartData chartData1 = new ChartData(dataModel.getName(), getValue(netGraphPojo.isInPercent(), 0, netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMax(), netGraphPojo.getNetGraphDataRow((dataModel.getObject().getID())).getMin(), this.config.getDecimals()), this.config.getFontColor(), this.config.getFontColor(), this.config.getFontColor(), Instant.now(), false, 0);
+                                chartData.put(dataModel.getObject().getID(), chartData1);
+                            } catch (Exception ignored) {
+                            }
+                        }
 
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
+                }
 
             }
-        });
+            Platform.runLater(() -> netGraph.addChartData(chartData.entrySet().stream().map(longChartDataEntry -> longChartDataEntry.getValue()).collect(Collectors.toList())));
+            if (netGraphPojo.isInPercent()) {
+                Platform.runLater(() -> netGraph.setUnit("%"));
+            } else {
+                Platform.runLater(() -> netGraph.setUnit(displayedUnit.get()));
+            }
+
+            logger.debug(chartData);
+        }
     }
 
     private void updateText() {
@@ -313,9 +314,9 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
         try {
             this.netGraphPojo = new NetGraphPojo(this.control, this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
-            if (sampleHandler.getDataModel().size() > 0) {
-                if (sampleHandler.getDataModel().get(0) != null) {
-                    displayedUnit.setValue(sampleHandler.getDataModel().get(0).getUnitLabel());
+            if (!sampleHandler.getChartDataRows().isEmpty()) {
+                if (sampleHandler.getChartDataRows().get(0) != null) {
+                    displayedUnit.setValue(sampleHandler.getChartDataRows().get(0).getUnitLabel());
                 }
             }
         } catch (Exception ex) {
@@ -340,7 +341,7 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
                 GridPane gp = new GridPane();
                 gp.setHgap(4);
                 gp.setVgap(8);
-                for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
+                for (ChartDataRow chartDataRow : sampleHandler.getChartDataRows()) {
                     if (chartDataRow.isCalculation()) {
                         try {
                             alert.setHeaderText(CalcMethods.getTranslatedFormula(chartDataRow.getCalculationObject()));

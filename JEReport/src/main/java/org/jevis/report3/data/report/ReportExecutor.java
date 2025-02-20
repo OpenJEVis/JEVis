@@ -5,14 +5,15 @@
  */
 package org.jevis.report3.data.report;
 
-import com.google.inject.assistedinject.Assisted;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.report.ReportName;
 import org.jevis.commons.utils.NameFormatter;
@@ -26,13 +27,15 @@ import org.jevis.report3.PdfConverter;
 import org.jevis.report3.PdfFileSplitter;
 import org.jevis.report3.context.ContextBuilder;
 import org.jevis.report3.data.notification.ReportNotification;
-import org.jevis.report3.data.report.event.EventPrecondition;
+import org.jevis.report3.data.report.intervals.Finisher;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
+import org.jevis.report3.data.report.intervals.Precondition;
 import org.jevis.report3.data.reportlink.ReportData;
 import org.jevis.report3.data.reportlink.ReportLinkFactory;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -54,8 +57,7 @@ public class ReportExecutor {
     private final IntervalCalculator intervalCalculator;
     private final Finisher finisher;
 
-    @Inject
-    public ReportExecutor(Precondition precondition, IntervalCalculator intervalCalc, ContextBuilder contextBuilder, Finisher finisher, ReportLinkFactory reportLinkFactory, @Assisted JEVisObject reportObject) {
+    public ReportExecutor(Precondition precondition, IntervalCalculator intervalCalc, ContextBuilder contextBuilder, Finisher finisher, ReportLinkFactory reportLinkFactory, JEVisObject reportObject) {
         this.reportObject = reportObject;
         this.intervalCalculator = intervalCalc;
         this.precondition = precondition;
@@ -73,7 +75,7 @@ public class ReportExecutor {
         if (!precondition.isPreconditionReached(reportObject)) {
 
             logger.info("Precondition not reached");
-            finisher.continueWithNextReport(reportObject);
+            finisher.continueWithNextReport();
             return;
         }
 
@@ -107,7 +109,7 @@ public class ReportExecutor {
 
         if (isPeriodicReport(reportObject) && !isPeriodicConditionReached(reportObject, new SampleHandler())) {
             logger.info("condition not reached");
-            finisher.finishReport(report, property);
+            finisher.finishReport();
             return;
         }
 
@@ -116,52 +118,56 @@ public class ReportExecutor {
             byte[] outputBytes = report.getReportFile();
 
             DateTime start = new DateTime(reportObject.getAttribute(ReportAttributes.START_RECORD).getLatestSample().getValueAsString());
+            WorkDays wd = new WorkDays(reportObject);
 
             String prefix = ReportName.getPrefix(reportObject, start);
-            String startDate = new DateTime().toString(DateTimeFormat.forPattern("yyyyMMdd"));
+            String creationDate = new DateTime().toString(DateTimeFormat.forPattern("yyyyMMdd").withZone(wd.getDateTimeZone()));
 
-            String reportName = reportObject.getName().replaceAll("\\s", "_") + "_" + startDate;
+            String reportName = reportObject.getName().replaceAll("\\s", "_") + "_" + creationDate;
             reportName = NameFormatter.formatNames(reportName);
             reportName = prefix + reportName;
-            JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
-            JEVisAttribute lastReportAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT);
-            JEVisAttribute lastReportPDFAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT_PDF);
-            lastReportAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
-            logger.info("Uploaded report file to JEVis System");
 
-            JEVisFile fileForNotification = jeVisFileImp;
-            if (property.getToPdf()) {
-                File pdfFile = null;
-                try {
-                    logger.info("Creating pdf file.");
-                    File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
-                    wholePdfFile.deleteOnExit();
-                    PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
-                    pdfFileSplitter.splitPDF();
-                    pdfFile = pdfFileSplitter.getOutputFile();
-                    pdfFile.deleteOnExit();
-                    JEVisFile jeVisFilePDFImp = new JEVisFileImp(reportName + ".pdf", pdfFile);
-                    lastReportPDFAttribute.buildSample(new DateTime(), jeVisFilePDFImp).commit();
+            if (outputBytes != null && outputBytes.length > 0) {
+                JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
+                JEVisAttribute lastReportAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT);
+                JEVisAttribute lastReportPDFAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT_PDF);
+                lastReportAttribute.buildSample(new DateTime(), jeVisFileImp).commit();
+                logger.info("Uploaded report file to JEVis System");
 
-                    if (pdfFile != null) {
-                        fileForNotification = new JEVisFileImp(reportName + ".pdf", pdfFile);
+                JEVisFile fileForNotification = jeVisFileImp;
+                if (property.getToPdf()) {
+                    File pdfFile = null;
+                    try {
+                        logger.info("Creating pdf file.");
+                        File wholePdfFile = new PdfConverter(reportName, outputBytes).runPdfConverter();
+                        wholePdfFile.deleteOnExit();
+                        PdfFileSplitter pdfFileSplitter = new PdfFileSplitter(property.getNrOfPdfPages(), wholePdfFile);
+                        pdfFileSplitter.splitPDF();
+                        pdfFile = pdfFileSplitter.getOutputFile();
+                        pdfFile.deleteOnExit();
+                        JEVisFile jeVisFilePDFImp = new JEVisFileImp(reportName + ".pdf", pdfFile);
+                        lastReportPDFAttribute.buildSample(new DateTime(), jeVisFilePDFImp).commit();
+
+                        if (pdfFile != null) {
+                            fileForNotification = new JEVisFileImp(reportName + ".pdf", pdfFile);
+                        }
+
+                    } catch (Exception e) {
+                        logger.error("Could not initialize pdf converter. ", e);
                     }
-
-                } catch (Exception e) {
-                    logger.error("Could not initialize pdf converter. ", e);
                 }
+
+                JEVisObject notificationObject = property.getNotificationObject();
+                if (notificationObject != null && isEnabled(notificationObject)) {
+                    JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
+                    attachmentAttribute.buildSample(new DateTime(), fileForNotification).commit();
+                    logger.info("Uploaded pdf file to notification in JEVis System");
+
+                    sendNotification(notificationObject, fileForNotification);
+                }
+
+                finisher.finishReport();
             }
-
-            JEVisObject notificationObject = property.getNotificationObject();
-            if (notificationObject != null && isEnabled(notificationObject)) {
-                JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
-                attachmentAttribute.buildSample(new DateTime(), fileForNotification).commit();
-                logger.info("Uploaded pdf file to notification in JEVis System");
-
-                sendNotification(notificationObject, fileForNotification);
-            }
-
-            finisher.finishReport(report, property);
         } catch (JEVisException ex) {
             logger.error(ex);
         } catch (IOException ex) {
@@ -203,11 +209,12 @@ public class ReportExecutor {
             Period schedule = Period.valueOf(scheduleString.toUpperCase());
             org.jevis.commons.datetime.DateHelper dateHelper = null;
             dateHelper = PeriodHelper.getDateHelper(reportObject, schedule, dateHelper, startRecord);
-            DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
+            DateTimeZone dateTimeZone = samplesHandler.getLastSample(reportObject, JC.Report.a_TimeZone, DateTimeZone.UTC);
+            DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateTimeZone, dateHelper);
             List<JEVisSample> samplesInPeriod = samplesHandler.getSamplesInPeriod(reportObject.getDataSource().getObject(jevisId), attributeName, startRecord, endRecord);
 
-            if (!operator.equals("")) {
-                EventPrecondition.EventOperator eventOperator = EventPrecondition.EventOperator.getEventOperator(operator);
+            if (!operator.isEmpty()) {
+                Precondition.EventOperator eventOperator = Precondition.EventOperator.getEventOperator(operator);
                 for (JEVisSample sample : samplesInPeriod) {
                     String value = sample.getValueAsString();
                     boolean isFulfilled = Objects.requireNonNull(eventOperator).isFulfilled(value, limit);
@@ -228,17 +235,18 @@ public class ReportExecutor {
 
             EmailServiceProperty service = getReportService();
 
-            Notification nofi = new EmailNotification();
-            nofi.setNotificationObject(notificationObject, jeVisFileImp);
+            if (service != null) {
+                Notification notification = new EmailNotification();
+                notification.setNotificationObject(notificationObject, jeVisFileImp);
 
-            JEVisObject notiDriObj = notificationObject.getDataSource().getObject(service.getMailID());
+                JEVisObject notificationDriverObject = notificationObject.getDataSource().getObject(service.getMailID());
 
-            NotificationDriver emailNofi = new EmailNotificationDriver();
-            emailNofi.setNotificationDriverObject(notiDriObj);
+                NotificationDriver notificationDriver = new EmailNotificationDriver();
+                notificationDriver.setNotificationDriverObject(notificationDriverObject);
 
-            SendNotification sn = new SendNotification(nofi, emailNofi);
-            sn.run();
-
+                SendNotification sn = new SendNotification(notification, notificationDriver);
+                sn.run();
+            }
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -248,20 +256,21 @@ public class ReportExecutor {
         JEVisDataSource dataSource = null;
         try {
             dataSource = reportObject.getDataSource();
+
+            EmailServiceProperty service = new EmailServiceProperty();
+
+            JEVisClass jeVisClass = dataSource.getJEVisClass("JEReport");
+            List<JEVisObject> reportServices = dataSource.getObjects(jeVisClass, true);
+            if (reportServices.size() == 1) {
+                service.initialize(reportServices.get(0));
+            }
+
+            return service;
         } catch (JEVisException e) {
             logger.error(e);
         }
-        EmailServiceProperty service = new EmailServiceProperty();
-        try {
-            JEVisClass jeVisClass = dataSource.getJEVisClass("JEReport");
-            List<JEVisObject> reportServies = dataSource.getObjects(jeVisClass, true);
-            if (reportServies.size() == 1) {
-                service.initialize(reportServies.get(0));
-            }
-        } catch (JEVisException ex) {
-            logger.error("error while getting report service", ex);
-        }
-        return service;
+
+        return null;
     }
 
     private boolean isPeriodicReport(JEVisObject reportObject) {

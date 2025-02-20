@@ -15,7 +15,6 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
-import org.jevis.commons.classes.JC;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSourceHelper;
 import org.jevis.commons.driver.ParameterHelper;
@@ -43,10 +42,19 @@ public class HTTPDataSource {
     private String password;
     private DateTimeZone timeZone;
     private Boolean ssl = false;
-
     private DateTime lastReadout;
     private DateTime endDateTime;
     private StatusLine statusLine;
+    private AUTH_SCHEME authScheme;
+    private Long id;
+    private String name;
+    private boolean needUrlConfig = true;
+
+    public static String FixURL(String url) {
+        url = url.replaceAll("(?<!(http:|https:))/+", "/");
+        url = url.replaceAll(" ", "%20");
+        return url;
+    }
 
     public DateTime getLastReadout() {
         return lastReadout;
@@ -60,22 +68,12 @@ public class HTTPDataSource {
         return endDateTime;
     }
 
-    public enum AUTH_SCHEME {
-        BASIC, DIGEST, NONE
-    }
-
-    private AUTH_SCHEME authScheme;
-    private Long id;
-    private String name;
-    private boolean needUrlConfig = true;
-
-
     /**
      * @param channel
      * @return
      */
     public List<InputStream> sendSampleRequest(Channel channel) throws Exception {
-        logger.info("sendSampleRequest to http channel: {}", channel);
+        logger.info("sendSampleRequest to http channel: {}:{}", channel.getChannelObject().getName(), channel.getChannelObject().getID());
 
         String channelID = channel.getChannelObject().getID().toString();
         List<InputStream> answer = new ArrayList<InputStream>();
@@ -88,8 +86,9 @@ public class HTTPDataSource {
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
+
         ParameterHelper parameterHelper = new ParameterHelper(lastReadout, endDateTime);
-        path = parameterHelper.getNewPath(path, channel.getChannelObject().getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).getLatestSample());
+        path = parameterHelper.getNewPath(path, channel.getChannelObject());
 
         logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {}", channelID, serverURL, userName, password);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
@@ -118,7 +117,7 @@ public class HTTPDataSource {
             serverURL += "/";
 
 
-            /** Fallback if the URL does contain the port and the Port attribute has non **/
+            /** Fallback if the URL does contain the port and the Port attribute has none **/
             URL url = new URL(serverURL);
             if (port == null && url.getPort() > -1) {
                 logger.info("[{}] Port not set in Attribute, using port from URL: {}", channelID, port);
@@ -157,7 +156,7 @@ public class HTTPDataSource {
 
         String getRequest = "";
         if (pathFollower.isActive()) {
-            logger.debug("[{}] Using Dynamic Link", channelID, channelID);
+            logger.debug("[{}] Using Dynamic Link", channelID);
             pathFollower.setConnection(httpClient, requestConfig);
             getRequest = pathFollower.startFetching(serverURL, contentURL);
             logger.debug("[{}] Final target url after following links: {}", channelID, getRequest);
@@ -174,6 +173,10 @@ public class HTTPDataSource {
         statusLine = oResponse.getStatusLine();
 
         logger.info("[{}] HTTP response status code: {}", channelID, oResponse.getStatusLine());
+
+        if (oResponse.getStatusLine().getStatusCode() == 200) {
+            channel.setNextReadout(endDateTime);
+        }
         HttpEntity oEntity = oResponse.getEntity();
         String oXmlString = EntityUtils.toString(oEntity);
         logger.info("[{}] Content length to parse: {}", channelID, oXmlString.length());
@@ -182,20 +185,7 @@ public class HTTPDataSource {
         InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
         answer.add(stream);
 
-
         return answer;
-    }
-
-    public static String FixURL(String url) {
-        url = url.replaceAll("(?<!(http:|https:))/+", "/");
-        url = url.replaceAll(" ", "%20");
-        return url;
-    }
-
-
-    public void setDateTimeZone(DateTimeZone timeZone) {
-        logger.info("TIMEZONE: {}", timeZone);
-        this.timeZone = timeZone;
     }
 
     public AUTH_SCHEME getAuthScheme() {
@@ -216,23 +206,12 @@ public class HTTPDataSource {
         this.authScheme = authScheme;
     }
 
-    // interfaces
-    interface HTTP extends DataCollectorTypes.DataSource.DataServer {
-
-        String NAME = "HTTP Server";
-        String PASSWORD = "Password";
-        String SSL = "SSL";
-        String USER = "User";
-    }
-
-
-    interface HTTPChannelDirectory extends DataCollectorTypes.ChannelDirectory {
-
-        String NAME = "HTTP Channel Directory";
-    }
-
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setServerURL(String _serverURL) {
@@ -263,10 +242,6 @@ public class HTTPDataSource {
         this.ssl = _ssl;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -275,21 +250,15 @@ public class HTTPDataSource {
         this.name = _name;
     }
 
-    interface HTTPChannel extends DataCollectorTypes.Channel {
-
-        String NAME = "HTTP Channel";
-        String PATH = "Path";
-    }
-
     private DateTime getCurrentTime(JEVisObject channel, DateTime lastReadout) {
         try {
 
             if (channel.getAttribute("Chunk Size(s)").hasSample()) {
                 if (DateTime.now().isBefore(lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue()))) {
-                    System.out.println("now");
+                    logger.debug("now");
                     return DateTime.now();
                 } else {
-                    System.out.println("plusSeconds(channel.getAttribute(\"Chunk Size(s)\").getLatestSample().getValueAsDouble().intValue()");
+                    logger.debug("plusSeconds(channel.getAttribute(\"Chunk Size(s)\").getLatestSample().getValueAsDouble().intValue()");
                     return lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue());
                 }
             } else {
@@ -302,11 +271,37 @@ public class HTTPDataSource {
         return DateTime.now().withZone(getDateTimeZone());
     }
 
-
-
-
-
     public DateTimeZone getDateTimeZone() {
         return timeZone;
+    }
+
+    public void setDateTimeZone(DateTimeZone timeZone) {
+        logger.info("TIMEZONE: {}", timeZone);
+        this.timeZone = timeZone;
+    }
+
+    public enum AUTH_SCHEME {
+        BASIC, DIGEST, NONE
+    }
+
+    // interfaces
+    interface HTTP extends DataCollectorTypes.DataSource.DataServer {
+
+        String NAME = "HTTP Server";
+        String PASSWORD = "Password";
+        String SSL = "SSL";
+        String USER = "User";
+    }
+
+    interface HTTPChannelDirectory extends DataCollectorTypes.ChannelDirectory {
+
+        String NAME = "HTTP Channel Directory";
+    }
+
+
+    interface HTTPChannel extends DataCollectorTypes.Channel {
+
+        String NAME = "HTTP Channel";
+        String PATH = "Path";
     }
 }

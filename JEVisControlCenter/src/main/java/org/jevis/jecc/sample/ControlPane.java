@@ -17,9 +17,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
+import org.jevis.commons.classes.JC;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.application.Chart.ChartPluginElements.Boxes.AggregationPeriodBox;
 import org.jevis.jecc.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
@@ -39,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ControlPane extends GridPane {
 
     private static final Logger logger = LogManager.getLogger(ControlPane.class);
-    private final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
+    private final Button ok = new Button(I18n.getInstance().getString("newobject.ok"));
     private final DatePicker startDate = new DatePicker();
     private final DatePicker endDate = new DatePicker();
     private final Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
@@ -131,7 +134,8 @@ public class ControlPane extends GridPane {
         add(buttonPanel, 0, 5, 8, 1);
 
 
-        buttonPanel.getChildren().addAll(spacer, cancel, ok);
+//        buttonPanel.getChildren().addAll(spacer, cancel, ok);
+        buttonPanel.getChildren().addAll(spacer, ok);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         //buttonPanel.setPadding(new Insets(10));
         buttonPanel.setSpacing(15);//10
@@ -153,6 +157,14 @@ public class ControlPane extends GridPane {
         processorField.setMaxWidth(Double.MAX_VALUE);
         aggregationField.setMaxWidth(Double.MAX_VALUE);
         timeZoneBox.setMaxWidth(Double.MAX_VALUE);
+        try {
+            JEVisObject building = CommonMethods.getFirstParentalObjectOfClass(attribute.getObject(), "Building");
+            SampleHandler sampleHandler = new SampleHandler();
+            DateTimeZone lastSample = sampleHandler.getLastSample(building, JC.MonitoredObject.Building.a_Timezone, DateTimeZone.getDefault());
+            timeZoneBox.getSelectionModel().select(lastSample);
+        } catch (Exception e) {
+            logger.error("Error while getting building object for timezone", e);
+        }
 
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setHgrow(ok, Priority.NEVER);

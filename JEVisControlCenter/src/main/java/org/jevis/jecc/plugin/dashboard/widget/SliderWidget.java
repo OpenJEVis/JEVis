@@ -59,7 +59,7 @@ public class SliderWidget extends Widget implements DataModelWidget {
         super(control, config);
         slider = TileBuilder.create().skinType(Tile.SkinType.SLIDER).animated(false).backgroundColor(Color.TRANSPARENT).build();
         slider.setOnMouseReleased(mouseEvent -> {
-            System.out.println(nf.format(slider.getValue()));
+            logger.debug(nf.format(slider.getValue()));
             try {
                 BigDecimal bd = BigDecimal.valueOf(slider.getValue());
                 bd = bd.setScale(config.getDecimals(), RoundingMode.HALF_UP);
@@ -229,12 +229,12 @@ public class SliderWidget extends Widget implements DataModelWidget {
     }
 
     private void initData() {
-        System.out.println("init data");
+        logger.debug("init data");
         Platform.runLater(() -> {
             showAlertOverview(false, "");
         });
 
-        if (sampleHandler == null || sampleHandler.getDataModel().isEmpty()) {
+        if (sampleHandler == null || sampleHandler.getChartDataRows().isEmpty()) {
             return;
         } else {
             showProgressIndicator(true);
@@ -252,8 +252,8 @@ public class SliderWidget extends Widget implements DataModelWidget {
             if (forceLastValue) {
                 try {
 
-                    lastSample = sampleHandler.getDataModel().get(0).getAttribute().getLatestSample();
-                    String unit = sampleHandler.getDataModel().get(0).getAttribute().getDisplayUnit().getLabel();
+                    lastSample = sampleHandler.getChartDataRows().get(0).getAttribute().getLatestSample();
+                    String unit = sampleHandler.getChartDataRows().get(0).getAttribute().getDisplayUnit().getLabel();
                     slider.setUnit(unit);
 
                 } catch (Exception ex) {
@@ -295,7 +295,7 @@ public class SliderWidget extends Widget implements DataModelWidget {
     }
 
     private void setData(double value) throws JEVisException {
-        JEVisAttribute jeVisAttribute = sampleHandler.getDataModel().get(0).getObject().getAttribute(JC.Data.a_Value);
+        JEVisAttribute jeVisAttribute = sampleHandler.getChartDataRows().get(0).getObject().getAttribute(JC.Data.a_Value);
         logger.info("set data {} to objekt {}", value, jeVisAttribute.getObject().getID());
         JEVisSample jeVisSample = jeVisAttribute.buildSample(new DateTime(), value);
         jeVisSample.commit();

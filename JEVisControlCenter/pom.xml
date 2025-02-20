@@ -5,7 +5,6 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>4.0.0</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -25,38 +24,38 @@
     <parent>
         <groupId>org.jevis</groupId>
         <artifactId>JEVisCore</artifactId>
-        <version>3.4</version>
+        <version>4.0</version>
     </parent>
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>21.0.1</version>
+            <version>21.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>21.0.1</version>
+            <version>21.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
-            <version>21.0.1</version>
+            <version>21.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>21.0.1</version>
+            <version>21.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>21.0.1</version>
+            <version>21.0.5</version>
         </dependency>
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
-            <version>5.5.13.3</version>
+            <version>5.5.13.4</version>
         </dependency>
         <dependency>
             <groupId>org.jevis.jeopc</groupId>
@@ -75,17 +74,17 @@
         <dependency>
             <groupId>org.eclipse.milo</groupId>
             <artifactId>stack-client</artifactId>
-            <version>0.6.5</version>
+            <version>0.6.13</version>
         </dependency>
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>2.0.29</version>
+            <version>3.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-artifact</artifactId>
-            <version>3.9.3</version>
+            <version>3.9.9</version>
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
@@ -95,12 +94,12 @@
         <dependency>
             <groupId>eu.hansolo</groupId>
             <artifactId>medusa</artifactId>
-            <version>17.0.0</version>
+            <version>21.0.7</version>
         </dependency>
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
-            <version>1.7</version>
+            <version>1.9.0</version>
         </dependency>
         <dependency>
             <groupId>org.jevis.api</groupId>
@@ -117,7 +116,7 @@
         <dependency>
             <groupId>org.jxmapviewer</groupId>
             <artifactId>jxmapviewer2</artifactId>
-            <version>2.6</version>
+            <version>2.8</version>
         </dependency>
         <dependency>
             <groupId>org.jevis</groupId>
@@ -132,6 +131,11 @@
             <groupId>de.gsi.chart</groupId>
             <artifactId>chartfx-chart</artifactId>
             <version>11.2.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-reload4j</artifactId>
+            <version>2.0.16</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jeval</groupId>
@@ -154,15 +158,13 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
+            <version>5.3.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
-            <version>72.1</version>
+            <version>74.2</version>
         </dependency>
         <dependency>
             <groupId>de.focus-shift</groupId>
@@ -175,17 +177,12 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
-            <version>4.1.95.Final</version>
+            <version>4.1.111.Final</version>
         </dependency>
         <dependency>
             <groupId>eu.hansolo</groupId>
             <artifactId>tilesfx</artifactId>
-            <version>17.1.31</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.hansolo</groupId>
-            <artifactId>Medusa</artifactId>
-            <version>17.0.0</version>
+            <version>21.0.9</version>
         </dependency>
         <dependency>
             <groupId>eu.hansolo</groupId>
@@ -195,7 +192,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.10.1</version>
+            <version>2.11.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

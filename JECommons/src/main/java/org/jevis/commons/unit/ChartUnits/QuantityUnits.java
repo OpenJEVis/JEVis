@@ -29,6 +29,24 @@ public class QuantityUnits {
     private static final Logger logger = LogManager.getLogger(QuantityUnits.class);
 
     /**
+     * Time Units
+     */
+    private final Unit _sec = SI.SECOND;
+    private final JEVisUnit sec = new JEVisUnitImp(_sec);
+    private final Unit _min = NonSI.MINUTE;
+    private final JEVisUnit min = new JEVisUnitImp(_min);
+    private final Unit _hour = NonSI.HOUR;
+    private final JEVisUnit hour = new JEVisUnitImp(_hour);
+    private final Unit _day = NonSI.DAY;
+    private final JEVisUnit day = new JEVisUnitImp(_day);
+    private final Unit _week = NonSI.WEEK;
+    private final JEVisUnit week = new JEVisUnitImp(_week);
+    private final Unit _month = NonSI.MONTH;
+    private final JEVisUnit month = new JEVisUnitImp(_month);
+    private final Unit _year = NonSI.YEAR;
+    private final JEVisUnit year = new JEVisUnitImp(_year);
+
+    /**
      * Mass Units
      */
     private final Unit _mg = SI.MILLI(SI.GRAM);
@@ -161,6 +179,7 @@ public class QuantityUnits {
     private final ArrayList<Unit> quantityUnitsUnit;
     private final ArrayList<String> quantityUnitsLabel;
     private final List<JEVisUnit> energyPowerUnits;
+    private final List<JEVisUnit> timeUnits;
     private final List<JEVisUnit> energyUnits;
     private final List<JEVisUnit> volumeUnits;
     private final List<JEVisUnit> massUnits;
@@ -172,6 +191,7 @@ public class QuantityUnits {
     public QuantityUnits() {
         energyPowerUnits = new ArrayList<>(Arrays.asList(W, kW, MW, GW, va, kva, var, kvar));
 
+        timeUnits = new ArrayList<>(Arrays.asList(sec, min, hour, day, week, month, year));
         energyUnits = new ArrayList<>(Arrays.asList(W, kW, MW, GW, va, kva, var, kvar, Wh, kWh, MWh, GWh, vah, varh, kvah, kvarh));
         volumeUnits = new ArrayList<>(Arrays.asList(l, m3, nm3));
         massUnits = new ArrayList<>(Arrays.asList(mg, g, kg, kkg, t));
@@ -181,6 +201,7 @@ public class QuantityUnits {
         moneyUnits = new ArrayList<>(Arrays.asList(eur, usd, gbp, jpy, aud, cad, cny, krw, twd));
 
         quantityUnitsLabel = new ArrayList<>(Arrays.asList(
+                sec.getLabel(), min.getLabel(), hour.getLabel(), day.getLabel(), week.getLabel(), month.getLabel(), year.getLabel(),
                 mg.getLabel(), g.getLabel(), kg.getLabel(), kkg.getLabel(), t.getLabel(),
                 l.getLabel(), m3.getLabel(), nm3.getLabel(),
                 Wh.getLabel(), kWh.getLabel(), MWh.getLabel(), GWh.getLabel(),
@@ -189,6 +210,7 @@ public class QuantityUnits {
         ));
 
         quantityUnitsUnit = new ArrayList<>(Arrays.asList(
+                _sec, _min, _hour, _day, _week, _month, _year,
                 _mg, _g, _kg, _kkg, _t,
                 _l, _m3, _nm3,
                 _Wh, _kWh, _MWh, _GWh,
@@ -197,6 +219,7 @@ public class QuantityUnits {
         ));
 
         quantityUnitsJEVisUnit = new ArrayList<>(Arrays.asList(
+                sec, min, hour, day, week, month, year,
                 mg, g, kg, kkg, t,
                 l, m3, nm3,
                 Wh, kWh, MWh, GWh,
@@ -405,6 +428,14 @@ public class QuantityUnits {
             return true;
         } else return inputUnit.equals(t)
                 && (unit.equals(mg) || unit.equals(g) || unit.equals(kg) || unit.equals(kkg));
+    }
+
+    public boolean isTimeUnit(JEVisUnit currentUnit) {
+        return timeUnits.contains(currentUnit) || timeUnits.stream().anyMatch(jeVisUnit -> jeVisUnit.getLabel().equals(currentUnit.getLabel()));
+    }
+
+    public List<JEVisUnit> getTimeUnits() {
+        return timeUnits;
     }
 
     public boolean isEnergyUnit(JEVisUnit currentUnit) {

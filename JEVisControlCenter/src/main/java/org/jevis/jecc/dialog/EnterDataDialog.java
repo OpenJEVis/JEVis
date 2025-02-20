@@ -212,6 +212,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                                             0, 0, 0);
                                     if (workDays.isCustomWorkDay()) {
                                         if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                            ts = ts.minusDays(1);
                                             ts = ts.withMonthOfYear(12);
                                             int lastDayOfMonth = ts.dayOfMonth().getMaximumValue();
                                             ts = ts.withDayOfMonth(lastDayOfMonth)
@@ -230,6 +231,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                                             0, 0, 0);
                                     if (workDays.isCustomWorkDay()) {
                                         if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                            ts = ts.minusDays(1);
                                             int lastDayOfMonth = ts.dayOfMonth().getMaximumValue();
                                             ts = ts.withDayOfMonth(lastDayOfMonth)
                                                     .withHourOfDay(workDays.getWorkdayStart().getHour())
@@ -246,13 +248,13 @@ public class EnterDataDialog extends Dialog implements EventTarget {
                                             day,
                                             0, 0, 0);
                                     if (workDays.isCustomWorkDay()) {
+                                        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+                                            ts = ts.minusDays(1);
+                                        }
                                         ts = ts.withHourOfDay(workDays.getWorkdayStart().getHour())
                                                 .withMinuteOfHour(workDays.getWorkdayStart().getMinute())
                                                 .withSecondOfMinute(workDays.getWorkdayStart().getSecond())
                                                 .withMillisOfSecond(0);
-                                        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
-                                            ts = ts.minusDays(1);
-                                        }
                                     }
                                     break;
                                 case SPECIFIC_DATETIME:

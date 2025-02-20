@@ -25,6 +25,7 @@ import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 import org.controlsfx.dialog.ProgressDialog;
@@ -266,7 +267,7 @@ public class ReportPlugin implements Plugin {
         printButton.setOnAction(event -> {
             PrinterJob printerJob = PrinterJob.getPrinterJob();
             try {
-                PDDocument document = PDDocument.load(sampleMap.get(fileComboBox.getSelectionModel().getSelectedItem()).getPdfFile().getBytes());
+                PDDocument document = Loader.loadPDF(sampleMap.get(fileComboBox.getSelectionModel().getSelectedItem()).getPdfFile().getBytes());
                 printerJob.setPageable(new PDFPageable(document));
                 if (printerJob.printDialog()) {
                     printerJob.print();

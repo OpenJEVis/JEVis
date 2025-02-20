@@ -2,6 +2,7 @@ package org.jevis.jecc.application.Chart.data;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ public class DataModel {
     private final SimpleIntegerProperty chartsPerScreen = new SimpleIntegerProperty(this, "chartsPerScreen", 2);
     private final SimpleIntegerProperty horizontalPies = new SimpleIntegerProperty(this, "horizontalPies", 3);
     private final SimpleIntegerProperty horizontalTables = new SimpleIntegerProperty(this, "horizontalTables", 3);
+    private final SimpleStringProperty forcedInterval = new SimpleStringProperty(this, "forcedInterval", "");
     private List<ChartModel> chartModels = new ArrayList<>();
 
     public List<ChartModel> getChartModels() {
@@ -71,11 +73,24 @@ public class DataModel {
         return horizontalTables;
     }
 
+    public String getForcedInterval() {
+        return forcedInterval.get();
+    }
+
+    public void setForcedInterval(String forcedInterval) {
+        this.forcedInterval.set(forcedInterval);
+    }
+
+    public SimpleStringProperty forcedIntervalProperty() {
+        return forcedInterval;
+    }
+
     public void reset() {
         autoSize.set(true);
         chartsPerScreen.set(2);
         horizontalPies.set(3);
         horizontalTables.set(3);
+        forcedInterval.set("");
         chartModels.clear();
     }
 }

@@ -87,9 +87,9 @@ public class IMAPConnection implements EMailConnection {
             if (_folder == null) {
                 Folder[] f = _store.getDefaultFolder().list();
 
-                logger.info("A list of available folders: ");
+                logger.debug("A list of available folders: ");
                 for (Folder fd : f) {
-                    logger.info(">> {}", fd.getName());
+                    logger.debug(">> {}", fd.getName());
                 }
 
             }

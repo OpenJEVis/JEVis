@@ -3,8 +3,11 @@ package org.jevis.commons.driver;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisFile;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
@@ -13,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ParameterHelper {
@@ -27,20 +29,25 @@ public class ParameterHelper {
         this.currentTime = currentTime;
     }
 
-    public String getNewPath(String path, JEVisSample parameterSample) {
+    public String getNewPath(String path, JEVisObject channelObject) {
+        JEVisFile parameterFile = null;
+        try {
+            JEVisAttribute parameterConfigAttribute = channelObject.getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig);
+            parameterFile = getParameterFile(parameterConfigAttribute.getLatestSample());
+        } catch (Exception e) {
+            logger.error(e);
+        }
 
+        if (parameterFile == null) return path;
 
-        Optional<JEVisFile> parameterFile = getParameterFile(parameterSample);
-        if (!parameterFile.isPresent()) return path;
-        Map<VarFiller.Variable, VarFiller.VarFunction> parameterMap = getParamterMap(parameterFile.get());
+        Map<VarFiller.Variable, VarFiller.VarFunction> parameterMap = getParamterMap(parameterFile);
         VarFiller varFiller = new VarFiller(path, parameterMap);
-        return varFiller.getFilledURIString();
 
+        return varFiller.getFilledURIString();
     }
 
 
     private Map<VarFiller.Variable, VarFiller.VarFunction> getParamterMap(JEVisFile jeVisFile) {
-
 
         String json = new String(jeVisFile.getBytes(), StandardCharsets.UTF_8);
 
@@ -61,14 +68,15 @@ public class ParameterHelper {
     }
 
 
-    private Optional<JEVisFile> getParameterFile(JEVisSample jeVisSample) {
+    private JEVisFile getParameterFile(JEVisSample jeVisSample) {
         try {
-            if (jeVisSample == null) return Optional.empty();
-            return Optional.of(jeVisSample.getValueAsFile());
+            if (jeVisSample != null) {
+                return jeVisSample.getValueAsFile();
+            }
         } catch (Exception e) {
             logger.error(e);
         }
-        return Optional.empty();
+        return null;
     }
 
 }

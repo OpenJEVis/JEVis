@@ -1,6 +1,9 @@
 package org.jevis.jecc.plugin.dtrc;
 
 import com.ibm.icu.text.NumberFormat;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXListCell;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -24,11 +27,11 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import javafx.util.StringConverter;
 import jfxtras.scene.control.LocalTimePicker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.constants.GUIConstants;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -37,7 +40,6 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jecc.ControlCenter;
-import org.jevis.jecc.GlobalToolBar;
 import org.jevis.jecc.Icon;
 import org.jevis.jecc.TopMenu;
 import org.jevis.jecc.application.Chart.ChartTools;
@@ -46,7 +48,6 @@ import org.jevis.jecc.application.application.I18nWS;
 import org.jevis.jecc.application.control.AnalysisLinkButton;
 import org.jevis.jecc.application.jevistree.UserSelection;
 import org.jevis.jecc.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.jecc.application.type.GUIConstants;
 import org.jevis.jecc.dialog.EnterDataDialog;
 import org.jevis.jecc.dialog.SelectTargetDialog;
 import org.jevis.jecc.plugin.accounting.SelectionTemplate;
@@ -127,9 +128,6 @@ public class OutputView extends Tab {
         endTime.setMaxWidth(100d);
 //        endTime.set24HourView(true);
 //        endTime.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        startDate.setValue(LocalDate.now());
-        endDate.setValue(LocalDate.now());
 
         startDate.valueProperty().addListener(this::changedDate);
         endDate.valueProperty().addListener(this::changedDate);
@@ -268,17 +266,16 @@ public class OutputView extends Tab {
 
         Platform.runLater(() -> {
             try {
-                intervalSelector.isUpdating(true);
                 intervalSelector.getTimeFactoryBox().getItems().clear();
 
+                //intervalSelector.getTimeFactoryBox().getItems().clear();
                 intervalSelector.getTimeFactoryBox().getItems().addAll(timeFrames);
 
                 if (intervalSelector.getTimeFactoryBox().getItems().contains(lastSelectedTimeFrame)) {
-                    intervalSelector.getTimeFactoryBox().selectValue(lastSelectedTimeFrame);
+                    intervalSelector.getTimeFactoryBox().getSelectionModel().select(lastSelectedTimeFrame);
                 } else {
                     intervalSelector.getTimeFactoryBox().getSelectionModel().selectFirst();
                 }
-                intervalSelector.isUpdating(false);
             } catch (NullPointerException np) {
                 logger.error(np);
             }
@@ -403,9 +400,8 @@ public class OutputView extends Tab {
 
             if (templateOutput.getLink()) {
                 logger.debug("Found linked output, creating Manual Data Button");
-                Button manSampleButton = new Button("", ControlCenter.getSVGImage(Icon.MANUAL_DATA_ENTRY, 12, 12));
+                JFXButton manSampleButton = new JFXButton("", ControlCenter.getSVGImage(Icon.MANUAL_DATA_ENTRY, 12, 12));
                 manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
-                GlobalToolBar.changeBackgroundOnHoverUsingBinding(manSampleButton);
 
                 if (templateOutput.getTarget() != null) {
                     try {
@@ -858,7 +854,7 @@ public class OutputView extends Tab {
             }
 
             try {
-                ComboBox<JEVisObject> objectSelector = createObjectSelector(ungroupedInput.getObjectClass(), ungroupedInput.getFilter());
+                JFXComboBox<JEVisObject> objectSelector = createObjectSelector(ungroupedInput.getObjectClass(), ungroupedInput.getFilter());
 
                 try {
                     Long objectID = ungroupedInput.getObjectID();
@@ -970,7 +966,7 @@ public class OutputView extends Tab {
             label.setMinWidth(120);
             label.setAlignment(Pos.CENTER_LEFT);
 
-            ComboBox<JEVisObject> objectSelector = createObjectSelector(firstGroupedInput.getObjectClass(), firstGroupedInput.getFilter());
+            JFXComboBox<JEVisObject> objectSelector = createObjectSelector(firstGroupedInput.getObjectClass(), firstGroupedInput.getFilter());
 
             try {
                 Long objectID = groupedInputs.stream().filter(input -> input.getObjectID() != -1L).findFirst().map(TemplateSelected::getObjectID).orElse(-1L);
@@ -1062,7 +1058,7 @@ public class OutputView extends Tab {
 
                 Label label = new Label(templateOutput.getVariableName());
 
-                Button targetButton = new Button(I18n
+                JFXButton targetButton = new JFXButton(I18n
                         .getInstance().getString("plugin.object.attribute.target.button"),
                         ControlCenter.getImage("folders_explorer.png", 18, 18));
                 targetButton.wrapTextProperty().setValue(true);
@@ -1101,7 +1097,7 @@ public class OutputView extends Tab {
         }
     }
 
-    public EventHandler<ActionEvent> getTargetButtonActionEventEventHandler(TemplateOutput templateOutput, Button targetButton) {
+    public EventHandler<ActionEvent> getTargetButtonActionEventEventHandler(TemplateOutput templateOutput, JFXButton targetButton) {
         return t -> {
             try {
                 SelectTargetDialog selectTargetDialog = null;
@@ -1166,7 +1162,7 @@ public class OutputView extends Tab {
         };
     }
 
-    void setButtonText(TemplateOutput templateOutput, Button targetButton) {
+    void setButtonText(TemplateOutput templateOutput, JFXButton targetButton) {
         TargetHelper th = null;
         try {
             if (templateOutput.getTarget() != null) {
@@ -1262,7 +1258,7 @@ public class OutputView extends Tab {
         }
     }
 
-    private ComboBox<JEVisObject> createObjectSelector(String jeVisClassName, String filter) {
+    private JFXComboBox<JEVisObject> createObjectSelector(String jeVisClassName, String filter) {
 
         List<JEVisObject> objects = new ArrayList<>();
         try {
@@ -1366,13 +1362,13 @@ public class OutputView extends Tab {
             return alphanumComparator.compare(o1.getName(), o2.getName());
         });
 
-        ComboBox<JEVisObject> objectSelector = new ComboBox<>(FXCollections.observableArrayList(objects));
+        JFXComboBox<JEVisObject> objectSelector = new JFXComboBox<>(FXCollections.observableArrayList(objects));
         objectSelector.setMaxWidth(Double.MAX_VALUE);
 
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> attributeCellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
+                return new JFXListCell<JEVisObject>() {
                     @Override
                     protected void updateItem(JEVisObject obj, boolean empty) {
                         super.updateItem(obj, empty);
@@ -1415,45 +1411,8 @@ public class OutputView extends Tab {
             }
         };
 
-        objectSelector.setConverter(new StringConverter<JEVisObject>() {
-            @Override
-            public String toString(JEVisObject obj) {
-                String name = "";
-                try {
-                    JEVisObject correctObject = obj;
-                    if (obj.getJEVisClassName().equals("Clean Data")) {
-                        correctObject = CommonMethods.getFirstParentalDataObject(obj);
-                    }
-
-                    if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, correctObject))
-                        name = correctObject.getName();
-                    else {
-                        String prefix = "";
-                        if (ChartTools.isMultiSite(ds)) {
-                            prefix += objectRelations.getObjectPath(correctObject);
-                        }
-                        if (ChartTools.isMultiDir(ds, correctObject)) {
-                            prefix += objectRelations.getRelativePath(correctObject);
-                        }
-
-                        name = prefix + correctObject.getName();
-                    }
-
-                    if (!name.endsWith(obj.getName())) {
-                        name += " \\ " + obj.getName();
-                    }
-                } catch (JEVisException e) {
-                    logger.error("Could not get JEVisClass of object {}:{}", obj.getName(), obj.getID(), e);
-                }
-                return name;
-
-            }
-
-            @Override
-            public JEVisObject fromString(String string) {
-                return objectSelector.getItems().get(objectSelector.getSelectionModel().getSelectedIndex());
-            }
-        });
+        objectSelector.setCellFactory(attributeCellFactory);
+        objectSelector.setButtonCell(attributeCellFactory.call(null));
 
         return objectSelector;
     }

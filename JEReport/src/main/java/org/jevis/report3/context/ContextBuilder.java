@@ -7,11 +7,13 @@ package org.jevis.report3.context;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
 import org.jevis.report3.data.reportlink.ReportData;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -30,8 +32,8 @@ public class ContextBuilder {
         linkMap.putAll(attributeMap);
     }
 
-    public ConcurrentHashMap<String, Object> buildContext(List<ReportData> reportLinkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
-        ConcurrentHashMap<String, Object> templateMap = new ConcurrentHashMap<>();
+    public Map<String, Object> buildContext(List<ReportData> reportLinkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
+        Map<String, Object> templateMap = new HashMap<>();
         for (ReportData linkProperty : reportLinkProperty) {
             templateMap.putAll(linkProperty.getReportMap(property, intervalCalc));
         }

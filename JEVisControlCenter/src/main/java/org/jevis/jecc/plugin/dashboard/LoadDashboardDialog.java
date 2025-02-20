@@ -1,6 +1,9 @@
 package org.jevis.jecc.plugin.dashboard;
 
-
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
@@ -24,9 +27,11 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.TopMenu;
+import org.jevis.jecc.application.Chart.ChartTools;
 import org.jevis.jecc.application.tools.JEVisHelp;
 import org.jevis.jecc.dialog.Response;
 import org.jevis.jecc.plugin.charts.ChartPlugin;
+import org.jevis.jecc.plugin.dashboard.config2.DashboardSorter;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFactoryBox;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFrameEditor;
@@ -40,15 +45,15 @@ import org.joda.time.Interval;
 public class LoadDashboardDialog extends Dialog {
     private static final Logger logger = LogManager.getLogger(LoadDashboardDialog.class);
     private final ObjectRelations objectRelations;
-    private final TextField filterInput = new TextField();
-    private final DatePicker pickerDateEnd = new DatePicker();
+    private final JFXTextField filterInput = new JFXTextField();
+    private final JFXDatePicker pickerDateEnd = new JFXDatePicker();
     private final FilteredList<JEVisObject> filteredData;
-    private final ListView<JEVisObject> analysisListView;
+    private final JFXListView<JEVisObject> analysisListView;
     private final JEVisDataSource ds;
     private final ToolBarIntervalSelector toolBarIntervalSelector;
     private final DateTime selectedDateTime = null;
     private final DashboardControl control;
-    Button dateButton = new Button("");
+    JFXButton dateButton = new JFXButton("");
     private Response response = Response.CANCEL;
     private JEVisObject selectedDashboard = null;
     private Interval selectedInterval = null;
@@ -104,7 +109,7 @@ public class LoadDashboardDialog extends Dialog {
             }
         });
 
-        analysisListView = new ListView<>();
+        analysisListView = new JFXListView<>();
         analysisListView.setMinWidth(400);
         analysisListView.setItems(filteredData);
         analysisListView.getSelectionModel().selectedIndexProperty().addListener(
@@ -120,23 +125,27 @@ public class LoadDashboardDialog extends Dialog {
                 if (empty || obj == null || obj.getName() == null) {
                     setText("");
                 } else {
-                    setText(obj.getName());
-                    /**
-                     if (!analysisDataModel.isMultiSite() && !analysisDataModel.isMultiDir())
-                     setText(obj.getName());
-                     else {
-                     String prefix = "";
-                     if (analysisDataModel.isMultiSite())
-                     prefix += objectRelations.getObjectPath(obj);
-                     if (analysisDataModel.isMultiDir()) {
-                     prefix += objectRelations.getRelativePath(obj);
-                     }
+                    String name = "";
+                    try {
+                        if (obj.getJEVisClassName().equals(DashboardSorter.ANALYSIS_CLASS_NAME)) {
+                            if (!ChartTools.isMultiSite(ds) && !ChartTools.isMultiDir(ds, obj))
+                                name = obj.getName();
+                            else {
+                                String prefix = "";
+                                if (ChartTools.isMultiSite(ds))
+                                    prefix += objectRelations.getObjectPath(obj);
+                                if (ChartTools.isMultiDir(ds, obj)) {
+                                    prefix += objectRelations.getRelativePath(obj);
+                                }
 
-                     setText(prefix + obj.getName());
-                     }
-                     **/
+                                name = prefix + obj.getName();
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("could not get JEVisClassName", e);
+                    }
+                    setText(name);
                 }
-
             }
         });
 
@@ -153,7 +162,7 @@ public class LoadDashboardDialog extends Dialog {
 
         Button cancelButton = (Button) this.getDialogPane().lookupButton(cancelType);
         cancelButton.setCancelButton(true);
-        cancelButton = new Button(I18n.getInstance().getString(""));
+        cancelButton = new JFXButton(I18n.getInstance().getString(""));
         cancelButton.setId("cancel-button");
 
         Button newButton = (Button) this.getDialogPane().lookupButton(newType);

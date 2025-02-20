@@ -55,6 +55,7 @@ public class AlarmTable {
 
     private JEVisClass dwdDataPointClass;
     private JEVisClass xmlDataPointClass;
+    private JEVisClass jsonDataPointClass;
     private JEVisClass dataPointClass;
     private JEVisClass rawDataClass;
 
@@ -152,6 +153,7 @@ public class AlarmTable {
             csvDataPointClass = dataSource.getJEVisClass("CSV Data Point");
             dwdDataPointClass = dataSource.getJEVisClass("DWD Data Point");
             xmlDataPointClass = dataSource.getJEVisClass("XML Data Point");
+            jsonDataPointClass = dataSource.getJEVisClass("JSON Data Point");
             dataPointClass = dataSource.getJEVisClass("Data Point");
             rawDataClass = dataSource.getJEVisClass("Data");
             cleanDataClass = dataSource.getJEVisClass("Clean Data");
@@ -314,6 +316,10 @@ public class AlarmTable {
 
     public JEVisClass getXmlDataPointClass() {
         return xmlDataPointClass;
+    }
+
+    public JEVisClass getJsonDataPointClass() {
+        return jsonDataPointClass;
     }
 
     public JEVisClass getDataPointClass() {

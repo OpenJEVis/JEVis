@@ -57,12 +57,11 @@ public class JSONParser {
             results.add(jsonNode);
         } else {
             if (jsonNode.isArray()) {
-                jsonNode.forEach(jsonNode1 -> {
-                    parseRecursive(jsonNode1, index, pathList);
-                });
+                jsonNode.forEach(jsonNode1 -> parseRecursive(jsonNode1, index, pathList));
             } else {
-                parseRecursive(jsonNode.get(pathList.get(index)), index + 1, pathList);
-
+                if (jsonNode.get(pathList.get(index)) != null) {
+                    parseRecursive(jsonNode.get(pathList.get(index)), index + 1, pathList);
+                }
             }
         }
 

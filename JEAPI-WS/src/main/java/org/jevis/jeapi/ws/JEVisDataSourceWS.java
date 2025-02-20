@@ -518,11 +518,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //            return result;
 
         } catch (ProtocolException ex) {
-            logger.error(ex);
+            logger.error(ex.getMessage(), ex);
             //TODO: throw excption?! so the other function can handel it?
 //            return new ArrayList<>();
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.error(ex.getMessage(), ex);
 //            return new ArrayList<>();
         }
     }
@@ -867,6 +867,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             if (!this.attributeCache.isEmpty()) this.attributeCache.clear();
             getAttributes();
             benchmark.printBenchmarkDetail("Reload - Attributes");
+            System.gc();
             Optimization.getInstance().printStatistics();
             logger.info("Reload Done");
             this.hasPreloaded = true;
@@ -1317,7 +1318,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 }
             }
         } else {
-            logger.debug("Create attribute list for : {}", jSonAttribute.getObjectID());
+            logger.trace("Create attribute list for : {}", jSonAttribute.getObjectID());
             this.attributeCache.put(jSonAttribute.getObjectID(), new ArrayList<>());
         }
 

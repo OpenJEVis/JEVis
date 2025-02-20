@@ -8,6 +8,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.classes.ClassHelper;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.CalcMethods;
 import org.jevis.commons.utils.CommonMethods;
@@ -152,6 +153,11 @@ public class TableData {
                 JEVisObject firstParentalDataObject = CommonMethods.getFirstParentalDataObject(object);
                 if (firstParentalDataObject != null) {
                     this.sourceString = firstParentalDataObject.getName();
+                }
+            } else if (jeVisClassName.equals(JC.Notification.EMailNotification.name)) {
+                JEVisObject firstParentalBuilding = CommonMethods.getFirstParentalObjectOfClass(object, JC.MonitoredObject.Building.name);
+                if (firstParentalBuilding != null) {
+                    this.sourceString = firstParentalBuilding.getName();
                 }
             }
         } catch (Exception ex) {

@@ -17,6 +17,7 @@ import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 import org.jevis.commons.i18n.I18n;
@@ -189,7 +190,7 @@ public class ChartExportPDF {
     private void print() {
         PrinterJob printerJob = PrinterJob.getPrinterJob();
         try {
-            PDDocument document = PDDocument.load(destinationFile);
+            PDDocument document = Loader.loadPDF(destinationFile);
             printerJob.setPageable(new PDFPageable(document));
             if (printerJob.printDialog()) {
                 printerJob.print();

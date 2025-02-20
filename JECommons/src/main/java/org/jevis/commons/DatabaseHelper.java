@@ -136,10 +136,7 @@ public class DatabaseHelper {
     public static JEVisFile getObjectAsFile(JEVisObject jevisObject, JEVisType jevisType) {
         JEVisFile value = null;
         try {
-            if (DatabaseHelper.checkValidFileObject(jevisObject, jevisType)) {
-                value = jevisObject.getAttribute(jevisType).getLatestSample().getValueAsFile();
-
-            }
+            return jevisObject.getAttribute(jevisType).getLatestSample().getValueAsFile();
         } catch (NumberFormatException | JEVisException nfe) {
         }
         return value;

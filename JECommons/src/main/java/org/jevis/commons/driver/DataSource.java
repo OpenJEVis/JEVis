@@ -35,7 +35,7 @@ import java.util.List;
  * The interface for the DataSource. Each DataSource object represents a data
  * source in the JEVis System at runtime. Each Data Source implementation runs
  * in his own thread, so in principle its enough to implement the run and
- * initialize method, cause they are the only methods which are used from
+ * initialize method, because they are the only methods which are used from
  * outside. For structure purposes it is recommended to use also the other
  * methods and implement the work flow similar to the other drivers.
  *

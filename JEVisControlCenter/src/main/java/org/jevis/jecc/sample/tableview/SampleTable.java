@@ -21,7 +21,9 @@ package org.jevis.jecc.sample.tableview;
 
 
 import javafx.application.Platform;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -66,7 +68,7 @@ import java.util.function.UnaryOperator;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class SampleTable extends TableView<SampleTable.TableSample> {
+public class SampleTable extends TableView<TableSample> {
     private final static Logger logger = LogManager.getLogger(SampleTable.class);
     private final static Color COLOR_ERROR = Color.INDIANRED;
     private final DateTimeFormatter dateViewFormat;
@@ -75,7 +77,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     private final BooleanProperty deleteInBetween = new SimpleBooleanProperty(false);
     private final BooleanProperty deleteSelected = new SimpleBooleanProperty(false);
     private final BooleanProperty needSave = new SimpleBooleanProperty(false);
-    private final ObservableList<SampleTable.TableSample> data = FXCollections.observableArrayList();
+    private final ObservableList<TableSample> data = FXCollections.observableArrayList();
     private final DateTimeZone dateTimeZone;
     private final NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
     private final DoubleValidator validator = DoubleValidator.getInstance();
@@ -179,7 +181,10 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         data.clear();
         samples.forEach(jeVisSample -> {
             try {
-                data.add(new SampleTable.TableSample(jeVisSample));
+                TableSample tableSample = new TableSample(jeVisSample);
+                addSampleListener(tableSample);
+
+                data.add(tableSample);
             } catch (Exception ex) {
                 logger.error("Error while loading samples in table", ex);
             }
@@ -255,7 +260,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
             getItems().forEach(tableSample -> {
                 if (tableSample.isSelected()) {
                     try {
-                        attribute.deleteSamplesBetween(tableSample.getJevisSample().getTimestamp(), tableSample.getJevisSample().getTimestamp());
+                        attribute.deleteSamplesBetween(tableSample.getJEVisSample().getTimestamp(), tableSample.getJEVisSample().getTimestamp());
                     } catch (Exception ex) {
                         logger.error("Error while deleting samples", ex);
                     }
@@ -355,7 +360,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
                 changedSamples.forEach(tableSample -> {
                     try {
-                        tableSample.commit();
+                        commit(tableSample);
                     } catch (Exception ex) {
                         logger.error("Error while committing sample", ex);
                     }
@@ -395,21 +400,94 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      * @return
      * @throws Exception
      */
-    public TableSample addNewSample(DateTime timestamp, Object value, String note) throws Exception {
+    public void addNewSample(DateTime timestamp, Object value, String note) throws Exception {
 
+        TableSample tableSample = new TableSample(attribute.buildSample(timestamp, value, note));
 
-        TableSample tSample = new TableSample(attribute.buildSample(timestamp, value, note));
-        tSample.setIsNew();
-        data.add(tSample);
-        this.getSelectionModel().getTableView().scrollTo(tSample);
-        this.getSelectionModel().select(tSample);
+        addSampleListener(tableSample);
+
+        setNew(tableSample, true);
+        data.add(tableSample);
+        this.getSelectionModel().getTableView().scrollTo(tableSample);
+        this.getSelectionModel().select(tableSample);
 
         findMinMaxDate();
-        return tSample;
+    }
+
+    private void addSampleListener(TableSample tableSample) {
+        tableSample.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                changedSamples.add(tableSample);
+            } else {
+                changedSamples.remove(tableSample);
+            }
+            selectionChanged();
+        });
+
+        tableSample.timeStampProperty().addListener((observable, oldValue, newValue) -> {
+            checkChanged(tableSample);
+        });
+        tableSample.valueProperty().addListener((observable, oldValue, newValue) -> {
+            checkChanged(tableSample);
+        });
+        tableSample.noteProperty().addListener((observable, oldValue, newValue) -> {
+            checkChanged(tableSample);
+        });
+    }
+
+    private void checkChanged(TableSample tableSample) {
+        if (tableSample.isNew()) {
+            needSave.setValue(true);
+            changedSamples.add(tableSample);
+        } else if (tableSample.hasChanged()) {
+            needSave.setValue(true);
+            changedSamples.add(tableSample);
+        } else {
+            changedSamples.remove(tableSample);
+            if (changedSamples.isEmpty()) {
+                needSave.setValue(false);
+            }
+        }
     }
 
     /**
-     * Create an column for the timestamps
+     * Commits this sample to the JEVisDataSource.
+     * If the timestamp change it will be deleted and recreated with a new one with it.
+     *
+     * @throws Exception
+     */
+    private void commit(TableSample tableSample) throws Exception {
+        tableSample.getJEVisSample().setValue(tableSample.getValue());
+        tableSample.getJEVisSample().setNote(tableSample.getNote());
+
+        logger.info("Commit sample {}", tableSample);
+        if (tableSample.getJEVisSample().getTimestamp().equals(tableSample.getTimeStamp())) {
+            tableSample.getJEVisSample().commit();
+            setNew(tableSample, false);
+            changedSamples.remove(tableSample);
+        } else {
+            JEVisSample newSample = attribute.buildSample(tableSample.getTimeStamp(), tableSample.getValue(), tableSample.getNote());
+            attribute.deleteSamplesBetween(tableSample.getJEVisSample().getTimestamp(), tableSample.getJEVisSample().getTimestamp());
+            newSample.commit();
+            setNew(tableSample, false);
+            changedSamples.remove(tableSample);
+            tableSample.setJEVisSample(newSample);
+            tableSample.loadSampleData();
+        }
+
+
+    }
+
+    /**
+     * Set that this is a new created sample request a commit
+     */
+    private void setNew(TableSample tableSample, boolean b) {
+        tableSample.setNew(b);
+        checkChanged(tableSample);
+    }
+
+    /**
+     * Create a column for the timestamps
      *
      * @param columnName
      * @return
@@ -507,7 +585,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                 CheckBox checkBox = new CheckBox();
                                 checkBox.setSelected(tableSample.isSelected());
                                 checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                                    tableSample.setIsSelected(newValue);
+                                    tableSample.setSelected(newValue);
                                 });
                                 setDefaultCellStyle(this);
 
@@ -532,12 +610,12 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
         selectAll.setOnAction(event -> {
             getItems().forEach(tableSample -> {
-                tableSample.setIsSelected(true);
+                tableSample.setSelected(true);
             });
         });
         deselectAll.setOnAction(event -> {
             getItems().forEach(tableSample -> {
-                tableSample.setIsSelected(false);
+                tableSample.setSelected(false);
             });
         });
 
@@ -628,7 +706,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setDefaultFieldStyle(this, textField);
 
                             try {
-                                textField.setText(nf.format(tableSample.jevisSample.getValueAsDouble()));
+                                textField.setText(nf.format(tableSample.getJEVisSample().getValueAsDouble()));
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
@@ -720,8 +798,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             String fileName = "";
-                            TableSample tableSample = getTableRow().getItem();
-                            JEVisSample sample = tableSample.getJevisSample();
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            JEVisSample sample = tableSample.getJEVisSample();
                             boolean isPDF = false;
                             boolean isImage = false;
                             try {
@@ -818,8 +896,8 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            TableSample tableSample = getTableRow().getItem();
-                            JEVisSample sample = tableSample.getJevisSample();
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            JEVisSample sample = tableSample.getJEVisSample();
 
                             ToggleSwitchPlus toggleSwitchPlus = new ToggleSwitchPlus();
                             try {
@@ -1183,200 +1261,5 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         });
 
         return column;
-    }
-
-
-    /**
-     * Inner Class to capsule JEVisSample to be manipulated in a table
-     * <p>
-     * TODO:
-     * - Revert changed function
-     */
-    public class TableSample {
-
-        private final SimpleBooleanProperty isSelected = new SimpleBooleanProperty(false);
-        private SimpleObjectProperty value = new SimpleObjectProperty();
-        private SimpleStringProperty note = new SimpleStringProperty();
-        private SimpleObjectProperty<DateTime> timeStamp = new SimpleObjectProperty<>();
-        private JEVisSample jevisSample = null;
-        private boolean isNew = false;
-
-
-        private TableSample() {
-        }
-
-        public TableSample(JEVisSample sample) {
-            this.jevisSample = sample;
-            loadSampleData();
-        }
-
-        private void loadSampleData() {
-            try {
-                this.timeStamp = new SimpleObjectProperty<>(jevisSample.getTimestamp());
-                this.value = new SimpleObjectProperty(jevisSample.getValue());
-                this.note = new SimpleStringProperty(jevisSample.getNote());
-
-
-                timeStamp.addListener((observable, oldValue, newValue) -> {
-                    checkChanged();
-                });
-                value.addListener((observable, oldValue, newValue) -> {
-                    checkChanged();
-                });
-                note.addListener((observable, oldValue, newValue) -> {
-                    checkChanged();
-                });
-
-                isSelected.addListener((observable, oldValue, newValue) -> {
-                    if (newValue) {
-                        changedSamples.add(this);
-                    } else {
-                        changedSamples.remove(this);
-                    }
-                    selectionChanged();
-                });
-            } catch (Exception ex) {
-                logger.error("Error while loading sample", ex);
-            }
-        }
-
-        private void checkChanged() {
-            if (isNew) {
-                needSave.setValue(true);
-                changedSamples.add(this);
-            } else if (hasChanged()) {
-                needSave.setValue(true);
-                changedSamples.add(this);
-            } else {
-                changedSamples.remove(this);
-                if (changedSamples.isEmpty()) {
-                    needSave.setValue(false);
-                }
-            }
-        }
-
-        /**
-         * Commits this sample to the JEVisDataSource.
-         * If the timestamp change it will be deleted an recreated with new with it.
-         *
-         * @throws Exception
-         */
-        private void commit() throws Exception {
-            jevisSample.setValue(value.getValue());
-            jevisSample.setNote(note.getValue());
-
-            logger.info("Commit sample {}", this);
-            if (jevisSample.getTimestamp().equals(timeStamp.getValue())) {
-                jevisSample.commit();
-                isNew = false;
-                changedSamples.remove(this);
-            } else {
-                JEVisSample newSample = attribute.buildSample(timeStamp.getValue(), value.getValue(), note.getValue());
-                newSample.commit();
-                isNew = false;
-                changedSamples.remove(this);
-                attribute.deleteSamplesBetween(jevisSample.getTimestamp(), jevisSample.getTimestamp());
-                this.jevisSample = newSample;
-                loadSampleData();
-            }
-
-
-        }
-
-        private boolean hasChanged() {
-            try {
-                if (!jevisSample.getTimestamp().equals(timeStamp.getValue())) {
-                    return true;
-                }
-
-                if (!jevisSample.getNote().equals(note.getValue())) {
-                    return true;
-                }
-                if (!jevisSample.getValue().equals(value.getValue())) {
-                    return true;
-                }
-
-            } catch (Exception ex) {
-                logger.error("Error while checking for changes", ex);
-            }
-
-            return false;
-
-
-        }
-
-        public boolean isSelected() {
-            return isSelected.get();
-        }
-
-        public void setIsSelected(boolean isSelected) {
-            this.isSelected.set(isSelected);
-        }
-
-        public SimpleBooleanProperty isSelectedProperty() {
-            return isSelected;
-        }
-
-        public Object getValue() {
-            return value.get();
-        }
-
-        public void setValue(Object value) {
-            this.value.setValue(value);
-        }
-
-        public SimpleObjectProperty valueProperty() {
-            return value;
-        }
-
-        public String getNote() {
-            return note.getValue();
-        }
-
-        public void setNote(String note) {
-            this.note.set(note);
-        }
-
-        public SimpleStringProperty noteProperty() {
-            return note;
-        }
-
-        public DateTime getTimeStamp() {
-            return timeStamp.get();
-        }
-
-        public void setTimeStamp(DateTime timeStamp) {
-            this.timeStamp.set(timeStamp);
-        }
-
-        public SimpleObjectProperty<DateTime> timeStampProperty() {
-            return timeStamp;
-        }
-
-        public JEVisSample getJevisSample() {
-            return jevisSample;
-        }
-
-        public void setJevisSample(JEVisSample jevisSample) {
-            this.jevisSample = jevisSample;
-        }
-
-        /**
-         * Set taht this is an new created sample request an commit
-         */
-        private void setIsNew() {
-            this.isNew = true;
-            checkChanged();
-        }
-
-        @Override
-        public String toString() {
-            return "CSVExportTableSample{" +
-                    "value=" + value +
-                    ", note=" + note +
-                    ", timeStamp=" + timeStamp +
-                    ", jevisSample=" + jevisSample +
-                    '}';
-        }
     }
 }

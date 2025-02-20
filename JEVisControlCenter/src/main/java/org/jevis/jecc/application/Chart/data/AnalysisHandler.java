@@ -16,8 +16,6 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.application.Chart.ChartSetting;
-import org.jevis.jecc.plugin.charts.DataSettings;
-import org.jevis.jecc.plugin.charts.ToolBarSettings;
 import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
@@ -123,10 +121,25 @@ public class AnalysisHandler {
                 chartModelNode.put("orientation", chartModel.getOrientation().toString());
             }
 
+            if (chartModel.getDayStart() != null) {
+                chartModelNode.put("dayStart", chartModel.getDayStart().toString());
+            }
+            if (chartModel.getDayEnd() != null) {
+                chartModelNode.put("dayEnd", chartModel.getDayEnd().toString());
+            }
+
             chartModelNode.put("filterEnabled", chartModel.isFilterEnabled());
             chartModelNode.put("fixYAxisToZero", chartModel.isFixYAxisToZero());
             chartModelNode.put("showColumnSums", chartModel.isShowColumnSums());
             chartModelNode.put("showRowSums", chartModel.isShowRowSums());
+
+            if (chartModel.getxAxisTitle() != null) {
+                chartModelNode.put("xAxisTitle", chartModel.getxAxisTitle());
+            }
+
+            if (chartModel.getyAxisTitle() != null) {
+                chartModelNode.put("yAxisTitle", chartModel.getyAxisTitle());
+            }
 
             chartModelNode.set("chartData", chartDataList);
 
@@ -139,6 +152,7 @@ public class AnalysisHandler {
         dataHandlerNode.put("chartsPerScreen", dataModel.getChartsPerScreen());
         dataHandlerNode.put("horizontalPies", dataModel.getHorizontalPies());
         dataHandlerNode.put("horizontalTables", dataModel.getHorizontalTables());
+        dataHandlerNode.put("forcedInterval", dataModel.getForcedInterval());
 
         dataHandlerNode.set("chartModels", chartModels);
 
@@ -176,7 +190,7 @@ public class AnalysisHandler {
         }
     }
 
-    public void saveDataModel(JEVisObject analysisObject, DataModel dataModel, ToolBarSettings toolBarSettings, DataSettings dataSettings) {
+    public void saveDataModel(JEVisObject analysisObject, DataModel dataModel) {
 
         try {
             JsonNode analysisNode = toJsonNode(dataModel);

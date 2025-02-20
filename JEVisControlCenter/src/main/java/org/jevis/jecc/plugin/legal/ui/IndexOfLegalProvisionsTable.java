@@ -63,12 +63,13 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
     private ObservableList<String> relevance = FXCollections.observableArrayList();
     private ObservableList<String> scope = FXCollections.observableArrayList();
     private ObservableList<String> seu = FXCollections.observableArrayList();
-    public static final String ONLY_NOT_RELEVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant");
-    private static Method columnToFitMethod;
+
     private static final int DATE_TIME_WIDTH = 120;
     private static final int BIG_WIDTH = 200;
     private static final int VERY_BIG_WIDTH = 400;
     private static final int SMALL_WIDTH = 60;
+    public static final String ONLY_NOT_RELEVANT = I18n.getInstance().getString("plugin.Legalcadastre.relevanzFilter.onlynotrelevant");
+    private static Method columnToFitMethod;
 
     static {
         //TODO JFX17
@@ -81,6 +82,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
     }
 
     private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
+
 
 
     public IndexOfLegalProvisionsTable(IndexOfLegalProvisions indexOfLegalProvisions, ObservableList<ObligationData> data, BooleanProperty updateProperty) {
@@ -247,7 +249,6 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
 
     }
 
-
     private void buildRow(IndexOfLegalProvisions indexOfLegalProvisions, TableColumn<ObligationData, String> legislationCol, TableColumn<ObligationData, Boolean> relevanceCol, TableColumn<ObligationData, String> categoryCol, TableColumn<ObligationData, String> scopeCol, Statistics statistics, int i) {
         ObservableMap<TableColumn, StringProperty> summeryRow = FXCollections.observableHashMap();
         System.out.println(i);
@@ -258,7 +259,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                 summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.relevant"), true));
                 break;
             case 1:
-                summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.notrrelevant"), false));
+                summeryRow.put(relevanceCol, statistics.getRelevant(I18n.getInstance().getString("plugin.indexoflegalprovisions.notrelevant"), false));
                 break;
         }
         String category = null;
@@ -373,7 +374,7 @@ public class IndexOfLegalProvisionsTable extends TableView<ObligationData> {
                                             if (notesRow.getRelevant()) {
                                                 relevanceMatch.set(true);
                                             }
-                                        } else if (s.equals(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.notrrelevant"))) {
+                                        } else if (s.equals(I18n.getInstance().getString("plugin.indexoflegalprovisions.filter.notrelevant"))) {
                                             if (!notesRow.getRelevant()) {
                                                 relevanceMatch.set(true);
                                             }

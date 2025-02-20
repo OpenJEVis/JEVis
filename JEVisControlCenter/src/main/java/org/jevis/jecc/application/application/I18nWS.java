@@ -43,10 +43,10 @@ public class I18nWS {
     }
 
     /**
-     * Add an webservice as an additional translation source.
+     * Add a webservice as an additional translation source.
      *
      * @param ws
-     * @todo replace this prototype with an the JEDataSource interface
+     * TODO replace this prototype with an the JEDataSource interface
      */
     public static void setDataSource(JEVisDataSourceWS ws) {
         ds = ws;

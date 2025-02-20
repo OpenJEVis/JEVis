@@ -3,15 +3,11 @@ package org.jevis.jecc.plugin.dashboard.config2;
 import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.jecc.application.Chart.ChartPluginElements.Boxes.AnalysesComboBox;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.jevis.jecc.application.Chart.ChartTools;
 
 /**
  * Sort lists of dashboard objects
@@ -20,6 +16,10 @@ import java.util.List;
 public class DashboardSorter {
 
     private static final Logger logger = LogManager.getLogger(DashboardSorter.class);
+    public static final String ANALYSES_DIRECTORY_CLASS_NAME = "Analyses Directory";
+    public static final String BUILDING_CLASS_NAME = "Building";
+    public static final String ANALYSIS_CLASS_NAME = "Dashboard Analysis";
+
 
     /**
      * Sort a list of dashboard objects based on the location in the tree(organisation/building)
@@ -28,81 +28,32 @@ public class DashboardSorter {
      * @param observableList
      */
     public static void sortDashboards(JEVisDataSource ds, ObservableList<JEVisObject> observableList) {
-        List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
-        boolean multipleDirectories = false;
-
-        try {
-            JEVisClass analysesDirectory = ds.getJEVisClass(AnalysesComboBox.ANALYSES_DIRECTORY_CLASS_NAME);
-            listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
-
-            if (listAnalysesDirectories.size() > 1) {
-                multipleDirectories = true;
-            }
-        } catch (JEVisException e) {
-            logger.error("Error: could not get analyses directories", e);
-        }
+        ObjectRelations objectRelations = new ObjectRelations(ds);
 
         AlphanumComparator ac = new AlphanumComparator();
-        if (!multipleDirectories) observableList.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+        if (!ChartTools.isMultiDir(ds) && !ChartTools.isMultiSite(ds))
+            observableList.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
         else {
             observableList.sort((o1, o2) -> {
 
                 String prefix1 = "";
                 String prefix2 = "";
 
-                try {
-                    JEVisObject secondParent1 = o1.getParents().get(0).getParents().get(0);
-                    JEVisClass buildingClass = ds.getJEVisClass(AnalysesComboBox.BUILDING_CLASS_NAME);
-                    JEVisClass organisationClass = ds.getJEVisClass(AnalysesComboBox.ORGANIZATION_CLASS_NAME);
-
-                    if (secondParent1.getJEVisClass().equals(buildingClass)) {
-                        try {
-                            JEVisObject organisationParent = secondParent1.getParents().get(0).getParents().get(0);
-                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                prefix1 += organisationParent.getName() + " / " + secondParent1.getName() + " / ";
-                            }
-                        } catch (JEVisException e) {
-                            logger.error("Could not get Organization parent of " + secondParent1.getName() + ":" + secondParent1.getID());
-
-                            prefix1 += secondParent1.getName() + " / ";
-                        }
-                    } else if (secondParent1.getJEVisClass().equals(organisationClass)) {
-
-                        prefix1 += secondParent1.getName() + " / ";
-
-                    }
-
-                } catch (Exception e) {
+                if (ChartTools.isMultiSite(ds)) {
+                    prefix1 += objectRelations.getObjectPath(o1);
                 }
-                prefix1 = prefix1 + o1.getName();
-
-                try {
-                    JEVisObject secondParent2 = o2.getParents().get(0).getParents().get(0);
-                    JEVisClass buildingClass = ds.getJEVisClass(AnalysesComboBox.BUILDING_CLASS_NAME);
-                    JEVisClass organisationClass = ds.getJEVisClass(AnalysesComboBox.ORGANIZATION_CLASS_NAME);
-
-                    if (secondParent2.getJEVisClass().equals(buildingClass)) {
-                        try {
-                            JEVisObject organisationParent = secondParent2.getParents().get(0).getParents().get(0);
-                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                prefix2 += organisationParent.getName() + " / " + secondParent2.getName() + " / ";
-                            }
-                        } catch (JEVisException e) {
-                            logger.error("Could not get Organization parent of " + secondParent2.getName() + ":" + secondParent2.getID());
-
-                            prefix2 += secondParent2.getName() + " / ";
-                        }
-                    } else if (secondParent2.getJEVisClass().equals(organisationClass)) {
-
-                        prefix2 += secondParent2.getName() + " / ";
-
-                    }
-
-                } catch (Exception e) {
+                if (ChartTools.isMultiDir(ds, o1)) {
+                    prefix1 += objectRelations.getRelativePath(o1);
                 }
-                prefix2 = prefix2 + o2.getName();
+                prefix1 += o1.getName();
+
+                if (ChartTools.isMultiSite(ds)) {
+                    prefix2 += objectRelations.getObjectPath(o2);
+                }
+                if (ChartTools.isMultiDir(ds, o2)) {
+                    prefix2 += objectRelations.getRelativePath(o2);
+                }
+                prefix2 += o2.getName();
 
                 return ac.compare(prefix1, prefix2);
             });

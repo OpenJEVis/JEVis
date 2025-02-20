@@ -3,7 +3,6 @@ package org.jevis.jecc.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
-import eu.hansolo.tilesfx.events.SwitchEvent;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -28,8 +27,6 @@ import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,19 +54,19 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
     public PlusMinusWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         minusPlus = TileBuilder.create().skinType(Tile.SkinType.PLUS_MINUS).animated(false).backgroundColor(Color.TRANSPARENT).build();
-        minusPlus.setOnSwitchReleased(tileEvent -> {
-            try {
-                if (tileEvent.getEventType().equals(SwitchEvent.SWITCH_RELEASED)) {
-                    //TODO JFX17 check working
-                    logger.debug(tileEvent.getEventType().toString());
-                    BigDecimal bd = BigDecimal.valueOf(minusPlus.getValue());
-                    bd = bd.setScale(config.getDecimals(), RoundingMode.HALF_UP);
-                    setData(bd.doubleValue());
-                }
-            } catch (JEVisException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        //TODO JFX 21
+//        minusPlus.setOnTileEvent(tileEvent -> {
+//            try {
+//                if (tileEvent.getEventType().equals(TileEvent.EventType.FINISHED)) {
+//                    logger.debug(tileEvent.getEventType().toString());
+//                    BigDecimal bd = BigDecimal.valueOf(minusPlus.getValue());
+//                    bd = bd.setScale(config.getDecimals(), RoundingMode.HALF_UP);
+//                    setData(bd.doubleValue());
+//                }
+//            } catch (JEVisException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
     }
 
 
@@ -230,7 +227,7 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
             showAlertOverview(false, "");
         });
 
-        if (sampleHandler == null || sampleHandler.getDataModel().isEmpty()) {
+        if (sampleHandler == null || sampleHandler.getChartDataRows().isEmpty()) {
             return;
         } else {
             showProgressIndicator(true);
@@ -241,6 +238,7 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
 
         this.nf.setMinimumFractionDigits(this.config.getDecimals());
         this.nf.setMaximumFractionDigits(this.config.getDecimals());
+        this.sampleHandler.setAutoAggregation(true);
 
         try {
             widgetUUID = getConfig().getUuid() + "";
@@ -248,8 +246,8 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
             if (forceLastValue) {
                 try {
 
-                    lastSample = sampleHandler.getDataModel().get(0).getAttribute().getLatestSample();
-                    String unit = sampleHandler.getDataModel().get(0).getAttribute().getDisplayUnit().getLabel();
+                    lastSample = sampleHandler.getChartDataRows().get(0).getAttribute().getLatestSample();
+                    String unit = sampleHandler.getChartDataRows().get(0).getAttribute().getDisplayUnit().getLabel();
                     minusPlus.setUnit(unit);
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -291,7 +289,7 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
     }
 
     private void setData(double value) throws JEVisException {
-        JEVisAttribute jeVisAttribute = sampleHandler.getDataModel().get(0).getObject().getAttribute(JC.Data.a_Value);
+        JEVisAttribute jeVisAttribute = sampleHandler.getChartDataRows().get(0).getObject().getAttribute(JC.Data.a_Value);
         logger.info("set data {} to objekt {}", value, jeVisAttribute.getObject().getID());
         JEVisSample jeVisSample = jeVisAttribute.buildSample(new DateTime(), value);
         jeVisSample.commit();

@@ -1,20 +1,17 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.ImageView;
-import org.jevis.jecc.plugin.dashboard.DashboardControl;
-import org.jevis.jecc.plugin.dashboard.widget.Widget;
+import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TimeFrameWidgetObject extends Widget {
+public class TimeFrameWidgetObject {
 
     private final BooleanProperty selected = new SimpleBooleanProperty(false);
 
@@ -22,14 +19,20 @@ public class TimeFrameWidgetObject extends Widget {
     private final ObjectProperty<End> endObjectProperty = new SimpleObjectProperty<>(End.NONE);
 
     private final BooleanProperty countOfSamples = new SimpleBooleanProperty();
+    private final DataModelWidget widget;
+    private final WidgetPojo config;
+    private final ImageView imagePreview;
 
 
-    public TimeFrameWidgetObject(DashboardControl control, WidgetPojo config) {
-        super(control, config);
-        addListner();
+    public TimeFrameWidgetObject(DataModelWidget widget, WidgetPojo config, ImageView imagePreview) {
+        this.widget = widget;
+        this.config = config;
+        this.imagePreview = imagePreview;
+
+        addListener();
     }
 
-    private void addListner() {
+    private void addListener() {
 
         countOfSamples.addListener((observableValue, aBoolean, t1) -> {
             if (t1) {
@@ -38,115 +41,69 @@ public class TimeFrameWidgetObject extends Widget {
             }
         });
         startObjectProperty.addListener((observableValue, start, t1) -> {
-            System.out.println(t1);
             if (!t1.equals(Start.NONE)) {
                 countOfSamples.set(false);
-
             }
         });
         endObjectProperty.addListener((observableValue, start, t1) -> {
-            System.out.println(t1);
             if (!t1.equals(End.NONE)) {
                 countOfSamples.set(false);
-
             }
         });
-
-
     }
 
-    @Override
-    public void debug() {
-
-    }
-
-    @Override
-    public WidgetPojo createDefaultConfig() {
-        return null;
-    }
-
-    @Override
     public ImageView getImagePreview() {
-        return null;
+        return imagePreview;
     }
 
-    @Override
-    public void updateData(Interval interval) {
-
+    public WidgetPojo getConfig() {
+        return config;
     }
 
-    @Override
-    public void updateLayout() {
-
+    public DataModelWidget getWidget() {
+        return widget;
     }
 
-    @Override
-    public void updateConfig() {
-
-    }
-
-    @Override
-    public boolean isStatic() {
-        return false;
-    }
-
-    @Override
     public List<DateTime> getMaxTimeStamps() {
         List<DateTime> dateTimes = new ArrayList<>();
-        super.sampleHandler.getMaxTimeStamps();
+        widget.getDataHandler().getMaxTimeStamps();
         return dateTimes;
-
-    }
-
-    @Override
-    public void init() {
-
-    }
-
-    @Override
-    public String typeID() {
-        return null;
-    }
-
-    @Override
-    public ObjectNode toNode() {
-        return null;
     }
 
     public boolean isSelected() {
         return selected.get();
     }
 
-    public void setSelected(boolean selected) {
-        this.selected.set(selected);
-    }
-
     public BooleanProperty selectedProperty() {
         return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected.set(selected);
     }
 
     public Start getStartObjectProperty() {
         return startObjectProperty.get();
     }
 
-    public void setStartObjectProperty(Start startObjectProperty) {
-        this.startObjectProperty.set(startObjectProperty);
-    }
-
     public ObjectProperty<Start> startObjectPropertyProperty() {
         return startObjectProperty;
+    }
+
+    public void setStartObjectProperty(Start startObjectProperty) {
+        this.startObjectProperty.set(startObjectProperty);
     }
 
     public End getEndObjectProperty() {
         return endObjectProperty.get();
     }
 
-    public void setEndObjectProperty(End endObjectProperty) {
-        this.endObjectProperty.set(endObjectProperty);
-    }
-
     public ObjectProperty<End> endObjectPropertyProperty() {
         return endObjectProperty;
+    }
+
+    public void setEndObjectProperty(End endObjectProperty) {
+        this.endObjectProperty.set(endObjectProperty);
     }
 
     @Override

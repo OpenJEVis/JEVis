@@ -154,8 +154,7 @@ public class MeterController {
         btOk.setOnAction(actionEvent -> {
             JEVisObject jeVisObject = newMeterDialog.commit();
             if (jeVisObject == null) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Object Could not Created");
+                Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.object.permission.create.denied"));
                 alert.showAndWait();
             } else {
                 MeterData meterData = new MeterData(jeVisObject);

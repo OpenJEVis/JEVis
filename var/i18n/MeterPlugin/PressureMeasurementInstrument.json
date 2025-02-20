@@ -1,0 +1,101 @@
+{
+  "jevisclass": "Pressure Measurement Instrument",
+  "names": {
+    "de": "Druckmesser",
+    "en": "Pressure Measurement Instrument"
+  },
+  "descriptions": {
+    "de": "Stellt einen Druckmesser in einem Messaufbau dar.",
+    "en": "Represents an Pressure Sensor in a test setup."
+  },
+  "types": [
+    {
+      "type": "Nominal Pressure",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Nenndruck",
+        "en": "Nominal Pressure"
+      }
+    },
+    {
+      "type": "Over Pressure",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Überdruck",
+        "en": "Over Pressure"
+      }
+    },
+    {
+      "type": "Burst Pressure",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Berstdruck",
+        "en": "Burst Pressure"
+      }
+    },
+    {
+      "type": "Pressure Type",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Druckart",
+        "en": "Pressure Type"
+      }
+    },
+    {
+      "type": "Accuracy",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Genauigkeit",
+        "en": "Accuracy"
+      }
+    },
+    {
+      "type": "Resolution",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Auflösung",
+        "en": "Resolution"
+      }
+    },
+    {
+      "type": "Operating Temperature",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Betriebstemperatur",
+        "en": "Operating Temperature"
+      }
+    },
+    {
+      "type": "Media Compatibility",
+      "descriptions": {
+        "de": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Medienverträglichkeit",
+        "en": "Media Compatibility"
+      }
+    }
+  ]
+}

@@ -78,11 +78,8 @@ public class PieWidget extends Widget implements DataModelWidget {
             showProgressIndicator(true);
         }
 
-//        this.sampleHandler.setAutoAggregation(true);
-
-        this.sampleHandler.setInterval(interval);
-        this.sampleHandler.update();
-
+        this.sampleHandler.setAutoAggregation(true);
+        this.sampleHandler.update(interval);
 
         showAlertOverview(false, "");
 
@@ -92,11 +89,11 @@ public class PieWidget extends Widget implements DataModelWidget {
 
         /** data Update **/
         AtomicDouble total = new AtomicDouble(0);
-        for (ChartDataRow dataModel : this.sampleHandler.getDataModel()) {
+        for (ChartDataRow dataModel : this.sampleHandler.getChartDataRows()) {
             try {
 //                chartDataModel.setAbsolute(true);
                 dataModel.setCustomWorkDay(customWorkday);
-                Double dataModelTotal = DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), dataModel.getSamples(), dataModel);
+                Double dataModelTotal = dataModel.getSamples().get(0).getValueAsDouble();
                 total.set(total.get() + dataModelTotal);
                 logger.debug("dataModelTotal: [{}] {}", dataModel.getObject().getName(), dataModelTotal);
             } catch (Exception ex) {
@@ -106,7 +103,7 @@ public class PieWidget extends Widget implements DataModelWidget {
         logger.debug("Total.Total: {}", total.get());
 
 
-        for (ChartDataRow chartDataRow : this.sampleHandler.getDataModel()) {
+        for (ChartDataRow chartDataRow : this.sampleHandler.getChartDataRows()) {
             try {
                 double value = 0;
                 boolean hasNoData = chartDataRow.getSamples().isEmpty();
@@ -115,7 +112,7 @@ public class PieWidget extends Widget implements DataModelWidget {
 
                 if (!hasNoData) {
                     try {
-                        value = DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), chartDataRow.getSamples(), chartDataRow);
+                        value = chartDataRow.getSamples().get(0).getValueAsDouble();
                         logger.debug("part.total: [{}] {}", chartDataRow.getObject().getName(), value);
                         double proC = (value / total.get()) * 100;
                         if (Double.isInfinite(proC)) proC = 100;

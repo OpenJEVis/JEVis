@@ -2,6 +2,7 @@ package org.jevis.jecc.application.Chart;
 
 import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.geometry.Orientation;
+import org.joda.time.LocalTime;
 
 import static org.jevis.jecc.application.Chart.ChartType.AREA;
 
@@ -16,6 +17,8 @@ public class ChartSetting {
     private Orientation orientation;
     private Integer minFractionDigits = 2;
     private Integer maxFractionDigits = 2;
+    private LocalTime dayStart;
+    private LocalTime dayEnd;
 
     private Boolean filterEnabled = false;
 
@@ -108,5 +111,21 @@ public class ChartSetting {
 
     public void setFilterEnabled(Boolean filterEnabled) {
         this.filterEnabled = filterEnabled;
+    }
+
+    public LocalTime getDayStart() {
+        return dayStart;
+    }
+
+    public void setDayStart(LocalTime dayStart) {
+        this.dayStart = dayStart;
+    }
+
+    public LocalTime getDayEnd() {
+        return dayEnd;
+    }
+
+    public void setDayEnd(LocalTime dayEnd) {
+        this.dayEnd = dayEnd;
     }
 }

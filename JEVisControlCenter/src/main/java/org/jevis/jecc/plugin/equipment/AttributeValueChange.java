@@ -5,7 +5,7 @@ package org.jevis.jecc.plugin.equipment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.jecc.application.type.GUIConstants;
+import org.jevis.commons.constants.GUIConstants;
 import org.joda.time.DateTime;
 
 public class AttributeValueChange {

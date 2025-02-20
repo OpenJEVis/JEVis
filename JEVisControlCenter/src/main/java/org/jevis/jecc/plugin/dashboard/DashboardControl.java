@@ -41,8 +41,10 @@ import org.jevis.jecc.plugin.dashboard.common.DashboardExport;
 import org.jevis.jecc.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jecc.plugin.dashboard.config2.*;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
+import org.jevis.jecc.plugin.dashboard.slideshow.SlideshowControl;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jecc.plugin.dashboard.widget.TimeFrameWidget;
 import org.jevis.jecc.plugin.dashboard.widget.ValueWidget;
 import org.jevis.jecc.plugin.dashboard.widget.Widget;
 import org.jevis.jecc.tool.ScreenSize;
@@ -93,9 +95,9 @@ public class DashboardControl {
     private boolean isUpdateRunning = false;
     private java.io.File newBackgroundFile;
     private SideConfigPanel sideConfigPanel;
-    private Interval activeInterval = new Interval(new DateTime().minus(1), new DateTime());
+    private Interval activeInterval = new Interval(new DateTime(), new DateTime());
     private final ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
-    private TimeFrame activeTimeFrame = TimeFrameFactory.NONE;
+    private TimeFrame activeTimeFrame;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
     private List<Widget> selectedWidgets = new ArrayList<>();
     private DashBoardPane dashboardPane = new DashBoardPane();
@@ -108,7 +110,8 @@ public class DashboardControl {
      **/
     private boolean firstDashboard = true;
     private TimerTask updateTask;
-    private WorkDays wd;
+    private WorkDays workDays;
+    private SlideshowControl slideshowControl = null;
 
 
     public DashboardControl(DashBordPlugIn plugin) {
@@ -204,7 +207,7 @@ public class DashboardControl {
     }
 
     public void setSnapToGrid(boolean snapToGrid) {
-        logger.error("setSnapToGrid: " + snapToGrid);
+        logger.debug("setSnapToGrid: " + snapToGrid);
         snapToGridProperty.setValue(snapToGrid);
         toolBar.updateView(activeDashboard);
         /**
@@ -217,7 +220,7 @@ public class DashboardControl {
     }
 
     public void setCustomWorkday(boolean customWorkday) {
-        logger.error("setCustomWorkday: " + customWorkday);
+        logger.debug("setCustomWorkday: " + customWorkday);
 
         customWorkdayProperty.setValue(customWorkday);
         toolBar.updateView(activeDashboard);
@@ -243,15 +246,15 @@ public class DashboardControl {
     }
 
     public Widget createNewWidget(WidgetPojo widgetPojo) {
-        System.out.println("Contol.createnewWidgets: " + widgetPojo);
+        logger.debug("Contol.createnewWidgets: " + widgetPojo);
 
-        System.out.println("---- newWidgetS.getSe...");
+        logger.debug("---- newWidgetS.getSe...");
         try {
             Class<?> clazz = Class.forName("org.jevis.jecc.plugin.dashboard.widget.TitleWidget");
             Constructor<?> ctor = clazz.getConstructor(DashboardControl.class);
             Object object = ctor.newInstance(this);
             Widget widget = (Widget) object;
-            System.out.println("hmmmmmmmm: " + widget.getControl());
+            logger.debug("hmmmmmmmm: " + widget.getControl());
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -265,13 +268,25 @@ public class DashboardControl {
     public void loadFirstDashboard() {
         try {
             loadDashboardObjects();
+            JEVisObject userDashboard = getUserSelectedDashboard();
 
-            JEVisObject userDashboad = getUserSelectedDashboard();
+            if (userDashboard != null && userDashboard.getJEVisClassName().equals("Dashboard Collection")) {
+                try {
+                    slideshowControl = new SlideshowControl(userDashboard, this);
+                    if (slideshowControl.isAutoplay()) {
+                        slideshowControl.start();
+                        firstDashboard = false;
+                    } else {
+                        selectDashboard(slideshowControl.getFirstDashboard());
+                    }
+                } catch (Exception ex) {
+                    logger.error("Dashboard Collection could not be loaded", ex);
+                }
 
-            if (this.dashboardObjects.isEmpty()) {
+            } else if (this.dashboardObjects.isEmpty()) {
                 selectDashboard(null);
-            } else if (userDashboad != null) {
-                selectDashboard(userDashboad);
+            } else if (userDashboard != null) {
+                selectDashboard(userDashboard);
             } else if (!this.dashboardObjects.isEmpty()) {
                 selectDashboard(this.dashboardObjects.get(0));
             }
@@ -381,8 +396,8 @@ public class DashboardControl {
 
     private void loadDashboardObjects() {
         try {
-            JEVisClass scadaAnalysis = this.getDataSource().getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
-            this.dashboardObjects = this.getDataSource().getObjects(scadaAnalysis, false);
+            JEVisClass dashboards = this.getDataSource().getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+            this.dashboardObjects = this.getDataSource().getObjects(dashboards, false);
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -406,6 +421,10 @@ public class DashboardControl {
             }
         }
 
+    }
+
+    public SlideshowControl getSlideshowControl() {
+        return slideshowControl;
     }
 
     public ObservableList<JEVisObject> getAllDashboards() {
@@ -485,7 +504,7 @@ public class DashboardControl {
             } else { /* load existing Dashboard*/
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
-                    this.wd = new WorkDays(object);
+                    this.workDays = new WorkDays(object);
                 } catch (Exception ex) {
                     dashBordPlugIn.showMessage(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
                 }
@@ -618,7 +637,7 @@ public class DashboardControl {
         logger.debug("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
         this.activeTimeFrame = activeTimeFrame;
         DateTime start = activeInterval.getStart();
-        if (wd != null && wd.getWorkdayEnd().isBefore(wd.getWorkdayStart()) && activeInterval.toDuration().getStandardDays() > 1) {
+        if (workDays != null && workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart()) && activeInterval.toDuration().getStandardDays() > 1) {
             start = start.plusDays(1);
         }
 
@@ -686,14 +705,28 @@ public class DashboardControl {
     }
 
     public void switchUpdating() {
-        logger.error("switchUpdating");
+        logger.debug("switchUpdating");
+
         if (this.isUpdateRunning) {
-            stopAllUpdates();
+            if (slideshowControl != null) {
+                slideshowControl.stop();
+            } else {
+                stopAllUpdates();
+            }
+
         } else {
-            runDataUpdateTasks(false);
+            if (slideshowControl != null) {
+                slideshowControl.start();
+            } else {
+                runDataUpdateTasks(false);
+            }
         }
 
         this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(isUpdateRunning);
+    }
+
+    public void setUpdateRunning(boolean updateRunning) {
+        isUpdateRunning = updateRunning;
     }
 
     private void removeNode(Widget widget) {
@@ -704,12 +737,9 @@ public class DashboardControl {
     private void stopAllUpdates() {
         try {
             logger.debug("stopAllUpdates: " + ControlCenter.getStatusBar().getTaskList().size());
-            this.isUpdateRunning = false;
-
             ControlCenter.getStatusBar().stopTasks(DashBordPlugIn.class.getName());
-            if (this.updateTask != null) {
-                this.updateTask.cancel();
-            }
+            this.updateTask.cancel();
+            this.isUpdateRunning = false;
         } catch (NullPointerException nex) {
             logger.debug(nex, nex);
         } catch (Exception ex) {
@@ -736,9 +766,12 @@ public class DashboardControl {
                 try {
                     List<Widget> objects = new ArrayList<>();
                     List<ValueWidget> valueWidgets = new ArrayList<>();
+                    List<TimeFrameWidget> timeFrameWidgets = new ArrayList<>();
 
                     for (Widget widget : DashboardControl.this.widgetList) {
-                        if (widget instanceof ValueWidget && !valueWidgets.contains((ValueWidget) widget)) {
+                        if (widget instanceof TimeFrameWidget) {
+                            timeFrameWidgets.add((TimeFrameWidget) widget);
+                        } else if (widget instanceof ValueWidget && !valueWidgets.contains((ValueWidget) widget)) {
                             valueWidgets.add((ValueWidget) widget);
                         } else if (!widget.isStatic()) {
                             if (objects.contains(widget)) {
@@ -760,6 +793,11 @@ public class DashboardControl {
 
                     for (ValueWidget valueWidget : valueWidgets) {
                         Task<Object> updateTask = addWidgetUpdateTask(valueWidget, activeInterval);
+                        ControlCenter.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
+                    }
+
+                    for (TimeFrameWidget timeFrameWidget : timeFrameWidgets) {
+                        Task<Object> updateTask = addWidgetUpdateTask(timeFrameWidget, activeInterval);
                         ControlCenter.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
                     }
 

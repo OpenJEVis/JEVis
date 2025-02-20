@@ -1,0 +1,14 @@
+{
+  "jevisclass": "DWD Channel Directory",
+  "names": {
+    "de": "DWD Kanalverzeichnis",
+    "ru": "DWD Channel Directory",
+    "en": "DWD Channel Directory"
+  },
+  "descriptions": {
+    "de": "Die Klasse DWD Kanalverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Daten dar.",
+    "ru": "The class DWD Channel Directory represents a specific directory for the management of data.\n",
+    "en": "The class DWD Channel Directory represents a specific directory for the management of data.\n"
+  },
+  "types": []
+}

@@ -963,7 +963,6 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         }
     }
 
-    @Override
     public boolean isMouseEventWithinCanvas(final MouseEvent mouseEvent) {
         final Canvas canvas = getChart().getCanvas();
         // listen to only events within the canvas
@@ -972,7 +971,6 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         return screenBounds.contains(mouseLoc);
     }
 
-    @Override
     public boolean isMouseEventWithinCanvas(final ScrollEvent mouseEvent) {
         final Canvas canvas = getChart().getCanvas();
         // listen to only events within the canvas

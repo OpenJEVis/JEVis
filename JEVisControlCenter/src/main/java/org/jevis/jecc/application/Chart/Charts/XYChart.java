@@ -115,6 +115,8 @@ public class XYChart implements Chart {
     public XYChart(JEVisDataSource ds, ChartModel chartModel) {
         this.ds = ds;
         this.chartModel = chartModel;
+        this.chartType = this.chartModel.getChartType();
+
         init();
     }
 
@@ -179,7 +181,6 @@ public class XYChart implements Chart {
         this.polyRegressionDegree = toolBarSettings.getPolyRegressionDegree();
         this.chartId = this.chartModel.getChartId();
         this.chartName = this.chartModel.getChartName();
-        this.chartType = this.chartModel.getChartType();
 
         if (chartDataRows.isEmpty()) {
             chartModel.getChartData().forEach(chartData -> chartDataRows.add(new ChartDataRow(ds, chartData)));
@@ -232,7 +233,6 @@ public class XYChart implements Chart {
 
         addManipulationToTitle = (dataSettings.getManipulationMode().equals(RUNNING_MEAN)
                 || dataSettings.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN));
-
 
         if (chartType != ChartType.BUBBLE) {
             List<ChartDataRow> toRemove = chartDataRows.stream().filter(chartDataRow -> chartDataRow.getName().contains(" - " + I18n.getInstance().getString("graph.processing.raw"))).collect(Collectors.toList());
@@ -754,8 +754,9 @@ public class XYChart implements Chart {
     private ChartDataRow getRawDataModel(ChartModel dataModel, ChartDataRow singleRow) {
         try {
             ChartDataRow newModel = singleRow.clone();
+            String jeVisClassName = singleRow.getObject().getJEVisClassName();
             JEVisObject newObject;
-            if (singleRow.getObject().getJEVisClassName().equals(JC.Data.name)) {
+            if (jeVisClassName.equals(JC.Data.name) || jeVisClassName.equals(JC.Data.BaseData.name)) {
                 newObject = singleRow.getObject();
             } else {
                 newObject = singleRow.getObject().getParent();
@@ -1389,6 +1390,9 @@ public class XYChart implements Chart {
         if (!unitY1.isEmpty()) Platform.runLater(() -> y1Axis.setUnit(allUnitsY1.toString()));
         if (!unitY2.isEmpty()) Platform.runLater(() -> y2Axis.setUnit(allUnitsY2.toString()));
 
+        if (chartModel.getyAxisTitle() != null) {
+            Platform.runLater(() -> y1Axis.setName(chartModel.getyAxisTitle()));
+        }
     }
 
     public void generateXAxis(Boolean[] changedBoth) {
@@ -1404,7 +1408,9 @@ public class XYChart implements Chart {
 //            dateAxis.setFirstTS(timeStampOfFirstSample.get());
 //        }
         Platform.runLater(() -> {
-            primaryDateAxis.setName("");
+            if (chartModel.getxAxisTitle() != null) {
+                primaryDateAxis.setName(chartModel.getxAxisTitle());
+            } else primaryDateAxis.setName("");
             secondaryDateAxis.setName("");
         });
 

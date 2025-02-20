@@ -3,7 +3,6 @@ package org.jevis.jecc.application.Chart.Charts;
 import com.ibm.icu.text.NumberFormat;
 import de.focus_shift.jollyday.core.Holiday;
 import eu.hansolo.fx.charts.ChartType;
-import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
 import eu.hansolo.fx.charts.series.MatrixItemSeries;
 import eu.hansolo.fx.charts.tools.Helper;
@@ -12,6 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -211,7 +211,16 @@ public class HeatMapChart implements Chart {
 
         ChartDataRow chartDataRow = chartDataRows.get(0);
         unit = UnitManager.getInstance().format(chartDataRow.getUnit());
-        Interval interval = new Interval(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
+        Interval interval;
+        org.joda.time.LocalTime dayStart = chartModel.getDayStart();
+        org.joda.time.LocalTime dayEnd = chartModel.getDayEnd();
+        if (dayStart != null && dayEnd != null) {
+            interval = new Interval(chartDataRow.getSelectedStart().withHourOfDay(dayStart.getHourOfDay()).withMinuteOfHour(dayStart.getMinuteOfHour()).withSecondOfMinute(dayStart.getSecondOfMinute()).withMillisOfSecond(dayStart.getMillisOfSecond())
+                    , chartDataRow.getSelectedEnd().withHourOfDay(dayEnd.getHourOfDay()).withMinuteOfHour(dayEnd.getMinuteOfHour()).withSecondOfMinute(dayEnd.getSecondOfMinute()).withMillisOfSecond(dayEnd.getMillisOfSecond()));
+        } else {
+            interval = new Interval(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
+        }
+
         Period inputSampleRate = chartDataRow.getPeriod();
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
         numberFormat.setMinimumFractionDigits(chartModel.getMinFractionDigits());
@@ -232,10 +241,7 @@ public class HeatMapChart implements Chart {
 
         if (!errorMsg.toString().isEmpty()) {
             Alert warning = new Alert(Alert.AlertType.WARNING, errorMsg.toString(), ButtonType.OK);
-            Platform.runLater(() -> {
-                warning.show();
-                warning.getDialogPane().toFront();
-            });
+            Platform.runLater(warning::showAndWait);
         }
 
         HeatMapXY heatMapXY = getHeatMapXY(interval, inputSampleRate);
@@ -336,11 +342,12 @@ public class HeatMapChart implements Chart {
 
         MatrixItemSeries<MatrixChartItem> matrixItemSeries1 = new MatrixItemSeries<>(matrixData1, ChartType.MATRIX_HEATMAP);
 
-        MatrixPane<MatrixChartItem> matrixHeatMap = new MatrixPane<>(matrixItemSeries1);
+        CustomMatrixPane<MatrixChartItem> matrixHeatMap = new CustomMatrixPane<>(matrixItemSeries1);
         matrixHeatMap.setMaxHeight(8192);
         matrixHeatMap.setColorMapping(chartModel.getColorMapping());
         matrixHeatMap.getMatrix().setUseSpacer(false);
         matrixHeatMap.getMatrix().setColsAndRows(COLS.intValue(), ROWS.intValue());
+        matrixHeatMap.setFontColor(fontColor);
 
         GridPane leftAxis = new GridPane();
         leftAxis.setPadding(new Insets(4));
@@ -409,6 +416,7 @@ public class HeatMapChart implements Chart {
                 tsRight.setStyle("-fx-text-fill: red !important;");
                 if (!toolTipString.equals("")) {
                     Tooltip tooltip = new Tooltip(toolTipString);
+                    tooltip.setAutoHide(true);
                     Tooltip.install(tsRight, tooltip);
                 }
             }
@@ -446,9 +454,8 @@ public class HeatMapChart implements Chart {
         spHor.getChildren().setAll(leftAxis, matrixHeatMap, rightAxis);
         HBox.setHgrow(matrixHeatMap, Priority.ALWAYS);
 
-        GridPane bottomAxis = new GridPane();
-        bottomAxis.setHgap(0);
-        bottomAxis.setMinHeight(30d);
+        Canvas bottomXAxis = new Canvas();
+        bottomXAxis.setHeight(30);
 
         HBox legend = new HBox();
         legend.setPadding(new Insets(8));
@@ -474,7 +481,7 @@ public class HeatMapChart implements Chart {
         }
 
         VBox spVer = new VBox();
-        spVer.getChildren().setAll(titleBox, spHor, bottomAxis, legend);
+        spVer.getChildren().setAll(titleBox, spHor, bottomXAxis, legend);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
         VBox.setVgrow(spHor, Priority.ALWAYS);
 
@@ -484,6 +491,14 @@ public class HeatMapChart implements Chart {
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         setRegion(sp);
+
+        matrixHeatMap.setBottomXAxis(bottomXAxis);
+        matrixHeatMap.setLeftAxis(leftAxis);
+        matrixHeatMap.setRightAxis(rightAxis);
+        matrixHeatMap.setXAxisList(xAxisList);
+        matrixHeatMap.setXFormat(getX_FORMAT());
+        matrixHeatMap.setMatrixData(matrixData);
+        matrixHeatMap.setUnit(getUnit());
     }
 
     private HeatMapXY getHeatMapXY(Interval interval, Period inputSampleRate) {

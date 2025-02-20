@@ -10,6 +10,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -101,7 +102,6 @@ public class ToolBarView {
     private MenuItem polyDegree;
     private MenuItem regressionType;
     private MenuItem calcFullLoadHours;
-    private MenuItem calcHoursAboveBelow;
     private MenuItem calcSumAboveBelow;
     private MenuItem calcBaseLoad;
 
@@ -214,17 +214,17 @@ public class ToolBarView {
             toolBar.getItems().addAll(analysesComboBox,
                     sep1, presetDateBox, pickerDateStart, pickerDateEnd, customWorkDay,
                     sep2, reload, zoomOut,
-//                    sep3, loadNew, save, delete, select, export, exportImage, printButton,
                     sep3, loadNew, save, delete, select2, export, exportImage, printButton,
                     sep4);
 
             if (isRegressionPossible) {
                 Separator regressionSeparator = new Separator(Orientation.HORIZONTAL);
+                regressionSeparator.setHalignment(HPos.RIGHT);
                 mathOperation.getItems().addAll(regressionType, polyDegree, calcRegression, new MenuItem("", regressionSeparator));
             }
 
             //Math buttons now always on
-            mathOperation.getItems().addAll(calcFullLoadHours, calcHoursAboveBelow, calcSumAboveBelow, calcBaseLoad, calcValues);
+            mathOperation.getItems().addAll(calcFullLoadHours, calcSumAboveBelow, calcBaseLoad, calcValues);
 
             if (!ControlCenter.getExpert()) {
                 mathOperation.getItems().addAll(showL1L2, showSum);
@@ -385,9 +385,7 @@ public class ToolBarView {
 
         calcFullLoadHours = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcfullloadhours"));
 
-        calcHoursAboveBelow = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calchoursabovebelow"));
-
-        calcSumAboveBelow = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcsumabovebelow"));
+        calcSumAboveBelow = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcsumabovebelow") + "\n" + I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calchoursabovebelow"));
 
         calcBaseLoad = new MenuItem(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcbaseloadhours"));
 
@@ -568,8 +566,6 @@ public class ToolBarView {
 
         calcValues.setOnAction(event -> toolBarFunctions.calcValues());
 
-        calcHoursAboveBelow.setOnAction(event -> toolBarFunctions.calcHoursAboveBelow());
-
         calcSumAboveBelow.setOnAction(event -> toolBarFunctions.calcSumAboveBelow());
 
         customWorkDay.setOnAction(event -> chartPlugin.update());
@@ -634,7 +630,6 @@ public class ToolBarView {
         showL1L2.setDisable(bool);
         calcRegression.setDisable(bool);
         calcFullLoadHours.setDisable(bool);
-        calcHoursAboveBelow.setDisable(bool);
         calcSumAboveBelow.setDisable(bool);
         calcBaseLoad.setDisable(bool);
         calcValues.setDisable(bool);

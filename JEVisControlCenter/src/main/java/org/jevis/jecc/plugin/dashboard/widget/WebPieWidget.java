@@ -72,9 +72,8 @@ public class WebPieWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("WebPie.Update: {}", interval);
-        this.sampleHandler.setInterval(interval);
-        this.sampleHandler.update();
-
+        this.sampleHandler.setAutoAggregation(true);
+        this.sampleHandler.update(interval);
 
         this.borderPane.setMaxWidth(this.config.getSize().getWidth());
         this.nf.setMinimumFractionDigits(0);/** tmp solution**/
@@ -85,10 +84,10 @@ public class WebPieWidget extends Widget {
 
         /** data Update **/
         AtomicDouble total = new AtomicDouble(0);
-        this.sampleHandler.getDataModel().forEach(chartDataModel -> {
+        this.sampleHandler.getChartDataRows().forEach(chartDataModel -> {
             try {
 //                chartDataModel.setAbsolute(true);
-                Double dataModelTotal = DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), chartDataModel.getSamples(), chartDataModel);
+                Double dataModelTotal = chartDataModel.getSamples().get(0).getValueAsDouble();
                 total.set(total.get() + dataModelTotal);
 
             } catch (Exception ex) {
@@ -97,7 +96,7 @@ public class WebPieWidget extends Widget {
         });
 
         List<PieData> pieDataList = new ArrayList<>();
-        this.sampleHandler.getDataModel().forEach(chartDataModel -> {
+        this.sampleHandler.getChartDataRows().forEach(chartDataModel -> {
             try {
                 String dataName = chartDataModel.getObject().getName();
                 double value = 0;
@@ -108,7 +107,7 @@ public class WebPieWidget extends Widget {
                 if (!hasNoData) {
                     logger.error("Samples: ({}) {}", dataName, chartDataModel.getSamples());
                     try {
-                        value = DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), chartDataModel.getSamples(), chartDataModel);
+                        value = chartDataModel.getSamples().get(0).getValueAsDouble();
                         BigDecimal bd = new BigDecimal(value);
                         bd = bd.setScale(5, RoundingMode.HALF_UP);
 //                        value = bd.doubleValue();

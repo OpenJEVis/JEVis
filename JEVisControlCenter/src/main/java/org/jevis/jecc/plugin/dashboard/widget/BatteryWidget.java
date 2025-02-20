@@ -10,14 +10,14 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,13 +58,13 @@ public class BatteryWidget extends Widget implements DataModelWidget {
     private final Gauge battery;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
-    private BatteryPojo batteryGaugePojo;
-    private Interval lastInterval = null;
     private final ChangeListener<Number> limitListener = null;
     private final ChangeListener<Number> percentListener = null;
     private final BatteryWidget limitWidget = null;
     private final BatteryWidget percentWidget = null;
     private final String percentText = "";
+    private BatteryPojo batteryGaugePojo;
+    private Interval lastInterval = null;
     private Percent percent;
     private Boolean customWorkday = true;
 
@@ -91,29 +91,26 @@ public class BatteryWidget extends Widget implements DataModelWidget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
-        lastInterval = interval;
-        Platform.runLater(() -> {
+        try {
+            lastInterval = interval;
+
             showAlertOverview(false, "");
-        });
 
-        if (sampleHandler == null) {
-            return;
-        } else {
-            showProgressIndicator(true);
-        }
+            if (sampleHandler == null) {
+                return;
+            } else {
+                showProgressIndicator(true);
+            }
 
-
-        Platform.runLater(() -> {
             String widgetUUID = "-1";
             AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
             //try {
             widgetUUID = getConfig().getUuid() + "";
             this.sampleHandler.setAutoAggregation(true);
-            this.sampleHandler.setInterval(interval);
-            //setIntervallForLastValue(interval);
-            this.sampleHandler.update();
-            if (!this.sampleHandler.getDataModel().isEmpty()) {
-                ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
+            this.sampleHandler.update(interval);
+
+            if (!this.sampleHandler.getChartDataRows().isEmpty()) {
+                ChartDataRow dataModel = this.sampleHandler.getChartDataRows().get(0);
                 dataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
 
@@ -121,27 +118,33 @@ public class BatteryWidget extends Widget implements DataModelWidget {
                 displayedUnit.setValue(unit);
 
                 results = dataModel.getSamples();
+
                 if (!results.isEmpty()) {
-                    total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
-                    battery.setValue(Helper.convertToPercent(total.get(), batteryGaugePojo.getMaximum(), batteryGaugePojo.getMinimum(), this.config.getDecimals()));
+                    try {
+                        total.set(results.get(0).getValueAsDouble());
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
+                    Platform.runLater(() -> battery.setValue(Helper.convertToPercent(total.get(), batteryGaugePojo.getMaximum(), batteryGaugePojo.getMinimum(), this.config.getDecimals())));
                 } else {
-                    battery.setValue(0);
+                    Platform.runLater(() -> battery.setValue(0));
                     showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
                 }
-
             }
-        });
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        }
     }
 
     private void setIntervallForLastValue(Interval interval) {
         if (this.getDataHandler().getTimeFrameFactory() != null) {
             if (!this.getControl().getAllTimeFrames().getAll().contains(this.getDataHandler().getTimeFrameFactory()) && sampleHandler != null) {
                 sampleHandler.durationProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
-                sampleHandler.update();
-                if (this.sampleHandler.getDataModel().get(0).getSamples().size() > 0) {
+                sampleHandler.update(interval);
+                if (!this.sampleHandler.getChartDataRows().get(0).getSamples().isEmpty()) {
                     Interval interval1 = null;
                     try {
-                        interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
+                        interval1 = new Interval(this.sampleHandler.getChartDataRows().get(0).getSamples().get(this.sampleHandler.getChartDataRows().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getChartDataRows().get(0).getSamples().get(this.sampleHandler.getChartDataRows().get(0).getSamples().size() - 1).getTimestamp());
                         sampleHandler.durationProperty().setValue(interval1);
                     } catch (JEVisException e) {
                         throw new RuntimeException(e);
@@ -149,11 +152,11 @@ public class BatteryWidget extends Widget implements DataModelWidget {
                 }
 
 
-            } else {
-                this.sampleHandler.setInterval(interval);
+            } else if (sampleHandler != null) {
+                this.sampleHandler.update(interval);
             }
         } else {
-            this.sampleHandler.setInterval(interval);
+            this.sampleHandler.update(interval);
         }
 
     }
@@ -223,13 +226,12 @@ public class BatteryWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateConfig() {
-        System.out.println(batteryGaugePojo);
+        logger.debug(batteryGaugePojo);
         logger.debug("UpdateConfig");
         battery.setPrefSize(config.getSize().getWidth(), config.getSize().getHeight());
         battery.setDecimals(config.getDecimals());
         Platform.runLater(() -> {
             try {
-                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 updateSkin();
                 updateText();
             } catch (Exception e) {
@@ -277,9 +279,9 @@ public class BatteryWidget extends Widget implements DataModelWidget {
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
         try {
             this.batteryGaugePojo = new BatteryPojo(this.control, this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
-            if (sampleHandler.getDataModel().size() > 0) {
-                if (sampleHandler.getDataModel().get(0) != null) {
-                    displayedUnit.setValue(sampleHandler.getDataModel().get(0).getUnitLabel());
+            if (!sampleHandler.getChartDataRows().isEmpty()) {
+                if (sampleHandler.getChartDataRows().get(0) != null) {
+                    displayedUnit.setValue(sampleHandler.getChartDataRows().get(0).getUnitLabel());
                 }
             }
         } catch (Exception ex) {
@@ -304,7 +306,7 @@ public class BatteryWidget extends Widget implements DataModelWidget {
                 GridPane gp = new GridPane();
                 gp.setHgap(4);
                 gp.setVgap(8);
-                for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
+                for (ChartDataRow chartDataRow : sampleHandler.getChartDataRows()) {
                     if (chartDataRow.isCalculation()) {
                         try {
                             alert.setHeaderText(CalcMethods.getTranslatedFormula(chartDataRow.getCalculationObject()));

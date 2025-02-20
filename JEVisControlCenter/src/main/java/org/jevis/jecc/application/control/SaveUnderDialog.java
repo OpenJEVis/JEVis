@@ -33,7 +33,7 @@ public class SaveUnderDialog extends Dialog {
     private Response response = Response.CANCEL;
 
     public SaveUnderDialog(JEVisDataSource jeVisDataSource, JEVisObject selectedObj, JEVisClass analysisClass, String promptName, Saver saver) {
-        this(jeVisDataSource, "Analyses Directory", selectedObj, analysisClass, promptName, saver);
+        this(jeVisDataSource, "Dashboard Directory", selectedObj, analysisClass, promptName, saver);
     }
 
     public SaveUnderDialog(JEVisDataSource jeVisDataSource, String directoryClass, JEVisObject selectedObj, JEVisClass analysisClass, String promptName, Saver saver) {

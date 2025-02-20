@@ -26,7 +26,6 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -41,13 +40,9 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
-import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.controlsfx.control.NotificationPane;
-import org.controlsfx.control.PopOver;
-import org.controlsfx.control.action.Action;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
@@ -56,10 +51,7 @@ import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.datasource.DataSourceLoader;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeapi.ws.JEVisDataSourceWS;
-import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.application.ParameterHelper;
-import org.jevis.jecc.application.resource.ResourceLoader;
 import org.jevis.jecc.tool.Layouts;
 
 import java.awt.*;
@@ -69,7 +61,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Consumer;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -624,63 +615,6 @@ public class FXLogin extends AnchorPane {
 
     }
 
-    public void checkVersion() {
-        try {
-            String serverJECCVersion = ((JEVisDataSourceWS) _ds).getJEVisCCVersion();
-            if (serverJECCVersion != "0" && ControlCenter.class.getPackage().getImplementationVersion() != null) {
-                DefaultArtifactVersion thisVersion = new DefaultArtifactVersion(ControlCenter.class.getPackage().getImplementationVersion());
-                DefaultArtifactVersion serverVersion = new DefaultArtifactVersion(serverJECCVersion);
-                if (thisVersion.compareTo(serverVersion) < 0) {
-                    //notificationPane.setStyle("-fx-focus-color: transparent;");
-                    //notificationPane.getStyleClass().add(NotificationPane.STYLE_CLASS_DARK);
-
-                    ImageView image = new ImageView(new Image(FXLogin.class.getResourceAsStream("/icons/update.png")));
-                    image.fitHeightProperty().set(32);
-                    image.fitWidthProperty().set(32);
-
-
-                    Action openWebAction = new Action(new Consumer<ActionEvent>() {
-                        @Override
-                        public void accept(ActionEvent actionEvent) {
-                            try {
-                                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                                    Desktop.getDesktop().browse(new URI(getHost()));
-                                } else {
-                                    new ProcessBuilder("x-www-browser", getHost()).start();
-                                }
-                                Platform.exit();
-                                System.exit(0);
-                            } catch (Exception ex) {
-                                logger.error(ex);
-                            }
-                        }
-                    });
-                    openWebAction.setText(I18n.getInstance().getString("fxlogin.update.button"));
-
-                    Platform.runLater(() -> {
-                        notificationPane.show(
-                                String.format(I18n.getInstance().getString("fxlogin.update.message"), serverJECCVersion)
-                                , image, openWebAction);
-                    });
-
-                    /**
-                     Notifications.create()
-                     .title("JEVis Control Center Update")
-                     .text("New version " + serverJECCVersion + " is available")
-                     .hideAfter(Duration.INDEFINITE)
-                     .showInformation();
-                     **/
-                } else {
-                    logger.debug("We are up to date");
-                }
-            } else {
-                logger.error("Could not fetch JEVisCC Server Version");
-            }
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
-    }
-
     private String getHost() {
         for (JEVisOption opt : configuration) {
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
@@ -695,104 +629,6 @@ public class FXLogin extends AnchorPane {
             }
         }
         return "http://my-jevis.com";
-    }
-
-    /**
-     * This version has no function to add new servers. this may change in te
-     * future again.
-     *
-     * @return
-     * @deprecated
-     */
-    @Deprecated
-    private Node buildServerSelection() {
-        VBox root = new VBox(10);
-        Label titel = new Label("Server Configuration");
-        setDefaultStyle(titel, "-fx-font-weight: bold;");
-
-        Label nameLabel = new Label("Name:");
-        TextField nameF = new TextField();
-        Label urlLabel = new Label("Server:");
-        TextField urlF = new TextField();
-        Label portLabel = new Label("Port:");
-        TextField portF = new TextField();
-        Label schema = new Label("Schema:");
-        TextField schemaF = new TextField();
-        Label userL = new Label("Username:");
-        TextField userF = new TextField();
-        Label passL = new Label("Password:");
-        TextField passF = new TextField();
-
-        Button ok = new Button("Save");
-        ok.setDefaultButton(true);
-        Button addNewButton = new Button("Save as new");
-        ok.setDefaultButton(true);
-        Button cancel = new Button("Cancel");
-        cancel.setCancelButton(true);
-        Region spacer = new Region();
-
-        HBox buttons = new HBox(8);
-        buttons.getChildren().setAll(spacer, ok, addNewButton, cancel);
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(10, 10, 10, 10));
-
-        int columns = 2;
-        //x,x...
-        int row = 0;
-        grid.add(nameLabel, 0, row);
-        grid.add(nameF, 1, row);
-        row++;
-        grid.add(urlLabel, 0, row);
-        grid.add(urlF, 1, row);
-        row++;
-        grid.add(portLabel, 0, row);
-        grid.add(portF, 1, row);
-        row++;
-        grid.add(schema, 0, row);
-        grid.add(schemaF, 1, row);
-        row++;
-        grid.add(userL, 0, row);
-        grid.add(userF, 1, row);
-        row++;
-        grid.add(passL, 0, row);
-        grid.add(passF, 1, row);
-
-        VBox.setMargin(titel, new Insets(10, 30, 10, 30));
-        Region bottomSpacer = new Region();
-        bottomSpacer.setPrefHeight(10);
-
-        root.getChildren().setAll(titel, grid, buttons, bottomSpacer);
-        root.setPadding(new Insets(10));
-
-//        Button configureServer = new Button("", JEConfig.getImage("Service Manager.png", 16, 16));
-        Button configureServer = new Button("", ResourceLoader.getImage("Service Manager.png", 16, 16));
-
-        PopOver serverConfigPop = new PopOver(root);
-        serverConfigPop.setArrowLocation(PopOver.ArrowLocation.LEFT_CENTER);
-        serverConfigPop.setDetachable(true);
-        serverConfigPop.setHideOnEscape(true);
-        serverConfigPop.setAutoFix(true);
-
-//        serverSelection.setItems(serverConfigurations);
-//        serverSelection.getSelectionModel().selectFirst();
-        HBox serverConfBox = new HBox(10);
-//        serverConfBox.getChildren().setAll(serverSelection, configureServer);
-
-        HBox.setHgrow(configureServer, Priority.NEVER);
-//        HBox.setHgrow(serverSelection, Priority.ALWAYS);
-
-        ok.setOnAction(event -> serverConfigPop.hide(Duration.seconds(0.3)));
-        cancel.setOnAction(event -> serverConfigPop.hide(Duration.seconds(1)));
-
-        addNewButton.setOnAction(event -> {
-
-        });
-
-        return serverConfBox;
     }
 
     /**

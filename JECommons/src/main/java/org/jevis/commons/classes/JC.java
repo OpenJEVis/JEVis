@@ -469,6 +469,7 @@ public interface JC {
             String a_LastReadout = "Last Readout";
 
             String a_ParameterConfig = "Parameter Config";
+            String a_ChunkSize = "Chunk Size(s)";
         }
 
         interface LoytecXMLDLChannel {
@@ -826,6 +827,17 @@ public interface JC {
 
             String a_Station = "Station";
             String a_HeatingDegreeDaysTarget = "Heating Degree Days Target";
+        }
+
+        interface JSONDataPoint {
+            String name = "JSON Data Point";
+
+            String a_DataPointPath = "Data Point Path";
+            String a_Target = "Target";
+            String a_ValueFormat = "Value Format";
+            String a_RegexValue = "Regex Value";
+            String a_StatusPath = "Status Path";
+            String a_StatusValueOK = "Status Value OK";
         }
     }
 
@@ -1651,6 +1663,10 @@ public interface JC {
             interface XMLDataPointDirectory {
                 String name = "XML Data Point Directory";
 
+            }
+
+            interface JSONDataPointDirectory {
+                String name = "JSON Data Point Directory";
             }
         }
 
@@ -3617,6 +3633,8 @@ public interface JC {
         String name = "Report";
 
         String a_Enabled = "Enabled";
+        String a_StartRecord = "Start Record";
+        String a_Schedule = "Schedule";
         String a_LastReport = "Last Report";
         String a_LastReportPDF = "Last Report PDF";
         String a_PDF = "PDF";
@@ -3910,7 +3928,7 @@ public interface JC {
                 String a_Data = "Data";
 
                 interface ObligationDirectory {
-                    String name = "Index of Legal Provisions Directory";
+                    String name = "Obligation Directory";
                 }
             }
 

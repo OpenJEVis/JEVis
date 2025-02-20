@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.jevis</groupId>
         <artifactId>JEVisCore</artifactId>
-        <version>3.4</version>
+        <version>4.0</version>
     </parent>
 
     <build>
@@ -64,7 +64,6 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>5.2.3</version>
         </dependency>
         <dependency>
             <groupId>jakarta.mail</groupId>

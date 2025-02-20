@@ -3,9 +3,6 @@ package org.jevis.jecc.plugin.dashboard.datahandler;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Tab;
@@ -17,13 +14,10 @@ import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.WorkDays;
-import org.jevis.commons.unit.ChartUnits.QuantityUnits;
-import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.jecc.TopMenu;
+import org.jevis.jecc.application.Chart.ChartTools;
 import org.jevis.jecc.application.Chart.ChartType;
-import org.jevis.jecc.application.Chart.data.ChartData;
-import org.jevis.jecc.application.Chart.data.ChartDataRow;
-import org.jevis.jecc.application.Chart.data.ChartModel;
+import org.jevis.jecc.application.Chart.data.*;
 import org.jevis.jecc.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
 import org.jevis.jecc.plugin.dashboard.config.DataModelNode;
@@ -31,6 +25,7 @@ import org.jevis.jecc.plugin.dashboard.config.DataPointNode;
 import org.jevis.jecc.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jecc.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jecc.plugin.dashboard.timeframe.LastPeriod;
+import org.jevis.jecc.plugin.dashboard.timeframe.PeriodCode;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jecc.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jecc.plugin.dashboard.widget.ChartWidget;
@@ -41,7 +36,10 @@ import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import javax.swing.event.EventListenerList;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DataModelDataHandler {
 
@@ -62,12 +60,13 @@ public class DataModelDataHandler {
     private final PeriodComparator periodComparator = new PeriodComparator();
     private final EventListenerList listeners = new EventListenerList();
     private final List<AggregationPeriod> initialAggregation = new ArrayList<>();
+    private final DataModel dataModel = new DataModel();
+    private final AnalysisHandler analysisHandler = new AnalysisHandler();
     public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
     private boolean fixedTimeFrame = false;
-    private DataModelNode dataModelNode = new DataModelNode();
+    //    private DataModelNode dataModelNode = new DataModelNode();
     private boolean autoAggregation = false;
     private boolean forcedInterval = false;
-    private String forcedPeriod;
     private TimeFrame timeFrame;
     private WorkDays wd;
     private Interval forcedZeroInterval;
@@ -82,118 +81,52 @@ public class DataModelDataHandler {
         try {
             if (config != null) {
                 JsonNode configNode = config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE);
-                if (configNode != null) {
-                    this.dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
-                } else {
-                    this.dataModelNode = new DataModelNode();
+                if (configNode != null && configNode.get("type").asText().equals(TYPE)) {
+                    DataModelNode dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
+                    this.dataModel.getChartModels().add(createChartModelFromOldDataModel(dataModelNode));
+                    if (!dataModelNode.getForcedInterval().isEmpty()) {
+                        forcedInterval = true;
+                        setForcedPeriod(dataModelNode.getForcedInterval());
+                    }
+                } else if (configNode != null && configNode.get("type").asText().equals(AnalysisHandler.TYPE)) {
+                    analysisHandler.jsonToModel(configNode, dataModel);
+
+                    for (ChartModel chartModel : dataModel.getChartModels()) {
+                        for (ChartData chartData : chartModel.getChartData()) {
+                            try {
+                                JEVisObject object = jeVisDataSource.getObject(chartData.getId());
+                                chartData.setObjectName(object);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+
+                    forcedInterval = true;
+                    setForcedPeriod(dataModel.getForcedInterval());
                 }
 
                 setFixedTimeframe(config.getFixedTimeframe());
-            } else {
-                this.dataModelNode = new DataModelNode();
             }
         } catch (Exception ex) {
             logger.error(ex);
         }
 
-        if (!this.dataModelNode.getForcedInterval().isEmpty()) {
-            this.forcedInterval = true;
-            try {
-                this.forcedPeriod = this.dataModelNode.getForcedInterval();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+        if (this.dataModel.getChartModels().isEmpty()) {
+            this.dataModel.getChartModels().add(new ChartModel());
         }
 
-        setData(this.dataModelNode.getData());
+        setData(this.dataModel);
+
         this.timeFrameFactory = new TimeFrameFactory(jeVisDataSource);
         this.timeFrameFactories.addAll(this.timeFrameFactory.getAll(dashboardControl.getActiveDashboard().getDashboardObject()));
-    }
-
-    private void setFixedTimeframe(boolean fixedTimeframe) {
-        this.fixedTimeFrame = fixedTimeframe;
-    }
-
-    public static Double getManipulatedData(DataModelNode dataModelNode, List<JEVisSample> samples, ChartDataRow dataModel) {
-        Double value = 0d;
-        if (samples.size() == 1) {
-            try {
-                value = samples.get(0).getValueAsDouble();
-            } catch (JEVisException e) {
-                logger.error("Could not get value for data row {}:{}", dataModel.getObject().getName(), dataModel.getObject().getID(), e);
-            }
-        } else {
-            try {
-                QuantityUnits qu = new QuantityUnits();
-                boolean isQuantity = qu.isQuantityUnit(dataModel.getUnit());
-                isQuantity = qu.isQuantityIfCleanData(dataModel.getAttribute(), isQuantity);
-
-
-                Double min = Double.MAX_VALUE;
-                Double max = Double.MIN_VALUE;
-                List<Double> listMedian = new ArrayList<>();
-
-                DateTime dateTime = null;
-
-                List<JsonSample> listManipulation = new ArrayList<>();
-                for (JEVisSample sample : samples) {
-                    Double currentValue = sample.getValueAsDouble();
-                    value += currentValue;
-                    min = Math.min(min, currentValue);
-                    max = Math.max(max, currentValue);
-                    listMedian.add(currentValue);
-
-                    if (dateTime == null) dateTime = new DateTime(sample.getTimestamp());
-                }
-                if (!isQuantity) {
-                    value = value / samples.size();
-                }
-
-                DataPointNode dataPointNode = getDataPointNodeForChartDataRow(dataModelNode, dataModel);
-
-                if (dataPointNode != null)
-                    switch (dataPointNode.getManipulationMode()) {
-                        case AVERAGE:
-                            value = value / (double) samples.size();
-                            break;
-                        case MIN:
-                            value = min;
-                            break;
-                        case MAX:
-                            value = max;
-                            break;
-                        case MEDIAN:
-                            if (listMedian.size() > 1)
-                                listMedian.sort(Comparator.naturalOrder());
-                            value = listMedian.get((listMedian.size() - 1) / 2);
-                            break;
-                    }
-
-            } catch (Exception ex) {
-                logger.error("Error in quantity check: {}", ex, ex);
-            }
-        }
-
-        return value;
-
     }
 
     public static String generateValueKey(JEVisAttribute attribute) {
         return attribute.getObjectID() + ":" + attribute.getName();
     }
 
-    private static DataPointNode getDataPointNodeForChartDataRow(DataModelNode dataModelNode, ChartDataRow dataModel) {
-        for (DataPointNode dataPointNode : dataModelNode.getData()) {
-            long objectId = dataPointNode.getObjectID();
-            if (dataPointNode.getCleanObjectID() != null) {
-                objectId = dataPointNode.getCleanObjectID();
-            }
-            if (objectId == dataModel.getId()
-                    && dataPointNode.getAttribute().equals(dataModel.getAttributeString())) {
-                return dataPointNode;
-            }
-        }
-        return null;
+    private void setFixedTimeframe(boolean fixedTimeframe) {
+        this.fixedTimeFrame = fixedTimeframe;
     }
 
     /**
@@ -238,9 +171,9 @@ public class DataModelDataHandler {
         System.out.println("----");
         System.out.println("Interval start: " + this.durationProperty.getValue().getStart());
         System.out.println("Interval end  : " + this.durationProperty.getValue().getEnd());
-        System.out.println("Models: " + getDataModel().size());
+        System.out.println("Models: " + dataModel.getChartModels().size());
         System.out.println("forcedInterval: " + forcedInterval);
-        System.out.println("Interval Factoy: " + timeFrame);
+        System.out.println("Interval Factory: " + timeFrame);
         System.out.println("isAutoAggregation: " + autoAggregation);
 //        getDataModel().forEach(chartDataModel -> {
 //            System.out.println("model: " + chartDataModel.getObject().getID() + " " + chartDataModel.getObject().getName());
@@ -255,9 +188,9 @@ public class DataModelDataHandler {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         TabPane tabPane = new TabPane();
-        getDataModel().forEach(chartDataModel -> {
-            SampleTable sampleTable = new SampleTable(chartDataModel.getAttribute(), DateTimeZone.getDefault(), chartDataModel.getSamples());
-            Tab tab = new Tab(chartDataModel.getObject().getName() + ":" + chartDataModel.getAttribute().getName(), sampleTable);
+        chartDataRows.forEach(chartDataRow -> {
+            SampleTable sampleTable = new SampleTable(chartDataRow.getAttribute(), DateTimeZone.getDefault(), chartDataRow.getSamples());
+            Tab tab = new Tab(chartDataRow.getObject().getName() + ":" + chartDataRow.getAttribute().getName(), sampleTable);
             tabPane.getTabs().add(tab);
         });
         alert.setGraphic(null);
@@ -289,7 +222,6 @@ public class DataModelDataHandler {
     public void setAutoAggregation(boolean enable) {
 
         this.autoAggregation = enable;
-        this.dataModelNode.getData().forEach(dataPointNode -> dataPointNode.setAbsolute(enable));
 
         this.chartDataRows.forEach(chartDataRow -> {
             chartDataRow.setAbsolute(enable);
@@ -299,18 +231,18 @@ public class DataModelDataHandler {
     }
 
     public TimeFrame getTimeFrameFactory() {
-        if (this.forcedPeriod == null) {
+        if (this.dataModel.getForcedInterval() == null || this.dataModel.getForcedInterval().isEmpty()) {
             return null;
         }
 
         for (TimeFrame timeFrame : this.timeFrameFactories) {
-            if (timeFrame.getID().equals(this.forcedPeriod)) {
+            if (timeFrame.getID().equals(this.dataModel.getForcedInterval())) {
                 return timeFrame;
             }
         }
 
         try {
-            LastPeriod lastPeriod = new LastPeriod(Period.parse(this.forcedPeriod));
+            LastPeriod lastPeriod = new LastPeriod(this.dataModel.getForcedInterval());
             return lastPeriod;
         } catch (Exception ex) {
             logger.error(ex);
@@ -319,8 +251,8 @@ public class DataModelDataHandler {
         return null;
     }
 
-    public void setInterval(Interval interval) {
-        if (this.forcedInterval) {
+    private void setInterval(Interval interval) {
+        if (!this.dataModel.getForcedInterval().isEmpty()) {
 
             TimeFrame timeFrame = getTimeFrameFactory();
             if (timeFrame != null) {
@@ -336,9 +268,9 @@ public class DataModelDataHandler {
 
         this.setDuration(interval);
 
-        for (ChartDataRow chartDataRow : getDataModel()) {
+        for (ChartDataRow chartDataRow : getChartDataRows()) {
             try {
-                int i = getDataModel().indexOf(chartDataRow);
+                int i = getChartDataRows().indexOf(chartDataRow);
                 AggregationPeriod initialAggregation = this.initialAggregation.get(i);
 
                 /**
@@ -392,7 +324,8 @@ public class DataModelDataHandler {
                 if (periodComparator.compare(userPeriod, objectPeriod) < 0) {
                     // check if data row period is bigger than requested period
                     chartDataRow.setAggregationPeriod(AggregationPeriod.NONE);
-                } else if (initialAggregation == AggregationPeriod.NONE && widgetType.equals(ChartWidget.WIDGET_ID)) {
+                } else if (initialAggregation == AggregationPeriod.NONE && widgetType.equals(ChartWidget.WIDGET_ID)
+                        && chartDataRow.getChartType() != ChartType.HEAT_MAP && dataModel.getChartModels().get(0).getChartType() != ChartType.HEAT_MAP) {
                     // exception for chart widgets for better visualisation and performance
                     AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
                     chartDataRow.setAggregationPeriod(aggregationPeriod);
@@ -429,72 +362,15 @@ public class DataModelDataHandler {
     }
 
     public JsonNode toJsonNode() {
-        ArrayNode dataArrayNode = JsonNodeFactory.instance.arrayNode();
-
-        this.dataModelNode.getData().forEach(dataPointNode -> {
-            try {
-                logger.debug("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
-
-                ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-                dataNode.put("objectID", dataPointNode.getObjectID());
-                dataNode.put("attribute", dataPointNode.getAttribute());
-
-                dataNode.put("enpi", dataPointNode.isEnpi());
-
-                dataNode.put("name", dataPointNode.getName());
-
-                if (dataPointNode.getChartType() != null) {
-                    dataNode.put("chartType", dataPointNode.getChartType().toString());
-                } else {
-                    dataNode.put("chartType", ChartType.LINE.toString());
-                }
-                dataNode.put("aggregationPeriod", dataPointNode.getAggregationPeriod().toString());
-                dataNode.put("manipulationMode", dataPointNode.getManipulationMode().toString());
-                dataNode.put("absolute", dataPointNode.isAbsolute());
-
-                if (dataPointNode.getUnit() != null) {
-                    dataNode.put("unit", dataPointNode.getUnit());
-                }
-
-                if (dataPointNode.getCleanObjectID() != null) {
-                    dataNode.put("cleanObjectID", dataPointNode.getCleanObjectID());
-                }
-
-                dataNode.put("color", dataPointNode.getColor().toString());
-                dataNode.put("axis", dataPointNode.getAxis().toString());
-                dataNode.put("decimalDigits", dataPointNode.getDecimalDigits());
-                dataNode.put("bubbleType", dataPointNode.getBubbleType().toString());
-
-                if (dataPointNode.getCustomCSS() != null) {
-                    dataNode.put("customCSS", dataPointNode.getCustomCSS());
-                }
-
-                dataArrayNode.add(dataNode);
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        });
-        ObjectNode dataHandlerNode = JsonNodeFactory.instance.objectNode();
-        dataHandlerNode.set("data", dataArrayNode);
-        dataHandlerNode.set("type", JsonNodeFactory.instance.textNode(TYPE));
-        if (this.forcedInterval) {
-            dataHandlerNode.put("forcedInterval", this.forcedPeriod);
-        }
-
-        return dataHandlerNode;
-
+        return analysisHandler.toJsonNode(dataModel);
     }
 
     public Map<String, JEVisAttribute> getAttributeMap() {
         return this.attributeMap;
     }
 
-    public List<ChartDataRow> getDataModel() {
+    public List<ChartDataRow> getChartDataRows() {
         return this.chartDataRows;
-    }
-
-    public DataModelNode getDateNode() {
-        return this.dataModelNode;
     }
 
     public void addEventListener(SampleHandlerEventListener listener) {
@@ -520,8 +396,13 @@ public class DataModelDataHandler {
         }
     }
 
-    public void update() {
+    public void update(Interval interval) {
         logger.debug("Update Samples: {}", this.durationProperty.getValue());
+
+        setData(dataModel);
+
+        setInterval(interval);
+
         this.chartDataRows.forEach(chartDataModel -> {
 
             DateTime start = getDuration().getStart();
@@ -543,8 +424,17 @@ public class DataModelDataHandler {
                 }
             }
 
+            if (getTimeFrameFactory() != null && getTimeFrameFactory().getID().equals(PeriodCode.LASTVALUE.toString())) {
+                start = chartDataModel.getAttribute().getTimestampOfLastSample();
+                end = chartDataModel.getAttribute().getTimestampOfLastSample();
+            } else if (getTimeFrameFactory() != null && getTimeFrameFactory().getID().equals(PeriodCode.PALL.toString())) {
+                start = chartDataModel.getAttribute().getTimestampOfFirstSample();
+                end = chartDataModel.getAttribute().getTimestampOfLastSample();
+            }
+
             chartDataModel.setSelectedStart(start);
             chartDataModel.setSelectedEnd(end);
+
             List<JEVisSample> samples = chartDataModel.getSamples();
 
             if (forcedZeroInterval != null) {
@@ -556,6 +446,7 @@ public class DataModelDataHandler {
         });
 
         this.lastUpdate.setValue(new DateTime());
+
         notifyListeners(new SampleHandlerEvent(this, SampleHandlerEvent.TYPE.UPDATE));
     }
 
@@ -576,185 +467,48 @@ public class DataModelDataHandler {
     }
 
     public String getForcedPeriod() {
-        return forcedPeriod;
+        return dataModel.getForcedInterval();
     }
 
     public void setForcedPeriod(String forcedPeriod) {
-        this.forcedPeriod = forcedPeriod;
+        this.dataModel.setForcedInterval(forcedPeriod);
     }
 
     public void setForcedPeriod(TimeFrame forcedPeriod) {
-        this.forcedPeriod = forcedPeriod.getID();
+        this.dataModel.setForcedInterval(forcedPeriod.getID());
         setForcedInterval(true);
     }
 
-    public void setData(List<DataPointNode> data) {
-        this.dataModelNode.setData(data);
+    public void setData(DataModel dataModel) {
         this.chartDataRows.clear();
         this.attributeMap.clear();
+        this.initialAggregation.clear();
 
-        for (DataPointNode dataPointNode : this.dataModelNode.getData()) {
-            try {
-                JEVisObject object = this.jeVisDataSource.getObject(dataPointNode.getObjectID());
-                if (dataPointNode.getCleanObjectID() != null && dataPointNode.getCleanObjectID() > 0) {
-                    object = this.jeVisDataSource.getObject(dataPointNode.getCleanObjectID());
-                }
+        for (ChartModel chartModel : dataModel.getChartModels()) {
+            for (ChartData chartData : chartModel.getChartData()) {
+                try {
+                    ChartDataRow chartDataRow = new ChartDataRow(jeVisDataSource, chartData);
+                    initialAggregation.add(chartData.getAggregationPeriod());
 
-                if (object != null) {
-                    JEVisAttribute jeVisAttribute = object.getAttribute(dataPointNode.getAttribute());
-                    if (jeVisAttribute != null) {
-                        ChartDataRow chartDataRow = new ChartDataRow(object.getDataSource());
+                    this.chartDataRows.add(chartDataRow);
+                    this.attributeMap.put(generateValueKey(chartDataRow.getAttribute()), chartDataRow.getAttribute());
 
-                        /** add fake start date so the model does not ty to load the last 7 days **/
-                        chartDataRow.setSelectedStart(new DateTime(1990, 1, 1, 1, 1, 1));
-                        chartDataRow.setSelectedEnd(new DateTime(1990, 1, 1, 1, 1, 2));
-                        chartDataRow.setAbsolute(dataPointNode.isAbsolute());
-
-                        chartDataRow.setId(jeVisAttribute.getObject().getID());
-                        chartDataRow.setObjectName(jeVisAttribute.getObject());
-                        chartDataRow.setAttributeString(dataPointNode.getAttribute());
-                        chartDataRow.setAttribute(jeVisAttribute);
-
-                        if (dataPointNode.getManipulationMode() != null) {
-                            chartDataRow.setManipulationMode(dataPointNode.getManipulationMode());
-                            //Test
-                        }
-
-                        if (dataPointNode.getAggregationPeriod() != null) {
-                            chartDataRow.setAggregationPeriod(dataPointNode.getAggregationPeriod());
-                        }
-                        initialAggregation.add(dataPointNode.getAggregationPeriod());
-                        chartDataRow.setAxis(dataPointNode.getAxis());
-
-                        if (dataPointNode.getColor() != null) {
-                            chartDataRow.setColor(dataPointNode.getColor());
-                        } else {
-                            chartDataRow.setColor(Color.LIGHTBLUE);
-                        }
-
-                        if (dataPointNode.getChartType() != null) {
-                            chartDataRow.setChartType(dataPointNode.getChartType());
-                        } else {
-                            chartDataRow.setChartType(ChartType.LINE);
-                        }
-
-                        chartDataRow.setName(dataPointNode.getName());
-
-                        if (dataPointNode.getUnit() != null) {
-                            chartDataRow.setUnit(dataPointNode.getUnit());
-                        } else {
-                            chartDataRow.setUnit(chartDataRow.getAttribute().getDisplayUnit());
-                        }
-
-                        this.chartDataRows.add(chartDataRow);
-                        this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
-
-                        chartDataRow.setCalculation(dataPointNode.isEnpi());
-
-                        if (autoAggregation) {
-                            chartDataRow.setAbsolute(true);
-                        }
-
-                        chartDataRow.setBubbleType(dataPointNode.getBubbleType());
-                        chartDataRow.setDecimalDigits(dataPointNode.getDecimalDigits());
-
-                        if (dataPointNode.getCustomCSS() != null) {
-                            chartDataRow.setCustomCSS(dataPointNode.getCustomCSS());
-                        }
-
-
-                    } else {
-                        logger.error("Attribute does not exist: {}", dataPointNode.getAttribute());
+                    if (autoAggregation) {
+                        chartDataRow.setAbsolute(true);
                     }
-
-
-                } else {
-                    logger.error("Object not found: {}", dataPointNode.getObjectID());
+                } catch (Exception e) {
+                    logger.error(e);
                 }
-            } catch (Exception ex) {
-//                logger.error("Error '{}' in line {}: ", ex.getMessage(), ex.getStackTrace()[0].getLineNumber(), ex.getStackTrace()[0]);
-                ex.printStackTrace();
             }
-
         }
     }
 
-    public ChartModel getChartModel() {
+
+    public ChartModel createChartModelFromOldDataModel(DataModelNode dataModelNode) {
+
         ChartModel chartModel = new ChartModel();
 
-        chartModel.setChartId(0);
-        chartModel.setFilterEnabled(false);
-        for (DataPointNode dataPointNode : this.dataModelNode.getData()) {
-            ChartData chartData = new ChartData();
-            chartData.setName(dataPointNode.getName());
-
-            if (dataPointNode.getCleanObjectID() != null) {
-                chartData.setId(dataPointNode.getCleanObjectID());
-            } else {
-                chartData.setId(dataPointNode.getObjectID());
-            }
-            try {
-                chartData.setObjectName(jeVisDataSource.getObject(chartData.getId()));
-            } catch (Exception ignored) {
-            }
-
-            chartData.setAttributeString(dataPointNode.getAttribute());
-
-            if (dataPointNode.getUnit() != null) {
-                chartData.setUnit(dataPointNode.getUnit());
-            } else {
-                try {
-                    chartData.setUnit(jeVisDataSource.getObject(chartData.getId()).getAttribute(chartData.getAttributeString()).getDisplayUnit());
-                } catch (Exception ignored) {
-                }
-            }
-            chartData.setChartType(dataPointNode.getChartType());
-            chartData.setColor(dataPointNode.getColor());
-            chartData.setAggregationPeriod(dataPointNode.getAggregationPeriod());
-            chartData.setManipulationMode(dataPointNode.getManipulationMode());
-            chartData.setAxis(dataPointNode.getAxis());
-            chartData.setDecimalDigits(dataPointNode.getDecimalDigits());
-            chartData.setBubbleType(dataPointNode.getBubbleType());
-            chartData.setCalculation(dataPointNode.isEnpi());
-            chartData.setCss(dataPointNode.getCustomCSS());
-
-            chartModel.getChartData().add(chartData);
-        }
-
-        return chartModel;
-    }
-
-    public void setChartModel(ChartModel chartModel) {
-        List<DataPointNode> dataPointNodes = new ArrayList<>();
-        chartModel.getChartData().forEach(chartData -> {
-            DataPointNode dataPointNode = new DataPointNode();
-            dataPointNode.setChartType(chartData.getChartType());
-            dataPointNode.setAttribute(chartData.getAttributeString());
-            dataPointNode.setColor(chartData.getColor());
-            dataPointNode.setAxis(chartData.getAxis());
-            dataPointNode.setDecimalDigits(chartData.getDecimalDigits());
-            dataPointNode.setAggregationPeriod(chartData.getAggregationPeriod());
-            dataPointNode.setCleanObjectID(chartData.getId());
-            dataPointNode.setCustomCSS(chartData.getCss());
-            dataPointNode.setManipulationMode(chartData.getManipulationMode());
-            dataPointNode.setName(chartData.getName());
-            dataPointNode.setObjectID(chartData.getId());
-            dataPointNode.setUnit(chartData.getUnit().getLabel());
-            dataPointNode.setEnpi(chartData.isCalculation());
-            dataPointNode.setBubbleType(chartData.getBubbleType());
-
-            if (autoAggregation) {
-                dataPointNode.setAbsolute(true);
-            }
-
-            dataPointNodes.add(dataPointNode);
-        });
-
-        this.dataModelNode.setData(dataPointNodes);
-        this.chartDataRows.clear();
-        this.attributeMap.clear();
-
-        for (DataPointNode dataPointNode : this.dataModelNode.getData()) {
+        for (DataPointNode dataPointNode : dataModelNode.getData()) {
             try {
                 JEVisObject object = this.jeVisDataSource.getObject(dataPointNode.getObjectID());
                 if (dataPointNode.getCleanObjectID() != null && dataPointNode.getCleanObjectID() > 0) {
@@ -765,65 +519,55 @@ public class DataModelDataHandler {
                 if (object != null) {
                     JEVisAttribute jeVisAttribute = object.getAttribute(dataPointNode.getAttribute());
                     if (jeVisAttribute != null) {
-                        ChartDataRow chartDataRow = new ChartDataRow(object.getDataSource());
+                        ChartData chartData = new ChartData();
 
-                        /** add fake start date so the model does not ty to load the last 7 days **/
-                        chartDataRow.setSelectedStart(new DateTime(1990, 1, 1, 1, 1, 1));
-                        chartDataRow.setSelectedEnd(new DateTime(1990, 1, 1, 1, 1, 2));
-                        chartDataRow.setAbsolute(dataPointNode.isAbsolute());
-
-                        chartDataRow.setId(jeVisAttribute.getObject().getID());
-                        chartDataRow.setObjectName(jeVisAttribute.getObject());
-                        chartDataRow.setAttribute(jeVisAttribute);
-                        chartDataRow.setAttributeString(dataPointNode.getAttribute());
+                        chartData.setId(jeVisAttribute.getObject().getID());
+                        chartData.setObjectName(jeVisAttribute.getObject());
+                        chartData.setAttributeString(dataPointNode.getAttribute());
 
                         if (dataPointNode.getManipulationMode() != null) {
-                            chartDataRow.setManipulationMode(dataPointNode.getManipulationMode());
+                            chartData.setManipulationMode(dataPointNode.getManipulationMode());
                         }
                         if (dataPointNode.getManipulationMode() != null) {
-                            chartDataRow.setAggregationPeriod(dataPointNode.getAggregationPeriod());
+                            chartData.setAggregationPeriod(dataPointNode.getAggregationPeriod());
                         }
-                        initialAggregation.add(dataPointNode.getAggregationPeriod());
-                        chartDataRow.setAxis(dataPointNode.getAxis());
+                        chartData.setAxis(dataPointNode.getAxis());
 
                         if (dataPointNode.getColor() != null) {
-                            chartDataRow.setColor(dataPointNode.getColor());
+                            chartData.setColor(dataPointNode.getColor());
                         } else {
-                            chartDataRow.setColor(Color.LIGHTBLUE);
+                            chartData.setColor(Color.LIGHTBLUE);
                         }
 
                         if (dataPointNode.getChartType() != null) {
-                            chartDataRow.setChartType(dataPointNode.getChartType());
+                            chartData.setChartType(dataPointNode.getChartType());
                         } else {
-                            chartDataRow.setChartType(ChartType.LINE);
+                            chartData.setChartType(ChartType.LINE);
                         }
 
-                        chartDataRow.setName(dataPointNode.getName());
+                        chartData.setName(dataPointNode.getName());
 
                         if (dataPointNode.getUnit() != null) {
-                            chartDataRow.setUnit(dataPointNode.getUnit());
+                            chartData.setUnit(dataPointNode.getUnit());
                         } else {
-                            chartDataRow.setUnit(chartDataRow.getAttribute().getDisplayUnit());
+                            chartData.setUnit(jeVisAttribute.getDisplayUnit());
                         }
 
-                        this.chartDataRows.add(chartDataRow);
-                        this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
+                        chartData.setCalculation(dataPointNode.isEnpi());
 
-                        chartDataRow.setCalculation(dataPointNode.isEnpi());
-
-                        if (autoAggregation) {
-                            chartDataRow.setAbsolute(true);
+                        if (chartData.isCalculation()) {
+                            chartData.setCalculationId(ChartTools.getCalculationId(jeVisDataSource, chartData.getId()));
                         }
 
-                        chartDataRow.setDecimalDigits(dataPointNode.getDecimalDigits());
+                        chartData.setDecimalDigits(dataPointNode.getDecimalDigits());
 
                         if (dataPointNode.getCustomCSS() != null) {
-                            chartDataRow.setCustomCSS(dataPointNode.getCustomCSS());
+                            chartData.setCss(dataPointNode.getCustomCSS());
                         }
 
-                        chartDataRow.setBubbleType(dataPointNode.getBubbleType());
+                        chartData.setBubbleType(dataPointNode.getBubbleType());
 
-
+                        chartModel.getChartData().add(chartData);
                     } else {
                         logger.error("Attribute does not exist: {}", dataPointNode.getAttribute());
                     }
@@ -837,9 +581,15 @@ public class DataModelDataHandler {
             }
 
         }
+
+        return chartModel;
     }
 
     public DashboardControl getDashboardControl() {
         return dashboardControl;
+    }
+
+    public DataModel getDataModel() {
+        return dataModel;
     }
 }

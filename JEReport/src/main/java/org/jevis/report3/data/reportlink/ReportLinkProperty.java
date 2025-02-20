@@ -23,18 +23,18 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.attribute.*;
-import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
-import org.jevis.report3.data.report.periodic.PeriodicIntervalCalc;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
+import org.jevis.report3.data.report.intervals.ReportInterval;
 import org.jevis.report3.process.LastSampleGenerator;
 import org.jevis.report3.process.ProcessHelper;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.joda.time.Period;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -47,8 +47,6 @@ public class ReportLinkProperty implements ReportData {
     private final List<JEVisObject> attributePropertyObjects = new ArrayList<>();
     private final List<ReportAttributeProperty> attributeProperties = new ArrayList<>();
     private final List<ReportAttributeProperty> defaultAttributeProperties = new ArrayList<>();
-    private final LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
-    private final LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private String templateVariableName;
     //    private Long jevisID;
     private JEVisObject dataObject;
@@ -57,8 +55,9 @@ public class ReportLinkProperty implements ReportData {
     private JEVisObject linkObject;
 
     private ReportLinkProperty(JEVisObject reportLinkObject) {
-        initialize(reportLinkObject);
         this.workDays = new WorkDays(reportLinkObject);
+
+        initialize(reportLinkObject);
     }
 
     //    private DateTime latestTimestamp;
@@ -162,15 +161,15 @@ public class ReportLinkProperty implements ReportData {
     }
 
     @Override
-    public ConcurrentHashMap<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
-        ConcurrentHashMap<String, Object> templateMap = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, Object> reportLinkMap = getMapFromReportLink(this, property, intervalCalc);
+    public Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
+        Map<String, Object> templateMap = new ConcurrentHashMap<>();
+        Map<String, Object> reportLinkMap = getMapFromReportLink(this, property, intervalCalc);
         templateMap.put(this.getTemplateVariableName(), reportLinkMap);
         return templateMap;
     }
 
-    private ConcurrentHashMap<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
-        ConcurrentHashMap<String, Object> linkMap = new ConcurrentHashMap<>();
+    private Map<String, Object> getMapFromReportLink(ReportLinkProperty linkProperty, ReportProperty property, IntervalCalculator intervalCalc) {
+        Map<String, Object> linkMap = new HashMap<>();
         List<ReportAttributeProperty> attributeProperties = linkProperty.getAttributeProperties();
         attributeProperties.addAll(linkProperty.getDefaultAttributeProperties());
         for (ReportAttributeProperty attributeProperty : attributeProperties) {
@@ -188,8 +187,8 @@ public class ReportLinkProperty implements ReportData {
                         switch (config.getConfigName()) {
                             case Period: {
                                 try {
-                                    PeriodicIntervalCalc periodicIntervalCalc = (PeriodicIntervalCalc) intervalCalc;
-                                    org.jevis.commons.datetime.Period schedule = org.jevis.commons.datetime.Period.valueOf(periodicIntervalCalc.getSchedule());
+                                    IntervalCalculator intervalCalculator = intervalCalc;
+                                    org.jevis.commons.datetime.Period schedule = org.jevis.commons.datetime.Period.valueOf(intervalCalculator.getSchedule());
 
                                     AttributeConfiguration periodConfiguration = attributeProperty.getAttributeConfiguration(AttributeConfigurationFactory.ReportConfigurationName.Period);
                                     JEVisObject dataObject = linkProperty.getDataObject();
@@ -224,7 +223,7 @@ public class ReportLinkProperty implements ReportData {
                                     }
                                     logger.debug("manipulationMode: {}", manipulationMode.toString());
 
-                                    Interval interval = null;
+                                    ReportInterval interval = null;
 
                                     JEVisAttribute periodAttribute = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD);
                                     String modeName = PeriodMode.CURRENT.toString();
@@ -248,12 +247,12 @@ public class ReportLinkProperty implements ReportData {
                                     String overrideSchedule = "NONE";
                                     if (overrideScheduleAttribute.hasSample() || mode == PeriodMode.RELATIVE) {
                                         overrideSchedule = overrideScheduleAttribute.getLatestSample().getValueAsString();
-                                        periodicIntervalCalc = new PeriodicIntervalCalc(new SampleHandler());
-                                        periodicIntervalCalc.buildIntervals(intervalCalc.getReportObject());
+                                        intervalCalculator = new IntervalCalculator(new SampleHandler());
+                                        intervalCalculator.buildIntervals(intervalCalc.getReportObject());
 
                                         if (!overrideSchedule.equals("NONE")) {
-                                            DateTime newStart = periodicIntervalCalc.alignDateToSchedule(overrideSchedule, periodicIntervalCalc.getStart());
-                                            periodicIntervalCalc.buildIntervals(overrideSchedule, newStart, true, schedule);
+                                            DateTime newStart = intervalCalculator.alignDateToSchedule(overrideSchedule, intervalCalculator.getStart());
+                                            intervalCalculator.buildIntervals(overrideSchedule, newStart, true, schedule);
                                         }
                                     }
 
@@ -261,7 +260,7 @@ public class ReportLinkProperty implements ReportData {
                                         case CURRENT:
                                         case LAST:
                                         case ALL:
-                                            interval = periodicIntervalCalc.getInterval(mode.toString().toUpperCase());
+                                            interval = intervalCalculator.getInterval(mode.toString().toUpperCase());
                                             break;
                                         case FIXED:
                                         case FIXED_TO_REPORT_END:
@@ -276,7 +275,7 @@ public class ReportLinkProperty implements ReportData {
                                                 name = PeriodMode.RELATIVE.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
                                             }
 
-                                            interval = periodicIntervalCalc.getInterval(name);
+                                            interval = intervalCalculator.getInterval(name);
                                             break;
                                     }
 
@@ -286,7 +285,7 @@ public class ReportLinkProperty implements ReportData {
                                     if (!isCalculation) {
                                         List<JEVisSample> samples;
                                         if (aggregationPeriod != AggregationPeriod.NONE && mode == PeriodMode.RELATIVE) {
-                                            DateTime newStart = periodicIntervalCalc.alignDateToSchedule(aggregationPeriod.toPeriod().toString(), interval.getStart());
+                                            DateTime newStart = intervalCalculator.alignDateToSchedule(aggregationPeriod.toPeriod().toString(), interval.getStart());
                                             samples = attribute.getSamples(newStart, interval.getEnd(), true, AggregationPeriod.NONE.toString(), manipulationMode.toString(), property.getTimeZone().getID());
                                             QuantityUnits qu = new QuantityUnits();
                                             JEVisUnit unit = attribute.getDisplayUnit();
@@ -306,17 +305,6 @@ public class ReportLinkProperty implements ReportData {
                                             samples.clear();
                                             samples.add(resultSum);
                                         } else {
-                                            if (workDays.isEnabled()) {
-                                                DateTime start = interval.getStart().withHourOfDay(workDays.getWorkdayStart().getHour()).withMinuteOfHour(workDays.getWorkdayStart().getMinute()).withSecondOfMinute(workDays.getWorkdayStart().getSecond());
-                                                DateTime end = interval.getEnd().withHourOfDay(workDays.getWorkdayEnd().getHour()).withMinuteOfHour(workDays.getWorkdayEnd().getMinute()).withSecondOfMinute(workDays.getWorkdayEnd().getSecond());
-
-                                                if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
-                                                    start = start.minusDays(1);
-                                                }
-
-                                                interval = new Interval(start, end);
-                                            }
-
                                             samples = attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString(), property.getTimeZone().getID());
                                         }
 

@@ -219,7 +219,7 @@ public class DashBoardPane extends Pane {
 
         if (!getChildren().contains(dragBox)) {
             //dragBox.setVisible(false);
-            System.out.println("Add dragBox");
+            logger.debug("Add dragBox");
             getChildren().add(dragBox);
         }
     }
@@ -357,26 +357,20 @@ public class DashBoardPane extends Pane {
 
     public void showGrid(boolean show) {
         gridIsVisible = show;
-        Platform.runLater(() -> {
-            if (show) {
-                if (!DashBoardPane.this.getChildren().contains(visibleGrid.get(0))) {
-                    DashBoardPane.this.getChildren().addAll(this.visibleGrid);
-                }
-            } else {
+        if (show) {
+            if (!DashBoardPane.this.getChildren().contains(visibleGrid.get(0))) {
+                Platform.runLater(() -> DashBoardPane.this.getChildren().addAll(this.visibleGrid));
+            }
+
+            if (!DashBoardPane.this.getChildren().contains(dragBox)) {
+                // Platform.runLater(() -> DashBoardPane.this.getChildren().add(dragBox));
+            }
+        } else {
+            Platform.runLater(() -> {
                 DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
-            }
-
-        });
-
-        Platform.runLater(() -> {
-            if (show) {
-                DashBoardPane.this.getChildren().add(dragBox);
-            } else {
                 DashBoardPane.this.getChildren().remove(dragBox);
-            }
-        });
-
-
+            });
+        }
     }
 
     /**

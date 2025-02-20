@@ -80,7 +80,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
             showAlertOverview(false, "");
         });
 
-        if (sampleHandler == null || sampleHandler.getDataModel().isEmpty()) {
+        if (sampleHandler == null || sampleHandler.getChartDataRows().isEmpty()) {
             return;
         } else {
             showProgressIndicator(true);
@@ -101,21 +101,20 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
             if (forceLastValue) {
                 try {
-                    lastSample = sampleHandler.getDataModel().get(0).getAttribute().getLatestSample();
+                    lastSample = sampleHandler.getChartDataRows().get(0).getAttribute().getLatestSample();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             } else {
-                this.sampleHandler.setInterval(interval);
                 this.sampleHandler.setAutoAggregation(true);
-                this.sampleHandler.update();
-                if (!this.sampleHandler.getDataModel().isEmpty()) {
-                    ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
+                this.sampleHandler.update(interval);
+
+                if (!this.sampleHandler.getChartDataRows().isEmpty()) {
+                    ChartDataRow dataModel = this.sampleHandler.getChartDataRows().get(0);
                     dataModel.setCustomWorkDay(customWorkday);
                     List<JEVisSample> results = dataModel.getSamples();
                     lastSample = results.get(results.size() - 1);
                 }
-
             }
 
             if (lastSample != null) {
@@ -128,7 +127,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
                         this.labelValue.setText((this.nf.format(displayedSample.get())) + " " + unit);
                         labelTimeStamp.setText(fmt.print(lastSample.getTimestamp()));
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        logger.error(ex);
                     }
                 });
             } else {
@@ -148,19 +147,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
             });
         }
 
-//        showProgressIndicator(false);
-
-        Platform.runLater(() -> {
-            showProgressIndicator(false);
-        });
-
-/**
- Platform.runLater(() -> {
- //testing
- labelTimeStamp.setText("2020-02-28 16:30");
- labelValue.setText("6531,98 kWh");
- });
- **/
+        Platform.runLater(() -> showProgressIndicator(false));
     }
 
 
@@ -240,8 +227,8 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
                 labelTimeStamp.setFont(new Font(labelValue.getFont().getSize() * 0.7));
 
-                if (sampleHandler != null && sampleHandler.getDataModel() != null && !sampleHandler.getDataModel().isEmpty()) {
-                    enterDataDialog.setTarget(false, sampleHandler.getDataModel().get(0).getAttribute());
+                if (sampleHandler != null && sampleHandler.getDataModel() != null && !sampleHandler.getChartDataRows().isEmpty()) {
+                    enterDataDialog.setTarget(false, sampleHandler.getChartDataRows().get(0).getAttribute());
                     enterDataDialog.setShowValuePrompt(true);
                 }
 

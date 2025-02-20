@@ -27,7 +27,7 @@ public class ChartTools {
             object = ds.getObject(objectId);
             object = DataMethods.getFirstParentalDataObject(object);
         } catch (Exception e) {
-            logger.error("Could not finde calculation for object {}", objectId);
+            logger.error("Could not find calculation for object {}", objectId);
         }
 
         return isObjectCalculated(object);

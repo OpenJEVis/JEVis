@@ -55,7 +55,7 @@ public class LegalCatasdrePlugin implements Plugin {
         if (isInit) return;
         isInit = true;
 
-        legalCadastreController.loadActionView();
+        legalCadastreController.loadIndexOfLegalProvisions();
         legalCadastreController.loadLegalPlans();
 
     }

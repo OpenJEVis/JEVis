@@ -15,6 +15,7 @@ public class Channel {
     private String _path;
     private DateTime _lastReadout;
     private JEVisObject channelObject;
+    private DateTime nextReadout;
 
     public String getPath() {
         return _path;
@@ -38,5 +39,13 @@ public class Channel {
 
     public void setChannelObject(JEVisObject channelObject) {
         this.channelObject = channelObject;
+    }
+
+    public DateTime getNextReadout() {
+        return nextReadout;
+    }
+
+    public void setNextReadout(DateTime nextReadout) {
+        this.nextReadout = nextReadout;
     }
 }

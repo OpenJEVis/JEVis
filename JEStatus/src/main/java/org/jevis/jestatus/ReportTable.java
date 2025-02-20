@@ -7,10 +7,8 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.report3.data.report.IntervalCalculator;
-import org.jevis.report3.data.report.Precondition;
-import org.jevis.report3.data.report.periodic.PeriodPrecondition;
-import org.jevis.report3.data.report.periodic.PeriodicIntervalCalc;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
+import org.jevis.report3.data.report.intervals.Precondition;
 import org.jevis.report3.data.reportlink.ReportData;
 import org.jevis.report3.data.reportlink.ReportLinkFactory;
 import org.joda.time.DateTime;
@@ -74,8 +72,8 @@ public class ReportTable extends AlarmTable {
                 reportStatusLine.setBuildingName(getParentName(report, getBuildingClass()));
                 reportStatusLine.setLastTimeStamp(sampleHandler.getLastSample(report, "Start Record", new DateTime()));
 
-                final IntervalCalculator intervalCalculator = new PeriodicIntervalCalc(sampleHandler);
-                final Precondition precondition = new PeriodPrecondition(sampleHandler);
+                final IntervalCalculator intervalCalculator = new IntervalCalculator(sampleHandler);
+                final Precondition precondition = new Precondition(sampleHandler);
                 final ReportLinkFactory reportLinkFactory = new ReportLinkFactory();
 
                 intervalCalculator.buildIntervals(report);

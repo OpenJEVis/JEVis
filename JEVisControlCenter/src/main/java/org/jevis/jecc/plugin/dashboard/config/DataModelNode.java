@@ -44,4 +44,5 @@ public class DataModelNode {
         this.chartType = chartType;
     }
 
+
 }

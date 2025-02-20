@@ -21,6 +21,8 @@ import org.jevis.jecc.application.Chart.data.ChartDataRow;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
 import org.jevis.jecc.plugin.dashboard.config2.*;
 import org.jevis.jecc.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
+import org.jevis.jecc.plugin.dashboard.datahandler.SampleHandlerEvent;
 import org.jevis.jecc.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -36,13 +38,12 @@ public class TimeFrameWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(TimeFrameWidget.class);
     public static String WIDGET_ID = "Time Frame";
     public static String DISPLAY_NAME = I18n.getInstance().getString("plugin.dashboard.widget.timeframe");
-    private final Label label = new Label();
-
-    private DataModelDataHandler sampleHandler;
     public static String TIME_FRAME_DESIGN_NODE_NAME = "Time Frame";
+    private final Label label = new Label();
     private final AnchorPane anchorPane = new AnchorPane();
-
+    private DataModelDataHandler sampleHandler;
     private TimeFramePojo timeFramePojo;
+
     private Tab timeFrameTabe;
 
     public TimeFrameWidget(DashboardControl control, WidgetPojo config) {
@@ -63,16 +64,19 @@ public class TimeFrameWidget extends Widget {
 
     @Override
     public void updateData(Interval interval) {
-        System.out.println(interval);
+        logger.debug(interval);
+
+        this.timeFramePojo.addWidgets();
+
+        if (this.timeFramePojo.getSelectedWidget().isPresent()) {
+            this.timeFramePojo.getSelectedWidget().get().getDataHandler().removeEventListener(this::valueChanged);
+        }
 
         this.sampleHandler.setAutoAggregation(true);
-        this.sampleHandler.setInterval(interval);
-//            setIntervalForLastValue(interval);
-        this.sampleHandler.update();
+        this.sampleHandler.update(interval);
 
-
-        if (sampleHandler.getDataModel().size() != 0) {
-            sampleHandler.getDataModel().get(0).setCustomWorkDay(true);
+        if (!sampleHandler.getChartDataRows().isEmpty()) {
+            sampleHandler.getChartDataRows().get(0).setCustomWorkDay(true);
             Platform.runLater(() -> {
                 timeFramePojo.getWidgetObjects().forEach(timeFrameWidgetObject -> {
                     timeFrameWidgetObject.setSelected(false);
@@ -82,39 +86,28 @@ public class TimeFrameWidget extends Widget {
                 DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(timeFramePojo.getParser());
                 this.label.setText(createTimeString(dateTimeFormatter, this.getMaxTimeStamps()));
             });
+
             return;
-
         }
 
-
-        try {
-            System.out.println(this.sampleHandler.getMaxTimeStamps());
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Platform.runLater(() -> {
-            if (!this.timeFramePojo.getSelectedWidget().isPresent()) {
-            } else {
-                try {
-                    logger.debug(this.timeFramePojo.getSelectedWidget().get().getCurrentInterval(control.getInterval()));
-                    setLabelText();
-                } catch (Exception e) {
-                    logger.error(e);
-                }
+        if (this.timeFramePojo.getSelectedWidget().isPresent()) {
+            try {
+                Platform.runLater(this::setLabelText);
+            } catch (Exception e) {
+                logger.error(e);
             }
+        }
 
-        });
-
-
+        if (this.timeFramePojo.getSelectedWidget().isPresent()) {
+            this.timeFramePojo.getSelectedWidget().get().getDataHandler().addEventListener(this::valueChanged);
+        }
     }
 
     private void setLabelText() {
-        if (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().isPresent()) {
+        if (this.timeFramePojo.getTimeFrameWidgetObject().isPresent()) {
 
-            if (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().get().getCountOfSamples()) {
-                Platform.runLater(() -> this.label.setText(getSmapleCount()));
+            if (this.timeFramePojo.getTimeFrameWidgetObject().get().getCountOfSamples()) {
+                Platform.runLater(() -> this.label.setText(getSampleCount()));
 
             } else {
                 Platform.runLater(() -> this.label.setText(convertIntervalToString(getStart(), getEnd())));
@@ -137,17 +130,17 @@ public class TimeFrameWidget extends Widget {
 
         DateTime dateTime = new DateTime();
         try {
-            switch (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().orElseThrow(RuntimeException::new).getEndObjectProperty()) {
+            switch (this.timeFramePojo.getTimeFrameWidgetObject().orElseThrow(RuntimeException::new).getEndObjectProperty()) {
                 case NONE:
                     dateTime = null;
                     break;
                 case LAST_TS:
-                    Widget selcted = this.timeFramePojo.getSelectedWidget().orElseThrow(RuntimeException::new);
-                    dateTime = !selcted.sampleHandler.getMaxTimeStamps().isEmpty() ? selcted.sampleHandler.getMaxTimeStamps().get(0) : null;
+                    DataModelWidget dataModelWidget = this.timeFramePojo.getSelectedWidget().orElseThrow(RuntimeException::new);
+                    dateTime = !dataModelWidget.getDataHandler().getMaxTimeStamps().isEmpty() ? dataModelWidget.getDataHandler().getMaxTimeStamps().get(0) : null;
                     break;
                 case PERIODE_UNTIL:
                     dateTime = this.timeFramePojo.getSelectedWidget().orElseThrow(RuntimeException::new)
-                            .getCurrentInterval(control.getInterval()).getEnd();
+                            .getDataHandler().getDuration().getEnd();
                     break;
 
             }
@@ -167,12 +160,12 @@ public class TimeFrameWidget extends Widget {
     private DateTime getStart() {
         DateTime dateTime = new DateTime();
         try {
-            switch (this.timeFramePojo.getSelectedTimeFarmeObjectWidget().orElseThrow(RuntimeException::new).getStartObjectProperty()) {
+            switch (this.timeFramePojo.getTimeFrameWidgetObject().orElseThrow(RuntimeException::new).getStartObjectProperty()) {
                 case NONE:
                     dateTime = null;
                     break;
                 case PERIODE_FROM:
-                    dateTime = this.timeFramePojo.getSelectedWidget().orElseThrow(RuntimeException::new).getCurrentInterval(control.getInterval()).getStart();
+                    dateTime = this.timeFramePojo.getSelectedWidget().orElseThrow(RuntimeException::new).getDataHandler().getDuration().getStart();
                     break;
             }
         } catch (RuntimeException e) {
@@ -208,10 +201,10 @@ public class TimeFrameWidget extends Widget {
         return stringBuilder.toString();
     }
 
-    private String getSmapleCount() {
+    private String getSampleCount() {
         try {
             ChartDataRow dataModel = this.timeFramePojo.getSelectedWidget().
-                    orElseThrow(RuntimeException::new).sampleHandler.getDataModel().get(0);
+                    orElseThrow(RuntimeException::new).getDataHandler().getChartDataRows().get(0);
             return String.valueOf(dataModel.getSamples().size());
 
         } catch (Exception e) {
@@ -240,17 +233,8 @@ public class TimeFrameWidget extends Widget {
                 this.label.setUnderline(this.getConfig().getFontUnderlined());
                 this.label.setPrefWidth(this.config.getSize().getWidth());
                 this.label.setAlignment(this.config.getTitlePosition());
-                System.out.println(this.timeFramePojo.getSelectedWidget());
+                logger.debug(this.timeFramePojo.getSelectedWidget());
                 this.timeFramePojo.getSelectedWidget().orElseThrow(RuntimeException::new);
-
-                if (this.timeFramePojo.getSelectedWidget().isPresent()) {
-                    this.timeFramePojo.getSelectedWidget().get().sampleHandler.addEventListener(event -> {
-                        logger.info("{} fired  Update {}", event, this);
-                        setLabelText();
-                    });
-                }
-
-
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -266,7 +250,7 @@ public class TimeFrameWidget extends Widget {
     @Override
     public List<DateTime> getMaxTimeStamps() {
         List<DateTime> dateTimes = new ArrayList<>();
-        for (ChartDataRow chartDataRow : this.sampleHandler.getDataModel()) {
+        for (ChartDataRow chartDataRow : this.sampleHandler.getChartDataRows()) {
             try {
                 JEVisSample samples = chartDataRow.getObject().getAttribute("Value").getLatestSample();
                 dateTimes.add(samples.getTimestamp());
@@ -308,7 +292,7 @@ public class TimeFrameWidget extends Widget {
 
         Tab timeFrameTab = timeFramePojo.getConfigTab();
 
-        if (this.sampleHandler.getDataModel().size() != 0) {
+        if (!this.sampleHandler.getChartDataRows().isEmpty()) {
             timeFramePojo.getTimeFrameTable().setDisable(true);
         }
 
@@ -346,12 +330,17 @@ public class TimeFrameWidget extends Widget {
             dashBoardNode
                     .set(TIME_FRAME_DESIGN_NODE_NAME, timeFramePojo.toJSON());
         }
-        System.out.println(dashBoardNode);
+        logger.debug(dashBoardNode);
         return dashBoardNode;
     }
 
     @Override
     public ImageView getImagePreview() {
         return ControlCenter.getImage("iconfinder_calendar-clock_299096.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+    }
+
+    public void valueChanged(SampleHandlerEvent event) {
+        logger.info("{} fired  Update {}", event, this);
+        setLabelText();
     }
 }

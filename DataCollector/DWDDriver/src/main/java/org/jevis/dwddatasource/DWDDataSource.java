@@ -1,12 +1,14 @@
 package org.jevis.dwddatasource;
 
 import javafx.collections.FXCollections;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileFilter;
 import org.apache.http.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -22,10 +24,7 @@ import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.time.Duration;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -122,7 +121,6 @@ public class DWDDataSource implements DataSource {
 
             } catch (Exception ex) {
                 logger.error(ex);
-                ex.printStackTrace();
             }
         }
     }
@@ -130,7 +128,6 @@ public class DWDDataSource implements DataSource {
     private StationData loadData(Station selectedStation, DateTime firstDate, DateTime lastDate) {
         StationData stationData = new StationData();
         try {
-            List<String> allDataNames = new ArrayList<>();
             StringBuilder idString = new StringBuilder(String.valueOf(selectedStation.getId()));
             for (int i = idString.length(); i < 5; i++) {
                 idString.insert(0, "0");
@@ -169,55 +166,43 @@ public class DWDDataSource implements DataSource {
 
                         ZipEntry entry;
                         while ((entry = zipInputStream.getNextEntry()) != null) {
-                            if (entry.getName().contains("produkt")) {
-                                Scanner sc = new Scanner(zipInputStream);
-                                int lineNo = 0;
-                                List<String> dataNames = new ArrayList<>();
+                            try {
+                                if (entry.getName().contains("produkt")) {
+                                    BufferedReader br = new BufferedReader(new InputStreamReader(zipInputStream), 1024);
+                                    List<String> header = new ArrayList<>();
+                                    String l;
+                                    long lineNo = 0;
+                                    while ((l = br.readLine()) != null) {
+                                        String[] values = l.split(";");
+                                        Map<String, String> columnMap = new HashMap<>();
 
-                                while (sc.hasNextLine()) {
-                                    String[] split = sc.nextLine().split(";");
-
-                                    Map<String, String> columnMap = new HashMap<>();
-
-                                    for (int i = 2; i < split.length; i++) {
                                         if (lineNo == 0) {
-                                            String dataName = split[i].trim();
-                                            dataNames.add(dataName);
-                                            if (!allDataNames.contains(dataName)) {
-                                                allDataNames.add(dataName);
+                                            header.addAll(Arrays.asList(values).subList(2, values.length - 1));
+                                        } else if (lineNo > 0) {
+                                            for (int i = 2; i < values.length - 1; i++) {
+                                                columnMap.put(header.get(i - 2), values[i].trim());
                                             }
-                                        } else {
-                                            columnMap.put(dataNames.get(i - 2), split[i]);
-                                        }
-                                    }
 
-                                    if (lineNo > 0) {
-                                        try {
-                                            DateTimeFormatter dtf = null;
-                                            if (split[1].length() == 12)
-                                                dtf = minuteFormatter;
-                                            else if (split[1].length() == 10)
-                                                dtf = hourFormatter;
-                                            else if (split[1].length() == 8)
-                                                dtf = dayFormatter;
-                                            else if (split[1].length() == 6)
-                                                dtf = monthFormatter;
-                                            else if (split[1].length() == 4)
-                                                dtf = yearFormatter;
+                                            String dt = values[1].trim();
+                                            try {
+                                                DateTimeFormatter dtf = getDateTimeFormatter(dt);
 
-                                            if (dtf != null) {
-                                                DateTime dateTime = dtf.parseDateTime(split[1]);
-                                                if (dateTime.equals(firstDate) || (dateTime.isAfter(firstDate) && dateTime.isBefore(lastDate))) {
-                                                    dataMap.put(dateTime, columnMap);
+                                                if (dtf != null) {
+                                                    DateTime dateTime = dtf.parseDateTime(dt);
+                                                    if (dateTime.equals(firstDate) || (dateTime.isAfter(firstDate) && dateTime.isBefore(lastDate))) {
+                                                        dataMap.put(dateTime, columnMap);
+                                                        logger.debug("Added Datetime {}, with map {}", dt, columnMap);
+                                                    }
                                                 }
+                                            } catch (Exception e) {
+                                                logger.error("{} - Could not create map for line - {}", entry.getName(), l, e);
                                             }
-                                        } catch (Exception e) {
-                                            logger.error("Could not create map for {}", split[1], e);
                                         }
+                                        lineNo++;
                                     }
-                                    lineNo++;
                                 }
-                                break;
+                            } catch (Exception e) {
+                                logger.error(e);
                             }
                         }
                     }
@@ -230,6 +215,21 @@ public class DWDDataSource implements DataSource {
         }
 
         return stationData;
+    }
+
+    private @Nullable DateTimeFormatter getDateTimeFormatter(String dt) {
+        DateTimeFormatter dtf = null;
+        if (dt.length() == 12)
+            dtf = minuteFormatter;
+        else if (dt.length() == 10)
+            dtf = hourFormatter;
+        else if (dt.length() == 8)
+            dtf = dayFormatter;
+        else if (dt.length() == 6)
+            dtf = monthFormatter;
+        else if (dt.length() == 4)
+            dtf = yearFormatter;
+        return dtf;
     }
 
     @Override
@@ -284,6 +284,7 @@ public class DWDDataSource implements DataSource {
             logger.error("No Login possible");
         }
 
+        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         ftpClient.setBufferSize(1024000);
 
         if (connectionTimeout != null) {

@@ -143,6 +143,7 @@ public class TreeSelectionDialog extends Dialog {
         });
 
         filterBox.getSelectionModel().selectFirst();
+        if (!classFilter.isEmpty()) updateFilter(classFilter);
 
         ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -343,7 +344,7 @@ public class TreeSelectionDialog extends Dialog {
             ((FilterableTreeItem) treeView.getRoot()).predicateProperty().bind(Bindings.createObjectBinding(() -> {
                 if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (this.classFilter.isEmpty()))
                     return null;
-                else if ((filterTextField.getText() != null || !filterTextField.getText().isEmpty()) && (this.classFilter.isEmpty())) {
+                else if ((filterTextField.getText() != null && !filterTextField.getText().isEmpty()) && (this.classFilter.isEmpty())) {
                     return TreeItemPredicate.create(jeVisTreeViewItem -> {
                         boolean contains = jeVisTreeViewItem.getObject().getLocalName(I18n.getInstance().getLocale().getLanguage()).toLowerCase(I18n.getInstance().getLocale()).contains(filterTextField.getText().toLowerCase(I18n.getInstance().getLocale()));
 
@@ -356,12 +357,7 @@ public class TreeSelectionDialog extends Dialog {
                 } else if ((filterTextField.getText() == null || filterTextField.getText().isEmpty()) && (!this.classFilter.isEmpty())) {
                     return TreeItemPredicate.create(jeVisTreeViewItem -> {
                         try {
-                            boolean contains = this.classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
-
-                            if (contains) {
-                                this.treeView.select(jeVisTreeViewItem.getObject());
-                            }
-                            return contains;
+                            return this.classFilter.contains(jeVisTreeViewItem.getObject().getJEVisClass());
                         } catch (JEVisException e) {
                             e.printStackTrace();
                         }

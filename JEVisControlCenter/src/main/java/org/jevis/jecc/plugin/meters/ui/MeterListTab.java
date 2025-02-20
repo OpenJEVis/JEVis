@@ -1,6 +1,8 @@
 package org.jevis.jecc.plugin.meters.ui;
 
-
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -10,7 +12,10 @@ import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TableColumn;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -44,11 +49,11 @@ public class MeterListTab extends Tab {
     private final JEVisDataSource ds;
     private final ObservableList<SummeryData> summeryData = FXCollections.observableArrayList();
     private final SummeryTable summeryTable;
-    private final ComboBox<Integer> yearComboBox;
+    private final JFXComboBox<Integer> yearComboBox;
     JEVisTypeWrapper typeWrapper;
     JEVisTypeWrapper locationWrapper;
     JEVisTypeWrapper verificationDateWrapper;
-    ToggleButton jfxToggleButton = new ToggleButton();
+    JFXToggleButton jfxToggleButton = new JFXToggleButton();
     private MeterTable meterTable;
     private List<String> type;
     private List<JEVisClass> jeVisClasses;
@@ -106,7 +111,8 @@ public class MeterListTab extends Tab {
         gridPane.addColumn(5, new Region(), buildTypeFilterButton(meterTable, I18n.getInstance().getString("plugin.meters.location"), meterTable::setLocation, locationWrapper));
         gridPane.addColumn(6, new Label(I18n.getInstance().getString("plugin.meters.overdue")), jfxToggleButton);
 
-        yearComboBox = new ComboBox<>(getYearList());
+        yearComboBox = new JFXComboBox<>(getYearList());
+
 
         gridPane.addColumn(7, new Region(), yearComboBox);
 
@@ -213,8 +219,8 @@ public class MeterListTab extends Tab {
         }).distinct().sorted(String::compareTo).collect(Collectors.toList());
     }
 
-    private TextField buildSearch(MeterTable meterTable) {
-        TextField textField = new TextField();
+    private JFXTextField buildSearch(MeterTable meterTable) {
+        JFXTextField textField = new JFXTextField();
         textField.textProperty().addListener((observableValue, s, t1) -> {
             meterTable.setContainsTextFilter(t1);
             meterTable.filter();
@@ -230,7 +236,7 @@ public class MeterListTab extends Tab {
     private TagButton buildClassFilterButton(MeterTable meterTable) {
 
 
-        List<String> clasNAmes = plan.getMeterDataList().stream().map(meterData -> {
+        List<String> classNames = plan.getMeterDataList().stream().map(meterData -> {
             try {
                 return meterData.getJeVisClass().getName();
 
@@ -238,17 +244,23 @@ public class MeterListTab extends Tab {
                 throw new RuntimeException(e);
             }
         }).distinct().collect(Collectors.toList());
-        ObservableList<String> observableList = FXCollections.observableArrayList(clasNAmes);
-        TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), observableList, observableList);
+
+        ObservableList<String> translatedClassNames = FXCollections.observableArrayList();
+        for (String s : classNames) {
+            String className = I18nWS.getInstance().getClassName(s);
+            translatedClassNames.add(className);
+        }
+
+        TagButton mediumButton = new TagButton(I18n.getInstance().getString("plugin.nonconformities.delete.nonconformity.medium"), translatedClassNames, translatedClassNames);
 
         mediumButton.getSelectedTags().addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
                 logger.debug("List Changed: {}", c);
-                while (c.next()) {
-                    meterTable.setMedium((ObservableList<String>) c.getList());
-                    meterTable.filter();
-                }
+
+                meterTable.setMedium((ObservableList<String>) c.getList());
+
+                meterTable.filter();
             }
         });
 

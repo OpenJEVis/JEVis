@@ -56,8 +56,8 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     public static String GAUGE_DESIGN_NODE_NAME = "gaugeDesign";
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
-    private GaugePojo gaugeSettings;
     private eu.hansolo.medusa.Gauge gauge;
+    private GaugePojo gaugeSettings;
     private Boolean customWorkday = true;
 
     public GaugeWidget(DashboardControl control, WidgetPojo config) {
@@ -82,9 +82,8 @@ public class GaugeWidget extends Widget implements DataModelWidget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
-        Platform.runLater(() -> {
-            showAlertOverview(false, "");
-        });
+
+        showAlertOverview(false, "");
 
         if (sampleHandler == null) {
             return;
@@ -93,45 +92,44 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         }
 
 
-        Platform.runLater(() -> {
+        String widgetUUID = "-1";
+        AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
+        widgetUUID = getConfig().getUuid() + "";
 
-            String widgetUUID = "-1";
-            AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
-            widgetUUID = getConfig().getUuid() + "";
+        this.sampleHandler.setAutoAggregation(true);
+        this.sampleHandler.update(interval);
 
-            this.sampleHandler.setAutoAggregation(true);
+        if (!this.sampleHandler.getChartDataRows().isEmpty()) {
 
-            this.sampleHandler.setInterval(interval);
-            this.sampleHandler.update();
-            if (!this.sampleHandler.getDataModel().isEmpty()) {
+            ChartDataRow dataModel = this.sampleHandler.getChartDataRows().get(0);
+            dataModel.setCustomWorkDay(customWorkday);
+            List<JEVisSample> results;
 
-                ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
-                dataModel.setCustomWorkDay(customWorkday);
-                List<JEVisSample> results;
+            String unit = dataModel.getUnitLabel();
+            displayedUnit.setValue(unit);
 
-                String unit = dataModel.getUnitLabel();
-                displayedUnit.setValue(unit);
+            results = dataModel.getSamples();
+            if (!results.isEmpty()) {
 
-                results = dataModel.getSamples();
-                if (!results.isEmpty()) {
-
-
-                    total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
-                    if (gaugeSettings.isInPercent()) {
-                        gauge.setValue(Helper.convertToPercent(total.get(), gaugeSettings.getMaximum(), gaugeSettings.getMinimum(), this.config.getDecimals()));
-
-                    } else {
-                        gauge.setValue(total.get());
-
-                    }
+                try {
+                    total.set(results.get(0).getValueAsDouble());
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+                if (gaugeSettings.isInPercent()) {
+                    Platform.runLater(() -> gauge.setValue(Helper.convertToPercent(total.get(), gaugeSettings.getMaximum(), gaugeSettings.getMinimum(), this.config.getDecimals())));
 
                 } else {
-                    gauge.setValue(0);
-                    showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
+                    Platform.runLater(() -> gauge.setValue(total.get()));
+
                 }
 
+            } else {
+                gauge.setValue(0);
+                showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
             }
-        });
+
+        }
     }
 
     private void updateText() {
@@ -209,17 +207,15 @@ public class GaugeWidget extends Widget implements DataModelWidget {
 
     @Override
     public void updateConfig() {
-        try {
-            logger.debug("UpdateConfig");
-            Platform.runLater(() -> {
+        logger.debug("UpdateConfig");
+        Platform.runLater(() -> {
+            try {
                 updateText();
                 updateSkin();
-            });
-        } catch (Exception e) {
-            logger.error(e);
-        }
-
-
+            } catch (Exception e) {
+                logger.error(e);
+            }
+        });
     }
 
     private void updateSkin() {
@@ -279,9 +275,9 @@ public class GaugeWidget extends Widget implements DataModelWidget {
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
         try {
             this.gaugeSettings = new GaugePojo(this.control, this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
-            if (sampleHandler.getDataModel().size() > 0) {
-                if (sampleHandler.getDataModel().get(0) != null) {
-                    displayedUnit.setValue(sampleHandler.getDataModel().get(0).getUnitLabel());
+            if (!sampleHandler.getChartDataRows().isEmpty()) {
+                if (sampleHandler.getChartDataRows().get(0) != null) {
+                    displayedUnit.setValue(sampleHandler.getChartDataRows().get(0).getUnitLabel());
                 }
             }
         } catch (Exception ex) {
@@ -310,7 +306,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 gp.setHgap(4);
                 gp.setVgap(8);
 
-                for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
+                for (ChartDataRow chartDataRow : sampleHandler.getChartDataRows()) {
                     if (chartDataRow.isCalculation()) {
                         try {
                             alert.setHeaderText(CalcMethods.getTranslatedFormula(chartDataRow.getCalculationObject()));
@@ -391,6 +387,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
             dashBoardNode
                     .set(GAUGE_DESIGN_NODE_NAME, gaugeSettings.toJSON());
         }
+
         logger.debug(dashBoardNode);
 
         return dashBoardNode;

@@ -17,7 +17,7 @@ public class ReportName {
         String prefix = "";
         try {
             WorkDays wd = new WorkDays(reportObject);
-            if (wd.getWorkdayEnd(startDate).isBefore(wd.getWorkdayStart(startDate))) {
+            if (wd.getWorkdayEnd().isBefore(wd.getWorkdayStart())) {
                 startDate = startDate.plusDays(1);
             }
 
@@ -33,18 +33,18 @@ public class ReportName {
                         case MINUTELY:
                         case QUARTER_HOURLY:
                         case HOURLY:
-                            prefix = startDate.toString(DateTimeFormat.forPattern("yyyyMMdd_HHmm"));
+                            prefix = startDate.toString(DateTimeFormat.forPattern("yyyyMMdd_HHmm").withZone(wd.getDateTimeZone()));
                             break;
                         case DAILY:
                         case WEEKLY:
-                            prefix = startDate.toString(DateTimeFormat.forPattern("yyyyMMdd"));
+                            prefix = startDate.toString(DateTimeFormat.forPattern("yyyyMMdd").withZone(wd.getDateTimeZone()));
                             break;
                         case MONTHLY:
                         case QUARTERLY:
-                            prefix = startDate.toString(DateTimeFormat.forPattern("yyyyMM"));
+                            prefix = startDate.toString(DateTimeFormat.forPattern("yyyyMM").withZone(wd.getDateTimeZone()));
                             break;
                         case YEARLY:
-                            prefix = startDate.toString(DateTimeFormat.forPattern("yyyy"));
+                            prefix = startDate.toString(DateTimeFormat.forPattern("yyyy").withZone(wd.getDateTimeZone()));
                             break;
                         case CUSTOM:
                         case CUSTOM2:

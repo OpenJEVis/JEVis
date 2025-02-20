@@ -3,12 +3,10 @@ package org.jevis.jecc.plugin.dashboard.config2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,42 +14,42 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.Icon;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
+import org.jevis.jecc.plugin.dashboard.datahandler.DataModelWidget;
+import org.jevis.jecc.plugin.dashboard.datahandler.SampleHandlerEventListener;
+import org.jevis.jecc.plugin.dashboard.widget.TimeFrameWidget;
 import org.jevis.jecc.plugin.dashboard.widget.Widget;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class TimeFramePojo {
 
 
     private static final Logger logger = LogManager.getLogger(TimeFramePojo.class);
-
     final DashboardControl dashboardControl;
     private final double iconSize = 20;
-    ObservableList<TimeFrameWidgetObject> widgetObjects = FXCollections.observableArrayList();
-
-
-    int timeFrameWidgetID = -1;
-    private TimeFrameTableView timeFrameTable;
-
     final Region lockIcon = ControlCenter.getSVGImage(Icon.VISIBILITY_ON, this.iconSize, this.iconSize);
     final Region unlockIcon = ControlCenter.getSVGImage(Icon.VISIBILITY_OFF, this.iconSize, this.iconSize);
-    private TextField jfxTextFieldParser;
+    int timeFrameWidgetID = -1;
+    private final List<TimeFrameWidgetObject> widgetObjects = new ArrayList<>();
+    private TimeFrameTableView timeFrameTable;
+    private JFXTextField jfxTextFieldParser;
 
-//    private Integer selectedWidgetId;
+    //    private Integer selectedWidgetId;
 //    private Widget selectedWidget;
+    private String parser = "yyyy.MM.dd HH:mm";
     private String start = "";
     private String end = "";
     private int selectedId = -1;
-
-    private String parser = "yyyy.MM.dd HH:mm";
     private boolean countOfSamples = false;
+
+    public TimeFramePojo(DashboardControl control) {
+        this(control, null);
+    }
 
     public TimeFramePojo(DashboardControl control, JsonNode jsonNode) {
         this.dashboardControl = control;
-        //widgetObjects.addAll(dashboardControl.getWidgetList().stream().map(widget -> new TimeFrameWidgetObject(dashboardControl, widget.getConfig())).collect(Collectors.toList()));
-
 
         if (jsonNode != null) {
             if (jsonNode.has("selectedWidget")) {
@@ -60,48 +58,35 @@ public class TimeFramePojo {
                 end = jsonNode.get("selectedWidget").get("end").asText();
                 countOfSamples = jsonNode.get("selectedWidget").get("isCount").asBoolean(false);
             }
+
             if (jsonNode.has("format")) {
                 parser = jsonNode.get("format").asText("yyyy.MM.dd HH:mm");
             }
-
-
         }
-
     }
 
     public TimeFrameTableView getTimeFrameTable() {
         return timeFrameTable;
     }
 
-    public ObservableList<TimeFrameWidgetObject> getWidgetObjects() {
+    public List<TimeFrameWidgetObject> getWidgetObjects() {
         return widgetObjects;
     }
 
-    public TimeFramePojo(DashboardControl control) {
-        this(control, null);
-    }
-
-    public void setWidgetObjects(ObservableList<TimeFrameWidgetObject> widgetObjects) {
-        this.widgetObjects = widgetObjects;
-    }
-
-    public Optional<TimeFrameWidgetObject> getSelectedTimeFarmeObjectWidget() {
-        Optional<TimeFrameWidgetObject> optionalTimeFrameWidgetObject = widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.isSelected()).findFirst();
-        return optionalTimeFrameWidgetObject;
-    }
-
-    public Optional<Widget> getSelectedWidget() {
-        addWidgets();
+    public Optional<DataModelWidget> getSelectedWidget() {
         try {
-            Optional<Widget> widget = this.dashboardControl.getWidgets().stream()
-                    .filter(widget1 -> widget1.config.getUuid() == getSelectedTimeFarmeObjectWidget().orElseThrow(RuntimeException::new).getConfig().getUuid()).findFirst();
+            Optional<DataModelWidget> widget = Optional.empty();
+            for (Widget widget1 : this.dashboardControl.getWidgets()) {
+                if (widget1.getConfig().getUuid() == selectedId) {
+                    widget = Optional.of((DataModelWidget) widget1);
+                    break;
+                }
+            }
             return widget;
         } catch (Exception e) {
             logger.error(e);
             return Optional.empty();
         }
-
-
     }
 
 
@@ -150,7 +135,7 @@ public class TimeFramePojo {
         gridPane.setPadding(new Insets(8, 5, 8, 5));
 
 
-        jfxTextFieldParser = new TextField(parser);
+        jfxTextFieldParser = new JFXTextField(parser);
         jfxTextFieldParser.setPrefWidth(160d);
 
         gridPane.addRow(0, new Label(I18n.getInstance().getString("plugin.dashboard.timeframe.format")), jfxTextFieldParser);
@@ -167,29 +152,6 @@ public class TimeFramePojo {
         return tab;
     }
 
-    public ObjectNode toJSON() {
-        ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-        dataNode.put("format", parser);
-        logger.debug(dataNode);
-        Optional<TimeFrameWidgetObject> selectedWidget = getSelectedTimeFarmeObjectWidget();
-        if (selectedWidget.isPresent()) {
-            start = selectedWidget.get().getStartObjectProperty().toString();
-            end = selectedWidget.get().getEndObjectProperty().toString();
-            selectedId = selectedWidget.get().getConfig().getUuid();
-            countOfSamples = getSelectedTimeFarmeObjectWidget().get().countOfSamplesProperty().getValue();
-        }
-        ObjectNode dataNode1 = dataNode.putObject("selectedWidget");
-        dataNode1.put("start", start);
-        dataNode1.put("end", end);
-        dataNode1.put("id", selectedId);
-        dataNode1.put("isCount", countOfSamples);
-
-
-
-        return dataNode;
-    }
-
-
     public int getLimitSource() {
         return timeFrameWidgetID;
     }
@@ -202,26 +164,69 @@ public class TimeFramePojo {
         this.timeFrameWidgetID = timeFrameWidgetID;
     }
 
-    private void addWidgets() {
+    public ObjectNode toJSON() {
+        ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
+        dataNode.put("format", parser);
+        logger.debug(dataNode);
+        Optional<TimeFrameWidgetObject> selectedWidget = getTimeFrameWidgetObject();
+        if (selectedWidget.isPresent()) {
+            start = selectedWidget.get().getStartObjectProperty().toString();
+            end = selectedWidget.get().getEndObjectProperty().toString();
+            selectedId = selectedWidget.get().getConfig().getUuid();
+            countOfSamples = selectedWidget.get().countOfSamplesProperty().getValue();
+        }
+        ObjectNode dataNode1 = dataNode.putObject("selectedWidget");
+        dataNode1.put("start", start);
+        dataNode1.put("end", end);
+        dataNode1.put("id", selectedId);
+        dataNode1.put("isCount", countOfSamples);
+
+
+        return dataNode;
+    }
+
+    public void addWidgets() {
 
         try {
-            List<TimeFrameWidgetObject> allWidgets = dashboardControl.getWidgetList().stream().map(widget -> new TimeFrameWidgetObject(dashboardControl, widget.getConfig())).collect(Collectors.toList());
-            widgetObjects.removeAll(widgetObjects.stream().filter(timeFrameWidgetObject -> !allWidgets.contains(timeFrameWidgetObject)).collect(Collectors.toList()));
-            widgetObjects.addAll(allWidgets.stream().filter(timeFrameWidgetObject -> !widgetObjects.contains(timeFrameWidgetObject)).collect(Collectors.toList()));
-            if (widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.isSelected()).count() == 0) {
-                Optional<TimeFrameWidgetObject> optionalTimeFrameWidgetObject = widgetObjects.stream().filter(timeFrameWidgetObject -> timeFrameWidgetObject.getConfig().getUuid() == selectedId).findFirst();
-                TimeFrameWidgetObject selected = optionalTimeFrameWidgetObject.orElseThrow(RuntimeException::new);
-                selected.setSelected(true);
-                selected.setEndObjectProperty(TimeFrameWidgetObject.End.valueOf(end));
-                selected.setStartObjectProperty(TimeFrameWidgetObject.Start.valueOf(start));
-                selected.setCountOfSamples(countOfSamples);
+            widgetObjects.forEach(timeFrameWidgetObject -> {
+                for (SampleHandlerEventListener sampleHandlerEventListener : timeFrameWidgetObject.getWidget().getDataHandler().getEventListener()) {
+                    timeFrameWidgetObject.getWidget().getDataHandler().removeEventListener(sampleHandlerEventListener);
+                }
+            });
+            widgetObjects.clear();
+
+            for (Widget widget : dashboardControl.getWidgetList()) {
+                if (!(widget instanceof TimeFrameWidget) && widget instanceof DataModelWidget) {
+                    DataModelWidget dataModelWidget = (DataModelWidget) widget;
+                    TimeFrameWidgetObject frameWidgetObject = new TimeFrameWidgetObject(dataModelWidget, widget.getConfig(), widget.getImagePreview());
+                    widgetObjects.add(frameWidgetObject);
+                }
+            }
+
+            Optional<TimeFrameWidgetObject> selected = getTimeFrameWidgetObject();
+            if (selected.isPresent()) {
+                selected.get().setSelected(true);
+                selected.get().setEndObjectProperty(TimeFrameWidgetObject.End.valueOf(end));
+                selected.get().setStartObjectProperty(TimeFrameWidgetObject.Start.valueOf(start));
+                selected.get().setCountOfSamples(countOfSamples);
             }
         } catch (Exception e) {
             logger.error(e);
         }
 
 
+    }
 
+    public Optional<TimeFrameWidgetObject> getTimeFrameWidgetObject() {
+        Optional<TimeFrameWidgetObject> optionalTimeFrameWidgetObject = Optional.empty();
+        for (TimeFrameWidgetObject timeFrameWidgetObject : widgetObjects) {
+            if (timeFrameWidgetObject.getConfig().getUuid() == selectedId) {
+                optionalTimeFrameWidgetObject = Optional.of(timeFrameWidgetObject);
+                break;
+            }
+        }
+
+        return optionalTimeFrameWidgetObject;
     }
 
     private class GaugeDesignTab extends Tab implements ConfigTab {

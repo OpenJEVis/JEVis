@@ -15,7 +15,8 @@ import org.jevis.report3.data.attribute.ReportAttributeProperty;
 import org.jevis.report3.data.report.ReportProperty;
 import org.jevis.report3.data.reportlink.ReportLinkProperty;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author broder
@@ -23,9 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LastSampleGenerator {
     private static final Logger logger = LogManager.getLogger(LastSampleGenerator.class);
 
-    public ConcurrentHashMap<String, Object> work(ReportLinkProperty linkData, ReportAttributeProperty attributeData, ReportProperty property) throws JEVisException {
+    public Map<String, Object> work(ReportLinkProperty linkData, ReportAttributeProperty attributeData, ReportProperty property) throws JEVisException {
         JEVisObject dataObject = linkData.getDataObject();
-        ConcurrentHashMap<String, Object> resultMap = new ConcurrentHashMap<>();
+        Map<String, Object> resultMap = new HashMap<>();
 
         JEVisAttribute attr = dataObject.getAttribute(attributeData.getAttributeName());
         JEVisSample latestSample = attr.getLatestSample();

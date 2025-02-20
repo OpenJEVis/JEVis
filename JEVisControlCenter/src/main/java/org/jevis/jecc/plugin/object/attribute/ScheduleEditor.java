@@ -5,7 +5,9 @@
  */
 package org.jevis.jecc.plugin.object.attribute;
 
-
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -18,8 +20,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
-import jfxtras.scene.control.LocalTimePicker;
+import javafx.util.Callback;
+import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -30,6 +32,7 @@ import org.jevis.commons.json.JsonSchedulerRule;
 import org.jevis.jecc.ControlCenter;
 
 import java.time.LocalTime;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,6 +49,8 @@ public class ScheduleEditor implements AttributeEditor {
     public JEVisAttribute _attribute;
     private JsonScheduler inputValue;
     private boolean initialized = false;
+    private final BooleanProperty showMonthsProperty = new SimpleBooleanProperty(this, "showMonts", true);
+    private final BooleanProperty showDaysOfMonthProperty = new SimpleBooleanProperty(this, "showDaysOfMonth", true);
 
     public ScheduleEditor(JEVisAttribute att) {
         _attribute = att;
@@ -75,8 +80,8 @@ public class ScheduleEditor implements AttributeEditor {
         gridPane.setHgap(10);
         gridPane.setVgap(5);
 
-        LocalTimePicker start = buildStartPicker(rule);
-        LocalTimePicker end = buildEndPicker(rule);
+        JFXTimePicker start = buildStartPicker(rule);
+        JFXTimePicker end = buildEndPicker(rule);
 
         List<ToggleButton> buttonListMonths = buildMonthButtons(rule);
         HBox monthButtons = new HBox();
@@ -96,13 +101,17 @@ public class ScheduleEditor implements AttributeEditor {
         Label timeLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.scheduleeditor.time.label"));
 
         int row = 0;
-        gridPane.add(monthLabel, 0, row, 1, 1);
-        gridPane.add(monthButtons, 1, row, 2, 1);
-        row++;
+        if (showMonthsProperty.get()) {
+            gridPane.add(monthLabel, 0, row, 1, 1);
+            gridPane.add(monthButtons, 1, row, 2, 1);
+            row++;
+        }
 
-        gridPane.add(dayOfMonthLabel, 0, row, 1, 1);
-        gridPane.add(dayOfMonthButtons, 1, row, 2, 1);
-        row++;
+        if (showDaysOfMonthProperty.get()) {
+            gridPane.add(dayOfMonthLabel, 0, row, 1, 1);
+            gridPane.add(dayOfMonthButtons, 1, row, 2, 1);
+            row++;
+        }
 
         gridPane.add(weekDayLabel, 0, row, 1, 1);
         gridPane.add(weekDayButtons, 1, row, 2, 1);
@@ -208,10 +217,10 @@ public class ScheduleEditor implements AttributeEditor {
         return oldString;
     }
 
-    private LocalTimePicker buildEndPicker(JsonSchedulerRule rule) {
-        LocalTimePicker end = new LocalTimePicker();
-//        end.set24HourView(true);
-//        end.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
+    private JFXTimePicker buildEndPicker(JsonSchedulerRule rule) {
+        JFXTimePicker end = new JFXTimePicker();
+        end.set24HourView(true);
+        end.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
         LocalTime endTime = null;
         if (rule.getEndTimeHours() != null && rule.getEndTimeMinutes() != null) {
             try {
@@ -220,9 +229,9 @@ public class ScheduleEditor implements AttributeEditor {
                 logger.error("Could not parse end time from json.");
             }
         }
-        if (endTime != null) end.localTimeProperty().setValue(endTime);
+        if (endTime != null) end.valueProperty().setValue(endTime);
 
-        end.localTimeProperty().addListener((observable, oldValue, newValue) -> {
+        end.valueProperty().addListener((observable, oldValue, newValue) -> {
             rule.setEndTimeHours(String.valueOf(newValue.getHour()));
             rule.setEndTimeMinutes(String.valueOf(newValue.getMinute()));
             hasChangedProperty.setValue(true);
@@ -230,10 +239,10 @@ public class ScheduleEditor implements AttributeEditor {
         return end;
     }
 
-    private LocalTimePicker buildStartPicker(JsonSchedulerRule rule) {
-        LocalTimePicker start = new LocalTimePicker();
-//        start.set24HourView(true);
-//        start.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
+    private JFXTimePicker buildStartPicker(JsonSchedulerRule rule) {
+        JFXTimePicker start = new JFXTimePicker();
+        start.set24HourView(true);
+        start.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
         LocalTime startTime = null;
         if (rule.getStartTimeHours() != null && rule.getStartTimeMinutes() != null) {
             try {
@@ -242,9 +251,9 @@ public class ScheduleEditor implements AttributeEditor {
                 logger.error("Could not parse start time from json.");
             }
         }
-        if (startTime != null) start.localTimeProperty().setValue(startTime);
+        if (startTime != null) start.valueProperty().setValue(startTime);
 
-        start.localTimeProperty().addListener((observable, oldValue, newValue) -> {
+        start.valueProperty().addListener((observable, oldValue, newValue) -> {
             rule.setStartTimeHours(String.valueOf(newValue.getHour()));
             rule.setStartTimeMinutes(String.valueOf(newValue.getMinute()));
             hasChangedProperty.setValue(true);
@@ -532,26 +541,34 @@ public class ScheduleEditor implements AttributeEditor {
 
         timeZones.addAll(FXCollections.observableArrayList(org.joda.time.DateTimeZone.getAvailableIDs()));
 
-        ComboBox<String> timeZoneBox = new ComboBox<>(timeZones);
+        JFXComboBox jfxComboBoxTimeZone = new JFXComboBox(timeZones);
 
-        timeZoneBox.getSelectionModel().select(inputValue.getTimezone());
+        jfxComboBoxTimeZone.getSelectionModel().select(inputValue.getTimezone());
 
-        //TODO JFX17
-
-        timeZoneBox.setConverter(new StringConverter<String>() {
+        Callback<ListView<String>, ListCell<String>> cellFactoryTimeZone = new Callback<ListView<String>, ListCell<String>>() {
             @Override
-            public String toString(String object) {
-                return object;
+            public ListCell<String> call(ListView<String> param) {
+                return new ListCell<String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(item);
+                        }
+                    }
+
+                };
             }
 
-            @Override
-            public String fromString(String string) {
-                return timeZoneBox.getItems().get(timeZoneBox.getSelectionModel().getSelectedIndex());
-            }
-        });
+        };
+        jfxComboBoxTimeZone.setCellFactory(cellFactoryTimeZone);
+        jfxComboBoxTimeZone.setButtonCell(cellFactoryTimeZone.call(null));
 
-        timeZoneBox.valueProperty().addListener((observableValue, oldValue, newValue) -> {
-            inputValue.setTimezone(newValue);
+        jfxComboBoxTimeZone.valueProperty().addListener((observableValue, oldValue, newValue) -> {
+            inputValue.setTimezone(newValue.toString());
         });
 
         TabPane tabPane = new TabPane();
@@ -566,9 +583,9 @@ public class ScheduleEditor implements AttributeEditor {
             fillTab(newTab, rule);
         }
 
-        Button ButtonAddRule = new Button();
-        ButtonAddRule.setGraphic(ControlCenter.getImage("list-add.png", 16, 16));
-        ButtonAddRule.setOnAction(event -> {
+        JFXButton jfxButtonAddRule = new JFXButton();
+        jfxButtonAddRule.setGraphic(ControlCenter.getImage("list-add.png", 16, 16));
+        jfxButtonAddRule.setOnAction(event -> {
             JsonSchedulerRule newRule = new JsonSchedulerRule();
             int max = 0;
             for (JsonSchedulerRule jsonSchedulerRule : inputValue.getRules()) {
@@ -590,19 +607,19 @@ public class ScheduleEditor implements AttributeEditor {
             tabPane.getTabs().add(newTab);
         });
 
-        Button ButtonDeleteRule = new Button();
-        ButtonDeleteRule.setGraphic(ControlCenter.getImage("if_trash_(delete)_16x16_10030.gif", 16, 16));
-        ButtonDeleteRule.setOnAction(event -> {
+        JFXButton jfxButtonDeleteRule = new JFXButton();
+        jfxButtonDeleteRule.setGraphic(ControlCenter.getImage("if_trash_(delete)_16x16_10030.gif", 16, 16));
+        jfxButtonDeleteRule.setOnAction(event -> {
             int index = tabPane.getSelectionModel().getSelectedIndex();
             inputValue.getRules().remove(index);
             tabPane.getTabs().remove(index);
         });
 
         HBox addDeleteBox = new HBox();
-        addDeleteBox.getChildren().setAll(ButtonAddRule, ButtonDeleteRule);
+        addDeleteBox.getChildren().setAll(jfxButtonAddRule, jfxButtonDeleteRule);
 
         box.setSpacing(8);
-        box.getChildren().setAll(timeZoneBox, addDeleteBox, tabPane);
+        box.getChildren().setAll(jfxComboBoxTimeZone, addDeleteBox, tabPane);
 
         initialized = true;
     }
@@ -642,5 +659,29 @@ public class ScheduleEditor implements AttributeEditor {
 
     public void setInputValue(JsonScheduler inputValue) {
         this.inputValue = inputValue;
+    }
+
+    public boolean isShowMonthsProperty() {
+        return showMonthsProperty.get();
+    }
+
+    public void setShowMonthsProperty(boolean showMonthsProperty) {
+        this.showMonthsProperty.set(showMonthsProperty);
+    }
+
+    public BooleanProperty showMonthsPropertyProperty() {
+        return showMonthsProperty;
+    }
+
+    public boolean isShowDaysOfMonthProperty() {
+        return showDaysOfMonthProperty.get();
+    }
+
+    public void setShowDaysOfMonthProperty(boolean showDaysOfMonthProperty) {
+        this.showDaysOfMonthProperty.set(showDaysOfMonthProperty);
+    }
+
+    public BooleanProperty showDaysOfMonthPropertyProperty() {
+        return showDaysOfMonthProperty;
     }
 }

@@ -21,6 +21,7 @@ import javafx.stage.*;
 import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 import org.jevis.api.JEVisAttribute;
@@ -156,7 +157,7 @@ public class PDFViewerDialog {
         printButton.setOnAction(event -> {
             PrinterJob printerJob = PrinterJob.getPrinterJob();
             try {
-                PDDocument document = PDDocument.load(file.getBytes());
+                PDDocument document = Loader.loadPDF(file.getBytes());
                 printerJob.setPageable(new PDFPageable(document));
                 if (printerJob.printDialog()) {
                     printerJob.print();

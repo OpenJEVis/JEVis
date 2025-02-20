@@ -61,13 +61,13 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     private final eu.hansolo.medusa.Gauge gauge;
     private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private final StringProperty displayedUnit = new SimpleStringProperty("");
-    private LinearGaugePojo gaugeSettings;
-    private Interval lastInterval = null;
     private final ChangeListener<Number> limitListener = null;
     private final ChangeListener<Number> percentListener = null;
     private final LinearGaugeWidget limitWidget = null;
     private final LinearGaugeWidget percentWidget = null;
     private final String percentText = "";
+    private LinearGaugePojo gaugeSettings;
+    private Interval lastInterval = null;
     private Percent percent;
     private Boolean customWorkday = true;
 
@@ -94,9 +94,8 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Value.updateData: {} {}", this.getConfig().getTitle(), interval);
         lastInterval = interval;
-        Platform.runLater(() -> {
-            showAlertOverview(false, "");
-        });
+
+        showAlertOverview(false, "");
 
         if (sampleHandler == null) {
             return;
@@ -105,50 +104,50 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
         }
 
 
-        Platform.runLater(() -> {
-            String widgetUUID = "-1";
-            AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
-            widgetUUID = getConfig().getUuid() + "";
-            this.sampleHandler.setAutoAggregation(true);
-            this.sampleHandler.setInterval(interval);
-            this.sampleHandler.update();
-            if (!this.sampleHandler.getDataModel().isEmpty()) {
-                ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
-                dataModel.setCustomWorkDay(customWorkday);
-                List<JEVisSample> results;
+        String widgetUUID = "-1";
+        AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
+        widgetUUID = getConfig().getUuid() + "";
+        this.sampleHandler.setAutoAggregation(true);
+        this.sampleHandler.update(interval);
 
-                String unit = dataModel.getUnitLabel();
-                displayedUnit.setValue(unit);
+        if (!this.sampleHandler.getChartDataRows().isEmpty()) {
+            ChartDataRow dataModel = this.sampleHandler.getChartDataRows().get(0);
+            dataModel.setCustomWorkDay(customWorkday);
+            List<JEVisSample> results;
 
-                results = dataModel.getSamples();
-                if (!results.isEmpty()) {
-                    total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
-                    if (gaugeSettings.isInPercent()) {
-                        gauge.setValue(Helper.convertToPercent(total.get(), gaugeSettings.getMaximum(), gaugeSettings.getMinimum(), this.config.getDecimals()));
+            String unit = dataModel.getUnitLabel();
+            displayedUnit.setValue(unit);
 
-                    } else {
-                        gauge.setValue(total.get());
-
-                    }
+            results = dataModel.getSamples();
+            if (!results.isEmpty()) {
+                try {
+                    total.set(results.get(0).getValueAsDouble());
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+                if (gaugeSettings.isInPercent()) {
+                    Platform.runLater(() -> gauge.setValue(Helper.convertToPercent(total.get(), gaugeSettings.getMaximum(), gaugeSettings.getMinimum(), this.config.getDecimals())));
 
                 } else {
-                    gauge.setValue(0);
-                    showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
-                }
+                    Platform.runLater(() -> gauge.setValue(total.get()));
 
+                }
+            } else {
+                Platform.runLater(() -> gauge.setValue(0));
+                showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
             }
-        });
+        }
     }
 
     private void setIntervallForLastValue(Interval interval) {
         if (this.getDataHandler().getTimeFrameFactory() != null) {
             if (!this.getControl().getAllTimeFrames().getAll().contains(this.getDataHandler().getTimeFrameFactory()) && sampleHandler != null) {
                 sampleHandler.durationProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
-                sampleHandler.update();
-                if (this.sampleHandler.getDataModel().get(0).getSamples().size() > 0) {
+                sampleHandler.update(interval);
+                if (!this.sampleHandler.getChartDataRows().get(0).getSamples().isEmpty()) {
                     Interval interval1 = null;
                     try {
-                        interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
+                        interval1 = new Interval(this.sampleHandler.getChartDataRows().get(0).getSamples().get(this.sampleHandler.getChartDataRows().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getChartDataRows().get(0).getSamples().get(this.sampleHandler.getChartDataRows().get(0).getSamples().size() - 1).getTimestamp());
                         sampleHandler.durationProperty().setValue(interval1);
                     } catch (JEVisException e) {
                         throw new RuntimeException(e);
@@ -156,11 +155,11 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                 }
 
 
-            } else {
-                this.sampleHandler.setInterval(interval);
+            } else if (sampleHandler != null) {
+                this.sampleHandler.update(interval);
             }
         } else {
-            this.sampleHandler.setInterval(interval);
+            this.sampleHandler.update(interval);
         }
 
     }
@@ -312,9 +311,9 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
         try {
             this.gaugeSettings = new LinearGaugePojo(this.control, this.config.getConfigNode(GAUGE_DESIGN_NODE_NAME));
-            if (sampleHandler.getDataModel().size() > 0) {
-                if (sampleHandler.getDataModel().get(0) != null) {
-                    displayedUnit.setValue(sampleHandler.getDataModel().get(0).getUnitLabel());
+            if (!sampleHandler.getChartDataRows().isEmpty()) {
+                if (sampleHandler.getChartDataRows().get(0) != null) {
+                    displayedUnit.setValue(sampleHandler.getChartDataRows().get(0).getUnitLabel());
                 }
             }
         } catch (Exception ex) {
@@ -339,7 +338,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                 GridPane gp = new GridPane();
                 gp.setHgap(4);
                 gp.setVgap(8);
-                for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
+                for (ChartDataRow chartDataRow : sampleHandler.getChartDataRows()) {
                     if (chartDataRow.isCalculation()) {
                         try {
                             alert.setHeaderText(CalcMethods.getTranslatedFormula(chartDataRow.getCalculationObject()));

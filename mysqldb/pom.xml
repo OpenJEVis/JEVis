@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.jevis</groupId>
         <artifactId>JEVisCore</artifactId>
-        <version>3.4</version>
+        <version>4.0</version>
     </parent>
     <artifactId>mysqldb</artifactId>
     <version>1.0</version>

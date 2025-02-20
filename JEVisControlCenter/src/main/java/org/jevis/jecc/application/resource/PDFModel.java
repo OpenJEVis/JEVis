@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
@@ -27,7 +28,7 @@ public class PDFModel {
 
     public void setBytes(byte[] bytes) {
         try {
-            document = PDDocument.load(bytes);
+            document = Loader.loadPDF(bytes);
             renderer = new PDFRenderer(document);
         } catch (IOException ex) {
             throw new UncheckedIOException("PDDocument throws IOException bytes=" + bytes, ex);

@@ -11,6 +11,7 @@ public class Icon {
     public static final String SAVE = "/icons/MaterialDesignSVG/outlined/save.svg";
     public static final String PLUS_CIRCLE = "/icons/MaterialDesignSVG/outlined/add_circle_outline.svg";
     public static final String PLUS = "/icons/MaterialDesignSVG/outlined/add.svg";
+    public static final String MINUS = "/icons/MaterialDesignSVG/outlined/remove.svg";
     public static final String MINUS_CIRCLE = "/icons/MaterialDesignSVG/outlined/remove_circle_outline.svg";
     public static final String REFRESH = "/icons/MaterialDesignSVG/outlined/autorenew.svg";
     public static final String COPY = "/icons/MaterialDesignSVG/outlined/content_copy_alt.svg";
@@ -105,6 +106,7 @@ public class Icon {
     public static final String GRAPH = "/icons/MaterialDesignSVG/outlined/monitoring.svg";
     public static final String DASHBOARD = "/icons/MaterialDesignSVG/outlined/dashboard.svg";
     public static final String GAUGE = "/icons/MaterialDesignSVG/outlined/speed.svg";
+    public static final String LOADPROFILE = "/icons/MaterialDesignSVG/outlined/assessment.svg";
 
     public static final String BUILDING = "/icons/MaterialDesignSVG/outlined/home_storage.svg";
 

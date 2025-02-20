@@ -49,14 +49,13 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     private final ShapeWidget percentWidget = null;
     private final String percentText = "";
     private final AnchorPane anchorPane = new AnchorPane();
+    private final double borderWidth = 0;
     private ShapePojo shapeConfig;
     private double blue = 1;
     private double green = 1;
     private double red = 1;
     private Interval lastInterval = null;
     private Boolean customWorkday = true;
-
-    private final double borderWidth = 0;
 
 
     public ShapeWidget(DashboardControl control, WidgetPojo config) {
@@ -109,23 +108,23 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
             this.sampleHandler.setAutoAggregation(true);
 
-            this.sampleHandler.setInterval(interval);
-            setIntervallForLastValue(interval);
-            this.sampleHandler.update();
-            if (!this.sampleHandler.getDataModel().isEmpty()) {
+            setIntervalForLastValue(interval);
+            this.sampleHandler.update(interval);
 
-                ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
+            if (!this.sampleHandler.getChartDataRows().isEmpty()) {
+
+                ChartDataRow dataModel = this.sampleHandler.getChartDataRows().get(0);
                 dataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
 
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
-                    total.set(DataModelDataHandler.getManipulatedData(this.sampleHandler.getDateNode(), results, dataModel));
                     try {
-                        System.out.println(this.sampleHandler.getJeVisDataSource().getObjects().get(0).getName());
-                    } catch (JEVisException e) {
-                        throw new RuntimeException(e);
+                        total.set(results.get(0).getValueAsDouble());
+                    } catch (Exception e) {
+                        logger.error(e);
                     }
+
                     calculateColors(total.get());
 
 
@@ -146,7 +145,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
     }
 
     private double calcColor(double minColor, double maxColor, double valueRange, double value, double diffColor) {
-        System.out.println("value : " + value);
+        logger.debug("value : " + value);
         double newColor;
         round(value, valueRange, 1);
         if (minColor < maxColor) {
@@ -160,9 +159,10 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         } else if (newColor < 0) {
             newColor = 0;
         }
-        System.out.println("return value:" + newColor);
+        logger.debug("return value:" + newColor);
         return newColor;
     }
+
     private double round(double value, double valueRange, double steprange) {
 
         if (steprange == 0) {
@@ -174,6 +174,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
 
 
     }
+
     private void calculateColors(double value) {
 
         double valueRange = (shapeConfig.getMaxValue() - (shapeConfig.getMinValue()));
@@ -188,15 +189,15 @@ public class ShapeWidget extends Widget implements DataModelWidget {
         green = calcColor(shapeConfig.getMinColor().getGreen(), shapeConfig.getMaxColor().getGreen(), valueRange, value - shapeConfig.getMinValue(), diffGreen);
     }
 
-    private void setIntervallForLastValue(Interval interval) {
+    private void setIntervalForLastValue(Interval interval) {
         if (this.getDataHandler().getTimeFrameFactory() != null) {
             if (!this.getControl().getAllTimeFrames().getAll().contains(this.getDataHandler().getTimeFrameFactory()) && sampleHandler != null) {
                 sampleHandler.durationProperty().setValue(this.sampleHandler.getDashboardControl().getInterval());
-                sampleHandler.update();
-                if (this.sampleHandler.getDataModel().get(0).getSamples().size() > 0) {
+                sampleHandler.update(interval);
+                if (!this.sampleHandler.getChartDataRows().get(0).getSamples().isEmpty()) {
                     Interval interval1 = null;
                     try {
-                        interval1 = new Interval(this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getDataModel().get(0).getSamples().get(this.sampleHandler.getDataModel().get(0).getSamples().size() - 1).getTimestamp());
+                        interval1 = new Interval(this.sampleHandler.getChartDataRows().get(0).getSamples().get(this.sampleHandler.getChartDataRows().get(0).getSamples().size() - 1).getTimestamp().minusMinutes(1), this.sampleHandler.getChartDataRows().get(0).getSamples().get(this.sampleHandler.getChartDataRows().get(0).getSamples().size() - 1).getTimestamp());
                         sampleHandler.durationProperty().setValue(interval1);
                     } catch (JEVisException e) {
                         throw new RuntimeException(e);
@@ -204,11 +205,11 @@ public class ShapeWidget extends Widget implements DataModelWidget {
                 }
 
 
-            } else {
-                this.sampleHandler.setInterval(interval);
+            } else if (sampleHandler != null) {
+                this.sampleHandler.update(interval);
             }
         } else {
-            this.sampleHandler.setInterval(interval);
+            this.sampleHandler.update(interval);
         }
 
     }

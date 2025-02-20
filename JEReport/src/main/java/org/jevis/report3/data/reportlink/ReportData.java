@@ -6,18 +6,18 @@
 package org.jevis.report3.data.reportlink;
 
 import org.jevis.api.JEVisObject;
-import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
+import org.jevis.report3.data.report.intervals.IntervalCalculator;
 import org.joda.time.DateTime;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 /**
  * @author broder
  */
 public interface ReportData {
 
-    ConcurrentHashMap<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc);
+    Map<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc);
 
     JEVisObject getDataObject();
 

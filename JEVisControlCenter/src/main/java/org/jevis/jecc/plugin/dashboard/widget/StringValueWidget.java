@@ -127,10 +127,10 @@ public class StringValueWidget extends Widget implements DataModelWidget {
         try {
             widgetUUID = getConfig().getUuid() + "";
             this.sampleHandler.setAutoAggregation(true);
-            this.sampleHandler.setInterval(interval);
-            this.sampleHandler.update();
-            if (!this.sampleHandler.getDataModel().isEmpty()) {
-                ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
+            this.sampleHandler.update(interval);
+
+            if (!this.sampleHandler.getChartDataRows().isEmpty()) {
+                ChartDataRow dataModel = this.sampleHandler.getChartDataRows().get(0);
                 dataModel.setCustomWorkDay(customWorkday);
                 List<JEVisSample> results;
 

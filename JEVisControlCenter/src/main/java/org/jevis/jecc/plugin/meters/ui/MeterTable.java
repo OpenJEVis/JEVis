@@ -1,6 +1,5 @@
 package org.jevis.jecc.plugin.meters.ui;
 
-
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -17,12 +16,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
+import org.jevis.commons.constants.GUIConstants;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jecc.application.Chart.ChartTools;
 import org.jevis.jecc.application.application.I18nWS;
 import org.jevis.jecc.application.table.TableFindScrollbar;
-import org.jevis.jecc.application.type.GUIConstants;
 import org.jevis.jecc.plugin.meters.cells.*;
 import org.jevis.jecc.plugin.meters.data.JEVisTypeWrapper;
 import org.jevis.jecc.plugin.meters.data.MeterData;
@@ -34,6 +33,7 @@ import org.jevis.jecc.plugin.meters.event.PrecisionEventHandler;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
@@ -46,6 +46,17 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
     private static final int MEDIUM_WIDTH = 120;
     private static final int BIG_WIDTH = 200;
     private static final int SMALL_WIDTH = 60;
+    private static Method columnToFitMethod;
+
+    static {
+        //TODO: JFX 17
+//        try {
+//            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
+//            columnToFitMethod.setAccessible(true);
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
+    }
 
     private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.MeterPlugin");
     private final JEVisDataSource ds;
@@ -284,7 +295,7 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
 
                             AtomicBoolean mediumMatch = new AtomicBoolean(false);
                             if (!medium.contains("*")) {
-                                if (medium.contains(meterData.getjEVisClassName())) {
+                                if (medium.contains(I18nWS.getInstance().getClassName(meterData.getjEVisClassName()))) {
                                     mediumMatch.set(true);
                                 }
                                 if (!mediumMatch.get()) return false;

@@ -53,7 +53,7 @@ public class ImportStep implements ProcessStep {
                 VirtualSample sample = currentInt.getResult();
                 DateTime offsetTs = sample.getTimestamp();
 
-                if (!currentInt.getOutputPeriod().equals(Period.ZERO)) {
+                if (!currentInt.getOutputPeriod().equals(Period.ZERO) && periodOffset > 0) {
 
                     offsetTs = PeriodHelper.getNextPeriod(offsetTs, currentInt.getOutputPeriod(), periodOffset, true, resourceManager.getTimeZone());
 

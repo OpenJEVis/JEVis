@@ -1,0 +1,23 @@
+{
+  "name": "Fluid Level Measurement Directory",
+  "description": "The class Channel Directory represents a specific directory for Fluid Level measurement instruments.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Fluid Level Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 0
+    },
+    {
+      "start": "Fluid Level Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Fluid Level Measurement Directory",
+      "end": "Fluid Level Measurement Instrument",
+      "type": 3
+    }
+  ]
+}
+

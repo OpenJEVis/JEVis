@@ -15,6 +15,7 @@ public class SankeyDataRow {
     List<JEVisObject> children = new ArrayList<>();
 
 
+
     public SankeyDataRow(JEVisObject jeVisObject) {
         this.jeVisObject = jeVisObject;
     }
@@ -41,13 +42,9 @@ public class SankeyDataRow {
         }
         children.add(child);
     }
-
     public void setAllChildren(List<SankeyDataRow> children) {
-        System.out.println("test3");
-        System.out.println(children);
         this.children.clear();
         this.children.addAll(children.stream().map(sankeyDataRow -> sankeyDataRow.getJeVisObject()).collect(Collectors.toList()));
-        System.out.println(this.children);
     }
 
 
@@ -55,10 +52,10 @@ public class SankeyDataRow {
     public String toString() {
         try {
             if (jeVisObject.getJEVisClassName().equals(JC.Data.CleanData.name)) {
-                return new String(jeVisObject.getID() + ": " + jeVisObject.getParent().getName() + " / " + jeVisObject.getName());
+                return jeVisObject.getID() + ": " + jeVisObject.getParent().getName() + " / " + jeVisObject.getName();
 
             } else {
-                return new String(jeVisObject.getID() + ": " + jeVisObject.getName());
+                return jeVisObject.getID() + ": " + jeVisObject.getName();
             }
         } catch (JEVisException e) {
             throw new RuntimeException(e);

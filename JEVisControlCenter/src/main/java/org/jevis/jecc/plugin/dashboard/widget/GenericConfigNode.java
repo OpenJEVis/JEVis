@@ -16,8 +16,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jecc.application.Chart.ChartElements.ColorTable;
-import org.jevis.jecc.application.control.ColorPickerAdv;
 import org.jevis.jecc.application.control.JEVColorPicker;
 import org.jevis.jecc.plugin.dashboard.config2.ConfigTab;
 import org.jevis.jecc.plugin.dashboard.controls.FontPostureBox;
@@ -325,6 +323,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
 
                 if (timeFrameBox.isOffValue()) {
                     dataModelDataHandler.setForcedInterval(false);
+                    dataModelDataHandler.setForcedPeriod("");
                 } else {
                     dataModelDataHandler.setForcedPeriod(timeFrame);
                 }

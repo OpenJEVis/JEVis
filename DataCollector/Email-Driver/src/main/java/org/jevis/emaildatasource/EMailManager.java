@@ -86,7 +86,7 @@ public class EMailManager {
             logger.error("EMail folder is not available to read.", ex);
         }
 
-        logger.info("Folder is open: {}", folder.isOpen());
+        logger.debug("Folder is open: {}", folder.isOpen());
 
         try {
             Message[] messages = folder.search(term);
@@ -195,7 +195,7 @@ public class EMailManager {
 
             if (Part.ATTACHMENT.equalsIgnoreCase(disp) || disp == null) {
                 if (StringUtils.containsIgnoreCase(part.getFileName(), filename)) {
-                    logger.info("Attach found: {}", part.getFileName());
+                    logger.debug("Attach found: {}", part.getFileName());
                     final long start = System.currentTimeMillis();
                     input.add(toInputStream(part));//add attach to answerlist
                     final long answerDone = System.currentTimeMillis();
@@ -208,7 +208,7 @@ public class EMailManager {
                     match = m.matches();
 
                     if (match) {
-                        logger.info("Attach found: {}", part.getFileName());
+                        logger.debug("Attach found: {}", part.getFileName());
                         final long start = System.currentTimeMillis();
                         input.add(toInputStream(part));//add attach to answerlist
                         final long answerDone = System.currentTimeMillis();

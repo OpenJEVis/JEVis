@@ -185,23 +185,25 @@ public class NewObjectDialog {
         Label templateLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.template"));
         ComboBox<Template> templateBox = new ComboBox<>();
         templateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-
             Platform.runLater(() -> optionsGrid.getChildren().clear());
             template = newValue;
             int row = 0;
-            for (Map.Entry<String, Node> entry : template.getOptions().entrySet()) {
-                String optionName = entry.getKey();
-                Label nameLabel = new Label(optionName);
+            if (newValue != null) {
+                for (Map.Entry<String, Node> entry : template.getOptions().entrySet()) {
+                    String optionName = entry.getKey();
+                    Label nameLabel = new Label(optionName);
 
-                Node optionNode = entry.getValue();
-                int finalRow = row;
-                Platform.runLater(() -> {
+                    Node optionNode = entry.getValue();
+                    int finalRow = row;
+                    Platform.runLater(() -> {
 
-                    optionsGrid.add(nameLabel, 0, finalRow);
-                    optionsGrid.add(optionNode, 1, finalRow);
-                });
-                row++;
+                        optionsGrid.add(nameLabel, 0, finalRow);
+                        optionsGrid.add(optionNode, 1, finalRow);
+                    });
+                    row++;
+                }
             }
+
             Platform.runLater(() -> dialog.getDialogPane().autosize());
         });
 

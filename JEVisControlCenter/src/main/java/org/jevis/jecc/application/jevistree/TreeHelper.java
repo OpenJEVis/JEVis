@@ -460,8 +460,10 @@ public class TreeHelper {
                         });
 
                         TableView<SelectableObject> tableView = new TableView<>();
+                        tableView.setEditable(true);
 
                         TableColumn<SelectableObject, Boolean> selectionColumn = new TableColumn<>();
+                        selectionColumn.setEditable(true);
                         selectionColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectionColumn));
                         selectionColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
 

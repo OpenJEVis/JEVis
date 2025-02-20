@@ -361,7 +361,9 @@ public class ResourceSample {
                 list = sg.getAggregatedSamples();
             }
 
-            return Response.ok(list).build();
+            return Response
+                    .ok(list)
+                    .build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } catch (Exception jex) {
@@ -384,7 +386,7 @@ public class ResourceSample {
             @PathParam("attribute") String attribute,
             String input) {
 
-        if (input != null && input.length() > 0) {
+        if (input != null && !input.isEmpty()) {
             try {
                 ds = new SQLDataSource(httpHeaders, request, url);
                 logger.debug("Post: {}-{}  input: {}", id, attribute, input);

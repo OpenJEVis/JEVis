@@ -8,6 +8,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jecc.ControlCenter;
 import org.jevis.jecc.TopMenu;
 import org.jevis.jecc.plugin.meters.data.MeterData;
 
@@ -21,25 +22,30 @@ public class MeterForm extends Dialog {
     private final MeterData meterData;
     private final JEVisDataSource ds;
     private final TabPane tabPane = new TabPane();
+    private final ScrollPane scrollPane = new ScrollPane(tabPane);
     List<Tab> tabs;
 
     public MeterForm(MeterData meterData, JEVisDataSource ds, boolean switchMeter) {
         this.meterData = meterData;
         this.ds = ds;
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
 
         Stage stage = (Stage) this.getDialogPane().getScene().getWindow();
         TopMenu.applyActiveTheme(stage.getScene());
         stage.setAlwaysOnTop(false);
+        stage.setResizable(true);
+        stage.getIcons().add(ControlCenter.getImage("1393354629_Config-Tools.png"));
+        stage.setTitle(I18n.getInstance().getString("jevistree.widget.column.settings"));
 
         tabs = new ArrayList<>();
         try {
-            tabs.add(new MeterFormAttributeTab(meterData, ds, I18n.getInstance().getString("plugin.meters.dialog.tab.attribute")));
+            tabs.add(new MeterFormAttributeTab(meterData, ds, I18n.getInstance().getString("plugin.meters.dialog.tab.properties")));
 
-
-            if (switchMeter)
+            if (switchMeter) {
                 tabs.add(new MeterFormReadingsTab(meterData, ds, I18n.getInstance().getString("plugin.meters.dialog.tab.readings")));
+            }
         } catch (JEVisException jeVisException) {
             logger.error(jeVisException);
             Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis error", ButtonType.OK);
@@ -51,7 +57,7 @@ public class MeterForm extends Dialog {
         tabPane.getTabs().addAll(tabs);
         setHeaderText(meterData.getName());
 
-        getDialogPane().setContent(tabPane);
+        getDialogPane().setContent(scrollPane);
 
 
     }

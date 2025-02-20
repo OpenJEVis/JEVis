@@ -1,6 +1,9 @@
 package org.jevis.jecc.plugin.dashboard.config2;
 
-
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,7 +17,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
-import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -22,7 +24,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jecc.ControlCenter;
-import org.jevis.jecc.application.control.JEVColorPicker;
+import org.jevis.jecc.application.control.ColorPickerAdv;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
 import org.jevis.jecc.plugin.dashboard.controls.FontPostureBox;
 import org.jevis.jecc.plugin.dashboard.controls.FontWeightBox;
@@ -35,15 +37,15 @@ public class SideConfigPanel extends GridPane {
     private static final Logger logger = LogManager.getLogger(SideConfigPanel.class);
     private final DashboardControl control;
     private final double iconSize = 16;
-    private final ComboBox<Integer> layerComboBox = new ComboBox<>();
-    private final ColorPicker bgColorPicker = new JEVColorPicker();
-    private final ColorPicker fColorPicker = new JEVColorPicker();
-    private final CheckBox showShadowField = new CheckBox();
-    private final CheckBox showValueField = new CheckBox();
+    private final JFXComboBox<Integer> layerComboBox = new JFXComboBox<>();
+    private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
+    private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
+    private final JFXCheckBox showShadowField = new JFXCheckBox();
+    private final JFXCheckBox showValueField = new JFXCheckBox();
     private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
     private final FontWeightBox fontWeightBox = new FontWeightBox();
     private final FontPostureBox fontPostureBox = new FontPostureBox();
-    private final CheckBox fontUnderlined = new CheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fontunderlined"));
+    private final JFXCheckBox fontUnderlined = new JFXCheckBox(I18n.getInstance().getString("plugin.dashboard.controls.fontunderlined"));
     private final Spinner<Integer> precisionSpinner = new Spinner<Integer>(0, 20, 2);
     private final Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
     private final Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
@@ -59,27 +61,27 @@ public class SideConfigPanel extends GridPane {
     private final Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
     private final Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
     private final Label alignmentLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.alignment"));
-    private final TextField widthText = new TextField();
-    private final TextField heightText = new TextField();
-    private final TextField xPosText = new TextField();
-    private final TextField yPosText = new TextField();
-    private final Button leftButton = new Button("", ControlCenter.getImage("arrow_left.png", iconSize, iconSize));
-    private final Button rightButton = new Button("", ControlCenter.getImage("arrow_right.png", iconSize, iconSize));
-    private final Button downButton = new Button("", ControlCenter.getImage("arrow_down.png", iconSize, iconSize));
-    private final Button upButton = new Button("", ControlCenter.getImage("arrow_up.png", iconSize, iconSize));
-    private final Button switchSide = new Button("", ControlCenter.getImage("Arrow_BothDirections.png", 20, 20));
-    private final Button equalizeDataModelButton = new Button(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
-    private final ComboBox<Pos> alignmentBox = new ComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
-    private final TextField titleText = new TextField();
+    private final JFXTextField widthText = new JFXTextField();
+    private final JFXTextField heightText = new JFXTextField();
+    private final JFXTextField xPosText = new JFXTextField();
+    private final JFXTextField yPosText = new JFXTextField();
+    private final JFXButton leftButton = new JFXButton("", ControlCenter.getImage("arrow_left.png", iconSize, iconSize));
+    private final JFXButton rightButton = new JFXButton("", ControlCenter.getImage("arrow_right.png", iconSize, iconSize));
+    private final JFXButton downButton = new JFXButton("", ControlCenter.getImage("arrow_down.png", iconSize, iconSize));
+    private final JFXButton upButton = new JFXButton("", ControlCenter.getImage("arrow_up.png", iconSize, iconSize));
+    private final JFXButton switchSide = new JFXButton("", ControlCenter.getImage("Arrow_BothDirections.png", 20, 20));
+    private final JFXButton equalizeDataModelButton = new JFXButton(I18n.getInstance().getString("plugin.dashboard.edit.general.equalizeDataModel"));
+    private final JFXComboBox<Pos> alignmentBox = new JFXComboBox<>(FXCollections.observableArrayList(Pos.TOP_LEFT, Pos.TOP_CENTER, Pos.TOP_RIGHT, Pos.CENTER_LEFT, Pos.CENTER, Pos.CENTER_RIGHT, Pos.BOTTOM_LEFT, Pos.BOTTOM_CENTER, Pos.BOTTOM_RIGHT));
+    private final JFXTextField titleText = new JFXTextField();
     private final TextField pixels = new TextField("25");
     private final GridPane dataPointConfigPane = new GridPane();
+    //-----------
+    //ObservableList<String> dataItems = FXCollections.observableArrayList("One", "Two", "Three", "Four", "Five", "Six","Seven", "Eight", "Nine", "Ten");
+    JFXComboBox<JEVisObject> objectSelectionBox = new JFXComboBox<>();
     ListView<JEVisObject> selectedObjectsListView = new ListView();
     ObservableList<JEVisObject> dataItems = FXCollections.observableArrayList();
     FilteredList<JEVisObject> filteredItems = new FilteredList<>(dataItems, p -> true);
     FlowPane dataEditor = new FlowPane();
-    //-----------
-    //ObservableList<String> dataItems = FXCollections.observableArrayList("One", "Two", "Three", "Four", "Five", "Six","Seven", "Eight", "Nine", "Ten");
-    ComboBox<JEVisObject> objectSelectionBox = new ComboBox<>();
     private boolean isUpdating = false;
     private Widget selectedWidget = null;
 
@@ -132,6 +134,7 @@ public class SideConfigPanel extends GridPane {
 **/
     }
 
+
     public void setLastSelectedWidget(Widget widget) {
         isUpdating = true;
         this.selectedWidget = widget;
@@ -161,7 +164,7 @@ public class SideConfigPanel extends GridPane {
                         this.control.getDataSource(), this.control,
                         widget.getConfig(), widget.getId());
 
-                sampleHandler.getDataModel().forEach(chartDataRow -> {
+                sampleHandler.getChartDataRows().forEach(chartDataRow -> {
 
                     Platform.runLater(() -> {
                         try {
@@ -311,14 +314,15 @@ public class SideConfigPanel extends GridPane {
 
         titledPane.setContent(gp);
 
-        bgColorPicker.setOnAction(event -> {
+        bgColorPicker.selectColorProperty().addListener((observable, oldValue, newValue) -> {
             if (!isUpdating) {
-                control.bgColorSelected(bgColorPicker.getValue());
+                control.bgColorSelected(newValue);
             }
         });
-        fColorPicker.setOnAction(event -> {
+
+        fColorPicker.selectColorProperty().addListener((observable, oldValue, newValue) -> {
             if (!isUpdating) {
-                control.fgColorSelected(fColorPicker.getValue());
+                control.fgColorSelected(newValue);
             }
         });
 
@@ -432,49 +436,8 @@ public class SideConfigPanel extends GridPane {
             }
         };
 
-        //TODO JFX17
-        alignmentBox.setConverter(new StringConverter<Pos>() {
-            @Override
-            public String toString(Pos object) {
-                if(object==null) return "";
-
-                switch (object) {
-                    case CENTER:
-                        return (I18n.getInstance().getString("javafx.pos.center"));
-                    case CENTER_LEFT:
-                        return (I18n.getInstance().getString("javafx.pos.centerleft"));
-                    case CENTER_RIGHT:
-                        return (I18n.getInstance().getString("javafx.pos.centerright"));
-                    case BOTTOM_RIGHT:
-                        return (I18n.getInstance().getString("javafx.pos.bottomright"));
-                    case BOTTOM_LEFT:
-                        return (I18n.getInstance().getString("javafx.pos.bottomleft"));
-                    case BOTTOM_CENTER:
-                        return (I18n.getInstance().getString("javafx.pos.bottomcenter"));
-                    /**
-                     case BASELINE_LEFT:
-                     return(I18n.getInstance().getString("javafx.pos.center"));
-                     case BASELINE_RIGHT:
-                     return(I18n.getInstance().getString("javafx.pos.center"));
-                     case BASELINE_CENTER:
-                     return(I18n.getInstance().getString("javafx.pos.center"));
-                     **/
-                    case TOP_LEFT:
-                        return (I18n.getInstance().getString("javafx.pos.topleft"));
-                    case TOP_RIGHT:
-                        return (I18n.getInstance().getString("javafx.pos.topright"));
-                    case TOP_CENTER:
-                        return (I18n.getInstance().getString("javafx.pos.topcenter"));
-                    default:
-                        return (object.toString());
-                }
-            }
-
-            @Override
-            public Pos fromString(String string) {
-                return null;
-            }
-        });
+        alignmentBox.setCellFactory(cellFactory);
+        alignmentBox.setButtonCell(cellFactory.call(null));
         alignmentBox.setOnAction(event -> {
             if (!isUpdating) {
                 control.alignSelected(alignmentBox.getSelectionModel().getSelectedItem());
@@ -593,7 +556,7 @@ public class SideConfigPanel extends GridPane {
 
         JEVisDataSource ds = control.getDataSource();
         ObjectRelations objectRelations = new ObjectRelations(ds);
-        TextField filterTextField = new TextField();
+        JFXTextField filterTextField = new JFXTextField();
         filterTextField.setPromptText("Type to filter...");
         filterTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             //System.out.println("newValue: " + newValue);
@@ -661,32 +624,9 @@ public class SideConfigPanel extends GridPane {
             }
         };
         //objectSelectionBox.
-//TODO JFX17
-        objectSelectionBox.setConverter(new StringConverter<JEVisObject>() {
-            @Override
-            public String toString(JEVisObject object) {
 
-
-                //objectSelectionBox.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
-                //setText(jeVisObject.getName());
-                try {
-                    objectSelectionBox.setTooltip(new Tooltip(
-                            objectRelations.getObjectPath(object)
-                                    + objectRelations.getRelativePath(object)
-                                    + object.getName()));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                return (objectRelations.getObjectPath(object) + objectRelations.getRelativePath(object) + object.getName());
-            }
-
-            @Override
-            public JEVisObject fromString(String string) {
-                return objectSelectionBox.getItems().get(objectSelectionBox.getSelectionModel().getSelectedIndex());
-            }
-        });
-
+        objectSelectionBox.setCellFactory(cellFactory);
+        objectSelectionBox.setButtonCell(cellFactory.call(null));
         objectSelectionBox.setItems(filteredItems);
 
 
@@ -721,8 +661,8 @@ public class SideConfigPanel extends GridPane {
             Platform.runLater(() -> {
                 Object test = objectSelectionBox.getSelectionModel().getSelectedItem();
                 logger.debug("test.class: " + test.getClass());
-                logger.debug("intencof: " + (objectSelectionBox.getSelectionModel().getSelectedItem() != null));
-                if (!objectSelectionBox.getItems().isEmpty() && objectSelectionBox.getSelectionModel().getSelectedItem() != null) {
+                logger.debug("intencof: " + (objectSelectionBox.getSelectionModel().getSelectedItem() instanceof JEVisObject));
+                if (!objectSelectionBox.getSelectionModel().isEmpty() && objectSelectionBox.getSelectionModel().getSelectedItem() instanceof JEVisObject) {
                     logger.debug("add: " + objectSelectionBox.getSelectionModel().getSelectedItem());
                     selectedObjectsListView.getItems().add(objectSelectionBox.getSelectionModel().getSelectedItem());
                     logger.debug("Done");
@@ -746,29 +686,16 @@ public class SideConfigPanel extends GridPane {
                         this.selectedWidget.getId());
 
 
-                sampleHandler.getDataModel().forEach(chartDataRow -> {
+                sampleHandler.getChartDataRows().forEach(chartDataRow -> {
 
                     if (chartDataRow.getObject().equals(newValue)) {
-                        // System.out.println("Auswahl gefunde");
                         Platform.runLater(() -> {
                             TextField color = new TextField(chartDataRow.getUnit().toString());
                             dataPointConfigPane.add(color, 0, 0);
                         });
 
                     } else {
-                        //System.out.println("nö");
                     }
-
-
-                    /*
-                    Platform.runLater(() -> {
-                        try {
-                            selectedObjectsListView.getItems().add(chartDataRow.getObject());
-                        } catch (Exception ex) {
-
-                        }
-                    });
-*/
                 });
 
             } catch (Exception ex) {

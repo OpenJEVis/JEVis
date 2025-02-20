@@ -7,8 +7,6 @@ package org.jevis.ftpdatasource;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPSClient;
-import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -18,7 +16,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.*;
-import java.net.MalformedURLException;
+import java.net.ConnectException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,28 +89,9 @@ public class FTPDataSource implements DataSource {
                             JEVisImporterAdapter.importResults(result, importer, channel);
                             logger.debug("import done");
                         }
-                    } catch (
-                            MalformedURLException ex) {
+                    } catch (Exception ex) {
                         logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
                         logger.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                        successful = false;
-                    } catch (
-                            ClientProtocolException ex) {
-                        logger.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                        logger.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                        successful = false;
-                    } catch (
-                            IOException ex) {
-                        logger.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                        logger.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
-                        successful = false;
-                    } catch (
-                            ParseException ex) {
-                        logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                        logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                        successful = false;
-                    } catch (Exception ex) {
-                        logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
                         successful = false;
                     }
                 }
@@ -161,23 +141,41 @@ public class FTPDataSource implements DataSource {
         JEVisClass channelClass = channel.getJEVisClass();
         JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.PATH);
         String filePath = DatabaseHelper.getObjectAsString(channel, pathType);
-        JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
-        DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
+        JEVisType lastReadoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
+        DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, lastReadoutType);
+        JEVisType maxReadoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.MAX_READOUT);
+        Long maxReadout = DatabaseHelper.getObjectAsLong(channel, maxReadoutType);
 
 //            String filePath = dp.getFilePath();
         logger.info("SendSampleRequest2");
         fileNames.clear();
-        fileNames.addAll(DataSourceHelper.getFTPMatchedFileNames(_fc, lastReadout, timezone, filePath, importer.getOverwrite()));
+        fileNames.addAll(DataSourceHelper.getFTPMatchedFileNames(_fc, lastReadout, maxReadout, timezone, filePath, importer.getOverwrite()));
 //        String currentFilePath = Paths.get(filePath).getParent().toString();
-        logger.info("Nr of Matched Files " + fileNames.size());
+        logger.info("Nr of Matched Files {}", fileNames.size());
         for (String fileName : fileNames) {
-            logger.info("FileInputName: " + fileName);
+            logger.info("FileInputName: {}", fileName);
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 //                String query = Paths.get(fileName);
-            logger.info("FTPQuery " + fileName);
-            boolean retrieveFile = _fc.retrieveFile(fileName, out);
-            logger.info("Request status: " + retrieveFile);
+            logger.info("FTPQuery {}", fileName);
+            boolean retrieveFile = false;
+            int retries = 5;
+            ConnectException connectException = null;
+            for (int i = 0; i < retries; i++) {
+                try {
+                    retrieveFile = _fc.retrieveFile(fileName, out);
+                } catch (ConnectException e) {
+                    logger.error("ConnectionException. {} / {}", i, retries, e);
+                    connectException = e;
+                }
+                if (retrieveFile) {
+                    break;
+                }
+            }
+            if (connectException != null) {
+                throw connectException;
+            }
+            logger.info("Request status: {}", retrieveFile);
             InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
             answer = new BufferedInputStream(inputStream);
 //                InputHandler inputConverter = InputHandlerFactory.getInputConverter(answer);
@@ -202,10 +200,11 @@ public class FTPDataSource implements DataSource {
             ftpClient.setConnectTimeout(connectionTimeout * 1000);
         }
         if (readTimeout != null) {
-            ftpClient.setDataTimeout(readTimeout * 1000);
+            ftpClient.setDataTimeout(Duration.ofSeconds(readTimeout));
         }
 
         ftpClient.connect(serverURL, port);
+        ftpClient.enterLocalPassiveMode();
 //            ftpClient.setFileType(FTP.BINARY_FILE_TYPE, FTP.BINARY_FILE_TYPE);
 
         if (!ftpClient.login(userName, password)) {
@@ -218,7 +217,6 @@ public class FTPDataSource implements DataSource {
         ftpClient.setBufferSize(1024000);
 
         ftpClient.setUseEPSVwithIPv4(false);
-        ftpClient.enterLocalPassiveMode();
 
         return ftpClient;
     }

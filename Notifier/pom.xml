@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.jevis</groupId>
         <artifactId>JEVisCore</artifactId>
-        <version>3.4</version>
+        <version>4.0</version>
     </parent>
 
     <modules>
@@ -32,10 +32,6 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -337,7 +337,9 @@ public class AlarmPlugin implements Plugin {
         }
     }
 
-    public void updateList() {
+    private void updateList() {
+
+        Platform.runLater(this::initToolBar);
 
         if (init) {
             restartExecutor();
@@ -442,17 +444,16 @@ public class AlarmPlugin implements Plugin {
                         if (item == null || empty) {
                             setGraphic(null);
                             setText(null);
+                        } else if (getTableRow() != null && getTableRow().getItem() != null) {
+                            AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+                            setText(item.withZone(alarmRow.getAlarmConfiguration().getDateTimeZone()).toString(alarmRow.getFormatString()));
+                            if (!alarmRow.getAlarmConfiguration().isChecked()) {
+                                activeAlarms.put(alarmRow.getTimeStamp(), true);
+                            } else {
+                                activeAlarms.remove(alarmRow.getTimeStamp());
+                            }
                         } else {
                             setText(item.toString("yyyy-MM-dd HH:mm:ss"));
-
-                            if (getTableRow() != null && getTableRow().getItem() != null) {
-                                AlarmRow alarmRow = getTableRow().getItem();
-                                if (!alarmRow.getAlarmConfiguration().isChecked()) {
-                                    activeAlarms.put(alarmRow.getTimeStamp(), true);
-                                } else {
-                                    activeAlarms.remove(alarmRow.getTimeStamp());
-                                }
-                            }
                         }
                     }
                 };
@@ -886,8 +887,8 @@ public class AlarmPlugin implements Plugin {
 
                                     LimitEditor limitEditor = new LimitEditor(limitConfigAttribute);
                                     HBox hbox = (HBox) limitEditor.getEditor();
-                                    Button Button = (Button) hbox.getChildren().get(0);
-                                    Button.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
+                                    Button button = (Button) hbox.getChildren().get(0);
+                                    button.setText(I18nWS.getInstance().getTypeName(limitConfigAttribute.getType()));
                                     limitEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(limitConfigAttribute.getObjectID()));
 
                                     setGraphic(limitEditor.getEditor());
@@ -896,8 +897,8 @@ public class AlarmPlugin implements Plugin {
 
                                     GapFillingEditor gapFillingEditor = new GapFillingEditor(gapFillingConfiguration);
                                     HBox hbox = (HBox) gapFillingEditor.getEditor();
-                                    Button mfxButton = (Button) hbox.getChildren().get(0);
-                                    mfxButton.setText(I18nWS.getInstance().getTypeName(gapFillingConfiguration.getType()));
+                                    Button button = (Button) hbox.getChildren().get(0);
+                                    button.setText(I18nWS.getInstance().getTypeName(gapFillingConfiguration.getType()));
                                     gapFillingEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(gapFillingConfiguration.getObjectID()));
 
                                     setGraphic(gapFillingEditor.getEditor());
@@ -907,8 +908,8 @@ public class AlarmPlugin implements Plugin {
 
                                     AlarmEditor alarmEditor = new AlarmEditor(alarmConfigAttribute);
                                     HBox hbox = (HBox) alarmEditor.getEditor();
-                                    Button mfxButton = (Button) hbox.getChildren().get(0);
-                                    mfxButton.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
+                                    Button button = (Button) hbox.getChildren().get(0);
+                                    button.setText(I18nWS.getInstance().getTypeName(alarmConfigAttribute.getType()));
                                     alarmEditor.getEditor().setDisable(!ds.getCurrentUser().canWrite(alarmConfigAttribute.getObjectID()));
 
                                     setGraphic(alarmEditor.getEditor());

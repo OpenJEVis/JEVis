@@ -39,10 +39,11 @@ public class WidgetPojo {
     private Integer layer = 1;
     private boolean showValue = true;
     private static final Logger logger = LogManager.getLogger(WidgetPojo.class);
+    private boolean fixedTimeframe = false;
 
     private JsonNode dataHandlerJson;
+    private String forcedTimeFrame = "PT0S";
     private final JsonNode jsonNode;
-    private boolean fixedTimeframe = false;
     private int uuid = 0;
 
     public WidgetPojo() {
@@ -183,13 +184,19 @@ public class WidgetPojo {
             try {
                 this.layer = jsonNode.get(LAYER).asInt(1);
             } catch (Exception ex) {
-                logger.debug("Could not parse position: {}", BORDER_SIZE, ex);
+                logger.debug("Could not parse position: {}", LAYER, ex);
             }
 
             try {
                 this.fixedTimeframe = jsonNode.get(FIXED_TIMEFRAME).asBoolean(false);
             } catch (Exception ex) {
-                logger.debug("Could not parse fixed timeframe: {}", BORDER_SIZE, ex);
+                logger.debug("Could not parse fixed timeframe: {}", FIXED_TIMEFRAME, ex);
+            }
+
+            try {
+                this.forcedTimeFrame = jsonNode.get(FORCED_TIMEFRAME).asText("");
+            } catch (Exception ex) {
+                logger.debug("Could not parse forced timeframe: {}", FIXED_TIMEFRAME, ex);
             }
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
@@ -383,6 +390,14 @@ public class WidgetPojo {
 
     public void setFixedTimeframe(boolean fixedTimeframe) {
         this.fixedTimeframe = fixedTimeframe;
+    }
+
+    public String getForcedTimeFrame() {
+        return forcedTimeFrame;
+    }
+
+    public void setForcedTimeFrame(String forcedTimeFrame) {
+        this.forcedTimeFrame = forcedTimeFrame;
     }
 
     public WidgetPojo copy() {

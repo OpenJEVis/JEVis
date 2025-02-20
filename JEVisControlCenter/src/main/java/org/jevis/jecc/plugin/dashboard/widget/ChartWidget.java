@@ -1,7 +1,6 @@
 package org.jevis.jecc.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -20,6 +19,7 @@ import org.jevis.jecc.application.Chart.AnalysisTimeFrame;
 import org.jevis.jecc.application.Chart.ChartElements.CustomNumericAxis;
 import org.jevis.jecc.application.Chart.ChartElements.TableHeaderTable;
 import org.jevis.jecc.application.Chart.ChartType;
+import org.jevis.jecc.application.Chart.Charts.Chart;
 import org.jevis.jecc.application.Chart.Charts.HeatMapChart;
 import org.jevis.jecc.application.Chart.Charts.TableChartV;
 import org.jevis.jecc.application.Chart.Charts.XYChart;
@@ -27,6 +27,7 @@ import org.jevis.jecc.application.Chart.TimeFrame;
 import org.jevis.jecc.application.Chart.data.ChartDataRow;
 import org.jevis.jecc.application.Chart.data.ChartModel;
 import org.jevis.jecc.application.tools.ColorHelper;
+import org.jevis.jecc.plugin.charts.ChartPlugin;
 import org.jevis.jecc.plugin.charts.DataSettings;
 import org.jevis.jecc.plugin.charts.ToolBarSettings;
 import org.jevis.jecc.plugin.dashboard.DashboardControl;
@@ -48,18 +49,16 @@ public class ChartWidget extends Widget implements DataModelWidget {
     private static final Logger logger = LogManager.getLogger(ChartWidget.class);
     public static String WIDGET_ID = "Chart";
 
-    private XYChart xyChart;
-    private HeatMapChart heatMapChart;
-
     /**
      * TODO: JFX17
      * legend
      */
     // private final WidgetLegend legend = new WidgetLegend();
     private final BorderPane borderPane = new BorderPane();
-    private Interval lastInterval = null;
     private final BorderPane bottomBorderPane = new BorderPane();
+    private Interval lastInterval = null;
     private Boolean customWorkDay = true;
+    private Chart chart;
 
     public ChartWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -96,18 +95,16 @@ public class ChartWidget extends Widget implements DataModelWidget {
         showProgressIndicator(true);
         showAlertOverview(false, "");
 
-        this.sampleHandler.setInterval(interval);
-        this.sampleHandler.update();
+        this.sampleHandler.update(interval);
 
         try {
             Platform.runLater(() -> {
+                this.chart = null;
                 this.borderPane.setCenter(null);
-                this.xyChart = null;
-                this.heatMapChart = null;
-                //        this.legend.getItems().clear();
+//                this.legend.getItems().clear();
             });
 
-            this.sampleHandler.getDataModel().forEach(chartDataModel -> {
+            this.sampleHandler.getChartDataRows().forEach(chartDataModel -> {
                 try {
                     //          Platform.runLater(() -> this.legend.getItems().add(
                     //                this.legend.buildHorizontalLegendItem(chartDataModel.getName(), chartDataModel.getColor(),
@@ -132,23 +129,31 @@ public class ChartWidget extends Widget implements DataModelWidget {
             dataSettings.setForecastEnabled(false);
 
             AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(control.getDataSource(), dataSettings.getCurrentAnalysis(), TimeFrame.CUSTOM_START_END);
-            analysisTimeFrame.setStart(sampleHandler.getDataModel().get(0).getSelectedStart());
-            analysisTimeFrame.setEnd(sampleHandler.getDataModel().get(0).getSelectedEnd());
+            analysisTimeFrame.setStart(interval.getStart());
+            analysisTimeFrame.setEnd(interval.getEnd());
             dataSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
-            ChartModel chartModel = this.sampleHandler.getChartModel();
+            ChartModel chartModel = this.sampleHandler.getDataModel().getChartModels().get(0);
             chartModel.setMinFractionDigits(getConfig().getDecimals());
             chartModel.setMaxFractionDigits(getConfig().getDecimals());
 
-            boolean isOnlyTable = true;
-            for (ChartDataRow chartDataRow : this.sampleHandler.getDataModel()) {
-                if (!chartDataRow.getChartType().equals(ChartType.TABLE_V)) {
-                    isOnlyTable = false;
-                    break;
-                }
+            List<ChartType> chartTypes = new ArrayList<>();
+            ChartType chartType;
+            for (ChartDataRow chartDataRow : this.sampleHandler.getChartDataRows()) {
+                chartTypes.add(chartDataRow.getChartType());
+            }
+            if (chartTypes.contains(ChartType.TABLE_V)) {
+                chartModel.setChartType(ChartType.TABLE_V);
+                chartType = ChartType.TABLE_V;
+            } else if (chartTypes.contains(ChartType.HEAT_MAP)) {
+                chartModel.setChartType(ChartType.HEAT_MAP);
+                chartType = ChartType.HEAT_MAP;
+            } else {
+                chartType = chartModel.getChartType();
             }
 
-            if (isOnlyTable) {
+
+            if (chartType == ChartType.TABLE_V) {
                 Platform.runLater(() -> {
                     TableChartV tableChart = new TableChartV(getDataSource(), chartModel);
                     tableChart.showRowSums(true);
@@ -159,14 +164,12 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     HBox hBox = new HBox(8, titleLabel, tableChart.getFilterEnabledBox());
                     hBox.setAlignment(Pos.CENTER);
 
-
                     TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
                     tableChart.setTableHeader(tableHeaderTable);
                     tableHeaderTable.maxWidthProperty().bind(this.borderPane.widthProperty());
 
-                    this.xyChart = tableChart;
-//                    chartModel.setShowSum_NOEVENT(true);
-                    this.xyChart.createChart(this.sampleHandler.getDataModel(), toolBarSettings, dataSettings, true);
+                    chart = tableChart;
+                    tableChart.createChart(this.sampleHandler.getChartDataRows(), toolBarSettings, dataSettings, true);
 
                     VBox vBox = new VBox(hBox, tableHeaderTable);
                     VBox.setVgrow(hBox, Priority.NEVER);
@@ -174,45 +177,38 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     this.borderPane.setCenter(vBox);
                     //      this.legend.getItems().clear();
                 });
-            } else {
-                boolean isHeatMap = this.sampleHandler.getDataModel().stream().anyMatch(chartDataRow -> chartDataRow.getChartType() == ChartType.HEAT_MAP);
+            } else if (chartType == ChartType.HEAT_MAP) {
+                Platform.runLater(() -> {
+//                    this.legend.getItems().clear();
+                    chart = new HeatMapChart(getDataSource(), chartModel, this.sampleHandler.getChartDataRows(), getConfig().getBackgroundColor(), getConfig().getFontColor());
+                    chart.getRegion().setPrefSize(getConfig().getSize().getWidth() - 20, getConfig().getSize().getHeight());
+                    this.borderPane.setCenter(chart.getRegion());
+                });
+            } else if (chartType == ChartType.AREA || chartType == ChartType.STACKED_AREA
+                    || chartType == ChartType.BUBBLE || chartType == ChartType.COLUMN ||
+                    chartType == ChartType.LINE || chartType == ChartType.STACKED_COLUMN ||
+                    chartType == ChartType.SCATTER) {
+                Platform.runLater(() -> {
+                    chart = ChartPlugin.getChart(getDataSource(), chartModel);
+                    XYChart xyChart = (XYChart) chart;
+                    xyChart.createChart(this.sampleHandler.getChartDataRows(), toolBarSettings, dataSettings, true);
 
-                if (isHeatMap) {
-                    chartModel.setChartType(ChartType.HEAT_MAP);
-                    chartModel.setColorMapping(ColorMapping.BLUE_CYAN_GREEN_YELLOW_RED);
+                    this.borderPane.setCenter(xyChart.getChart());
 
-                    Platform.runLater(() -> {
-                        // TODO JFX17 legend
-                        //  this.legend.getItems().clear();
-                        this.heatMapChart = new HeatMapChart(getDataSource(), chartModel, sampleHandler.getDataModel(), getConfig().getBackgroundColor(), getConfig().getFontColor());
-                        this.heatMapChart.getRegion().setPrefSize(getConfig().getSize().getWidth() - 20, getConfig().getSize().getHeight());
-                        this.borderPane.setCenter(this.heatMapChart.getRegion());
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        this.xyChart = new XYChart(getDataSource(), chartModel);
-                        this.xyChart.createChart(this.sampleHandler.getDataModel(), toolBarSettings, dataSettings, true);
-
-                        this.borderPane.setCenter(this.xyChart.getChart());
-                    });
-                }
+                    Size configSize = getConfig().getSize();
+                    if (chart.getChart() != null) {
+                        chart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight());
+                    }
+                });
             }
 
-            Size configSize = getConfig().getSize();
-            if (xyChart != null) {
-                Platform.runLater(() -> xyChart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight()));
-            } else if (heatMapChart != null) {
-//                Platform.runLater(() -> formatHeatMapChart(this.heatMapChart));
-            }
             updateConfig();
+            showProgressIndicator(false);
 
-            /** workaround because we make a new chart every time**/
+
         } catch (Exception ex) {
             logger.error(ex);
         }
-
-        showProgressIndicator(false);
-
     }
 
     @Override
@@ -239,21 +235,26 @@ public class ChartWidget extends Widget implements DataModelWidget {
                 this.borderPane.setBackground(bgColor);
 
                 try {
-                    if (xyChart != null) {
+                    if (chart != null) {
                         //lineChart.getChart().getPlotBackground().setBackground(bgColor);
                         //lineChart.setBackGround(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
 
-                        xyChart.getChart().getPlotBackground().setStyle("-fx-background-color: " + cssBGColor + ";");
-                        xyChart.getChart().setStyle("-fx-background-color: " + cssBGColor + ";");
+                        if (chart.getChart() != null) {
 
-                        this.xyChart.getChart().getAxes().forEach(axis -> {
-                            if (axis instanceof CustomNumericAxis defaultNumericAxis) {
-                                defaultNumericAxis.getAxisLabel().setVisible(false);
-                                defaultNumericAxis.setStyle("-fx-tick-label-fill: " + fontColor + ";");
-                            }
-                        });
+                            chart.getChart().getPlotBackground().setStyle("-fx-background-color: " + cssBGColor + ";");
+                            chart.getChart().setStyle("-fx-background-color: " + cssBGColor + ";");
 
-                        xyChart.getChart().requestLayout();
+                            chart.getChart().getAxes().forEach(axis -> {
+                                if (axis instanceof CustomNumericAxis) {
+                                    CustomNumericAxis defaultNumericAxis = (CustomNumericAxis) axis;
+                                    defaultNumericAxis.getAxisLabel().setVisible(false);
+                                    defaultNumericAxis.setStyle("-fx-tick-label-fill: " + fontColor + ";");
+                                }
+                            });
+
+                            chart.getChart().requestLayout();
+                        }
+
                     }
                 } catch (Exception ex) {
                     logger.error(ex);

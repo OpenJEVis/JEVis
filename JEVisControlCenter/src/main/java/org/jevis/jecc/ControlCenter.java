@@ -27,14 +27,17 @@ import javafx.concurrent.Task;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.CacheHint;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Tab;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
@@ -44,6 +47,7 @@ import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -52,6 +56,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.commons.application.Info;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jecc.application.application.I18nWS;
@@ -72,15 +77,21 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 
@@ -105,12 +116,36 @@ public class ControlCenter extends Application {
      */
     public static String userpassword;
     public static Date startDate = new Date();
-    static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", ControlCenter.class.getPackage().getImplementationVersion());//can be ignored
+    static ApplicationInfo PROGRAM_INFO;
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
     private static Statusbar statusBar;
     private TopMenu menu;
+    private BorderPane mainBorderPane;
+    private VBox topMenuBox;
+
+    /* pointers for the fullscreen workaround */
+    private Node fullScreenNode = null;
+    private Tab fullScreenTab = null;
+
+    public ControlCenter() {
+        super();
+
+        String buildNo = "JC4B";
+
+        try {
+            Path jarPath = Paths.get(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+            BasicFileAttributes basicFileAttributes = Files.readAttributes(jarPath, BasicFileAttributes.class);
+            FileTime fileTime = basicFileAttributes.creationTime();
+            DateTime fileDate = new DateTime(fileTime.toMillis());
+            buildNo += fileDate.toString("yyyyMMddHHmmss");
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+        }
+
+        PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", buildNo);//can be ignored
+    }
 
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
@@ -363,10 +398,10 @@ public class ControlCenter extends Application {
     public void init() throws Exception {
         super.init();
         BasicConfigurator.configure();//Load an default log4j config
-        org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
+        org.apache.log4j.Logger.getRootLogger().setLevel(Level.ERROR);
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
-        PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+        PROGRAM_INFO.addLibrary(Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
     }
 
@@ -394,9 +429,34 @@ public class ControlCenter extends Application {
         });
 
 
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+            if (KeyCode.F11.equals(keyEvent.getCode())) {
+                primaryStage.setFullScreen(!primaryStage.isFullScreen());
+            }
+        });
+        primaryStage.fullScreenProperty().addListener((observableValue, aBoolean, t1) -> {
+            if (t1) {
+                fullScreenNode = pluginManager.getActiveTab().getContent();
+                fullScreenTab = pluginManager.getActiveTab();
+                fullScreenTab.setContent(null);
+
+                mainBorderPane.setTop(null);
+                mainBorderPane.setBottom(null);
+                mainBorderPane.setCenter(fullScreenNode);
+
+            } else {
+                fullScreenTab.setContent(fullScreenNode);
+
+                mainBorderPane.setTop(topMenuBox);
+                mainBorderPane.setBottom(statusBar);
+                mainBorderPane.setBottom(pluginManager.getTabPane());
+            }
+        });
+
+
         if (System.getProperty("os.name").toLowerCase().contains("linux")) {
             try {
-                java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
+                Toolkit xToolkit = Toolkit.getDefaultToolkit();
                 Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
                 awtAppClassNameField.setAccessible(true);
                 awtAppClassNameField.set(xToolkit, "JEVis Control Center");
@@ -498,12 +558,12 @@ public class ControlCenter extends Application {
                 });
 
 
-                VBox vbox = new VBox();
+                topMenuBox = new VBox();
 
-                BorderPane border = new BorderPane();
+                mainBorderPane = new BorderPane();
 
-                vbox.setStyle("-fx-background-color: black;");
-                border.setTop(vbox);
+                topMenuBox.setStyle("-fx-background-color: black;");
+                mainBorderPane.setTop(topMenuBox);
 
                 menu = new TopMenu();
 
@@ -518,26 +578,26 @@ public class ControlCenter extends Application {
 
 
                 Platform.runLater(() -> {
-                    border.setCenter(pluginManager.getView());
-                    vbox.getChildren().addAll(menu, pluginManager.getToolbar());
+                    mainBorderPane.setCenter(pluginManager.getView());
+                    topMenuBox.getChildren().addAll(menu, pluginManager.getToolbar());
                 });
 
                 statusBar.setDataSource(_mainDS);
                 statusBar.initView();
 
-                Platform.runLater(() -> border.setBottom(statusBar));
+                Platform.runLater(() -> mainBorderPane.setBottom(statusBar));
 
                 //Disable GUI if StatusBar detects a disconnect
-                border.disableProperty().bind(statusBar.connectedProperty.not());
+                mainBorderPane.disableProperty().bind(statusBar.connectedProperty.not());
 
                 Platform.runLater(() -> {
 
-                    AnchorPane.setTopAnchor(border, 0.0);
-                    AnchorPane.setRightAnchor(border, 0.0);
-                    AnchorPane.setLeftAnchor(border, 0.0);
-                    AnchorPane.setBottomAnchor(border, 0.0);
+                    AnchorPane.setTopAnchor(mainBorderPane, 0.0);
+                    AnchorPane.setRightAnchor(mainBorderPane, 0.0);
+                    AnchorPane.setLeftAnchor(mainBorderPane, 0.0);
+                    AnchorPane.setBottomAnchor(mainBorderPane, 0.0);
 
-                    jeconfigRoot.getChildren().setAll(border);
+                    jeconfigRoot.getChildren().setAll(mainBorderPane);
                     try {
                         WelcomePage welcome = new WelcomePage();
                         welcome.show(primaryStage, _config.getWelcomeURL());
@@ -620,14 +680,6 @@ public class ControlCenter extends Application {
 
         // delay or it will not be shown
 
-
-        executor.schedule(new Runnable() {
-            @Override
-            public void run() {
-                login.checkVersion();
-            }
-        }, 1, TimeUnit.SECONDS);
-
         primaryStage.onCloseRequestProperty().addListener((ov, t, t1) -> {
             try {
                 logger.info("Disconnect");
@@ -670,6 +722,7 @@ public class ControlCenter extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+
         primaryStage.setTitle(PROGRAM_INFO.getName());
         JavaVersionCheck checkVersion = new JavaVersionCheck();
         if (!checkVersion.isVersionOK()) {

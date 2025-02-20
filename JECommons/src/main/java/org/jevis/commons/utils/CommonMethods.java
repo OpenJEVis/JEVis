@@ -22,9 +22,10 @@ public class CommonMethods {
     public static List<String> DATA_TYPES = Arrays.asList("Data", "Clean Data", "Base Data", "Math Data", "String Data");
 
     public static JEVisObject getFirstParentalDataObject(JEVisObject jeVisObject) throws JEVisException {
-        if (jeVisObject.getJEVisClassName().equals("Data")) return jeVisObject;
+        if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Base Data"))
+            return jeVisObject;
         for (JEVisObject object : jeVisObject.getParents()) {
-            if (object.getJEVisClassName().equals("Data")) {
+            if (object.getJEVisClassName().equals("Data") || object.getJEVisClassName().equals("Base Data")) {
                 return object;
             } else {
                 return getFirstParentalDataObject(object);
@@ -513,13 +514,14 @@ public class CommonMethods {
 
             try {
                 List<String> classes = new ArrayList<>();
+
                 classes.add(JC.Data.name);
                 classes.add(JC.Data.CleanData.name);
                 classes.add(JC.Data.MathData.name);
-                classes.add(JC.Data.MathData.name);
+                classes.add(JC.Data.ForecastData.name);
+                classes.add(JC.Data.BaseData.name);
 
                 dependentObjects.addAll(getAllChildrenRecursive(object, classes));
-                dependentObjects.removeAll(objects);
             } catch (Exception e) {
                 logger.error(e);
             }
@@ -531,6 +533,7 @@ public class CommonMethods {
                 List<JEVisObject> calculationDependencies = new ArrayList<>();
                 if (value.stream().anyMatch(dependentObjects::contains)) {
                     calculationDependencies.add(key);
+                    dependentObjects.add(key);
                 }
 
                 if (!calculationDependencies.isEmpty()) {
@@ -538,6 +541,8 @@ public class CommonMethods {
                 }
             }
         }
+
+        dependentObjects.removeAll(objects);
 
         return dependentObjects;
     }

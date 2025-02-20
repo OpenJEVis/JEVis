@@ -1,0 +1,83 @@
+{
+  "name": "Electricity Measurement Instrument",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Electricity Measurement Instrument",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Electricity Measurement Instrument",
+      "end": "Electricity Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Electricity Measurement Instrument",
+      "end": "Electricity Measurement Instrument",
+      "type": 3
+    },
+    {
+      "start": "Electricity Measurement Instrument",
+      "end": "Measurement Instrument",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Current Transformer Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 60,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Current Transformer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 61,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Current Transformer Accuracy",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 62,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Voltage Transformer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 63,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Voltage Transformer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 64,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Voltage Transformer Accuracy",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 65,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Measurement Instrument"
+    }
+  ]
+}
+

@@ -78,7 +78,7 @@ public class AlarmProcess {
         dateHelper = PeriodHelper.getDateHelper(alarmConfiguration.getObject(), alarmPeriod, dateHelper, start);
 
         if (alarmPeriod != Period.NONE) {
-            end = PeriodHelper.calcEndRecord(start, alarmPeriod, dateHelper);
+            end = PeriodHelper.calcEndRecord(start, alarmPeriod, alarmConfiguration.getDateTimeZone(), dateHelper);
         } else {
             end = now.minusMillis(1);
         }
@@ -179,7 +179,7 @@ public class AlarmProcess {
     private void finish() throws JEVisException {
         DateTime newStartRecordTime;
         if (alarmConfiguration.getAlarmPeriod() != Period.NONE) {
-            newStartRecordTime = PeriodHelper.getNextPeriod(start, alarmConfiguration.getAlarmPeriod(), 1, null);
+            newStartRecordTime = PeriodHelper.getNextPeriod(start, alarmConfiguration.getAlarmPeriod(), alarmConfiguration.getDateTimeZone(), 1, null);
         } else {
             alarmConfiguration.getTimeStampAttribute().deleteAllSample();
             newStartRecordTime = DateTime.now();
