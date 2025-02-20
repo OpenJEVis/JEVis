@@ -36,6 +36,17 @@
       }
     },
     {
+      "type": "GPS Position",
+      "descriptions": {
+        "de": "Die GPS Position gibt die räumliche Lage des Messgeräts an.",
+        "en": "The GPS Position indicates the spatial position of the measuring device."
+      },
+      "names": {
+        "de": "GPS Position",
+        "en": "GPS Position"
+      }
+    },
+    {
       "type": "Company",
       "descriptions": {
         "de": "",
@@ -282,7 +293,6 @@
         "ar": "رقم الجهاز"
       }
     },
-
     {
       "type": "Connection",
       "descriptions": {

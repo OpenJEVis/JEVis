@@ -327,17 +327,19 @@ public class CommonMethods {
         if (attribute.hasSample()) {
             DateTime start = attribute.getTimestampOfLastSample().minusDays(7);
             JEVisAttribute periodAttribute = null;
+            JEVisSample latestSample = null;
             try {
                 periodAttribute = attribute.getObject().getAttribute("Period");
-            } catch (JEVisException e) {
+                latestSample = periodAttribute.getLatestSample();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (periodAttribute != null) {
-                JEVisSample latestSample = periodAttribute.getLatestSample();
+
+            if (periodAttribute != null && latestSample != null) {
                 Period p = Period.ZERO;
                 try {
                     p = new Period(latestSample.getValueAsString());
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 

@@ -24,11 +24,9 @@ package org.jevis.xlsxparser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.jevis.commons.datetime.JodaConverters;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.ParserReport;
@@ -58,6 +56,8 @@ public class XLSXParser {
     private List<DataPoint> dataPoints = new ArrayList<DataPoint>();
     private String dateFormat;
     private String timeFormat;
+    private DataFormatter dataFormatter;
+    private XSSFFormulaEvaluator formulaEvaluator;
 
     public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
         this.timeZone = timeZone;
@@ -66,6 +66,8 @@ public class XLSXParser {
 
             try {
                 XSSFWorkbook wb = new XSSFWorkbook(inputStream);
+                dataFormatter = new DataFormatter();
+                formulaEvaluator = wb.getCreationHelper().createFormulaEvaluator();
                 XSSFSheet sheet = wb.getSheetAt(0);
                 XSSFRow row;
                 XSSFCell cell = null;
@@ -145,49 +147,35 @@ public class XLSXParser {
                         }
                     }
                 } else {
-                    XSSFRow dateRow = sheet.getRow(dateIndex);
+
                     for (int r = currLineIndex; r < rows; r++) {
+                        DateTime dateTime = null;
+                        XSSFRow dateRow = sheet.getRow(r);
+                        dateCell = dateRow.getCell(dateIndex);
+                        timeCell = null;
+                        dateTime = getDateForCell(dateCell, timeCell);
+                        XSSFRow dataRow = sheet.getRow(r);
 
-                        for (int c = dpIndex; c < cols; c++) {
-                            DataPoint currentDatapoint = null;
-                            dateCell = null;
-                            timeCell = null;
-                            DateTime dateTime = null;
+                        for (DataPoint dataPoint : dataPoints) {
+                            for (int c = 0; c < dataRow.getLastCellNum(); c++) {
+                                XSSFCell dataCell = dataRow.getCell(c);
+                                try {
+                                    if (dataCell.getStringCellValue().equals(dataPoint.getMappingIdentifier())) {
+                                        Result result = null;
+                                        XSSFCell valueCell = dataRow.getCell(dataPoint.getValueIndex());
 
-                            dateCell = dateRow.getCell(c);
-                            dateTime = getDateForCell(dateCell, timeCell);
+                                        if (valueCell.getCellType() == CellType.STRING) {
+                                            result = new Result(dataPoint.getTarget(), valueCell.getStringCellValue(), dateTime);
+                                        } else if (valueCell.getCellType() == CellType.NUMERIC) {
+                                            result = new Result(dataPoint.getTarget(), valueCell.getNumericCellValue(), dateTime);
+                                        }
 
-                            for (DataPoint dataPoint : dataPoints) {
-                                if (dataPoint.getValueIndex() != null && c == dataPoint.getValueIndex()) {
-                                    currentDatapoint = dataPoint;
-                                    break;
-                                } else {
-                                    for (int r1 = 0; r1 < rows; r1++) {
-                                        XSSFCell mappingCell = sheet.getRow(r1).getCell(c);
-                                        try {
-                                            if (mappingCell.getStringCellValue().equals(dataPoint.getMappingIdentifier())) {
-                                                currentDatapoint = dataPoint;
-                                                break;
-                                            }
-                                        } catch (Exception e) {
-                                            logger.error(e);
+                                        if (result != null) {
+                                            results.add(result);
                                         }
                                     }
-                                }
-                            }
-
-                            cell = sheet.getRow(r).getCell(c);
-
-                            if (currentDatapoint != null && dateTime != null && cell != null) {
-                                Result result = null;
-                                if (cell.getCellType() == CellType.STRING) {
-                                    result = new Result(currentDatapoint.getTarget(), cell.getStringCellValue(), dateTime);
-                                } else if (cell.getCellType() == CellType.NUMERIC) {
-                                    result = new Result(currentDatapoint.getTarget(), cell.getNumericCellValue(), dateTime);
-                                }
-
-                                if (result != null) {
-                                    results.add(result);
+                                } catch (Exception e) {
+                                    logger.error(e);
                                 }
                             }
                         }
@@ -221,7 +209,7 @@ public class XLSXParser {
             String input = "";
             String pattern = "";
             try {
-                String date = dateCell.getStringCellValue();
+                String date = dataFormatter.formatCellValue(dateCell, formulaEvaluator);
                 pattern = dateFormat;
                 input = date;
 

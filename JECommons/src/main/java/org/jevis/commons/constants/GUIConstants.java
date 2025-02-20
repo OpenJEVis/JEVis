@@ -49,6 +49,7 @@ public class GUIConstants {
     public static DisplayType OPC_PROTOCOL = new DisplayType("OPC Protocol", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType PERIOD = new DisplayType("Period", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType RANGING_VALUE = new DisplayType("Ranging Value", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType GPS = new DisplayType("GPS", JEVisConstants.PrimitiveType.FILE);
     public static List<DisplayType> ALL = new ArrayList<DisplayType>() {
         {
             add(BASIC_TEXT);
@@ -81,6 +82,7 @@ public class GUIConstants {
             add(OPC_PROTOCOL);
             add(PERIOD);
             add(RANGING_VALUE);
+            add(GPS);
         }
     };
 
