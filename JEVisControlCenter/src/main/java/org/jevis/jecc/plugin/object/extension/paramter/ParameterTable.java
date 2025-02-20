@@ -25,7 +25,7 @@ public class ParameterTable extends TableView<Parameter> {
         format.setEditable(true);
 
         TableColumn<Parameter, VarFiller.Variable> sourceCol = new TableColumn(I18n.getInstance().getString("plugin.objects.extension.paramter.format"));
-        sourceCol.setCellFactory(ComboBoxTableCell.forTableColumn(VarFiller.Variable.LAST_TS, VarFiller.Variable.CURRENT_TS));
+        sourceCol.setCellFactory(ComboBoxTableCell.forTableColumn(VarFiller.Variable.LAST_TS, VarFiller.Variable.CURRENT_TS, VarFiller.Variable.CURRENT_TS2));
         sourceCol.setCellValueFactory(param -> param.getValue().variableProperty());
         sourceCol.setEditable(true);
 

@@ -847,7 +847,7 @@ public class ChartDataRow extends ChartData {
                         }
                     }
 
-                    if (jevisClassName.equals("String Data")) {
+                    if (jevisClassName.equals("String Data") || jevisClassName.equals("Data Notes")) {
                         this.isStringData = true;
                     }
                 }

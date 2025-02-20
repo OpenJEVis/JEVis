@@ -53,7 +53,7 @@
                 <goals></goals>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.7.1</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -61,7 +61,7 @@
                     <archive>
                         <manifestEntries>
                             <Permissions>all-permissions</Permissions>
-                            <JavaFX-Version>21.0.1</JavaFX-Version>
+                            <JavaFX-Version>21.0.5</JavaFX-Version>
                             <url>${project.parent.url}</url>
                             <implementation-vendor>${project.organization.name}</implementation-vendor>
                             <implementation-title>${project.name}</implementation-title>
@@ -98,7 +98,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.5.0</version>
                 <configuration>
                     <rules>
                         <dependencyConvergence/>

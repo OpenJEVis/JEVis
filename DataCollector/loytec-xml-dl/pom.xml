@@ -17,67 +17,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
                 <configuration>
                     <source>21</source>
                     <target>21</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <minimizeJar>false</minimizeJar>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>classworlds:classworlds</exclude>
-                                    <exclude>junit:junit</exclude>
-                                    <exclude>jmock:*</exclude>
-                                    <exclude>*:xml-apis</exclude>
-                                    <exclude>commons-collections:commons-collections</exclude>
-                                    <exclude>org.jevis:JEVisCore</exclude>
-                                    <exclude>org.controlsfx</exclude>
-                                    <exclude>org.aopalliance</exclude>
-                                    <exclude>org.apache</exclude>
-                                    <exclude>org.glassfish</exclude>
-                                    <exclude>org.ietf</exclude>
-                                    <exclude>org.jcp</exclude>
-                                    <exclude>org.jscience</exclude>
-                                    <exclude>org.jvnet</exclude>
-                                    <exclude>org.omg</exclude>
-                                    <exclude>org.opengis</exclude>
-                                    <exclude>org.w3c</exclude>
-                                    <exclude>org.jevis.loytecxmldl</exclude>
-                                    <exclude>org.javolution</exclude>
-                                    <exclude>com.jcraft</exclude>
-                                    <exclude>commons-net</exclude>
-                                    <exclude>commons-logging</exclude>
-                                    <exclude>commons-codec</exclude>
-                                    <exclude>commons-configuration</exclude>
-                                    <exclude>commons-lang</exclude>
-                                    <exclude>commons-io</exclude>
-                                    <exclude>com.google.inject</exclude>
-                                    <exclude>org.apache.httpcomponents</exclude>
-                                    <exclude>org.apache.commons</exclude>
-                                    <exclude>commons-cli</exclude>
-                                    <exclude>javax.inject</exclude>
-                                    <exclude>aopalliance</exclude>
-                                    <exclude>com.google.code.gson</exclude>
-                                    <exclude>com.beust</exclude>
-                                    <exclude>com.massisframework</exclude>
-                                    <exclude>com.google.guava</exclude>
-                                    <exclude>au.com.bytecode</exclude>
-                                    <exclude>com.carrotsearch</exclude>
-                                </excludes>
-                            </artifactSet>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

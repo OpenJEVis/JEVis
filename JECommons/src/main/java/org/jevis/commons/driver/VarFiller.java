@@ -30,13 +30,14 @@ public class VarFiller {
         return filledStrg;
     }
 
-    public enum Variable {
-        LAST_TS,// Last timestamp of the existing data in JEVis
-        CURRENT_TS
-    }
-
     public interface VarFunction {
 
         String getVarValue();
+    }
+
+    public enum Variable {
+        LAST_TS,// Last timestamp of the existing data in JEVis
+        CURRENT_TS,
+        CURRENT_TS2
     }
 }

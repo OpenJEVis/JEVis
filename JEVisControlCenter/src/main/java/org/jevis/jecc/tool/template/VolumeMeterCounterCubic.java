@@ -8,12 +8,17 @@ import org.jevis.jecc.application.application.I18nWS;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-public class ElectricMeterKW extends Template {
+public class VolumeMeterCounterCubic extends Template {
 
 
     @Override
     public String getName() {
-        return I18n.getInstance().getString("datarow.template.electrickw");
+        return I18n.getInstance().getString("datarow.template.volumemetercountercubic");
+    }
+
+    @Override
+    public boolean supportsClass(JEVisClass jclass) throws JEVisException {
+        return jclass.getName().equals("Data");
     }
 
     @Override
@@ -21,10 +26,10 @@ public class ElectricMeterKW extends Template {
         JEVisClass dataClass = parent.getDataSource().getJEVisClass("Data");
         JEVisClass cleanDataClass = parent.getDataSource().getJEVisClass("Clean Data");
 
-        JEVisObject newRowData = parent.buildObject(name, dataClass);
-        newRowData.commit();
+        JEVisObject newRawData = parent.buildObject(name, dataClass);
+        newRawData.commit();
 
-        JEVisObject newCleanData = newRowData.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
+        JEVisObject newCleanData = newRawData.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
         newCleanData.commit();
 
         Period p15m = Period.minutes(15);
@@ -32,21 +37,21 @@ public class ElectricMeterKW extends Template {
         JEVisAttribute valueAttributeClean = newCleanData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
         valueAttributeClean.setInputSampleRate(p15m);
         valueAttributeClean.setDisplaySampleRate(p15m);
-        valueAttributeClean.setInputUnit(CommonUnits.kW.jevisUnit);
-        valueAttributeClean.setDisplayUnit(CommonUnits.kW.jevisUnit);
+        valueAttributeClean.setInputUnit(CommonUnits.m3.jevisUnit);
+        valueAttributeClean.setDisplayUnit(CommonUnits.m3.jevisUnit);
         valueAttributeClean.commit();
 
-        JEVisAttribute valueAttributeRaw = newRowData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+        JEVisAttribute valueAttributeRaw = newRawData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
         valueAttributeRaw.setInputSampleRate(p15m);
         valueAttributeRaw.setDisplaySampleRate(p15m);
-        valueAttributeRaw.setInputUnit(CommonUnits.kW.jevisUnit);
-        valueAttributeRaw.setDisplayUnit(CommonUnits.kW.jevisUnit);
+        valueAttributeRaw.setInputUnit(CommonUnits.m3.jevisUnit);
+        valueAttributeRaw.setDisplayUnit(CommonUnits.m3.jevisUnit);
         valueAttributeRaw.commit();
 
-        DateTime startDate = new DateTime(2001, 01, 01, 0, 0, 0);
+        DateTime startDate = new DateTime(1990, 1, 1, 0, 0, 0);
 
 
-        setAttribute(newRowData, "Period", startDate, p15m.toString());
+        setAttribute(newRawData, "Period", startDate, p15m.toString());
         setAttribute(newCleanData, "Period", startDate, p15m.toString());
         setAttribute(newCleanData, "Conversion to Differential", startDate, false);
         setAttribute(newCleanData, "Enabled", startDate, true);
@@ -54,16 +59,12 @@ public class ElectricMeterKW extends Template {
         setAttribute(newCleanData, "Period Alignment", startDate, true);
         setAttribute(newCleanData, "Value is a Quantity", startDate, true);
         setAttribute(newCleanData, "Enabled", startDate, true);
-        setAttribute(newCleanData, "Value Multiplier", startDate, 4);
+        setAttribute(newCleanData, "Value Multiplier", startDate, 1);
         setAttribute(newCleanData, "Value Offset", startDate, 0);
         setAttribute(newCleanData, "Gap Filling Config", startDate, getGapFillingConfig());
         return true;
     }
 
-    @Override
-    public boolean supportsClass(JEVisClass jclass) throws JEVisException {
-        return jclass.getName().equals("Data");
-    }
 
     public String getGapFillingConfig() {
         return "[{\n" +
@@ -76,12 +77,12 @@ public class ElectricMeterKW extends Template {
                 "  \"referenceperiodcount\" : null\n" +
                 "}, {\n" +
                 "  \"name\" : \"Stufe 2\",\n" +
-                "  \"type\" : \"AVERAGE\",\n" +
+                "  \"type\" : \"INTERPOLATION\",\n" +
                 "  \"boundary\" : \"2592000000\",\n" +
                 "  \"defaultvalue\" : null,\n" +
-                "  \"referenceperiod\" : \"MONTH\",\n" +
-                "  \"bindtospecific\" : \"WEEKDAY\",\n" +
-                "  \"referenceperiodcount\" : \"1\"\n" +
+                "  \"referenceperiod\" : null,\n" +
+                "  \"bindtospecific\" : null,\n" +
+                "  \"referenceperiodcount\" : null\n" +
                 "}]";
     }
 

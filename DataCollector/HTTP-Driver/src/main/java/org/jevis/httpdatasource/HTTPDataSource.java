@@ -167,6 +167,9 @@ public class HTTPDataSource {
 
         HttpGet get = new HttpGet(getRequest);
         get.setConfig(requestConfig);
+        /* will ne needed soon for the login/session function*/
+        //get.setHeader("Cookie","rumo.https.sid=s%3AFBq0m630dDxN_sxFE_mruwf0WZ1BwVCZ.wxdwlbmPdmIVjN3c35xDA%2BbaaO630r9F5USbw5oq7Po;");
+        //System.out.println("Header: \n"+get.getAllHeaders());
 
         HttpResponse oResponse = httpClient.execute(get);
 
@@ -179,7 +182,7 @@ public class HTTPDataSource {
         }
         HttpEntity oEntity = oResponse.getEntity();
         String oXmlString = EntityUtils.toString(oEntity);
-        logger.info("[{}] Content length to parse: {}", channelID, oXmlString.length());
+        logger.debug("[{}] Content length to parse: {}", channelID, oXmlString.length());
         logger.debug("[{}] Content to parse: {}", channelID, oXmlString);
         EntityUtils.consume(oEntity);
         InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
@@ -197,7 +200,6 @@ public class HTTPDataSource {
                 return AUTH_SCHEME.BASIC;
             }
         }
-
 
         return authScheme;
     }

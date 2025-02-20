@@ -8,20 +8,17 @@ import org.jevis.jecc.application.application.I18nWS;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-public class GasMeterCubic extends Template {
+public class VolumeMeterCubic extends Template {
 
 
     @Override
     public String getName() {
-        return I18n.getInstance().getString("datarow.template.gasmetercubic");
+        return I18n.getInstance().getString("datarow.template.volumemetercubic");
     }
 
     @Override
     public boolean supportsClass(JEVisClass jclass) throws JEVisException {
-        if (jclass.getName().equals("Data")) {
-            return true;
-        }
-        return false;
+        return jclass.getName().equals("Data");
     }
 
     @Override
@@ -29,10 +26,10 @@ public class GasMeterCubic extends Template {
         JEVisClass dataClass = parent.getDataSource().getJEVisClass("Data");
         JEVisClass cleanDataClass = parent.getDataSource().getJEVisClass("Clean Data");
 
-        JEVisObject newRowData = parent.buildObject(name, dataClass);
-        newRowData.commit();
+        JEVisObject newRawData = parent.buildObject(name, dataClass);
+        newRawData.commit();
 
-        JEVisObject newCleanData = newRowData.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
+        JEVisObject newCleanData = newRawData.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
         newCleanData.commit();
 
         Period p15m = Period.minutes(15);
@@ -44,19 +41,19 @@ public class GasMeterCubic extends Template {
         valueAttributeClean.setDisplayUnit(CommonUnits.m3.jevisUnit);
         valueAttributeClean.commit();
 
-        JEVisAttribute valueAttributeRaw = newRowData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+        JEVisAttribute valueAttributeRaw = newRawData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
         valueAttributeRaw.setInputSampleRate(p15m);
         valueAttributeRaw.setDisplaySampleRate(p15m);
         valueAttributeRaw.setInputUnit(CommonUnits.m3.jevisUnit);
         valueAttributeRaw.setDisplayUnit(CommonUnits.m3.jevisUnit);
         valueAttributeRaw.commit();
 
-        DateTime startDate = new DateTime(2001, 01, 01, 0, 0, 0);
+        DateTime startDate = new DateTime(1990, 1, 1, 0, 0, 0);
 
 
-        setAttribute(newRowData, "Period", startDate, p15m.toString());
+        setAttribute(newRawData, "Period", startDate, p15m.toString());
         setAttribute(newCleanData, "Period", startDate, p15m.toString());
-        setAttribute(newCleanData, "Conversion to Differential", startDate, true);
+        setAttribute(newCleanData, "Conversion to Differential", startDate, false);
         setAttribute(newCleanData, "Enabled", startDate, true);
         setAttribute(newCleanData, "GapFilling Enabled", startDate, true);
         setAttribute(newCleanData, "Period Alignment", startDate, true);
