@@ -32,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 
 /**
- * Temporary solution of an global toolbar.
+ * Temporary solution of a global toolbar.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -43,14 +43,14 @@ public class GlobalToolBar {
     private static final String HOVERED_BUTTON_STYLE = "-fx-background-insets: 1 1 1;";
     private final PluginManager pm;
 
+    public GlobalToolBar(PluginManager pm) {
+        this.pm = pm;
+    }
+
     public static ToggleButton buildHelpButton(double width, double height) {
         ToggleButton toggleButton = new ToggleButton("", JEConfig.getImage("1404161580_help_blue.png", height, width));
         toggleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.help")));
         return toggleButton;
-    }
-
-    public GlobalToolBar(PluginManager pm) {
-        this.pm = pm;
     }
 
     public static void addEventHandler(PluginManager pm, ToggleButton button, final int command) {
