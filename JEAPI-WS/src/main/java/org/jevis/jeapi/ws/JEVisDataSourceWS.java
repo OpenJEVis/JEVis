@@ -136,17 +136,19 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
                 try {
                     this.host = opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue();
-
-                    String sslModeOpt = opt.getOption(CommonOptions.DataSource.SSLTRUST.getKey()).getValue();
-                    if (sslModeOpt != null && !sslModeOpt.isEmpty()) {
-                        this.sslTrustMode = HTTPConnection.Trust.valueOf(sslModeOpt.toUpperCase());
-                    } else {
-                        logger.error("No SSL-Trust-Mode set, using default: {}", sslTrustMode.toString());
-                    }
                 } catch (Exception ex) {
                     logger.error("Error while parsing option: {}", ex.getMessage(), ex);
                 }
             }
+            if (opt.getKey().equals(CommonOptions.DataSource.SSLTRUST.getKey())) {
+                String sslModeOpt = opt.getValue();
+                if (sslModeOpt != null && !sslModeOpt.isEmpty()) {
+                    this.sslTrustMode = HTTPConnection.Trust.valueOf(sslModeOpt.toUpperCase());
+                } else {
+                    logger.error("No SSL-Trust-Mode set, using default: {}", sslTrustMode.toString());
+                }
+            }
+
         }
 
         /** create dummy connection for request which need not user name password **/

@@ -72,13 +72,8 @@ public class HTTPConnection {
     private Proxy proxy = null;
 
     private HttpURLConnection sharedConn = null;
-
-    public enum Trust {
-        ALWAYS, SYSTEM
-    }
-
-
     private Trust trustmode = Trust.ALWAYS;
+
 
     public HTTPConnection(String baseurl, String username, String password, Trust trustMode) {
         this.baseURL = baseurl;
@@ -92,7 +87,63 @@ public class HTTPConnection {
             logger.error("Enable trust for self signed certificates");
             HTTPConnection.trustAllCertificates();
         }
+        if (trustMode == Trust.WINDOWS) {
+            logger.error("using windows trust store");
+            // HTTPConnection.trustAllCertificates();
+            System.setProperty("javax.net.ssl.trustStore", "NUL");
+            System.setProperty("javax.net.ssl.trustStoreType", "Windows-ROOT");
+        }
 
+    }
+
+    public static StringBuffer getPayload(HttpURLConnection conn) throws IOException {
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(conn.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+//            logger.trace("Payload: {}", response);
+
+        return response;
+    }
+
+    /**
+     * It's not safe to trust all ssl certificates. Better use trusted keys but for now it's better than simple http
+     */
+    public static void trustAllCertificates() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[0];
+                        }
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        }
+                    }
+            };
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+        }
     }
 
     private void setProxy() {
@@ -162,56 +213,6 @@ public class HTTPConnection {
                 logger.warn("No http Proxy found");
             }
 
-        }
-    }
-
-    public static StringBuffer getPayload(HttpURLConnection conn) throws IOException {
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-//            logger.trace("Payload: {}", response);
-
-        return response;
-    }
-
-    /**
-     * It's not safe to trust all ssl certificates. Better use trusted keys but for now it's better than simple http
-     */
-    public static void trustAllCertificates() {
-        try {
-            TrustManager[] trustAllCerts = new TrustManager[]{
-                    new X509TrustManager() {
-                        @Override
-                        public X509Certificate[] getAcceptedIssuers() {
-                            return new X509Certificate[0];
-                        }
-
-                        @Override
-                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                        }
-
-                        @Override
-                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                        }
-                    }
-            };
-
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String arg0, SSLSession arg1) {
-                    return true;
-                }
-            });
-        } catch (Exception e) {
         }
     }
 
@@ -559,5 +560,9 @@ public class HTTPConnection {
         logger.trace("resonseCode {}", responseCode);
         return conn;
 
+    }
+
+    public enum Trust {
+        ALWAYS, SYSTEM, WINDOWS
     }
 }
