@@ -247,15 +247,9 @@ public class JEVisImporter implements Importer {
                     logger.info("Import samples: key: {} , values: {}", key.getObject().getName(), values.size());
                     key.addSamples(values);
 
-                    DateTime lastTSForAtt = null;
-                    for (JEVisSample s : values) {
-                        if (lastTSTotal == null || lastTSTotal.isBefore(s.getTimestamp())) {
-                            lastTSTotal = s.getTimestamp();
-                        }
-                        if (lastTSForAtt == null || lastTSForAtt.isBefore(s.getTimestamp())) {
-                            lastTSForAtt = s.getTimestamp();
-                        }
-
+                    DateTime timeStampOfLastSample = values.get(values.size() - 1).getTimestamp();
+                    if (lastTSTotal == null || timeStampOfLastSample.isBefore(lastTSTotal)) {
+                        lastTSTotal = timeStampOfLastSample;
                     }
 
                     if (overwrite) {
@@ -269,7 +263,7 @@ public class JEVisImporter implements Importer {
                         }
                     }
 
-                    logger.info("Object: [{}] {}  Imported: {} LastTS: {}", key.getObject().getID(), key.getObject().getName(), values.size(), lastTSForAtt);
+                    logger.info("Object: [{}] {}  Imported: {} LastTS: {}", key.getObject().getID(), key.getObject().getName(), values.size(), timeStampOfLastSample);
 
                 } catch (Exception ex) {
                     logger.fatal("Unexpected error while import: ", ex);
