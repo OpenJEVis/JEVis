@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.object.extension.paramter;
 
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.ComboBoxTableCell;
@@ -26,7 +25,7 @@ public class ParameterTable extends TableView<Parameter> {
         format.setEditable(true);
 
         TableColumn<Parameter, VarFiller.Variable> sourceCol = new TableColumn(I18n.getInstance().getString("plugin.objects.extension.paramter.format"));
-        sourceCol.setCellFactory(ComboBoxTableCell.forTableColumn(VarFiller.Variable.LAST_TS, VarFiller.Variable.CURRENT_TS));
+        sourceCol.setCellFactory(ComboBoxTableCell.forTableColumn(VarFiller.Variable.LAST_TS, VarFiller.Variable.CURRENT_TS, VarFiller.Variable.CURRENT_TS2));
         sourceCol.setCellValueFactory(param -> param.getValue().variableProperty());
         sourceCol.setEditable(true);
 

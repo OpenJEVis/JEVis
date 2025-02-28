@@ -79,7 +79,7 @@ public class JEVisHTTPDataSource implements DataSource {
                 }
 
                 if (!results.isEmpty()) {
-                    JEVisImporterAdapter.importResultsWithLastReadoutOffset(results, _importer, channel, 1);
+                    JEVisImporterAdapter.importResultsWithLastReadoutOffset(results, _importer, channel, 0);
                     for (InputStream inputStream : input) {
                         try {
                             inputStream.close();
@@ -208,6 +208,13 @@ public class JEVisHTTPDataSource implements DataSource {
             String path = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(HTTPChannelTypes.LAST_READOUT);
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
+
+            JEVisType readoutOffsetType = channelClass.getType(HTTPChannelTypes.READOUT_OFFSET);
+            Long readoutOffset = DatabaseHelper.getObjectAsLong(channel, readoutOffsetType);
+
+            if (readoutOffset != null && lastReadout != null) {
+                lastReadout = lastReadout.minus(readoutOffset);
+            }
 
             httpChannel.setLastReadout(lastReadout);
             httpChannel.setPath(path);

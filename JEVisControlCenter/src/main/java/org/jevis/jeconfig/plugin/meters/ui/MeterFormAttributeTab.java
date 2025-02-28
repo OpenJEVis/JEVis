@@ -27,12 +27,16 @@ import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.meters.data.JEVisTypeWrapper;
 import org.jevis.jeconfig.plugin.meters.data.MeterData;
 import org.jevis.jeconfig.plugin.meters.data.SampleData;
+import org.jevis.jeconfig.plugin.object.attribute.GPSEditor;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
+
+import static org.jevis.commons.constants.GUIConstants.GPS;
 
 public class MeterFormAttributeTab extends Tab implements MeterFormTab {
 
@@ -76,8 +80,24 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             JEVisType jeVisType = entry.getKey().getJeVisType();
 
             try {
-                if (jeVisType.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
+                if (jeVisType.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE && !jeVisType.getGUIDisplayType().equals(GPS.getId())) {
                     buildFileChooser(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
+                }
+                if (jeVisType.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE && jeVisType.getGUIDisplayType().equals(GPS.getId())) {
+                    GPSEditor gpsEditor = new GPSEditor(entry.getValue().getJeVisAttribute());
+                    gpsEditor.getValueChangedProperty().addListener((observableValue, aBoolean, t1) -> {
+                        {
+                            if (t1) {
+                                try {
+                                    newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, gpsEditor.getNewFile()));
+                                } catch (JEVisException | IOException e) {
+                                    logger.error(e);
+                                }
+                                gpsEditor.setChanged(false);
+                            }
+                        }
+                    });
+                    fields.put(getGuiPosition(jeVisType), gpsEditor.getEditor());
                 } else if (jeVisType.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || jeVisType.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                     buildCal(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
                 } else if (jeVisType.getName().equals("Online ID")) {

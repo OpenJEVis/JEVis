@@ -87,10 +87,19 @@
       "jevisClass": "Measurement Instrument"
     },
     {
+      "name": "GPS Position",
+      "primitiveType": 3,
+      "guiType": "GPS",
+      "guiposition": 12,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Measurement Instrument"
+    },
+    {
       "name": "Cost Center",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 12,
+      "guiposition": 13,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Measurement Instrument"

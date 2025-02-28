@@ -216,6 +216,7 @@ public interface DataCollectorTypes {
         String NAME = "Channel";
         String LAST_READOUT = "Last Readout";
         String MAX_READOUT = "Max Readout";
+        String READOUT_OFFSET = "Readout Offset";
 
         interface FTPChannel extends Channel {
 

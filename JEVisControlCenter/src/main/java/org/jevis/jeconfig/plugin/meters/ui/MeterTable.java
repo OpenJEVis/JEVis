@@ -142,7 +142,7 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
                         col = new DoubleColumn(jeVisType, BIG_WIDTH, I18nWS.getInstance().getTypeName(jeVisType));
                         break;
                     case JEVisConstants.PrimitiveType.FILE:
-                        if (jeVisType.getName().equals(JC.MeasurementInstrument.a_VerificationDocumentation)) {
+                        if (jeVisType.getName().equals(JC.MeasurementInstrument.a_VerificationDocumentation) || jeVisType.getName().equals(JC.MeasurementInstrument.a_GPSPosition)) {
                             width = BIG_WIDTH;
                         }
                         col = new FileColumn(jeVisType, width, I18nWS.getInstance().getTypeName(jeVisType));

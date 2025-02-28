@@ -25,6 +25,14 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Index of Legal Provisions"
+    },
+    {
+      "name": "Relevance",
+      "primitiveType": 0,
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Index of Legal Provisions"
     }
   ]
 }

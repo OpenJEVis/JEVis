@@ -64,6 +64,11 @@
             <version>1.13</version>
         </dependency>
         <dependency>
+            <groupId>io.jenetics</groupId>
+            <artifactId>jpx</artifactId>
+            <version>1.7.0</version>
+        </dependency>
+        <dependency>
             <groupId>eu.hansolo</groupId>
             <artifactId>tilesfx</artifactId>
             <version>1.6.8</version>
