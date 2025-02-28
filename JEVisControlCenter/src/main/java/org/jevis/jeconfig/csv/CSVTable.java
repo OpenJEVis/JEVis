@@ -47,19 +47,25 @@ import java.util.List;
 public class CSVTable extends TableView<CSVLine> {
 
     private static final Logger logger = LogManager.getLogger(CSVTable.class);
-    private CSVParser parser;
     private final JEVisDataSource ds;
+    private CSVParser parser;
     private List<CSVColumnHeader> header = new ArrayList<>();
     private String customNote = "";
+    private JEVisAttribute preSelectedTarget = null;
 
-    public CSVTable(JEVisDataSource ds, CSVParser parser) {
+    public CSVTable(JEVisDataSource ds, CSVParser parser, JEVisAttribute preSelectedTarget) {
         super();
         this.parser = parser;
         this.ds = ds;
+        this.preSelectedTarget = preSelectedTarget;
         setItems(FXCollections.observableArrayList(parser.getRows()));
         setMaxHeight(1024);
         updateColumns();
 
+    }
+
+    public void setTarget(JEVisAttribute preSelectedTarget) {
+        this.preSelectedTarget = preSelectedTarget;
     }
 
     private void updateColumns() {
@@ -86,7 +92,7 @@ public class CSVTable extends TableView<CSVLine> {
         for (int i = 0; i < parser.getColumnCount(); i++) {
             String columnName = "Column " + i;
             TableColumn<CSVLine, String> column = new TableColumn(columnName);
-            final CSVColumnHeader header = new CSVColumnHeader(this, i);
+            final CSVColumnHeader header = new CSVColumnHeader(this, i, preSelectedTarget);
             this.header.add(header);
             column.setSortable(false);//layout problem
             column.setPrefWidth(310);
@@ -108,7 +114,6 @@ public class CSVTable extends TableView<CSVLine> {
 
         }
     }
-
 
     public Task<Integer> doImport() {
 
@@ -206,7 +211,7 @@ public class CSVTable extends TableView<CSVLine> {
                                 }
 
                             } catch (Exception ex) {
-                                logger.error("error while building sample",ex);
+                                logger.error("error while building sample", ex);
                                 hadErrors = true;
                                 setException(ex);
                             }
