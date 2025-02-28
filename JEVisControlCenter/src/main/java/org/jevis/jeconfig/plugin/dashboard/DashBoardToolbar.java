@@ -206,6 +206,7 @@ public class DashBoardToolbar extends ToolBar {
             dashboardControl.addWidget(newWidget);
             newWidget.setEditable(true);
             dashboardControl.setSelectedWidget(newWidget);
+            dashboardControl.redrawDashboardPane();
         });
 
 
@@ -218,7 +219,7 @@ public class DashBoardToolbar extends ToolBar {
                     Widget widgetX = dashboardControl.getSelectedWidgets().stream().min(Comparator.comparing(Widget::getXPos)).orElseThrow(NullPointerException::new);
                     Widget widgetY = dashboardControl.getSelectedWidgets().stream().min(Comparator.comparing(Widget::getYPos)).orElseThrow(NullPointerException::new);
 
-                    
+
                     double leftOffset = 50;
                     double topOffset = 50;
                     List<Widget> newWidgets = new ArrayList<>();
@@ -238,6 +239,7 @@ public class DashBoardToolbar extends ToolBar {
                         newWidget.setEditable(true);
                         newWidgets.add(newWidget);
                     });
+                    dashboardControl.redrawDashboardPane();
                     dashboardControl.setSelectedWidgets(newWidgets);
                 }
 

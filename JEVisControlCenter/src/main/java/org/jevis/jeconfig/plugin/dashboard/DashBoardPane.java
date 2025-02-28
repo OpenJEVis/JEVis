@@ -357,19 +357,33 @@ public class DashBoardPane extends Pane {
 
     public void showGrid(boolean show) {
         gridIsVisible = show;
+        Platform.runLater(() -> {
+            DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
+            //DashBoardPane.this.getChildren().remove(dragBox);
+        });
+
         if (show) {
+            Platform.runLater(() -> {
+                // DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
+                DashBoardPane.this.getChildren().addAll(this.visibleGrid);
+            });
+
+            /*
             if (!DashBoardPane.this.getChildren().contains(visibleGrid.get(0))) {
                 Platform.runLater(() -> DashBoardPane.this.getChildren().addAll(this.visibleGrid));
-            }
+            }*/
 
             if (!DashBoardPane.this.getChildren().contains(dragBox)) {
-               // Platform.runLater(() -> DashBoardPane.this.getChildren().add(dragBox));
+                // Platform.runLater(() -> DashBoardPane.this.getChildren().add(dragBox));
             }
         } else {
+
             Platform.runLater(() -> {
-                DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
+                // DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
                 DashBoardPane.this.getChildren().remove(dragBox);
             });
+
+
         }
     }
 

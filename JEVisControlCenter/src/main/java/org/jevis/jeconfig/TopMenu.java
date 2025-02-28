@@ -38,6 +38,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -47,6 +48,8 @@ import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.FavoriteAnalysis;
 import org.jevis.jeconfig.application.Chart.data.FavoriteAnalysisHandler;
+import org.jevis.jeconfig.application.jevistree.JEVisTree;
+import org.jevis.jeconfig.application.jevistree.JEVisTreeItem;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 import org.jevis.jeconfig.dialog.AboutDialog;
@@ -54,6 +57,7 @@ import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.jevis.jeconfig.plugin.charts.DataSettings;
+import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.tool.PasswordDialog;
 import org.jevis.jeconfig.tool.PatchNotesPage;
 import org.jevis.jeconfig.tool.TrianglePerformanceTest;
@@ -842,7 +846,26 @@ public class TopMenu extends MenuBar {
         importCSV.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                CSVImportDialog impDia = new CSVImportDialog();
+                JEVisAttribute preselectedTarget = null;
+                if (getActivePlugin() instanceof ObjectPlugin) {
+                    ObjectPlugin objectPlugin = (ObjectPlugin) getActivePlugin();
+                    JEVisTree tree = objectPlugin.getTree();
+                    Optional<JEVisTreeItem> target = tree.getSelectionModel().getSelectedItems().stream().findFirst();
+                    if (target.isPresent()) {
+                        JEVisObject object = target.get().getValue().getJEVisObject();
+                        try {
+                            JEVisAttribute valueTarget = object.getAttribute("Value");
+                            if (valueTarget != null) {
+                                preselectedTarget = valueTarget;
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                    }
+
+                }
+                CSVImportDialog impDia = new CSVImportDialog(preselectedTarget);
                 impDia.show(JEConfig.getStage(), JEConfig.getDataSource());
             }
         });

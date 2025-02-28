@@ -49,6 +49,7 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.NotificationPane;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
@@ -72,24 +73,39 @@ public class CSVImportDialog {
     private static final Logger logger = LogManager.getLogger(CSVImportDialog.class);
 
     public static String ICON = "1403727005_gnome-mime-application-vnd.lotus-1-2-3.png";
-
-    private String _encloser = "";
-    private String separator = "";
-
-    private final double LEFT_PADDING = 30;
-
     final JFXButton ok = new JFXButton(I18n.getInstance().getString("csv.ok"));
     final JFXButton automatic = new JFXButton(I18n.getInstance().getString("csv.automatic"));//, JEConfig.getImage("1403018303_Refresh.png", 15, 15));
     final JFXButton fileButton = new JFXButton(I18n.getInstance().getString("csv.file_select"));
     final JFXButton saveFormat = new JFXButton(I18n.getInstance().getString("csv.save_formate"));
     final NumberSpinner headerRowCount = new NumberSpinner(BigDecimal.valueOf(0), BigDecimal.valueOf(1));
-
+    final ToggleGroup textDiGroup = new ToggleGroup();
+    final AnchorPane tableRootPane = new AnchorPane();
+    private final double LEFT_PADDING = 30;
     private final JFXComboBox<Separator> separatorComboBox = new JFXComboBox<>(FXCollections.observableArrayList(Separator.values()));
     private final JFXTextField otherSeparatorField = new JFXTextField();
     private final JFXComboBox<Enclosed> enclosedComboBox = new JFXComboBox<>(FXCollections.observableArrayList(Enclosed.values()));
     private final NotificationPane notificationPane = new NotificationPane();
-    final ToggleGroup textDiGroup = new ToggleGroup();
+    private final JFXTextField otherEnclosedField = new JFXTextField();
+    private final JFXTextField customNoteField = new JFXTextField();
     ObservableList<String> formatOptions;
+    private String _encloser = "";
+    private String separator = "";
+    private File _csvFile;
+    private JEVisDataSource _ds;
+    private CSVTable table;
+    private Stage stage;
+    private Charset charset = Charset.defaultCharset();
+    private String customNoteString = "";
+    private Response response = Response.CANCEL;
+    private JEVisAttribute preselectTarget = null;
+
+    public CSVImportDialog() {
+        preselectTarget = null;
+    }
+
+    public CSVImportDialog(JEVisAttribute target) {
+        preselectTarget = target;
+    }
 
     private Node buildSeparatorPane() {
         GridPane gp = new GridPane();
@@ -251,9 +267,6 @@ public class CSVImportDialog {
         return root;
 
     }
-    final AnchorPane tableRootPane = new AnchorPane();
-    private final JFXTextField otherEnclosedField = new JFXTextField();
-    private final JFXTextField customNoteField = new JFXTextField();
 
     public Response show(Stage owner, JEVisDataSource ds) {
         stage = new Stage();
@@ -369,12 +382,6 @@ public class CSVImportDialog {
 
         return response;
     }
-    private File _csvFile;
-    private JEVisDataSource _ds;
-    private CSVTable table;
-    private Stage stage;
-    private Charset charset = Charset.defaultCharset();
-    private String customNoteString = "";
 
     private Node buildTablePane() {
         TableView placeholderTree = new TableView();
@@ -406,7 +413,7 @@ public class CSVImportDialog {
 
                 if (table == null || rebuildColumns) {
                     final CSVParser parser = parseCSV();
-                    table = new CSVTable(_ds, parser);
+                    table = new CSVTable(_ds, parser, preselectTarget);
                     tableRootPane.getChildren().setAll(table);
                     Layouts.setAnchor(table, 0);
                 } else {
@@ -417,8 +424,6 @@ public class CSVImportDialog {
             });
         }
     }
-
-    private Response response = Response.CANCEL;
 
     private Node buildTitle(String name) {
         HBox titelBox = new HBox(2);
@@ -608,15 +613,6 @@ public class CSVImportDialog {
 
     }
 
-    public enum Format {
-
-        Default, ARA01, Custom
-    }
-
-    enum Enclosed {
-        NONE, Apostrophe, Ditto, Gravis, OTHER
-    }
-
     private void setSeparator(String sep) {
         separator = sep;
 
@@ -652,28 +648,6 @@ public class CSVImportDialog {
 
     }
 
-    private void updateEnclosed() {
-
-        switch (enclosedComboBox.getValue()) {
-            case OTHER:
-                _encloser = otherEnclosedField.getText();
-                break;
-            case NONE:
-                _encloser = "";
-                break;
-            case Ditto:
-                _encloser = "\"";
-                break;
-            case Gravis:
-                _encloser = "`";
-                break;
-        }
-
-
-        updateTree(true);
-
-    }
-
     private void setEncloser(String endclosed) {
         _encloser = endclosed;
         switch (endclosed) {
@@ -694,6 +668,28 @@ public class CSVImportDialog {
                 otherEnclosedField.setText(_encloser);
                 break;
         }
+    }
+
+    private void updateEnclosed() {
+
+        switch (enclosedComboBox.getValue()) {
+            case OTHER:
+                _encloser = otherEnclosedField.getText();
+                break;
+            case NONE:
+                _encloser = "";
+                break;
+            case Ditto:
+                _encloser = "\"";
+                break;
+            case Gravis:
+                _encloser = "`";
+                break;
+        }
+
+
+        updateTree(true);
+
     }
 
     private String getSeperator() {
@@ -751,6 +747,19 @@ public class CSVImportDialog {
 
     }
 
+    private void openFile(File file) {
+        _csvFile = file;
+    }
+
+    public enum Format {
+
+        Default, ARA01, Custom
+    }
+
+    enum Enclosed {
+        NONE, Apostrophe, Ditto, Gravis, OTHER
+    }
+
     enum Separator {
         Semicolon, Comma, Space, Tab, OTHER
     }
@@ -758,10 +767,6 @@ public class CSVImportDialog {
     public enum Response {
 
         OK, CANCEL
-    }
-
-    private void openFile(File file) {
-        _csvFile = file;
     }
 
 
