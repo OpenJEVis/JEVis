@@ -91,15 +91,21 @@ public class CSVColumnHeader {
     private SimpleDateFormat dateFormatter = new SimpleDateFormat();
     private Meaning currentMeaning = Meaning.Ignore;
     private int columnNr = -1;
+    private JEVisAttribute preselectedTarget = null;
 
-    public CSVColumnHeader(CSVTable table, int column) {
+    public CSVColumnHeader(CSVTable table, int column, JEVisAttribute target) {
         columnNr = column;
         _table = table;
+        this.preselectedTarget = target;
 
         root.setPrefHeight(110);
 
         buildMeaningButton();
         buildIgnoreGraphic();
+    }
+
+    public void setPreselectedTarget(JEVisAttribute target) {
+        this.preselectedTarget = target;
     }
 
     public double getValueAsDouble(String value) {
@@ -413,7 +419,7 @@ public class CSVColumnHeader {
         root.setPadding(new Insets(8, 8, 8, 8));
 
         Label targetL = new Label("Target:");
-        JFXButton targetB = buildTargetButton();
+        JFXButton targetB = buildTargetButton(preselectedTarget);
 
         Region spacer = new Region();
 
@@ -508,7 +514,7 @@ public class CSVColumnHeader {
 
         spebox.getChildren().setAll(deciSeperator, dot, comma);
 
-        JFXButton targetB = buildTargetButton();
+        JFXButton targetB = buildTargetButton(preselectedTarget);
 
         GridPane gp = new GridPane();
         gp.setHgap(5);
@@ -545,12 +551,8 @@ public class CSVColumnHeader {
         root.setPadding(new Insets(8, 8, 8, 8));
 
         final JFXComboBox<String> timeZone;
-        JFXComboBox<String> timeLocale;
         final JFXTextField format = new JFXTextField();
         Label timeZoneL = new Label(I18n.getInstance().getString("csv.timezone"));
-        Label targetL = new Label(I18n.getInstance().getString("csv.target"));
-        Label vaueLocaleL = new Label(I18n.getInstance().getString("csv.locale"));
-
         format.setPromptText(I18n.getInstance().getString("csv.format.prompt"));
 
         ObservableList<String> timeZoneOpt = FXCollections.observableArrayList();
@@ -558,7 +560,6 @@ public class CSVColumnHeader {
 
         timeZoneOpt = FXCollections.observableArrayList(allTimeZones);
         timeZone = new JFXComboBox<>(timeZoneOpt);
-//        timeZone.getSelectionModel().select("UTC");
         timeZone.getSelectionModel().select(TimeZone.getDefault().getID());
         timeZone.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -718,13 +719,17 @@ public class CSVColumnHeader {
         return "yyyy-MM-dd HH:mm:ss";
     }
 
-    private JFXButton buildTargetButton() {
+    private JFXButton buildTargetButton(JEVisAttribute preselectedTarget) {
         final JFXButton button = new JFXButton(I18n.getInstance().getString("csv.import_target"));//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
+        if (preselectedTarget != null) {
+            _target = preselectedTarget;
+            button.setText(preselectedTarget.getObject().getName());
+        }
+
         button.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent t) {
-
                 List<JEVisTreeFilter> allFilter = new ArrayList<>();
 
                 JEVisTreeFilter basicFilter;
