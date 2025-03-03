@@ -68,7 +68,7 @@ public class JEVisHTTPDataSource implements DataSource {
                 }
 
 
-                if (this._httpdatasource.getStatusLine().getStatusCode() >= 200 && this._httpdatasource.getStatusLine().getStatusCode() < 300) {
+                if (this._httpdatasource.getStatusLine().getStatusCode() < 200 && this._httpdatasource.getStatusLine().getStatusCode() >= 300) {
                     logger.error("API Returned Error Code :{}", this._httpdatasource.getStatusLine().getStatusCode());
                     return;
                 }
