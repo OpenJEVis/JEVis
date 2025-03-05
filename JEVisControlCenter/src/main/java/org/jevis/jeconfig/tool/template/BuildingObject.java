@@ -14,7 +14,6 @@ import org.joda.time.DateTimeZone;
 
 import java.util.*;
 
-import static java.util.Locale.GERMANY;
 import static org.jevis.api.JEVisConstants.Direction.FORWARD;
 import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
 
@@ -115,32 +114,8 @@ public class BuildingObject extends Template {
         JEVisObject adminRole = buildTranslatedObject(userRoleDirectory, "Admin Role", userRoleClass,
                 "Administrator Rolle", "Роль адміністратора", "Роль администратора", "บทบาทผู้ดูแลระบบ", "دور المسؤول");
 
-        JEVisObject buildingGroup = null;
-        JEVisObject buildingGroupX = null;
-        Locale locale = I18n.getInstance().getLocale();
-
-        if (locale.equals(GERMANY)) {
-            buildingGroup = buildTranslatedObject(groupDirectory, "", group, name, "", "", "", "");
-            buildingGroupX = buildTranslatedObject(groupDirectory, "", group, name + " X", "", "", "", "");
-        } else if (locale.getLanguage().equals("ru")) {
-            buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", "", name, "", "");
-            buildingGroupX = buildTranslatedObject(groupDirectory, "", group, "", "", name + " X", "", "");
-        } else if (locale.getLanguage().equals("th")) {
-            buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", "", "", name, "");
-            buildingGroupX = buildTranslatedObject(groupDirectory, "", group, "", "", "", name + " X", "");
-        } else if (locale.getLanguage().equals("uk")) {
-            buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", name, "", "", "");
-            buildingGroupX = buildTranslatedObject(groupDirectory, "", group, "", name + " X", "", "", "");
-        } else if (locale.getLanguage().equals("ar")) {
-            buildingGroup = buildTranslatedObject(groupDirectory, "", group, "", "", "", "", name);
-            buildingGroupX = buildTranslatedObject(groupDirectory, "", group, "", "", "", "", name + " X");
-        } else {
-            buildingGroup = buildTranslatedObject(groupDirectory, name, group, "", "", "", "", "");
-            buildingGroupX = buildTranslatedObject(groupDirectory, name + " X", group, "", "", "", "", "");
-        }
-
-        buildOwnerRelationship(ds, buildingObject, buildingGroup, false);
-        buildOwnerRelationship(ds, buildingObject, buildingGroupX, true);
+        JEVisObject buildingGroup = buildTranslatedObject(groupDirectory, name, group, name, name, name, name, name);
+        JEVisObject buildingGroupX = buildTranslatedObject(groupDirectory, name + " X", group, name + " X", name + " X", name + " X", name + " X", name + " X");
 
         JEVisObject groupDirectoryWithEntryPoints = buildGroupsWithEntryPoints(ds, groupDirectoryClass, group, groupDirectory, buildingObject, jscUser, name);
         JEVisObject groupDirectoryWithoutEntryPoints = null;
@@ -148,6 +123,9 @@ public class BuildingObject extends Template {
         if (withNoEntryPointGroups.get()) {
             groupDirectoryWithoutEntryPoints = buildGroupsWithoutEntryPoints(ds, groupDirectoryClass, group, groupDirectory, buildingObject, jscUser, name);
         }
+
+        buildOwnerRelationship(ds, buildingObject, buildingGroup, false);
+        buildOwnerRelationship(ds, buildingObject, buildingGroupX, true);
 
         JEVisObject pluginsDirectory = buildTranslatedObject(groupDirectory, "Plugins", groupDirectoryClass,
                 "Module", "плагіни", "плагины", "ปลั๊กอิน", "الإضافات");

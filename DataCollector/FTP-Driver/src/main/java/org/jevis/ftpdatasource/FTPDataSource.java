@@ -166,7 +166,9 @@ public class FTPDataSource implements DataSource {
                     retrieveFile = _fc.retrieveFile(fileName, out);
                 } catch (ConnectException e) {
                     logger.error("ConnectionException. {} / {}", i, retries, e);
-                    connectException = e;
+                    if (i == 4) {
+                        connectException = e;
+                    }
                 }
                 if (retrieveFile) {
                     break;
