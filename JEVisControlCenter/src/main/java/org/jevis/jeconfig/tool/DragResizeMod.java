@@ -10,6 +10,8 @@ import javafx.scene.input.MouseEvent;
 import org.jevis.jeconfig.plugin.dashboard.DashBoardPane;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
+import java.util.List;
+
 /**
  * Based on https://github.com/varren/JavaFX-Resizable-Draggable-Node
  * <p>
@@ -37,28 +39,17 @@ import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
  */
 
 public class DragResizeMod {
-    public interface OnDragResizeEventListener {
-        void onDrag(Node node, double x, double y, double h, double w);
-
-        void onResize(Node node, double x, double y, double h, double w);
-
-        BooleanProperty resizeableProperty();
-
-        BooleanProperty snapToGridProperty();
-
-        void setDashBoardPane(DashBoardPane dashBoardPane);
-
-    }
-
     public static final OnDragResizeEventListener defaultListener = new OnDragResizeEventListener() {
-        private BooleanProperty resizable = new SimpleBooleanProperty(false);
-        private BooleanProperty snapToGrid = new SimpleBooleanProperty(false);
-        private DashBoardPane dashBoardPane = null;
         /**
          * Workaround, because the drag event takes the Effect size into the node size so we have to subtract it
          * Alternative: change the DragResizeMod.mouseDragged() effect
          **/
         private final double shadowSize = 10d;
+        private BooleanProperty resizable = new SimpleBooleanProperty(false);
+        private BooleanProperty snapToGrid = new SimpleBooleanProperty(false);
+        private DashBoardPane dashBoardPane = null;
+        private MouseEvent mouseEvent = null;
+
 
         @Override
         public void setDashBoardPane(DashBoardPane dashBoardPane) {
@@ -76,26 +67,39 @@ public class DragResizeMod {
         }
 
         @Override
-        public void onDrag(Node node, double x, double y, double h, double w) {
+        public void onDrag(Node node, MouseEvent event, double x, double y, double h, double w) {
 //            if (resizable.getValue()) setNodeSize(node, x, y, h - shadowSize, w - shadowSize);
+            mouseEvent = event;
             if (resizable.getValue()) setNodeSize(node, x, y, h, w);
         }
 
         @Override
-        public void onResize(Node node, double x, double y, double h, double w) {
+        public void onResize(Node node, MouseEvent event, double x, double y, double h, double w) {
+            mouseEvent = event;
             if (resizable.getValue()) setNodeSize(node, x, y, h, w);
         }
 
         private void setNodeSize(Node node, double x, double y, double h, double w) {
-//            System.out.println("setNodeSize: x:" + x + " y:" + y + " h:" + h + " w:" + w);
-
+            //System.out.println("setNodeSize: x:" + x + " y:" + y + " h:" + h + " w:" + w);
             if (dashBoardPane != null && dashBoardPane.getSnapToGrid()) {
-                node.setLayoutX(dashBoardPane.getNextGridX(x));
-                node.setLayoutY(dashBoardPane.getNextGridY(y));
 
-                double snapX = dashBoardPane.getNextGridX(w + ((Widget) node).getLayoutX()) - ((Widget) node).getLayoutX();
-                double snapY = dashBoardPane.getNextGridY(h + ((Widget) node).getLayoutY()) - ((Widget) node).getLayoutY();
+                List<Double> xGrid = dashBoardPane.xGrids;
+                List<Double> yGrid = dashBoardPane.yGrids;
+                if (mouseEvent != null && mouseEvent.isShiftDown()) {
+                    xGrid = dashBoardPane.xGridsFine;
+                    yGrid = dashBoardPane.yGridsFine;
+                }
+                //Move Node
+                node.setLayoutX(dashBoardPane.getNextGridX(x, xGrid));
+                node.setLayoutY(dashBoardPane.getNextGridY(y, yGrid));
+
+                //Snap to Grid
+                double snapX = dashBoardPane.getNextGridX(w + ((Widget) node).getLayoutX(), xGrid) - ((Widget) node).getLayoutX();
+                double snapY = dashBoardPane.getNextGridY(h + ((Widget) node).getLayoutY(), yGrid) - ((Widget) node).getLayoutY();
+                //System.out.println("newNodeSize: x: " + snapX + " y:" + snapY + "  Layoutx: " + ((Widget) node).getLayoutX() + " layouty: " + ((Widget) node).getLayoutY());
                 ((Widget) node).setNodeSize(snapX, snapY);
+
+
             } else {
                 node.setLayoutX(x);
                 node.setLayoutY(y);
@@ -104,30 +108,15 @@ public class DragResizeMod {
         }
     };
 
-    public static enum S {
-        DEFAULT,
-        DRAG,
-        NW_RESIZE,
-        SW_RESIZE,
-        NE_RESIZE,
-        SE_RESIZE,
-        E_RESIZE,
-        W_RESIZE,
-        N_RESIZE,
-        S_RESIZE
-    }
-
-
-    private double clickX, clickY, nodeX, nodeY, nodeH, nodeW;
-
-    private S state = S.DEFAULT;
-
-    private Node node;
-    private OnDragResizeEventListener listener = defaultListener;
 
     private static final int MARGIN = 8;
-    private static final double MIN_W = 30;
+    private static final double MIN_W = 20;
     private static final double MIN_H = 20;
+    private double clickX, clickY, nodeX, nodeY, nodeH, nodeW;
+    private S state = S.DEFAULT;
+    private Node node;
+    private OnDragResizeEventListener listener = defaultListener;
+    ;
 
     private DragResizeMod(Node node, OnDragResizeEventListener listener) {
         this.node = node;
@@ -170,43 +159,6 @@ public class DragResizeMod {
         });
     }
 
-    protected void mouseReleased(MouseEvent event) {
-        node.setCursor(Cursor.DEFAULT);
-        state = S.DEFAULT;
-    }
-
-    protected void mouseOver(MouseEvent event) {
-        S state = currentMouseState(event);
-        Cursor cursor = getCursorForState(state);
-        if (node instanceof Widget) {
-            if (!((Widget) node).getControl().editableProperty.getValue()) {
-                cursor = getCursorForState(S.DEFAULT);
-            }
-        }
-
-        node.setCursor(cursor);
-    }
-
-    private S currentMouseState(MouseEvent event) {
-        S state = S.DEFAULT;
-        boolean left = isLeftResizeZone(event);
-        boolean right = isRightResizeZone(event);
-        boolean top = isTopResizeZone(event);
-        boolean bottom = isBottomResizeZone(event);
-
-        if (left && top) state = S.NW_RESIZE;
-        else if (left && bottom) state = S.SW_RESIZE;
-        else if (right && top) state = S.NE_RESIZE;
-        else if (right && bottom) state = S.SE_RESIZE;
-        else if (right) state = S.E_RESIZE;
-        else if (left) state = S.W_RESIZE;
-        else if (top) state = S.N_RESIZE;
-        else if (bottom) state = S.S_RESIZE;
-        else if (isInDragZone(event)) state = S.DRAG;
-
-        return state;
-    }
-
     private static Cursor getCursorForState(S state) {
         switch (state) {
             case NW_RESIZE:
@@ -230,15 +182,51 @@ public class DragResizeMod {
         }
     }
 
+    protected void mouseReleased(MouseEvent event) {
+        node.setCursor(Cursor.DEFAULT);
+        state = S.DEFAULT;
+    }
+
+    protected void mouseOver(MouseEvent event) {
+        S state = currentMouseState(event);
+        Cursor cursor = getCursorForState(state);
+        if (node instanceof Widget) {
+            if (!((Widget) node).getControl().editableProperty.getValue()) {
+                cursor = getCursorForState(S.DEFAULT);
+            }
+        }
+
+        node.setCursor(cursor);
+
+    }
+
+    private S currentMouseState(MouseEvent event) {
+        S state = S.DEFAULT;
+        boolean left = isLeftResizeZone(event);
+        boolean right = isRightResizeZone(event);
+        boolean top = isTopResizeZone(event);
+        boolean bottom = isBottomResizeZone(event);
+
+        if (left && top) state = S.NW_RESIZE;
+        else if (left && bottom) state = S.SW_RESIZE;
+        else if (right && top) state = S.NE_RESIZE;
+        else if (right && bottom) state = S.SE_RESIZE;
+        else if (right) state = S.E_RESIZE;
+        else if (left) state = S.W_RESIZE;
+        else if (top) state = S.N_RESIZE;
+        else if (bottom) state = S.S_RESIZE;
+        else if (isInDragZone(event)) state = S.DRAG;
+
+        return state;
+    }
 
     protected void mouseDragged(MouseEvent event) {
-
         if (listener != null) {
             double mouseX = parentX(event.getX());
             double mouseY = parentY(event.getY());
             if (state == S.DRAG && event.isControlDown()) {
 //                System.out.println("mouseDragged" + event + "  crontorl: " + event.isControlDown());
-                listener.onDrag(node, mouseX - clickX, mouseY - clickY, nodeH, nodeW);
+                listener.onDrag(node, event, mouseX - clickX, mouseY - clickY, nodeH, nodeW);
             } else if (state != S.DEFAULT) {
                 //resizing
                 double newX = nodeX;
@@ -279,13 +267,12 @@ public class DragResizeMod {
                     newH = MIN_H;
                 }
 
-                listener.onResize(node, newX, newY, newH, newW);
+                listener.onResize(node, event, newX, newY, newH, newW);
             }
         }
     }
 
     protected void mousePressed(MouseEvent event) {
-
         if (isInResizeZone(event)) {
             setNewInitialEventCoordinates(event);
             state = currentMouseState(event);
@@ -369,5 +356,32 @@ public class DragResizeMod {
     private double nodeH() {
         return node.getLayoutBounds().getHeight();
 //        return node.getBoundsInParent().getHeight();
+    }
+
+    public static enum S {
+        DEFAULT,
+        DRAG,
+        NW_RESIZE,
+        SW_RESIZE,
+        NE_RESIZE,
+        SE_RESIZE,
+        E_RESIZE,
+        W_RESIZE,
+        N_RESIZE,
+        S_RESIZE
+    }
+
+    public interface OnDragResizeEventListener {
+        void onDrag(Node node, MouseEvent event, double x, double y, double h, double w);
+
+        void onResize(Node node, MouseEvent event, double x, double y, double h, double w);
+
+        BooleanProperty resizeableProperty();
+
+        BooleanProperty snapToGridProperty();
+
+        void setDashBoardPane(DashBoardPane dashBoardPane);
+
+
     }
 }

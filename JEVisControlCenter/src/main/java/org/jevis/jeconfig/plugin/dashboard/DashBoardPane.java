@@ -33,8 +33,10 @@ public class DashBoardPane extends Pane {
 
 
     private static final Logger logger = LogManager.getLogger(DashBoardPane.class);
-    private final List<Double> xGrids = new ArrayList<>();
-    private final List<Double> yGrids = new ArrayList<>();
+    public final List<Double> xGrids = new ArrayList<>();
+    public final List<Double> yGrids = new ArrayList<>();
+    public final List<Double> xGridsFine = new ArrayList<>();
+    public final List<Double> yGridsFine = new ArrayList<>();
     private final Scale scale = new Scale();
     private final List<Line> visibleGrid = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
@@ -182,6 +184,10 @@ public class DashBoardPane extends Pane {
 
     public boolean getSnapToGrid() {
         return this.control.showGridProperty.getValue();
+    }
+
+    public double getGrid() {
+        return this.control.getDashboardPane().getGrid();
     }
 
     public void updateView() {
@@ -336,7 +342,8 @@ public class DashBoardPane extends Pane {
         this.setMaxHeight(newValue.getHeight());
         this.setMinHeight(newValue.getHeight());
         this.setPrefHeight(newValue.getHeight());
-        createGrid(analysis.xGridInterval, analysis.yGridInterval);
+        createGrid(analysis.xGridInterval / 4, analysis.yGridInterval / 4, new ArrayList<>(), xGridsFine, yGridsFine);
+        createGrid(analysis.xGridInterval, analysis.yGridInterval, visibleGrid, xGrids, yGrids);
     }
 
 //    /**
@@ -395,10 +402,9 @@ public class DashBoardPane extends Pane {
      * @param xGridInterval
      * @param yGridInterval
      */
-    public void createGrid(double xGridInterval, double yGridInterval) {
+    public void createGrid(double xGridInterval, double yGridInterval, List<Line> visibleGrid, List<Double> xGrid, List<Double> yGrid) {
         logger.debug("createGrid: {},{}", xGridInterval, yGridInterval);
         getChildren().removeAll(visibleGrid);
-
 
         double totalHeight = analysis.getSize().getHeight();
         double totalWidth = analysis.getSize().getWidth();
@@ -407,14 +413,14 @@ public class DashBoardPane extends Pane {
         double opacity = 0.4;
         Double[] strokeDashArray = new Double[]{4d};
 
-        this.xGrids.clear();
-        this.yGrids.clear();
+        xGrid.clear();
+        yGrid.clear();
         this.visibleGrid.clear();
 
         /** rows **/
         for (int i = 0; i < maxColumns; i++) {
             double xPos = i * xGridInterval;
-            this.xGrids.add(xPos);
+            xGrid.add(xPos);
 
             Line line = new Line();
             line.setId("grid");
@@ -426,14 +432,14 @@ public class DashBoardPane extends Pane {
             line.setOpacity(opacity);
             if (i % 4 == 0) line.setStroke(Color.MEDIUMSLATEBLUE);
             line.setMouseTransparent(true);
-            this.visibleGrid.add(line);
+            visibleGrid.add(line);
 
         }
 
         /** columns **/
         for (int i = 0; i < maxRows; i++) {
             double yPos = i * yGridInterval;
-            this.yGrids.add(yPos);
+            yGrid.add(yPos);
 
             Line line = new Line();
             line.setId("grid");
@@ -445,27 +451,29 @@ public class DashBoardPane extends Pane {
             line.setOpacity(opacity);
             if (i % 4 == 0) line.setStroke(Color.MEDIUMSLATEBLUE);
             line.setMouseTransparent(true);
-            this.visibleGrid.add(line);
+            visibleGrid.add(line);
 
         }
     }
 
 
-    public double getNextGridX(double xPos) {
+    public double getNextGridX(double xPos, List<Double> grid) {
         if (!this.control.snapToGridProperty.get()) {
             return xPos;
         }
-        double c = this.xGrids.stream()
+
+        double c = grid.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - xPos)))
                 .orElse(xPos);
         return c;
     }
 
-    public double getNextGridY(double yPos) {
+    public double getNextGridY(double yPos, List<Double> grid) {
         if (!this.control.snapToGridProperty.get()) {
             return yPos;
         }
-        double c = this.yGrids.stream()
+
+        double c = grid.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - yPos)))
                 .orElse(yPos);
         return c;
