@@ -3918,6 +3918,7 @@ public interface JC {
         String a_CustomMedium = "Custom Medium";
         String a_category = "category";
         String a_scope = "scope";
+        String a_Relevance = "Relevance";
 
         interface IndexofLegalProvionsDirectory {
             String name = "Index of Legal Provisions Directory";
