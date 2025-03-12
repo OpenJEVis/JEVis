@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.CustomStringConverter;
@@ -72,7 +73,9 @@ public class SampleGraphExtension implements SampleEditorExtension {
         bp.setStyle("-fx-background-color: transparent");
 
         try {
-            if (attribute.getObject().getJEVisClassName().equals("Data") || attribute.getObject().getJEVisClassName().equals("Clean Data")) {
+            if (attribute.getObject().getJEVisClassName().equals(JC.Data.name) || attribute.getObject().getJEVisClassName().equals(JC.Data.CleanData.name)
+                    || attribute.getObject().getJEVisClassName().equals(JC.Data.BaseData.name) || attribute.getObject().getJEVisClassName().equals(JC.Data.ForecastData.name)
+                    || attribute.getObject().getJEVisClassName().equals(JC.Data.MathData.name)) {
 
                 DateTime firstTS = null;
                 DateTime lastTS = null;

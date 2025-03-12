@@ -23,6 +23,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -268,10 +269,6 @@ public class RoleExtention implements ObjectEditorExtension {
     private void build(final JEVisObject obj) {
         logger.error("build: {}", obj);
 
-
-        ScrollPane scroll = new ScrollPane();
-        scroll.setMaxSize(10000, 10000);
-
         Label userTitle = new Label(I18n.getInstance().getString("plugin.object.role.users"));
         Label groupTitle = new Label(I18n.getInstance().getString("plugin.object.role.grouprights"));
         JFXCheckBox showActiveMember = new JFXCheckBox(I18n.getInstance().getString("plugin.object.role.autofilter"));
@@ -297,29 +294,32 @@ public class RoleExtention implements ObjectEditorExtension {
         gridPane.setId("rolegrid");
         gridPane.setHgap(4);
         gridPane.setVgap(8);
-        gridPane.setMinWidth(600);
-
+        gridPane.setMinWidth(_view.getLayoutBounds().getWidth());
 
         try {
             buildUserTable();
             buildGroupTable();
-            userTableView.setMinWidth(700);
-            groupTableView.setMinWidth(700);
+            userTableView.setMinWidth(_view.getLayoutBounds().getWidth());
+            groupTableView.setMinWidth(_view.getLayoutBounds().getWidth());
             dashboardList = buildDashboardListView();
 
-            int raw = 0;
+            int row = 0;
 
-            gridPane.addRow(raw, dashboardLabel, dashboardList, overwriteDashboard);
-            gridPane.add(new Separator(Orientation.HORIZONTAL), 0, ++raw, 3, 1);
-            gridPane.addRow(++raw, groupTitle);
-            gridPane.addRow(++raw, showActiveMember);
-            gridPane.add(groupFilterBox, 2, raw, 1, 1);
-            gridPane.add(groupTableView, 0, ++raw, 3, 1);
-            gridPane.add(new Separator(Orientation.HORIZONTAL), 0, ++raw, 3, 1);
-            gridPane.addRow(++raw, userTitle);
-            gridPane.addRow(++raw, showActiveUser);
-            gridPane.add(userFilterBox, 2, raw, 1, 1);
-            gridPane.add(userTableView, 0, ++raw, 3, 1);
+            gridPane.addRow(row, dashboardLabel, dashboardList, overwriteDashboard);
+            gridPane.add(new Separator(Orientation.HORIZONTAL), 0, ++row, 3, 1);
+            gridPane.addRow(++row, groupTitle);
+            gridPane.addRow(++row, showActiveMember);
+            gridPane.add(groupFilterBox, 2, row, 1, 1);
+            gridPane.add(groupTableView, 0, ++row, 3, 1);
+            GridPane.setHgrow(groupTableView, Priority.ALWAYS);
+            GridPane.setFillWidth(groupTableView, true);
+            gridPane.add(new Separator(Orientation.HORIZONTAL), 0, ++row, 3, 1);
+            gridPane.addRow(++row, userTitle);
+            gridPane.addRow(++row, showActiveUser);
+            gridPane.add(userFilterBox, 2, row, 1, 1);
+            gridPane.add(userTableView, 0, ++row, 3, 1);
+            GridPane.setHgrow(userTableView, Priority.ALWAYS);
+            GridPane.setFillWidth(userTableView, true);
 
             //GridPane.setFillWidth(groupFilterBox, true);
             GridPane.setHalignment(groupFilterBox, HPos.RIGHT);
