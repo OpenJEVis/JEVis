@@ -310,7 +310,7 @@ public class ControlPane extends GridPane {
             }
             //logger.error("Generate Samples: object: {} attribute: '{}' from/until: {}/{} period: {}", attribute.getObject(),attribute,fromDate,untilDate,period);
 
-            logger.error("Samples: {}", sampleList.size());
+            logger.debug("Samples: {}", sampleList.size());
 
         } catch (Exception ex) {
             logger.error(ex);

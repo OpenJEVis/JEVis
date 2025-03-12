@@ -138,8 +138,10 @@ public class MathStep implements ProcessStep {
                     start = startDate.minusYears(ending.getYear() - beginning.getYear());
 
                     Period periodForDate = CleanDataObject.getPeriodForDate(mathDataObject.getPeriodAlignment(), start);
+                    Period p1m = Period.months(1);
+                    Period p3m = Period.months(3);
 
-                    if (Period.months(1).equals(periodForDate)) {
+                    if (p1m.equals(periodForDate) || p3m.equals(periodForDate)) {
                         int maxDay = start.dayOfMonth().getMaximumValue();
                         if (dayOfMonthBeginning > maxDay) {
                             dayOfMonthBeginning = maxDay;
@@ -247,12 +249,23 @@ public class MathStep implements ProcessStep {
         DateTime date = intervals.get(0).getDate();
 
         for (JEVisSample sample : samples) {
+            DateTime sampleDt = sample.getTimestamp().withZone(date.getZone());
             if (Period.months(1).equals(periodRule.getPeriod())) {
-                if (sample.getTimestamp().withZone(date.getZone()).getMonthOfYear() != date.getMonthOfYear()) {
+                if (sampleDt.getMonthOfYear() != date.getMonthOfYear()) {
                     toRemove.add(sample);
                 }
             } else if (Period.days(1).equals(periodRule.getPeriod())) {
-                if (sample.getTimestamp().withZone(date.getZone()).getDayOfYear() != date.getDayOfYear()) {
+                if (sampleDt.getDayOfYear() != date.getDayOfYear()) {
+                    toRemove.add(sample);
+                }
+            } else if (Period.months(3).equals(periodRule.getPeriod())) {
+                if (date.getMonthOfYear() < 4 && sampleDt.getMonthOfYear() > 3) {
+                    toRemove.add(sample);
+                } else if (date.getMonthOfYear() > 3 && date.getMonthOfYear() < 7 && (sampleDt.getMonthOfYear() < 4 || sampleDt.getMonthOfYear() > 6)) {
+                    toRemove.add(sample);
+                } else if (date.getMonthOfYear() > 6 && date.getMonthOfYear() < 10 && (sampleDt.getMonthOfYear() < 7 || sampleDt.getMonthOfYear() > 9)) {
+                    toRemove.add(sample);
+                } else if (date.getMonthOfYear() > 9 && date.getMonthOfYear() < 13 && (sampleDt.getMonthOfYear() < 10 || sampleDt.getMonthOfYear() > 12)) {
                     toRemove.add(sample);
                 }
             }
