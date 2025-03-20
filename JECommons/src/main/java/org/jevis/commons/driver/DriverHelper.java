@@ -65,9 +65,14 @@ public class DriverHelper {
         for (DriverProperty driverProp : parserAttributes) {
             try {
                 JEVisType fileType = driverProp.getDriver().getJEVisClass().getType(DataCollectorTypes.Driver.SOURCE_FILE);
-                JEVisFile file = DatabaseHelper.getObjectAsFile(driverProp.getDriver(), fileType);
-                Class c = ByteClassLoader.loadDriver(file, driverProp.getClassName());
-                classes.put(driverProp.getJevisName(), c);
+                Class aClass;
+                try {
+                    aClass = Class.forName(driverProp.getClassName());
+                } catch (ClassNotFoundException classNotFoundException) {
+                    JEVisFile file = DatabaseHelper.getObjectAsFile(driverProp.getDriver(), fileType);
+                    aClass = ByteClassLoader.loadDriver(file, driverProp.getClassName());
+                }
+                classes.put(driverProp.getJevisName(), aClass);
             } catch (JEVisException ex) {
                 logger.fatal(ex);
             } catch (FileNotFoundException ex) {
@@ -172,10 +177,6 @@ public class DriverHelper {
                             continue;
                         }
 
-                        JEVisType fileType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.SOURCE_FILE);
-                        DateTime fileDate = driver.getAttribute(fileType).getTimestampOfLastSample();
-                        logger.debug("Driver file date: {}", fileDate);
-
                         JEVisType classType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.MAIN_CLASS);
                         String className = DatabaseHelper.getObjectAsString(driver, classType);
                         logger.debug("Main Class: {}", className);
@@ -184,6 +185,9 @@ public class DriverHelper {
                         String jevisName = DatabaseHelper.getObjectAsString(driver, jevisType);
                         logger.debug("JEVis Class: {}", className);
 
+                        JEVisType fileType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.SOURCE_FILE);
+                        DateTime fileDate = driver.getAttribute(fileType).getTimestampOfLastSample();
+                        logger.debug("Driver file date: {}", fileDate);
                         driverProperties.add(new DriverProperty(driver, fileDate, className, jevisName, JEVIS_SOURCE));
                     }
                 }

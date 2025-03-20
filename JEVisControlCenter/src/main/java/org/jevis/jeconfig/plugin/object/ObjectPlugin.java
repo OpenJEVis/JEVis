@@ -984,4 +984,8 @@ public class ObjectPlugin implements Plugin {
             loadingObjectProperty.setValue(false);
         }
     }
+
+    public JEVisTree getTree() {
+        return tree;
+    }
 }

@@ -24,24 +24,14 @@ import static org.jevis.jeconfig.plugin.dashboard.widget.ArrowWidget.ARROW_ORIEN
 public class ArrowConfig {
 
     private static final Logger logger = LogManager.getLogger(ArrowConfig.class);
-
-    private ARROW_ORIENTATION orientation = ARROW_ORIENTATION.LEFT_RIGHT;
-    private SHAPE shape = SHAPE.ARROW;
+    final DashboardControl dashboardControl;
     private final String JSON_ORIENTATION = "orientation";
     private final String JSON_SHAPE = "shape";
-
-    final DashboardControl dashboardControl;
+    private ARROW_ORIENTATION orientation = ARROW_ORIENTATION.LEFT_RIGHT;
+    private SHAPE shape = SHAPE.ARROW;
 
     public ArrowConfig(DashboardControl control) {
         this(control, null);
-    }
-
-    public ARROW_ORIENTATION getOrientation() {
-        return orientation;
-    }
-
-    public SHAPE getShape() {
-        return shape;
     }
 
     public ArrowConfig(DashboardControl control, JsonNode jsonNode) {
@@ -56,19 +46,12 @@ public class ArrowConfig {
         }
     }
 
+    public ARROW_ORIENTATION getOrientation() {
+        return orientation;
+    }
 
-    private class ArrowTab extends Tab implements ConfigTab {
-        ArrowConfig limit;
-
-        public ArrowTab(String text, ArrowConfig limit) {
-            super(text);
-            this.limit = limit;
-        }
-
-        @Override
-        public void commitChanges() {
-            //TODO;
-        }
+    public SHAPE getShape() {
+        return shape;
     }
 
     public Tab getConfigTab() {
@@ -159,7 +142,6 @@ public class ArrowConfig {
             shape = newValue;
         });
 
-
         gridPane.addRow(0, limitTypeLabel, orientationTypeBox);
         gridPane.addRow(1, shapeLabel, shapeBox);
         //gridPane.add(new Separator(Orientation.HORIZONTAL_TOP_LEFT), 0, 2, 2, 1);
@@ -170,13 +152,26 @@ public class ArrowConfig {
         return tab;
     }
 
-
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
         dataNode.put(JSON_ORIENTATION, orientation.toString());
         dataNode.put(JSON_SHAPE, shape.toString());
 
         return dataNode;
+    }
+
+    private class ArrowTab extends Tab implements ConfigTab {
+        ArrowConfig limit;
+
+        public ArrowTab(String text, ArrowConfig limit) {
+            super(text);
+            this.limit = limit;
+        }
+
+        @Override
+        public void commitChanges() {
+            //TODO;
+        }
     }
 
 

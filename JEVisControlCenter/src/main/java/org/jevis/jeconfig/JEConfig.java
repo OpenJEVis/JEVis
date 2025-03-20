@@ -51,12 +51,11 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.ws.CertificateImporter;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
@@ -79,6 +78,7 @@ import javax.xml.xpath.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -648,18 +648,34 @@ public class JEConfig extends Application {
         jeconfigRoot.getChildren().setAll(login);
 
 
-        //checkVersion(login.getDataSource());
+        try {
+            String hostname = "";
+            String keyStore = System.getProperty("java.home") + "\\lib\\security";
+            for (JEVisOption opt : login.getDataSource().getConfiguration()) {
+                if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
+                    for (JEVisOption dsOption : opt.getOptions()) {
+                        if (dsOption.equals(CommonOptions.DataSource.HOST)) {
+                            hostname = dsOption.getValue();
+                        }
+                    }
+                }
+            }
+            URL url = new URL(hostname);
+            logger.info("Java Path: {}", System.getProperty("java.home"));
+            CertificateImporter certificateImporter = new CertificateImporter();
+            certificateImporter.checkAndImport(url, keyStore, "changeit", true, false);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        //Platform.runLater(() -> notificationPane.show(message));
-
-        /**delay or it will not be shown**/
         executor.schedule(new Runnable() {
             @Override
             public void run() {
                 login.checkVersion();
             }
         }, 1, TimeUnit.SECONDS);
+
 
         primaryStage.onCloseRequestProperty().addListener((ov, t, t1) -> {
             try {

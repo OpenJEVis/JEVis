@@ -31,22 +31,9 @@ public class ArrowWidget extends Widget {
 
     private static final Logger logger = LogManager.getLogger(ArrowWidget.class);
     public static String WIDGET_ID = "Arrow";
+    public static String ARROW_NODE_NAME = "arrow";
     private AnchorPane anchorPane = new AnchorPane();
     private ArrowConfig arrowConfig;
-    public static String ARROW_NODE_NAME = "arrow";
-
-    public enum ARROW_ORIENTATION {
-        LEFT_RIGHT,
-        RIGHT_LEFT,
-        TOP_BOTTOM,
-        BOTTOM_TOP
-    }
-
-    public enum SHAPE {
-        ARROW,
-        LINE,
-    }
-
 
     public ArrowWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -57,7 +44,6 @@ public class ArrowWidget extends Widget {
     public void debug() {
 
     }
-
 
     @Override
     public WidgetPojo createDefaultConfig() {
@@ -72,7 +58,6 @@ public class ArrowWidget extends Widget {
 
         return widgetPojo;
     }
-
 
     @Override
     public void updateData(Interval interval) {
@@ -118,7 +103,6 @@ public class ArrowWidget extends Widget {
         return new ArrayList<>();
     }
 
-
     @Override
     public void init() {
         //this.label.setPadding(new Insets(0, 8, 0, 8));
@@ -140,7 +124,6 @@ public class ArrowWidget extends Widget {
         anchorPane.widthProperty().addListener(observable -> updateConfig());
 
     }
-
 
     @Override
     public void openConfig() {
@@ -184,16 +167,16 @@ public class ArrowWidget extends Widget {
         return JEConfig.getImage("widget/ArrowWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
-
     private void updateArrow() {
         Platform.runLater(() -> {
             if (arrowConfig != null) {
-                anchorPane.getChildren().setAll(drawArrowPath(anchorPane.getWidth(), anchorPane.getHeight(), arrowConfig.getOrientation(), arrowConfig.getShape()));
+                anchorPane.getChildren().setAll(drawArrowPath(
+                        anchorPane.getWidth(), anchorPane.getHeight(),
+                        arrowConfig.getOrientation(), arrowConfig.getShape()));
             }
         });
 
     }
-
 
     private Pane drawArrowPath(double parentWidth, double parentHeight, ARROW_ORIENTATION orientation, SHAPE shape) {
         if (orientation.equals(ARROW_ORIENTATION.BOTTOM_TOP) || orientation.equals(ARROW_ORIENTATION.TOP_BOTTOM)) {
@@ -209,14 +192,15 @@ public class ArrowWidget extends Widget {
 
         double yQuarter = parentHeight / 4;
         double xStart = 0;
+        //if (lPadding) xStart = 6.3;
         double yStart = yQuarter;
-        double xWidth = parentWidth + 1 - arrowSize;//-1 to remove gap
+        //double xWidth = parentWidth + 1 - arrowSize;//-1 to remove gap
+        double xWidth = parentWidth - arrowSize;//-1 to remove gap
         double yHeight = yQuarter * 2;
         double arrowPeak = parentHeight / 2;
 
         Rectangle rectangle = new Rectangle(xStart, yStart, xWidth, yHeight);
         rectangle.setFill(this.config.getFontColor());
-
 
         Pane arrow = new Pane();
 
@@ -244,7 +228,14 @@ public class ArrowWidget extends Widget {
                 arrow.setTranslateY(parentWidth);
                 break;
             case LEFT_RIGHT:
-                //Default
+                /*
+                arrow.getTransforms().add(new Rotate(-0));
+                arrow.setTranslateX(parentWidth);
+                arrow.setTranslateY(parentHeight);
+                arrow.setTranslateY(parentWidth);
+
+                 */
+                //Default, no transformation needed
                 break;
             case RIGHT_LEFT:
                 arrow.getTransforms().add(new Rotate(180));
@@ -256,9 +247,21 @@ public class ArrowWidget extends Widget {
                 arrow.setTranslateX(parentHeight);
                 break;
         }
-
-
         return arrow;
+    }
+
+
+    public enum ARROW_ORIENTATION {
+        LEFT_RIGHT,
+        RIGHT_LEFT,
+        TOP_BOTTOM,
+        BOTTOM_TOP
+    }
+
+
+    public enum SHAPE {
+        ARROW,
+        LINE,
     }
 
 }

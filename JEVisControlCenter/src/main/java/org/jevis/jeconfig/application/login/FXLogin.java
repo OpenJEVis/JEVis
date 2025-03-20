@@ -173,6 +173,7 @@ public class FXLogin extends AnchorPane {
         } else {
             init();
 
+
             Platform.runLater(() -> {
                 this.userName.setEditable(true);
                 this.mainStage.setMaximized(false);
@@ -230,9 +231,25 @@ public class FXLogin extends AnchorPane {
             this.progress.setVisible(true);
             this.progress.setVisible(true);
         });
+
+        //FS hier
+
         //start animation, todo make an own thread..
         Runnable runnable = () -> {
             try {
+
+                /*
+                Platform.runLater(() -> {
+                    try {
+                        CertificateImporter certificateImporter = new CertificateImporter("https://jevis.nexinto.com");
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                });
+
+                 */
+
+
                 if (this._ds.connect(this.userName.getText(), this.userPassword.getText())) {
                     logger.trace("Login succeeded");
                     if (this.storeConfig.isSelected()) {
