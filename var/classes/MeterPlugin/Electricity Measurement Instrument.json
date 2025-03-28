@@ -52,7 +52,7 @@
       "jevisClass": "Electricity Measurement Instrument"
     },
     {
-      "name": "Voltage Transformer",
+      "name": "Voltage Transformer Type",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 63,
