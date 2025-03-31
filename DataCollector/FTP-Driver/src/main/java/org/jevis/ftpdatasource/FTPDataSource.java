@@ -6,6 +6,7 @@
 package org.jevis.ftpdatasource;
 
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -197,6 +198,11 @@ public class FTPDataSource implements DataSource {
             ftpClient = new FTPClient();
         }
 //            ftpClient.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out), true));
+
+        FTPClientConfig ftpClientConfig = new FTPClientConfig();
+        ftpClientConfig.setServerTimeZoneId("UTC");
+
+        ftpClient.configure(ftpClientConfig);
 
         if (connectionTimeout != null) {
             ftpClient.setConnectTimeout(connectionTimeout * 1000);
