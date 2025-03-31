@@ -8,6 +8,7 @@
     </parent>
     <artifactId>Shelly-Driver</artifactId>
     <name>Shelly-Driver</name>
+    <groupId>org.jevis</groupId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
