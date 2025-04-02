@@ -45,7 +45,6 @@ public class PrepareMath implements ProcessStep {
 
             if (dtEnd.isBefore(dtStart)) {
                 start = start.minusDays(1);
-                end = end.minusDays(1);
             }
         }
 
