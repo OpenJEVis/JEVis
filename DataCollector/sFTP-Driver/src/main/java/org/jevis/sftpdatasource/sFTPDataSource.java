@@ -5,61 +5,115 @@
  */
 package org.jevis.sftpdatasource;
 
-import com.jcraft.jsch.*;
-import org.apache.commons.net.ftp.FTPClient;
 import org.apache.http.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.keyverifier.AcceptAllServerKeyVerifier;
+import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
+import org.apache.sshd.sftp.client.SftpClient;
+import org.apache.sshd.sftp.client.SftpClientFactory;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyPair;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 public class sFTPDataSource implements DataSource {
     private static final Logger logger = LogManager.getLogger(sFTPDataSource.class);
-    private final Boolean _ssl = false;
-    private final List<JEVisObject> _channels = new ArrayList<>();
-    protected FTPClient _fc;
-    private String _serverURL;
-    private Integer _port;
-    private String _userName;
-    private String _password;
-    private DateTimeZone _timezone;
-    private Parser _parser;
-    private Importer _importer;
-    private List<Result> _result;
+    private final List<JEVisObject> channels = new ArrayList<>();
+    private String serverURL;
+    private Integer port;
+    private String userName;
+    private String password;
+    private DateTimeZone timezone;
+    private Parser parser;
+    private Importer importer;
+    private List<Result> result;
+    private String sshKey;
+    private SshClient client;
+    private Integer connectionTimeout;
+    private Integer readTimeout;
+    private String logDataSourceID = "sFTP";
+    private Boolean deleteOnSuccess = false;
 
-    private ChannelSftp _channel;
-    private Session _session;
-    private Integer _connectionTimeout;
-    private Integer _readTimeout;
+    // Extrahiert den konstanten Startpfad (z. B. "/ext/Log") aus dem Regex
+    private static String extractRootPath(String regexPattern) {
+        int wildcardIndex = regexPattern.indexOf('(');
+        if (wildcardIndex == -1) {
+            // Kein dynamischer Teil – der gesamte Pfad ist fix
+            return regexPattern;
+        }
+        String fixedPrefix = regexPattern.substring(0, wildcardIndex);
+        // Trim auf letzten Slash, um sicherzustellen, dass es ein Pfad ist
+        int lastSlash = fixedPrefix.lastIndexOf('/');
+        return lastSlash >= 0 ? fixedPrefix.substring(0, lastSlash) : "/";
+    }
+
+    public List<String> findMatchingFiles(SftpClient sftp, String regexPattern, DateTime lastReadOut) throws IOException {
+        List<String> matchingFiles = new ArrayList<>();
+        Pattern pattern = Pattern.compile(regexPattern);
+
+        String rootPath = extractRootPath(regexPattern);
+        walkAndMatch(sftp, rootPath, pattern, lastReadOut, matchingFiles);
+
+        return matchingFiles;
+    }
+
+    private void walkAndMatch(SftpClient sftp, String currentPath, Pattern pattern, DateTime lastReadOut, List<String> result) throws IOException {
+        logger.debug("{} walkAndMatch: path: {} ,Last-TS: {}", logDataSourceID, currentPath, lastReadOut);
+        for (SftpClient.DirEntry entry : sftp.readDir(currentPath)) {
+            String name = entry.getFilename();
+            logger.debug("{} traversing file: {}", logDataSourceID, name);
+            if (name.equals(".") || name.equals("..")) continue;
+
+            String fullPath = currentPath.endsWith("/") ? currentPath + name : currentPath + "/" + name;
+
+            if (entry.getAttributes().isDirectory()) {
+                walkAndMatch(sftp, fullPath, pattern, lastReadOut, result); // rekursiv tiefer gehen
+            } else {
+                if (pattern.matcher(fullPath).matches() && entry.getAttributes().getModifyTime().toMillis() <= lastReadOut.getMillis()) {
+                    result.add(fullPath);
+                    logger.debug("{} File matches: {}", logDataSourceID, fullPath);
+                } else {
+                    logger.debug("{} File does not match: {}", logDataSourceID, fullPath);
+                }
+            }
+        }
+    }
 
     @Override
     public void parse(List<InputStream> input) {
-        _parser.parse(input, _timezone);
-        _result = _parser.getResult();
+        parser.parse(input, timezone);
+        result = parser.getResult();
     }
 
     @Override
     public void run() {
+        client = SshClient.setUpDefaultClient();
+        client.setServerKeyVerifier(AcceptAllServerKeyVerifier.INSTANCE);
+        client.start();
 
-        for (JEVisObject channel : _channels) {
-
+        for (JEVisObject channel : channels) {
             try {
-                _result = new ArrayList<Result>();
+                result = new ArrayList<Result>();
                 JEVisClass parserJevisClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Parser.NAME);
                 JEVisObject parser = channel.getChildren(parserJevisClass, true).get(0);
 
-                _parser = ParserFactory.getParser(parser);
-                _parser.initialize(parser);
+                this.parser = ParserFactory.getParser(parser);
+                this.parser.initialize(parser);
 
                 try {
                     List<InputStream> input = this.sendSampleRequest(channel);
@@ -68,41 +122,35 @@ public class sFTPDataSource implements DataSource {
                         this.parse(input);
                     }
 
-                    if (!_result.isEmpty()) {
-
-//                    this.importResult();
-//
-//                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
-                        JEVisImporterAdapter.importResults(_result, _importer, channel);
+                    if (!result.isEmpty()) {
+                        JEVisImporterAdapter.importResults(result, importer, channel);
                         for (InputStream inputStream : input) {
                             try {
                                 inputStream.close();
                             } catch (Exception ex) {
-                                logger.warn("could not close input stream: {}", ex.getMessage());
+                                logger.warn("{} could not close input stream: {}", logDataSourceID, ex.getMessage());
                             }
                         }
                     }
-                } catch (JSchException ex) {
-                    logger.error("No connection possible. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("No connection possible. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                    _channel.disconnect();
-                    _session.disconnect();
                 } catch (JEVisException ex) {
-                    logger.error("JEVisException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("JEVisException. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                } catch (SftpException ex) {
-                    logger.error("Sftp Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("Sftp Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
+                    logger.error("{} JEVisException. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("{} JEVisException. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
                 } catch (ParseException ex) {
-                    logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                    logger.error("{} Parse Exception. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("{} Parse Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
                 } catch (Exception ex) {
-                    logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                    logger.error("{} Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
                 }
             } catch (Exception ex) {
                 logger.error(ex);
             }
         }
+        try {
+            client.stop();
+        } catch (Exception e) {
+            logger.error("{} Error closing client: {}", logDataSourceID, e);
+        }
+
     }
 
     @Override
@@ -117,82 +165,84 @@ public class sFTPDataSource implements DataSource {
         initializeAttributes(ftpObject);
         initializeChannelObjects(ftpObject);
 
-        _importer = ImporterFactory.getImporter(ftpObject);
-        _importer.initialize(ftpObject);
+        importer = ImporterFactory.getImporter(ftpObject);
+        importer.initialize(ftpObject);
 
     }
 
     @Override
-    public List<InputStream> sendSampleRequest(JEVisObject channel) throws JSchException, JEVisException, SftpException {
-
+    public List<InputStream> sendSampleRequest(JEVisObject channel) throws JEVisException {
         List<InputStream> answerList = new ArrayList<InputStream>();
 
-        String hostname = _serverURL;
-        String login = _userName;
-        String password = _password;
-
-        java.util.Properties config = new java.util.Properties();
-        config.put("StrictHostKeyChecking", "no");
-
         try {
-            JSch ssh = new JSch();
-            _session = ssh.getSession(login, hostname, _port);
-            _session.setConfig(config);
-            _session.setPassword(password);
-            _session.setTimeout(_readTimeout * 1000);
-            _session.connect(_connectionTimeout * 1000);
-            _channel = (ChannelSftp) _session.openChannel("sftp");
-            _channel.connect();
-
             JEVisClass channelClass = channel.getJEVisClass();
             JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.PATH);
             String filePath = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
-
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
 
-            List<String> fileNames = DataSourceHelper.getSFTPMatchedFileNames(_channel, lastReadout, filePath);
+            final Iterable<KeyPair> keyPairs;
+            if (sshKey != null && !sshKey.isEmpty()) {
+                String fileStr = "C:/Users/fs/.ssh/id_jevisswn";
+                Path privateKeyPath = Paths.get(fileStr);
+                FileKeyPairProvider keyPairProvider = new FileKeyPairProvider(privateKeyPath);
+                keyPairs = keyPairProvider.loadKeys(null);
+            } else {
+                keyPairs = null;
+            }
 
-            for (String fileName : fileNames) {
-                logger.info("FileInputName: {}", fileName);
-                InputStream get = _channel.get(fileName);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try (ClientSession session = client.connect(userName, serverURL, port)
+                    .verify(Duration.ofSeconds(readTimeout * 1000))
+                    .getSession()) {
 
-                byte[] buffer = new byte[1024];
-                int len;
-                try {
-                    while ((len = get.read(buffer)) > 1) {
-                        baos.write(buffer, 0, len);
-                    }
-                    baos.flush();
-                } catch (Exception ex) {
-                    logger.error(ex);
+                if (keyPairs != null) {
+                    session.setKeyIdentityProvider((sessionContext) -> keyPairs);
+                } else {
+                    session.addPasswordIdentity(password);
                 }
+                session.auth().verify(Duration.ofSeconds(connectionTimeout * 1000));
 
-                InputStream answer = new ByteArrayInputStream(baos.toByteArray());
+                try (SftpClient sftp = SftpClientFactory.instance().createSftpClient(session)) {
 
-                answerList.add(answer);
+                    List<String> matches = findMatchingFiles(sftp, filePath, lastReadout);
+                    logger.info("{} {} files matches Pattern, starting download", logDataSourceID, matches.size());
+
+                    for (String path : matches) {
+                        try {
+                            logger.debug("{} Start Download: {}", logDataSourceID, path);
+                            InputStream inputStream = sftp.read(path);
+                            answerList.add(inputStream);
+                            if (deleteOnSuccess) sftp.remove(path);
+
+                            logger.debug("{} End Download: {}", logDataSourceID, path);
+                        } catch (IOException e) {
+                            logger.error("{} Error while reading path: {}: {}", logDataSourceID, path, e);
+                        }
+                    }
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                client.stop();
             }
 
-            _channel.exit();
-        } catch (JSchException | SftpException e) {
-            logger.error(e);
-        } finally {
-            if (_session != null) {
-                _session.disconnect();
-            }
+
+        } catch (Exception ex) {
+            logger.error("{} Error while while sending Sample Request: {}", logDataSourceID, ex);
         }
 
-
         if (answerList.isEmpty()) {
-            logger.error("Cant get any data from the device");
+            logger.warn("{} Cant get any data from the device", logDataSourceID);
         }
 
         return answerList;
     }
 
+
     private void initializeAttributes(JEVisObject sftpObject) {
         try {
+            logDataSourceID = String.format("[%s] %s -", sftpObject.getID(), sftpObject.getName());
             JEVisClass sftpType = sftpObject.getDataSource().getJEVisClass(DataCollectorTypes.DataSource.DataServer.sFTP.NAME);
             JEVisType server = sftpType.getType(DataCollectorTypes.DataSource.DataServer.sFTP.HOST);
             JEVisType port = sftpType.getType(DataCollectorTypes.DataSource.DataServer.sFTP.PORT);
@@ -202,45 +252,49 @@ public class sFTPDataSource implements DataSource {
             JEVisType user = sftpType.getType(DataCollectorTypes.DataSource.DataServer.sFTP.USER);
             JEVisType password = sftpType.getType(DataCollectorTypes.DataSource.DataServer.sFTP.PASSWORD);
             JEVisType timezoneType = sftpType.getType(DataCollectorTypes.DataSource.DataServer.sFTP.TIMEZONE);
-            JEVisType enableType = sftpType.getType(DataCollectorTypes.DataSource.DataServer.ENABLE);
+            JEVisType sshKeyType = sftpType.getType(DataCollectorTypes.DataSource.DataServer.sFTP.SSH_PRIVATE_KEY);
+            JEVisType deleteFileOnSuccessType = sftpType.getType(DataCollectorTypes.DataSource.DataServer.DELETE_ON_SUCCESS);
 
-            Long _id = sftpObject.getID();
-            String _name = sftpObject.getName();
-            _serverURL = DatabaseHelper.getObjectAsString(sftpObject, server);
+            serverURL = DatabaseHelper.getObjectAsString(sftpObject, server);
             JEVisAttribute portAttr = sftpObject.getAttribute(port);
             if (!portAttr.hasSample()) {
-                _port = 22;
+                this.port = 22;
             } else {
-                _port = DatabaseHelper.getObjectAsInteger(sftpObject, port);
+                this.port = DatabaseHelper.getObjectAsInteger(sftpObject, port);
             }
 
-            _connectionTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, connectionTimeout);
-            _readTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, readTimeout);
-            //            if (node.getAttribute(maxRequest).hasSample()) {
-            //                _maximumDayRequest = Integer.parseInt((String) node.getAttribute(maxRequest).getLatestSample().getValue());
-            //            }
+            this.connectionTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, connectionTimeout);
+            this.readTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, readTimeout);
             JEVisAttribute userAttr = sftpObject.getAttribute(user);
             if (!userAttr.hasSample()) {
-                _userName = "";
+                userName = "";
             } else {
-                _userName = DatabaseHelper.getObjectAsString(sftpObject, user);
+                userName = DatabaseHelper.getObjectAsString(sftpObject, user);
             }
             JEVisAttribute passAttr = sftpObject.getAttribute(password);
             if (!passAttr.hasSample()) {
-                _password = "";
+                this.password = "";
             } else {
-                _password = DatabaseHelper.getObjectAsString(sftpObject, password);
+                this.password = DatabaseHelper.getObjectAsString(sftpObject, password);
             }
 
             String timezoneString = DatabaseHelper.getObjectAsString(sftpObject, timezoneType);
             if (timezoneString != null) {
-                _timezone = DateTimeZone.forID(timezoneString);
+                timezone = DateTimeZone.forID(timezoneString);
             } else {
-                _timezone = DateTimeZone.UTC;
+                timezone = DateTimeZone.UTC;
             }
-            Boolean _enabled = DatabaseHelper.getObjectAsBoolean(sftpObject, enableType);
+
+            JEVisAttribute deleteOnSuccessAttr = sftpObject.getAttribute(deleteFileOnSuccessType);
+            if (deleteOnSuccessAttr == null || !deleteOnSuccessAttr.hasSample()) {
+                _deleteOnSuccess = false;
+            } else {
+                _deleteOnSuccess = DatabaseHelper.getObjectAsBoolean(sftpObject, deleteFileOnSuccessType);
+            }
+
+            sshKey = DatabaseHelper.getObjectAsString(sftpObject, sshKeyType);
         } catch (JEVisException ex) {
-            logger.error(ex);
+            logger.error("{}: ", logDataSourceID, ex);
         }
     }
 
@@ -252,23 +306,23 @@ public class sFTPDataSource implements DataSource {
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
             List<JEVisObject> channels = channelDir.getChildren(channelClass, false);
-            logger.info("Found " + channels.size() + " channel objects in " + channelDir.getName() + ":" + channelDir.getID());
+            logger.info("{} found {} channel Objects in {}", logDataSourceID, channels.size(), channelDir.getName() + ":" + channelDir.getID());
 
             channels.forEach(channelObject -> {
                 if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
-                    _channels.add(channelObject);
+                    this.channels.add(channelObject);
                     try {
                         ftpObject.getDataSource().reloadObject(channelObject);
                     } catch (Exception e) {
-                        logger.error("Could not reload attributes for object {}:{}", channelObject.getName(), channelObject.getID(), e);
+                        logger.error("{} Could not reload attributes for object {}:{}", logDataSourceID, channelObject.getName(), channelObject.getID(), e);
                     }
                     counterCheckForErrorInAPI.add(channelObject.getID());
                 }
             });
 
-            logger.info(channelDir.getName() + ":" + channelDir.getID() + " has " + _channels.size() + " channels.");
+            logger.info("{} {} has {}:{} channels", logDataSourceID, channelDir.getName(), channelDir.getID(), this.channels.size());
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.error("{}: ", logDataSourceID, ex);
         }
     }
 }
