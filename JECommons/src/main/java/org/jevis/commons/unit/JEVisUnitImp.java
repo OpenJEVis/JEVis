@@ -28,12 +28,14 @@ import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.MoneyUnit;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonUnit;
+import si.uom.SIServiceProvider;
+import systems.uom.common.spi.CommonServiceProvider;
+import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.spi.DefaultServiceProvider;
 
-import javax.measure.MetricPrefix;
-import javax.measure.converter.ConversionException;
-import javax.measure.converter.UnitConverter;
-import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
+import javax.measure.Prefix;
+import javax.measure.Unit;
+import javax.measure.spi.ServiceProvider;
 import java.text.ParsePosition;
 import java.util.Objects;
 
@@ -45,6 +47,9 @@ import java.util.Objects;
 public class JEVisUnitImp implements JEVisUnit {
 
     private static final Logger logger = LogManager.getLogger(JEVisUnitImp.class);
+    private static final ServiceProvider SISP = new SIServiceProvider();
+    private static final ServiceProvider DSP = new DefaultServiceProvider();
+    private static final ServiceProvider CSP = new CommonServiceProvider();
     private Unit unit;
     private String label;
     private String prefix;
@@ -52,10 +57,29 @@ public class JEVisUnitImp implements JEVisUnit {
     public JEVisUnitImp(Unit unit) {
         this();
         this.unit = unit;
-        UnitFormat unitFormat = UnitFormat.getInstance();
-        String uString = unitFormat.format(unit);
+
+        String uString = "";
+        try {
+            uString = SISP.getFormatService().getUnitFormat().format(unit);
+        } catch (Exception e) {
+            logger.info("Could not parse unit {} with SI Service Provider", unit, e);
+            try {
+                uString = DSP.getFormatService().getUnitFormat().format(unit);
+            } catch (Exception e1) {
+                logger.info("Could not parse unit {} with Default Service Provider", unit, e);
+                try {
+                    uString = CSP.getFormatService().getUnitFormat().format(unit);
+                } catch (Exception e2) {
+                    logger.error("Could not parse unit {} with Common Service Provider", unit, e);
+                }
+            }
+        }
         this.label = UnitManager.getInstance().format(uString);
-        this.prefix = getPrefixFromUnit(unit);
+        Prefix prefix = UnitManager.getInstance().prefixForUnit(unit);
+
+        if (prefix != null) {
+            this.prefix = prefix.getName();
+        } else this.prefix = "";
     }
 
     public JEVisUnitImp(org.jevis.commons.ws.json.JsonUnit json) {
@@ -66,7 +90,7 @@ public class JEVisUnitImp implements JEVisUnit {
             if (json.getFormula() != null) {
                 try {
                     ParsePosition parsePosition = new ParsePosition(0);
-                    this.unit = UnitFormat.getInstance().parseObject(json.getFormula(), parsePosition);
+                    this.unit = SISP.getFormatService().getUnitFormat().parse(json.getFormula(), parsePosition);
                 } catch (Exception | Error pe) {
                     try {
                         if (!json.getLabel().isEmpty()) {
@@ -93,7 +117,7 @@ public class JEVisUnitImp implements JEVisUnit {
     }
 
     public JEVisUnitImp() {
-        this.unit = Unit.ONE;
+        this.unit = AbstractUnit.ONE;
         this.prefix = "";
         this.label = "";
     }
@@ -108,8 +132,20 @@ public class JEVisUnitImp implements JEVisUnit {
      */
     public JEVisUnitImp(String unit, String label, String prefix) {
         this();
-        UnitFormula up = new UnitFormula(unit, label);
-        this.unit = up.getUnit();
+
+        try {
+            ParsePosition parsePosition = new ParsePosition(0);
+            this.unit = SISP.getFormatService().getUnitFormat().parse(unit, parsePosition);
+        } catch (Exception | Error pe) {
+            try {
+                if (!unit.isEmpty()) {
+                    JEVisUnit jeVisUnit = ChartUnits.parseUnit(unit);
+                    this.unit = jeVisUnit.getUnit();
+                }
+            } catch (Exception e) {
+                logger.info("Warning! Could not parse unit from string: {}", unit, pe);
+            }
+        }
         this.label = label;
         this.prefix = prefix;
     }
@@ -130,20 +166,6 @@ public class JEVisUnitImp implements JEVisUnit {
         this.prefix = prefix;
     }
 
-    private String getPrefixFromUnit(Unit unit) {
-        String unitString = unit.toString();
-        if (unitString.length() > 1) {
-            if (unitString.equals("m²") || unitString.equals("m³") || unitString.equals("min")) return "";
-
-            String sub = unitString.substring(0, 1);
-            MetricPrefix prefixFromShort = UnitManager.getInstance().getPrefixFromShort(sub);
-
-            if (prefixFromShort != null) {
-                return prefixFromShort.toString();
-            } else return "";
-        } else return "";
-    }
-
     @Override
     public String toJSON() {
         JsonUnit junit = JsonFactory.buildUnit(this);
@@ -158,12 +180,13 @@ public class JEVisUnitImp implements JEVisUnit {
 
     @Override
     public Prefix getPrefix() {
-        return UnitManager.getInstance().getJEVisUnitPrefix(this.prefix);
+        return UnitManager.getInstance().prefixForUnit(unit);
     }
 
     @Override
     public void setPrefix(Prefix prefix) {
         this.prefix = prefix.toString();
+        //TODO set prefix to unit
     }
 
     @Override
@@ -191,42 +214,35 @@ public class JEVisUnitImp implements JEVisUnit {
     @Override
     public void setFormula(String formula) {
         ParsePosition pp = new ParsePosition(0);
-        this.unit = UnitFormat.getInstance().parseObject(formula, pp);
+        this.unit = SISP.getFormatService().getUnitFormat().parse(formula, pp);
     }
 
     @Override
     public double convertTo(JEVisUnit unit, double number) {
         //TODo check if unit is compatible
         try {
-            if (UnitManager.getInstance().getPrefix(this.prefix) instanceof MetricPrefix) {
-                MetricPrefix metricPrefix = (MetricPrefix) UnitManager.getInstance().getPrefix(this.prefix);
-                Unit targetUnit = UnitManager.getInstance().getUnitWithPrefix(unit.getUnit(), metricPrefix);
-                Unit sourceUnit = UnitManager.getInstance().getUnitWithPrefix(this.unit, metricPrefix);
-
-                UnitConverter uc = sourceUnit.getConverterTo(targetUnit);
-                return uc.convert(number);
-            }
+            return this.unit.getConverterTo(unit.getUnit()).convert(number);
         } catch (Exception ex) {
-            throw new ConversionException("Unit error: " + ex.getMessage());
+            logger.error(ex);
         }
         return number;
     }
 
     @Override
     public JEVisUnit plus(double offset) {
-        Unit newUnit = getUnit().plus(offset);
+        Unit newUnit = getUnit().shift(offset);
         return new JEVisUnitImp(newUnit);
     }
 
     @Override
     public JEVisUnit times(double factor) {
-        Unit newUnit = getUnit().times(factor);
+        Unit newUnit = getUnit().multiply(factor);
         return new JEVisUnitImp(newUnit);
     }
 
     @Override
     public JEVisUnit times(JEVisUnit factor) {
-        Unit newUnit = getUnit().times(factor.getUnit());
+        Unit newUnit = getUnit().multiply(factor.getUnit());
         return new JEVisUnitImp(newUnit);
     }
 

@@ -22,8 +22,8 @@ package org.jevis.jeapi.ws;
 import org.jevis.api.*;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonType;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 
 /**
  * @author fs
@@ -31,8 +31,8 @@ import javax.measure.unit.Unit;
 public class JEVisTypeWS implements JEVisType {
 
     private String jclass = null;
-    private JEVisDataSourceWS ds;
-    private JsonType json;
+    private final JEVisDataSourceWS ds;
+    private final JsonType json;
 
     public JEVisTypeWS(JEVisDataSourceWS ds, JsonType json, String jclass) {
         this.jclass = jclass;
@@ -113,7 +113,7 @@ public class JEVisTypeWS implements JEVisType {
 
     @Override
     public JEVisUnit getUnit() {
-        return new JEVisUnitImp(Unit.ONE);
+        return new JEVisUnitImp(AbstractUnit.ONE);
     }
 
     @Override

@@ -17,8 +17,8 @@ import org.jevis.commons.ws.sql.tables.*;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
@@ -647,7 +647,7 @@ public class SQLDataSource {
                             newAtt.setSampleCount(0);
                             newAtt.setPrimitiveType(type.getPrimitiveType());
 
-                            JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+                            JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(AbstractUnit.ONE));
 
                             newAtt.setDisplayUnit(unit);
                             newAtt.setInputUnit(unit);
@@ -712,7 +712,7 @@ public class SQLDataSource {
                         newAtt.setPrimitiveType(type.getPrimitiveType());
 
                         try {
-                            JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(Unit.ONE));
+                            JsonUnit unit = JsonFactory.buildUnit(new JEVisUnitImp(AbstractUnit.ONE));
                             newAtt.setDisplayUnit(unit);
                             newAtt.setInputUnit(unit);
                         } catch (Exception ex) {

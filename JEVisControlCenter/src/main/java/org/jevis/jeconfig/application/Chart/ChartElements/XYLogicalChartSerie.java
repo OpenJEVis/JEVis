@@ -12,8 +12,8 @@ import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -83,7 +83,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
             }
         }
 
-        updateTableEntry(modifiedList, new JEVisUnitImp(Unit.ONE), getMinValue(), getMaxValue(), 0, false);
+        updateTableEntry(modifiedList, new JEVisUnitImp(AbstractUnit.ONE), getMinValue(), getMaxValue(), 0, false);
 
         JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }

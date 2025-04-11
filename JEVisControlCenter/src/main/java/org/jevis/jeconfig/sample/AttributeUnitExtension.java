@@ -18,7 +18,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
@@ -102,8 +101,7 @@ public class AttributeUnitExtension implements SampleEditorExtension {
 
                     ouUnit.setUnit(unit);
                     ouUnit.getUnitButton().setText(unit.getFormula());
-                    ouUnit.getPrefixBox().getSelectionModel().select(
-                            UnitManager.getInstance().getPrefix(unit.getPrefix()));
+                    ouUnit.getPrefixBox().getSelectionModel().select(unit.getPrefix());
                     ouUnit.getSymbolField().setText(iuUnit.getSymbolField().getText());
 
                     ouRate.samplingRateProperty().setValue(att.getInputSampleRate());
@@ -123,8 +121,7 @@ public class AttributeUnitExtension implements SampleEditorExtension {
 
                     iuUnit.setUnit(unit);
                     iuUnit.getUnitButton().setText(unit.getFormula());
-                    iuUnit.getPrefixBox().getSelectionModel().select(
-                            UnitManager.getInstance().getPrefix(unit.getPrefix()));
+                    iuUnit.getPrefixBox().getSelectionModel().select(unit.getPrefix());
                     iuUnit.getSymbolField().setText(ouUnit.getSymbolField().getText());
 
                     iuRate.samplingRateProperty().setValue(att.getDisplaySampleRate());

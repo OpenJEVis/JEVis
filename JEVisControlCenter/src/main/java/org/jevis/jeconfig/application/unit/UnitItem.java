@@ -28,7 +28,7 @@ import javafx.scene.control.TreeItem;
  */
 public class UnitItem extends TreeItem<UnitObject> {
 
-    private boolean _doInit = true;
+    private final boolean _doInit = true;
     private final UnitTree _tree;
 
     public UnitItem(UnitObject obj) {
@@ -57,13 +57,6 @@ public class UnitItem extends TreeItem<UnitObject> {
 
     @Override
     public ObservableList<TreeItem<UnitObject>> getChildren() {
-        if (_doInit) {
-            _doInit = false;
-
-            if (_tree != null) {
-                _tree.addChildrenList(this, super.getChildren());
-            }
-        }
         return super.getChildren();
     }
 

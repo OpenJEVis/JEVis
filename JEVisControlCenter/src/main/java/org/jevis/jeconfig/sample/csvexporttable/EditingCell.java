@@ -24,8 +24,8 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.joda.time.DateTime;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,7 +131,7 @@ public class EditingCell extends TableCell<CSVExportTableSample, String> {
                                     JEVisSample newSample;
 
                                     att.deleteSamplesBetween(sample.getTimestamp(), sample.getTimestamp());
-                                    JEVisUnit u = new JEVisUnitImp(Unit.ONE);
+                                    JEVisUnit u = new JEVisUnitImp(AbstractUnit.ONE);
 
                                     if (unit != null && !unit.equals(u)) {
                                         try {
