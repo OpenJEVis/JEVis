@@ -47,7 +47,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -372,8 +371,6 @@ public class JEConfig extends Application {
     @Override
     public void init() throws Exception {
         super.init();
-        BasicConfigurator.configure();//Load an default log4j config
-        org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);

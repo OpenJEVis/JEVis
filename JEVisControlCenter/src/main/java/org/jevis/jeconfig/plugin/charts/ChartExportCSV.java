@@ -33,8 +33,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -298,7 +298,7 @@ public class ChartExportCSV {
 
                 Cell unitHeader = getOrCreateCell(sheet, 3, columnIndex);
                 String currentUnit = UnitManager.getInstance().format(chartDataRow.getUnit());
-                if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
+                if (currentUnit.equals("") || currentUnit.equals(AbstractUnit.ONE.toString())) {
                     currentUnit = chartDataRow.getUnit().getLabel();
                 }
 
@@ -582,7 +582,7 @@ public class ChartExportCSV {
         for (ChartDataRow chartDataRow : chartDataRows) {
             Cell unitHeader = getOrCreateCell(sheet, 3, columnIndex);
             String currentUnit = UnitManager.getInstance().format(chartDataRow.getUnit());
-            if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
+            if (currentUnit.equals("") || currentUnit.equals(AbstractUnit.ONE.toString())) {
                 try {
                     currentUnit = chartDataRow.getUnit().getLabel();
                 } catch (Exception e) {
@@ -818,7 +818,7 @@ public class ChartExportCSV {
 
         for (ChartDataRow chartDataRow : chartDataRows) {
             String currentUnit = UnitManager.getInstance().format(chartDataRow.getUnit());
-            if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
+            if (currentUnit.equals("") || currentUnit.equals(AbstractUnit.ONE.toString())) {
                 currentUnit = chartDataRow.getUnit().getLabel();
             }
 
@@ -1044,7 +1044,7 @@ public class ChartExportCSV {
 
             for (ChartDataRow chartDataRow : chartDataRows) {
                 String currentUnit = chartDataRow.getUnitLabel();
-                if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
+                if (currentUnit.equals("") || currentUnit.equals(AbstractUnit.ONE.toString())) {
                     currentUnit = chartDataRow.getUnit().getLabel();
                 }
 

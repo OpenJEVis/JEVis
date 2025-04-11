@@ -42,8 +42,7 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.dialog.DialogHeader;
-
-import javax.measure.unit.Unit;
+import tech.units.indriya.AbstractUnit;
 
 /**
  * This simple Dialog allows the user to select an Unit in an treeview
@@ -141,7 +140,7 @@ public class SimpleTreeUnitChooser {
 
     private Response response = Response.CANCEL;
 
-    private JEVisUnit _unit = new JEVisUnitImp(Unit.ONE);
+    private JEVisUnit _unit = new JEVisUnitImp(AbstractUnit.ONE);
 
     public SimpleTreeUnitChooser() {
     }

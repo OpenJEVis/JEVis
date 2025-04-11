@@ -29,12 +29,10 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.unit.UnitChooser;
 import org.jevis.jeconfig.application.unit.UnitObject;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -58,7 +56,7 @@ public class UnitEditor {
 //                Label orderLabel = new Label("Dimension: ");
             Label formel = new Label("Formel Editor:");
 
-            JFXTextField nameT = new JFXTextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
+            JFXTextField nameT = new JFXTextField(unit.getUnit().getUnit().getName());
             JFXTextField symboleT = new JFXTextField(unit.getUnit().toString());
 //                JFXTextField orderT = new JFXTextField(unit.getUnit().getDimension().toString());
             JFXTextArea formelField = new JFXTextArea();
@@ -66,7 +64,7 @@ public class UnitEditor {
             formelField.setWrapText(true);
             formelField.setText(unit.getUnit().toJSON());
 
-            UnitChooser uc2 = new UnitChooser(Unit.ONE, 0);
+            UnitChooser uc2 = new UnitChooser(AbstractUnit.ONE, 0);
 
             gridPane.add(nameL, 0, 0);
             gridPane.add(symbolL, 0, 1);
