@@ -69,7 +69,6 @@ public class QuantityUnits {
      */
     private final Unit _l = Units.LITRE;
     private final JEVisUnit l = new JEVisUnitImp(_l);
-
     private final Unit _m3 = Units.CUBIC_METRE;
     private final JEVisUnit m3 = new JEVisUnitImp(_m3);
     private final Unit _nm3 = Units.CUBIC_METRE.alternate("Nm³");
