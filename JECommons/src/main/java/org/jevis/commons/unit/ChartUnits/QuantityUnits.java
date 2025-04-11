@@ -61,43 +61,44 @@ public class QuantityUnits {
     private final Unit _t = _kg.alternate("t").multiply(1000);
     private final JEVisUnit t = new JEVisUnitImp(_t);
     private final Unit _tpers = _t.divide(Units.SECOND);
-    private final JEVisUnit l = new JEVisUnitImp(_l);
     private final Unit _tpermin = _t.divide(Units.MINUTE);
-    private final JEVisUnit m3 = new JEVisUnitImp(_m3);
+
     private final Unit _tperh = _t.divide(Units.HOUR);
-    private final JEVisUnit nm3 = new JEVisUnitImp(_nm3);
     /**
      * Volume Units
      */
     private final Unit _l = Units.LITRE;
-    private final JEVisUnit lpers = new JEVisUnitImp(_lpers);
+    private final JEVisUnit l = new JEVisUnitImp(_l);
     private final Unit _m3 = Units.CUBIC_METRE;
-    private final JEVisUnit lpermin = new JEVisUnitImp(_lpermin);
+    private final JEVisUnit m3 = new JEVisUnitImp(_m3);
     private final Unit _nm3 = Units.CUBIC_METRE.alternate("Nm³");
-    private final JEVisUnit lperh = new JEVisUnitImp(_lperh);
+    private final JEVisUnit nm3 = new JEVisUnitImp(_nm3);
     /**
      * Volume Flow Units
      */
     private final Unit _lpers = _l.divide(Units.SECOND);
-    private final JEVisUnit m3pers = new JEVisUnitImp(_m3pers);
+    private final JEVisUnit lpers = new JEVisUnitImp(_lpers);
     private final Unit _lpermin = _l.divide(Units.MINUTE);
-    private final JEVisUnit m3permin = new JEVisUnitImp(_m3permin);
+    private final JEVisUnit lpermin = new JEVisUnitImp(_lpermin);
     private final Unit _lperh = _l.divide(Units.HOUR);
-    private final JEVisUnit m3perh = new JEVisUnitImp(_m3perh);
+    private final JEVisUnit lperh = new JEVisUnitImp(_lperh);
     private final Unit _m3pers = Units.CUBIC_METRE.divide(Units.SECOND);
-    private final JEVisUnit kgpers = new JEVisUnitImp(_kgpers);
+    private final JEVisUnit m3pers = new JEVisUnitImp(_m3pers);
     private final Unit _m3permin = Units.CUBIC_METRE.divide(Units.MINUTE);
-    private final JEVisUnit kgpermin = new JEVisUnitImp(_kgpermin);
+    private final JEVisUnit m3permin = new JEVisUnitImp(_m3permin);
     private final Unit _m3perh = Units.CUBIC_METRE.divide(Units.HOUR);
-    private final JEVisUnit kgperh = new JEVisUnitImp(_kgperh);
+    private final JEVisUnit m3perh = new JEVisUnitImp(_m3perh);
     /**
      * Mass Flow Units
      */
     private final Unit _kgpers = Units.KILOGRAM.divide(Units.SECOND);
+    private final JEVisUnit kgpers = new JEVisUnitImp(_kgpers);
     private final JEVisUnit tpers = new JEVisUnitImp(_tpers);
     private final Unit _kgpermin = Units.KILOGRAM.divide(Units.MINUTE);
+    private final JEVisUnit kgpermin = new JEVisUnitImp(_kgpermin);
     private final JEVisUnit tpermin = new JEVisUnitImp(_tpermin);
     private final Unit _kgperh = Units.KILOGRAM.divide(Units.HOUR);
+    private final JEVisUnit kgperh = new JEVisUnitImp(_kgperh);
     private final JEVisUnit tperh = new JEVisUnitImp(_tperh);
     /**
      * Energy Units
