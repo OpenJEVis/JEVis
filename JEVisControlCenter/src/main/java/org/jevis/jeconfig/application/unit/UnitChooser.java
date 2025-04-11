@@ -39,9 +39,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.Callback;
+import tech.units.indriya.unit.Units;
 
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
+import javax.measure.Unit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,9 +59,9 @@ public class UnitChooser {
 
     public UnitChooser(Unit unit) {
         List<Unit> units = new ArrayList<>();
-        units.add(SI.WATT);
-        units.add(SI.AMPERE);
-        units.add(SI.HERTZ);
+        units.add(Units.WATT);
+        units.add(Units.AMPERE);
+        units.add(Units.HERTZ);
 
         VBox spinner = new VBox();
         final JFXButton prefixUp = new JFXButton("+");
@@ -118,9 +118,9 @@ public class UnitChooser {
 
     public UnitChooser(Unit unit, int nouse) {
         List<Unit> units = new ArrayList<>();
-        units.add(SI.WATT);
-        units.add(SI.AMPERE);
-        units.add(SI.HERTZ);
+        units.add(Units.WATT);
+        units.add(Units.AMPERE);
+        units.add(Units.HERTZ);
 
         Label prefix = new Label(" k ");
         prefix.setId("prefix");

@@ -20,25 +20,26 @@
 package org.jevis.jeconfig.application.unit;
 
 import org.jevis.api.JEVisUnit;
-import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 
-import javax.measure.unit.Dimension;
+import javax.measure.Dimension;
+
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class UnitObject {
 
-    private Dimension _dim;
+    private final Dimension _dim;
 
-    public UnitObject(Dimension dimension, String id) {
+    public UnitObject(Dimension dimension, JEVisUnit unit, String id) {
         _dim = dimension;
+        _unit = unit;
         _type = Type.DIMENSION;
         _id = id;
     }
 
-    private JEVisUnit _unit;
+    private final JEVisUnit _unit;
 
     public UnitObject(Type type, JEVisUnit unit, String id) {
         _unit = unit;
@@ -47,8 +48,8 @@ public class UnitObject {
         _id = id;
     }
 
-    private Type _type;
-    private String _id;
+    private final Type _type;
+    private final String _id;
     private String _name;
 
     public String getName() {
@@ -58,13 +59,13 @@ public class UnitObject {
                 if (_id.equals("Custom")) {
                     return _id;
                 } else {
-                    return UnitManager.getInstance().getQuantitiesName(_unit, I18n.getInstance().getLocale()) + " - "
-                            + UnitManager.getInstance().getUnitName(_unit, I18n.getInstance().getLocale()) + " [ " + _unit.toString() + " ]";
+                    return UnitManager.getInstance().getNameMapQuantities().get(_unit.getUnit().getDimension().getClass()) + " - "
+                            + UnitManager.getInstance().getUnitName(_unit.getUnit()) + " [ " + _unit.toString() + " ]";
                 }
             case DIMENSION:
-                return _id;
+                return _id + " [ " + _unit.toString() + " ]";
             default:
-                return UnitManager.getInstance().getUnitName(_unit, I18n.getInstance().getLocale()) + " [ " + _unit.toString() + " ]";
+                return UnitManager.getInstance().getUnitName(_unit.getUnit()) + " [ " + _unit.toString() + " ]";
         }
     }
 

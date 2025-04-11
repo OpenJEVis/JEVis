@@ -31,6 +31,9 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.tool.ImageConverter;
 
+import javax.measure.BinaryPrefix;
+import javax.measure.MetricPrefix;
+import javax.measure.Prefix;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -734,10 +737,13 @@ public class EditTable {
     }
 
     private void addUnits() {
-        JEVisUnit.Prefix[] prefixes = JEVisUnit.Prefix.values();
+        List<Prefix> prefixes = new ArrayList<>();
+        prefixes.addAll(Arrays.asList(MetricPrefix.values()));
+        prefixes.addAll(Arrays.asList(BinaryPrefix.values()));
 
-        for (int i = 0; i < prefixes.length; i++) {
-            String strPrefix = prefixes[i].toString();
+
+        for (Prefix prefix : prefixes) {
+            String strPrefix = prefix.toString();
             listUnits.add(strPrefix);
         }
     }

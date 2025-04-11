@@ -14,19 +14,20 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.joda.time.DateTime;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.MetricPrefix;
-import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
+import javax.measure.Prefix;
+import javax.measure.Unit;
+import javax.measure.spi.ServiceProvider;
 
 public class ChartData {
     private static final Logger logger = LogManager.getLogger(ChartData.class);
     private final SimpleLongProperty id = new SimpleLongProperty(this, "id", -1);
     private final SimpleStringProperty attributeString = new SimpleStringProperty(this, "attribute", "");
-    private final SimpleStringProperty unitPrefix = new SimpleStringProperty(this, "unitPrefix", new JEVisUnitImp(Unit.ONE).getPrefix().toString());
-    private final SimpleStringProperty unitLabel = new SimpleStringProperty(this, "unitLabel", new JEVisUnitImp(Unit.ONE).getLabel());
-    private final SimpleStringProperty unitFormula = new SimpleStringProperty(this, "unitFormula", new JEVisUnitImp(Unit.ONE).getFormula());
-    private final SimpleObjectProperty<JEVisUnit> unit = new SimpleObjectProperty<>(this, "unit", new JEVisUnitImp(Unit.ONE));
+    private final SimpleStringProperty unitPrefix = new SimpleStringProperty(this, "unitPrefix", new JEVisUnitImp(AbstractUnit.ONE).getPrefix().toString());
+    private final SimpleStringProperty unitLabel = new SimpleStringProperty(this, "unitLabel", new JEVisUnitImp(AbstractUnit.ONE).getLabel());
+    private final SimpleStringProperty unitFormula = new SimpleStringProperty(this, "unitFormula", new JEVisUnitImp(AbstractUnit.ONE).getFormula());
+    private final SimpleObjectProperty<JEVisUnit> unit = new SimpleObjectProperty<>(this, "unit", new JEVisUnitImp(AbstractUnit.ONE));
     private final SimpleObjectProperty<JEVisObject> objectName = new SimpleObjectProperty<>(this, "objectName");
     private final SimpleStringProperty name = new SimpleStringProperty(this, "name", "");
     private final SimpleObjectProperty<Color> color = new SimpleObjectProperty<Color>(this, "color", Color.LIGHTBLUE);
@@ -120,9 +121,9 @@ public class ChartData {
     }
 
     public void setUnit(String unitString) {
-        UnitFormat unitFormat = UnitFormat.getInstance();
+
         try {
-            Unit u = (Unit) unitFormat.parseObject(unitString);
+            Unit u = ServiceProvider.current().getFormatService().getUnitFormat().parse(unitString);
             JEVisUnitImp jeVisUnitImp = new JEVisUnitImp(u);
             this.unit.set(jeVisUnitImp);
             this.unitPrefix.set(jeVisUnitImp.getPrefix().toString());
@@ -149,7 +150,7 @@ public class ChartData {
             if (unitString.equals("m²") || unitString.equals("m³") || unitString.equals("min")) return "";
 
             String sub = unitString.substring(0, 1);
-            MetricPrefix prefixFromShort = UnitManager.getInstance().getPrefixFromShort(sub);
+            Prefix prefixFromShort = UnitManager.getInstance().getPrefixFromShort(sub);
 
             if (prefixFromShort != null) {
                 return prefixFromShort.toString();

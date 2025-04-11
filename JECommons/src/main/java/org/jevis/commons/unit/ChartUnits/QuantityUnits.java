@@ -16,13 +16,14 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.SQLDataSource;
-import org.jscience.economics.money.Currency;
+import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.unit.Units;
 
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
+import javax.measure.MetricPrefix;
+import javax.measure.Unit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Currency;
 import java.util.List;
 
 public class QuantityUnits {
@@ -31,146 +32,122 @@ public class QuantityUnits {
     /**
      * Time Units
      */
-    private final Unit _sec = SI.SECOND;
+    private final Unit _sec = Units.SECOND;
     private final JEVisUnit sec = new JEVisUnitImp(_sec);
-    private final Unit _min = NonSI.MINUTE;
+    private final Unit _min = Units.MINUTE;
     private final JEVisUnit min = new JEVisUnitImp(_min);
-    private final Unit _hour = NonSI.HOUR;
+    private final Unit _hour = Units.HOUR;
     private final JEVisUnit hour = new JEVisUnitImp(_hour);
-    private final Unit _day = NonSI.DAY;
+    private final Unit _day = Units.DAY;
     private final JEVisUnit day = new JEVisUnitImp(_day);
-    private final Unit _week = NonSI.WEEK;
+    private final Unit _week = Units.WEEK;
     private final JEVisUnit week = new JEVisUnitImp(_week);
-    private final Unit _month = NonSI.MONTH;
+    private final Unit _month = Units.MONTH;
     private final JEVisUnit month = new JEVisUnitImp(_month);
-    private final Unit _year = NonSI.YEAR;
+    private final Unit _year = Units.YEAR;
     private final JEVisUnit year = new JEVisUnitImp(_year);
 
     /**
      * Mass Units
      */
-    private final Unit _mg = SI.MILLI(SI.GRAM);
+    private final Unit _mg = MetricPrefix.MILLI(Units.GRAM);
     private final JEVisUnit mg = new JEVisUnitImp(_mg);
-    private final Unit _g = SI.GRAM;
+    private final Unit _g = Units.GRAM;
     private final JEVisUnit g = new JEVisUnitImp(_g);
-    private final Unit _kg = SI.KILOGRAM;
+    private final Unit _kg = Units.KILOGRAM;
     private final JEVisUnit kg = new JEVisUnitImp(_kg);
-    private final Unit _kkg = SI.KILOGRAM.alternate("kkg").times(1000);
+    private final Unit _kkg = _kg.alternate("kkg").multiply(1000);
     private final JEVisUnit kkg = new JEVisUnitImp(_kkg);
-    private final Unit _t = NonSI.METRIC_TON;
+    private final Unit _t = _kg.alternate("t").multiply(1000);
     private final JEVisUnit t = new JEVisUnitImp(_t);
+    private final Unit _tpers = _t.divide(Units.SECOND);
+    private final Unit _tpermin = _t.divide(Units.MINUTE);
 
+    private final Unit _tperh = _t.divide(Units.HOUR);
     /**
      * Volume Units
      */
-    private final Unit _l = NonSI.LITER;
+    private final Unit _l = Units.LITRE;
     private final JEVisUnit l = new JEVisUnitImp(_l);
-    private final Unit _m3 = SI.CUBIC_METRE;
-    private final JEVisUnit m3 = new JEVisUnitImp(_m3);
-    private final Unit _nm3 = SI.CUBIC_METRE.alternate("Nm³");
-    private final JEVisUnit nm3 = new JEVisUnitImp(_nm3);
 
+    private final Unit _m3 = Units.CUBIC_METRE;
+    private final JEVisUnit m3 = new JEVisUnitImp(_m3);
+    private final Unit _nm3 = Units.CUBIC_METRE.alternate("Nm³");
+    private final JEVisUnit nm3 = new JEVisUnitImp(_nm3);
     /**
      * Volume Flow Units
      */
-    private final Unit _lpers = NonSI.LITER.divide(SI.SECOND);
+    private final Unit _lpers = _l.divide(Units.SECOND);
     private final JEVisUnit lpers = new JEVisUnitImp(_lpers);
-    private final Unit _lpermin = NonSI.LITER.divide(NonSI.MINUTE);
+    private final Unit _lpermin = _l.divide(Units.MINUTE);
     private final JEVisUnit lpermin = new JEVisUnitImp(_lpermin);
-    private final Unit _lperh = NonSI.LITER.divide(NonSI.HOUR);
+    private final Unit _lperh = _l.divide(Units.HOUR);
     private final JEVisUnit lperh = new JEVisUnitImp(_lperh);
-    private final Unit _m3pers = SI.CUBIC_METRE.divide(SI.SECOND);
+    private final Unit _m3pers = Units.CUBIC_METRE.divide(Units.SECOND);
     private final JEVisUnit m3pers = new JEVisUnitImp(_m3pers);
-    private final Unit _m3permin = SI.CUBIC_METRE.divide(NonSI.MINUTE);
+    private final Unit _m3permin = Units.CUBIC_METRE.divide(Units.MINUTE);
     private final JEVisUnit m3permin = new JEVisUnitImp(_m3permin);
-    private final Unit _m3perh = SI.CUBIC_METRE.divide(NonSI.HOUR);
+    private final Unit _m3perh = Units.CUBIC_METRE.divide(Units.HOUR);
     private final JEVisUnit m3perh = new JEVisUnitImp(_m3perh);
-
     /**
      * Mass Flow Units
      */
-    private final Unit _kgpers = SI.KILOGRAM.divide(SI.SECOND);
+    private final Unit _kgpers = Units.KILOGRAM.divide(Units.SECOND);
     private final JEVisUnit kgpers = new JEVisUnitImp(_kgpers);
-    private final Unit _kgpermin = SI.KILOGRAM.divide(NonSI.MINUTE);
-    private final JEVisUnit kgpermin = new JEVisUnitImp(_kgpermin);
-    private final Unit _kgperh = SI.KILOGRAM.divide(NonSI.HOUR);
-    private final JEVisUnit kgperh = new JEVisUnitImp(_kgperh);
-    private final Unit _tpers = NonSI.METRIC_TON.divide(SI.SECOND);
     private final JEVisUnit tpers = new JEVisUnitImp(_tpers);
-    private final Unit _tpermin = NonSI.METRIC_TON.divide(NonSI.MINUTE);
+    private final Unit _kgpermin = Units.KILOGRAM.divide(Units.MINUTE);
+    private final JEVisUnit kgpermin = new JEVisUnitImp(_kgpermin);
     private final JEVisUnit tpermin = new JEVisUnitImp(_tpermin);
-    private final Unit _tperh = NonSI.METRIC_TON.divide(NonSI.HOUR);
+    private final Unit _kgperh = Units.KILOGRAM.divide(Units.HOUR);
+    private final JEVisUnit kgperh = new JEVisUnitImp(_kgperh);
     private final JEVisUnit tperh = new JEVisUnitImp(_tperh);
-
     /**
      * Energy Units
      */
-    private final Unit _Wh = SI.WATT.times(NonSI.HOUR);
+    private final Unit _Wh = Units.WATT.multiply(Units.HOUR);
     private final JEVisUnit Wh = new JEVisUnitImp(_Wh);
-    private final Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
+    private final Unit _kWh = MetricPrefix.KILO(_Wh);
     private final JEVisUnit kWh = new JEVisUnitImp(_kWh);
-    private final Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
+    private final Unit _MWh = MetricPrefix.MEGA(_Wh);
     private final JEVisUnit MWh = new JEVisUnitImp(_MWh);
-    private final Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
+    private final Unit _GWh = MetricPrefix.GIGA(_Wh);
     private final JEVisUnit GWh = new JEVisUnitImp(_GWh);
-    private final Unit _W = SI.WATT;
+    private final Unit _W = Units.WATT;
     private final JEVisUnit W = new JEVisUnitImp(_W);
-    private final Unit _kW = SI.KILO(SI.WATT);
+    private final Unit _kW = MetricPrefix.KILO(Units.WATT);
     private final JEVisUnit kW = new JEVisUnitImp(_kW);
-    private final Unit _MW = SI.MEGA(SI.WATT);
+    private final Unit _MW = MetricPrefix.MEGA(Units.WATT);
     private final JEVisUnit MW = new JEVisUnitImp(_MW);
-    private final Unit _GW = SI.GIGA(SI.WATT);
+    private final Unit _GW = MetricPrefix.GIGA(Units.WATT);
     private final JEVisUnit GW = new JEVisUnitImp(_GW);
 
-    private final Unit _va = SI.WATT.alternate("va");
+    private final Unit _va = Units.WATT.alternate("va");
     private final JEVisUnit va = new JEVisUnitImp(_va, "va", "NONE");
-    private final Unit _kva = SI.KILO(_va);
+    private final Unit _kva = MetricPrefix.KILO(_va);
     private final JEVisUnit kva = new JEVisUnitImp(_kva, "kva", "KILO");
 
-    private final Unit _var = SI.WATT.alternate("var");
+    private final Unit _var = Units.WATT.alternate("var");
     private final JEVisUnit var = new JEVisUnitImp(_var, "var", "NONE");
-    private final Unit _kvar = SI.KILO(_var);
+    private final Unit _kvar = MetricPrefix.KILO(_var);
     private final JEVisUnit kvar = new JEVisUnitImp(_kvar, "kvar", "KILO");
 
-    private final Unit _vah = SI.WATT.alternate("va").times(NonSI.HOUR);
+    private final Unit _vah = Units.WATT.alternate("va").multiply(Units.HOUR);
     private final JEVisUnit vah = new JEVisUnitImp(_vah, "vah", "NONE");
-    private final Unit _kvah = SI.KILO(_vah);
+    private final Unit _kvah = MetricPrefix.KILO(_vah);
     private final JEVisUnit kvah = new JEVisUnitImp(_kvah, "kvah", "KILO");
 
-    private final Unit _varh = SI.WATT.alternate("var").times(NonSI.HOUR);
+    private final Unit _varh = Units.WATT.alternate("var").multiply(Units.HOUR);
     private final JEVisUnit varh = new JEVisUnitImp(_varh, "varh", "NONE");
-    private final Unit _kvarh = SI.KILO(_varh);
+    private final Unit _kvarh = MetricPrefix.KILO(_varh);
     private final JEVisUnit kvarh = new JEVisUnitImp(_kvarh, "kvarh", "KILO");
 
     /**
      * Pressure Units
      */
-    private final Unit _bar = NonSI.BAR;
+    private final Unit _bar = Units.PASCAL.alternate("bar").divide(100000);
     private final JEVisUnit bar = new JEVisUnitImp(_bar);
-    private final Unit _atm = NonSI.ATMOSPHERE;
+    private final Unit _atm = Units.PASCAL.alternate("atm").divide(101300);
     private final JEVisUnit atm = new JEVisUnitImp(_atm);
-
-    /**
-     * Currency Units
-     */
-    private final Unit _eur = Currency.EUR;
-    private final Unit _usd = Currency.USD;
-    private final Unit _gbp = Currency.GBP;
-    private final Unit _jpy = Currency.JPY;
-    private final Unit _aud = Currency.AUD;
-    private final Unit _cad = Currency.CAD;
-    private final Unit _cny = Currency.CNY;
-    private final Unit _krw = Currency.KRW;
-    private final Unit _twd = Currency.TWD;
-    private final JEVisUnit eur = new JEVisUnitImp(_eur);
-    private final JEVisUnit usd = new JEVisUnitImp(_usd);
-    private final JEVisUnit gbp = new JEVisUnitImp(_gbp);
-    private final JEVisUnit jpy = new JEVisUnitImp(_jpy);
-    private final JEVisUnit aud = new JEVisUnitImp(_aud);
-    private final JEVisUnit cad = new JEVisUnitImp(_cad);
-    private final JEVisUnit cny = new JEVisUnitImp(_cny);
-    private final JEVisUnit krw = new JEVisUnitImp(_krw);
-    private final JEVisUnit twd = new JEVisUnitImp(_twd);
 
     /**
      * Unit Lists
@@ -198,34 +175,36 @@ public class QuantityUnits {
         pressureUnits = new ArrayList<>(Arrays.asList(bar, atm));
         volumeFlowUnits = new ArrayList<>(Arrays.asList(lpers, lpermin, lperh, m3pers, m3permin, m3perh));
         massFlowUnits = new ArrayList<>(Arrays.asList(kgpers, kgpermin, kgperh, tpers, tpermin, tperh));
-        moneyUnits = new ArrayList<>(Arrays.asList(eur, usd, gbp, jpy, aud, cad, cny, krw, twd));
+        moneyUnits = new ArrayList<>();
+        Currency.getAvailableCurrencies().forEach(currency -> moneyUnits.add(new JEVisUnitImp(AbstractUnit.ONE.alternate(currency.getSymbol()))));
 
         quantityUnitsLabel = new ArrayList<>(Arrays.asList(
                 sec.getLabel(), min.getLabel(), hour.getLabel(), day.getLabel(), week.getLabel(), month.getLabel(), year.getLabel(),
                 mg.getLabel(), g.getLabel(), kg.getLabel(), kkg.getLabel(), t.getLabel(),
                 l.getLabel(), m3.getLabel(), nm3.getLabel(),
                 Wh.getLabel(), kWh.getLabel(), MWh.getLabel(), GWh.getLabel(),
-                vah.getLabel(), varh.getLabel(), kvah.getLabel(), kvarh.getLabel(),
-                eur.getLabel(), usd.getLabel(), gbp.getLabel(), jpy.getLabel(), aud.getLabel(), cad.getLabel(), cny.getLabel(), krw.getLabel(), twd.getLabel()
+                vah.getLabel(), varh.getLabel(), kvah.getLabel(), kvarh.getLabel()
         ));
+        moneyUnits.forEach(jeVisUnit -> quantityUnitsLabel.add(jeVisUnit.getLabel()));
 
         quantityUnitsUnit = new ArrayList<>(Arrays.asList(
                 _sec, _min, _hour, _day, _week, _month, _year,
                 _mg, _g, _kg, _kkg, _t,
                 _l, _m3, _nm3,
                 _Wh, _kWh, _MWh, _GWh,
-                _vah, _varh, _kvah, _kvarh,
-                _eur, _usd, _gbp, _jpy, _aud, _cad, _cny, _krw, _twd
+                _vah, _varh, _kvah, _kvarh
         ));
+        moneyUnits.forEach(jeVisUnit -> quantityUnitsUnit.add(jeVisUnit.getUnit()));
 
         quantityUnitsJEVisUnit = new ArrayList<>(Arrays.asList(
                 sec, min, hour, day, week, month, year,
                 mg, g, kg, kkg, t,
                 l, m3, nm3,
                 Wh, kWh, MWh, GWh,
-                vah, varh, kvah, kvarh,
-                eur, usd, gbp, jpy, aud, cad, cny, krw, twd
+                vah, varh, kvah, kvarh
         ));
+
+        quantityUnitsJEVisUnit.addAll(moneyUnits);
     }
 
     public boolean isQuantityUnit(JEVisUnit unit) {

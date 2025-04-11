@@ -4,67 +4,70 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.joda.time.Period;
-import org.jscience.economics.money.Currency;
+import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.unit.Units;
 
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
+import javax.measure.MetricPrefix;
+import javax.measure.Unit;
+import javax.measure.quantity.Dimensionless;
+import java.util.Currency;
 
 public class ChartUnits {
 
     public static JEVisUnit parseUnit(String unit) {
 
         JEVisUnit result = null;
-        Unit _mg = SI.GRAM.divide(1000);
-        Unit _g = SI.GRAM;
-        Unit _kg = SI.KILOGRAM;
-        Unit _kkg = SI.KILOGRAM.alternate("kkg").times(1000);
-        Unit _t = NonSI.METRIC_TON;
+        Unit _mg = MetricPrefix.MILLI(Units.GRAM);
+        Unit _g = Units.GRAM;
+        Unit _kg = Units.KILOGRAM;
+        Unit _kkg = MetricPrefix.KILO(Units.KILOGRAM.alternate("kkg"));
+        Unit _t = MetricPrefix.KILO(Units.KILOGRAM.alternate("t"));
 
-        Unit _l = NonSI.LITER;
-        Unit _l2 = NonSI.LITRE;
-        Unit _m3 = SI.CUBIC_METRE;
-        Unit _Nm3 = SI.CUBIC_METRE.alternate("Nm³");
+        Unit _l2 = Units.LITRE;
+        Unit _l = Units.LITRE.alternate("L");
 
-        Unit _literPerSecond = NonSI.LITER.divide(SI.SECOND);
-        Unit _literPerMinute = NonSI.LITER.divide(NonSI.MINUTE);
-        Unit _literPerHour = NonSI.LITER.divide(NonSI.HOUR);
+        Unit _m3 = Units.CUBIC_METRE;
+        Unit _Nm3 = Units.CUBIC_METRE.alternate("Nm³");
 
-        Unit _cubicMeterPerSecond = SI.CUBIC_METRE.divide(SI.SECOND);
-        Unit _cubicMeterPerMinute = SI.CUBIC_METRE.divide(NonSI.MINUTE);
-        Unit _cubicMeterPerHour = SI.CUBIC_METRE.divide(NonSI.HOUR);
+        Unit _literPerSecond = _l2.divide(Units.SECOND);
+        Unit _literPerMinute = _l2.divide(Units.MINUTE);
+        Unit _literPerHour = _l2.divide(Units.HOUR);
 
-        Unit _kgPerSecond = SI.KILOGRAM.divide(SI.SECOND);
-        Unit _kgPerMinute = SI.KILOGRAM.divide(NonSI.MINUTE);
-        Unit _kgPerHour = SI.KILOGRAM.divide(NonSI.HOUR);
+        Unit _cubicMeterPerSecond = Units.CUBIC_METRE.divide(Units.SECOND);
+        Unit _cubicMeterPerMinute = Units.CUBIC_METRE.divide(Units.MINUTE);
+        Unit _cubicMeterPerHour = Units.CUBIC_METRE.divide(Units.HOUR);
 
-        Unit _tPerSecond = NonSI.METRIC_TON.divide(SI.SECOND);
-        Unit _tPerMinute = NonSI.METRIC_TON.divide(NonSI.MINUTE);
-        Unit _tPerHour = NonSI.METRIC_TON.divide(NonSI.HOUR);
+        Unit _kgPerSecond = Units.KILOGRAM.divide(Units.SECOND);
+        Unit _kgPerMinute = Units.KILOGRAM.divide(Units.MINUTE);
+        Unit _kgPerHour = Units.KILOGRAM.divide(Units.HOUR);
 
-        Unit _bar = NonSI.BAR;
-        Unit _atm = NonSI.ATMOSPHERE;
+        Unit _tPerSecond = _t.divide(Units.SECOND);
+        Unit _tPerMinute = _t.divide(Units.MINUTE);
+        Unit _tPerHour = _t.divide(Units.HOUR);
 
-        Unit _W = SI.WATT;
-        Unit _kW = SI.KILO(SI.WATT);
-        Unit _MW = SI.MEGA(SI.WATT);
-        Unit _GW = SI.GIGA(SI.WATT);
-        Unit _Wh = SI.WATT.times(NonSI.HOUR);
-        Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
-        Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
-        Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
+        Unit _bar = Units.PASCAL.divide(100000);
+        Unit _atm = Units.PASCAL.divide(101300);
 
-        Unit _eur = Currency.EUR;
-        Unit _usd = Currency.USD;
-        Unit _gbp = Currency.GBP;
-        Unit _jpy = Currency.JPY;
-        Unit _aud = Currency.AUD;
-        Unit _cad = Currency.CAD;
-        Unit _cny = Currency.CNY;
-        Unit _krw = Currency.KRW;
-        Unit _twd = Currency.TWD;
+        Unit _W = Units.WATT;
+        Unit _kW = MetricPrefix.KILO(Units.WATT);
+        Unit _MW = MetricPrefix.MEGA(Units.WATT);
+        Unit _GW = MetricPrefix.GIGA(Units.WATT);
+        Unit _Wh = Units.WATT.multiply(Units.HOUR);
+        Unit _kWh = MetricPrefix.KILO(_Wh);
+        Unit _MWh = MetricPrefix.MEGA(_Wh);
+        Unit _GWh = MetricPrefix.GIGA(_Wh);
 
-        Unit _one = Unit.ONE;
+        for (Currency currency : Currency.getAvailableCurrencies()) {
+            Unit<Dimensionless> cu = AbstractUnit.ONE.alternate(currency.getSymbol());
+
+            JEVisUnit jeVisUnit = new JEVisUnitImp(cu);
+
+            if (currency.getSymbol().equals(unit)) {
+                return jeVisUnit;
+            }
+        }
+
+        Unit _one = AbstractUnit.ONE;
 
         final JEVisUnit mg = new JEVisUnitImp(_mg);
         final JEVisUnit g = new JEVisUnitImp(_g);
@@ -105,24 +108,24 @@ public class ChartUnits {
         final JEVisUnit MWh = new JEVisUnitImp(_MWh);
         final JEVisUnit GWh = new JEVisUnitImp(_GWh);
 
-        final Unit _va = SI.WATT.alternate("va");
+        final Unit _va = Units.WATT.alternate("va");
         final JEVisUnit va = new JEVisUnitImp(_va, "va", "NONE");
-        final Unit _kva = SI.KILO(_va);
+        final Unit _kva = MetricPrefix.KILO(_va);
         final JEVisUnit kva = new JEVisUnitImp(_kva, "kva", "KILO");
 
-        final Unit _var = SI.WATT.alternate("var");
+        final Unit _var = Units.WATT.alternate("var");
         final JEVisUnit var = new JEVisUnitImp(_var, "var", "NONE");
-        final Unit _kvar = SI.KILO(_var);
+        final Unit _kvar = MetricPrefix.KILO(_var);
         final JEVisUnit kvar = new JEVisUnitImp(_kvar, "kvar", "KILO");
 
-        final Unit _vah = SI.WATT.alternate("va").times(NonSI.HOUR);
+        final Unit _vah = _va.multiply(Units.HOUR);
         final JEVisUnit vah = new JEVisUnitImp(_vah, "vah", "NONE");
-        final Unit _kvah = SI.KILO(_vah);
+        final Unit _kvah = MetricPrefix.KILO(_vah);
         final JEVisUnit kvah = new JEVisUnitImp(_kvah, "kvah", "KILO");
 
-        final Unit _varh = SI.WATT.alternate("var").times(NonSI.HOUR);
+        final Unit _varh = _var.multiply(Units.HOUR);
         final JEVisUnit varh = new JEVisUnitImp(_varh, "varh", "NONE");
-        final Unit _kvarh = SI.KILO(_varh);
+        final Unit _kvarh = MetricPrefix.KILO(_varh);
         final JEVisUnit kvarh = new JEVisUnitImp(_kvarh, "kvarh", "KILO");
 
         final JEVisUnit cal = new JEVisUnitImp(_one);
@@ -132,15 +135,6 @@ public class ChartUnits {
 
         final JEVisUnit one = new JEVisUnitImp(_one);
 
-        final JEVisUnit eur = new JEVisUnitImp(_eur);
-        final JEVisUnit usd = new JEVisUnitImp(_usd);
-        final JEVisUnit gbp = new JEVisUnitImp(_gbp);
-        final JEVisUnit jpy = new JEVisUnitImp(_jpy);
-        final JEVisUnit aud = new JEVisUnitImp(_aud);
-        final JEVisUnit cad = new JEVisUnitImp(_cad);
-        final JEVisUnit cny = new JEVisUnitImp(_cny);
-        final JEVisUnit krw = new JEVisUnitImp(_krw);
-        final JEVisUnit twd = new JEVisUnitImp(_twd);
 
         if (unit != null) {
             switch (unit) {
@@ -260,33 +254,6 @@ public class ChartUnits {
                     break;
                 case "kcal":
                     result = kcal;
-                    break;
-                case ("EUR"):
-                    result = eur;
-                    break;
-                case ("USD"):
-                    result = usd;
-                    break;
-                case ("GBP"):
-                    result = gbp;
-                    break;
-                case ("JPY"):
-                    result = jpy;
-                    break;
-                case ("AUD"):
-                    result = aud;
-                    break;
-                case ("CAD"):
-                    result = cad;
-                    break;
-                case ("CNY"):
-                    result = cny;
-                    break;
-                case ("KRW"):
-                    result = krw;
-                    break;
-                case ("TWD"):
-                    result = twd;
                     break;
                 default:
                     break;

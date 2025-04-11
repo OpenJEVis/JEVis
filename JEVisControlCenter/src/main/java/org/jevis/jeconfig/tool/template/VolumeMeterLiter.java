@@ -7,9 +7,10 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import tech.units.indriya.unit.Units;
 
-import javax.measure.unit.NonSI;
-import javax.measure.unit.Unit;
+import javax.measure.Unit;
+
 
 public class VolumeMeterLiter extends Template {
 
@@ -40,7 +41,7 @@ public class VolumeMeterLiter extends Template {
         JEVisAttribute valueAttributeClean = newCleanData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
         valueAttributeClean.setInputSampleRate(p15m);
         valueAttributeClean.setDisplaySampleRate(p15m);
-        Unit _l = NonSI.LITER;
+        Unit _l = Units.LITRE;
         JEVisUnit liter = new JEVisUnitImp(_l);
         valueAttributeClean.setInputUnit(liter);
         valueAttributeClean.setDisplayUnit(liter);
