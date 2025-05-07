@@ -34,6 +34,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.glyphfont.Glyph;
 import org.jevis.api.JEVisException;
@@ -44,8 +46,6 @@ import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.charts.ChartPlugin;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -80,7 +80,7 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
      * Default pan mouse filter passing on left mouse button with {@link MouseEvent#isControlDown() control key down}.
      */
     public static final Predicate<MouseEvent> DEFAULT_MOUSE_FILTER = MouseEventsHelper::isOnlyMiddleButtonDown;
-    private static final Logger LOGGER = LoggerFactory.getLogger(Zoomer.class);
+    private static final Logger LOGGER = LogManager.getLogger(MultiChartZoomer.class);
     private static final String FONT_AWESOME = "FontAwesome";
     private static final int ZOOM_RECT_MIN_SIZE = 5;
     private static final Duration DEFAULT_ZOOM_DURATION = Duration.millis(500);
@@ -156,7 +156,6 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         }
     };
     private ZoomRangeSlider xRangeSlider;
-    private final HBox zoomButtons = getZoomInteractorBar();
     private boolean xRangeSliderInit;
     private Cursor originalCursor;
     private final EventHandler<MouseEvent> panStartHandler = event -> {
@@ -177,24 +176,12 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
             event.consume();
         }
     };
-    private final EventHandler<MouseEvent> zoomInEndHandler = event -> {
-        if (zoomOngoing()) {
-            zoomInEnded();
-            event.consume();
-        }
-    };
     private List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive;
     private org.jevis.jeconfig.application.Chart.Charts.Chart currentChart;
     private boolean followUpZoom;
+    private final HBox zoomButtons = getZoomInteractorBar();
     private double valueForDisplayLeft;
-    private final EventHandler<MouseEvent> zoomOutHandler = event -> {
-        if (getZoomOutMouseFilter() == null || getZoomOutMouseFilter().test(event)) {
-            final boolean zoomOutPerformed = zoomOut();
-            if (zoomOutPerformed) {
-                event.consume();
-            }
-        }
-    };
+    private double valueForDisplayRight;
     private final EventHandler<MouseEvent> zoomOriginHandler = event -> {
         if (getZoomOriginMouseFilter() == null || getZoomOriginMouseFilter().test(event)) {
             final boolean zoomOutPerformed = zoomOrigin();
@@ -203,7 +190,6 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
             }
         }
     };
-    private double valueForDisplayRight;
     private final EventHandler<ScrollEvent> zoomScrollHandler = event -> {
         if (getZoomScrollFilter() == null || getZoomScrollFilter().test(event)) {
             final AxisMode mode = getAxisMode();
@@ -224,6 +210,20 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
 
     };
     private ChartPlugin chartPlugin;
+    private final EventHandler<MouseEvent> zoomInEndHandler = event -> {
+        if (zoomOngoing()) {
+            zoomInEnded();
+            event.consume();
+        }
+    };
+    private final EventHandler<MouseEvent> zoomOutHandler = event -> {
+        if (getZoomOutMouseFilter() == null || getZoomOutMouseFilter().test(event)) {
+            final boolean zoomOutPerformed = zoomOut();
+            if (zoomOutPerformed) {
+                event.consume();
+            }
+        }
+    };
 
     /**
      * Creates a new instance of Zoomer with animation disabled and with {@link #axisModeProperty() zoomMode}
@@ -319,6 +319,10 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         final double limitedY = Math.max(Math.min(event.getY() - plotBounds.getMinY(), plotBounds.getMaxY()),
                 plotBounds.getMinY());
         return new Point2D(limitedX, limitedY);
+    }
+
+    protected static boolean hasBoundedRange(Axis axis) {
+        return axis.minProperty().isBound() || axis.maxProperty().isBound();
     }
 
     private void zoomOnAxis(final Axis axis, final ScrollEvent event) {
@@ -1003,10 +1007,6 @@ public class MultiChartZoomer extends de.gsi.chart.plugins.ChartPlugin {
         pushCurrentZoomWindows();
         performZoom(getZoomDataWindows(), true);
         zoomRectangle.setVisible(false);
-    }
-
-    protected static boolean hasBoundedRange(Axis axis) {
-        return axis.minProperty().isBound() || axis.maxProperty().isBound();
     }
 
     private void panDragged(final MouseEvent event) {
