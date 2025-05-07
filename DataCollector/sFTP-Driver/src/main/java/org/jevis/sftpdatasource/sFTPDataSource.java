@@ -22,8 +22,8 @@ import org.joda.time.DateTimeZone;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -42,12 +42,13 @@ public class sFTPDataSource implements DataSource {
     private Parser parser;
     private Importer importer;
     private List<Result> result;
-    private String sshKey;
+    private JEVisFile sshKey;
     private SshClient client;
     private Integer connectionTimeout;
     private Integer readTimeout;
     private String logDataSourceID = "sFTP";
     private Boolean deleteOnSuccess = false;
+    private Path tmpKeyFile;
 
     // Extrahiert den konstanten Startpfad (z. B. "/ext/Log") aus dem Regex
     private static String extractRootPath(String regexPattern) {
@@ -84,7 +85,7 @@ public class sFTPDataSource implements DataSource {
             if (entry.getAttributes().isDirectory()) {
                 walkAndMatch(sftp, fullPath, pattern, lastReadOut, result); // rekursiv tiefer gehen
             } else {
-                if (pattern.matcher(fullPath).matches() && entry.getAttributes().getModifyTime().toMillis() <= lastReadOut.getMillis()) {
+                if (pattern.matcher(fullPath).matches() && entry.getAttributes().getModifyTime().toMillis() > lastReadOut.getMillis()) {
                     result.add(fullPath);
                     logger.debug("{} File matches: {}", logDataSourceID, fullPath);
                 } else {
@@ -96,8 +97,10 @@ public class sFTPDataSource implements DataSource {
 
     @Override
     public void parse(List<InputStream> input) {
-        parser.parse(input, timezone);
-        result = parser.getResult();
+        //is done by sendSampleRequest(), because of the delete process control
+
+        // parser.parse(input, timezone);
+        // result = parser.getResult();
     }
 
     @Override
@@ -117,21 +120,6 @@ public class sFTPDataSource implements DataSource {
 
                 try {
                     List<InputStream> input = this.sendSampleRequest(channel);
-
-                    if (!input.isEmpty()) {
-                        this.parse(input);
-                    }
-
-                    if (!result.isEmpty()) {
-                        JEVisImporterAdapter.importResults(result, importer, channel);
-                        for (InputStream inputStream : input) {
-                            try {
-                                inputStream.close();
-                            } catch (Exception ex) {
-                                logger.warn("{} could not close input stream: {}", logDataSourceID, ex.getMessage());
-                            }
-                        }
-                    }
                 } catch (JEVisException ex) {
                     logger.error("{} JEVisException. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
                     logger.debug("{} JEVisException. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
@@ -155,9 +143,7 @@ public class sFTPDataSource implements DataSource {
 
     @Override
     public void importResult() {
-        //        _importer.importResult(_result);
-        //workaround until server is threadsave
-//        JEVisImporterAdapter.importResults(_result, _importer);
+        //is done by sendSampleRequest(), because of the delete process control
     }
 
     @Override
@@ -182,10 +168,10 @@ public class sFTPDataSource implements DataSource {
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
 
             final Iterable<KeyPair> keyPairs;
-            if (sshKey != null && !sshKey.isEmpty()) {
-                String fileStr = "C:/Users/fs/.ssh/id_jevisswn";
-                Path privateKeyPath = Paths.get(fileStr);
-                FileKeyPairProvider keyPairProvider = new FileKeyPairProvider(privateKeyPath);
+            if (sshKey != null && sshKey.getBytes() != null) {
+                //String fileStr = "C:/Users/fs/.ssh/id_jevisswn";
+                // Path privateKeyPath = Paths.get(fileStr);
+                FileKeyPairProvider keyPairProvider = new FileKeyPairProvider(tmpKeyFile);
                 keyPairs = keyPairProvider.loadKeys(null);
             } else {
                 keyPairs = null;
@@ -207,18 +193,45 @@ public class sFTPDataSource implements DataSource {
                     List<String> matches = findMatchingFiles(sftp, filePath, lastReadout);
                     logger.info("{} {} files matches Pattern, starting download", logDataSourceID, matches.size());
 
+                    /* Fetch Files */
                     for (String path : matches) {
                         try {
                             logger.debug("{} Start Download: {}", logDataSourceID, path);
                             InputStream inputStream = sftp.read(path);
                             answerList.add(inputStream);
-                            if (deleteOnSuccess) sftp.remove(path);
-
-                            logger.debug("{} End Download: {}", logDataSourceID, path);
+                            logger.debug("{} Finished Download: {}", logDataSourceID, path);
                         } catch (IOException e) {
                             logger.error("{} Error while reading path: {}: {}", logDataSourceID, path, e);
                         }
                     }
+
+                    /* Import Files */
+                    parser.parse(answerList, timezone);
+                    JEVisImporterAdapter.importResults(result, importer, channel);
+
+                    /* Close input Streams */
+                    answerList.forEach(inputStream -> {
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                            logger.error("{} Error while closing file: {}", logDataSourceID, e);
+                            throw new RuntimeException(e);
+                        }
+                    });
+
+                    /* Delete File */
+                    if (deleteOnSuccess) {
+                        matches.forEach(file -> {
+                            try {
+                                logger.debug("{} Delete File: {}", logDataSourceID, file);
+                                //sftp.remove(file);
+                            } catch (Exception ex) {
+                                logger.error("{} Error while deleting file: {}:{}", logDataSourceID, file, ex);
+                            }
+                        });
+                    }
+                    tmpKeyFile.toFile().delete();
+
 
                 }
             } catch (Exception e) {
@@ -238,7 +251,6 @@ public class sFTPDataSource implements DataSource {
 
         return answerList;
     }
-
 
     private void initializeAttributes(JEVisObject sftpObject) {
         try {
@@ -287,12 +299,20 @@ public class sFTPDataSource implements DataSource {
 
             JEVisAttribute deleteOnSuccessAttr = sftpObject.getAttribute(deleteFileOnSuccessType);
             if (deleteOnSuccessAttr == null || !deleteOnSuccessAttr.hasSample()) {
-                _deleteOnSuccess = false;
+                deleteOnSuccess = false;
             } else {
-                _deleteOnSuccess = DatabaseHelper.getObjectAsBoolean(sftpObject, deleteFileOnSuccessType);
+                deleteOnSuccess = DatabaseHelper.getObjectAsBoolean(sftpObject, deleteFileOnSuccessType);
             }
 
-            sshKey = DatabaseHelper.getObjectAsString(sftpObject, sshKeyType);
+            try {
+                sshKey = DatabaseHelper.getObjectAsFile(sftpObject, sshKeyType);
+                tmpKeyFile = Files.createTempFile(sshKey.getFilename(), sshKey.getFileExtension());
+                sshKey.saveToFile(tmpKeyFile.toFile());
+                tmpKeyFile.toFile().deleteOnExit();
+            } catch (Exception ex) {
+                logger.error("{} Error loading keyfile: {}", logDataSourceID, ex);
+            }
+
         } catch (JEVisException ex) {
             logger.error("{}: ", logDataSourceID, ex);
         }
