@@ -31,8 +31,8 @@ import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.jevis.jeconfig.tool.FavUnitList;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.quantity.Dimensionless;
 import java.text.ParseException;
 
 /**
@@ -93,7 +93,7 @@ public abstract class BasicEditor implements AttributeEditor {
             hbox.getChildren().add(new AnalysisLinkButton(att));
 
             try {
-                JEVisUnit selectedUnit = new JEVisUnitImp(Dimensionless.UNIT, "", "");
+                JEVisUnit selectedUnit = new JEVisUnitImp(AbstractUnit.ONE);
                 if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
                     selectedUnit = this.attribute.getDisplayUnit();
                 } else {

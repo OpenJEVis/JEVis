@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import tech.units.indriya.AbstractUnit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,7 @@ public class JsonFactory {
         } catch (Exception ex) {
             logger.error("Error while building JSON for unit: " + ex);
             json.setPrefix("");
-            json.setFormula(javax.measure.unit.Unit.ONE.toString());
+            json.setFormula(AbstractUnit.ONE.toString());
             json.setLabel("Unknown");
         }
         return json;

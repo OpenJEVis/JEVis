@@ -7,8 +7,8 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisObjectWS;
 import org.joda.time.DateTime;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,7 +39,7 @@ public class TableSample {
             calculationObjects.add(new JEVisObjectWS(null, new JsonObject()));
             chartSeries.add(new XYChartSerie());
 
-            units.add(new JEVisUnitImp(Unit.ONE));
+            units.add(new JEVisUnitImp(AbstractUnit.ONE));
         }
     }
 

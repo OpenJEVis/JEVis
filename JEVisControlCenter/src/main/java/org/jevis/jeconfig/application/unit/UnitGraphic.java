@@ -36,7 +36,7 @@ import javafx.scene.layout.HBox;
 public class UnitGraphic {
 
     private final HBox _view = new HBox();
-    private final HBox _edior = new HBox();
+    private final HBox _editor = new HBox();
     private final Label nameLabel = new Label("*Missing*");
     private final UnitObject _obj;
     private final ContextMenu _menu;
@@ -89,7 +89,7 @@ public class UnitGraphic {
         }
 
         switch (item.getType()) {
-            case Quantity:
+            case DIMENSION:
                 _icon = new ImageView(ICON_QUANTITY);
                 break;
             case SIUnit:

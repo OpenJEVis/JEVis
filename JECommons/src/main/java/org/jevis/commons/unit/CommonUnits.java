@@ -1,35 +1,36 @@
 package org.jevis.commons.unit;
 
 import org.jevis.api.JEVisUnit;
+import tech.units.indriya.unit.Units;
 
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
+import javax.measure.MetricPrefix;
+import javax.measure.Unit;
+
 
 public interface CommonUnits {
 
     interface kWH {
-        Unit unit = SI.KILO(SI.WATT).times(NonSI.HOUR);
+        Unit unit = MetricPrefix.KILO(Units.WATT.multiply(Units.HOUR));
         JEVisUnit jevisUnit = new JEVisUnitImp(unit);
     }
 
     interface MWh {
-        Unit unit = SI.MEGA(SI.WATT).times(NonSI.HOUR);
+        Unit unit = MetricPrefix.MEGA(Units.WATT.multiply(Units.HOUR));
         JEVisUnit jevisUnit = new JEVisUnitImp(unit);
     }
 
     interface kW {
-        Unit unit = SI.KILO(SI.WATT);
+        Unit unit = MetricPrefix.KILO(Units.WATT);
         JEVisUnit jevisUnit = new JEVisUnitImp(unit);
     }
 
     interface m3 {
-        Unit unit = SI.CUBIC_METRE;
+        Unit unit = Units.CUBIC_METRE;
         JEVisUnit jevisUnit = new JEVisUnitImp(unit);
     }
 
     interface celsius {
-        Unit unit = SI.CELSIUS;
+        Unit unit = Units.CELSIUS;
         JEVisUnit jevisUnit = new JEVisUnitImp(unit);
     }
 }

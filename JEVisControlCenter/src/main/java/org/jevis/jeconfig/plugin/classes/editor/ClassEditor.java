@@ -60,8 +60,8 @@ import org.jevis.jeconfig.plugin.classes.ClassHelper;
 import org.jevis.jeconfig.plugin.classes.ClassTree;
 import org.jevis.jeconfig.plugin.classes.relationship.ValidParentEditor;
 import org.jevis.jeconfig.tool.ImageConverter;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -613,7 +613,7 @@ public class ClassEditor {
     private void setUnitButton(Button button, JEVisType type) throws JEVisException {
         if (type.getUnit() != null) {
 //            logger.info("editor.Unit: " + type.getUnit());
-            if (type.getUnit().equals(Unit.ONE)) {
+            if (type.getUnit().equals(AbstractUnit.ONE)) {
 //                button.setText("None");
             } else {
 //                logger.info(UnitManager.getInstance().format(type.getUnit()));

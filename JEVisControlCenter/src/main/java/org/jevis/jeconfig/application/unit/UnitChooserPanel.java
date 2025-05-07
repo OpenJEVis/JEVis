@@ -24,12 +24,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.UnitManager;
+import tech.units.indriya.AbstractUnit;
 
 import javax.measure.MetricPrefix;
-import javax.measure.unit.Unit;
+import javax.measure.Unit;
+import javax.measure.spi.ServiceProvider;
 import java.text.Normalizer;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -163,7 +164,7 @@ public class UnitChooserPanel {
         try {
             logger.info("set Unit: " + _unit);
             logger.info("set alt Unit: " + altSymbolField);
-            logger.info("Unit.one: " + Unit.ONE);
+            logger.info("Unit.one: " + AbstractUnit.ONE);
 
             if (_unit != null) {
 //                boxQuantity.getSelectionModel().select(_unit.getStandardUnit());
@@ -175,7 +176,7 @@ public class UnitChooserPanel {
 
             } else {
                 logger.info("no unit create new default unit");
-                Unit newUnit = Unit.ONE;
+                Unit newUnit = AbstractUnit.ONE;
 //                boxQuantity.getSelectionModel().select(newUnit.getStandardUnit());
 //                boxUnit.getSelectionModel().select(newUnit.getStandardUnit());
             }
@@ -244,14 +245,9 @@ public class UnitChooserPanel {
             }
         });
 
-        ObservableList<Unit> favList = FXCollections.observableList(um.getFavoriteQuantitys());
-        ObservableList<Unit> allList = FXCollections.observableList(um.getQuantities());
-
         boxQuantity.getSelectionModel().clearSelection();
         boxQuantity.getItems().clear();
         boxQuantity.getSelectionModel().clearSelection();
-//        boxQuantity.getItems().addAll(favList);
-//        boxQuantity.getItems().addAll(allList);
 
         boxQuantity.getSelectionModel().selectFirst();
 
@@ -303,7 +299,7 @@ public class UnitChooserPanel {
                 return baseUnit;
             }
         } else {
-            return Unit.ONE;
+            return AbstractUnit.ONE;
         }
 
         //TODO workaround remove this or the whole class
@@ -316,14 +312,14 @@ public class UnitChooserPanel {
 
     public void searchUnit() {
         try {
-            Unit searchUnit = Unit.valueOf(searchField.getText().trim());
+            Unit searchUnit = ServiceProvider.current().getFormatService().getUnitFormat().parse(searchField.getText().trim());
 
             altSymbolField.setText("");
             boxPrefix.getSelectionModel().selectFirst();
             boxQuantity.getSelectionModel().selectFirst();
             boxUnit.getSelectionModel().selectFirst();
 
-            logger.info("standart Unit: " + searchUnit.getStandardUnit());
+            logger.info("system Unit: " + searchUnit.getSystemUnit());
             Iterator<JEVisUnit> iterator = boxQuantity.getItems().iterator();
             while (iterator.hasNext()) {
                 Object obj = iterator.next();
@@ -365,7 +361,8 @@ public class UnitChooserPanel {
             super.updateItem(item, empty);
 
             if (item instanceof Unit) {
-                String label = String.format("%s [%s]", item.toString(), UnitManager.getInstance().getUnitName((Unit) item, Locale.ENGLISH));
+                //TODO
+                String label = String.format("%s [%s]", item, item.getUnit().getName());
                 setText(label);
 //                setText(UnitManager.getInstance().getQuantitiesName((Unit) item, Locale.getDefault()));
             }
