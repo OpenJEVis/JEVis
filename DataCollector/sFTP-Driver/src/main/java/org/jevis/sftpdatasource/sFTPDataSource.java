@@ -169,10 +169,12 @@ public class sFTPDataSource implements DataSource {
 
             final Iterable<KeyPair> keyPairs;
             if (sshKey != null && sshKey.getBytes() != null) {
+                logger.debug("{} load Keyfile loaded: {}, bytes: {}", logDataSourceID, sshKey.getFilename(), sshKey.getBytes().length);
                 //String fileStr = "C:/Users/fs/.ssh/id_jevisswn";
                 // Path privateKeyPath = Paths.get(fileStr);
                 FileKeyPairProvider keyPairProvider = new FileKeyPairProvider(tmpKeyFile);
                 keyPairs = keyPairProvider.loadKeys(null);
+                logger.debug("{} Keyfile loaded: {}", logDataSourceID, tmpKeyFile.getFileName());
             } else {
                 keyPairs = null;
             }
@@ -185,10 +187,14 @@ public class sFTPDataSource implements DataSource {
                     session.setKeyIdentityProvider((sessionContext) -> keyPairs);
                 } else {
                     session.addPasswordIdentity(password);
+                    logger.debug("{} using password: {}", logDataSourceID, password);
                 }
+
+                logger.debug("{} connect, with timeout: {}sec", logDataSourceID, Duration.ofSeconds(connectionTimeout * 1000));
                 session.auth().verify(Duration.ofSeconds(connectionTimeout * 1000));
 
                 try (SftpClient sftp = SftpClientFactory.instance().createSftpClient(session)) {
+                    logger.debug("{} connect successful", logDataSourceID);
 
                     List<String> matches = findMatchingFiles(sftp, filePath, lastReadout);
                     logger.info("{} {} files matches Pattern, starting download", logDataSourceID, matches.size());
@@ -206,6 +212,7 @@ public class sFTPDataSource implements DataSource {
                     }
 
                     /* Import Files */
+                    logger.debug("{} Start parsing files: {}", logDataSourceID, answerList.size());
                     parser.parse(answerList, timezone);
                     JEVisImporterAdapter.importResults(result, importer, channel);
 
@@ -235,7 +242,7 @@ public class sFTPDataSource implements DataSource {
 
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("{} error while connection to", logDataSourceID, e);
             } finally {
                 client.stop();
             }
