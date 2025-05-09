@@ -174,6 +174,12 @@ public class sFTPDataSource implements DataSource {
                 // Path privateKeyPath = Paths.get(fileStr);
                 FileKeyPairProvider keyPairProvider = new FileKeyPairProvider(tmpKeyFile);
                 keyPairs = keyPairProvider.loadKeys(null);
+                keyPairs.forEach(keyPair -> {
+                    logger.debug("Found Private Key, Algorithm: {}, Encoded: {}, Format(): {}"
+                            , keyPair.getPrivate().getAlgorithm()
+                            , keyPair.getPrivate().getEncoded()
+                            , keyPair.getPrivate().getFormat());
+                });
                 logger.debug("{} Keyfile loaded: {}", logDataSourceID, tmpKeyFile.getFileName());
             } else {
                 keyPairs = null;
