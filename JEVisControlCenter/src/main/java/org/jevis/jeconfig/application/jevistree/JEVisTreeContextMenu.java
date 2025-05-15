@@ -46,6 +46,7 @@ import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TreeSelectionDialog;
+import org.jevis.jeconfig.application.jevistree.wizard.MargeWizard;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
 import org.jevis.jeconfig.dialog.*;
@@ -70,7 +71,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JEVisTreeContextMenu extends ContextMenu {
-    public static final int THREAD_WAIT = 500;
+    public static final int THREAD_WAIT = 100;
     private static final Logger logger = LogManager.getLogger(JEVisTreeContextMenu.class);
     private JEVisObject obj;
     private JEVisTree tree;
@@ -301,6 +302,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
                         getItems().add(buildReCalcClean());
                     } else if (obj.getJEVisClassName().equals("Periodic Report")) {
                         getItems().add(buildReportWizard());
+                    } else if (obj.getJEVisClassName().equals("HTTP Server")) {
+                        getItems().add(new MargeWizard(tree));
                     }
 
                     if (obj.getAttribute("Value") != null) {
