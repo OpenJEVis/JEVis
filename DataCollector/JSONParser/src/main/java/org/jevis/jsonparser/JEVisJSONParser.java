@@ -17,9 +17,13 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -154,6 +158,8 @@ public class JEVisJSONParser implements Parser {
     private List<DateTime> getDateTimes(String dateTimePath, JSONParser jsonParser) throws JEVisException {
         List<DateTime> dateTimes = new ArrayList<>();
         String dateTimeFormat = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).getLatestSample().getValueAsString();
+
+
         dateTimes = convertDateTime(dateTimePath, jsonParser, dateTimeFormat);
         return dateTimes;
     }
@@ -209,7 +215,7 @@ public class JEVisJSONParser implements Parser {
             return strings.stream()
                     .map(s -> {
                         try {
-                            if (s==null) return null;
+                            if (s == null) return null;
 
                             return Double.valueOf(s);
                         } catch (Exception e) {
@@ -241,9 +247,14 @@ public class JEVisJSONParser implements Parser {
     }
 
     private List<DateTime> convertDateTime(String dateTimePath, JSONParser jsonParser, String dateTimeFormat) {
+        DateTimeFormatter FMT;
+        if (dateTimeFormat.equalsIgnoreCase("ISO8601")) {
+            FMT = ISODateTimeFormat.dateTimeParser();
+        } else {
+            FMT = DateTimeFormat.forPattern(dateTimeFormat);
+        }
 
         List<JsonNode> dateTimesJSON = jsonParser.parse(dateTimePath);
-        DateTimeFormatter FMT = DateTimeFormat.forPattern(dateTimeFormat);
         List<DateTime> dateTimes = dateTimesJSON.stream().map(jsonNode -> FMT.parseDateTime(jsonNode.asText())).collect(Collectors.toList());
         return dateTimes;
     }
