@@ -272,7 +272,7 @@ public class MargeWizard extends MenuItem {
         JEVisFile parameterConfig = new JEVisFileImp("ParameterConfig" + JEVisDates.printDefaultDate(configDate), configString.getBytes(StandardCharsets.UTF_8));
         httpChannel.getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig).buildSample(configDate, parameterConfig).commit();
         Thread.sleep(THREAD_WAIT);
-        
+
         //not needed anymore
         //httpChannel.getAttribute(JC.Channel.HTTPChannel.a_ChunkSize).buildSample(configDate, 86400).commit();
         //Thread.sleep(THREAD_WAIT);
@@ -302,7 +302,7 @@ public class MargeWizard extends MenuItem {
 
                 dataPoint.getAttribute("Target").buildSample(configDate, dataObject.getID() + ":" + "Value").commit();
                 Thread.sleep(THREAD_WAIT);
-                dataPoint.getAttribute("Data Point Path").buildSample(configDate, dataObject.getName()).commit();
+                dataPoint.getAttribute("Data Point Path").buildSample(configDate, dataObject.getLocalName("en")).commit();
                 System.out.println("dataObject.getLocalName(\"en\"): " + dataObject.getLocalName("en"));
                 switch (dataObject.getLocalName("en")) {
                     case "occupancy":
