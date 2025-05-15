@@ -167,29 +167,25 @@ public class sFTPDataSource implements DataSource {
             JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
 
-            final Iterable<KeyPair> keyPairs;
-            if (sshKey != null && sshKey.getBytes() != null) {
-                logger.debug("{} load Keyfile loaded: {}, bytes: {}", logDataSourceID, sshKey.getFilename(), sshKey.getBytes().length);
-                //String fileStr = "C:/Users/fs/.ssh/id_jevisswn";
-                // Path privateKeyPath = Paths.get(fileStr);
-                FileKeyPairProvider keyPairProvider = new FileKeyPairProvider(tmpKeyFile);
-                keyPairs = keyPairProvider.loadKeys(null);
-                keyPairs.forEach(keyPair -> {
-                    logger.debug("Found Private Key, Algorithm: {}, Encoded: {}, Format(): {}"
-                            , keyPair.getPrivate().getAlgorithm()
-                            , keyPair.getPrivate().getEncoded()
-                            , keyPair.getPrivate().getFormat());
-                });
-                logger.debug("{} Keyfile loaded: {}", logDataSourceID, tmpKeyFile.getFileName());
-            } else {
-                keyPairs = null;
-            }
 
             try (ClientSession session = client.connect(userName, serverURL, port)
                     .verify(Duration.ofSeconds(readTimeout * 1000))
                     .getSession()) {
 
-                if (keyPairs != null) {
+                final Iterable<KeyPair> keyPairs;
+                if (sshKey != null && sshKey.getBytes() != null) {
+                    logger.debug("{} load Keyfile loaded: {}, bytes: {}", logDataSourceID, sshKey.getFilename(), sshKey.getBytes().length);
+                    //String fileStr = "C:/Users/fs/.ssh/id_jevisswn";
+                    // Path privateKeyPath = Paths.get(fileStr);
+                    FileKeyPairProvider keyPairProvider = new FileKeyPairProvider(tmpKeyFile);
+                    keyPairs = keyPairProvider.loadKeys(session);
+                    keyPairs.forEach(keyPair -> {
+                        logger.debug("Found Private Key, Algorithm: {}, Encoded: {}, Format(): {}"
+                                , keyPair.getPrivate().getAlgorithm()
+                                , keyPair.getPrivate().getEncoded()
+                                , keyPair.getPrivate().getFormat());
+                    });
+                    logger.debug("{} Keyfile loaded: {}", logDataSourceID, tmpKeyFile.getFileName());
                     session.setKeyIdentityProvider((sessionContext) -> keyPairs);
                 } else {
                     session.addPasswordIdentity(password);
