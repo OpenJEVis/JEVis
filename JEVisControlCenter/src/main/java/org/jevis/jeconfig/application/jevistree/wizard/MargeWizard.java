@@ -220,17 +220,19 @@ public class MargeWizard extends MenuItem {
         thermostateDir.commit();
         Thread.sleep(THREAD_WAIT);
 
+        //Numbers
         JEVisObject userSetTemp = createDataObject(thermostateDir, "userSetTemp", tempUnit, period);
         JEVisObject temperature = createDataObject(thermostateDir, "temperature", tempUnit, period);
         JEVisObject piSetTempInput = createDataObject(thermostateDir, "piSetTempInput", tempUnit, period);
-
         JEVisObject humidity = createDataObject(thermostateDir, "humidity", pro100Unit, period);
-        JEVisObject sysMode = createDataObject(thermostateDir, "sysMode", noUnit, period);
         JEVisObject occupancy = createDataObject(thermostateDir, "occupancy", noUnit, period);
-        JEVisObject windowOpenDetection = createDataObject(thermostateDir, "windowOpenDetection", noUnit, period);
         JEVisObject piControlOutput = createDataObject(thermostateDir, "piControlOutput", noUnit, period);
-        JEVisObject newMeasurement = createDataObject(thermostateDir, "newMeasurement", noUnit, period);
         JEVisObject reportedValvePosition = createDataObject(thermostateDir, "reportedValvePosition", noUnit, period);
+
+        //Text
+        JEVisObject newMeasurement = createTextDataObject(thermostateDir, "newMeasurement", noUnit, period);
+        JEVisObject sysMode = createTextDataObject(thermostateDir, "sysMode", noUnit, period);
+        JEVisObject windowOpenDetection = createTextDataObject(thermostateDir, "windowOpenDetection", noUnit, period);
 
         return thermostateDir;
     }
@@ -283,7 +285,7 @@ public class MargeWizard extends MenuItem {
 
         jsonParser.getAttribute(JC.Parser.JSONParser.a_dateTimePath).buildSample(configDate, "time").commit();
         Thread.sleep(THREAD_WAIT);
-        jsonParser.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).buildSample(configDate, "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ").commit();
+        jsonParser.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).buildSample(configDate, "ISO8601").commit();//"yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ").commit();
         Thread.sleep(THREAD_WAIT);
 
         JEVisObject jsonDataPointsDirectory = jsonParser.buildObject(jsonDataPointDirectoryClass.getName(), jsonDataPointDirectoryClass);
@@ -330,9 +332,38 @@ public class MargeWizard extends MenuItem {
         System.out.println("done");
     }
 
+    private JEVisObject createTextDataObject(JEVisObject parent, String name, JEVisUnit unit, Period period) throws JEVisException, InterruptedException {
+        JEVisDataSource ds = parent.getDataSource();
+
+        JEVisObject newRawData = parent.buildObject(name, ds.getJEVisClass("String Data"));
+        Map<String, String> names = new HashMap<>();
+        names.put("de", camelCaseToNormalText(name));
+        names.put("en", name);
+        newRawData.setLocalNames(names);
+        newRawData.commit();
+        Thread.sleep(THREAD_WAIT);
+
+
+        JEVisAttribute valueAttributeRaw = newRawData.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+        valueAttributeRaw.setInputSampleRate(period);
+        valueAttributeRaw.setDisplaySampleRate(period);
+        valueAttributeRaw.setInputUnit(unit);
+        valueAttributeRaw.setDisplayUnit(unit);
+        valueAttributeRaw.commit();
+        Thread.sleep(THREAD_WAIT);
+
+        DateTime startDate = new DateTime(1990, 1, 1, 0, 0, 0);
+
+
+        setAttribute(newRawData, "Period", startDate, period.toString());
+        Thread.sleep(THREAD_WAIT);
+
+        return newRawData;
+    }
 
     private JEVisObject createDataObject(JEVisObject parent, String name, JEVisUnit unit, Period period) throws JEVisException, InterruptedException {
         JEVisDataSource ds = parent.getDataSource();
+
         JEVisObject newRawData = parent.buildObject(name, ds.getJEVisClass("Data"));
         Map<String, String> names = new HashMap<>();
         names.put("de", camelCaseToNormalText(name));
