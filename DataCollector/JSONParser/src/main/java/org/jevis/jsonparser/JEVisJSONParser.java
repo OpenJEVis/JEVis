@@ -226,8 +226,10 @@ public class JEVisJSONParser implements Parser {
                     //.filter(Objects::nonNull)
                     .collect(Collectors.toList());
         } else if (valueClass.equals("String") || valueClass.isEmpty()) {
+            logger.debug("Converter Value String: {}", strings);
             return strings;
         } else if (valueClass.equals("Boolean")) {
+            logger.debug("Converter Value Boolean: {}", strings);
             return strings.stream()
                     .map(s -> {
                         try {
@@ -242,8 +244,6 @@ public class JEVisJSONParser implements Parser {
         }
 
         return strings;
-
-
     }
 
     private List<DateTime> convertDateTime(String dateTimePath, JSONParser jsonParser, String dateTimeFormat) {
