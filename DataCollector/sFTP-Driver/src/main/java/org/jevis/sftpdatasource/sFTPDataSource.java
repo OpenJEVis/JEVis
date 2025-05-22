@@ -233,7 +233,7 @@ public class sFTPDataSource implements DataSource {
                         matches.forEach(file -> {
                             try {
                                 logger.debug("{}: Delete File: {}", logDataSourceID, file);
-                                //sftp.remove(file);
+                                sftp.remove(file);
                             } catch (Exception ex) {
                                 logger.error("{}: Error while deleting file: {}:{}", logDataSourceID, file, ex);
                             }
