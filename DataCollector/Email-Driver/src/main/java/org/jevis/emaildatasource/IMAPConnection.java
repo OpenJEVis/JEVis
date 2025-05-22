@@ -30,6 +30,8 @@ import org.eclipse.angus.mail.imap.IMAPFolder;
 import org.eclipse.angus.mail.imap.IMAPSSLStore;
 import org.eclipse.angus.mail.imap.IMAPStore;
 
+import java.util.Properties;
+
 
 /**
  * The IMAPConnection class
@@ -47,13 +49,35 @@ public class IMAPConnection implements EMailConnection {
     @Override
     public void setConnection(Session session, EMailServerParameters param) {
 
-        if (param.isSsl()) {
+        if (param.getAuthentication().equals("oauth2")) {
+            try {
+                Properties props = new Properties();
+                props.put("mail.imaps.starttls.enable", "true");
+                props.put("mail.imaps.ssl.enable", "true");
+                props.put("mail.imaps.auth", "true");
+                props.put("mail.imaps.auth.mechanisms", "XOAUTH2");
+                props.put("mail.imaps.auth.login.disable", "true");
+                props.put("mail.imaps.auth.plain.disable", "true");
+                props.put("mail.imaps.auth.ntlm.disable", "true");
+                props.put("mail.imaps.auth.gssapi.disable", "true");
+
+                props.put("mail.imaps.host", "outlook.office365.com");
+                props.put("mail.imaps.port", 993);
+                props.put("mail.debug.auth", "true");
+                session = Session.getInstance(props);
+                session.setDebug(true);
+                _store = session.getStore("imaps");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } else if (param.isSsl()) {
             _store = new IMAPSSLStore(session, null);
         } else {
             _store = new IMAPStore(session, null);
         }
         _foldName = param.getFolderName();
         try {
+
             logger.info("Connect to IMAP Server: {}, User: {}, PW: '{}' .....", param.getHost(), param.getUserEMail(), param.getPassword());
             _store.addConnectionListener(new ConnectionListener() {
                 @Override
@@ -71,7 +95,13 @@ public class IMAPConnection implements EMailConnection {
                     logger.info("Connect closed");
                 }
             });
-            _store.connect(param.getHost(), param.getUserEMail(), param.getPassword());
+            if (param.getAuthentication().equals("oauth2")) {
+                //_store.connect(param.getUserEMail(), TOKEN);
+            } else {
+                _store.connect(param.getHost(), param.getUserEMail(), param.getPassword());
+            }
+
+
             logger.info("Connect done");
         } catch (Exception ex) {
             logger.error("EMail Connection setting failed. Wrong login data or properties.", ex);

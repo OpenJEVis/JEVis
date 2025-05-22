@@ -38,6 +38,24 @@
       "jevisClass": "sFTP Server"
     },
     {
+      "name": "SSH Private Key",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "sFTP Server"
+    },
+    {
+      "name": "Delete File on successful parsing",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "sFTP Server"
+    },
+    {
       "name": "Connection Timeout",
       "primitiveType": 2,
       "guiType": "Number",
