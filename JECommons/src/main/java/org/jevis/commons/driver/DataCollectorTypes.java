@@ -70,6 +70,7 @@ public interface DataCollectorTypes {
         interface JEVisChannelDirectory extends ChannelDirectory {
             String NAME = "JEVis Channel Directory";
         }
+
         interface RevolutionPiChannelDirectory extends ChannelDirectory {
             String NAME = "Revolution PI Channel Directory";
         }
@@ -170,6 +171,7 @@ public interface DataCollectorTypes {
                 String PASSWORD = "Password";
                 String SSL = "SSL";
                 String USER = "User";
+                String SSH_PRIVATE_KEY = "SSH Private Key";
             }
 
             interface SOAP extends DataServer {
@@ -193,6 +195,7 @@ public interface DataCollectorTypes {
                 String PASSWORD = "Password";
                 String SSL = "SSL";
             }
+
             interface RevolutionPiServer extends DataServer {
                 String NAME = "JEVis Server";
                 String USER = "User";
@@ -204,7 +207,7 @@ public interface DataCollectorTypes {
                 String NAME = "DWD Server";
             }
 
-            interface HTTP extends DataServer{
+            interface HTTP extends DataServer {
                 String AUTHENTICATION = "Authentication";
             }
 
@@ -255,6 +258,7 @@ public interface DataCollectorTypes {
 
 
         }
+
         interface RevolutionPiChannel extends Channel {
             String NAME = "Revolution PI Channel";
             String SOURCEID = "Source Id";
