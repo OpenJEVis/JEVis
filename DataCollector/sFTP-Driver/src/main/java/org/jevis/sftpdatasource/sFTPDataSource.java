@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -251,7 +252,7 @@ public class sFTPDataSource implements DataSource {
             JEVisClass channelClass = ftpObject.getDataSource().getJEVisClass(DataCollectorTypes.Channel.sFTPChannel.NAME);
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
-            List<JEVisObject> channels = channelDir.getChildren(channelClass, false);
+            List<JEVisObject> channels = CommonMethods.getChildrenRecursive(channelDir, channelClass);
             logger.info("Found " + channels.size() + " channel objects in " + channelDir.getName() + ":" + channelDir.getID());
 
             channels.forEach(channelObject -> {
