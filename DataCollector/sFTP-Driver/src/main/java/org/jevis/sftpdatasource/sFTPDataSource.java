@@ -75,10 +75,10 @@ public class sFTPDataSource implements DataSource {
     }
 
     private void walkAndMatch(SftpClient sftp, String currentPath, Pattern pattern, DateTime lastReadOut, List<String> result) throws IOException {
-        logger.debug("{} walkAndMatch: path: {} ,Last-TS: {}", logDataSourceID, currentPath, lastReadOut);
+        logger.debug("{}: walkAndMatch: path: {} ,Last-TS: {}", logDataSourceID, currentPath, lastReadOut);
         for (SftpClient.DirEntry entry : sftp.readDir(currentPath)) {
             String name = entry.getFilename();
-            logger.debug("{} traversing file: {}", logDataSourceID, name);
+            logger.debug("{}: traversing file: {}", logDataSourceID, name);
             if (name.equals(".") || name.equals("..")) continue;
 
             String fullPath = currentPath.endsWith("/") ? currentPath + name : currentPath + "/" + name;
@@ -88,9 +88,9 @@ public class sFTPDataSource implements DataSource {
             } else {
                 if (pattern.matcher(fullPath).matches() && entry.getAttributes().getModifyTime().toMillis() > lastReadOut.getMillis()) {
                     result.add(fullPath);
-                    logger.debug("{} File matches: {}", logDataSourceID, fullPath);
+                    logger.debug("{}: File matches: {}", logDataSourceID, fullPath);
                 } else {
-                    logger.debug("{} File does not match: {}", logDataSourceID, fullPath);
+                    logger.debug("{}: File does not match: {}", logDataSourceID, fullPath);
                 }
             }
         }
@@ -122,13 +122,13 @@ public class sFTPDataSource implements DataSource {
                 try {
                     List<InputStream> input = this.sendSampleRequest(channel);
                 } catch (JEVisException ex) {
-                    logger.error("{} JEVisException. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("{} JEVisException. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
+                    logger.error("{}: JEVisException. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("{}: JEVisException. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
                 } catch (ParseException ex) {
-                    logger.error("{} Parse Exception. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("{} Parse Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
+                    logger.error("{}: Parse Exception. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("{}: Parse Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
                 } catch (Exception ex) {
-                    logger.error("{} Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
+                    logger.error("{}: Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
                 }
             } catch (Exception ex) {
                 logger.error(ex);
@@ -137,7 +137,7 @@ public class sFTPDataSource implements DataSource {
         try {
             client.stop();
         } catch (Exception e) {
-            logger.error("{} Error closing client: {}", logDataSourceID, e);
+            logger.error("{}: Error closing client: {}", logDataSourceID, e);
         }
 
     }
@@ -175,9 +175,7 @@ public class sFTPDataSource implements DataSource {
 
                 final Iterable<KeyPair> keyPairs;
                 if (sshKey != null && sshKey.getBytes() != null) {
-                    logger.debug("{} load Keyfile loaded: {}, bytes: {}", logDataSourceID, sshKey.getFilename(), sshKey.getBytes().length);
-                    //String fileStr = "C:/Users/fs/.ssh/id_jevisswn";
-                    // Path privateKeyPath = Paths.get(fileStr);
+                    logger.debug("{}: Keyfile loaded: {}, bytes: {}", logDataSourceID, sshKey.getFilename(), sshKey.getBytes().length);
                     FileKeyPairProvider keyPairProvider = new FileKeyPairProvider(tmpKeyFile);
                     keyPairs = keyPairProvider.loadKeys(session);
                     keyPairs.forEach(keyPair -> {
@@ -186,36 +184,36 @@ public class sFTPDataSource implements DataSource {
                                 , keyPair.getPrivate().getEncoded()
                                 , keyPair.getPrivate().getFormat());
                     });
-                    logger.debug("{} Keyfile loaded: {}", logDataSourceID, tmpKeyFile.getFileName());
+                    logger.debug("{}: Keyfile loaded: {}", logDataSourceID, tmpKeyFile.getFileName());
                     session.setKeyIdentityProvider((sessionContext) -> keyPairs);
                 } else {
                     session.addPasswordIdentity(password);
-                    logger.debug("{} using password: {}", logDataSourceID, password);
+                    logger.debug("{}: using password: {}", logDataSourceID, password);
                 }
 
-                logger.debug("{} connect, with timeout: {}sec", logDataSourceID, Duration.ofSeconds(connectionTimeout * 1000));
+                logger.debug("{}: connect, with timeout: {}sec", logDataSourceID, Duration.ofSeconds(connectionTimeout * 1000));
                 session.auth().verify(Duration.ofSeconds(connectionTimeout * 1000));
 
                 try (SftpClient sftp = SftpClientFactory.instance().createSftpClient(session)) {
-                    logger.debug("{} connect successful", logDataSourceID);
+                    logger.debug("{}: connect successful", logDataSourceID);
 
                     List<String> matches = findMatchingFiles(sftp, filePath, lastReadout);
-                    logger.info("{} {} files matches Pattern, starting download", logDataSourceID, matches.size());
+                    logger.info("{}: {} files matches Pattern, starting download", logDataSourceID, matches.size());
 
                     /* Fetch Files */
                     for (String path : matches) {
                         try {
-                            logger.debug("{} Start Download: {}", logDataSourceID, path);
+                            logger.debug("{}: Start Download: {}", logDataSourceID, path);
                             InputStream inputStream = sftp.read(path);
                             answerList.add(inputStream);
-                            logger.debug("{} Finished Download: {}", logDataSourceID, path);
+                            logger.debug("{}: Finished Download: {}", logDataSourceID, path);
                         } catch (IOException e) {
-                            logger.error("{} Error while reading path: {}: {}", logDataSourceID, path, e);
+                            logger.error("{}: Error while reading path: {}: {}", logDataSourceID, path, e);
                         }
                     }
 
                     /* Import Files */
-                    logger.debug("{} Start parsing files: {}", logDataSourceID, answerList.size());
+                    logger.debug("{}: Start parsing files: {}", logDataSourceID, answerList.size());
                     parser.parse(answerList, timezone);
                     this.result = parser.getResult();
                     JEVisImporterAdapter.importResults(result, importer, channel);
@@ -225,7 +223,7 @@ public class sFTPDataSource implements DataSource {
                         try {
                             inputStream.close();
                         } catch (IOException e) {
-                            logger.error("{} Error while closing file: {}", logDataSourceID, e);
+                            logger.error("{}: Error while closing file: {}", logDataSourceID, e);
                             throw new RuntimeException(e);
                         }
                     });
@@ -234,10 +232,10 @@ public class sFTPDataSource implements DataSource {
                     if (deleteOnSuccess) {
                         matches.forEach(file -> {
                             try {
-                                logger.debug("{} Delete File: {}", logDataSourceID, file);
+                                logger.debug("{}: Delete File: {}", logDataSourceID, file);
                                 //sftp.remove(file);
                             } catch (Exception ex) {
-                                logger.error("{} Error while deleting file: {}:{}", logDataSourceID, file, ex);
+                                logger.error("{}: Error while deleting file: {}:{}", logDataSourceID, file, ex);
                             }
                         });
                     }
@@ -246,18 +244,18 @@ public class sFTPDataSource implements DataSource {
 
                 }
             } catch (Exception e) {
-                logger.error("{} error while connection to", logDataSourceID, e);
+                logger.error("{}: error while connection to", logDataSourceID, e);
             } finally {
                 client.stop();
             }
 
 
         } catch (Exception ex) {
-            logger.error("{} Error while while sending Sample Request: {}", logDataSourceID, ex);
+            logger.error("{}: Error while while sending Sample Request: {}", logDataSourceID, ex);
         }
 
         if (answerList.isEmpty()) {
-            logger.warn("{} Cant get any data from the device", logDataSourceID);
+            logger.warn("{}: Cant get any data from the device", logDataSourceID);
         }
 
         return answerList;
@@ -321,7 +319,7 @@ public class sFTPDataSource implements DataSource {
                 sshKey.saveToFile(tmpKeyFile.toFile());
                 tmpKeyFile.toFile().deleteOnExit();
             } catch (Exception ex) {
-                logger.error("{} Error loading keyfile: {}", logDataSourceID, ex);
+                logger.error("{}: Error loading keyfile: {}", logDataSourceID, ex);
             }
 
         } catch (JEVisException ex) {
@@ -335,7 +333,6 @@ public class sFTPDataSource implements DataSource {
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
             List<JEVisObject> channels = CommonMethods.getChildrenRecursive(ftpObject, channelClass);
-            logger.info("Found " + channels.size() + " channel objects in " + ftpObject.getName() + ":" + ftpObject.getID());
 
             channels.forEach(channelObject -> {
                 if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
@@ -343,13 +340,13 @@ public class sFTPDataSource implements DataSource {
                     try {
                         ftpObject.getDataSource().reloadObject(channelObject);
                     } catch (Exception e) {
-                        logger.error("{} Could not reload attributes for object {}:{}", logDataSourceID, channelObject.getName(), channelObject.getID(), e);
+                        logger.error("{}: Could not reload attributes for object {}:{}", logDataSourceID, channelObject.getName(), channelObject.getID(), e);
                     }
                     counterCheckForErrorInAPI.add(channelObject.getID());
                 }
             });
 
-            logger.info("{} {} has {}:{} channels", logDataSourceID, ftpObject.getName(), ftpObject.getID(), this.channels.size());
+            logger.info("{}: {}:{} has {} channels", logDataSourceID, ftpObject.getName(), ftpObject.getID(), this.channels.size());
         } catch (Exception ex) {
             logger.error("{}: ", logDataSourceID, ex);
         }
