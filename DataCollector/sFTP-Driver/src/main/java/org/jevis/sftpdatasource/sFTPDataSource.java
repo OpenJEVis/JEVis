@@ -247,13 +247,11 @@ public class sFTPDataSource implements DataSource {
 
     private void initializeChannelObjects(JEVisObject ftpObject) {
         try {
-            JEVisClass channelDirClass = ftpObject.getDataSource().getJEVisClass(DataCollectorTypes.ChannelDirectory.sFTPChannelDirectory.NAME);
-            JEVisObject channelDir = ftpObject.getChildren(channelDirClass, false).get(0);
             JEVisClass channelClass = ftpObject.getDataSource().getJEVisClass(DataCollectorTypes.Channel.sFTPChannel.NAME);
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
-            List<JEVisObject> channels = CommonMethods.getChildrenRecursive(channelDir, channelClass);
-            logger.info("Found " + channels.size() + " channel objects in " + channelDir.getName() + ":" + channelDir.getID());
+            List<JEVisObject> channels = CommonMethods.getChildrenRecursive(ftpObject, channelClass);
+            logger.info("Found " + channels.size() + " channel objects in " + ftpObject.getName() + ":" + ftpObject.getID());
 
             channels.forEach(channelObject -> {
                 if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
@@ -267,7 +265,7 @@ public class sFTPDataSource implements DataSource {
                 }
             });
 
-            logger.info(channelDir.getName() + ":" + channelDir.getID() + " has " + _channels.size() + " channels.");
+            logger.info(ftpObject.getName() + ":" + ftpObject.getID() + " has " + _channels.size() + " channels.");
         } catch (Exception ex) {
             logger.error(ex);
         }
