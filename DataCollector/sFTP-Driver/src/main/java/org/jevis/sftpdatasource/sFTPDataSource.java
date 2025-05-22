@@ -217,6 +217,7 @@ public class sFTPDataSource implements DataSource {
                     /* Import Files */
                     logger.debug("{} Start parsing files: {}", logDataSourceID, answerList.size());
                     parser.parse(answerList, timezone);
+                    this.result = parser.getResult();
                     JEVisImporterAdapter.importResults(result, importer, channel);
 
                     /* Close input Streams */
@@ -330,14 +331,11 @@ public class sFTPDataSource implements DataSource {
 
     private void initializeChannelObjects(JEVisObject ftpObject) {
         try {
-            JEVisClass channelDirClass = ftpObject.getDataSource().getJEVisClass(DataCollectorTypes.ChannelDirectory.sFTPChannelDirectory.NAME);
-            JEVisObject channelDir = ftpObject.getChildren(channelDirClass, false).get(0);
             JEVisClass channelClass = ftpObject.getDataSource().getJEVisClass(DataCollectorTypes.Channel.sFTPChannel.NAME);
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
-
-            List<JEVisObject> channels = CommonMethods.getChildrenRecursive(channelDir, channelClass);
-            logger.info("Found " + channels.size() + " channel objects in " + channelDir.getName() + ":" + channelDir.getID());
+            List<JEVisObject> channels = CommonMethods.getChildrenRecursive(ftpObject, channelClass);
+            logger.info("Found " + channels.size() + " channel objects in " + ftpObject.getName() + ":" + ftpObject.getID());
 
             channels.forEach(channelObject -> {
                 if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
@@ -351,7 +349,7 @@ public class sFTPDataSource implements DataSource {
                 }
             });
 
-            logger.info("{} {} has {}:{} channels", logDataSourceID, channelDir.getName(), channelDir.getID(), this.channels.size());
+            logger.info("{} {} has {}:{} channels", logDataSourceID, ftpObject.getName(), ftpObject.getID(), this.channels.size());
         } catch (Exception ex) {
             logger.error("{}: ", logDataSourceID, ex);
         }
