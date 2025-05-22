@@ -217,6 +217,7 @@ public class sFTPDataSource implements DataSource {
                     /* Import Files */
                     logger.debug("{} Start parsing files: {}", logDataSourceID, answerList.size());
                     parser.parse(answerList, timezone);
+                    this.result = parser.getResult();
                     JEVisImporterAdapter.importResults(result, importer, channel);
 
                     /* Close input Streams */
