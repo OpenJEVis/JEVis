@@ -23,8 +23,8 @@ import org.jevis.api.*;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -162,7 +162,7 @@ public class VirtualAttribute implements JEVisAttribute {
 
     @Override
     public JEVisUnit getDisplayUnit() throws JEVisException {
-        return new JEVisUnitImp(Unit.ONE);
+        return new JEVisUnitImp(AbstractUnit.ONE);
     }
 
     @Override

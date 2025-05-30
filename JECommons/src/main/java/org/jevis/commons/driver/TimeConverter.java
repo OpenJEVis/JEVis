@@ -22,7 +22,7 @@ package org.jevis.commons.driver;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * @author broder
@@ -38,13 +38,12 @@ public class TimeConverter {
     }
 
     public static DateTime parseDateTime(String input, String pattern, DateTimeZone dateTimeZone) {
-        if (pattern.equals("UNIX")) {
+        if (pattern == null || pattern.equalsIgnoreCase("ISO8601") || pattern.isEmpty()) {
+            return ISODateTimeFormat.dateTimeParser().withZone(dateTimeZone).parseDateTime(input);
+        } else if (pattern.equalsIgnoreCase("UNIX")) {
             return new DateTime(Long.parseLong(input) * 1000L);
         } else {
-            DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern).withZone(dateTimeZone);
-            return fmt.parseDateTime(input);
+            return DateTimeFormat.forPattern(pattern).withZone(dateTimeZone).parseDateTime(input);
         }
-
-
     }
 }

@@ -41,6 +41,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.CustomPrefix;
 import org.jevis.commons.unit.UnitManager;
 
+import javax.measure.BinaryPrefix;
 import javax.measure.MetricPrefix;
 import javax.measure.Prefix;
 import java.util.ArrayList;
@@ -67,11 +68,12 @@ public class UnitPanel extends GridPane {
         Label unitL = new Label("Unit:");
         Label example = new Label("Symbol: ");
 
-        final JEVisUnit.Prefix prefix = unit.getPrefix();
+        final Prefix prefix = unit.getPrefix();
 
         List<Prefix> list = new ArrayList<>();
         list.add(CustomPrefix.NONE);
         Collections.addAll(list, MetricPrefix.values());
+        Collections.addAll(list, BinaryPrefix.values());
         JFXComboBox<Prefix> prefixBox = new JFXComboBox(FXCollections.observableArrayList(list));
         prefixBox.setMaxWidth(520);
 //        prefixBox.getSelectionModel().select("");//toto get elsewhere?!
@@ -86,7 +88,7 @@ public class UnitPanel extends GridPane {
                 }
             }
         });
-        prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefix(prefix));
+        prefixBox.getSelectionModel().select(prefix);
 
         final JFXTextField labelField = new JFXTextField();
         labelField.setEditable(false);
@@ -120,7 +122,7 @@ public class UnitPanel extends GridPane {
 
         prefixBox.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
 
-            _returnUnit.setPrefix(UnitManager.getInstance().getPrefix(t1));
+            _returnUnit.setPrefix(t1);
             printExample(labelField, _returnUnit);
         });
 

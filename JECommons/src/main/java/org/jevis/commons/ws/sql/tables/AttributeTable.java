@@ -34,8 +34,8 @@ import org.jevis.commons.ws.sql.SQLtoJsonFactory;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -359,9 +359,9 @@ public class AttributeTable {
 
         try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
 //            Gson gson = new Gson();
-            JEVisUnit fallbackUnit = new JEVisUnitImp(Unit.ONE);
+            JEVisUnit fallbackUnit = new JEVisUnitImp(AbstractUnit.ONE);
 
-            if (att.getDisplayUnit() != null && att.getDisplayUnit() != null) {
+            if (att.getDisplayUnit() != null) {
                 ps.setString(1, ds.getObjectMapper().writeValueAsString(att.getDisplayUnit()));
                 ps.setString(7, ds.getObjectMapper().writeValueAsString(att.getDisplayUnit()));
             } else {
@@ -369,7 +369,7 @@ public class AttributeTable {
                 ps.setString(7, fallbackUnit.toJSON());
             }
 
-            if (att.getInputUnit() != null && att.getInputUnit() != null) {
+            if (att.getInputUnit() != null) {
                 ps.setString(2, ds.getObjectMapper().writeValueAsString(att.getInputUnit()));
                 ps.setString(8, ds.getObjectMapper().writeValueAsString(att.getInputUnit()));
 

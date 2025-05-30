@@ -31,8 +31,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -334,7 +334,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
         try {
             return new JEVisUnitImp(json.getDisplayUnit());
         } catch (Exception ex) {
-            return new JEVisUnitImp(Unit.ONE);
+            return new JEVisUnitImp(AbstractUnit.ONE);
         }
     }
 
@@ -349,7 +349,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
             return new JEVisUnitImp(json.getInputUnit());
         } catch (Exception ex) {
             logger.debug("No unit selected using fallback unit.one");
-            return new JEVisUnitImp(Unit.ONE);
+            return new JEVisUnitImp(AbstractUnit.ONE);
         }
     }
 

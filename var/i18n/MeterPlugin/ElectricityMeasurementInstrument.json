@@ -39,8 +39,8 @@
     {
       "type": "Current Transformer Accuracy",
       "descriptions": {
-        "de": "Gibt das Verhältnis des Stromwandlers an.",
-        "en": "Specifies the ratio of the current transformer.",
+        "de": "Gibt die Genauigkeit des Stromwandlers an.",
+        "en": "Specifies the accuracy of the current transformer.",
         "ar": "يحدد نسبة المحولات الحالية."
       },
       "names": {
@@ -74,12 +74,12 @@
     {
       "type": "Voltage Transformer Accuracy",
       "descriptions": {
-        "de": "Genauigkeit des Spannungswandlers",
-        "en": "Voltage Transformer Accuracy"
+        "de": "Gibt die Genauigkeit des Spannungswandlers an.",
+        "en": "Specifies the accuracy of the voltage transformer."
       },
       "names": {
-        "de": "VT",
-        "en": "VT"
+        "de": "Genauigkeit des Spannungswandlers",
+        "en": "Voltage Transformer Accuracy"
       }
     }
   ]

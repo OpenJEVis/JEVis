@@ -19,8 +19,7 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.UnitDialog;
-
-import javax.measure.quantity.Dimensionless;
+import tech.units.indriya.AbstractUnit;
 
 public class FavUnitList extends JFXComboBox<JEVisUnit> {
     private static final Logger logger = LogManager.getLogger(FavUnitList.class);
@@ -29,8 +28,8 @@ public class FavUnitList extends JFXComboBox<JEVisUnit> {
         ObservableList<JEVisUnit> units = FXCollections.observableArrayList();
 
         units.add(selectedUnit);
-        units.add(new JEVisUnitImp(Dimensionless.UNIT, "", ""));//select no unit
-        units.add(new JEVisUnitImp(Dimensionless.UNIT, "other", ""));
+        units.add(new JEVisUnitImp(AbstractUnit.ONE, "", ""));//select no unit
+        units.add(new JEVisUnitImp(AbstractUnit.ONE, "other", ""));
         units.addAll(UnitManager.getInstance().getFavoriteJUnits());
 
         this.setItems(units);

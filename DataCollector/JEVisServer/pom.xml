@@ -8,13 +8,14 @@
         <version>3.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>JEVisDataServer</artifactId>
+    <groupId>org.jevis</groupId>
+    <artifactId>JEVisServer</artifactId>
     <version>1.0.0</version>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <build>
         <plugins>
@@ -29,7 +30,7 @@
             </plugin>
         </plugins>
     </build>
-
+    <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>org.jevis</groupId>

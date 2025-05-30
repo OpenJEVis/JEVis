@@ -8,6 +8,7 @@
     </parent>
     <artifactId>Shelly-Driver</artifactId>
     <name>Shelly-Driver</name>
+    <groupId>org.jevis</groupId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
@@ -97,11 +98,6 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>2.0.0-alpha0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

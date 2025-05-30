@@ -102,6 +102,11 @@
         </dependency>
         <dependency>
             <groupId>org.jevis</groupId>
+            <artifactId>DWDHDDParser</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis</groupId>
             <artifactId>HTTPDataSource</artifactId>
         </dependency>
         <dependency>
@@ -119,6 +124,41 @@
         <dependency>
             <groupId>org.jevis</groupId>
             <artifactId>SOAPDataSource</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis</groupId>
+            <artifactId>JEVisServer</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis</groupId>
+            <artifactId>EMailDataSource</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis</groupId>
+            <artifactId>ModbusDataSource</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis</groupId>
+            <artifactId>MSCONSParser</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis</groupId>
+            <artifactId>RevolutionPiServer</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis</groupId>
+            <artifactId>Shelly-Driver</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jevis</groupId>
+            <artifactId>XLSXParser</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
@@ -175,16 +215,6 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>2.0.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>2.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.jevis</groupId>

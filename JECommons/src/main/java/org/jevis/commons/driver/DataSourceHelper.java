@@ -19,9 +19,6 @@
  */
 package org.jevis.commons.driver;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.ChannelSftp.LsEntry;
-import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -42,9 +39,7 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -395,123 +390,6 @@ public class DataSourceHelper {
         return path.contains("${");
     }
 
-    public static List<String> getSFTPMatchedFileNames(ChannelSftp _channel, DateTime lastReadout, String filePath) {
-        filePath = filePath.replace("\\", "/");
-        String[] pathStream = getPathTokens(filePath);
-
-        String startPath = "";
-        if (filePath.startsWith("/")) {
-            startPath = "/";
-        }
-
-        List<String> folderPathes = getSFTPMatchingPathes(startPath, pathStream, new ArrayList<String>(), _channel, lastReadout, new DateTimeFormatterBuilder());
-//        logger.info("foldersize,"+folderPathes.size());
-        List<String> fileNames = new ArrayList<String>();
-        if (folderPathes.isEmpty()) {
-            logger.error("Cant find suitable folder on the device");
-            return fileNames;
-        }
-
-        if (folderPathes.isEmpty()) {
-            logger.error("Cant find suitable folder on the device");
-            return fileNames;
-        }
-
-        String fileNameScheme = pathStream[pathStream.length - 1];
-        String currentfolder = null;
-        try {
-            for (String folder : folderPathes) {
-                //                fc.changeWorkingDirectory(folder);
-                //                logger.info("currentFolder,"+folder);
-                currentfolder = folder;
-                //                for (FTPFile file : fc.listFiles(folder)) {
-                //                    logger.info(file.getName());
-                //                }
-//                Vector ls = _channel.ls(folder);
-                for (Object fileName : _channel.ls(folder)) {
-                    logger.debug("Check file: {}", fileName);
-                    LsEntry currentFile = (LsEntry) fileName;
-
-                    String currentFileName = currentFile.getFilename();
-                    currentFileName = removeFolder(currentFileName, folder);
-                    boolean match = false;
-                    /*
-                    Note: this if seems false we cannot use variables and matcing filename at the same time?!
-                     */
-                    if (DataSourceHelper.containsTokens(fileNameScheme)) {
-                        boolean matchDate = matchDateString(currentFileName, fileNameScheme);
-                        DateTime folderTime = getFileTime(folder + currentFileName, pathStream);
-                        boolean isLater = folderTime.isAfter(lastReadout);
-                        if (matchDate && isLater) {
-                            logger.debug("-File is later the lastedout");
-                            match = true;
-                        }
-                    } else {
-                        Pattern p = Pattern.compile(fileNameScheme);
-                        Matcher m = p.matcher(currentFileName);
-                        Date dateModify = new Date(currentFile.getAttrs().getMTime() * 1000L);
-                        DateTime dateTime = new DateTime(dateModify);
-                        logger.trace("d1: {} , d2: {} = {}", dateTime, lastReadout, dateTime.isAfter(lastReadout));
-
-                        boolean isLater = dateTime.isAfter(lastReadout);
-                        if (m.matches() && isLater) {
-                            logger.debug("-File is later the lastedout");
-                            match = true;
-                        }
-
-                    }
-                    if (match) {
-                        logger.debug("- File does not match");
-                        fileNames.add(folder + currentFileName);
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            logger.error("Error while searching a matching file", ex, ex);
-            logger.error("Folder: " + currentfolder);
-            logger.error("FileName: " + fileNameScheme);
-        }
-        if (folderPathes.isEmpty()) {
-            logger.error("Cant find suitable files on the device");
-        }
-        return fileNames;
-    }
-
-    private static List<String> getSFTPMatchingPathes(String path, String[] pathStream, ArrayList<String> arrayList, ChannelSftp fc, DateTime lastReadout, DateTimeFormatterBuilder dtfbuilder) {
-        int nextTokenPos = getPathTokens(path).length;
-        if (nextTokenPos == pathStream.length - 1) {
-            arrayList.add(path);
-            return arrayList;
-        }
-
-        String nextToken = pathStream[nextTokenPos];
-        String nextFolder = null;
-
-        try {
-            if (containsDateToken(nextToken)) {
-                Vector listDirectories = fc.ls(path);
-                for (Object folder : listDirectories) {
-                    LsEntry currentFolder = (LsEntry) folder;
-
-                    if (!matchDateString(currentFolder.getFilename(), nextToken)) {
-                        continue;
-                    }
-                    DateTime folderTime = getFolderTime(path + currentFolder.getFilename() + "/", pathStream);
-                    if (folderTime.isAfter(lastReadout)) {
-                        nextFolder = currentFolder.getFilename();
-                        getSFTPMatchingPathes(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
-                    }
-//                    }
-                }
-            } else {
-                nextFolder = nextToken;
-                getSFTPMatchingPathes(path + nextFolder + "/", pathStream, arrayList, fc, lastReadout, dtfbuilder);
-            }
-        } catch (SftpException ex) {
-            logger.error("Cant find suitable files on the device");
-        }
-        return arrayList;
-    }
 
     public static void setLastReadout(JEVisObject channel, Object latestDatapoint) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

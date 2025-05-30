@@ -19,7 +19,9 @@
  */
 package org.jevis.api;
 
-import javax.measure.unit.Unit;
+
+import javax.measure.Prefix;
+import javax.measure.Unit;
 
 /**
  * The JEVisUnit class handles the converting and labeling of the JEVisSamples
@@ -51,14 +53,6 @@ public interface JEVisUnit {
      * @param label
      */
     void setLabel(String label);
-
-    /**
-     * SI prefixes and NONE if no prefix is set
-     */
-    enum Prefix {
-
-        NONE, ZETTA, EXA, PETA, TERA, GIGA, MEGA, NANO, PICO, KILO, HECTO, DEKA, DECI, CENTI, MILLI, MICRO, FEMTO, ATTO, ZEPTO, YOCTO, YOTTA
-    }
 
     /**
      * Add an offset to this unit.

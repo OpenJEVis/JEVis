@@ -99,23 +99,25 @@ public class I18n {
             }
         }
     }
-    public Map<String,String> getTranslationMap(String key){
+
+    public Map<String, String> getTranslationMap(String key) {
         Map<String, String> translation = new HashMap<>();
-        for (Locale language:availableLang) {
-            translation.put(language.getLanguage(), retrieveString(key, language,allBundles.get(language)));
+        for (Locale language : availableLang) {
+            translation.put(language.getLanguage(), retrieveString(key, language, allBundles.get(language)));
         }
         return translation;
 
     }
 
     public String getString(String key) {
-        return retrieveString(key, this.locale,this.bundle);
+        return retrieveString(key, this.locale, this.bundle);
     }
-    private String retrieveString(String key, Locale language, PropertyResourceBundle resourceBundle){
+
+    private String retrieveString(String key, Locale language, PropertyResourceBundle resourceBundle) {
         try {
             return resourceBundle.getString(key);
         } catch (NullPointerException | java.util.MissingResourceException np) {
-            logger.info("Missing translation [" + language.getLanguage() + "] Key: " + key + "");
+            logger.info("Missing translation [" + language.getLanguage() + "] Key: " + key);
             try {
                 return this.defaultBundle.getString(key);
             } catch (NullPointerException | java.util.MissingResourceException np2) {

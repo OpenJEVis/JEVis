@@ -40,8 +40,8 @@ import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.quantity.Dimensionless;
 import java.text.NumberFormat;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
@@ -465,7 +465,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         JFXTextField value = new JFXTextField();
         value.setEditable(false);
 
-        JEVisUnit selectedUnit = new JEVisUnitImp(Dimensionless.UNIT, "", "");
+        JEVisUnit selectedUnit = new JEVisUnitImp(AbstractUnit.ONE);
         if (valueAttribute.getDisplayUnit() != null && !valueAttribute.getInputUnit().getLabel().isEmpty()) {
             selectedUnit = valueAttribute.getDisplayUnit();
         } else {

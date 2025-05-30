@@ -35,6 +35,7 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
             if (userSelection.getType() == UserSelection.SelectionType.Object) {
                 selectedObjects.add(userSelection.getSelectedObject());
             } else {
+                selectedObjects.add(userSelection.getSelectedAttribute().getObject());
                 selectedAttributes.add(userSelection.getSelectedAttribute());
             }
         }
@@ -76,6 +77,8 @@ public class JEVisTreeView extends JFXTreeView<JEVisTreeViewItem> {
         for (FilterableTreeItem filterableTreeItem : selectedFilterableTreeItems) {
             getSelectionModel().select(filterableTreeItem);
         }
+
+        scrollTo(getSelectionModel().getSelectedIndex());
     }
 
     private static <T> void expandTreeView(TreeItem<T> selectedItem) {

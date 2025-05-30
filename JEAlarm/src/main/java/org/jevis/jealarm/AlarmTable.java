@@ -19,8 +19,8 @@ import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import tech.units.indriya.AbstractUnit;
 
-import javax.measure.unit.Unit;
 import java.text.NumberFormat;
 import java.util.List;
 
@@ -89,7 +89,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 String currentUnit = null;
                 try {
                     currentUnit = UnitManager.getInstance().format(currentAlarm.getAttribute().getDisplayUnit());
-                    if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString()))
+                    if (currentUnit.equals("") || currentUnit.equals(AbstractUnit.ONE.toString()))
                         currentUnit = currentAlarm.getAttribute().getDisplayUnit().getLabel();
                 } catch (Exception e) {
                     logger.error("Could not parse Unit.");
@@ -414,7 +414,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 String currentUnit = null;
                 try {
                     currentUnit = UnitManager.getInstance().format(currentAlarm.getAttribute().getDisplayUnit());
-                    if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString()))
+                    if (currentUnit.equals("") || currentUnit.equals(AbstractUnit.ONE.toString()))
                         currentUnit = currentAlarm.getAttribute().getDisplayUnit().getLabel();
                 } catch (Exception e) {
                     logger.error("Could not parse Unit.");
