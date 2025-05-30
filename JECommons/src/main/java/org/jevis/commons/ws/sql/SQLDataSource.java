@@ -68,7 +68,7 @@ public class SQLDataSource {
                 this.aTable = new AttributeTable(this);//back
                 this.sTable = new SampleTable(this);
                 //this.rTable = new RelationshipTable(this);
-                this.um = new UserRightManagerForWS(this);
+                this.um = new UserRightManagerForWS(this,true);
 
             }
         } catch (SQLException se) {
@@ -245,21 +245,11 @@ public class SQLDataSource {
         if (httpHeaders.getRequestHeader("authorization") == null || httpHeaders.getRequestHeader("authorization").isEmpty()) {
             throw new AuthenticationException("Authorization header is missing");
         }
-//        try {
         String auth = httpHeaders.getRequestHeader("authorization").get(0);
         if (auth != null && !auth.isEmpty()) {
 
             auth = auth.replaceFirst("[Bb]asic ", "");
-            try {
-                //byte[] decoded = Base64.decodeBase64(auth);
-                //System.out.println(decoded);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
             byte[] decoded = Base64.getDecoder().decode(auth);
-            //byte[] decoded = Base64.decodeBase64(auth);
-
             try {
                 String decodeS = (new String(decoded, StandardCharsets.UTF_8));
                 String[] dauth = decodeS.split(":");
@@ -269,10 +259,8 @@ public class SQLDataSource {
                     String password = dauth[1];
                     try {
                         logger.debug("User: {}  PW: {}", username, password);
-                        //this.user = this.lTable.loginUser(username, password);
-                        CachedAccessControl fastUserManager = CachedAccessControl.getInstance(this);
+                        CachedAccessControl fastUserManager = CachedAccessControl.getInstance(this,true);
                         this.user = fastUserManager.getUser(username);
-                        //this.user.setDataSource(this);
 
                         logger.debug("FastUserManager PW Check: {} User: {}", fastUserManager.validLogin(username, password), this.user);
                         if (!fastUserManager.validLogin(username, password)) {
