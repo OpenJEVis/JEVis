@@ -117,6 +117,16 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "User Role"
+    },
+    {
+      "name": "Entra ID Group",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "description": "Microsoft Entra ID Security Group",
+      "inherited": false,
+      "jevisClass": "User Role"
     }
   ]
 }
