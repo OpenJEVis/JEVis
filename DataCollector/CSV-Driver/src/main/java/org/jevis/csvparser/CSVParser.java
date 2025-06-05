@@ -213,7 +213,7 @@ public class CSVParser {
 
                 String sVal = null;
                 Double value = null;
-                sVal = line[valueIndex];
+                sVal = line[valueIndex].trim();
                 logger.debug("-- ValueString: {}", sVal);
 
                 //todo bind locale to language or location?? ad thousands separator without regex
