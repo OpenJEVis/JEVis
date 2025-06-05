@@ -21,6 +21,8 @@ package org.jevis.commons.driver;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.chrono.ISOChronology;
+import org.joda.time.chrono.LenientChronology;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.ISODateTimeFormat;
 
@@ -43,7 +45,8 @@ public class TimeConverter {
         } else if (pattern.equalsIgnoreCase("UNIX")) {
             return new DateTime(Long.parseLong(input) * 1000L);
         } else {
-            return DateTimeFormat.forPattern(pattern).withZone(dateTimeZone).parseDateTime(input);
+            LenientChronology lenientChronology = LenientChronology.getInstance(ISOChronology.getInstance());
+            return DateTimeFormat.forPattern(pattern).withZone(dateTimeZone).withChronology(lenientChronology).parseDateTime(input);
         }
     }
 }
