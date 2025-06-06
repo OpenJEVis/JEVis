@@ -296,7 +296,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                         getItems().addAll(new SeparatorMenuItem(), buildGoToSource(), buildImportDWDData());
                         getItems().add(buildReCalcClean());
                     } else if (obj.getJEVisClassName().equals("String Data")) {
-                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
+                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource(), buildImportDWDData());
                     } else if (obj.getJEVisClassName().equals("Clean Data") || obj.getJEVisClassName().equals("Math Data")) {
                         getItems().add(new SeparatorMenuItem());
                         getItems().add(buildReCalcClean());
