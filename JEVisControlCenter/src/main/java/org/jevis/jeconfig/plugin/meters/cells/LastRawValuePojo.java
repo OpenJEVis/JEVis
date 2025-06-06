@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.meters.cells;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.classes.JC;
 import org.jevis.jeconfig.plugin.meters.data.MeterData;
@@ -19,15 +20,17 @@ public class LastRawValuePojo {
     private String unitLabel;
 
     private int precision;
+    private JEVisAttribute targetAttribute;
 
     public LastRawValuePojo() {
     }
 
-    public LastRawValuePojo(MeterData meterData, double value, String unitLabel, int precision) {
+    public LastRawValuePojo(MeterData meterData, double value, String unitLabel, int precision, JEVisAttribute targetAttribute) {
         this.meterData = meterData;
         this.value = value;
         this.unitLabel = unitLabel;
         this.precision = precision;
+        this.targetAttribute = targetAttribute;
     }
 
     public MeterData getMeterData() {
@@ -61,6 +64,10 @@ public class LastRawValuePojo {
     public void setPrecision(int precision) {
         this.precision = precision;
         setPrecisionInJEVisObject(precision);
+    }
+
+    public JEVisAttribute getTargetAttribute() {
+        return targetAttribute;
     }
 
     @Override
