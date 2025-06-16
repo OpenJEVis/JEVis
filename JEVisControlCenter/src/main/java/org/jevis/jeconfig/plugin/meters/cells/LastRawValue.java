@@ -5,6 +5,7 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.TableColumn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisType;
@@ -30,20 +31,20 @@ public class LastRawValue extends TableColumn<MeterData, LastRawValuePojo> {
         this.precisionEventHandler = precisionEventHandler;
 
         try {
-
             setId(jeVisType.getName());
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         this.setCellValueFactory(meterDataJEVisSampleCellDataFeatures -> {
 
             try {
                 long precision = getPrecision(meterDataJEVisSampleCellDataFeatures.getValue());
-                TargetHelper th = new TargetHelper(ds, meterDataJEVisSampleCellDataFeatures.getValue().getJeVisObject().getAttribute(jeVisType));
+                JEVisAttribute targetAttribute = meterDataJEVisSampleCellDataFeatures.getValue().getJeVisObject().getAttribute(jeVisType);
+                TargetHelper th = new TargetHelper(ds, targetAttribute);
                 double value = getValueAs(th).orElse(0.0);
                 String unit = getUnit(th).orElse("");
-                LastRawValuePojo lastRawValuePojo = new LastRawValuePojo(meterDataJEVisSampleCellDataFeatures.getValue(), value, unit, (int) precision);
-
+                LastRawValuePojo lastRawValuePojo = new LastRawValuePojo(meterDataJEVisSampleCellDataFeatures.getValue(), value, unit, (int) precision, targetAttribute);
 
                 return new SimpleObjectProperty<LastRawValuePojo>(lastRawValuePojo);
             } catch (Exception e) {
@@ -56,8 +57,6 @@ public class LastRawValue extends TableColumn<MeterData, LastRawValuePojo> {
         this.setCellFactory(new LastRawValueCell<>(precisionEventHandler));
         this.setStyle("-fx-alignment: CENTER-RIGHT;");
         this.setMinWidth(width);
-
-
     }
 
     private static Optional<String> getUnit(TargetHelper th) {
@@ -92,7 +91,5 @@ public class LastRawValue extends TableColumn<MeterData, LastRawValuePojo> {
             logger.error(e);
             return 2;
         }
-
-
     }
 }

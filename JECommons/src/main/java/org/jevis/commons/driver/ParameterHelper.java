@@ -31,11 +31,13 @@ public class ParameterHelper {
 
     public String getNewPath(String path, JEVisObject channelObject) {
         JEVisFile parameterFile = null;
-        try {
-            JEVisAttribute parameterConfigAttribute = channelObject.getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig);
-            parameterFile = getParameterFile(parameterConfigAttribute.getLatestSample());
-        } catch (Exception e) {
-            logger.error(e);
+        if (channelObject != null) {
+            try {
+                JEVisAttribute parameterConfigAttribute = channelObject.getAttribute(JC.Channel.HTTPChannel.a_ParameterConfig);
+                parameterFile = getParameterFile(parameterConfigAttribute.getLatestSample());
+            } catch (Exception e) {
+                logger.error(e);
+            }
         }
 
         if (parameterFile == null) return path;

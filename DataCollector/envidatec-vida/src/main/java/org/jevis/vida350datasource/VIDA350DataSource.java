@@ -221,9 +221,9 @@ public class VIDA350DataSource implements DataSource {
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
             DateTime lastReadoutTry = DatabaseHelper.getObjectAsDate(channel, readoutTryType);
 
-            if (lastReadoutTry.minusDays(3).isAfter(lastReadout)) {
-                lastReadout = lastReadoutTry;
-            }
+//            if (lastReadoutTry.minusDays(3).isAfter(lastReadout)) {
+//                lastReadout = lastReadoutTry;
+//            }
 
             httpChannel.setLastReadout(lastReadout);
             DateTimeFormatter dtf = DateTimeFormat.forPattern("ddMMyyyyHHmmss");

@@ -269,6 +269,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                             buildCopy(),
                             buildCut(),
                             buildPaste(),
+                            buildTransform(),
                             new SeparatorMenuItem(),
                             buildCopyFormat(),
                             buildParsedFormat(),
@@ -296,7 +297,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
                         getItems().addAll(new SeparatorMenuItem(), buildGoToSource(), buildImportDWDData());
                         getItems().add(buildReCalcClean());
                     } else if (obj.getJEVisClassName().equals("String Data")) {
-                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource());
+                        getItems().addAll(new SeparatorMenuItem(), buildGoToSource(), buildImportDWDData());
                     } else if (obj.getJEVisClassName().equals("Clean Data") || obj.getJEVisClassName().equals("Math Data")) {
                         getItems().add(new SeparatorMenuItem());
                         getItems().add(buildReCalcClean());
@@ -566,6 +567,14 @@ public class JEVisTreeContextMenu extends ContextMenu {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.paste"), JEConfig.getSVGImage(Icon.PASTE, 20, 20));
 
         menu.setOnAction(t -> TreeHelper.EventDrop(tree, tree.getCopyObjects(), obj, CopyObjectDialog.DefaultAction.COPY)
+        );
+        return menu;
+    }
+
+    private MenuItem buildTransform() {
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.transform"), JEConfig.getSVGImage(Icon.SWITCH, 20, 20));
+
+        menu.setOnAction(t -> TreeHelper.EventTransform(tree, tree.getCopyObjects(), obj)
         );
         return menu;
     }
