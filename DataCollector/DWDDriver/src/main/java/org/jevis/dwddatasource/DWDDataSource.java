@@ -93,7 +93,9 @@ public class DWDDataSource implements DataSource {
                                 String s = stringStringMap.get(channel.getDataName());
                                 try {
                                     Result result = new Result(channel.getTarget(), s, dateTime);
-                                    this.result.add(result);
+                                    if (!String.valueOf(result.getValue()).equals(String.valueOf(-999))) {
+                                        this.result.add(result);
+                                    }
                                 } catch (Exception e) {
                                     logger.error("Could not create JEVisSample", e);
                                 }
