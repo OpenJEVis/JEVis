@@ -93,7 +93,9 @@ public class DWDDataSource implements DataSource {
                                 String s = stringStringMap.get(channel.getDataName());
                                 try {
                                     Result result = new Result(channel.getTarget(), s, dateTime);
-                                    this.result.add(result);
+                                    if (!String.valueOf(result.getValue()).equals(String.valueOf(-999))) {
+                                        this.result.add(result);
+                                    }
                                 } catch (Exception e) {
                                     logger.error("Could not create JEVisSample", e);
                                 }
@@ -132,6 +134,8 @@ public class DWDDataSource implements DataSource {
             for (int i = idString.length(); i < 5; i++) {
                 idString.insert(0, "0");
             }
+            logger.debug("Loading data for station {} with id {}", selectedStation.getName(), idString);
+
             FTPFileFilter filter = ftpFile -> (ftpFile.isFile() && ftpFile.getName().contains(idString.toString()));
 
             stationData.setName(selectedStation.getName());
@@ -155,6 +159,7 @@ public class DWDDataSource implements DataSource {
                                 continue;
                             }
                         }
+                        logger.debug("Found valid file {}", ftpFile.getName());
 
                         ByteArrayOutputStream out = new ByteArrayOutputStream();
                         logger.info("FTPQuery {}", ftpFile.getName());
@@ -168,6 +173,7 @@ public class DWDDataSource implements DataSource {
                         while ((entry = zipInputStream.getNextEntry()) != null) {
                             try {
                                 if (entry.getName().contains("produkt")) {
+                                    logger.debug("Trying to parse file {} in zip", entry.getName());
                                     BufferedReader br = new BufferedReader(new InputStreamReader(zipInputStream), 1024);
                                     List<String> header = new ArrayList<>();
                                     String l;
