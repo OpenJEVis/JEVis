@@ -69,6 +69,8 @@ public class CleanDataObject {
     private Boolean limitsEnabled;
     private Boolean deltaEnabled;
     private Boolean gapFillingEnabled;
+    private Boolean resetByPeriod;
+    private Period resetPeriod;
     private List<JsonLimitsConfig> jsonLimitsConfig;
     private List<JEVisSample> counterOverflow;
     private Double lastDiffValue;
@@ -93,6 +95,8 @@ public class CleanDataObject {
     private JEVisAttribute valueMultiplierAttribute;
     private JEVisAttribute valueOffsetAttribute;
     private JEVisAttribute counterOverflowAttribute;
+    private JEVisAttribute resetByPeriodAttribute;
+    private JEVisAttribute resetPeriodAttribute;
     private JEVisAttribute periodAttribute;
     private DateTime lastRawDate;
     private int processingSize = 10000;
@@ -408,6 +412,14 @@ public class CleanDataObject {
             counterOverflowAttribute = getCleanObject().getAttribute(COUNTEROVERFLOW.getAttributeName());
         }
 
+        if (resetByPeriodAttribute == null) {
+            resetByPeriodAttribute = getCleanObject().getAttribute(RESETBYPERIOD.getAttributeName());
+        }
+
+        if (resetPeriodAttribute == null) {
+            resetPeriodAttribute = getCleanObject().getAttribute(RESETPERIOD.getAttributeName());
+        }
+
         if (valueAttribute == null) {
             valueAttribute = getCleanObject().getAttribute(VALUE.getAttributeName());
         }
@@ -504,6 +516,16 @@ public class CleanDataObject {
 
         if (periodAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(periodAttribute);
+        }
+
+        if (resetByPeriodAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(resetByPeriodAttribute);
+            resetByPeriod = null;
+        }
+
+        if (resetPeriodAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(resetPeriodAttribute);
+            resetPeriod = null;
         }
 
         periodRawData = null;
@@ -617,6 +639,19 @@ public class CleanDataObject {
         if (counterOverflow == null)
             counterOverflow = sampleHandler.getAllSamples(getCleanObject(), COUNTEROVERFLOW.getAttributeName());
         return counterOverflow;
+    }
+
+    public Boolean isResetByPeriod() {
+        if (resetByPeriod == null)
+            resetByPeriod = sampleHandler.getLastSample(getCleanObject(), RESETBYPERIOD.getAttributeName(), false);
+        return resetByPeriod;
+    }
+
+    public Period getResetPeriod() {
+        if (resetPeriod == null) {
+            resetPeriod = sampleHandler.getLastSample(getCleanObject(), RESETPERIOD.getAttributeName(), Period.ZERO);
+        }
+        return resetPeriod;
     }
 
     public DateTime getFirstDate() {
@@ -1211,6 +1246,8 @@ public class CleanDataObject {
         CONVERSION_DIFFERENTIAL("Conversion to Differential"),
         MULTIPLIER("Value Multiplier"),
         COUNTEROVERFLOW("Counter Overflow"),
+        RESETBYPERIOD("Reset By Period"),
+        RESETPERIOD("Reset Period"),
         OFFSET("Value Offset"),
         VALUE("Value"),
         PERIOD("Period"),

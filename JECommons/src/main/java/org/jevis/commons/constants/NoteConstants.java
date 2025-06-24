@@ -15,6 +15,7 @@ public class NoteConstants {
         String DIFFERENTIAL_ON = "diff";
         String COUNTER_OVERFLOW = "cof";
         String COUNTER_CHANGE = "cc";
+        String RESET_BY_PERIOD = "rbp";
     }
 
     public interface Scaling {

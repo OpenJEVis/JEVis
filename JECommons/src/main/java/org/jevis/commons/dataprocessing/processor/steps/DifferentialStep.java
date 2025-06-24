@@ -270,13 +270,31 @@ public class DifferentialStep implements ProcessStep {
                         String note = curSample.getNote();
 
                         if (cleanedVal < 0) {
-                            logger.warn("[{}] Warning possible counter overflow", cleanDataObject.getCleanObject().getID());
-                            for (JEVisSample counterOverflow : listCounterOverflow) {
-                                if (counterOverflow != null && curSample.getTimestamp().isAfter(counterOverflow.getTimestamp())
-                                        && counterOverflow.getValueAsDouble() != 0.0) {
-                                    cleanedVal = (counterOverflow.getValueAsDouble() - lastDiffVal) + rawValue;
-                                    note += "," + NoteConstants.Differential.COUNTER_OVERFLOW;
-                                    break;
+                            logger.warn("[{}] Warning possible counter overflow or periodic reset", cleanDataObject.getCleanObject().getID());
+
+                            if (!cleanDataObject.isResetByPeriod()) {
+                                for (JEVisSample counterOverflow : listCounterOverflow) {
+                                    if (counterOverflow != null && curSample.getTimestamp().isAfter(counterOverflow.getTimestamp())
+                                            && counterOverflow.getValueAsDouble() != 0.0) {
+                                        cleanedVal = (counterOverflow.getValueAsDouble() - lastDiffVal) + rawValue;
+                                        note += "," + NoteConstants.Differential.COUNTER_OVERFLOW;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                Period resetPeriod = cleanDataObject.getResetPeriod();
+                                if (Period.years(1).equals(resetPeriod) && lastDiffTS != null && lastDiffTS.getYear() != tmpTimeStamp.getYear()) {
+                                    cleanedVal = rawValue;
+                                    note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
+                                } else if (Period.months(1).equals(resetPeriod) && lastDiffTS != null && lastDiffTS.getMonthOfYear() != tmpTimeStamp.getMonthOfYear()) {
+                                    cleanedVal = rawValue;
+                                    note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
+                                } else if (Period.weeks(1).equals(resetPeriod) && lastDiffTS != null && lastDiffTS.getWeekOfWeekyear() != tmpTimeStamp.getWeekOfWeekyear()) {
+                                    cleanedVal = rawValue;
+                                    note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
+                                } else if (Period.days(1).equals(resetPeriod) && lastDiffTS != null && lastDiffTS.getDayOfMonth() != tmpTimeStamp.getDayOfMonth()) {
+                                    cleanedVal = rawValue;
+                                    note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
                                 }
                             }
                         }
