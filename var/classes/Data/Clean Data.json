@@ -66,7 +66,7 @@
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Conversion to Differential",
+      "name": "Reset By Period",
       "primitiveType": 4,
       "guiType": "Check Box",
       "guiposition": 7,
@@ -75,25 +75,25 @@
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Period Alignment",
-      "primitiveType": 4,
-      "guiType": "Check Box",
+      "name": "Reset Period",
+      "primitiveType": 0,
+      "guiType": "Period",
       "guiposition": 8,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Period Offset",
-      "primitiveType": 2,
-      "guiType": "Number",
+      "name": "Conversion to Differential",
+      "primitiveType": 4,
+      "guiType": "Check Box",
       "guiposition": 9,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Limits Enabled",
+      "name": "Period Alignment",
       "primitiveType": 4,
       "guiType": "Check Box",
       "guiposition": 10,
@@ -102,16 +102,16 @@
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Limits Configuration",
-      "primitiveType": 0,
-      "guiType": "Limits Config",
+      "name": "Period Offset",
+      "primitiveType": 2,
+      "guiType": "Number",
       "guiposition": 11,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
     },
     {
-      "name": "GapFilling Enabled",
+      "name": "Limits Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
       "guiposition": 12,
@@ -120,16 +120,16 @@
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Gap Filling Config",
+      "name": "Limits Configuration",
       "primitiveType": 0,
-      "guiType": "Gap Filling Config",
+      "guiType": "Limits Config",
       "guiposition": 13,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Delta Enabled",
+      "name": "GapFilling Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
       "guiposition": 14,
@@ -138,16 +138,16 @@
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Delta Config",
+      "name": "Gap Filling Config",
       "primitiveType": 0,
-      "guiType": "Delta Config",
+      "guiType": "Gap Filling Config",
       "guiposition": 15,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
     },
     {
-      "name": "Alarm Enabled",
+      "name": "Delta Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
       "guiposition": 16,
@@ -156,10 +156,28 @@
       "jevisClass": "Clean Data"
     },
     {
+      "name": "Delta Config",
+      "primitiveType": 0,
+      "guiType": "Delta Config",
+      "guiposition": 17,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Alarm Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 18,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
+    },
+    {
       "name": "Alarm Config",
       "primitiveType": 0,
       "guiType": "Alarm Config",
-      "guiposition": 17,
+      "guiposition": 19,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -168,7 +186,7 @@
       "name": "Alarm Log",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 18,
+      "guiposition": 20,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"

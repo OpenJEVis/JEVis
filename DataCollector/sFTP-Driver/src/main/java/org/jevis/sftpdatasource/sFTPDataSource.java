@@ -199,7 +199,9 @@ public class sFTPDataSource implements DataSource {
             logger.error("{}: error while connection to", logDataSourceID, e);
         } finally {
             client.stop();
-            tmpKeyFile.toFile().delete();
+            if (Files.exists(tmpKeyFile)) {
+                tmpKeyFile.toFile().delete();
+            }
         }
 
 
