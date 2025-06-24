@@ -931,6 +931,18 @@ public class CleanDataObject {
         return rawAttribute;
     }
 
+    public JEVisAttribute getResetByPeriodAttribute() throws JEVisException {
+        if (resetByPeriodAttribute == null)
+            resetByPeriodAttribute = getCleanObject().getAttribute(RESETBYPERIOD.getAttributeName());
+        return resetByPeriodAttribute;
+    }
+
+    public JEVisAttribute getResetPeriodAttribute() throws JEVisException {
+        if (resetPeriodAttribute == null)
+            resetPeriodAttribute = getCleanObject().getAttribute(RESETPERIOD.getAttributeName());
+        return resetPeriodAttribute;
+    }
+
     public void setRawAttribute(JEVisAttribute rawAttribute) {
         this.valueAttribute = rawAttribute;
     }
