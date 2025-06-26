@@ -72,7 +72,7 @@ public class DataServerTable extends AlarmTable {
             JEVisAttribute lastReadoutAtt = null;
             DateTime lr = latestReported;
 
-            JEVisObject dataSource = CommonMethods.getFirstParentalObjectOfClass(channel, "Data Source");
+            JEVisObject dataSource = CommonMethods.getFirstParentalObjectOfClassWithInheritance(channel, "Data Source");
             if (dataSource != null) {
                 JEVisAttribute enabledAtt = dataSource.getAttribute(ENABLED);
                 if (enabledAtt != null) {
@@ -84,7 +84,7 @@ public class DataServerTable extends AlarmTable {
                     } else {
                         continue;
                     }
-                }
+                } else continue;
             } else {
                 logger.error("Could not find Data Source for channel {}:{}", channel.getName(), channel.getID());
                 continue;

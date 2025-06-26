@@ -45,6 +45,35 @@ public class CommonMethods {
         return jeVisObject;
     }
 
+    public static JEVisObject getFirstParentalObjectOfClassWithInheritance(JEVisObject jeVisObject, String className) throws JEVisException {
+        for (JEVisObject parent : jeVisObject.getParents()) {
+            boolean equals = parent.getJEVisClassName().equals(className);
+            JEVisClass givenClass = jeVisObject.getDataSource().getJEVisClass(className);
+            List<JEVisClass> inheritanceClasses = getInheritanceClasses(givenClass);
+            boolean inherited = inheritanceClasses.contains(parent.getJEVisClass());
+            if (equals || inherited) {
+                return parent;
+            } else {
+                return getFirstParentalObjectOfClassWithInheritance(parent, className);
+            }
+        }
+        return jeVisObject;
+    }
+
+    private static List<JEVisClass> getInheritanceClasses(JEVisClass jeVisClass) {
+        List<JEVisClass> classList = new ArrayList<>();
+        try {
+            for (JEVisClass inheritanceClass : jeVisClass.getHeirs()) {
+                classList.add(inheritanceClass);
+
+                classList.addAll(getInheritanceClasses(inheritanceClass));
+            }
+        } catch (JEVisException ex) {
+            logger.fatal(ex);
+        }
+        return classList;
+    }
+
     public static JEVisObject getFirstCleanObject(JEVisObject jeVisObject) throws JEVisException {
         for (JEVisObject object : jeVisObject.getChildren()) {
             if (object.getJEVisClassName().equals("Clean data")) {
