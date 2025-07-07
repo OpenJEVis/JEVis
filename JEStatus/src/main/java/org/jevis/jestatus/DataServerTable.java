@@ -162,9 +162,7 @@ public class DataServerTable extends AlarmTable {
                         }
                     }
                 }
-            }
-
-            if (targetAtt == null) {
+            } else if (targetAtt == null) {
                 getOtherChannelsTarget(channel, channelAndTarget, outOfBounds, lr);
             }
         }
