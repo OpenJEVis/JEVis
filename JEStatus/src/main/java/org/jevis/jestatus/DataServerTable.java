@@ -306,52 +306,76 @@ public class DataServerTable extends AlarmTable {
     }
 
     private void getOtherChannelsTarget(JEVisObject channel, Map<JEVisObject, JEVisObject> channelAndTarget,
-                                        List<JEVisObject> outOfBounds, DateTime latestReported) throws JEVisException {
+                                        List<JEVisObject> outOfBounds, DateTime latestReported) {
         List<JEVisObject> dps = new ArrayList<>();
 
-        dps.addAll(getChildrenRecursive(channel, getCsvDataPointClass()));
-        dps.addAll(getChildrenRecursive(channel, getXlsxDataPointClass()));
-        dps.addAll(getChildrenRecursive(channel, getXmlDataPointClass()));
-        dps.addAll(getChildrenRecursive(channel, getJsonDataPointClass()));
-        dps.addAll(getChildrenRecursive(channel, getDataPointClass()));
+        try {
+            dps.addAll(getChildrenRecursive(channel, getCsvDataPointClass()));
+        } catch (Exception e) {
+            logger.error("Error while getting CSV Data Points for channel {}", channel, e);
+        }
+        try {
+            dps.addAll(getChildrenRecursive(channel, getXlsxDataPointClass()));
+        } catch (Exception e) {
+            logger.error("Error while getting XLSX Data Points for channel {}", channel, e);
+        }
+        try {
+            dps.addAll(getChildrenRecursive(channel, getXmlDataPointClass()));
+        } catch (Exception e) {
+            logger.error("Error while getting XML Data Points for channel {}", channel, e);
+        }
+        try {
+            dps.addAll(getChildrenRecursive(channel, getJsonDataPointClass()));
+        } catch (Exception e) {
+            logger.error("Error while getting JSON Data Points for channel {}", channel, e);
+        }
+        try {
+            dps.addAll(getChildrenRecursive(channel, getDataPointClass()));
+        } catch (Exception e) {
+            logger.error("Error while getting Data Points for channel {}", channel, e);
+        }
 
         for (JEVisObject dp : dps) {
 
-            if (dp.getJEVisClass().equals(getCsvDataPointClass()) || dp.getJEVisClass().equals(getXlsxDataPointClass())
-                    || dp.getJEVisClass().equals(getXmlDataPointClass()) || dp.getJEVisClass().equals(getJsonDataPointClass())) {
-                JEVisAttribute targetAtt = null;
-                JEVisSample lastSampleTarget = null;
+            try {
+                if (dp.getJEVisClass().equals(getCsvDataPointClass()) || dp.getJEVisClass().equals(getXlsxDataPointClass())
+                        || dp.getJEVisClass().equals(getXmlDataPointClass()) || dp.getJEVisClass().equals(getJsonDataPointClass())) {
+                    JEVisAttribute targetAtt = null;
+                    JEVisSample lastSampleTarget = null;
 
-                targetAtt = dp.getAttribute(STANDARD_TARGET_ATTRIBUTE_NAME);
+                    targetAtt = dp.getAttribute(STANDARD_TARGET_ATTRIBUTE_NAME);
 
-                if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
+                    if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
 
-                TargetHelper th = null;
-                if (lastSampleTarget != null) {
-                    th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-                    JEVisObject target = null;
-                    if (th.getObject() != null && !th.getObject().isEmpty()) target = th.getObject().get(0);
-                    if (target != null) {
-                        channelAndTarget.put(target, target);
-                        getListCheckedData().add(target);
+                    TargetHelper th = null;
+                    if (lastSampleTarget != null) {
+                        th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
+                        JEVisObject target = null;
+                        if (th.getObject() != null && !th.getObject().isEmpty()) target = th.getObject().get(0);
+                        if (target != null) {
+                            channelAndTarget.put(target, target);
+                            getListCheckedData().add(target);
 
-                        JEVisAttribute resultAtt = null;
-                        if (th.getAttribute() != null && !th.getAttribute().isEmpty()) {
-                            resultAtt = th.getAttribute().get(0);
-                        } else resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
+                            JEVisAttribute resultAtt = null;
+                            if (th.getAttribute() != null && !th.getAttribute().isEmpty()) {
+                                resultAtt = th.getAttribute().get(0);
+                            } else resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
 
-                        if (resultAtt != null) {
-                            if (resultAtt.hasSample()) {
-                                JEVisSample lastSample = resultAtt.getLatestSample();
-                                if (lastSample != null) {
-                                    if (lastSample.getTimestamp().isBefore(latestReported)) {
-                                        if (!outOfBounds.contains(target)) outOfBounds.add(target);
+                            if (resultAtt != null) {
+                                if (resultAtt.hasSample()) {
+                                    JEVisSample lastSample = resultAtt.getLatestSample();
+                                    if (lastSample != null) {
+                                        if (lastSample.getTimestamp().isBefore(latestReported)) {
+                                            if (!outOfBounds.contains(target)) outOfBounds.add(target);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+            } catch (Exception e) {
+                logger.error("Error while processing Data Point {} for channel {}", dp, channel, e);
             }
         }
     }
