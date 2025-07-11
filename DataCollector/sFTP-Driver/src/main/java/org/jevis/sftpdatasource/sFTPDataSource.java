@@ -42,16 +42,12 @@ public class sFTPDataSource implements DataSource {
     private DateTimeZone timezone;
     private Parser parser;
     private Importer importer;
-    private List<Result> result;
     private JEVisFile sshKey;
-    private SshClient client;
     private Integer connectionTimeout;
     private Integer readTimeout;
     private String logDataSourceID = "sFTP";
     private Boolean deleteOnSuccess = false;
     private Path tmpKeyFile;
-    private SftpClient sftp;
-    private List<String> matches;
 
     // Extrahiert den konstanten Startpfad (z. B. "/ext/Log") aus dem Regex
     private static String extractRootPath(String regexPattern) {
@@ -103,17 +99,17 @@ public class sFTPDataSource implements DataSource {
         //is done by sendSampleRequest(), because of the delete process control
 
         parser.parse(input, timezone);
-        this.result = parser.getResult();
+        List<Result> result = parser.getResult();
     }
 
     @Override
     public void run() {
-        client = SshClient.setUpDefaultClient();
+        SshClient client = SshClient.setUpDefaultClient();
         client.setServerKeyVerifier(AcceptAllServerKeyVerifier.INSTANCE);
         client.start();
 
         try (ClientSession session = client.connect(userName, serverURL, port)
-                .verify(Duration.ofSeconds(readTimeout * 1000))
+                .verify(Duration.ofSeconds(readTimeout))
                 .getSession()) {
 
             final Iterable<KeyPair> keyPairs;
@@ -134,27 +130,54 @@ public class sFTPDataSource implements DataSource {
                 logger.debug("{}: using password: {}", logDataSourceID, password);
             }
 
-            logger.debug("{}: connect, with timeout: {}sec", logDataSourceID, Duration.ofSeconds(connectionTimeout * 1000));
-            session.auth().verify(Duration.ofSeconds(connectionTimeout * 1000));
+            logger.debug("{}: connect, with timeout: {} sec", logDataSourceID, Duration.ofSeconds(connectionTimeout));
+            session.auth().verify(Duration.ofSeconds(connectionTimeout));
 
-            sftp = SftpClientFactory.instance().createSftpClient(session);
-            try {
+            try (SftpClient sftp = SftpClientFactory.instance().createSftpClient(session)) {
                 logger.debug("{}: connect successful", logDataSourceID);
 
                 for (JEVisObject channel : channels) {
                     try {
-                        result = new ArrayList<Result>();
                         JEVisClass parserJevisClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Parser.NAME);
                         JEVisObject parserObject = channel.getChildren(parserJevisClass, true).get(0);
 
                         this.parser = ParserFactory.getParser(parserObject);
                         this.parser.initialize(parserObject);
-
+                        List<InputStream> input = new ArrayList<>();
                         try {
-                            List<InputStream> input = this.sendSampleRequest(channel);
-                            this.parse(input);
 
-                            JEVisImporterAdapter.importResults(result, importer, channel);
+                            JEVisClass channelClass = channel.getJEVisClass();
+                            JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.PATH);
+                            String regexPattern = DatabaseHelper.getObjectAsString(channel, pathType);
+                            JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
+                            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
+
+
+                            List<String> matches = findMatchingFiles(sftp, regexPattern, lastReadout);
+                            logger.info("{}: {} files matches Pattern, starting download", logDataSourceID, matches.size());
+
+                            /* Fetch Files */
+                            for (String path : matches) {
+                                try {
+                                    logger.debug("{}: Start Download: {}", logDataSourceID, path);
+                                    InputStream inputStream = sftp.read(path);
+                                    input.add(inputStream);
+                                    logger.debug("{}: Finished Download: {}", logDataSourceID, path);
+                                } catch (IOException e) {
+                                    logger.error("{}: Error while reading path: {}: {}", logDataSourceID, path, e);
+                                }
+                            }
+
+                            /* Import Files */
+                            logger.debug("{}: Start parsing files: {}", logDataSourceID, input.size());
+
+                            if (input.isEmpty()) {
+                                logger.warn("{}: Cant get any data from the device", logDataSourceID);
+                            }
+
+                            parser.parse(input, timezone);
+
+                            JEVisImporterAdapter.importResults(parser.getResult(), importer, channel);
 
                             /* Delete File */
                             if (deleteOnSuccess && parser.getReport().errors().isEmpty()) {
@@ -192,8 +215,6 @@ public class sFTPDataSource implements DataSource {
                     }
                 }
 
-            } finally {
-                sftp.close();
             }
         } catch (Exception e) {
             logger.error("{}: error while connection to", logDataSourceID, e);
@@ -203,14 +224,6 @@ public class sFTPDataSource implements DataSource {
                 tmpKeyFile.toFile().delete();
             }
         }
-
-
-        try {
-            client.stop();
-        } catch (Exception e) {
-            logger.error("{}: Error closing client: {}", logDataSourceID, e);
-        }
-
     }
 
     @Override
@@ -232,40 +245,7 @@ public class sFTPDataSource implements DataSource {
     public List<InputStream> sendSampleRequest(JEVisObject channel) throws JEVisException {
         List<InputStream> answerList = new ArrayList<InputStream>();
 
-        try {
-            JEVisClass channelClass = channel.getJEVisClass();
-            JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.PATH);
-            String regexPattern = DatabaseHelper.getObjectAsString(channel, pathType);
-            JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
-            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
 
-
-            matches = findMatchingFiles(sftp, regexPattern, lastReadout);
-            logger.info("{}: {} files matches Pattern, starting download", logDataSourceID, matches.size());
-
-            /* Fetch Files */
-            for (String path : matches) {
-                try {
-                    logger.debug("{}: Start Download: {}", logDataSourceID, path);
-                    InputStream inputStream = sftp.read(path);
-                    answerList.add(inputStream);
-                    logger.debug("{}: Finished Download: {}", logDataSourceID, path);
-                } catch (IOException e) {
-                    logger.error("{}: Error while reading path: {}: {}", logDataSourceID, path, e);
-                }
-            }
-
-            /* Import Files */
-            logger.debug("{}: Start parsing files: {}", logDataSourceID, answerList.size());
-
-            if (answerList.isEmpty()) {
-                logger.warn("{}: Cant get any data from the device", logDataSourceID);
-            }
-
-            return answerList;
-        } catch (Exception e) {
-            logger.error("{}: error while connection to", logDataSourceID, e);
-        }
         return answerList;
     }
 

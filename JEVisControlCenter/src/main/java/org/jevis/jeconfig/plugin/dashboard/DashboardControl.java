@@ -786,10 +786,21 @@ public class DashboardControl {
                     }
 
                     valueWidgets.sort((o1, o2) -> {
-                        if (o1.getDependentWidgets().contains(o2)) {
-                            return -1;
+                        try {
+                            boolean o1DependsOnO2 = o1.getDependentWidgets().contains(o2);
+                            boolean o2DependsOnO1 = o2.getDependentWidgets().contains(o1);
+
+                            if (o1DependsOnO2 && !o2DependsOnO1) {
+                                return -1;
+                            } else if (!o1DependsOnO2 && o2DependsOnO1) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        } catch (Exception e) {
+                            logger.error(e);
+                            return 0;
                         }
-                        return 1;
                     });
 
                     for (ValueWidget valueWidget : valueWidgets) {
