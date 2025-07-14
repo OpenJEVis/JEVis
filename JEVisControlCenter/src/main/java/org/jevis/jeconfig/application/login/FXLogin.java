@@ -89,27 +89,14 @@ public class FXLogin extends AnchorPane {
     private final GridPane authGrid = new GridPane();
     private final Preferences jevisPref = Preferences.userRoot().node("JEVis");
     private final TextArea messageBox = new TextArea("");
-    //    private final Preferences serverPref = Preferences.userRoot().node("JEVis.Server");
     private final List<JEVisObject> rootObjects = new ArrayList<>();
     private final List<JEVisClass> classes = new ArrayList<>();
-    //    private final JFXComboBox<JEVisConfiguration> serverSelection = new JFXComboBox<>();
-    private final String css = "";
-
-    private final int lastServer = -1;
     private final Stage statusDialog = new Stage(StageStyle.TRANSPARENT);
-
-    //workaround, need some coll OO implementaion
-    private final List<PreloadTask> tasks = new ArrayList<>();
-
     private final SimpleBooleanProperty loginStatus = new SimpleBooleanProperty(false);
-    //    private final String URL_SYNTAX = "user:password@server:port/jevis";
     private final ProgressIndicator progress = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
-    //Workaround replace later, in the moment i have problems showing the xeporion in an thread as an Alart
-    private final Exception lastExeption = null;
     private final NotificationPane notificationPane = new NotificationPane();
     private final StringBuilder messageText = new StringBuilder();
     private JEVisDataSource _ds;
-    //    private final ObservableList<JEVisConfiguration> serverConfigurations = FXCollections.observableList(new ArrayList<>());
     private VBox mainHBox = new VBox();
     private Application.Parameters parameters;
     private List<JEVisOption> configuration;
@@ -119,6 +106,7 @@ public class FXLogin extends AnchorPane {
     private Locale selectedLocale = Locale.getDefault();
     private JFXComboBox<Locale> langSelect;
     private boolean hasCredentials = false;
+    private String token = "";
 
     private FXLogin() {
         this.mainStage = null;
@@ -193,30 +181,28 @@ public class FXLogin extends AnchorPane {
     }
 
     private boolean hasLoginCredentials(List<JEVisOption> configuration) {
-        String userName = null;
-        String password = null;
-        String locale = null;
+
         for (JEVisOption opt : configuration) {
-            logger.trace("Option: {} {}", opt.getKey(), opt.getValue());
-            if (opt.getKey().equals(CommonOptions.DataSource.USERNAME.getKey())) {
-                userName = opt.getValue();
-            } else if (opt.getKey().equals(CommonOptions.DataSource.PASSWORD.getKey())) {
-                password = opt.getValue();
-            } else if (opt.getKey().equals(CommonOptions.DataSource.LOCALE.getKey())) {
-                locale = opt.getValue();
+            String key = opt.getKey();
+            if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
+                opt.getOptions().forEach(jeVisOption -> {
+                    logger.trace("Option: {} {}", jeVisOption.getKey(), jeVisOption.getValue());
+                    if (opt.getKey().equals(CommonOptions.DataSource.USERNAME.getKey())) {
+                        this.userName.setText(jeVisOption.getValue());
+                    } else if (jeVisOption.getKey().equals(CommonOptions.DataSource.PASSWORD.getKey())) {
+                        this.userPassword.setText(jeVisOption.getValue());
+                    } else if (jeVisOption.getKey().equals(CommonOptions.DataSource.LOCALE.getKey())) {
+                        this.selectedLocale = Locale.forLanguageTag(jeVisOption.getValue());
+                    } else if (jeVisOption.getKey().equals(CommonOptions.DataSource.TOKEN.getKey())) {
+                        this.token = jeVisOption.getValue();
+                    }
+                });
             }
+
         }
-        if (userName != null && password != null && locale != null) {
-            this.userName.setText(userName);
-            this.userPassword.setText(password);
-            this.selectedLocale = Locale.forLanguageTag(locale);
-            logger.debug("locale set to {} from {}", selectedLocale, locale);
+        if (token != null) {
             return true;
-        } else if (userName != null && password != null) {
-            this.userName.setText(userName);
-            this.userPassword.setText(password);
-            return true;
-        } else return false;
+        } else return this.userName.getText() != null && this.userPassword.getText() != null;
     }
 
     /**
@@ -249,22 +235,38 @@ public class FXLogin extends AnchorPane {
 
                  */
 
+                if (token != null) {
+                    if (this._ds.connect(token)) {
+                        logger.trace("Token Login succeeded");
 
-                if (this._ds.connect(this.userName.getText(), this.userPassword.getText())) {
-                    logger.trace("Login succeeded");
-                    if (this.storeConfig.isSelected()) {
-                        storePreference();
+                        Platform.runLater(() -> {
+                            this.loginStatus.setValue(Boolean.TRUE);
+                            this.statusDialog.hide();
+                        });
+
+                    } else {
+                        I18n.getInstance().selectBundle(getSelectedLocale());
+                        throw new RuntimeException(I18n.getInstance().getString("app.login.exception.runtime"));
                     }
-
-                    Platform.runLater(() -> {
-                        this.loginStatus.setValue(Boolean.TRUE);
-                        this.statusDialog.hide();
-                    });
-
                 } else {
-                    I18n.getInstance().selectBundle(getSelectedLocale());
-                    throw new RuntimeException(I18n.getInstance().getString("app.login.exception.runtime"));
+                    if (this._ds.connect(this.userName.getText(), this.userPassword.getText())) {
+                        logger.trace("Login succeeded");
+                        if (this.storeConfig.isSelected()) {
+                            storePreference();
+                        }
+
+                        Platform.runLater(() -> {
+                            this.loginStatus.setValue(Boolean.TRUE);
+                            this.statusDialog.hide();
+                        });
+
+                    } else {
+                        I18n.getInstance().selectBundle(getSelectedLocale());
+                        throw new RuntimeException(I18n.getInstance().getString("app.login.exception.runtime"));
+                    }
                 }
+
+
             } catch (Exception ex) {
                 I18n.getInstance().selectBundle(getSelectedLocale());
                 logger.trace("{}: {}", I18n.getInstance().getString("app.login.error.message"), ex, ex);
