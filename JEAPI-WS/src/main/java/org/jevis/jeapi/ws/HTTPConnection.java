@@ -24,6 +24,7 @@ import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.ws.sql.Session;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -53,10 +54,6 @@ public class HTTPConnection {
     private static final Logger logger = LogManager.getLogger(HTTPConnection.class);
     private static final long RETRY_DELAY_MS = 5000;
     private static final int RETRIES = 3;
-
-    /**
-     *
-     */
     public static String API_PATH_V1 = "JEWebService/v1/";
     public static String RESOURCE_OBJECTS = "objects";
     public static String RESOURCE_CLASSES = "classes";
@@ -68,10 +65,9 @@ public class HTTPConnection {
     private final String username;
     private final String password;
     private final int readTimeout = 120000;//millis
-
+    private String SSOtoken = null;
+    private Session session = null;
     private Proxy proxy = null;
-
-    private HttpURLConnection sharedConn = null;
     private Trust trustmode = Trust.ALWAYS;
 
 
@@ -93,8 +89,16 @@ public class HTTPConnection {
             System.setProperty("javax.net.ssl.trustStore", "NUL");
             System.setProperty("javax.net.ssl.trustStoreType", "Windows-ROOT");
         }
-
     }
+
+    public void setTokenLogin(String token) {
+        this.SSOtoken = token;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
+    }
+
 
     public static StringBuffer getPayload(HttpURLConnection conn) throws IOException {
         BufferedReader in = new BufferedReader(
@@ -217,10 +221,19 @@ public class HTTPConnection {
     }
 
     private void addAuth(HttpURLConnection conn, String username, String password) {
-        String auth = new String(Base64.encodeBase64((username + ":" + password).getBytes()));
+        if (session != null) {
+            conn.setRequestProperty("session", session.getId());
+        }
 
-//        logger.info("Using auth: 'Authorization Basic " + auth);
-        conn.setRequestProperty("Authorization", "Basic " + auth);
+        if (SSOtoken != null) {
+            conn.setRequestProperty("token", this.SSOtoken);
+        }
+
+        if (username != null && password != null) {
+            String auth = new String(Base64.encodeBase64((username + ":" + password).getBytes()));
+            conn.setRequestProperty("Authorization", "Basic " + auth);
+        }
+
     }
 
     public HttpURLConnection getHTTPConnection(String resource) throws IOException {
@@ -322,9 +335,6 @@ public class HTTPConnection {
         logger.debug("HTTP request {}", conn.getURL());
 
         int responseCode = conn.getResponseCode();
-
-//        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
-//        logger.trace("resonseCode {}", responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
@@ -337,7 +347,6 @@ public class HTTPConnection {
 
             logger.trace("HTTP request closed after: " + ((new Date()).getTime() - start.getTime()) + " msec");
             return imBuff;
-//            return new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
         } else {
             return null;
         }
@@ -354,14 +363,9 @@ public class HTTPConnection {
         logger.debug("HTTP request {}", conn.getURL());
 
         int responseCode = conn.getResponseCode();
-
-
-//        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
         logger.trace("responseCode {}", responseCode);
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
-
-            //            JEVisFile jf = new JEVisFileImp("tmp.file", bytes);//filename comes from the samples
             InputStream inputStream = conn.getInputStream();
             byte[] response = IOUtils.toByteArray(inputStream);
             inputStream.close();

@@ -33,6 +33,7 @@ import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.utils.Optimization;
 import org.jevis.commons.utils.PrettyError;
 import org.jevis.commons.ws.json.*;
+import org.jevis.commons.ws.sql.Session;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
@@ -552,30 +553,38 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
 
 
-            //HttpURLConnection conn = getHTTPConnection().getGetConnection(resource);
-            //logger.debug("Login Response: {}", conn.getResponseCode());
-            /*
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+        } catch (Exception ex) {
+            logger.catching(ex);
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
 
-//                logger.debug("Login response: {}", conn.getContent().toString());
-//                String payload = IOUtils.toString((InputStream) conn.getContent(), "UTF-8");
+    @Override
+    public boolean connect(String token) throws JEVisException {
+        // get Session
+        logger.debug("Connect with MS Token {} to: {}", token, this.host);
 
-                InputStream inputStream = this.con.getInputStreamRequest(resource);
-                JsonObject json = this.objectMapper.readValue(inputStream, JsonObject.class);
+        this.con = new HTTPConnection(this.host, null, null, sslTrustMode);
+        this.con.setTokenLogin(token);
+
+        try {
+            String resource
+                    = REQUEST.API_PATH_V1
+                    + REQUEST.SESSION.PATH
+                    + REQUEST.SESSION.LOGIN.PATH;
+            System.out.println("Call: " + resource);
+
+            InputStream inputStream = this.con.getInputStreamRequest(resource);
+            if (inputStream != null) {
+                Session session = this.objectMapper.readValue(inputStream, Session.class);
                 inputStream.close();
+                this.con.setSession(session);
+                this.user = new JEVisUserWSSession(this, new JEVisObjectWS(this, session.getUser()), session.getDisplayName());
 
-
-                this.preload();
-
-                this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json));
-                logger.debug("User.object: " + this.user.getUserObject());
                 return true;
             } else {
-                logger.error("Login failed: [{}] {}", conn.getResponseCode(), conn.getResponseMessage());
                 return false;
             }
-        */
-
         } catch (Exception ex) {
             logger.catching(ex);
             throw new JEVisException(ex.getMessage(), 402, ex);
