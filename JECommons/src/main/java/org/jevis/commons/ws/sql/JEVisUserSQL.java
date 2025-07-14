@@ -10,46 +10,26 @@ import org.jevis.commons.ws.json.JsonObject;
 /**
  * @author fs
  */
-public class JEVisUserNew {
+public class JEVisUserSQL {
 
     private final boolean isSysAdmin;
     private final long uID;
     private final boolean enabled;
-    private final String lastName;
+    private String lastName;
     private final String firstname;
     private JsonObject userObj;
     private final String accountName;
     private SQLDataSource ds;
     private String password;
+    private String entraID;
 
-    public JEVisUserNew(SQLDataSource ds, String account, Long objID, boolean isSysAdmin, boolean enabled, String password) {
+    public JEVisUserSQL(SQLDataSource ds, String account, Long objID, boolean isSysAdmin, boolean enabled, String password, String entraID) {
         this(ds, account, objID, isSysAdmin, enabled);
         this.password = password;
+        this.entraID = entraID;
     }
 
-    public JEVisUserNew(long userid, String accountname, boolean isSysAdmin, boolean enabled, String passHash, String firstName, String lastName) {
-        this.isSysAdmin = isSysAdmin;
-        this.uID = userid;
-        this.firstname = firstName;
-        this.lastName = lastName;
-        this.enabled = enabled;
-        this.accountName = accountname;
-        this.password = passHash;
-    }
-
-
-    public JEVisUserNew(SQLDataSource ds, JsonObject obj, boolean isSysAdmin, boolean enabled, String firstName, String lastName) {
-        this.isSysAdmin = isSysAdmin;
-        this.uID = obj.getId();
-        this.userObj = obj;
-        this.firstname = firstName;
-        this.lastName = lastName;
-        this.enabled = enabled;
-        this.accountName = obj.getName();
-        this.ds = ds;
-    }
-
-    public JEVisUserNew(SQLDataSource ds, String account, Long objID, boolean isSysAdmin, boolean enabled) {
+    public JEVisUserSQL(SQLDataSource ds, String account, Long objID, boolean isSysAdmin, boolean enabled) {
         this.isSysAdmin = isSysAdmin;
         this.uID = objID;
         this.userObj = null;
@@ -78,6 +58,10 @@ public class JEVisUserNew {
 
     public String getLastName() {
         return lastName;
+    }
+
+    public void setLastName(String name) {
+        lastName = name;
     }
 
     public boolean isSysAdmin() {
@@ -115,4 +99,26 @@ public class JEVisUserNew {
     }
 
 
+    public String getEntraID() {
+        return entraID;
+    }
+
+    public void setEntraID(String entraID) {
+        this.entraID = entraID;
+    }
+
+
+    @Override
+    public String toString() {
+        return "JEVisUserNew{" +
+                "isSysAdmin=" + isSysAdmin +
+                ", uID=" + uID +
+                ", enabled=" + enabled +
+                ", lastName='" + lastName + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", userObj=" + userObj +
+                ", accountName='" + accountName + '\'' +
+                ", entraID='" + entraID + '\'' +
+                '}';
+    }
 }

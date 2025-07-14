@@ -186,6 +186,8 @@ public interface JEVisDataSource {
      */
     boolean connect(String username, String password) throws JEVisException;
 
+    boolean connect(String token)throws JEVisException;
+
     /**
      * Close the DataSource connection
      *

@@ -124,20 +124,7 @@ public interface REQUEST {
             String TYPE = "type=";
         }
     }
-//
-//    public interface CLASS_RELATIONSHIPS {
-//
-//        public static String PATH = "classrelationships/";
-//
-//        public interface OPTIONS {
-//
-//            public static String INCLUDE_RELATIONSHIPS = "rel=true";
-//            public static String FROM = "from=";
-//            public static String TO = "to=";
-//            public static String TYPE = "type=";
-//        }
-//
-//    }
+
 
     interface JEVISUSER {
 
@@ -147,6 +134,23 @@ public interface REQUEST {
 
             String INCLUDE_RELATIONSHIPS = "rel=true";
         }
+
+    }
+
+    interface SESSION {
+
+        String PATH = "session/";
+
+        interface LOGIN {
+
+            String PATH = "login/";
+
+            interface HEADER {
+
+                String INCLUDE_RELATIONSHIPS = "token";
+            }
+        }
+
     }
 
 }

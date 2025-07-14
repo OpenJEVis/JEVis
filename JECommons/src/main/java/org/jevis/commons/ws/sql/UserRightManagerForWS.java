@@ -33,8 +33,9 @@ import java.util.*;
  */
 public class UserRightManagerForWS {
 
-    private final JEVisUserNew user;
+    private final JEVisUserSQL user;
     private final SQLDataSource ds;
+    private final boolean isSSO;
     private final List<Long> readGIDS = new ArrayList<>();
     private final List<Long> createGIDS = new ArrayList<>();
     private final List<Long> deleteGIDS = new ArrayList<>();
@@ -42,21 +43,17 @@ public class UserRightManagerForWS {
     private final List<Long> writeGIDS = new ArrayList<>();
     private static final Logger logger = LogManager.getLogger(UserRightManagerForWS.class);
 
-    public UserRightManagerForWS(SQLDataSource ds) {
-//        Logger logger = LogManager.getLogger(UserRightManagerForWS.class);
-        logger.trace("Init UserRightManagerForWS for user");
+    public UserRightManagerForWS(SQLDataSource ds, boolean SSO) {
         this.user = ds.getCurrentUser();
         this.ds = ds;
+        this.isSSO = SSO;
         init();
     }
 
-    private void init() {
-        //get user groups
-
+    public void init() {
         try {
-            List<JsonRelationship> userRel = CachedAccessControl.getInstance(ds).getUserMemberships(this.ds.getCurrentUser().getUserID());
+            List<JsonRelationship> userRel = CachedAccessControl.getInstance(ds, this.isSSO).getUserMemberships(this.ds.getCurrentUser().getUserID());
 
-            //List < JsonRelationship > userRel = this.ds.getRelationships(this.ds.getCurrentUser().getUserObject().getId());
             for (JsonRelationship rel : userRel) {
                 switch (rel.getType()) {
                     case JEVisConstants.ObjectRelationship.MEMBER_READ:
@@ -209,6 +206,7 @@ public class UserRightManagerForWS {
             return true;
         }
 
+        List<JsonRelationship> debug = this.ds.getGroupOwnerRelationships(object.getId());
         //check for group permissions
         for (JsonRelationship rel : this.ds.getGroupOwnerRelationships(object.getId())) {
             if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && this.readGIDS.contains(rel.getTo())) {
@@ -239,6 +237,11 @@ public class UserRightManagerForWS {
     }
 
     public List<JsonObject> filterList(List<JsonObject> objects) {
+        System.out.println("filterList:");
+        objects.forEach(jsonObject -> {
+            // System.out.printf("jsonObject: " + jsonObject);
+        });
+
         if (isSysAdmin()) {
             return objects;
         }
@@ -246,7 +249,9 @@ public class UserRightManagerForWS {
         List<JsonObject> list = new LinkedList<>();
         List<JsonRelationship> allRel = this.ds.getRelationships();
 
+        System.out.println("ISReadOK:");
         for (JsonObject obj : objects) {
+            //System.out.println("OB: " + obj.getId() + "-" + obj.getName() + " bool: " + isReadOK(allRel, obj));
             if (obj.getisPublic() || isReadOK(allRel, obj)) {
                 list.add(obj);
             }
@@ -271,6 +276,7 @@ public class UserRightManagerForWS {
 
     private boolean isReadOK(List<JsonRelationship> jsonRelationships, JsonObject obj) {
         /** user can read his user object and his groups**/
+
         if (this.readGIDS.contains(obj.getId()) || this.user.getUserID() == obj.getId()) {
             return true;
         }
@@ -433,4 +439,7 @@ public class UserRightManagerForWS {
         this.createGIDS.clear();
     }
 
+    public List<Long> getReadGIDS() {
+        return readGIDS;
+    }
 }

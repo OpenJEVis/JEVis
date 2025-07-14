@@ -338,6 +338,33 @@ public class RelationshipTable {
         return relations;
     }
 
+    public List<JsonRelationship> getAllMembershipsForRoles() {
+        List<JsonRelationship> relations = new LinkedList<>();
+        String memberTypes = JEVisConstants.ObjectRelationship.ROLE_MEMBER + "," +
+                JEVisConstants.ObjectRelationship.ROLE_READ + "," +
+                JEVisConstants.ObjectRelationship.ROLE_DELETE + "," +
+                JEVisConstants.ObjectRelationship.ROLE_EXECUTE + "," +
+                JEVisConstants.ObjectRelationship.ROLE_WRITE;
+
+        String sql = String.format("select * from %s where %s in(%s)", TABLE, COLUMN_TYPE, memberTypes);
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            logger.debug("SQL: {}", ps);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                try {
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return relations;
+    }
+
     public List<JsonRelationship> getAllMemberships() {
         List<JsonRelationship> relations = new LinkedList<>();
         String memberTypes = JEVisConstants.ObjectRelationship.MEMBER_READ + "," +
@@ -345,6 +372,33 @@ public class RelationshipTable {
                 JEVisConstants.ObjectRelationship.MEMBER_DELETE + "," +
                 JEVisConstants.ObjectRelationship.MEMBER_EXECUTE + "," +
                 JEVisConstants.ObjectRelationship.MEMBER_CREATE;
+
+        String sql = String.format("select * from %s where %s in(%s)", TABLE, COLUMN_TYPE, memberTypes);
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            logger.debug("SQL: {}", ps);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                try {
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return relations;
+    }
+
+    public List<JsonRelationship> getAllRoleMemberships() {
+        List<JsonRelationship> relations = new LinkedList<>();
+        String memberTypes = JEVisConstants.ObjectRelationship.ROLE_READ + "," +
+                JEVisConstants.ObjectRelationship.ROLE_WRITE + "," +
+                JEVisConstants.ObjectRelationship.ROLE_DELETE + "," +
+                JEVisConstants.ObjectRelationship.ROLE_EXECUTE + "," +
+                JEVisConstants.ObjectRelationship.ROLE_CREATE;
 
         String sql = String.format("select * from %s where %s in(%s)", TABLE, COLUMN_TYPE, memberTypes);
 

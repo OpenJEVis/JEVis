@@ -42,7 +42,7 @@ public class SQLDataSource {
     private static final Logger logger = LogManager.getLogger(SQLDataSource.class);
     private final Connection dbConn;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private JEVisUserNew user;
+    private JEVisUserSQL user;
     private LoginTable lTable;
     private ObjectTable oTable;
     private AttributeTable aTable;
@@ -54,6 +54,10 @@ public class SQLDataSource {
     private UserRightManagerForWS um;
 
     public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
+        this(httpHeaders, request, url, true);
+    }
+
+    public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url, boolean needLogin) throws AuthenticationException, JEVisException {
 
         try {
             ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
@@ -61,14 +65,15 @@ public class SQLDataSource {
             this.dbConn = ConnectionFactory.getInstance().getConnection();
 
             if (this.dbConn.isValid(2000)) {
+
                 this.lTable = new LoginTable(this);
                 this.rTable = new RelationshipTable(this);
-                jevisLogin(httpHeaders);
+                if (needLogin) jevisLogin(httpHeaders);
                 this.oTable = new ObjectTable(this);
-                this.aTable = new AttributeTable(this);//back
+                this.aTable = new AttributeTable(this);
                 this.sTable = new SampleTable(this);
-                //this.rTable = new RelationshipTable(this);
-                this.um = new UserRightManagerForWS(this,true);
+                this.um = new UserRightManagerForWS(this, true);
+
 
             }
         } catch (SQLException se) {
@@ -241,10 +246,46 @@ public class SQLDataSource {
         return filtered;
     }
 
+    public void setUser(JEVisUserSQL user) {
+        this.user = user;
+    }
+
     private void jevisLogin(HttpHeaders httpHeaders) throws AuthenticationException {
-        if (httpHeaders.getRequestHeader("authorization") == null || httpHeaders.getRequestHeader("authorization").isEmpty()) {
+
+
+        boolean isSession = httpHeaders.getRequestHeader("session") != null && !httpHeaders.getRequestHeader("session").isEmpty();
+        boolean isAuth = httpHeaders.getRequestHeader("authorization") != null && !httpHeaders.getRequestHeader("authorization").isEmpty();
+
+        if (isSession) {
+            String session = httpHeaders.getRequestHeader("session").get(0);
+            logger.debug("Login with Session: {}  ", session);
+            try {
+                CachedAccessControl cac = CachedAccessControl.getInstance(this, true);
+                Session cachSession = cac.getSessions().getIfPresent(session);
+
+                if (cachSession != null) {
+                    System.out.println("Session Found: " + cachSession);
+                    this.user = cachSession.getJevisUser();
+                    //this.user = new JEVisUserNew(this, session, cachSession.getUser().getId(), false, true);
+                    //this.getUserManager().init();
+                    //cac.initUserManager();
+                    //this.user = new JEVisUserNew(this, session, -1l, false, true);
+                    return;
+                } else {
+                    throw new AuthenticationException("Invalid Session.");
+                }
+            } catch (Exception ex) {
+                logger.error(ex, ex);
+                throw new AuthenticationException("Session is not correct.");
+            }
+        }
+
+
+        if (!isAuth) {
             throw new AuthenticationException("Authorization header is missing");
         }
+
+
         String auth = httpHeaders.getRequestHeader("authorization").get(0);
         if (auth != null && !auth.isEmpty()) {
 
@@ -259,13 +300,16 @@ public class SQLDataSource {
                     String password = dauth[1];
                     try {
                         logger.debug("User: {}  PW: {}", username, password);
-                        CachedAccessControl fastUserManager = CachedAccessControl.getInstance(this,true);
+                        CachedAccessControl fastUserManager = CachedAccessControl.getInstance(this, false);
                         this.user = fastUserManager.getUser(username);
+                        //Session newSession = new Session(false, this.user.getUserObject(), this.user.getAccountName(), "");
+                        //fastUserManager.getSessions().put(newSession.getId(), newSession);
 
                         logger.debug("FastUserManager PW Check: {} User: {}", fastUserManager.validLogin(username, password), this.user);
                         if (!fastUserManager.validLogin(username, password)) {
                             throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
                         }
+                        //fastUserManager.initUserManager();
 
 
                     } catch (Exception ex) {
@@ -439,9 +483,9 @@ public class SQLDataSource {
         return Config.getClassCache().get(name);
     }
 
-    public JEVisUserNew getCurrentUser() {
+    public JEVisUserSQL getCurrentUser() {
         if (this.user == null) {
-            return new JEVisUserNew(this, "Unkown", -1L, false, false);
+            return new JEVisUserSQL(this, "Unkown", -1L, false, false);
         }
         return this.user;
     }
@@ -824,6 +868,7 @@ public class SQLDataSource {
         return getRelationshipTable().delete(fromObject, toObject, type);
     }
 
+
     /**
      * Let us try to help the garbage collector to clean up
      */
@@ -836,7 +881,6 @@ public class SQLDataSource {
         this.aTable = null;
         this.sTable = null;
         this.rTable = null;
-        this.lTable = null;
 
         this.allRelationships.clear();
         this.allRelationships = null;
