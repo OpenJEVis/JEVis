@@ -48,6 +48,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
+import org.jevis.commons.classes.ClassHelper;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
@@ -1714,6 +1715,66 @@ public class TreeHelper {
 
         } catch (JEVisException e) {
             logger.error("Could not get jevis data source.", e);
+        }
+    }
+
+    public static void EventTransform(final JEVisTree tree, List<JEVisObject> copiedObjects, JEVisObject target) {
+        try {
+
+            boolean permissionsOK = true;
+            boolean isOwnChild = false;
+            for (JEVisObject obj : copiedObjects) {
+                if (target.getID() != null && tree.getJEVisDataSource().getCurrentUser().canCreate(target.getID())) {
+
+                    logger.trace("EventTransform");
+                    if (isOwnChildCheck(obj, target)) {
+                        isOwnChild = true;
+                    }
+
+                    logger.error("Is ownChild: {}", isOwnChild);
+                } else {
+                    permissionsOK = false;
+                }
+            }
+
+            if (permissionsOK) {
+                for (JEVisObject object : copiedObjects) {
+                    transformObjectRecursive(object, target);
+                }
+            } else {
+                Platform.runLater(() -> {
+                    Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                    alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                    TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
+                    alert1.showAndWait();
+                });
+            }
+
+
+        } catch (JEVisException e) {
+            logger.error("Could not get jevis data source.", e);
+        }
+    }
+
+    private static void transformObjectRecursive(JEVisObject object, JEVisObject target) {
+        try {
+            boolean isDirectory = ClassHelper.isDirectory(object.getJEVisClass());
+            for (JEVisClass allowedClass : target.getJEVisClass().getValidChildren()) {
+                if (isDirectory != ClassHelper.isDirectory(allowedClass)) {
+                    continue;
+                }
+
+                JEVisObject buildObject = target.buildObject(object.getName(), allowedClass);
+                buildObject.setLocalNames(object.getLocalNameList());
+                buildObject.commit();
+                Thread.currentThread().wait(300);
+
+                for (JEVisObject child : object.getChildren()) {
+                    transformObjectRecursive(child, buildObject);
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e);
         }
     }
 

@@ -13,8 +13,10 @@ import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.dataprocessing.processor.workflow.*;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 
@@ -40,6 +42,8 @@ public class DifferentialStep implements ProcessStep {
         List<DifferentialRule> listConversionToDifferential = cleanDataObject.getDifferentialRules();
         List<JEVisSample> listCounterOverflow = cleanDataObject.getCounterOverflow();
         Map<DateTime, JEVisSample> userDataMap = resourceManager.getUserDataMap();
+        WorkDays workDays = new WorkDays(cleanDataObject.getCleanObject());
+        DateTimeZone timeZone = workDays.getDateTimeZone();
 
         int rawPointer = 0;
         for (CleanInterval interval : intervals) {
@@ -270,13 +274,34 @@ public class DifferentialStep implements ProcessStep {
                         String note = curSample.getNote();
 
                         if (cleanedVal < 0) {
-                            logger.warn("[{}] Warning possible counter overflow", cleanDataObject.getCleanObject().getID());
-                            for (JEVisSample counterOverflow : listCounterOverflow) {
-                                if (counterOverflow != null && curSample.getTimestamp().isAfter(counterOverflow.getTimestamp())
-                                        && counterOverflow.getValueAsDouble() != 0.0) {
-                                    cleanedVal = (counterOverflow.getValueAsDouble() - lastDiffVal) + rawValue;
-                                    note += "," + NoteConstants.Differential.COUNTER_OVERFLOW;
-                                    break;
+                            logger.warn("[{}] Warning possible counter overflow or periodic reset", cleanDataObject.getCleanObject().getID());
+
+                            if (!cleanDataObject.isResetByPeriod()) {
+                                for (JEVisSample counterOverflow : listCounterOverflow) {
+                                    if (counterOverflow != null && curSample.getTimestamp().isAfter(counterOverflow.getTimestamp())
+                                            && counterOverflow.getValueAsDouble() != 0.0) {
+                                        cleanedVal = (counterOverflow.getValueAsDouble() - lastDiffVal) + rawValue;
+                                        note += "," + NoteConstants.Differential.COUNTER_OVERFLOW;
+                                        break;
+                                    }
+                                }
+                            } else if (lastDiffTS != null) {
+                                Period resetPeriod = cleanDataObject.getResetPeriod();
+                                DateTime localDT = tmpTimeStamp.withZone(timeZone);
+                                DateTime lastLocalDT = lastDiffTS.withZone(timeZone);
+
+                                if (Period.years(1).equals(resetPeriod) && lastLocalDT.getYear() != localDT.getYear()) {
+                                    cleanedVal = rawValue;
+                                    note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
+                                } else if (Period.months(1).equals(resetPeriod) && lastLocalDT.getMonthOfYear() != localDT.getMonthOfYear()) {
+                                    cleanedVal = rawValue;
+                                    note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
+                                } else if (Period.weeks(1).equals(resetPeriod) && lastLocalDT.getWeekOfWeekyear() != localDT.getWeekOfWeekyear()) {
+                                    cleanedVal = rawValue;
+                                    note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
+                                } else if (Period.days(1).equals(resetPeriod) && lastLocalDT.getDayOfMonth() != localDT.getDayOfMonth()) {
+                                    cleanedVal = rawValue;
+                                    note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
                                 }
                             }
                         }

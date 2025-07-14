@@ -33,6 +33,7 @@ public class JEVisJSONParser implements Parser {
     List<JEVisObject> jsonChannels = new ArrayList<>();
     JEVisObject parserObject;
     List<Result> results = new ArrayList<>();
+    private DateTimeZone timeZone;
 
     private static String getStatusOkCondition(JEVisObject jsonChannel, String stausValueOk) throws JEVisException {
         String statusOK = null;
@@ -109,7 +110,7 @@ public class JEVisJSONParser implements Parser {
     @Override
     public void parse(List<InputStream> input, DateTimeZone timezone) {
         try {
-
+            this.timeZone = timezone;
             if (!parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).hasSample()) return;
             String dateTimePath = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).getLatestSample().getValueAsString();
             input.forEach(inputStream -> {
@@ -247,15 +248,24 @@ public class JEVisJSONParser implements Parser {
     }
 
     private List<DateTime> convertDateTime(String dateTimePath, JSONParser jsonParser, String dateTimeFormat) {
-        DateTimeFormatter FMT;
+        DateTimeFormatter FMT = null;
         if (dateTimeFormat.equalsIgnoreCase("ISO8601")) {
             FMT = ISODateTimeFormat.dateTimeParser();
-        } else {
+        } else if (!dateTimeFormat.equalsIgnoreCase("EPOCHMILLISECONDS")) {
             FMT = DateTimeFormat.forPattern(dateTimeFormat);
         }
 
         List<JsonNode> dateTimesJSON = jsonParser.parse(dateTimePath);
-        List<DateTime> dateTimes = dateTimesJSON.stream().map(jsonNode -> FMT.parseDateTime(jsonNode.asText())).collect(Collectors.toList());
+        List<DateTime> dateTimes = new ArrayList<>();
+        for (JsonNode jsonNode : dateTimesJSON) {
+            DateTime dateTime = null;
+            if (dateTimeFormat.equalsIgnoreCase("EPOCHMILLISECONDS")) {
+                dateTime = new DateTime(Long.valueOf(jsonNode.asText()), timeZone);
+            } else if (FMT != null) {
+                dateTime = FMT.parseDateTime(jsonNode.asText());
+            }
+            dateTimes.add(dateTime);
+        }
         return dateTimes;
     }
 

@@ -6,6 +6,7 @@ import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -71,7 +72,7 @@ public class DataServerTable extends AlarmTable {
             JEVisAttribute lastReadoutAtt = null;
             DateTime lr = latestReported;
 
-            JEVisObject dataSource = getCorrespondingDataSource(channel);
+            JEVisObject dataSource = CommonMethods.getFirstParentalObjectOfClassWithInheritance(channel, "Data Source");
             if (dataSource != null) {
                 JEVisAttribute enabledAtt = dataSource.getAttribute(ENABLED);
                 if (enabledAtt != null) {
@@ -83,7 +84,7 @@ public class DataServerTable extends AlarmTable {
                     } else {
                         continue;
                     }
-                }
+                } else continue;
             } else {
                 logger.error("Could not find Data Source for channel {}:{}", channel.getName(), channel.getID());
                 continue;
@@ -161,9 +162,7 @@ public class DataServerTable extends AlarmTable {
                         }
                     }
                 }
-            }
-
-            if (targetAtt == null) {
+            } else if (targetAtt == null) {
                 getOtherChannelsTarget(channel, channelAndTarget, outOfBounds, lr);
             }
         }
@@ -306,134 +305,61 @@ public class DataServerTable extends AlarmTable {
         setTableString(sb.toString());
     }
 
-    private JEVisObject getCorrespondingDataSource(JEVisObject channel) throws JEVisException {
-        JEVisClass dataSourceClass = channel.getDataSource().getJEVisClass("Data Source");
-
-        return getDSParentRec(channel, dataSourceClass);
-    }
-
-    private JEVisObject getDSParentRec(JEVisObject channel, JEVisClass dataSourceClass) throws JEVisException {
-        for (JEVisObject parent : channel.getParents()) {
-            for (JEVisClass heir : dataSourceClass.getHeirs()) {
-                if (parent.getJEVisClass().equals(heir)) {
-                    return parent;
-                }
-            }
-            return getDSParentRec(parent, dataSourceClass);
-        }
-        return null;
-    }
-
     private void getOtherChannelsTarget(JEVisObject channel, Map<JEVisObject, JEVisObject> channelAndTarget,
-                                        List<JEVisObject> outOfBounds, DateTime latestReported) throws JEVisException {
+                                        List<JEVisObject> outOfBounds, DateTime latestReported) {
         List<JEVisObject> dps = new ArrayList<>();
 
-        final JEVisClass channelClass = channel.getJEVisClass();
-
-        final String dwd1 = "Atmospheric Pressure Target";
-        final String dwd2 = "Humidity Target";
-        final String dwd3 = "Precipitation Target";
-        final String dwd4 = "Temperature Target";
-        final String dwd5 = "Wind Speed Target";
-
-        if (channelClass.equals(getFtpChannelClass())) {
+        try {
             dps.addAll(getChildrenRecursive(channel, getCsvDataPointClass()));
-            dps.addAll(getChildrenRecursive(channel, getDwdDataPointClass()));
+        } catch (Exception e) {
+            logger.error("Error while getting CSV Data Points for channel {}", channel, e);
+        }
+        try {
+            dps.addAll(getChildrenRecursive(channel, getXlsxDataPointClass()));
+        } catch (Exception e) {
+            logger.error("Error while getting XLSX Data Points for channel {}", channel, e);
+        }
+        try {
             dps.addAll(getChildrenRecursive(channel, getXmlDataPointClass()));
+        } catch (Exception e) {
+            logger.error("Error while getting XML Data Points for channel {}", channel, e);
+        }
+        try {
             dps.addAll(getChildrenRecursive(channel, getJsonDataPointClass()));
+        } catch (Exception e) {
+            logger.error("Error while getting JSON Data Points for channel {}", channel, e);
+        }
+        try {
             dps.addAll(getChildrenRecursive(channel, getDataPointClass()));
-        } else {
-            dps.addAll(getChildrenRecursive(channel, getCsvDataPointClass()));
-            dps.addAll(getChildrenRecursive(channel, getXmlDataPointClass()));
-            dps.addAll(getChildrenRecursive(channel, getJsonDataPointClass()));
-            dps.addAll(getChildrenRecursive(channel, getDataPointClass()));
+        } catch (Exception e) {
+            logger.error("Error while getting Data Points for channel {}", channel, e);
         }
 
         for (JEVisObject dp : dps) {
 
-            if (dp.getJEVisClass().equals(getCsvDataPointClass()) || dp.getJEVisClass().equals(getXmlDataPointClass()) || dp.getJEVisClass().equals(getJsonDataPointClass())) {
-                JEVisAttribute targetAtt = null;
-                JEVisSample lastSampleTarget = null;
+            try {
+                if (dp.getJEVisClass().equals(getCsvDataPointClass()) || dp.getJEVisClass().equals(getXlsxDataPointClass())
+                        || dp.getJEVisClass().equals(getXmlDataPointClass()) || dp.getJEVisClass().equals(getJsonDataPointClass())) {
+                    JEVisAttribute targetAtt = null;
+                    JEVisSample lastSampleTarget = null;
 
-                targetAtt = dp.getAttribute(STANDARD_TARGET_ATTRIBUTE_NAME);
+                    targetAtt = dp.getAttribute(STANDARD_TARGET_ATTRIBUTE_NAME);
 
-                if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
+                    if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
 
-                TargetHelper th = null;
-                if (lastSampleTarget != null) {
-                    th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-                    JEVisObject target = null;
-                    if (th.getObject() != null && !th.getObject().isEmpty()) target = th.getObject().get(0);
-                    if (target != null) {
-                        channelAndTarget.put(target, target);
-                        getListCheckedData().add(target);
-
-                        JEVisAttribute resultAtt = null;
-                        if (th.getAttribute() != null && !th.getAttribute().isEmpty()) {
-                            resultAtt = th.getAttribute().get(0);
-                        } else resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
-
-                        if (resultAtt != null) {
-                            if (resultAtt.hasSample()) {
-                                JEVisSample lastSample = resultAtt.getLatestSample();
-                                if (lastSample != null) {
-                                    if (lastSample.getTimestamp().isBefore(latestReported)) {
-                                        if (!outOfBounds.contains(target)) outOfBounds.add(target);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            } else if (dp.getJEVisClass().equals(getDwdDataPointClass())) {
-                JEVisAttribute targetAtt1 = null;
-                JEVisSample lastSampleTarget1 = null;
-                JEVisAttribute targetAtt2 = null;
-                JEVisSample lastSampleTarget2 = null;
-                JEVisAttribute targetAtt3 = null;
-                JEVisSample lastSampleTarget3 = null;
-                JEVisAttribute targetAtt4 = null;
-                JEVisSample lastSampleTarget4 = null;
-                JEVisAttribute targetAtt5 = null;
-                JEVisSample lastSampleTarget5 = null;
-
-                targetAtt1 = dp.getAttribute(dwd1);
-                targetAtt2 = dp.getAttribute(dwd2);
-                targetAtt3 = dp.getAttribute(dwd3);
-                targetAtt4 = dp.getAttribute(dwd4);
-                targetAtt5 = dp.getAttribute(dwd5);
-
-                if (targetAtt1 != null) lastSampleTarget1 = targetAtt1.getLatestSample();
-                if (targetAtt2 != null) lastSampleTarget2 = targetAtt2.getLatestSample();
-                if (targetAtt3 != null) lastSampleTarget3 = targetAtt3.getLatestSample();
-                if (targetAtt4 != null) lastSampleTarget4 = targetAtt4.getLatestSample();
-                if (targetAtt5 != null) lastSampleTarget5 = targetAtt5.getLatestSample();
-
-                List<JEVisSample> samples = new ArrayList<>();
-                if (lastSampleTarget1 != null) samples.add(lastSampleTarget1);
-                if (lastSampleTarget2 != null) samples.add(lastSampleTarget2);
-                if (lastSampleTarget3 != null) samples.add(lastSampleTarget3);
-                if (lastSampleTarget4 != null) samples.add(lastSampleTarget4);
-                if (lastSampleTarget5 != null) samples.add(lastSampleTarget5);
-
-                TargetHelper th = null;
-                for (JEVisSample lastSampleTarget : samples) {
-                    try {
+                    TargetHelper th = null;
+                    if (lastSampleTarget != null) {
                         th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-
-                        if (!th.isObject()) {
-                            logger.error("DP has no valid target: {}:{} in '{}'", lastSampleTarget.getAttribute().getName(), lastSampleTarget);
-                            continue;
-                        }
-                        JEVisObject target = th.getObject().get(0);
+                        JEVisObject target = null;
+                        if (th.getObject() != null && !th.getObject().isEmpty()) target = th.getObject().get(0);
                         if (target != null) {
-
                             channelAndTarget.put(target, target);
                             getListCheckedData().add(target);
 
                             JEVisAttribute resultAtt = null;
-                            if (!th.getAttribute().isEmpty()) resultAtt = th.getAttribute().get(0);
-                            if (resultAtt == null) resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
+                            if (th.getAttribute() != null && !th.getAttribute().isEmpty()) {
+                                resultAtt = th.getAttribute().get(0);
+                            } else resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
 
                             if (resultAtt != null) {
                                 if (resultAtt.hasSample()) {
@@ -446,10 +372,10 @@ public class DataServerTable extends AlarmTable {
                                 }
                             }
                         }
-                    } catch (Exception ex) {
-                        logger.error("error in target: {}-{}", dp, lastSampleTarget, ex);
                     }
                 }
+            } catch (Exception e) {
+                logger.error("Error while processing Data Point {} for channel {}", dp, channel, e);
             }
         }
     }

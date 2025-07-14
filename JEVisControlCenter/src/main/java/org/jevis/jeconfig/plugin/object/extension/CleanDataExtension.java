@@ -72,6 +72,8 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private JEVisAttribute valueAttribute;
     private JEVisAttribute counterOverflowAttribute;
     private JEVisAttribute periodAttribute;
+    private JEVisAttribute resetByPeriodAttribute;
+    private JEVisAttribute resetPeriodAttribute;
     private ToggleSwitchPlus conversionToDifferential;
     private ToggleSwitchPlus enabled;
     private ToggleSwitchPlus limitsEnabled;
@@ -81,6 +83,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private ToggleSwitchPlus periodAlignment;
     private JFXTextField periodOffset;
     private ToggleSwitchPlus valueIsAQuantity;
+    private ToggleSwitchPlus resetByPeriod;
     private JFXTextField valueMultiplier;
     private JFXTextField valueOffset;
     private JFXTextField counterOverflow;
@@ -168,6 +171,8 @@ public class CleanDataExtension implements ObjectEditorExtension {
         valueAttribute = cleanDataObject.getValueAttribute();
         counterOverflowAttribute = cleanDataObject.getCounterOverflowAttribute();
         periodAttribute = cleanDataObject.getPeriodAttribute();
+        resetByPeriodAttribute = cleanDataObject.getResetByPeriodAttribute();
+        resetPeriodAttribute = cleanDataObject.getResetPeriodAttribute();
 
         JEVisSample conversionToDifferentialLastSample = conversionToDifferentialAttribute.getLatestSample();
         JEVisSample enabledLastSample = enabledAttribute.getLatestSample();
@@ -188,6 +193,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         JEVisSample valueLastSample = valueAttribute.getLatestSample();
         JEVisSample counterOverflowLastSample = counterOverflowAttribute.getLatestSample();
         JEVisSample periodLastSample = null;
+        JEVisSample resetByPeriodLastSample = resetByPeriodAttribute.getLatestSample();
         try {
             periodLastSample = periodAttribute.getLatestSample();
         } catch (Exception e) {
@@ -506,6 +512,23 @@ public class CleanDataExtension implements ObjectEditorExtension {
             counterOverflow.setText(nf.format(counterOverflowLastSample.getValueAsDouble()));
         }
 
+        Label nameResetByPeriod = new Label(I18nWS.getInstance().getAttributeName(resetByPeriodAttribute));
+        Tooltip ttResetByPeriod = new Tooltip(I18nWS.getInstance().getAttributeDescription(resetByPeriodAttribute));
+        if (!ttResetByPeriod.getText().isEmpty()) {
+            nameResetByPeriod.setTooltip(ttResetByPeriod);
+        }
+        AttributeAdvSettingDialogButton advSettingDialogButtonResetByPeriod = new AttributeAdvSettingDialogButton(resetByPeriodAttribute);
+        resetByPeriod = new ToggleSwitchPlus();
+        if (resetByPeriodLastSample != null) {
+            resetByPeriod.setSelected(resetByPeriodLastSample.getValueAsBoolean());
+        }
+        Label nameResetPeriod = new Label(I18nWS.getInstance().getAttributeName(resetPeriodAttribute));
+        Tooltip ttResetPeriod = new Tooltip(I18nWS.getInstance().getAttributeDescription(resetPeriodAttribute));
+        if (!ttResetPeriod.getText().isEmpty()) {
+            nameResetPeriod.setTooltip(ttResetPeriod);
+        }
+        PeriodEditor resetPeriodEditor = new PeriodEditor(resetPeriodAttribute);
+
         setupListener(conversionToDifferentialTimeStampEditor, conversionToDifferential,
                 enabled,
                 limitsEnabled,
@@ -522,7 +545,8 @@ public class CleanDataExtension implements ObjectEditorExtension {
                 value,
                 counterOverflow,
                 valueMultiplierTimeStampEditor,
-                period);
+                period,
+                resetByPeriod);
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setStyle("-fx-background-color: transparent");
@@ -587,6 +611,14 @@ public class CleanDataExtension implements ObjectEditorExtension {
         gridPane.add(nameCounterOverflow, 0, row);
         gridPane.add(advSettingDialogButtonCounterOverflow, 1, row);
         gridPane.add(counterOverflow, 2, row, colSpan, 1);
+        row++;
+
+        gridPane.add(nameResetByPeriod, 0, row);
+        gridPane.add(resetByPeriod, 2, row, colSpan, 1);
+        HBox rpBox = (HBox) resetPeriodEditor.getEditor();
+        rpBox.setFillHeight(true);
+        rpBox.setAlignment(Pos.CENTER_LEFT);
+        gridPane.add(rpBox, 3, row, 3, 1);
         row++;
 
         gridPane.add(nameConversionToDifferential, 0, row);
@@ -752,7 +784,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
                                ToggleSwitchPlus periodAlignment,
                                JFXTextField periodOffset, ToggleSwitchPlus valueIsAQuantity, TimeStampEditor valueMultiplierTimeStampEditor,
                                JFXTextField valueMultiplier, JFXTextField valueOffset, TimeStampEditor valueTimeStampEditor,
-                               JFXTextField value, JFXTextField counterOverflow, TimeStampEditor periodTimeStampEditor, SamplingRateUI samplingRateUI) {
+                               JFXTextField value, JFXTextField counterOverflow, TimeStampEditor periodTimeStampEditor, SamplingRateUI samplingRateUI, ToggleSwitchPlus resetByPeriod) {
 
         conversionToDifferentialTimeStampEditor.getValueChangedProperty().addListener((observable, oldValue, newValue) -> {
             _changed.set(true);
@@ -828,6 +860,13 @@ public class CleanDataExtension implements ObjectEditorExtension {
             _changed.set(true);
             if (!changedAttributes.contains(valueIsAQuantityAttribute)) {
                 changedAttributes.add(valueIsAQuantityAttribute);
+            }
+        });
+
+        resetByPeriod.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            _changed.set(true);
+            if (!changedAttributes.contains(resetByPeriodAttribute)) {
+                changedAttributes.add(resetPeriodAttribute);
             }
         });
 
@@ -997,6 +1036,10 @@ public class CleanDataExtension implements ObjectEditorExtension {
                         JEVisSample newSample = valueIsAQuantityAttribute.buildSample(DateTime.now(), valueIsAQuantity.isSelected());
                         newSample.commit();
                         savedAttributes.add(valueIsAQuantityAttribute);
+                    } else if (attribute.equals(resetByPeriodAttribute)) {
+                        JEVisSample newSample = resetByPeriodAttribute.buildSample(DateTime.now(), resetByPeriod.isSelected());
+                        newSample.commit();
+                        savedAttributes.add(resetByPeriodAttribute);
                     } else if (attribute.equals(valueMultiplierAttribute)) {
                         DateTime oldDateTime = valueMultiplierTimeStampEditor.getOriginalDateTime();
                         DateTime newDateTime = valueMultiplierTimeStampEditor.getDateTime();

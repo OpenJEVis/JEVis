@@ -303,6 +303,28 @@
       }
     },
     {
+      "type": "Reset By Period",
+      "descriptions": {
+        "de": "Wenn der Zähler periodisch auf 0 gesetzt wird",
+        "en": "If the counter reset with a specific period"
+      },
+      "names": {
+        "de": "Periodischer Zählerreset",
+        "en": "Periodic Counter Reset"
+      }
+    },
+    {
+      "type": "Reset Period",
+      "descriptions": {
+        "de": "Die Periode nach der der Zähler zurückgesetzt wird",
+        "en": "The period by which the counter is reset"
+      },
+      "names": {
+        "de": "Reset Periode",
+        "en": "Reset Period"
+      }
+    },
+    {
       "type": "Alarm Enabled",
       "descriptions": {
         "de": "Aktivieren der Alarm Überwachung",

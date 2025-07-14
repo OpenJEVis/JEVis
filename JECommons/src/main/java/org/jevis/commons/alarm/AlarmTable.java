@@ -51,9 +51,9 @@ public class AlarmTable {
     private JEVisClass httpChannelClass;
     private JEVisClass sFtpChannelClass;
     private JEVisClass soapChannelClass;
+    private JEVisClass dwdChannelClass;
     private JEVisClass csvDataPointClass;
-
-    private JEVisClass dwdDataPointClass;
+    private JEVisClass xlsxDataPointClass;
     private JEVisClass xmlDataPointClass;
     private JEVisClass jsonDataPointClass;
     private JEVisClass dataPointClass;
@@ -150,8 +150,9 @@ public class AlarmTable {
             httpChannelClass = dataSource.getJEVisClass("HTTP Channel");
             sFtpChannelClass = dataSource.getJEVisClass("sFTP Channel");
             soapChannelClass = dataSource.getJEVisClass("SOAP Channel");
+            dwdChannelClass = dataSource.getJEVisClass("DWD Channel");
             csvDataPointClass = dataSource.getJEVisClass("CSV Data Point");
-            dwdDataPointClass = dataSource.getJEVisClass("DWD Data Point");
+            xlsxDataPointClass = dataSource.getJEVisClass("XSLX Data Point");
             xmlDataPointClass = dataSource.getJEVisClass("XML Data Point");
             jsonDataPointClass = dataSource.getJEVisClass("JSON Data Point");
             dataPointClass = dataSource.getJEVisClass("Data Point");
@@ -204,7 +205,7 @@ public class AlarmTable {
                         }
                     }
                 }
-            } else if (object.getJEVisClass().equals(csvDataPointClass) || object.getJEVisClass().equals(xmlDataPointClass)) {
+            } else if (object.getJEVisClass().equals(csvDataPointClass) || object.getJEVisClass().equals(xlsxDataPointClass) || object.getJEVisClass().equals(xmlDataPointClass)) {
                 JEVisAttribute targetAtt = null;
                 JEVisSample lastSampleTarget = null;
 
@@ -310,8 +311,8 @@ public class AlarmTable {
         return csvDataPointClass;
     }
 
-    public JEVisClass getDwdDataPointClass() {
-        return dwdDataPointClass;
+    public JEVisClass getXlsxDataPointClass() {
+        return xlsxDataPointClass;
     }
 
     public JEVisClass getXmlDataPointClass() {
