@@ -22,7 +22,7 @@ package org.jevis.rest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.json.JsonSSOConfig;
 import org.jevis.commons.ws.ms.MSOauth2;
 import org.jevis.commons.ws.sql.*;
 
@@ -30,9 +30,9 @@ import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,58 +59,34 @@ public class ResourceSession {
 
 
         try {
-            logger.error("Login user with Session:");
-            ds = new SQLDataSource(httpHeaders, request, url,false);
+            ds = new SQLDataSource(httpHeaders, request, url, false);
 
-            if(httpHeaders.getRequestHeader("token")==null){
+            if (httpHeaders.getRequestHeader("token") == null) {
                 throw new AuthenticationException("token header is missing");
             }
             String token = httpHeaders.getRequestHeader("token").get(0);
-
-
             //Check Token
-            CachedAccessControl cac = CachedAccessControl.getInstance(ds,true);
-            System.out.println("Users: ");
-            cac.getUsers().forEach((s, jeVisUserNew) -> {
-                System.out.println("User: "+s+ " obj: "+jeVisUserNew);
-            });
-
-            MSOauth2 msOauth2 = new MSOauth2(Config.getEntraAUTHORITY(),Config.getEntraClientID(),Config.getEntraClientSecret());
+            CachedAccessControl cac = CachedAccessControl.getInstance(ds, true);
+            MSOauth2 msOauth2 = new MSOauth2(Config.getEntraAUTHORITY(), Config.getEntraClientID(), Config.getEntraClientSecret());
             String userName = msOauth2.getUserDisplayName(token);
-            System.out.println("User creating session: "+userName);
             List<String> msGroups = msOauth2.getUserGroups(token);
-            List<UserRolePojo> roles = ds.getSampleTable().getEntraIds();
-            List<UserRolePojo> filteredList = roles.stream()
-                    .filter(role -> msGroups.contains(role.getEntraID()))
+            List<JEVisUserNew> foundUsers = cac.getUsers().values().stream()
+                    .filter(user -> msGroups.contains(user.getEntraID()))
                     .collect(Collectors.toList());
-            filteredList.forEach(userRolePojo -> {
-                System.out.println("found roles: "+userRolePojo.getRoleID());
-                //JEVisUserNew user  = new JEVisUserNew(ds,userName,userRolePojo.getRoleID(),false,true,"");
-                ds.setUser(cac.getUser(userRolePojo.getUserName()));
-                ds.getUserManager().init();
-            });
-
-            //test
-            JsonObject testObj = new JsonObject();
-            testObj.setId(49363l);
-            UserRightManagerForWS urm = ds.getUserManager();
-            boolean canRead = urm.canRead(testObj);
-            System.out.println("Can read: "+canRead);
 
 
+            List<String> commonKeys = new ArrayList<>(cac.getUsers().keySet());
+            commonKeys.retainAll(msGroups);
 
-            //ds.getUserManager().
-           // ds.getrol
+            foundUsers.get(0).getUserObject().setName(userName);
+            foundUsers.get(0).setLastName(userName);
+            ds.setUser(foundUsers.get(0));
 
-            //Add Session
+            Session session = new Session(true, foundUsers.get(0).getUserObject(), msOauth2.getUserDisplayName(token), token);
+            session.setJevisUser(foundUsers.get(0));
+            cac.getSessions().put(session.getId(), session);
 
-            Session session = new Session(true,-1,msOauth2.getUserDisplayName(token),token);
-
-            cac.getSessions().put(session.getId(),session);
-            System.out.println("Session ID: "+session.getId());
-
-
-            return Response.ok(session.getId()).build();
+            return Response.ok(session).build();
 
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
@@ -119,6 +95,36 @@ public class ResourceSession {
             return Response.serverError().build();
         } finally {
             Config.CloseDS(ds);
+        }
+
+    }
+
+    @GET
+    @Logged
+    @Path("/config")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getConfig(
+            @Context HttpHeaders httpHeaders,
+            @Context Request request,
+            @Context UriInfo url) {
+
+
+        try {
+            if (Config.getEntraConfigToken().equals(httpHeaders.getRequestHeader("token").get(0))) {
+                JsonSSOConfig config = new JsonSSOConfig();
+                config.setAuthority(Config.getEntraAUTHORITY());
+                config.setClientID(Config.getEntraClientID());
+                config.setTenant(Config.getEntraTenantID());
+                config.setClientSecret(Config.getEntraClientSecret());
+
+                return Response.ok(config).build();
+            } else {
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
+
+        } catch (Exception jex) {
+            logger.catching(jex);
+            return Response.serverError().build();
         }
 
     }
@@ -136,7 +142,7 @@ public class ResourceSession {
         try {
             logger.error("Sessions:");
             ds = new SQLDataSource(httpHeaders, request, url);
-            CachedAccessControl cac = CachedAccessControl.getInstance(ds,false);
+            CachedAccessControl cac = CachedAccessControl.getInstance(ds, false);
 
             return Response.ok(cac.getSessions()).build();
         } catch (AuthenticationException ex) {
@@ -149,7 +155,7 @@ public class ResourceSession {
         }
 
     }
-    
+
     @PostConstruct
     public void postConstruct() {
         if (ds != null) {
