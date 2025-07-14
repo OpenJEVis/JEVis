@@ -15,7 +15,7 @@ public class Session {
     private String displayName = "-";
     private String id = UUID.randomUUID().toString();
     private String entraToken;
-    private JEVisUserNew jevisUser;
+    private JEVisUserSQL jevisUser;
 
     public Session() {
     }
@@ -48,11 +48,11 @@ public class Session {
     }
 
     @JsonIgnore
-    public JEVisUserNew getJevisUser() {
+    public JEVisUserSQL getJevisUser() {
         return jevisUser;
     }
 
-    public void setJevisUser(JEVisUserNew jevisUser) {
+    public void setJevisUser(JEVisUserSQL jevisUser) {
         this.jevisUser = jevisUser;
     }
 

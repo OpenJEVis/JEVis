@@ -70,7 +70,7 @@ public class ResourceSession {
             MSOauth2 msOauth2 = new MSOauth2(Config.getEntraAUTHORITY(), Config.getEntraClientID(), Config.getEntraClientSecret());
             String userName = msOauth2.getUserDisplayName(token);
             List<String> msGroups = msOauth2.getUserGroups(token);
-            List<JEVisUserNew> foundUsers = cac.getUsers().values().stream()
+            List<JEVisUserSQL> foundUsers = cac.getUsers().values().stream()
                     .filter(user -> msGroups.contains(user.getEntraID()))
                     .collect(Collectors.toList());
 
