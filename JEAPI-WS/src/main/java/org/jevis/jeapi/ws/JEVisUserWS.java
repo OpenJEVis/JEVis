@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2016 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEAPI-WS.
- *
+ * <p>
  * JEAPI-WS is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEAPI-WS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEAPI-WS. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEAPI-WS is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -26,7 +26,6 @@ import org.jevis.commons.user.UserRightManager;
 import java.util.List;
 
 /**
- *
  * @author fs
  */
 public class JEVisUserWS implements JEVisUser {
@@ -38,8 +37,10 @@ public class JEVisUserWS implements JEVisUser {
     private JEVisObjectWS obj;
     private boolean enabled = false;
     private UserRightManager urm;
-    /** List of classes which can be updated with special rules **/
-    private final List<String> executeUpdateExceptions = Lists.newArrayList(new String[]{"Data Notes","User Data","Clean Data"});
+    /**
+     * List of classes which can be updated with special rules
+     **/
+    private final List<String> executeUpdateExceptions = Lists.newArrayList(new String[]{"Data Notes", "User Data", "Clean Data"});
 
     public JEVisUserWS(JEVisDataSourceWS ds, JEVisObjectWS obj) throws Exception {
         this.ds = ds;
@@ -47,6 +48,7 @@ public class JEVisUserWS implements JEVisUser {
         this.urm = new UserRightManager(ds, this);
         fetchData();
     }
+
 
     private void fetchData() throws JEVisException {
         for (JEVisAttribute att : obj.getAttributes()) {
@@ -135,17 +137,17 @@ public class JEVisUserWS implements JEVisUser {
         try {
             boolean canWrite = urm.canWrite(objectID);
 
-            if(canWrite){
+            if (canWrite) {
                 return true;
-            }else{
-                if(executeUpdateExceptions.contains(ds.getObject(objectID).getJEVisClassName()) && canExecute(objectID)){
+            } else {
+                if (executeUpdateExceptions.contains(ds.getObject(objectID).getJEVisClassName()) && canExecute(objectID)) {
                     return true;
                 }
             }
             return false;
 
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -163,10 +165,10 @@ public class JEVisUserWS implements JEVisUser {
 
         boolean canCreate = canCreate(objectID);
 
-        if(canCreate){
+        if (canCreate) {
             return true;
-        }else{
-            if(executeUpdateExceptions.contains(jevisClass) && canExecute(objectID)){
+        } else {
+            if (executeUpdateExceptions.contains(jevisClass) && canExecute(objectID)) {
                 return true;
             }
         }
