@@ -65,6 +65,7 @@ public class MSOauth2 {
                     args[2]//c_secret
             );
             String accessToken = msAuth.connect(args[3], args[4]);
+            System.out.println("Token: " + accessToken);
             String displayName = msAuth.getUserDisplayName(accessToken);
             System.out.println("User Display Name: " + displayName);
         } catch (Exception e) {
@@ -106,9 +107,9 @@ public class MSOauth2 {
             request.setHeader("Authorization", "Bearer " + accessToken);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
-                if (response.getCode() >= 200)
+                if (response.getCode() > 300)
                     throw new AuthenticationException("Invalid SSO Token: " + response.getCode());
-                
+
                 String responseBody = EntityUtils.toString(response.getEntity());
                 JSONObject json = new JSONObject(responseBody);
                 return json.get("displayName").toString();
