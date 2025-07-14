@@ -1,9 +1,10 @@
 package org.jevis.commons.ws.sql;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
-import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CachedAccessControl {
@@ -23,38 +25,30 @@ public class CachedAccessControl {
     private final Map<Long, List<JsonRelationship>> groupMemberships = new ConcurrentHashMap();
     private final AtomicBoolean needUpdate = new AtomicBoolean(false);
     private Map<String, JEVisUserNew> users;
-    //private SQLDataSource dataSource;
+    private Cache<String, Session> sessions;
+    private SQLDataSource ds;
 
     public CachedAccessControl() throws Exception {
-        //this.dataSource = dataSource;
+        sessions = CacheBuilder.newBuilder()
+                .expireAfterWrite(Config.sessiontimeout, TimeUnit.MINUTES)
+                .expireAfterAccess(Config.sessiontimeout, TimeUnit.MINUTES)
+                .build();
     }
 
-    /*
-        public static CachedAccessControl getInstance(SQLDataSource dataSource) throws Exception {
-            if (fastUserManager != null) {
-                return fastUserManager;
-            } else {
-                fastUserManager = new CachedAccessControl(dataSource);
-                fastUserManager.updateCache();
-                return fastUserManager;
-            }
-
-
-        }
-
-     */
-    public static CachedAccessControl getInstance(SQLDataSource ds) throws Exception {
+    public static CachedAccessControl getInstance(SQLDataSource ds, boolean supportSSO) throws Exception {
         if (fastUserManager != null) {
             if (fastUserManager.needUpdate()) fastUserManager.updateCache(ds);
             return fastUserManager;
         } else {
             fastUserManager = new CachedAccessControl();
             fastUserManager.updateCache(ds);
+            fastUserManager.ds = ds;
             return fastUserManager;
         }
 
 
     }
+
 
     public synchronized void updateUser(SQLDataSource dataSource) throws JEVisException {
         users = dataSource.getLoginTable().getAllUser();
@@ -63,12 +57,8 @@ public class CachedAccessControl {
     public synchronized void updateCache(SQLDataSource dataSource) throws Exception {
         logger.error("Update Access Control Cache");
         needUpdate.set(false);
-        Benchmark benchmark = new Benchmark();
         users = dataSource.getLoginTable().getAllUser();
-
-        //dataSource.getAttributeTable().getDataPorozessorTodoList();
         groupMemberships.clear();
-
 
         users.forEach((s, jeVisUserNew) -> {
             groupMemberships.put(jeVisUserNew.getUserID(), new ArrayList<>());
@@ -81,25 +71,38 @@ public class CachedAccessControl {
             userRelList.add(rel);
             groupMemberships.put(rel.getFrom(), userRelList);
         }
-/*
-        users.forEach((s, jeVisUserNew) -> {
-            try {
-                logger.debug("User: '{}', memberships: {}", jeVisUserNew.getAccountName(), groupMemberships.get(jeVisUserNew.getUserID()).size());
-
-                groupMemberships.get(jeVisUserNew.getUserID()).forEach(jsonRelationship -> {
-                    logger.trace("-- {}", jsonRelationship.getTo());
-                });
-
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        });
-
- */
-        benchmark.printBechmark("Finished Access Control Cache update");
-
     }
 
+    /**
+     * Debug helper
+     */
+    public void printCache() {
+        System.out.println("Sessions: ");
+        sessions.asMap().forEach((s, session) -> {
+            System.out.println(s + ":" + session.getDisplayName());
+        });
+        System.out.println();
+
+        System.out.println("User:");
+        users.forEach((s, jeVisUserNew) -> {
+            if (!s.equals("jsc@ecocharge")) return;
+            System.out.println("--------------------");
+            System.out.println(s + ":" + jeVisUserNew);
+            System.out.println("Memberships:");
+            getUserMemberships(jeVisUserNew.getUserID()).forEach(jsonRelationship -> {
+                if (jsonRelationship.getType() == 101) {
+                    System.out.println("Group: " + jsonRelationship.getTo());
+                }
+                // System.out.println(jsonRelationship);
+            });
+            System.out.println("ReadGIDs:");
+            ds.getUserManager().getReadGIDS().forEach(aLong -> {
+                System.out.println(aLong);
+            });
+        });
+
+
+    }
 
     /**
      * Check if a new ObjectRelationship type is a Membership
@@ -175,6 +178,10 @@ public class CachedAccessControl {
         }
     }
 
+    public Map<String, JEVisUserNew> getUsers() {
+        return users;
+    }
+
     public boolean validLogin(String userName, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         JEVisUserNew user = users.get(userName.toLowerCase(Locale.ROOT));
         if (user != null && PasswordHash.validatePassword(password, user.getPassword())) {
@@ -188,6 +195,10 @@ public class CachedAccessControl {
 
     public boolean needUpdate() {
         return needUpdate.get();
+    }
+
+    public Cache<String, Session> getSessions() {
+        return sessions;
     }
 
     public enum Change {
