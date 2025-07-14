@@ -24,7 +24,7 @@ public class CachedAccessControl {
     private static CachedAccessControl fastUserManager = null;
     private final Map<Long, List<JsonRelationship>> groupMemberships = new ConcurrentHashMap();
     private final AtomicBoolean needUpdate = new AtomicBoolean(false);
-    private Map<String, JEVisUserNew> users;
+    private Map<String, JEVisUserSQL> users;
     private Cache<String, Session> sessions;
     private SQLDataSource ds;
 
@@ -168,7 +168,7 @@ public class CachedAccessControl {
     }
 
 
-    public JEVisUserNew getUser(String userName) {
+    public JEVisUserSQL getUser(String userName) {
         try {
             return users.get(userName.toLowerCase(Locale.ROOT));
         } catch (NullPointerException ex) {
@@ -178,12 +178,12 @@ public class CachedAccessControl {
         }
     }
 
-    public Map<String, JEVisUserNew> getUsers() {
+    public Map<String, JEVisUserSQL> getUsers() {
         return users;
     }
 
     public boolean validLogin(String userName, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        JEVisUserNew user = users.get(userName.toLowerCase(Locale.ROOT));
+        JEVisUserSQL user = users.get(userName.toLowerCase(Locale.ROOT));
         if (user != null && PasswordHash.validatePassword(password, user.getPassword())) {
             return true;
         } else {
