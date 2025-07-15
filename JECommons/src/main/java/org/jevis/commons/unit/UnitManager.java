@@ -216,8 +216,6 @@ public class UnitManager {
         nonSI.add(NonSI.MINUTE_ANGLE);
         nonSI.add(NonSI.NAUTICAL_MILE);
         nonSI.add(USCustomary.OUNCE);
-        nonSI.add(Imperial.OUNCE);
-        nonSI.add(USCustomary.OUNCE);
         nonSI.add(NonSI.PARSEC);
         nonSI.add(NonSI.POISE);
         nonSI.add(USCustomary.POUND);
@@ -296,6 +294,9 @@ public class UnitManager {
 
         //Norm cubic metre
         additionalUnits.add(SI.CUBIC_METRE.alternate("Nm³"));
+
+        Unit<Mass> kkg = new TransformedUnit<>("kkg", "Kiloton", KILOGRAM, MultiplyConverter.ofRational(1000, 1));
+        additionalUnits.add(kkg);
 
         return additionalUnits;
     }

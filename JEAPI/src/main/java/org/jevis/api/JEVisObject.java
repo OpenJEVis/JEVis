@@ -349,4 +349,5 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
 
     void setDeleteTS(DateTime ts) throws JEVisException;
 
+    String toString();
 }
