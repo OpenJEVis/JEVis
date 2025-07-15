@@ -16,15 +16,22 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.SQLDataSource;
+import systems.uom.common.Imperial;
 import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.function.MultiplyConverter;
+import tech.units.indriya.unit.TransformedUnit;
 import tech.units.indriya.unit.Units;
 
 import javax.measure.MetricPrefix;
 import javax.measure.Unit;
+import javax.measure.quantity.Mass;
+import javax.measure.quantity.Pressure;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
+
+import static tech.units.indriya.unit.Units.KILOGRAM;
 
 public class QuantityUnits {
     private static final Logger logger = LogManager.getLogger(QuantityUnits.class);
@@ -56,9 +63,9 @@ public class QuantityUnits {
     private final JEVisUnit g = new JEVisUnitImp(_g);
     private final Unit _kg = Units.KILOGRAM;
     private final JEVisUnit kg = new JEVisUnitImp(_kg);
-    private final Unit _kkg = _kg.alternate("kkg").multiply(1000);
+    private final Unit<Mass> _kkg = new TransformedUnit<>("kkg", "Kiloton", KILOGRAM, MultiplyConverter.ofRational(1000, 1));
     private final JEVisUnit kkg = new JEVisUnitImp(_kkg);
-    private final Unit _t = _kg.alternate("t").multiply(1000);
+    private final Unit _t = Imperial.METRIC_TON;
     private final JEVisUnit t = new JEVisUnitImp(_t);
     private final Unit _tpers = _t.divide(Units.SECOND);
     private final Unit _tpermin = _t.divide(Units.MINUTE);
@@ -143,9 +150,9 @@ public class QuantityUnits {
     /**
      * Pressure Units
      */
-    private final Unit _bar = Units.PASCAL.alternate("bar").divide(100000);
+    private final Unit<Pressure> _bar = new TransformedUnit<>("bar", "Bar", Units.PASCAL, MultiplyConverter.ofRational(100000, 1));
     private final JEVisUnit bar = new JEVisUnitImp(_bar);
-    private final Unit _atm = Units.PASCAL.alternate("atm").divide(101300);
+    private final Unit<Pressure> _atm = new TransformedUnit<>("atm", "Atmosphere", Units.PASCAL, MultiplyConverter.ofRational(101300, 1));
     private final JEVisUnit atm = new JEVisUnitImp(_atm);
 
     /**
