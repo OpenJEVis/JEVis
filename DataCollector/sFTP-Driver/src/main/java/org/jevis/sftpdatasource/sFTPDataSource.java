@@ -17,6 +17,7 @@ import org.apache.sshd.common.keyprovider.KeyIdentityProvider;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.sftp.client.SftpClient;
 import org.apache.sshd.sftp.client.SftpClientFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
@@ -29,6 +30,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
+import java.security.Security;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +55,9 @@ public class sFTPDataSource implements DataSource {
     private Boolean deleteOnSuccess = false;
     private Path tmpKeyFile;
 
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     // Extrahiert den konstanten Startpfad (z. B. "/ext/Log") aus dem Regex
     private static String extractRootPath(String regexPattern) {
