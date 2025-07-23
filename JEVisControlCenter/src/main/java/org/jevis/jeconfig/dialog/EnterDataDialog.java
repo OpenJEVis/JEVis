@@ -539,6 +539,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.selectedObject = target.getObject();
         this.workDays = new WorkDays(target.getObject());
         this.monthBox.setWorkDays(workDays);
+        filterGridPane(gridPane, yearBox, dayBox, monthBox, dateLabel, datePicker, timePicker, dataTypeBox.getSelectionModel().getSelectedItem());
 
         Platform.runLater(() -> {
             removeNode(0, 0, gridPane);

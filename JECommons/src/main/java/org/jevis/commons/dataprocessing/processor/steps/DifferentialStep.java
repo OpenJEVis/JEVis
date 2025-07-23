@@ -225,7 +225,7 @@ public class DifferentialStep implements ProcessStep {
                             continue;
                         }
 
-                        double cleanedVal = rawValue - lastDiffVal;
+                        Double cleanedVal = rawValue - lastDiffVal;
 
                         if (interval.getInputPeriod().equals(Period.months(1))) {
 
@@ -304,6 +304,12 @@ public class DifferentialStep implements ProcessStep {
                                     note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
                                 }
                             }
+
+                            //Check for error value in raw counter data
+                            if (lastDiffTS != null && lastDiffVal > 0 && rawValue == 0) {
+                                cleanedVal = null;
+                                note = NoteConstants.Differential.WRONG_COUNTER_VALUE;
+                            }
                         }
 
                         note += "," + NoteConstants.Differential.DIFFERENTIAL_ON;
@@ -311,7 +317,7 @@ public class DifferentialStep implements ProcessStep {
                         if (interval.getResult().getValueAsDouble() == null) {
                             interval.getResult().setValue(cleanedVal);
                             interval.getResult().setNote(note);
-                        } else {
+                        } else if (cleanedVal != null) {
                             interval.getResult().setValue(interval.getResult().getValueAsDouble() + cleanedVal);
                         }
                         lastDiffVal = rawValue;
