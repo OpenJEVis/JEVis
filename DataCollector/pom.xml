@@ -86,6 +86,7 @@
         <module>Shelly-Driver</module>
         <module>Modbus-Driver</module>
         <module>XLSX-Driver</module>
+        <module>EC-Predictor-Driver</module>
     </modules>
 
 </project>
