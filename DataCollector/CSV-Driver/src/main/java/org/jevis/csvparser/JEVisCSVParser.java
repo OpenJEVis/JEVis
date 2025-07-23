@@ -24,7 +24,6 @@ package org.jevis.csvparser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.commons.DatabaseHelper;
@@ -121,7 +120,7 @@ public class JEVisCSVParser implements Parser {
             _csvParser.setTimeIndex(timeIndex);
             _csvParser.setCharset(cset);
 
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.fatal(ex);
         }
     }
@@ -133,49 +132,53 @@ public class JEVisCSVParser implements Parser {
             List<DataPoint> csvdatapoints = new ArrayList<DataPoint>();
 
             for (JEVisObject dp : dataPoints) {
-                JEVisType mappingIdentifierType = dpClass.getType(CSVDataPointTypes.MAPPING_IDENTIFIER);
-                JEVisType targetType = dpClass.getType(CSVDataPointTypes.TARGET);
-                JEVisType valueIdentifierType = dpClass.getType(CSVDataPointTypes.VALUE_INDEX);
-
-                Long datapointID = dp.getID();
-                String mappingIdentifier = DatabaseHelper.getObjectAsString(dp, mappingIdentifierType);
-                String targetString = DatabaseHelper.getObjectAsString(dp, targetType);
-                String target = null;
-
-                TargetHelper targetHelper = new TargetHelper(dp.getDataSource(), targetString);
-                if (targetHelper.isValid() && targetHelper.targetObjectAccessible()) {
-                    target = targetString;
-                } else {
-                    logger.warn("DataPoint target error: {}:{}", dp.getName(), dp.getID());
-                    continue;
-                }
-
-                String valueString = null;
                 try {
-                    valueString = DatabaseHelper.getObjectAsString(dp, valueIdentifierType);
-                } catch (Exception ex) {
-                    logger.warn("DataPoint value string error: {}:{}", dp.getName(), dp.getID(), ex);
-//                    ex.printStackTrace();
-                }
+                    JEVisType mappingIdentifierType = dpClass.getType(CSVDataPointTypes.MAPPING_IDENTIFIER);
+                    JEVisType targetType = dpClass.getType(CSVDataPointTypes.TARGET);
+                    JEVisType valueIdentifierType = dpClass.getType(CSVDataPointTypes.VALUE_INDEX);
 
-                Integer valueIndex = null;
-                try {
-                    if (valueString != null) {
-                        valueIndex = Integer.parseInt(valueString);
-                        valueIndex--;
+                    Long datapointID = dp.getID();
+                    String mappingIdentifier = DatabaseHelper.getObjectAsString(dp, mappingIdentifierType);
+                    String targetString = DatabaseHelper.getObjectAsString(dp, targetType);
+                    String target = null;
+
+                    TargetHelper targetHelper = new TargetHelper(dp.getDataSource(), targetString);
+                    if (targetString != null && targetHelper.isValid() && targetHelper.targetObjectAccessible()) {
+                        target = targetString;
+                    } else {
+                        logger.warn("DataPoint target error: {}:{}", dp.getName(), dp.getID());
+                        continue;
                     }
-                } catch (Exception ex) {
-                    logger.warn("DataPoint value index error: {}:{}", dp.getName(), dp.getID(), ex);
+
+                    String valueString = null;
+                    try {
+                        valueString = DatabaseHelper.getObjectAsString(dp, valueIdentifierType);
+                    } catch (Exception ex) {
+                        logger.warn("DataPoint value string error: {}:{}", dp.getName(), dp.getID(), ex);
 //                    ex.printStackTrace();
+                    }
+
+                    Integer valueIndex = null;
+                    try {
+                        if (valueString != null) {
+                            valueIndex = Integer.parseInt(valueString);
+                            valueIndex--;
+                        }
+                    } catch (Exception ex) {
+                        logger.warn("DataPoint value index error: {}:{}", dp.getName(), dp.getID(), ex);
+//                    ex.printStackTrace();
+                    }
+                    DataPoint csvdp = new DataPoint();
+                    csvdp.setMappingIdentifier(mappingIdentifier);
+                    csvdp.setTarget(target);
+                    csvdp.setValueIndex(valueIndex);
+                    csvdatapoints.add(csvdp);
+                } catch (Exception e) {
+                    logger.error(e);
                 }
-                DataPoint csvdp = new DataPoint();
-                csvdp.setMappingIdentifier(mappingIdentifier);
-                csvdp.setTarget(target);
-                csvdp.setValueIndex(valueIndex);
-                csvdatapoints.add(csvdp);
             }
             _csvParser.setDataPoints(csvdatapoints);
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
         }
     }

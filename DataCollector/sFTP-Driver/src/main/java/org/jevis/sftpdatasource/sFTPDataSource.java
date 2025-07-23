@@ -46,7 +46,6 @@ public class sFTPDataSource implements DataSource {
     private String userName;
     private String password;
     private DateTimeZone timezone;
-    private Parser parser;
     private Importer importer;
     private JEVisFile sshKey;
     private Integer connectionTimeout;
@@ -108,8 +107,8 @@ public class sFTPDataSource implements DataSource {
     public void parse(List<InputStream> input) {
         //is done by sendSampleRequest(), because of the delete process control
 
-        parser.parse(input, timezone);
-        List<Result> result = parser.getResult();
+//        parser.parse(input, timezone);
+//        List<Result> result = parser.getResult();
     }
 
     @Override
@@ -148,76 +147,81 @@ public class sFTPDataSource implements DataSource {
                     for (JEVisObject channel : channels) {
                         try {
                             JEVisClass parserJevisClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Parser.NAME);
-                            JEVisObject parserObject = channel.getChildren(parserJevisClass, true).get(0);
+                            for (JEVisObject parserObject : channel.getChildren(parserJevisClass, true)) {
+                                logger.debug("{}: found parser {}", logDataSourceID, parserObject);
 
-                            this.parser = ParserFactory.getParser(parserObject);
-                            this.parser.initialize(parserObject);
-                            List<InputStream> input = new ArrayList<>();
-                            try {
+                                Parser parser = ParserFactory.getParser(parserObject);
+                                parser.initialize(parserObject);
+                                logger.debug("{}: initialized parser {}", logDataSourceID, parser);
+                                List<InputStream> input = new ArrayList<>();
+                                try {
 
-                                JEVisClass channelClass = channel.getJEVisClass();
-                                JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.PATH);
-                                String regexPattern = DatabaseHelper.getObjectAsString(channel, pathType);
-                                JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
-                                DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
+                                    JEVisClass channelClass = channel.getJEVisClass();
+                                    JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.PATH);
+                                    String regexPattern = DatabaseHelper.getObjectAsString(channel, pathType);
+                                    JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
+                                    DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
 
 
-                                List<String> matches = findMatchingFiles(sftp, regexPattern, lastReadout);
-                                logger.info("{}: {} files matches Pattern, starting download", logDataSourceID, matches.size());
+                                    List<String> matches = findMatchingFiles(sftp, regexPattern, lastReadout);
+                                    logger.info("{}: {} files matches Pattern, starting download", logDataSourceID, matches.size());
 
-                                /* Fetch Files */
-                                for (String path : matches) {
-                                    try {
-                                        logger.debug("{}: Start Download: {}", logDataSourceID, path);
-                                        InputStream inputStream = sftp.read(path);
-                                        input.add(inputStream);
-                                        logger.debug("{}: Finished Download: {}", logDataSourceID, path);
-                                    } catch (IOException e) {
-                                        logger.error("{}: Error while reading path: {}: {}", logDataSourceID, path, e);
-                                    }
-                                }
-
-                                /* Import Files */
-                                logger.debug("{}: Start parsing files: {}", logDataSourceID, input.size());
-
-                                if (input.isEmpty()) {
-                                    logger.warn("{}: Cant get any data from the device", logDataSourceID);
-                                }
-
-                                parser.parse(input, timezone);
-
-                                JEVisImporterAdapter.importResults(parser.getResult(), importer, channel);
-
-                                /* Delete File */
-                                if (deleteOnSuccess && parser.getReport().errors().isEmpty()) {
-                                    matches.forEach(file -> {
+                                    /* Fetch Files */
+                                    List<String> failedPaths = new ArrayList<>();
+                                    for (String path : matches) {
                                         try {
-                                            logger.debug("{}: Delete File: {}", logDataSourceID, file);
-                                            sftp.remove(file);
-                                        } catch (Exception ex) {
-                                            logger.error("{}: Error while deleting file: {}:{}", logDataSourceID, file, ex);
+                                            logger.debug("{}: Start Download: {}", logDataSourceID, path);
+                                            InputStream inputStream = sftp.read(path);
+                                            input.add(inputStream);
+                                            logger.debug("{}: Finished Download: {}", logDataSourceID, path);
+                                        } catch (IOException e) {
+                                            logger.error("{}: Error while reading path: {}: {}", logDataSourceID, path, e);
+                                            failedPaths.add(path);
                                         }
-                                    });
-                                }
-
-                                /* Close input Streams */
-                                input.forEach(inputStream -> {
-                                    try {
-                                        inputStream.close();
-                                    } catch (IOException e) {
-                                        logger.error("{}: Error while closing file: {}", logDataSourceID, e);
-                                        throw new RuntimeException(e);
                                     }
-                                });
 
-                            } catch (JEVisException ex) {
-                                logger.error("{}: JEVisException. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
-                                logger.debug("{}: JEVisException. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
-                            } catch (ParseException ex) {
-                                logger.error("{}: Parse Exception. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
-                                logger.debug("{}: Parse Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
-                            } catch (Exception ex) {
-                                logger.error("{}: Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
+                                    /* Import Files */
+                                    logger.debug("{}: Start parsing files: {}", logDataSourceID, input.size());
+
+                                    if (input.isEmpty()) {
+                                        logger.warn("{}: Cant get any data from the device", logDataSourceID);
+                                    }
+
+                                    parser.parse(input, timezone);
+
+                                    JEVisImporterAdapter.importResults(parser.getResult(), importer, channel);
+
+                                    /* Close input Streams */
+                                    for (InputStream inputStream : input) {
+                                        try {
+                                            inputStream.close();
+                                        } catch (IOException e) {
+                                            logger.error("{}: Error while closing file: {}", logDataSourceID, e);
+                                            throw new RuntimeException(e);
+                                        }
+                                    }
+
+                                    /* Delete File */
+                                    matches.removeAll(failedPaths);
+                                    if (deleteOnSuccess && parser.getReport().errors().isEmpty()) {
+                                        for (String file : matches) {
+                                            try {
+                                                logger.debug("{}: Delete File: {}", logDataSourceID, file);
+                                                sftp.remove(file);
+                                            } catch (Exception ex) {
+                                                logger.error("{}: Error while deleting file: {}:{}", logDataSourceID, file, ex);
+                                            }
+                                        }
+                                    }
+                                } catch (JEVisException ex) {
+                                    logger.error("{}: JEVisException. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
+                                    logger.debug("{}: JEVisException. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
+                                } catch (ParseException ex) {
+                                    logger.error("{}: Parse Exception. For channel {}:{}. {}", logDataSourceID, channel.getID(), channel.getName(), ex.getMessage());
+                                    logger.debug("{}: Parse Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
+                                } catch (Exception ex) {
+                                    logger.error("{}: Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
+                                }
                             }
                         } catch (Exception ex) {
                             logger.error(ex);
