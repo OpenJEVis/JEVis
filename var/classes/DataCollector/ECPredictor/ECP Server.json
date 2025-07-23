@@ -1,0 +1,40 @@
+{
+  "name": "ECP Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "ECP Channel Directory",
+      "end": "ECP Server",
+      "type": 3
+    },
+    {
+      "start": "ECP Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "ECP Server",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "ECP Server"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "ECP Server"
+    }
+  ]
+}
