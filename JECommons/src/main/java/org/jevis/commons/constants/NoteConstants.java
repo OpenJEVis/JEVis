@@ -16,6 +16,7 @@ public class NoteConstants {
         String COUNTER_OVERFLOW = "cof";
         String COUNTER_CHANGE = "cc";
         String RESET_BY_PERIOD = "rbp";
+        String WRONG_COUNTER_VALUE = "wcv";
     }
 
     public interface Scaling {
