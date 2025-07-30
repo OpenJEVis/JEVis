@@ -115,7 +115,7 @@ public class ResourceSession {
                 config.setAuthority(Config.getEntraAUTHORITY());
                 config.setClientID(Config.getEntraClientID());
                 config.setTenant(Config.getEntraTenantID());
-                config.setClientSecret(Config.getEntraClientSecret());
+                //config.setClientSecret(Config.getEntraClientSecret());
 
                 return Response.ok(config).build();
             } else {
