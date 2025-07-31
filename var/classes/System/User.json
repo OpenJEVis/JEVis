@@ -21,16 +21,6 @@
       "jevisClass": "User"
     },
     {
-      "name": "SSO User",
-      "primitiveType": 4,
-      "guiType": "Check Box",
-      "guiposition": 0,
-      "validity": 0,
-      "description": "Enable/Disable the user as an Azur Single Sign-on user.",
-      "inherited": false,
-      "jevisClass": "User"
-    },
-    {
       "name": "Sys Admin",
       "primitiveType": 4,
       "guiType": "Check Box",

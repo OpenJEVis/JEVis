@@ -88,7 +88,7 @@ public class LoginTable {
         }
     }
 
-
+/*
     public Map<String, JEVisUserSQL> getAccounts() throws JEVisException, SQLException {
         logger.debug("getAccounts ");
         Map<String, JEVisUserSQL> acounts = new ConcurrentHashMap<>();
@@ -113,12 +113,15 @@ public class LoginTable {
         return acounts;
     }
 
+ */
+
 
     /**
      * ------------------------------------------
      * Fast Login below
      */
 
+    /*
     public Map<String, JEVisUserSQL> getAllUserOLd() throws JEVisException {
         logger.debug("Get all Logins ");
         String sqlALlUser = "select `t`.`object` AS `object`,`t`.`login` AS `login`,max(`t`.`password`) AS `password`,max(`t`.`enabled`) AS `enabled`,max(`t`.`sysadmin`) AS `sysadmin` from (select `o`.`id` AS `object`,`o`.`name` AS `login`,coalesce((case when (`s`.`attribute` = 'Password') then `s`.`value` end),0) AS `password`,coalesce((case when (`s`.`attribute` = 'Enabled') then `s`.`value` end),0) AS `enabled`,coalesce((case when (`s`.`attribute` = 'Sys Admin') then `s`.`value` end),0) AS `sysadmin` from (`jevis`.`sample` `s` left join (`jevis`.`attribute` `a` left join `jevis`.`object` `o` on((`o`.`id` = `a`.`object`))) on(((`o`.`id` = `s`.`object`) and (`a`.`name` = `s`.`attribute`) and (`a`.`maxts` = `s`.`timestamp`)))) where (`o`.`type` = 'User')) `t` group by `t`.`object`";
@@ -149,6 +152,7 @@ public class LoginTable {
         return users;
     }
 
+     */
     public Map<String, JEVisUserSQL> getAllUser() throws JEVisException {
         logger.debug("Get all Logins ");
         String sqlALlUser = "SELECT \n" +

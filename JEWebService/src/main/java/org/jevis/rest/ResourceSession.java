@@ -65,7 +65,6 @@ public class ResourceSession {
                 throw new AuthenticationException("token header is missing");
             }
             String token = httpHeaders.getRequestHeader("token").get(0);
-            //Check Token
             CachedAccessControl cac = CachedAccessControl.getInstance(ds, true);
             MSOauth2 msOauth2 = new MSOauth2(Config.getEntraAUTHORITY(), Config.getEntraClientID(), Config.getEntraClientSecret());
             String userName = msOauth2.getUserDisplayName(token);
@@ -73,6 +72,8 @@ public class ResourceSession {
             List<JEVisUserSQL> foundUsers = cac.getUsers().values().stream()
                     .filter(user -> msGroups.contains(user.getEntraID()))
                     .collect(Collectors.toList());
+
+            if (!foundUsers.get(0).isEnabled()) return Response.status(Response.Status.UNAUTHORIZED).build();
 
 
             List<String> commonKeys = new ArrayList<>(cac.getUsers().keySet());
