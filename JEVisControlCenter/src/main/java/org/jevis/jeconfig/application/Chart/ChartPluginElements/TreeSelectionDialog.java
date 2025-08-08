@@ -142,8 +142,30 @@ public class TreeSelectionDialog extends Dialog {
             }
         });
 
-        filterBox.getSelectionModel().selectFirst();
-        if (!classFilter.isEmpty()) updateFilter(classFilter);
+        updateFilter(classFilter);
+        if (classFilter.isEmpty()) {
+            filterBox.getSelectionModel().select(0);
+        } else if (classFilter.equals(allDataClasses)) {
+            filterBox.getSelectionModel().select(1);
+        } else if (classFilter.equals(allAlarmClasses)) {
+            filterBox.getSelectionModel().select(2);
+        } else if (classFilter.equals(allAnalysesClasses)) {
+            filterBox.getSelectionModel().select(3);
+        } else if (classFilter.equals(allCalculationClasses)) {
+            filterBox.getSelectionModel().select(4);
+        } else if (classFilter.equals(allCalendarClasses)) {
+            filterBox.getSelectionModel().select(5);
+        } else if (classFilter.equals(allDashboardClasses)) {
+            filterBox.getSelectionModel().select(6);
+        } else if (classFilter.equals(allDataSourceClasses)) {
+            filterBox.getSelectionModel().select(7);
+        } else if (classFilter.equals(allDocumentClasses)) {
+            filterBox.getSelectionModel().select(8);
+        } else if (classFilter.equals(allMeterClasses)) {
+            filterBox.getSelectionModel().select(9);
+        } else if (classFilter.equals(allReportClasses)) {
+            filterBox.getSelectionModel().select(10);
+        }
 
         ButtonType okType = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelType = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);

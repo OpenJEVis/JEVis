@@ -4,13 +4,18 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.joda.time.Period;
+import systems.uom.common.Imperial;
 import tech.units.indriya.AbstractUnit;
+import tech.units.indriya.function.MultiplyConverter;
+import tech.units.indriya.unit.TransformedUnit;
 import tech.units.indriya.unit.Units;
 
 import javax.measure.MetricPrefix;
 import javax.measure.Unit;
 import javax.measure.quantity.Dimensionless;
 import java.util.Currency;
+
+import static tech.units.indriya.unit.Units.KILOGRAM;
 
 public class ChartUnits {
 
@@ -20,8 +25,8 @@ public class ChartUnits {
         Unit _mg = MetricPrefix.MILLI(Units.GRAM);
         Unit _g = Units.GRAM;
         Unit _kg = Units.KILOGRAM;
-        Unit _kkg = MetricPrefix.KILO(Units.KILOGRAM.alternate("kkg"));
-        Unit _t = MetricPrefix.KILO(Units.KILOGRAM.alternate("t"));
+        Unit _kkg = new TransformedUnit<>("kkg", "Kiloton", KILOGRAM, MultiplyConverter.ofRational(1000, 1));
+        Unit _t = Imperial.METRIC_TON;
 
         Unit _l2 = Units.LITRE;
         Unit _l = Units.LITRE.alternate("L");
@@ -45,8 +50,8 @@ public class ChartUnits {
         Unit _tPerMinute = _t.divide(Units.MINUTE);
         Unit _tPerHour = _t.divide(Units.HOUR);
 
-        Unit _bar = Units.PASCAL.divide(100000);
-        Unit _atm = Units.PASCAL.divide(101300);
+        Unit _bar = new TransformedUnit<>("bar", "Bar", Units.PASCAL, MultiplyConverter.ofRational(100000, 1));
+        Unit _atm = new TransformedUnit<>("atm", "Atmosphere", Units.PASCAL, MultiplyConverter.ofRational(101300, 1));
 
         Unit _W = Units.WATT;
         Unit _kW = MetricPrefix.KILO(Units.WATT);

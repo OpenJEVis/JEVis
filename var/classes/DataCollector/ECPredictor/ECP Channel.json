@@ -1,0 +1,31 @@
+{
+  "name": "ECP Channel",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "ECP Channel",
+      "end": "Channel",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Source",
+      "primitiveType": 0,
+      "guiType": "Attribute Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "ECP Channel"
+    },
+    {
+      "name": "Target",
+      "primitiveType": 0,
+      "guiType": "Attribute Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "ECP Channel"
+    }
+  ]
+}
