@@ -9,7 +9,6 @@ import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
 
 /**
- *
  * @author bf
  */
 public class DriverProperty {
@@ -68,4 +67,14 @@ public class DriverProperty {
         this.fileSource = fileSource;
     }
 
+    @Override
+    public String toString() {
+        return "DriverProperty{" +
+                "driver=" + driver +
+                ", fileDate=" + fileDate +
+                ", className='" + className + '\'' +
+                ", jevisName='" + jevisName + '\'' +
+                ", fileSource='" + fileSource + '\'' +
+                '}';
+    }
 }
