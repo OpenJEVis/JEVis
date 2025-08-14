@@ -106,7 +106,7 @@ public class FXLogin extends AnchorPane {
     private Locale selectedLocale = Locale.getDefault();
     private JFXComboBox<Locale> langSelect;
     private boolean hasCredentials = false;
-    private String token = "";
+    private String token = null;
 
     private FXLogin() {
         this.mainStage = null;
