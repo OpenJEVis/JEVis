@@ -572,7 +572,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     = REQUEST.API_PATH_V1
                     + REQUEST.SESSION.PATH
                     + REQUEST.SESSION.LOGIN.PATH;
-            System.out.println("Call: " + resource);
 
             InputStream inputStream = this.con.getInputStreamRequest(resource);
             if (inputStream != null) {

@@ -67,6 +67,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -182,14 +183,18 @@ public class FXLogin extends AnchorPane {
 
     private boolean hasLoginCredentials(List<JEVisOption> configuration) {
 
+        AtomicBoolean hasUsername = new AtomicBoolean(false);
+        AtomicBoolean hasPassword = new AtomicBoolean(false);
         for (JEVisOption opt : configuration) {
             String key = opt.getKey();
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
                 opt.getOptions().forEach(jeVisOption -> {
                     logger.trace("Option: {} {}", jeVisOption.getKey(), jeVisOption.getValue());
                     if (opt.getKey().equals(CommonOptions.DataSource.USERNAME.getKey())) {
+                        hasUsername.set(true);
                         this.userName.setText(jeVisOption.getValue());
                     } else if (jeVisOption.getKey().equals(CommonOptions.DataSource.PASSWORD.getKey())) {
+                        hasPassword.set(true);
                         this.userPassword.setText(jeVisOption.getValue());
                     } else if (jeVisOption.getKey().equals(CommonOptions.DataSource.LOCALE.getKey())) {
                         this.selectedLocale = Locale.forLanguageTag(jeVisOption.getValue());
@@ -202,7 +207,7 @@ public class FXLogin extends AnchorPane {
         }
         if (token != null) {
             return true;
-        } else return this.userName.getText() != null && this.userPassword.getText() != null;
+        } else return hasUsername.get() && hasPassword.get();
     }
 
     /**
@@ -218,22 +223,8 @@ public class FXLogin extends AnchorPane {
             this.progress.setVisible(true);
         });
 
-        //FS hier
-
-        //start animation, todo make an own thread..
         Runnable runnable = () -> {
             try {
-
-                /*
-                Platform.runLater(() -> {
-                    try {
-                        CertificateImporter certificateImporter = new CertificateImporter("https://jevis.nexinto.com");
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                });
-
-                 */
 
                 if (token != null) {
                     if (this._ds.connect(token)) {
