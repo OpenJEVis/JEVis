@@ -205,7 +205,7 @@ public class FXLogin extends AnchorPane {
             }
 
         }
-        if (token != null) {
+        if (token != null && !token.isEmpty()) {
             return true;
         } else return hasUsername.get() && hasPassword.get();
     }
@@ -265,7 +265,8 @@ public class FXLogin extends AnchorPane {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle(I18n.getInstance().getString("app.login.error.title"));
                     alert.setHeaderText("");
-                    alert.setContentText(ex.getMessage());
+                    alert.setContentText(ex.getMessage() + "\nat: " + getJEVisError(ex));
+
                     alert.showAndWait();
 
                     this.loginButton.setDisable(false);
@@ -281,6 +282,15 @@ public class FXLogin extends AnchorPane {
         Thread thread = new Thread(runnable);
         thread.start();
 
+    }
+
+    private String getJEVisError(Exception ex) {
+        for (StackTraceElement stackTraceElement : ex.getStackTrace()) {
+            if (stackTraceElement.getClassName().startsWith("org.jevis")) {
+                return stackTraceElement.toString();
+            }
+        }
+        return "";
     }
 
     /**
