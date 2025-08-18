@@ -190,7 +190,7 @@ public class FXLogin extends AnchorPane {
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
                 opt.getOptions().forEach(jeVisOption -> {
                     logger.trace("Option: {} {}", jeVisOption.getKey(), jeVisOption.getValue());
-                    if (opt.getKey().equals(CommonOptions.DataSource.USERNAME.getKey())) {
+                    if (jeVisOption.getKey().equals(CommonOptions.DataSource.USERNAME.getKey())) {
                         hasUsername.set(true);
                         this.userName.setText(jeVisOption.getValue());
                     } else if (jeVisOption.getKey().equals(CommonOptions.DataSource.PASSWORD.getKey())) {
@@ -204,7 +204,23 @@ public class FXLogin extends AnchorPane {
                 });
             }
 
+            //backwards compatibility
+            //JECC is using the wrong --username parameter
+            if (opt.getKey().equals(CommonOptions.DataSource.USERNAME.getKey())) {
+                hasUsername.set(true);
+                this.userName.setText(opt.getValue());
+            } else if (opt.getKey().equals(CommonOptions.DataSource.PASSWORD.getKey())) {
+                hasPassword.set(true);
+                this.userPassword.setText(opt.getValue());
+            } else if (opt.getKey().equals(CommonOptions.DataSource.LOCALE.getKey())) {
+                this.selectedLocale = Locale.forLanguageTag(opt.getValue());
+            } else if (opt.getKey().equals(CommonOptions.DataSource.TOKEN.getKey())) {
+                this.token = opt.getValue();
+            }
+
+
         }
+
         if (token != null && !token.isEmpty()) {
             return true;
         } else return hasUsername.get() && hasPassword.get();
