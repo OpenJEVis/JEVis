@@ -260,7 +260,7 @@ public class CSVParser {
 
             if (dpType != null && dpType.equals("ROW")) {
                 logger.debug("Traversing ROWs");
-                for (int i = headerLines; i < stringArrayInput.length; i++) {
+                for (int i = headerLines + 1; i < stringArrayInput.length; i++) {
                     currLineIndex = i;
                     try {
                         //TODO 1,"1,1",1 is not working yet
