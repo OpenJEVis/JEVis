@@ -193,9 +193,10 @@ public class CleanDataExtension implements ObjectEditorExtension {
         JEVisSample valueLastSample = valueAttribute.getLatestSample();
         JEVisSample counterOverflowLastSample = counterOverflowAttribute.getLatestSample();
         JEVisSample periodLastSample = null;
-        JEVisSample resetByPeriodLastSample = resetByPeriodAttribute.getLatestSample();
+        JEVisSample resetByPeriodLastSample = null;
         try {
             periodLastSample = periodAttribute.getLatestSample();
+            resetByPeriodLastSample = resetByPeriodAttribute.getLatestSample();
         } catch (Exception e) {
 
         }
