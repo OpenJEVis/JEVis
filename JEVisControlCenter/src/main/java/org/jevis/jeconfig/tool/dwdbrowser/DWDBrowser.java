@@ -432,7 +432,7 @@ public class DWDBrowser extends Dialog<ButtonType> {
             for (int i = idString.length(); i < 5; i++) {
                 idString.insert(0, "0");
             }
-            FTPFileFilter filter = ftpFile -> (ftpFile.isFile() && ftpFile.getName().contains(idString.toString()));
+            FTPFileFilter filter = ftpFile -> (ftpFile.isFile() && ftpFile.getName().contains("_" + idString + "_"));
 
             stationData.setName(selectedStation.getName());
             stationData.setId(selectedStation.getId());

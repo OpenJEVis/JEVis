@@ -136,7 +136,7 @@ public class DWDDataSource implements DataSource {
             }
             logger.debug("Loading data for station {} with id {}", selectedStation.getName(), idString);
 
-            FTPFileFilter filter = ftpFile -> (ftpFile.isFile() && ftpFile.getName().contains(idString.toString()));
+            FTPFileFilter filter = ftpFile -> (ftpFile.isFile() && ftpFile.getName().contains("_" + idString + "_"));
 
             stationData.setName(selectedStation.getName());
             stationData.setId(selectedStation.getId());
