@@ -3,7 +3,6 @@ package org.jevis.jestatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
@@ -65,11 +64,8 @@ public class WirelessLogicRequest {
      */
     public JsonNode getTariffDetails(String tariff) throws IOException {
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("tariffs/details?tariff-name=").append(tariff);
 
-
-        JsonNode jsonNode = objectMapper.readTree(getRequest(stringBuilder.toString()));
+        JsonNode jsonNode = objectMapper.readTree(getRequest("tariffs/details?tariff-name=" + tariff));
         return jsonNode;
     }
 
@@ -91,9 +87,7 @@ public class WirelessLogicRequest {
      * @throws IOException
      */
     public List<JsonNode> getSimUsage(List<JsonNode> sims) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("sims/usage?iccid=").append(String.join(",", sims.stream().map(jsonNode -> jsonNode.get("iccid").asText()).collect(Collectors.toList())));
-        JsonNode jsonNode = objectMapper.readTree(getRequest(stringBuilder.toString()));
+        JsonNode jsonNode = objectMapper.readTree(getRequest("sims/usage?iccid=" + String.join(",", sims.stream().map(jsonNode -> jsonNode.get("iccid").asText()).collect(Collectors.toList()))));
         ArrayNode arr = (ArrayNode) jsonNode.get("sims");
         return arrayNodeToList(arr);
 
@@ -134,9 +128,7 @@ public class WirelessLogicRequest {
     }
 
     public List<JsonNode> getSimDetails(List<JsonNode> simCardsUsage) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("sims/details?iccid=").append(String.join(",", simCardsUsage.stream().map(jsonNode -> jsonNode.get("iccid").asText()).collect(Collectors.toList())));
-        JsonNode jsonNode = objectMapper.readTree(getRequest(stringBuilder.toString()));
+        JsonNode jsonNode = objectMapper.readTree(getRequest("sims/details?iccid=" + String.join(",", simCardsUsage.stream().map(jsonNode -> jsonNode.get("iccid").asText()).collect(Collectors.toList()))));
         List<JsonNode> jsonNodeList = new ArrayList<>();
         for (int i = 0; i < jsonNode.size();i++) {
             jsonNodeList.add(jsonNode.get(i));
@@ -171,8 +163,8 @@ public class WirelessLogicRequest {
         httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         httpURLConnection.setRequestProperty("Accept-Charset", "UTF-8");
 
-        String auth = new String(Base64.encodeBase64((user + ":" + password).getBytes()));
-        httpURLConnection.setRequestProperty("Authorization", "Basic " + auth);
+        httpURLConnection.setRequestProperty("x-api-client", user);
+        httpURLConnection.setRequestProperty("x-api-key", password);
 
         return httpURLConnection.getInputStream();
 
