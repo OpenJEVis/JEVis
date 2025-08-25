@@ -87,7 +87,7 @@ public class WirelessLogicRequest {
      * @throws IOException
      */
     public List<JsonNode> getSimUsage(List<JsonNode> sims) throws IOException {
-        JsonNode jsonNode = objectMapper.readTree(getRequest("sims/usage?iccid=" + String.join(",", sims.stream().map(jsonNode -> jsonNode.get("iccid").asText()).collect(Collectors.toList()))));
+        JsonNode jsonNode = objectMapper.readTree(getRequest("sims/usage?iccid=" + sims.stream().map(jsonNode2 -> jsonNode2.get("iccid").asText()).collect(Collectors.joining(","))));
         ArrayNode arr = (ArrayNode) jsonNode.get("sims");
         return arrayNodeToList(arr);
 
@@ -128,9 +128,9 @@ public class WirelessLogicRequest {
     }
 
     public List<JsonNode> getSimDetails(List<JsonNode> simCardsUsage) throws IOException {
-        JsonNode jsonNode = objectMapper.readTree(getRequest("sims/details?iccid=" + String.join(",", simCardsUsage.stream().map(jsonNode -> jsonNode.get("iccid").asText()).collect(Collectors.toList()))));
+        JsonNode jsonNode = objectMapper.readTree(getRequest("sims/details?iccid=" + simCardsUsage.stream().map(jsonNode2 -> jsonNode2.get("iccid").asText()).collect(Collectors.joining(","))));
         List<JsonNode> jsonNodeList = new ArrayList<>();
-        for (int i = 0; i < jsonNode.size();i++) {
+        for (int i = 0; i < jsonNode.size(); i++) {
             jsonNodeList.add(jsonNode.get(i));
 
         }
@@ -145,8 +145,6 @@ public class WirelessLogicRequest {
         }
         return offlineSimCards;
     }
-
-
 
 
     /**
