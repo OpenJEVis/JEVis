@@ -1,7 +1,7 @@
 {
   "name": "Organization Directory",
   "description": "The class Organization Directory represents a specific directory for the management of organizations.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class",
-  "unique": true,
+  "unique": false,
   "relationships": [
     {
       "start": "Organization",
