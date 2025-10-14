@@ -348,6 +348,24 @@ public abstract class AbstractCliApp {
     }
 
     /**
+     * checks the service status of the JEVis Service
+     *
+     * @param serviceObject
+     * @return Boolean
+     */
+    protected Boolean checkServiceStatus(JEVisObject serviceObject) {
+        Boolean enabled = true;
+        try {
+            JEVisAttribute enabledAttribute = serviceObject.getAttribute("Enable");
+            ds.reloadAttribute(enabledAttribute);
+            enabled = enabledAttribute.getLatestSample().getValueAsBoolean();
+        } catch (Exception e) {
+            logger.error("Couldn't get Service status from the JEVis System");
+        }
+        return enabled;
+    }
+
+    /**
      * retrieves the cycle time for the JEVis Service
      *
      * @param serviceClassName
@@ -364,6 +382,26 @@ public abstract class AbstractCliApp {
         } catch (Exception e) {
             logger.error("Couldn't get Service cycle time from the JEVis System");
         }
+    }
+
+    /**
+     * retrieves the cycle time for the JEVis Service
+     *
+     * @param serviceObject
+     * @return Boolean
+     */
+    protected int getCycleTimeFromService(JEVisObject serviceObject) {
+        int cycleTime = 900000;
+        try {
+            JEVisAttribute cycleTimeAttribute = serviceObject.getAttribute("Cycle Time");
+            ds.reloadAttribute(cycleTimeAttribute);
+            cycleTime = cycleTimeAttribute.getLatestSample().getValueAsLong().intValue();
+            logger.info("Service cycle time from service: " + cycleTime);
+        } catch (Exception e) {
+            logger.error("Couldn't get Service cycle time from the JEVis System");
+        }
+
+        return cycleTime;
     }
 
     /**

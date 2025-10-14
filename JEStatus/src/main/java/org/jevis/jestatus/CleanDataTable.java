@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -12,11 +13,13 @@ import java.util.*;
 public class CleanDataTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CleanDataTable.class);
     private final List<JEVisObject> dataServerObjects;
+    private final JEVisObject entryPoint;
     private final List<JEVisObject> calcObjects;
     private final DateTime latestReported;
 
-    public CleanDataTable(JEVisDataSource ds, DateTime latestReported, List<JEVisObject> calcObjects, List<JEVisObject> dataServerObjects) {
+    public CleanDataTable(JEVisDataSource ds, JEVisObject entryPoint, DateTime latestReported, List<JEVisObject> calcObjects, List<JEVisObject> dataServerObjects) {
         super(ds);
+        this.entryPoint = entryPoint;
         this.calcObjects = calcObjects;
         this.dataServerObjects = dataServerObjects;
         this.latestReported = latestReported;
@@ -250,6 +253,6 @@ public class CleanDataTable extends AlarmTable {
     }
 
     private List<JEVisObject> getCleanDataObjects() throws JEVisException {
-        return new ArrayList<>(ds.getObjects(getCleanDataClass(), false));
+        return CommonMethods.getChildrenRecursive(entryPoint, getCleanDataClass());
     }
 }

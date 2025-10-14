@@ -5,6 +5,7 @@ import org.jevis.api.*;
 import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -12,11 +13,13 @@ import java.util.*;
 
 public class CalculationTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CalculationTable.class);
+    private final JEVisObject entryPoint;
     private final List<JEVisObject> dataServerObjects;
     private final DateTime latestReported;
 
-    public CalculationTable(JEVisDataSource ds, DateTime latestReported, List<JEVisObject> dataServerObjects) {
+    public CalculationTable(JEVisDataSource ds, JEVisObject entryPoint, DateTime latestReported, List<JEVisObject> dataServerObjects) {
         super(ds);
+        this.entryPoint = entryPoint;
         this.dataServerObjects = dataServerObjects;
         this.latestReported = latestReported;
 
@@ -266,7 +269,7 @@ public class CalculationTable extends AlarmTable {
     }
 
     private List<JEVisObject> getCalcObjects() throws JEVisException {
-        List<JEVisObject> calcObjects = new ArrayList<>(ds.getObjects(getCalculationClass(), false));
+        List<JEVisObject> calcObjects = CommonMethods.getChildrenRecursive(entryPoint, getCalculationClass());
         List<JEVisObject> disabledObject = new ArrayList<>();
         calcObjects.forEach(jeVisObject -> {
             JEVisAttribute enabledAtt = null;
