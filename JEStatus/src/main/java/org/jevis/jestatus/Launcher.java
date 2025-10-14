@@ -27,6 +27,7 @@ import org.jevis.api.*;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,9 +49,7 @@ public class Launcher extends AbstractCliApp {
     public static String KEY = "process-id";
     private final Command commands = new Command();
     private Config config;
-    private Long latestReported;
     private final String emergencyConfig = "";
-    private JEVisObject serviceObject;
     private boolean firstRun = true;
 
     public Launcher(String[] args, String appname) {
@@ -79,9 +78,10 @@ public class Launcher extends AbstractCliApp {
     protected void runSingle(List<Long> ids) {
 
         for (Long id : ids) {
-            StatusHandler ah = new StatusHandler(ds, latestReported);
-
             try {
+                JEVisObject serviceObject = ds.getObject(id);
+
+                StatusHandler ah = new StatusHandler(ds, serviceObject);
                 ah.checkStatus();
             } catch (JEVisException e) {
                 logger.error(e);
@@ -94,15 +94,24 @@ public class Launcher extends AbstractCliApp {
         if (checkConnection()) {
 
             JEVisClass serviceClass = null;
+            List<JEVisObject> listServices = new ArrayList<>();
+            List<JEVisObject> listReadyServices = new ArrayList<>();
             try {
                 serviceClass = ds.getJEVisClass(APP_SERVICE_CLASS_NAME);
-                List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
-                serviceObject = listServices.get(0);
-            } catch (JEVisException e) {
-                e.printStackTrace();
+                listServices.addAll(ds.getObjects(serviceClass, false));
+            } catch (Exception e) {
+                logger.error("Could not get JEStatus Services. ", e);
             }
 
-            if (isActive() && isReady(serviceObject)) {
+            boolean isReady = false;
+            for (JEVisObject service : listServices) {
+                if (isReady(service)) {
+                    isReady = true;
+                    listReadyServices.add(service);
+                }
+            }
+
+            if (isActive() && isReady) {
                 if (!firstRun) {
                     try {
                         ds.clearCache();
@@ -112,23 +121,24 @@ public class Launcher extends AbstractCliApp {
                     }
                 } else firstRun = false;
 
-                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-                getTimeConstraints();
 
-                if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-                    logger.info("Service is enabled.");
-                    try {
-                        StatusHandler ah = new StatusHandler(ds, latestReported);
-                        ah.checkStatus();
-                        finishCurrentRun(serviceObject);
-                        ds.clearCache();
-
-                    } catch (Exception ex) {
-                        logger.error(ex);
+                logger.info("Service is enabled.");
+                try {
+                    for (JEVisObject serviceObject : listReadyServices) {
+                        if (checkServiceStatus(serviceObject)) {
+                            StatusHandler ah = new StatusHandler(ds, serviceObject);
+                            ah.checkStatus();
+                            finishCurrentRun(serviceObject);
+                        } else {
+                            logger.info("Service is disabled.");
+                        }
                     }
-                } else {
-                    logger.info("Service is disabled.");
+
+                    ds.clearCache();
+                } catch (Exception ex) {
+                    logger.error(ex);
                 }
+
             } else if (getEmergency_config() != null) {
                 StatusHandler ah = new StatusHandler();
                 Config conf = null;
@@ -144,16 +154,6 @@ public class Launcher extends AbstractCliApp {
         }
 
         sleep();
-    }
-
-    private void getTimeConstraints() {
-        try {
-            JEVisClass serviceClass = ds.getJEVisClass(APP_SERVICE_CLASS_NAME);
-            List<JEVisObject> listServiceObjects = ds.getObjects(serviceClass, false);
-            latestReported = listServiceObjects.get(0).getAttribute("Latest reported").getLatestSample().getValueAsLong();
-        } catch (Exception e) {
-            logger.error("Couldn't get Service status from the JEVis System");
-        }
     }
 
     @Override

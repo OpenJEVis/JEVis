@@ -47,6 +47,42 @@
       "jevisClass": "JEStatus"
     },
     {
+      "name": "Disable MySQL Backup Status",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEStatus"
+    },
+    {
+      "name": "Disable Services Status",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEStatus"
+    },
+    {
+      "name": "Disable Wireless Logic Status",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEStatus"
+    },
+    {
+      "name": "Entrypoint",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEStatus"
+    },
+    {
       "name": "Max Number Threads",
       "primitiveType": 2,
       "guiposition": 0,

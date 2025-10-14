@@ -21,12 +21,14 @@ import static org.jevis.commons.utils.CommonMethods.getChildrenRecursive;
 public class DataServerTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(DataServerTable.class);
     private final JEVisDataSource ds;
+    private final JEVisObject entryPoint;
     private final DateTime latestReported;
     private final List<DataServerLine> dataServerLines = new ArrayList<>();
 
-    public DataServerTable(JEVisDataSource ds, DateTime latestReported) {
+    public DataServerTable(JEVisDataSource ds, JEVisObject entryPoint, DateTime latestReported) {
         super(ds);
         this.ds = ds;
+        this.entryPoint = entryPoint;
         this.latestReported = latestReported;
 
         try {
@@ -382,8 +384,7 @@ public class DataServerTable extends AlarmTable {
 
 
     private List<JEVisObject> getChannelObjects() throws JEVisException {
-
-        return new ArrayList<>(ds.getObjects(getChannelClass(), true));
+        return new ArrayList<>(CommonMethods.getChildrenRecursive(entryPoint, getChannelClass()));
     }
 
     public List<DataServerLine> getDataServerLines() {
