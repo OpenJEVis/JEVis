@@ -26,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
@@ -92,7 +93,8 @@ public class StatusHandler {
         }
 
         try {
-            this.entryPoint = DatabaseHelper.getObjectAsSelection(serviceObject, serviceObject.getAttribute("Entrypoint").getType()).getSelectedObject();
+            TargetHelper targetHelper = new TargetHelper(ds, serviceObject.getAttribute("Entrypoint"));
+            this.entryPoint = targetHelper.getObject().get(0);
         } catch (Exception e) {
             logger.error("Could not get latest reported attribute", e);
         }
