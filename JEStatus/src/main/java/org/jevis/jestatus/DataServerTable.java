@@ -33,7 +33,7 @@ public class DataServerTable extends AlarmTable {
 
         try {
             createTableString();
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not initialize.");
         }
     }
@@ -384,7 +384,13 @@ public class DataServerTable extends AlarmTable {
 
 
     private List<JEVisObject> getChannelObjects() throws JEVisException {
-        return new ArrayList<>(CommonMethods.getChildrenRecursive(entryPoint, getChannelClass()));
+        List<JEVisObject> channelObjects = new ArrayList<>();
+        try {
+            channelObjects.addAll(CommonMethods.getInheritedChildrenRecursive(entryPoint, getChannelClass()));
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return channelObjects;
     }
 
     public List<DataServerLine> getDataServerLines() {
