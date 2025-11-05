@@ -54,7 +54,7 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
             columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
             columnToFitMethod.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 
@@ -118,7 +118,7 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
             onlineIdType = jeVisClass.getType("Online ID");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
 
         }
 
@@ -127,6 +127,7 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
             try {
                 return o.getJeVisType().getGUIPosition();
             } catch (Exception e) {
+                logger.error(e);
                 return -1;
             }
         }));
@@ -186,8 +187,8 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
                 col.visibleProperty().addListener((observable, oldValue, newValue) -> {
                     try {
                         pref.putBoolean(jeVisType.getName(), newValue);
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
+                    } catch (Exception e) {
+                        logger.error(e);
                     }
                 });
 
@@ -223,7 +224,7 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(this.comparatorProperty());
@@ -338,7 +339,7 @@ public class MeterTable extends TableView<MeterData> implements TableFindScrollb
 
 
                         } catch (Exception ex) {
-                            ex.printStackTrace();
+                            logger.error(ex);
                         }
                         return false;
                     }
