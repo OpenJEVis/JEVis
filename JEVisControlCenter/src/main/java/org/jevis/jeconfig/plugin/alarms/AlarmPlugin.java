@@ -6,7 +6,10 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -41,7 +44,7 @@ import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonAlarm;
 import org.jevis.commons.json.JsonTools;
-import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
@@ -106,7 +109,7 @@ public class AlarmPlugin implements Plugin {
     private final Comparator<AlarmRow> alarmRowComparator = new Comparator<AlarmRow>() {
         @Override
         public int compare(AlarmRow o1, AlarmRow o2) {
-            return Comparator.comparing(AlarmRow::getTimeStamp).reversed().compare(o1, o2);
+            return Comparator.comparing(AlarmRow::getDateTime).reversed().compare(o1, o2);
         }
     };
     private final List<AlarmRow> data = new ArrayList<>();
@@ -118,11 +121,12 @@ public class AlarmPlugin implements Plugin {
     private DateTime start;
     private DateTime end;
     private TimeFrame timeFrame = TimeFrame.TODAY;
+    private final ObjectRelations objectRelations;
 
     public AlarmPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
-
+        this.objectRelations = new ObjectRelations(ds);
 
         Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
         label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -312,7 +316,7 @@ public class AlarmPlugin implements Plugin {
         }
         if (!hasActiveChartTasks.get()) {
             JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
-            data.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+            data.sort(Comparator.comparing(AlarmRow::getDateTime).reversed());
 
             Platform.runLater(() -> {
                 createPage(0);
@@ -425,18 +429,12 @@ public class AlarmPlugin implements Plugin {
 
     private void createColumns() {
         TableColumn<AlarmRow, DateTime> dateColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.date"));
-        dateColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, DateTime>("date"));
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTime"));
         dateColumn.setStyle("-fx-alignment: CENTER;");
         dateColumn.setSortable(true);
 //        dateColumn.setPrefWidth(160);
         dateColumn.setMinWidth(100);
         dateColumn.setSortType(TableColumn.SortType.DESCENDING);
-
-        dateColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getTimeStamp() != null)
-                return new SimpleObjectProperty<>(param.getValue().getTimeStamp());
-            else return new SimpleObjectProperty<>();
-        });
 
         dateColumn.setCellFactory(new Callback<TableColumn<AlarmRow, DateTime>, TableCell<AlarmRow, DateTime>>() {
             @Override
@@ -451,10 +449,10 @@ public class AlarmPlugin implements Plugin {
                         } else if (getTableRow() != null && getTableRow().getItem() != null) {
                             AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
                             setText(item.withZone(alarmRow.getAlarmConfiguration().getDateTimeZone()).toString(alarmRow.getFormatString()));
-                            if (!alarmRow.getAlarmConfiguration().isChecked()) {
-                                activeAlarms.put(alarmRow.getTimeStamp(), true);
+                            if (!alarmRow.isChecked()) {
+                                activeAlarms.put(alarmRow.getDateTime(), true);
                             } else {
-                                activeAlarms.remove(alarmRow.getTimeStamp());
+                                activeAlarms.remove(alarmRow.getDateTime());
                             }
                         } else {
                             setText(item.toString("yyyy-MM-dd HH:mm:ss"));
@@ -464,50 +462,25 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
+        TableColumn<AlarmRow, String> locationColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnsite"));
+        locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
+        locationColumn.setStyle("-fx-alignment: CENTER;");
+        locationColumn.setSortable(true);
+        locationColumn.setMinWidth(100);
 
         TableColumn<AlarmRow, String> configNameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.configname"));
-        configNameColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, String>("configname"));
+        configNameColumn.setCellValueFactory(new PropertyValueFactory<>("configName"));
         configNameColumn.setStyle("-fx-alignment: CENTER;");
         configNameColumn.setSortable(true);
 //        configNameColumn.setPrefWidth(500);
         configNameColumn.setMinWidth(100);
 
-        configNameColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarmConfiguration() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarmConfiguration().getName());
-            else return new SimpleObjectProperty<>();
-        });
-
-        configNameColumn.setCellFactory(new Callback<TableColumn<AlarmRow, String>, TableCell<AlarmRow, String>>() {
-            @Override
-            public TableCell<AlarmRow, String> call(TableColumn<AlarmRow, String> param) {
-                return new TableCell<AlarmRow, String>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(item);
-                        }
-                    }
-                };
-            }
-        });
-
         TableColumn<AlarmRow, JEVisObject> objectNameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.objectname"));
-        objectNameColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, JEVisObject>("objectname"));
+        objectNameColumn.setCellValueFactory(new PropertyValueFactory<>("objectName"));
         objectNameColumn.setStyle("-fx-alignment: CENTER;");
         objectNameColumn.setSortable(true);
 //        objectNameColumn.setPrefWidth(500);
         objectNameColumn.setMinWidth(100);
-
-        objectNameColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getObject() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarm().getObject());
-            else return new SimpleObjectProperty<>();
-        });
 
         objectNameColumn.setCellFactory(new Callback<TableColumn<AlarmRow, JEVisObject>, TableCell<AlarmRow, JEVisObject>>() {
             @Override
@@ -558,17 +531,11 @@ public class AlarmPlugin implements Plugin {
         });
 
         TableColumn<AlarmRow, Double> isValueColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.isValue"));
-        isValueColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Double>("isValue"));
+        isValueColumn.setCellValueFactory(new PropertyValueFactory<>("isValue"));
         isValueColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
         isValueColumn.setSortable(false);
 //        isValueColumn.setPrefWidth(500);
         isValueColumn.setMinWidth(100);
-
-        isValueColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getIsValue() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarm().getIsValue());
-            else return new SimpleObjectProperty<>();
-        });
 
         isValueColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Double>, TableCell<AlarmRow, Double>>() {
             @Override
@@ -586,7 +553,7 @@ public class AlarmPlugin implements Plugin {
                             if (getTableRow() != null && getTableRow().getItem() != null) {
                                 AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
                                 try {
-                                    text += " " + UnitManager.getInstance().format(alarmRow.getAlarm().getAttribute().getDisplayUnit());
+                                    text += " " + alarmRow.getUnit();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -599,17 +566,9 @@ public class AlarmPlugin implements Plugin {
         });
 
         TableColumn<AlarmRow, String> operatorColumn = new TableColumn<>("");
-        operatorColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, String>("operator"));
+        operatorColumn.setCellValueFactory(new PropertyValueFactory<>("operator"));
         operatorColumn.setStyle("-fx-alignment: CENTER;");
         operatorColumn.setSortable(false);
-//        operatorColumn.setPrefWidth(500);
-//        operatorColumn.setMinWidth(100);
-
-        operatorColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getOperator() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarm().getOperator());
-            else return new SimpleObjectProperty<>();
-        });
 
         operatorColumn.setCellFactory(new Callback<TableColumn<AlarmRow, String>, TableCell<AlarmRow, String>>() {
             @Override
@@ -654,20 +613,14 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
-        TableColumn<AlarmRow, Double> shouldBeValueColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.shouldBeValue"));
-        shouldBeValueColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Double>("shouldBeValue"));
-        shouldBeValueColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
-        shouldBeValueColumn.setSortable(false);
-//        shouldBeValueColumn.setPrefWidth(500);
-        shouldBeValueColumn.setMinWidth(100);
+        TableColumn<AlarmRow, Double> setValueColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.shouldBeValue"));
+        setValueColumn.setCellValueFactory(new PropertyValueFactory<>("setValue"));
+        setValueColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
+        setValueColumn.setSortable(false);
+//        setValueColumn.setPrefWidth(500);
+        setValueColumn.setMinWidth(100);
 
-        shouldBeValueColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getSetValue() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarm().getSetValue());
-            else return new SimpleObjectProperty<>();
-        });
-
-        shouldBeValueColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Double>, TableCell<AlarmRow, Double>>() {
+        setValueColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Double>, TableCell<AlarmRow, Double>>() {
             @Override
             public TableCell<AlarmRow, Double> call(TableColumn<AlarmRow, Double> param) {
                 return new TableCell<AlarmRow, Double>() {
@@ -682,13 +635,8 @@ public class AlarmPlugin implements Plugin {
                             text += numberFormat.format(item);
                             if (getTableRow() != null && getTableRow().getItem() != null) {
                                 AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
-
                                 try {
-                                    text += " ";
-                                    if (alarmRow.getAlarm().getAlarmType() != AlarmType.D1 && alarmRow.getAlarm().getAlarmType() != AlarmType.D2) {
-                                        text += UnitManager.getInstance().format(alarmRow.getAlarm().getAttribute().getDisplayUnit());
-                                    }
-
+                                    text += " " + alarmRow.getUnit();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -701,17 +649,11 @@ public class AlarmPlugin implements Plugin {
         });
 
         TableColumn<AlarmRow, Integer> logValueColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.alarm"));
-        logValueColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Integer>("alarm"));
+        logValueColumn.setCellValueFactory(new PropertyValueFactory<>("logValue"));
         logValueColumn.setStyle("-fx-alignment: CENTER;");
         logValueColumn.setSortable(true);
 //        logValueColumn.setPrefWidth(500);
         logValueColumn.setMinWidth(100);
-
-        logValueColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getLogValue() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarm().getLogValue());
-            else return new SimpleObjectProperty<>();
-        });
 
         logValueColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Integer>, TableCell<AlarmRow, Integer>>() {
             @Override
@@ -732,17 +674,11 @@ public class AlarmPlugin implements Plugin {
         });
 
         TableColumn<AlarmRow, Double> toleranceColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.tolerance"));
-        toleranceColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Double>("tolerance"));
+        toleranceColumn.setCellValueFactory(new PropertyValueFactory<>("tolerance"));
         toleranceColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
         toleranceColumn.setSortable(false);
 //        toleranceColumn.setPrefWidth(500);
         toleranceColumn.setMinWidth(100);
-
-        toleranceColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getTolerance() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarm().getTolerance());
-            else return new SimpleObjectProperty<>();
-        });
 
         toleranceColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Double>, TableCell<AlarmRow, Double>>() {
             @Override
@@ -762,48 +698,18 @@ public class AlarmPlugin implements Plugin {
         });
 
         TableColumn<AlarmRow, String> alarmTypeColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.alarmType"));
-        alarmTypeColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, String>("alarmType"));
+        alarmTypeColumn.setCellValueFactory(new PropertyValueFactory<>("alarmType"));
         alarmTypeColumn.setStyle("-fx-alignment: CENTER;");
         alarmTypeColumn.setSortable(false);
 //        alarmTypeColumn.setPrefWidth(500);
         alarmTypeColumn.setMinWidth(100);
 
-        alarmTypeColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getTranslatedTypeName() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarm().getTranslatedTypeName());
-            else return new SimpleObjectProperty<>();
-        });
-
-        alarmTypeColumn.setCellFactory(new Callback<TableColumn<AlarmRow, String>, TableCell<AlarmRow, String>>() {
-            @Override
-            public TableCell<AlarmRow, String> call(TableColumn<AlarmRow, String> param) {
-                return new TableCell<AlarmRow, String>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(item);
-                        }
-                    }
-                };
-            }
-        });
-
         TableColumn<AlarmRow, Boolean> confirmationColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.confirmation"));
-        confirmationColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Boolean>("confirmation"));
+        confirmationColumn.setCellValueFactory(new PropertyValueFactory<>("confirmation"));
         confirmationColumn.setStyle("-fx-alignment: CENTER;");
         confirmationColumn.setSortable(false);
 //        alarmTypeColumn.setPrefWidth(500);
         confirmationColumn.setMinWidth(100);
-
-        confirmationColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getAlarmType() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarmConfiguration().isChecked());
-            else return new SimpleObjectProperty<>();
-        });
 
         confirmationColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Boolean>, TableCell<AlarmRow, Boolean>>() {
             @Override
@@ -844,11 +750,11 @@ public class AlarmPlugin implements Plugin {
                                 if (checkedButton.isSelected()) {
                                     checkedButton.setGraphic(checked);
                                     AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
-                                    alarmRow.getAlarmConfiguration().setChecked(true);
+                                    alarmRow.setChecked(true);
                                 } else {
                                     checkedButton.setGraphic(notChecked);
                                     AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
-                                    alarmRow.getAlarmConfiguration().setChecked(false);
+                                    alarmRow.setChecked(false);
                                 }
                                 Platform.runLater(() -> createPage(0));
                             });
@@ -861,17 +767,11 @@ public class AlarmPlugin implements Plugin {
         });
 
         TableColumn<AlarmRow, Alarm> configurationColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.configuration"));
-        configurationColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Alarm>("configuration"));
+        configurationColumn.setCellValueFactory(new PropertyValueFactory<>("alarm"));
         configurationColumn.setStyle("-fx-alignment: CENTER;");
         configurationColumn.setSortable(false);
 //        alarmTypeColumn.setPrefWidth(500);
         configurationColumn.setMinWidth(100);
-
-        configurationColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getAlarmType() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarm());
-            else return new SimpleObjectProperty<>();
-        });
 
         configurationColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Alarm>, TableCell<AlarmRow, Alarm>>() {
             @Override
@@ -885,7 +785,6 @@ public class AlarmPlugin implements Plugin {
                             setText(null);
                         } else {
                             try {
-                                Node node = null;
                                 if (item.getAlarmType().equals(AlarmType.L1) || item.getAlarmType().equals(AlarmType.L2)) {
                                     JEVisAttribute limitConfigAttribute = item.getObject().getAttribute(LIMITS_CONFIGURATION.getAttributeName());
 
@@ -928,14 +827,37 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
-        tableView.getColumns().setAll(dateColumn, configNameColumn, objectNameColumn, isValueColumn, operatorColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn, configurationColumn);
+        tableView.getColumns().setAll(dateColumn, locationColumn, configNameColumn, objectNameColumn, isValueColumn, operatorColumn, setValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn, configurationColumn);
 
         Platform.runLater(() -> {
             tableView.getSortOrder().clear();
             tableView.getSortOrder().setAll(dateColumn);
         });
+    }
 
+    private List<AlarmRow> getAlarmRow(JEVisAttribute fileLog, AlarmConfiguration alarmConfiguration) throws JEVisException, IOException {
+        List<AlarmRow> list = new ArrayList<>();
+        if (fileLog.hasSample()) {
+            for (JEVisSample jeVisSample : fileLog.getSamples(start, end)) {
+                JsonAlarm[] jsonAlarmList = JsonTools.objectMapper().readValue(jeVisSample.getValueAsFile().getBytes(), JsonAlarm[].class);
+                for (JsonAlarm jsonAlarm : jsonAlarmList) {
+                    JEVisObject object = ds.getObject(jsonAlarm.getObject());
+                    JEVisAttribute attribute = object.getAttribute(jsonAlarm.getAttribute());
+                    DateTime dateTime = new DateTime(jsonAlarm.getTimeStamp());
+                    List<JEVisSample> samples = attribute.getSamples(dateTime, dateTime);
+                    if (!samples.isEmpty()) {
+                        JEVisSample sample = samples.get(0);
 
+                        Alarm alarm = new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getOperator(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue());
+
+                        AlarmRow alarmRow = new AlarmRow(objectRelations, alarmConfiguration, alarm);
+
+                        list.add(alarmRow);
+                    }
+                }
+            }
+        }
+        return list;
     }    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
         if (newValue != oldValue) {
             start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
@@ -945,7 +867,6 @@ public class AlarmPlugin implements Plugin {
             Platform.runLater(this::initToolBar);
         }
     };
-
 
 
     private String getFullName(JEVisObject item) throws JEVisException {
@@ -1250,30 +1171,7 @@ public class AlarmPlugin implements Plugin {
         return allDone;
     }
 
-    private List<AlarmRow> getAlarmRow(JEVisAttribute fileLog, AlarmConfiguration alarmConfiguration) throws JEVisException, IOException {
-        List<AlarmRow> list = new ArrayList<>();
-        if (fileLog.hasSample()) {
-            for (JEVisSample jeVisSample : fileLog.getSamples(start, end)) {
-                JsonAlarm[] jsonAlarmList = JsonTools.objectMapper().readValue(jeVisSample.getValueAsFile().getBytes(), JsonAlarm[].class);
-                for (JsonAlarm jsonAlarm : jsonAlarmList) {
-                    JEVisObject object = ds.getObject(jsonAlarm.getObject());
-                    JEVisAttribute attribute = object.getAttribute(jsonAlarm.getAttribute());
-                    DateTime dateTime = new DateTime(jsonAlarm.getTimeStamp());
-                    List<JEVisSample> samples = attribute.getSamples(dateTime, dateTime);
-                    if (!samples.isEmpty()) {
-                        JEVisSample sample = samples.get(0);
 
-                        Alarm alarm = new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getOperator(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue());
-
-                        AlarmRow alarmRow = new AlarmRow(alarm.getTimeStamp(), alarmConfiguration, alarm);
-
-                        list.add(alarmRow);
-                    }
-                }
-            }
-        }
-        return list;
-    }
 
     @Override
     public Region getIcon() {
