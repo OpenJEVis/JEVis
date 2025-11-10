@@ -609,13 +609,12 @@ public class CommonMethods {
     private static List<JEVisObject> getInheritedChildren(JEVisObject firstObject, JEVisClass jeVisClass, List<JEVisClass> inheritanceClasses) throws JEVisException {
         List<JEVisObject> list = new ArrayList<>();
         try {
-            boolean inherited = inheritanceClasses.contains(firstObject.getJEVisClass());
-            if (firstObject.getJEVisClass().equals(jeVisClass) || inherited) list.add(firstObject);
 
             for (JEVisObject child : firstObject.getChildren()) {
                 try {
                     boolean inheritedChild = inheritanceClasses.contains(child.getJEVisClass());
-                    if (child.getJEVisClass().equals(jeVisClass) || inheritedChild) list.add(child);
+                    if ((child.getJEVisClass().equals(jeVisClass) || inheritedChild) && !list.contains(child))
+                        list.add(child);
 
                     list.addAll(getInheritedChildren(child, jeVisClass, inheritanceClasses));
                 } catch (Exception e) {
