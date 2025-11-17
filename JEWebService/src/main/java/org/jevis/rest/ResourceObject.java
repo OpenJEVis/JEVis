@@ -94,6 +94,7 @@ public class ResourceObject {
 
         try {
             this.ds = new SQLDataSource(httpHeaders, request, url);
+
             if (!deletedObjects) this.ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
             this.ds.preload(SQLDataSource.PRELOAD.ALL_REL);
 
@@ -201,7 +202,7 @@ public class ResourceObject {
             }
 
             try {
-                CachedAccessControl.getInstance(ds).checkForChanges(obj, CachedAccessControl.Change.DELETE);
+                CachedAccessControl.getInstance(ds, true).checkForChanges(obj, CachedAccessControl.Change.DELETE);
             } catch (Exception ex) {
                 logger.error(ex, ex);
             }
@@ -274,7 +275,7 @@ public class ResourceObject {
                         JsonObject newObj = this.ds.buildObject(json, parentObj.getId(), jsonString);
                         ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_OBJECT, String.format("%s:%s", newObj.getId(), newObj.getName()));
                         try {
-                            CachedAccessControl.getInstance(ds).checkForChanges(json, CachedAccessControl.Change.ADD);
+                            CachedAccessControl.getInstance(ds, true).checkForChanges(json, CachedAccessControl.Change.ADD);
                         } catch (Exception ex) {
                             logger.error(ex, ex);
                         }
@@ -341,7 +342,7 @@ public class ResourceObject {
                 }
 
                 try {
-                    CachedAccessControl.getInstance(ds).checkForChanges(json, CachedAccessControl.Change.CHANGE);
+                    CachedAccessControl.getInstance(ds, true).checkForChanges(json, CachedAccessControl.Change.CHANGE);
                 } catch (Exception ex) {
                     logger.error(ex, ex);
                 }

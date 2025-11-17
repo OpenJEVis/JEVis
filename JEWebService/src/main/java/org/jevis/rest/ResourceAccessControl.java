@@ -57,7 +57,7 @@ public class ResourceAccessControl {
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
             logger.error("update Access Control: {}", ds.getCurrentUser().getAccountName());
-            CachedAccessControl.getInstance(ds);
+            CachedAccessControl.getInstance(ds,true);
             return Response.ok().build();
 
         } catch (AuthenticationException ex) {

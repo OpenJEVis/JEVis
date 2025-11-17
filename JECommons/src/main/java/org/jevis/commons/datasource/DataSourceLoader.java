@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -47,26 +47,18 @@ public class DataSourceLoader {
      * @throws IllegalAccessException
      */
     public JEVisDataSource getDataSource(JEVisOption config) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-//        logger.info("Load DataSource: " + config.getKey() + "|" + config.getValue());
         logger.trace("DSL config.size: {}", config.getOptions().size());
         if (config.getKey().equalsIgnoreCase(CommonOptions.DataSource.DataSource.getKey())) {
-            logger.trace("#2 Has DataSource: {}", config.getOptions().size());
+
             if (config.hasOption(CommonOptions.DataSource.CONNECTION.getKey())) {
-                logger.trace("#2a SQL. why do i have this: ");
-//                logger.info("detect connectionstrg, using org.jevis.api.sql.JEVisDataSourceSQL");
                 return (JEVisDataSource) Class.forName("org.jevis.api.sql.JEVisDataSourceSQL").newInstance();
-            } else if (config.hasOption(CommonOptions.DataSource.CLASS.getKey())) {
-                logger.trace("#2b DS for class: {}", config.getOption(CommonOptions.DataSource.CLASS.getKey()));
+            }
+            if (config.hasOption(CommonOptions.DataSource.CLASS.getKey())) {
                 JEVisOption classOption = config.getOption(CommonOptions.DataSource.CLASS.getKey());
                 String className = classOption.getValue();
-                //                config.completeWith(ds.getConfiguration());
-
-                /**
-                 * cast needs to be removed?
-                 */
                 return (JEVisDataSource) Class.forName(className).newInstance();
             } else {
-                throw new ClassNotFoundException("Class name option not found");
+                return (JEVisDataSource) Class.forName("org.jevis.jeapi.ws.JEVisDataSourceWS").newInstance();
             }
 
         } else {

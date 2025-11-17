@@ -146,7 +146,7 @@ public class ResourceSample {
 
             if (obj.getJevisClass().equals("User")) {
                 if (attribute.equals("Password") || attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                    CachedAccessControl.getInstance(ds).updateUser(ds);
+                    CachedAccessControl.getInstance(ds,true).updateUser(ds);
                 }
             }
 
@@ -478,7 +478,7 @@ public class ResourceSample {
                     samples = null;
 
                     try {
-                        CachedAccessControl.getInstance(ds).checkForChanges(object, attribute, CachedAccessControl.Change.ADD);
+                        CachedAccessControl.getInstance(ds,true).checkForChanges(object, attribute, CachedAccessControl.Change.ADD);
                     } catch (Exception ex) {
                         logger.error(ex, ex);
                     }
@@ -572,7 +572,7 @@ public class ResourceSample {
             ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE, String.format("%s:%s|%s -> %s", id, attribute, startDate, endDate));
 
             try {
-                CachedAccessControl.getInstance(ds).checkForChanges(object, attribute, CachedAccessControl.Change.DELETE);
+                CachedAccessControl.getInstance(ds,true).checkForChanges(object, attribute, CachedAccessControl.Change.DELETE);
             } catch (Exception ex) {
                 logger.error(ex, ex);
             }

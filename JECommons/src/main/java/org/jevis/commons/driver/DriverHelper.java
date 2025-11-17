@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -140,6 +139,7 @@ public class DriverHelper {
         Map<String, Class> classes = new HashMap<String, Class>();
         for (DriverProperty driverProp : parserAttributes) {
             try {
+                logger.info("Load Driver: {}", driverProp);
                 URL url = new File(driverProp.getFileSource()).toURI().toURL();
                 ClassLoader cl = new ByteClassLoader(url);
                 try {
@@ -149,8 +149,8 @@ public class DriverHelper {
                 } catch (ClassNotFoundException ex) {
                     logger.fatal(String.format("Fail loading driver: %s", driverProp.getClassName()), ex);
                 }
-            } catch (MalformedURLException ex) {
-                logger.fatal(ex);
+            } catch (Exception ex) {
+                logger.fatal(ex, ex);
             }
         }
         return classes;

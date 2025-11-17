@@ -20,7 +20,8 @@
 package org.jevis.jeapi.ws;
 
 import jersey.repackaged.com.google.common.collect.Lists;
-import org.jevis.api.*;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisUser;
 import org.jevis.commons.user.UserRightManager;
 
 import java.util.List;
@@ -28,67 +29,26 @@ import java.util.List;
 /**
  * @author fs
  */
-public class JEVisUserWS implements JEVisUser {
+public class JEVisUserWSSession implements JEVisUser {
 
+    private boolean isSSOUser = true;
     private String firstName = "";
     private String lastName = "";
     private boolean isSysAdmin = false;
     private JEVisDataSourceWS ds;
     private JEVisObjectWS obj;
-    private boolean enabled = false;
+    private boolean enabled = true;
     private UserRightManager urm;
     /**
      * List of classes which can be updated with special rules
      **/
     private final List<String> executeUpdateExceptions = Lists.newArrayList(new String[]{"Data Notes", "User Data", "Clean Data"});
 
-    public JEVisUserWS(JEVisDataSourceWS ds, JEVisObjectWS obj) throws Exception {
+    public JEVisUserWSSession(JEVisDataSourceWS ds, JEVisObjectWS obj, String name) throws Exception {
         this.ds = ds;
         this.obj = obj;
         this.urm = new UserRightManager(ds, this);
-        fetchData();
-    }
-
-
-    private void fetchData() throws JEVisException {
-        for (JEVisAttribute att : obj.getAttributes()) {
-            switch (att.getName()) {
-                case JEVisConstants.Attribute.USER_SYS_ADMIN:
-                    JEVisSample sysAdminAtt = att.getLatestSample();
-                    if (sysAdminAtt != null) {
-                        isSysAdmin = sysAdminAtt.getValueAsBoolean();
-                    } else {
-                        isSysAdmin = false;
-                    }
-
-                    break;
-                case JEVisConstants.Attribute.USER_FIRST_NAME:
-                    JEVisSample firstNameAtt = att.getLatestSample();
-                    if (firstNameAtt != null) {
-                        firstName = firstNameAtt.getValueAsString();
-                    } else {
-                        firstName = "";
-                    }
-                    break;
-                case JEVisConstants.Attribute.USER_LAST_NAME:
-                    JEVisSample lastNameAtt = att.getLatestSample();
-                    if (lastNameAtt != null) {
-                        lastName = lastNameAtt.getValueAsString();
-                    } else {
-                        lastName = "";
-                    }
-                    break;
-                case JEVisConstants.Attribute.USER_ENABLED:
-                    //can only be true in the moment because if not the user can not access this information for him self
-                    JEVisSample enabledAtt = att.getLatestSample();
-                    if (enabledAtt != null) {
-                        enabled = enabledAtt.getValueAsBoolean();
-                    } else {
-                        enabled = false;
-                    }
-                    break;
-            }
-        }
+        this.lastName = name;
     }
 
     @Override
@@ -135,6 +95,10 @@ public class JEVisUserWS implements JEVisUser {
     public boolean canWrite(long objectID) {
 
         try {
+            if (objectID == obj.getID()) {
+                return false;//SSO user cannot be changed from User
+            }
+
             boolean canWrite = urm.canWrite(objectID);
 
             if (canWrite) {

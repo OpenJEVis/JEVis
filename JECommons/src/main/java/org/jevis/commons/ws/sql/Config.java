@@ -21,6 +21,7 @@
 package org.jevis.commons.ws.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
@@ -73,6 +74,13 @@ public class Config {
     private static String latestJECCPath;
     private static String latestJavaPath;
     private static List<File> classFiles;
+    private static boolean entraEnabled = false;
+    private static String entraClientID = "";
+    private static String entraTenantID = "";
+    private static String entraAUTHORITY = "";
+    private static String entraClientSecret = "";
+    private static String entraConfigToken = "";
+
 
     public static String getDBHost() {
         return dbIP;
@@ -137,6 +145,9 @@ public class Config {
     public static List<String> getCORS() {
         return cors;
     }
+
+    public static Cache<String, Session> sessions;
+    public static int sessiontimeout;
 
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
         if (classCache.isEmpty()) {
@@ -233,6 +244,14 @@ public class Config {
                     installerDir = getParameter(config, "webservice.installer", "");
                     cors.addAll(Arrays.asList(getParameter(config, "webservice.cors", "").split(";")));
 
+                    entraEnabled = Boolean.parseBoolean(getParameter(config, "entra.enabled", "false"));
+                    entraAUTHORITY = getParameter(config, "entra.authority", "https://login.microsoftonline.com");
+                    entraClientID = getParameter(config, "entra.clientid", "");
+                    entraClientSecret = getParameter(config, "entra.clientsecret", "");
+                    entraTenantID = getParameter(config, "entra.tenant", "");
+                    entraConfigToken = getParameter(config, "entra.configtoken", "");
+                    sessiontimeout = Integer.parseInt(getParameter(config, "webservice.sessiontimeout", "15"));
+
                     fileIsLoaded = true;
                 } else {
                     logger.fatal("Warning config file does not exist: {}", cfile.getAbsolutePath());
@@ -245,6 +264,10 @@ public class Config {
             logger.fatal("Unable to read config", ex);
 //            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public static String getEntraConfigToken() {
+        return entraConfigToken;
     }
 
     public static String getLatestJECCVersion() {
@@ -401,5 +424,45 @@ public class Config {
 
     public static String getInstallerDir() {
         return installerDir;
+    }
+
+    public static boolean isEntraEnabled() {
+        return entraEnabled;
+    }
+
+    public static void setEntraEnabled(boolean entraEnabled) {
+        Config.entraEnabled = entraEnabled;
+    }
+
+    public static String getEntraClientID() {
+        return entraClientID;
+    }
+
+    public static void setEntraClientID(String entraClientID) {
+        Config.entraClientID = entraClientID;
+    }
+
+    public static String getEntraTenantID() {
+        return entraTenantID;
+    }
+
+    public static void setEntraTenantID(String entraTenantID) {
+        Config.entraTenantID = entraTenantID;
+    }
+
+    public static String getEntraAUTHORITY() {
+        return entraAUTHORITY;
+    }
+
+    public static void setEntraAUTHORITY(String entraAUTHORITY) {
+        Config.entraAUTHORITY = entraAUTHORITY;
+    }
+
+    public static String getEntraClientSecret() {
+        return entraClientSecret;
+    }
+
+    public static void setEntraClientSecret(String entraClientSecret) {
+        Config.entraClientSecret = entraClientSecret;
     }
 }

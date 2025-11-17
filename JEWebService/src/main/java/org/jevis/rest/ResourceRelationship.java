@@ -99,7 +99,7 @@ public class ResourceRelationship {
 
             JsonRelationship newJSON = ds.setRelationships(json);
             try {
-                CachedAccessControl.getInstance(ds).checkForChanges(newJSON);
+                CachedAccessControl.getInstance(ds,true).checkForChanges(newJSON);
             } catch (Exception ex) {
                 logger.error(ex, ex);
             }
@@ -147,7 +147,7 @@ public class ResourceRelationship {
             boolean delete = ds.deleteRelationship(from, to, type);
             if (delete) {
                 try {
-                    CachedAccessControl.getInstance(ds).checkForChanges(type);
+                    CachedAccessControl.getInstance(ds,true).checkForChanges(type);
                 } catch (Exception ex) {
                     logger.error(ex, ex);
                 }

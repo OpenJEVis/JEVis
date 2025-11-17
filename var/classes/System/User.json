@@ -26,7 +26,7 @@
       "guiType": "Check Box",
       "guiposition": 0,
       "validity": 0,
-      "description": "Configure if this user hast the \u0027Sys Admin\u0027 privilege. If true the user can manage Classes. ",
+      "description": "Configure if this user hast the Sys Admin privilege. If true the user can manage Classes. ",
       "inherited": false,
       "jevisClass": "User"
     },
@@ -144,6 +144,16 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "User"
+    },
+    {
+      "name": "Entra ID Group",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "description": "Microsoft Entra ID Security Group",
+      "inherited": false,
+      "jevisClass": "User Role"
     }
   ]
 }

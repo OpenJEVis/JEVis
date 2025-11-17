@@ -56,8 +56,8 @@ public class JEVisObjectWS implements JEVisObject {
         if (json.getDeleteTS() != null && !json.getDeleteTS().isEmpty()) {
             tsObj = sampleDTF.parseDateTime(json.getDeleteTS());
         }
-
     }
+
 
     public void update(JsonObject json) {
         this.json = json;
