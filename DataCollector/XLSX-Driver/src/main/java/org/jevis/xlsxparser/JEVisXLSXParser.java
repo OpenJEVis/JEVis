@@ -135,6 +135,10 @@ public class JEVisXLSXParser implements Parser {
                     logger.warn("DataPoint value index error: {}:{}", dp.getName(), dp.getID(), ex);
                 }
 
+                if (mappingIdentifier == null && valueIndex == null) {
+                    continue;
+                }
+
                 DataPoint xlsxdp = new DataPoint();
                 xlsxdp.setMappingIdentifier(mappingIdentifier);
                 xlsxdp.setTarget(target);

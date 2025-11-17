@@ -592,6 +592,41 @@ public class CommonMethods {
         return list;
     }
 
+
+    public static List<JEVisObject> getInheritedChildrenRecursive(JEVisObject firstObject, JEVisClass jeVisClass) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+
+        List<JEVisClass> inheritanceClasses = getInheritanceClasses(jeVisClass);
+        boolean inherited = inheritanceClasses.contains(firstObject.getJEVisClass());
+
+        if (firstObject.getJEVisClass().equals(jeVisClass) || inherited) list.add(firstObject);
+
+        list.addAll(getInheritedChildren(firstObject, jeVisClass, inheritanceClasses));
+
+        return list;
+    }
+
+    private static List<JEVisObject> getInheritedChildren(JEVisObject firstObject, JEVisClass jeVisClass, List<JEVisClass> inheritanceClasses) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+        try {
+
+            for (JEVisObject child : firstObject.getChildren()) {
+                try {
+                    boolean inheritedChild = inheritanceClasses.contains(child.getJEVisClass());
+                    if ((child.getJEVisClass().equals(jeVisClass) || inheritedChild) && !list.contains(child))
+                        list.add(child);
+
+                    list.addAll(getInheritedChildren(child, jeVisClass, inheritanceClasses));
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return list;
+    }
+
     public static List<JEVisObject> getAllChildrenRecursive(JEVisObject firstObject) throws JEVisException {
         List<JEVisObject> list = new ArrayList<>();
         list.add(firstObject);

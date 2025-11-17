@@ -82,8 +82,7 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
             try {
                 if (jeVisType.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE && !jeVisType.getGUIDisplayType().equals(GPS.getId())) {
                     buildFileChooser(meterData, jeVisType, entry.getValue().getOptionalJEVisSample());
-                }
-                if (jeVisType.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE && jeVisType.getGUIDisplayType().equals(GPS.getId())) {
+                } else if (jeVisType.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE && jeVisType.getGUIDisplayType().equals(GPS.getId())) {
                     GPSEditor gpsEditor = new GPSEditor(entry.getValue().getJeVisAttribute());
                     gpsEditor.getValueChangedProperty().addListener((observableValue, aBoolean, t1) -> {
                         {
@@ -380,36 +379,41 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
                     logger.error(e);
                     return;
                 }
-                if (t1.isEmpty()) return;
-
-                try {
-                    switch (primitiveType) {
-                        case JEVisConstants.PrimitiveType.STRING:
-                            String str = t1;
-                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, str));
-                            break;
-                        case JEVisConstants.PrimitiveType.LONG:
-                            Long l = Long.valueOf(t1);
-                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, l));
-                            break;
-                        case JEVisConstants.PrimitiveType.BOOLEAN:
-                            Boolean b = Boolean.valueOf(t1);
-                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, b));
-                            break;
-                        case JEVisConstants.PrimitiveType.DOUBLE:
-                            Double d = Double.valueOf(t1);
-                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, d));
-                            break;
+                if (t1.isEmpty()) {
+                    try {
+                        newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, ""));
+                    } catch (Exception e) {
+                        logger.error(e);
                     }
-                } catch (NumberFormatException e) {
-                    logger.error(e);
-                    Alert alert = new Alert(Alert.AlertType.ERROR, "Number Format Mismatch", ButtonType.OK);
-                    alert.showAndWait();
-                } catch (JEVisException e) {
-                    logger.error(e);
-                    Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis error", ButtonType.OK);
-                    alert.showAndWait();
-                }
+                } else
+                    try {
+                        switch (primitiveType) {
+                            case JEVisConstants.PrimitiveType.STRING:
+                                String str = t1;
+                                newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, str));
+                                break;
+                            case JEVisConstants.PrimitiveType.LONG:
+                                Long l = Long.valueOf(t1);
+                                newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, l));
+                                break;
+                            case JEVisConstants.PrimitiveType.BOOLEAN:
+                                Boolean b = Boolean.valueOf(t1);
+                                newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, b));
+                                break;
+                            case JEVisConstants.PrimitiveType.DOUBLE:
+                                Double d = Double.valueOf(t1);
+                                newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, d));
+                                break;
+                        }
+                    } catch (NumberFormatException e) {
+                        logger.error(e);
+                        Alert alert = new Alert(Alert.AlertType.ERROR, "Number Format Mismatch", ButtonType.OK);
+                        alert.showAndWait();
+                    } catch (JEVisException e) {
+                        logger.error(e);
+                        Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis error", ButtonType.OK);
+                        alert.showAndWait();
+                    }
 
             });
 
@@ -440,46 +444,49 @@ public class MeterFormAttributeTab extends Tab implements MeterFormTab {
                 int primitiveType = 0;
                 try {
                     primitiveType = jeVisType.getPrimitiveType();
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error(e);
                     return;
                 }
-                if (t1.isEmpty()) return;
-
-
-                try {
-                    switch (primitiveType) {
-                        case JEVisConstants.PrimitiveType.STRING:
-                            String str = t1;
-                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, str));
-                            break;
-                        case JEVisConstants.PrimitiveType.LONG:
-                            Long l = Long.valueOf(t1);
-                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, l));
-                            break;
-                        case JEVisConstants.PrimitiveType.BOOLEAN:
-                            Boolean b = Boolean.valueOf(t1);
-                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, b));
-                            break;
-                        case JEVisConstants.PrimitiveType.DOUBLE:
-                            Double d = Double.valueOf(t1);
-                            newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, d));
-                            break;
+                if (t1.isEmpty()) {
+                    try {
+                        newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, ""));
+                    } catch (Exception e) {
+                        logger.error(e);
                     }
-                } catch (NumberFormatException e) {
-                    logger.error(e);
-                    Alert alert = new Alert(Alert.AlertType.ERROR, "Number Format Mismatch", ButtonType.OK);
-                    alert.showAndWait();
-                } catch (JEVisException e) {
-                    logger.error(e);
-                    Alert alert = new Alert(Alert.AlertType.ERROR, "JEVis error", ButtonType.OK);
-                    alert.showAndWait();
-                }
-
+                } else
+                    try {
+                        switch (primitiveType) {
+                            case JEVisConstants.PrimitiveType.STRING:
+                                String str = t1;
+                                newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, str));
+                                break;
+                            case JEVisConstants.PrimitiveType.LONG:
+                                Long l = Long.valueOf(t1);
+                                newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, l));
+                                break;
+                            case JEVisConstants.PrimitiveType.BOOLEAN:
+                                Boolean b = Boolean.valueOf(t1);
+                                newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, b));
+                                break;
+                            case JEVisConstants.PrimitiveType.DOUBLE:
+                                Double d = Double.valueOf(t1);
+                                newSamples.put(jeVisType, meterData.getJeVisObject().getAttribute(jeVisType).buildSample(commitDateTime, d));
+                                break;
+                        }
+                    } catch (NumberFormatException e) {
+                        logger.error(e);
+                        Alert alert = new Alert(Alert.AlertType.ERROR, "Number Format Mismatch", ButtonType.OK);
+                        alert.showAndWait();
+                    } catch (Exception e) {
+                        logger.error(e);
+                        Alert alert = new Alert(Alert.AlertType.ERROR, "Exception: ", ButtonType.OK);
+                        alert.showAndWait();
+                    }
             });
 
 
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error(e);
             return;
         }

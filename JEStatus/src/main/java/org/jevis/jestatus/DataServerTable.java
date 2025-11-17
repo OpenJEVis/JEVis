@@ -21,17 +21,19 @@ import static org.jevis.commons.utils.CommonMethods.getChildrenRecursive;
 public class DataServerTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(DataServerTable.class);
     private final JEVisDataSource ds;
+    private final JEVisObject entryPoint;
     private final DateTime latestReported;
     private final List<DataServerLine> dataServerLines = new ArrayList<>();
 
-    public DataServerTable(JEVisDataSource ds, DateTime latestReported) {
+    public DataServerTable(JEVisDataSource ds, JEVisObject entryPoint, DateTime latestReported) {
         super(ds);
         this.ds = ds;
+        this.entryPoint = entryPoint;
         this.latestReported = latestReported;
 
         try {
             createTableString();
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not initialize.");
         }
     }
@@ -382,8 +384,13 @@ public class DataServerTable extends AlarmTable {
 
 
     private List<JEVisObject> getChannelObjects() throws JEVisException {
-
-        return new ArrayList<>(ds.getObjects(getChannelClass(), true));
+        List<JEVisObject> channelObjects = new ArrayList<>();
+        try {
+            channelObjects.addAll(CommonMethods.getInheritedChildrenRecursive(entryPoint, getChannelClass()));
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return channelObjects;
     }
 
     public List<DataServerLine> getDataServerLines() {

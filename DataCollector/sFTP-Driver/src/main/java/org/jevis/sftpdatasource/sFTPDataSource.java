@@ -68,7 +68,8 @@ public class sFTPDataSource implements DataSource {
         String fixedPrefix = regexPattern.substring(0, wildcardIndex);
         // Trim auf letzten Slash, um sicherzustellen, dass es ein Pfad ist
         int lastSlash = fixedPrefix.lastIndexOf('/');
-        return lastSlash >= 0 ? fixedPrefix.substring(0, lastSlash) : "/";
+        if (lastSlash >= 0) return fixedPrefix.substring(0, lastSlash);
+        return "/";
     }
 
     public List<String> findMatchingFiles(SftpClient sftp, String regexPattern, DateTime lastReadOut) throws IOException {
@@ -76,7 +77,12 @@ public class sFTPDataSource implements DataSource {
         Pattern pattern = Pattern.compile(regexPattern);
 
         String rootPath = extractRootPath(regexPattern);
-        walkAndMatch(sftp, rootPath, pattern, lastReadOut, matchingFiles);
+
+        if (!rootPath.isEmpty()) {
+            walkAndMatch(sftp, rootPath, pattern, lastReadOut, matchingFiles);
+        } else {
+            walkAndMatch(sftp, "/", pattern, lastReadOut, matchingFiles);
+        }
 
         return matchingFiles;
     }

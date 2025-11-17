@@ -24,7 +24,9 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
@@ -47,18 +49,64 @@ public class StatusHandler {
     private final DateTime now;
     private Long latestReported;
     private JEVisDataSource _ds;
+    private JEVisObject serviceObject;
     private Config _conf;
     private JEVisObject notificationObject;
     private DataServerTable dataServerTable = null;
+    private boolean disableMySQLBackupStatus = false;
+    private boolean disableServicesStatus = false;
+    private boolean disableWirelessLogicStatus = false;
+    private JEVisObject entryPoint;
 
     /**
      * Create an StatusHandler for the given Configuration
      *
-     * @param latestReported
+     * @param serviceObject
      */
-    public StatusHandler(JEVisDataSource ds, Long latestReported) {
+    public StatusHandler(JEVisDataSource ds, JEVisObject serviceObject) {
         _ds = ds;
-        this.latestReported = latestReported;
+        this.serviceObject = serviceObject;
+
+        try {
+            this.latestReported = serviceObject.getAttribute("Latest reported").getLatestSample().getValueAsLong();
+        } catch (Exception e) {
+            logger.error("Could not get latest reported attribute", e);
+            this.latestReported = 24L;
+        }
+
+        try {
+            this.disableMySQLBackupStatus = DatabaseHelper.getObjectAsBoolean(serviceObject, serviceObject.getAttribute("Disable MySQL Backup Status").getType());
+        } catch (Exception e) {
+            logger.error("Could not get latest reported attribute", e);
+        }
+
+        try {
+            this.disableServicesStatus = DatabaseHelper.getObjectAsBoolean(serviceObject, serviceObject.getAttribute("Disable Services Status").getType());
+        } catch (Exception e) {
+            logger.error("Could not get latest reported attribute", e);
+        }
+
+        try {
+            this.disableWirelessLogicStatus = DatabaseHelper.getObjectAsBoolean(serviceObject, serviceObject.getAttribute("Disable Wireless Logic Status").getType());
+        } catch (Exception e) {
+            logger.error("Could not get latest reported attribute", e);
+        }
+
+        try {
+            TargetHelper targetHelper = new TargetHelper(ds, serviceObject.getAttribute("Entrypoint"));
+            this.entryPoint = targetHelper.getObject().get(0);
+        } catch (Exception e) {
+            logger.error("Could not get latest reported attribute", e);
+        }
+
+        if (entryPoint == null) {
+            try {
+                entryPoint = ds.getRootObjects().get(0);
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
+        }
+
         this.now = DateTime.now();
     }
 
@@ -83,22 +131,27 @@ public class StatusHandler {
 //        sb.append("<br>");
 //        sb.append(alarm.getMessage());
 
-        AutoMySQLBackupTable autoMySQLBackupTable = new AutoMySQLBackupTable(_ds, getLatestReported());
-        sb.append(autoMySQLBackupTable.getTableString());
+        if (!disableMySQLBackupStatus) {
+            AutoMySQLBackupTable autoMySQLBackupTable = new AutoMySQLBackupTable(_ds, getLatestReported());
+            sb.append(autoMySQLBackupTable.getTableString());
+        }
 
+        if (!disableServicesStatus) {
+            ServiceStatus serviceStatus = new ServiceStatus(_ds);
+            sb.append(serviceStatus.getTableString());
+        }
 
-        ServiceStatus serviceStatus = new ServiceStatus(_ds);
-        sb.append(serviceStatus.getTableString());
-
-        try {
-            WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
-            sb.append(wirelessLogicStatus.getTableString());
-        } catch (Exception e) {
-            logger.error("Could not generate wireless logic status", e);
+        if (!disableWirelessLogicStatus) {
+            try {
+                WirelessLogicStatus wirelessLogicStatus = new WirelessLogicStatus(_ds, getTariff(), getUsername(), getPassword());
+                sb.append(wirelessLogicStatus.getTableString());
+            } catch (Exception e) {
+                logger.error("Could not generate wireless logic status", e);
+            }
         }
 
         try {
-            dataServerTable = new DataServerTable(_ds, getLatestReported());
+            dataServerTable = new DataServerTable(_ds, entryPoint, getLatestReported());
             sb.append(dataServerTable.getTableString());
         } catch (Exception e) {
             logger.error("Could not generate data server table", e);
@@ -106,7 +159,7 @@ public class StatusHandler {
 
         ReportTable reportTable = null;
         try {
-            reportTable = new ReportTable(_ds, getLatestReported());
+            reportTable = new ReportTable(_ds, entryPoint, getLatestReported());
             sb.append(reportTable.getTableString());
         } catch (Exception e) {
             logger.error("Could not generate report table", e);
@@ -115,7 +168,7 @@ public class StatusHandler {
         CalculationTable calculationTable = null;
         if (dataServerTable != null) {
             try {
-                calculationTable = new CalculationTable(_ds, getLatestReported(), dataServerTable.getListCheckedData());
+                calculationTable = new CalculationTable(_ds, entryPoint, getLatestReported(), dataServerTable.getListCheckedData());
                 sb.append(calculationTable.getTableString());
             } catch (Exception e) {
                 logger.error("Could not generate calculation table", e);
@@ -124,7 +177,7 @@ public class StatusHandler {
 
         if (calculationTable != null) {
             try {
-                CleanDataTable cleanDataTable = new CleanDataTable(_ds, getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
+                CleanDataTable cleanDataTable = new CleanDataTable(_ds, entryPoint, getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
                 sb.append(cleanDataTable.getTableString());
             } catch (Exception e) {
                 logger.error("Could not generate clean data table", e);
@@ -146,9 +199,6 @@ public class StatusHandler {
             sendNotification(notificationObject, sb.toString());
 
             logger.info("Sent notification.");
-
-//                sendAlarm(_conf, alarm, sb.toString());
-
         }
 
     }
@@ -180,32 +230,18 @@ public class StatusHandler {
     private EmailServiceProperty getStatusService() {
 
         EmailServiceProperty service = new EmailServiceProperty();
-        try {
-            JEVisClass jeVisClass = _ds.getJEVisClass("JEStatus");
-            List<JEVisObject> statusServices = _ds.getObjects(jeVisClass, true);
-            if (statusServices.size() == 1) {
-                service.initialize(statusServices.get(0));
-            }
-        } catch (JEVisException ex) {
-            logger.error("error while getting status service", ex);
-        }
+        service.initialize(serviceObject);
         return service;
     }
 
     private void initializeNotification() {
         try {
-            JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
-            List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
-            if (!jEStatusObjects.isEmpty()) {
-                JEVisClass notificationType = _ds.getJEVisClass("E-Mail Notification");
-                List<JEVisObject> notificationObjects = jEStatusObjects.get(0).getChildren(notificationType, true);
-                if (notificationObjects.size() == 1) {
-                    notificationObject = notificationObjects.get(0);
-                } else {
-                    throw new IllegalStateException("Too many or no Notification Object for report Object: id: " + jEStatusObjects.get(0).getID() + " and name: " + jEStatusObjects.get(0).getName());
-                }
+            JEVisClass notificationType = _ds.getJEVisClass("E-Mail Notification");
+            List<JEVisObject> notificationObjects = serviceObject.getChildren(notificationType, true);
+            if (notificationObjects.size() == 1) {
+                notificationObject = notificationObjects.get(0);
             } else {
-                throw new IllegalStateException("No JEStatus Objects found.");
+                throw new IllegalStateException("Too many or no Notification Object for report Object: id: " + serviceObject.getID() + " and name: " + serviceObject.getName());
             }
 
         } catch (JEVisException ex) {
@@ -214,43 +250,28 @@ public class StatusHandler {
     }
 
     private void logToServiceObject(String log) throws JEVisException {
-        JEVisClass statusClass = _ds.getJEVisClass("JEStatus");
-        List<JEVisObject> statusObjects = _ds.getObjects(statusClass, true);
-        for (JEVisObject object : statusObjects) {
-
-            JEVisAttribute emailEnabledAttribute = object.getAttribute("Status Log");
-            JEVisSample newLog = emailEnabledAttribute.buildSample(DateTime.now(), log);
-            newLog.commit();
-        }
+        JEVisAttribute emailEnabledAttribute = serviceObject.getAttribute("Status Log");
+        JEVisSample newLog = emailEnabledAttribute.buildSample(DateTime.now(), log);
+        newLog.commit();
     }
 
     private void logFileToServiceObject(String log) throws JEVisException {
-        JEVisClass statusClass = _ds.getJEVisClass("JEStatus");
-        List<JEVisObject> statusObjects = _ds.getObjects(statusClass, true);
-        for (JEVisObject object : statusObjects) {
-
-            JEVisAttribute statusFileLogAttribute = object.getAttribute("Status File Log");
-            try {
-                JEVisFile file = new JEVisFileImp(DateTime.now().toString("yyyyMMdd_HHmmss") + ".html", log.getBytes(StandardCharsets.UTF_8));
-                JEVisSample newLog = statusFileLogAttribute.buildSample(DateTime.now(), file);
-                newLog.commit();
-            } catch (Exception e) {
-                logger.error("Could not create file", e);
-            }
+        JEVisAttribute statusFileLogAttribute = serviceObject.getAttribute("Status File Log");
+        try {
+            JEVisFile file = new JEVisFileImp(DateTime.now().toString("yyyyMMdd_HHmmss") + ".html", log.getBytes(StandardCharsets.UTF_8));
+            JEVisSample newLog = statusFileLogAttribute.buildSample(DateTime.now(), file);
+            newLog.commit();
+        } catch (Exception e) {
+            logger.error("Could not create file", e);
         }
     }
 
     private boolean isEMailEnabled() throws JEVisException {
-        JEVisClass statusClass = _ds.getJEVisClass("JEStatus");
-        List<JEVisObject> statusObjects = _ds.getObjects(statusClass, true);
-        for (JEVisObject object : statusObjects) {
-
-            JEVisAttribute emailEnabledAttribute = object.getAttribute("Status E-Mail");
-            if (emailEnabledAttribute != null) {
-                JEVisSample lastSample = emailEnabledAttribute.getLatestSample();
-                if (lastSample != null) {
-                    return lastSample.getValueAsBoolean();
-                }
+        JEVisAttribute emailEnabledAttribute = serviceObject.getAttribute("Status E-Mail");
+        if (emailEnabledAttribute != null) {
+            JEVisSample lastSample = emailEnabledAttribute.getLatestSample();
+            if (lastSample != null) {
+                return lastSample.getValueAsBoolean();
             }
         }
         return false;
@@ -358,15 +379,11 @@ public class StatusHandler {
     private List<String> getTariff() {
         List<String> tariffs = new ArrayList<>();
         try {
-            JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
-            List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
-            if (jEStatusObjects.size() > 0) {
-                JEVisAttribute tariffsAttribute = jEStatusObjects.get(0).getAttribute("Tariffs");
-                if (tariffsAttribute.hasSample()) {
-                    String tariff = tariffsAttribute.getLatestSample().getValueAsString();
+            JEVisAttribute tariffsAttribute = serviceObject.getAttribute("Tariffs");
+            if (tariffsAttribute.hasSample()) {
+                String tariff = tariffsAttribute.getLatestSample().getValueAsString();
 
-                    tariffs.addAll(Arrays.asList(tariff.split(";")));
-                }
+                tariffs.addAll(Arrays.asList(tariff.split(";")));
             }
         } catch (Exception e) {
             logger.error("Could not get tariffs from JEStatus", e);
@@ -376,15 +393,9 @@ public class StatusHandler {
 
     private String getUsername() {
         try {
-            JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
-            List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
-            if (jEStatusObjects.size() > 0) {
-                JEVisAttribute userAttribute = jEStatusObjects.get(0).getAttribute("User");
-                if (userAttribute.hasSample()) {
-                    return userAttribute.getLatestSample().getValueAsString();
-                }
-            } else {
-                return "";
+            JEVisAttribute userAttribute = serviceObject.getAttribute("User");
+            if (userAttribute.hasSample()) {
+                return userAttribute.getLatestSample().getValueAsString();
             }
         } catch (Exception e) {
             logger.error("Could not get username for tariff check from JEStatus", e);
@@ -394,15 +405,9 @@ public class StatusHandler {
 
     private String getPassword() {
         try {
-            JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
-            List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
-            if (jEStatusObjects.size() > 0) {
-                JEVisAttribute passwordAttribute = jEStatusObjects.get(0).getAttribute("Password");
-                if (passwordAttribute.hasSample()) {
-                    return passwordAttribute.getLatestSample().getValueAsString();
-                }
-            } else {
-                return "";
+            JEVisAttribute passwordAttribute = serviceObject.getAttribute("Password");
+            if (passwordAttribute.hasSample()) {
+                return passwordAttribute.getLatestSample().getValueAsString();
             }
         } catch (Exception e) {
             logger.error("Could not get password for tariff check from JEStatus", e);

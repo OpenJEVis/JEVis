@@ -7,6 +7,7 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.report3.data.report.intervals.IntervalCalculator;
 import org.jevis.report3.data.report.intervals.Precondition;
 import org.jevis.report3.data.reportlink.ReportData;
@@ -20,11 +21,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ReportTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ReportTable.class);
     private final JEVisDataSource ds;
+    private final JEVisObject entryPoint;
     private final DateTime latestReported;
 
-    public ReportTable(JEVisDataSource ds, DateTime latestReported) {
+    public ReportTable(JEVisDataSource ds, JEVisObject entryPoint, DateTime latestReported) {
         super(ds);
         this.ds = ds;
+        this.entryPoint = entryPoint;
         this.latestReported = latestReported;
 
         try {
@@ -57,7 +60,7 @@ public class ReportTable extends AlarmTable {
         sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.linkstatus")).append("</th>");
         sb.append("  </tr>");//border=\"0\"
 
-        List<JEVisObject> reportObjects = getChannelObjects();
+        List<JEVisObject> reportObjects = getReportObjects();
         List<ReportStatusLine> outOfBounds = new ArrayList<>();
         List<JEVisObject> brokenReports = new ArrayList<>();
 
@@ -209,10 +212,10 @@ public class ReportTable extends AlarmTable {
         setTableString(sb.toString());
     }
 
-    private List<JEVisObject> getChannelObjects() throws JEVisException {
+    private List<JEVisObject> getReportObjects() throws JEVisException {
         List<JEVisObject> enabledReports = new ArrayList<>();
 
-        for (JEVisObject report : new ArrayList<>(ds.getObjects(getReportClass(), true))) {
+        for (JEVisObject report : CommonMethods.getChildrenRecursive(entryPoint, getReportClass())) {
             JEVisAttribute enabledAtt = report.getAttribute(ENABLED);
             if (enabledAtt != null) {
                 JEVisSample latestSample = enabledAtt.getLatestSample();
