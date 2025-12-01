@@ -17,7 +17,7 @@ public class AggregationTools {
     private static final Logger logger = LogManager.getLogger(AggregationTools.class);
     private final DateTimeZone timeZone;
     private final WorkDays workDays;
-    private Period period;
+    private final Period period;
 
     public AggregationTools(DateTimeZone timeZone, WorkDays workDays, AggregationPeriod aggregationPeriod) {
         this.timeZone = timeZone;
@@ -29,7 +29,7 @@ public class AggregationTools {
         DateTime benchMarkStart = new DateTime();
         List<Interval> result = new ArrayList<>();
 
-        DateTime startDate = from;
+        DateTime startDate = from.withZone(timeZone);
 
         DateTime oldDate;
 

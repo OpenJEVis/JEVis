@@ -35,7 +35,6 @@ import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -55,26 +54,13 @@ public class AggregationProcessor {
         this.aggregationTools = aggregationTools;
     }
 
-    public static List<DateTime> getAllJsonTimestamps(List<JsonSample> samples) {
-        List<DateTime> result = new ArrayList<>();
-
-        for (JsonSample sample : samples) {
-            if (!result.contains(new DateTime(sample.getTs()))) {
-                result.add(new DateTime(sample.getTs()));
-            }
-        }
-
-        Collections.sort(result);
-
-        return result;
-    }
-
-    private int getLastPos(List<JsonSample> result, JsonAttribute jsonAttribute, int lastPos, List<Interval> emptyIntervals, JEVisUnit unit, Interval interval, List<JsonSample> samplesInPeriod, DateTime intervalStart, DateTime intervalEnd, Period newPeriod, List<JsonSample> samples) {
+    private int getLastPos(List<JsonSample> result, JsonAttribute jsonAttribute, int lastPos, List<Interval> emptyIntervals, JEVisUnit unit, Interval interval, DateTime intervalStart, DateTime intervalEnd, Period newPeriod, List<JsonSample> samples) {
         Period oldPeriod = null;
         if (samples.size() > 1) {
             oldPeriod = new Period(new DateTime(samples.get(0).getTs()), new DateTime(samples.get(1).getTs()));
         }
 
+        List<JsonSample> samplesInPeriod = new ArrayList<>();
         lastPos = aggregateSamplesToPeriod(lastPos, samplesInPeriod, intervalStart, intervalEnd, samples);
 
         boolean hasSamples = false;
@@ -84,10 +70,6 @@ public class AggregationProcessor {
             sum += Double.parseDouble(sample.getValue());
             hasSamples = true;
         }
-
-        /**
-         * if it's not a quantity the aggregated total value results from the mean value of all samples in a period, not their sum
-         */
 
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(unit);
@@ -131,10 +113,6 @@ public class AggregationProcessor {
         List<JsonSample> result = new ArrayList<>();
 
         try {
-            List<DateTime> allTimestamps = getAllJsonTimestamps(inputSamples);
-            if (allTimestamps.isEmpty()) {
-                return result;
-            }
 
             List<Interval> intervals = aggregationTools.buildIntervals(from, to);
 
@@ -142,9 +120,8 @@ public class AggregationProcessor {
             List<Interval> emptyIntervals = new ArrayList<>();
             JEVisUnit unit = new JEVisUnitImp(jsonAttribute.getDisplayUnit());
             for (Interval interval : intervals) {
-                List<JsonSample> samplesInPeriod = new ArrayList<>();
-                DateTime intervalStart = interval.getStart();
-                DateTime intervalEnd = interval.getEnd();
+                DateTime intervalStart = interval.getStart().withZone(workDays.getDateTimeZone());
+                DateTime intervalEnd = interval.getEnd().withZone(workDays.getDateTimeZone());
 
                 Period newPeriod = null;
                 try {
@@ -153,7 +130,7 @@ public class AggregationProcessor {
                     logger.error("Could not get new Period: ", e);
                 }
 
-                lastPos = getLastPos(result, jsonAttribute, lastPos, emptyIntervals, unit, interval, samplesInPeriod, intervalStart, intervalEnd, newPeriod, inputSamples);
+                lastPos = getLastPos(result, jsonAttribute, lastPos, emptyIntervals, unit, interval, intervalStart, intervalEnd, newPeriod, inputSamples);
             }
 
             if (from != null && to != null) {
