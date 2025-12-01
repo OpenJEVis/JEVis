@@ -6,9 +6,8 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.CleanDataObject;
-import org.jevis.commons.dataprocessing.ForecastDataObject;
-import org.jevis.commons.dataprocessing.MathDataObject;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonAttribute;
@@ -325,9 +324,9 @@ public class QuantityUnits {
                 e.printStackTrace();
             }
             if (object != null) {
-                if (object.getJevisClass().equals(CleanDataObject.CLASS_NAME)) {
+                if (object.getJevisClass().equals(JC.Data.CleanData.name) || object.getJevisClass().equals(JC.Data.BaseData.name)) {
                     isQuantity = isQuantity(sqlDataSource, object, isQuantity);
-                } else if (object.getJevisClass().equals(ForecastDataObject.CLASS_NAME) || object.getJevisClass().equals(MathDataObject.CLASS_NAME)) {
+                } else if (object.getJevisClass().equals(JC.Data.ForecastData.name) || object.getJevisClass().equals(JC.Data.MathData.name)) {
                     for (JsonRelationship jsonRelationship : sqlDataSource.getRelationships(object.getId())) {
                         if (jsonRelationship.getType() == 1 && jsonRelationship.getFrom() == object.getId()) {
                             try {
@@ -339,7 +338,7 @@ public class QuantityUnits {
                             }
                         }
                     }
-                } else if (object.getJevisClass().equals(CleanDataObject.DATA_CLASS_NAME)) {
+                } else if (object.getJevisClass().equals(JC.Data.name)) {
                     for (JsonRelationship jsonRelationship : sqlDataSource.getRelationships(object.getId())) {
                         if (jsonRelationship.getType() == 1 && jsonRelationship.getTo() == object.getId()) {
                             try {
