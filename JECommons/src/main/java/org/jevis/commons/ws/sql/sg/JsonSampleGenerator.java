@@ -51,8 +51,10 @@ public class JsonSampleGenerator {
         InputProcessor input = new InputProcessor(ds);
         AggregationTools aggregationTools = new AggregationTools(timeZone, workDays, aggregationPeriod);
 
-        Interval inputInterval = aggregationTools.getInterval(workDays, interval.getStart().withZone(timeZone), interval.getEnd().withZone(timeZone), aggregationPeriod);
-        List<JsonSample> inputSamples = input.getJsonResult(object, attribute, inputInterval.getStart(), inputInterval.getEnd());
+        DateTime start = interval.getStart();
+        DateTime end = interval.getEnd();
+
+        List<JsonSample> inputSamples = input.getJsonResult(object, attribute, start, end);
 
         if (inputSamples.isEmpty()) return inputSamples;
 
@@ -71,12 +73,12 @@ public class JsonSampleGenerator {
 
         if (manipulationMode != ManipulationMode.NONE) {
             MathProcessor math = new MathProcessor(ds, aggregationTools, workDays, manipulationMode, aggregationPeriod);
-            return math.getJsonResult(inputSamples, attribute, inputInterval.getStart(), inputInterval.getEnd());
+            return math.getJsonResult(inputSamples, attribute, start, end);
 
         } else if (aggregationPeriod != AggregationPeriod.NONE) {
             AggregationProcessor aggregation = new AggregationProcessor(ds, aggregationTools, workDays, aggregationPeriod);
 
-            return aggregation.getJsonResult(inputSamples, attribute, inputInterval.getStart(), inputInterval.getEnd());
+            return aggregation.getJsonResult(inputSamples, attribute, start, end);
         } else {
             return inputSamples;
         }

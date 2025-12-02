@@ -29,10 +29,7 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.SQLDataSource;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeComparator;
-import org.joda.time.Interval;
-import org.joda.time.Period;
+import org.joda.time.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +43,12 @@ public class AggregationProcessor {
     private final WorkDays workDays;
     private final AggregationPeriod aggregation;
     private final AggregationTools aggregationTools;
+    private final DateTimeZone zone;
 
     public AggregationProcessor(SQLDataSource ds, AggregationTools aggregationTools, WorkDays workDays, AggregationPeriod aggregation) {
         this.ds = ds;
         this.workDays = workDays;
+        zone = workDays.getDateTimeZone();
         this.aggregation = aggregation;
         this.aggregationTools = aggregationTools;
     }
@@ -97,7 +96,7 @@ public class AggregationProcessor {
     public int aggregateSamplesToPeriod(int lastPos, List<JsonSample> samplesInPeriod, DateTime intervalStart, DateTime intervalEnd, List<JsonSample> samples) {
         for (int i = lastPos; i < samples.size(); i++) {
             DateTime sampleTS = new DateTime(samples.get(i).getTs());
-            if ((sampleTS.equals(intervalStart) || (sampleTS.isAfter(intervalStart) && sampleTS.isBefore(intervalEnd)))) {
+            if ((sampleTS.withZone(zone).equals(intervalStart) || (sampleTS.withZone(zone).isAfter(intervalStart) && sampleTS.withZone(zone).isBefore(intervalEnd)))) {
                 //logger.info("add sample: " + samples.get(i));
                 samplesInPeriod.add(samples.get(i));
                 logger.debug("aggregate {} to interval {}-{} ", samples.get(i), intervalStart, intervalEnd);
@@ -120,8 +119,8 @@ public class AggregationProcessor {
             List<Interval> emptyIntervals = new ArrayList<>();
             JEVisUnit unit = new JEVisUnitImp(jsonAttribute.getDisplayUnit());
             for (Interval interval : intervals) {
-                DateTime intervalStart = interval.getStart().withZone(workDays.getDateTimeZone());
-                DateTime intervalEnd = interval.getEnd().withZone(workDays.getDateTimeZone());
+                DateTime intervalStart = interval.getStart().withZone(zone);
+                DateTime intervalEnd = interval.getEnd().withZone(zone);
 
                 Period newPeriod = null;
                 try {
