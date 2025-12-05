@@ -9,11 +9,6 @@
       "type": 0
     },
     {
-      "start": "DWD Data Point",
-      "end": "Data Point",
-      "type": 0
-    },
-    {
       "start": "SQL Data Point",
       "end": "Data Point",
       "type": 0
