@@ -180,6 +180,60 @@ public class PeriodHelper {
         return resultDate.withZone(DateTimeZone.UTC);
     }
 
+    public static DateTime getPreviousPeriod(DateTime start, org.joda.time.Period period, int count, boolean aligned, DateTimeZone timeZone) {
+        DateTime resultDate = start.withZone(timeZone);
+        boolean wasLastDay = resultDate.getDayOfMonth() == resultDate.dayOfMonth().getMaximumValue();
+
+        if (period.getYears() > 0) {
+            resultDate = resultDate.minusYears(period.getYears() * count);
+            if (wasLastDay) {
+                resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+            } else if (aligned) {
+                resultDate = resultDate.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+        if (period.getMonths() > 0) {
+            resultDate = resultDate.minusMonths(period.getMonths() * count);
+            if (wasLastDay) {
+                resultDate = resultDate.withDayOfMonth(resultDate.dayOfMonth().getMaximumValue());
+            } else if (aligned) {
+                resultDate = resultDate.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+        if (period.getWeeks() > 0) {
+            resultDate = resultDate.minusWeeks(period.getWeeks() * count);
+            if (aligned) {
+                resultDate = resultDate.withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+        if (period.getDays() > 0) {
+            resultDate = resultDate.minusDays(period.getDays() * count);
+            if (aligned) {
+                resultDate = resultDate.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+        if (period.getHours() > 0) {
+            resultDate = resultDate.minusHours(period.getHours() * count);
+            if (aligned) {
+                resultDate = resultDate.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+        if (period.getMinutes() > 0) {
+            resultDate = resultDate.minusMinutes(period.getMinutes() * count);
+            if (aligned) {
+                resultDate = resultDate.withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+        }
+
+
+        return resultDate.withZone(DateTimeZone.UTC);
+    }
+
     public static DateTime calcEndRecord(DateTime start, Period schedule, DateTimeZone dateTimeZone, org.jevis.commons.datetime.DateHelper dateHelper) {
         DateTime resultDate = start;
         switch (schedule) {
