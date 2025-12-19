@@ -176,8 +176,8 @@ public class JEVisClassWS implements JEVisClass {
             types.sort(Comparator.comparingInt(jeVisType -> {
                 try {
                     return jeVisType.getGUIPosition();
-                } catch (JEVisException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    logger.error("Error while sorting gui types. ", e);
                 }
                 return 0;
             }));
@@ -234,7 +234,7 @@ public class JEVisClassWS implements JEVisClass {
                     heirs.addAll(cr.getStart().getHeirs());
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error("Error in relationship {}", cr);
             }
         }
         return heirs;

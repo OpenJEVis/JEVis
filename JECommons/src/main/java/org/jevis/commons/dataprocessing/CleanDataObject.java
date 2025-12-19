@@ -19,12 +19,14 @@ import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.datetime.PeriodArithmetic;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.json.JsonDeltaConfig;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
@@ -100,12 +102,15 @@ public class CleanDataObject {
     private JEVisAttribute periodAttribute;
     private DateTime lastRawDate;
     private int processingSize = 10000;
+    private DateTimeZone dateTimeZone;
 
     public CleanDataObject(JEVisObject cleanObject) {
         this.cleanObject = cleanObject;
         try {
             ObjectHandler objectHandler = new ObjectHandler(cleanObject.getDataSource());
             rawDataObject = objectHandler.getFirstParent(cleanObject);
+            WorkDays wd = new WorkDays(cleanObject);
+            dateTimeZone = wd.getDateTimeZone();
         } catch (Exception e) {
             logger.error("Could not initialize Object Handler", e);
         }
@@ -1159,11 +1164,16 @@ public class CleanDataObject {
             periods.addAll(getCleanDataPeriodAlignment());
             periods.addAll(getRawDataPeriodAlignment());
             Period maxPeriod = getMaxPeriod(periods);
+            Integer periodOffset = getPeriodOffset();
             DateTime firstDate = getFirstDate()
                     .minus(maxPeriod)
                     .minus(maxPeriod)
                     .minus(maxPeriod)
                     .minus(maxPeriod);
+
+            if (periodOffset != 0) {
+                firstDate = PeriodHelper.getPreviousPeriod(firstDate, maxPeriod, periodOffset, true, dateTimeZone);
+            }
 
             DateTime firstDateOfRawData = rawAttribute.getTimestampOfFirstSample();
             if (firstDate.isBefore(firstDateOfRawData)) {

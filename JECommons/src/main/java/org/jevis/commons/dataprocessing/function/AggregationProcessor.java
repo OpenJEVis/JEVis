@@ -95,7 +95,7 @@ public class AggregationProcessor {
 
     public int aggregateSamplesToPeriod(int lastPos, List<JsonSample> samplesInPeriod, DateTime intervalStart, DateTime intervalEnd, List<JsonSample> samples) {
         for (int i = lastPos; i < samples.size(); i++) {
-            DateTime sampleTS = new DateTime(samples.get(i).getTs());
+            DateTime sampleTS = new DateTime(samples.get(i).getTs()).withZone(zone);
             if ((sampleTS.withZone(zone).equals(intervalStart) || (sampleTS.withZone(zone).isAfter(intervalStart) && sampleTS.withZone(zone).isBefore(intervalEnd)))) {
                 //logger.info("add sample: " + samples.get(i));
                 samplesInPeriod.add(samples.get(i));
