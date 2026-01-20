@@ -144,7 +144,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
 
         try {
             buildGUI(cleanDataObject);
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not build GUI.");
         }
     }
@@ -527,6 +527,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         Tooltip ttResetPeriod = new Tooltip(I18nWS.getInstance().getAttributeDescription(resetPeriodAttribute));
         if (!ttResetPeriod.getText().isEmpty()) {
             nameResetPeriod.setTooltip(ttResetPeriod);
+
         }
         PeriodEditor resetPeriodEditor = new PeriodEditor(resetPeriodAttribute);
 
