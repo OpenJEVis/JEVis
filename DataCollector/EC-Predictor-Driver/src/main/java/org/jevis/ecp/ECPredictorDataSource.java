@@ -30,8 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ECPredictorDataSource implements DataSource {
     private static final Logger logger = LogManager.getLogger(ECPredictorDataSource.class);
-    private static String CHANNEL = "ECP Channel";
-    private static String CHANNEL_DIR = "ECP Channel Directory";
+    private static final String CHANNEL = "ECP Channel";
+    private static final String CHANNEL_DIR = "ECP Channel Directory";
     private JEVisDataSource ds;
     private DateTimeZone timeZone;
     private String userName;
@@ -40,7 +40,7 @@ public class ECPredictorDataSource implements DataSource {
     private int port;
     private boolean overwrite;
     private boolean isReady = false;
-    private List<ECChannel> channels = new ArrayList<>();
+    private final List<ECChannel> channels = new ArrayList<>();
 
     public static double[] convertStringToDoubleArray(String input) {
         input = input.replaceAll("[\\[\\]]", "");
@@ -268,7 +268,7 @@ public class ECPredictorDataSource implements DataSource {
             initializeAttributes(dataSourceJEVis);
             initializeChannels(dataSourceJEVis);
             isReady = true;
-            System.out.println("Settings:\n" + this.toString());
+            logger.debug("Settings:\n" + this);
         } catch (Exception ex) {
             logger.error(ex, ex);
         }
