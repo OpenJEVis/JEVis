@@ -329,7 +329,6 @@ public class CalcJobFactory {
     private List<CalcInputObject> getInputDataObjects(JEVisObject jevisObject, DateTime startTime, JEVisDataSource ds) {
         List<CalcInputObject> calcObjects = new ArrayList<>();
         Interval fromTo = null;
-        Period period = null;
         DateTime endTime = new DateTime(2050, 12, 31, 23, 59, 59, 999);
         boolean allAsync = true;
         DateTime lastAsyncTS = endTime;
@@ -372,18 +371,25 @@ public class CalcJobFactory {
         }
 
         try {
-            for (JEVisObject child : calcInputObjects) { //Todo differentiate based on input type
-                JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
-                TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
-                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+            boolean[] processed = new boolean[calcInputObjects.size()];
 
-                if (fromTo == null && startTime.isBefore(endTime)) {
-                    fromTo = new Interval(startTime, endTime);
+            for (JEVisObject child : calcInputObjects) {
+                try {
+                    int indexOf = calcInputObjects.indexOf(child);
 
-                    period = CleanDataObject.getPeriodForDate(valueAttribute.getObject(), startTime);
+                    JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
+                    TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+                    JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
 
-                    if (PeriodArithmetic.periodsInAnInterval(fromTo, period) < 10000) {
-                        calcJob.setHasProcessedAllInputSamples(true);
+                    if (fromTo == null && (startTime.isBefore(endTime) || startTime.equals(endTime))) {
+                        fromTo = new Interval(startTime, endTime);
+                    }
+
+                    Period period = CleanDataObject.getPeriodForDate(valueAttribute.getObject(), startTime);
+
+                    if (period.equals(Period.ZERO) || PeriodArithmetic.periodsInAnInterval(fromTo, period) < 10000) {
+
+                        processed[indexOf] = true;
                         /**
                          * is this minus really necessary? do tests...
                          * disabled for  now, concrete testing for aggregated values is needed
@@ -391,22 +397,31 @@ public class CalcJobFactory {
 //                        endTime = new DateTime().minus(valueAttribute.getInputSampleRate());
 //                        endTime = new DateTime();
                     } else {
-                        calcJob.setHasProcessedAllInputSamples(false);
+                        processed[indexOf] = false;
                         DateTime limitedMaxDate = startTime;
                         int i = 0;
                         while (i < 10000) {
                             limitedMaxDate = limitedMaxDate.plus(period.toStandardDuration());
                             i++;
                         }
-                        endTime = limitedMaxDate;
+
+                        if (limitedMaxDate.isBefore(endTime)) {
+                            endTime = limitedMaxDate;
+                        }
+
                         lastEndTime = endTime;
                     }
+                } catch (Exception e) {
+                    logger.error(e);
                 }
+            }
 
-                if (valueAttribute == null) {
-                    calcJob.setHasProcessedAllInputSamples(true);
-                    throw new IllegalStateException("Cant find valid values for input data with id " + child.getID());
-                }
+            for (boolean b : processed) if (!b) calcJob.setHasProcessedAllInputSamples(false);
+
+            for (JEVisObject child : calcInputObjects) {
+                JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
+                TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
 
                 String identifier = child.getAttribute(Calculation.IDENTIFIER.getName()).getLatestSample().getValueAsString();
                 String inputTypeString = child.getAttribute(Calculation.INPUT_TYPE.getName()).getLatestSample().getValueAsString();
@@ -421,7 +436,7 @@ public class CalcJobFactory {
                 logger.info("Got {} samples for id {}", calcObject.getSamples().size(), calcObject.getIdentifier());
                 calcObjects.add(calcObject);
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             calcJob.setHasProcessedAllInputSamples(true);
             logger.fatal(ex);
         }

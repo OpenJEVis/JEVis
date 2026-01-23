@@ -58,7 +58,7 @@ public class CalcLauncher extends AbstractCliApp {
 
             checkForTimeout();
 
-            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+            if (plannedJobs.isEmpty() && runningJobs.isEmpty()) {
                 TaskPrinter.printJobStatus(LogTaskManager.getInstance());
 
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);

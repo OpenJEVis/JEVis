@@ -34,7 +34,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * TODO: is this service in use yet?
@@ -69,12 +68,19 @@ public class ResourceSession {
             MSOauth2 msOauth2 = new MSOauth2(Config.getEntraAUTHORITY(), Config.getEntraClientID(), Config.getEntraClientSecret());
             String userName = msOauth2.getUserDisplayName(token);
             List<String> msGroups = msOauth2.getUserGroups(token);
-            List<JEVisUserSQL> foundUsers = cac.getUsers().values().stream()
-                    .filter(user -> msGroups.contains(user.getEntraID()))
-                    .collect(Collectors.toList());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found {} user groups: {}", msGroups.size(), String.join(" , ", msGroups));
+            }
+
+            List<JEVisUserSQL> foundUsers = new ArrayList<>();
+            for (JEVisUserSQL user : cac.getUsers().values()) {
+                if (msGroups.contains(user.getEntraID())) {
+                    foundUsers.add(user);
+                }
+            }
 
             if (!foundUsers.get(0).isEnabled()) return Response.status(Response.Status.UNAUTHORIZED).build();
-
+            if (foundUsers.isEmpty()) return Response.status(Response.Status.NOT_FOUND).build();
 
             List<String> commonKeys = new ArrayList<>(cac.getUsers().keySet());
             commonKeys.retainAll(msGroups);
