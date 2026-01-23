@@ -39,7 +39,6 @@ public class ECPredictorDataSource implements DataSource {
     private String serverURL;
     private int port;
     private boolean overwrite;
-    private boolean isReady = false;
     private final List<ECChannel> channels = new ArrayList<>();
 
     public static double[] convertStringToDoubleArray(String input) {
@@ -267,7 +266,6 @@ public class ECPredictorDataSource implements DataSource {
             ds = dataSourceJEVis.getDataSource();
             initializeAttributes(dataSourceJEVis);
             initializeChannels(dataSourceJEVis);
-            isReady = true;
             logger.debug("Settings:\n" + this);
         } catch (Exception ex) {
             logger.error(ex, ex);
@@ -292,7 +290,6 @@ public class ECPredictorDataSource implements DataSource {
             serverURL = serverS != null ? serverS.getValueAsString() : "";
             port = portS != null ? portS.getValueAsLong().intValue() : 443;
             overwrite = overWriteS != null ? overWriteS.getValueAsBoolean() : false;
-            isReady = true;
         } catch (Exception ex) {
             logger.fatal(ex, ex);
         }
@@ -352,31 +349,6 @@ public class ECPredictorDataSource implements DataSource {
     }
 
     @Override
-    public boolean isReady(JEVisObject object) {
-        return isReady;
-    }
-
-    @Override
-    public DateTimeZone getTimeZone(JEVisObject object) {
-        return timeZone;
-    }
-
-    @Override
-    public DateTime getLastRun(JEVisObject object) {
-        return DataSource.super.getLastRun(object);
-    }
-
-    @Override
-    public Long getCycleTime(JEVisObject object) {
-        return DataSource.super.getCycleTime(object);
-    }
-
-    @Override
-    public void finishCurrentRun(JEVisObject object) {
-        DataSource.super.finishCurrentRun(object);
-    }
-
-    @Override
     public String toString() {
         return "org.jevis.ecpdatasource.ECPredictorDataSource{" +
                 "ds=" + ds +
@@ -386,7 +358,6 @@ public class ECPredictorDataSource implements DataSource {
                 ", serverURL='" + serverURL + '\'' +
                 ", port=" + port +
                 ", overwrite=" + overwrite +
-                ", isReady=" + isReady +
                 ", channels=" + channels +
                 '}';
     }
