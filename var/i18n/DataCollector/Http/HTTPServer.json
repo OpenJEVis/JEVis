@@ -142,6 +142,45 @@
         "en": "User",
         "ar": "المستخدم"
       }
+    },
+    {
+      "type": "Authentication",
+      "descriptions": {
+        "en": "Sets the authentication method for the http server"
+      },
+      "names": {
+        "en": "Authentication"
+      },
+      "enums": {
+        "NONE": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "en": "None"
+          }
+        },
+        "BASIC": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "en": "Basic Auth"
+          }
+        },
+        "DIGEST": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "en": "Digest"
+          }
+        },
+        "BEARER": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "en": "Bearer Token"
+          }
+        }
+      }
     }
   ]
 }
