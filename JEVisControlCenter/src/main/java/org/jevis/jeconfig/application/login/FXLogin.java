@@ -30,9 +30,9 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -281,7 +281,7 @@ public class FXLogin extends AnchorPane {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle(I18n.getInstance().getString("app.login.error.title"));
                     alert.setHeaderText("");
-                    alert.setContentText(ex.getMessage() + "\nat: " + getJEVisError(ex));
+                    alert.setContentText(ex.getMessage() + ":\n" + I18n.getInstance().getString("app.login.error.wronglogin"));
 
                     alert.showAndWait();
 
