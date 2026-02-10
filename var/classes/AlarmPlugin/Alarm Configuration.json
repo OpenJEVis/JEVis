@@ -108,6 +108,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Alarm Configuration"
+    },
+    {
+      "name": "Bind to Data",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Alarm Configuration"
     }
   ]
 }

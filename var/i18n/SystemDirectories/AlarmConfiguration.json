@@ -353,6 +353,17 @@
         "en": "Checked",
         "ar": "تم الفحص"
       }
+    },
+    {
+      "type": "Bind to Data",
+      "descriptions": {
+        "de": "Führt den Alarm aus, solange Daten in der Datenreihe vorhanden sind.",
+        "en": "Executes the alarm as long as there is data in the data series."
+      },
+      "names": {
+        "de": "Gebunden an Daten",
+        "en": "Bind to Data"
+      }
     }
   ]
 }
