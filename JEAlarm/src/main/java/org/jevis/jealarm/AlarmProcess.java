@@ -84,7 +84,7 @@ public class AlarmProcess {
             end = now.minusMillis(1);
         }
 
-        if ((!boundToData && end.isBefore(now) || boundToData && (end.isAfter(now) || end.equals(now)))) {
+        if (boundToData || end.isBefore(now)) {
             try {
                 allCleanDataObjects = getAllCorrespondingCleanDataObjects();
             } catch (JEVisException e) {
