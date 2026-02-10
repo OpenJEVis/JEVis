@@ -73,6 +73,7 @@ public class AlarmProcess {
 
         DateTime now = DateTime.now();
         Period alarmPeriod = alarmConfiguration.getAlarmPeriod();
+        Boolean boundToData = alarmConfiguration.isBoundToData();
         DateHelper dateHelper = null;
         start = alarmConfiguration.getTimeStamp();
         dateHelper = PeriodHelper.getDateHelper(alarmConfiguration.getObject(), alarmPeriod, dateHelper, start);
@@ -83,7 +84,7 @@ public class AlarmProcess {
             end = now.minusMillis(1);
         }
 
-        if (end.isBefore(now)) {
+        if ((!boundToData && end.isBefore(now) || boundToData && (end.isAfter(now) || end.equals(now)))) {
             try {
                 allCleanDataObjects = getAllCorrespondingCleanDataObjects();
             } catch (JEVisException e) {

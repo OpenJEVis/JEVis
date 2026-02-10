@@ -35,6 +35,7 @@ public class AlarmConfiguration {
     private final String ALARM_PERIOD = "Alarm Period";
     private final String ALARM_OBJECTS = "Alarm Objects";
     private final String LOG_FILE = "Log File";
+    private final String BIND_TO_DATA = "Bind to Data";
     private final JEVisObject object;
     private final JEVisDataSource ds;
     private AlarmScope alarmScope = AlarmScope.NONE;
@@ -61,6 +62,22 @@ public class AlarmConfiguration {
     public Boolean isEnabled() {
         try {
             JEVisAttribute enabledAtt = object.getAttribute(ENABLED_NAME);
+            if (enabledAtt != null) {
+                JEVisSample latestSample = enabledAtt.getLatestSample();
+                if (latestSample != null) {
+                    return latestSample.getValueAsBoolean();
+                }
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public Boolean isBoundToData() {
+        try {
+            JEVisAttribute enabledAtt = object.getAttribute(BIND_TO_DATA);
             if (enabledAtt != null) {
                 JEVisSample latestSample = enabledAtt.getLatestSample();
                 if (latestSample != null) {
