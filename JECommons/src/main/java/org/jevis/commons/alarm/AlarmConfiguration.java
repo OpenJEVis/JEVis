@@ -77,9 +77,9 @@ public class AlarmConfiguration {
 
     public Boolean isBoundToData() {
         try {
-            JEVisAttribute enabledAtt = object.getAttribute(BIND_TO_DATA);
-            if (enabledAtt != null) {
-                JEVisSample latestSample = enabledAtt.getLatestSample();
+            JEVisAttribute boundToDataAtt = object.getAttribute(BIND_TO_DATA);
+            if (boundToDataAtt != null) {
+                JEVisSample latestSample = boundToDataAtt.getLatestSample();
                 if (latestSample != null) {
                     return latestSample.getValueAsBoolean();
                 }
