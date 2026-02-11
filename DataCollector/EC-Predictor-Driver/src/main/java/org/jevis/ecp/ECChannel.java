@@ -4,12 +4,18 @@ import org.jevis.api.JEVisObject;
 
 public class ECChannel {
 
-    private JEVisObject source;
-    private JEVisObject target;
+    private final JEVisObject channelObject;
+    private final JEVisObject source;
+    private final JEVisObject target;
 
-    public ECChannel(JEVisObject source, JEVisObject target) {
+    public ECChannel(JEVisObject channelObject, JEVisObject source, JEVisObject target) {
+        this.channelObject = channelObject;
         this.source = source;
         this.target = target;
+    }
+
+    public JEVisObject getChannelObject() {
+        return channelObject;
     }
 
     public JEVisObject getSource() {
