@@ -79,7 +79,7 @@ public class AlarmProcess {
         dateHelper = PeriodHelper.getDateHelper(alarmConfiguration.getObject(), alarmPeriod, dateHelper, start);
 
         if (alarmPeriod != Period.NONE) {
-            end = PeriodHelper.calcEndRecord(start, alarmPeriod, alarmConfiguration.getDateTimeZone(), dateHelper);
+            end = PeriodHelper.getNextPeriod(start, alarmPeriod, alarmConfiguration.getDateTimeZone(), 1, null).minusMillis(1);
         } else {
             end = now.minusMillis(1);
         }
@@ -92,6 +92,7 @@ public class AlarmProcess {
             }
 
             boolean hasData = true;
+            List<JEVisObject> enabledAlarms = new ArrayList<>();
             for (JEVisObject obj : allCleanDataObjects) {
                 CleanDataObject cleanDataObject = new CleanDataObject(obj);
                 boolean alarmEnabled = false;
@@ -101,6 +102,7 @@ public class AlarmProcess {
                     if (latestSample != null) {
                         try {
                             alarmEnabled = latestSample.getValueAsBoolean();
+                            enabledAlarms.add(obj);
 
                             if (!alarmEnabled) continue;
                         } catch (JEVisException e) {
@@ -118,7 +120,7 @@ public class AlarmProcess {
             }
 
             if (hasData) {
-                List<Alarm> activeAlarms = getActiveAlarms(allCleanDataObjects);
+                List<Alarm> activeAlarms = getActiveAlarms(enabledAlarms);
 
                 if (!activeAlarms.isEmpty()) {
                     AlarmTable alarmTable = new AlarmTable(ds, activeAlarms);
