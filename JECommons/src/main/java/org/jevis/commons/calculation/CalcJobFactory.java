@@ -5,6 +5,7 @@
  */
 package org.jevis.commons.calculation;
 
+import net.sourceforge.jeval.Evaluator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -13,6 +14,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.PeriodArithmetic;
+import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -30,7 +32,7 @@ public class CalcJobFactory {
 
     private static final Logger logger = LogManager.getLogger(CalcJobFactory.class);
     private final CalcJob calcJob;
-    private List<JEVisObject> calcInputObjects;
+    private List<JEVisObject> calcInputObjects = new ArrayList<>();
     private DateTime lastEndTime;
 
     public CalcJobFactory() {
@@ -39,9 +41,9 @@ public class CalcJobFactory {
 
     public CalcJob getCalcJobForTimeFrame(SampleHandler sampleHandler, JEVisDataSource ds, JEVisObject jevisObject,
                                           DateTime startTime, DateTime endTime, AggregationPeriod aggregationPeriod) {
-        this.calcInputObjects = null;
-        calcJob.setCalcInputObjects(null);
-        calcJob.setOutputAttributes(null);
+        this.calcInputObjects.clear();
+        calcJob.getCalcInputObjects().clear();
+        calcJob.getOutputs().clear();
 
         logger.info("-------------------------------------------");
         long calcObjID = jevisObject.getID();
@@ -91,9 +93,9 @@ public class CalcJobFactory {
 
     public CalcJob getCalcJobForTimeFrame(SampleHandler sampleHandler, JEVisDataSource ds, JEVisObject jevisObject,
                                           DateTime startTime, DateTime endTime, Boolean absolute) {
-        this.calcInputObjects = null;
-        calcJob.setCalcInputObjects(null);
-        calcJob.setOutputAttributes(null);
+        this.calcInputObjects.clear();
+        calcJob.getCalcInputObjects().clear();
+        calcJob.getOutputs().clear();
 
         logger.info("-------------------------------------------");
         long calcObjID = jevisObject.getID();
@@ -142,16 +144,16 @@ public class CalcJobFactory {
     }
 
     public CalcJob getCurrentCalcJob(SampleHandler sampleHandler, JEVisDataSource ds, JEVisObject jevisObject) {
-        this.calcInputObjects = null;
-        calcJob.setCalcInputObjects(null);
-        calcJob.setOutputAttributes(null);
+        this.calcInputObjects.clear();
+        calcJob.getCalcInputObjects().clear();
+        calcJob.getOutputs().clear();
 
         logger.info("-------------------------------------------");
         long calcObjID = jevisObject.getID();
         logger.info("Create calc job for object with jevis id {}", calcObjID);
 
         String expression = sampleHandler.getLastSample(jevisObject, Calculation.EXPRESSION.getName(), "");
-        if (expression == null || expression.equals("")) {
+        if (expression == null || expression.isEmpty()) {
             throw new RuntimeException("No expression");
         }
 
@@ -178,6 +180,20 @@ public class CalcJobFactory {
         }
 
         logger.debug("{} inputs found", calcInputObjects.size());
+
+        Evaluator eval = new Evaluator();
+        try {
+            eval.parse(expression);
+
+            for (CalcInputObject var : calcInputObjects) {
+                eval.putVariable(var.getIdentifier(), "1");
+            }
+
+            String value = eval.evaluate();
+        } catch (Exception e) {
+            throw new RuntimeException("Error evaluating expression: " + expression, e);
+        }
+
         String div0Handling = null;
         Double staticValue = null;
         Double allZeroValue = null;
@@ -188,7 +204,7 @@ public class CalcJobFactory {
             if (allZeroValueAtt.hasSample())
                 allZeroValue = allZeroValueAtt.getLatestSample().getValueAsDouble();
         } catch (Exception e) {
-
+            throw new RuntimeException("Error reading other attributes.", e);
         }
 
         calcJob.setCalcInputObjects(calcInputObjects);
@@ -315,7 +331,7 @@ public class CalcJobFactory {
     }
 
     private List<JEVisObject> getCalcInputObjects(JEVisObject calcObject) {
-        if (calcInputObjects == null) {
+        if (calcInputObjects == null || calcInputObjects.isEmpty()) {
             try {
                 JEVisClass inputClass = calcObject.getDataSource().getJEVisClass(Calculation.INPUT.getName());
                 calcInputObjects = calcObject.getChildren(inputClass, false);
@@ -351,12 +367,27 @@ public class CalcJobFactory {
                                 endTime = latestTimeStamp;
                             }
                         } else {
-                            calcJob.setHasProcessedAllInputSamples(true);
-                            throw new IllegalStateException("Cant find valid latest sample for input data with id " + child.getID());
+                            throw new RuntimeException("Cant find valid latest sample for input data with id " + child.getID());
                         }
                     } else {
-                        calcJob.setHasProcessedAllInputSamples(true);
-                        throw new IllegalStateException("Cant find valid attribute for input data with id " + child.getID());
+                        throw new RuntimeException("Cant find valid attribute for input data with id " + child.getID());
+                    }
+                } else if (inputType.equals(ASYNC)) {
+                    JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
+                    TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+                    JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+                    if (valueAttribute != null) {
+                        JEVisSample latestSample = valueAttribute.getLatestSample();
+                        if (latestSample != null) {
+                            DateTime latestTimeStamp = latestSample.getTimestamp();
+                            if (latestTimeStamp.isBefore(lastAsyncTS)) {
+                                lastAsyncTS = latestTimeStamp;
+                            }
+                        } else {
+                            throw new RuntimeException("Cant find valid latest sample for input data with id " + child.getID());
+                        }
+                    } else {
+                        throw new RuntimeException("Cant find valid attribute for input data with id " + child.getID());
                     }
                 }
 
@@ -364,62 +395,59 @@ public class CalcJobFactory {
                     allAsync = false;
                 }
 
-            } catch (JEVisException e) {
-                calcJob.setHasProcessedAllInputSamples(true);
-                throw new IllegalStateException("Cant find valid values for input data with id " + child.getID());
+            } catch (Exception e) {
+                throw new RuntimeException("Cant find valid values for input data with id " + child.getID());
             }
         }
 
-        try {
-            boolean[] processed = new boolean[calcInputObjects.size()];
 
-            for (JEVisObject child : calcInputObjects) {
-                try {
-                    int indexOf = calcInputObjects.indexOf(child);
+        for (JEVisObject child : calcInputObjects) {
+            try {
+                JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
+                TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
 
-                    JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
-                    TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
-                    JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+                if (fromTo == null && (startTime.isBefore(endTime)) || startTime.equals(endTime)) {
+                    fromTo = new Interval(startTime, endTime);
+                } else {
+                    continue;
+                }
 
-                    if (fromTo == null && (startTime.isBefore(endTime) || startTime.equals(endTime))) {
-                        fromTo = new Interval(startTime, endTime);
-                    }
+                Period period = CleanDataObject.getPeriodForDate(valueAttribute.getObject(), startTime);
 
-                    Period period = CleanDataObject.getPeriodForDate(valueAttribute.getObject(), startTime);
+                if (period.equals(Period.ZERO) || PeriodArithmetic.periodsInAnInterval(fromTo, period) < 10000) {
 
-                    if (period.equals(Period.ZERO) || PeriodArithmetic.periodsInAnInterval(fromTo, period) < 10000) {
-
-                        processed[indexOf] = true;
-                        /**
-                         * is this minus really necessary? do tests...
-                         * disabled for  now, concrete testing for aggregated values is needed
-                         */
+                    /**
+                     * is this minus really necessary? do tests...
+                     * disabled for  now, concrete testing for aggregated values is needed
+                     */
 //                        endTime = new DateTime().minus(valueAttribute.getInputSampleRate());
 //                        endTime = new DateTime();
-                    } else {
-                        processed[indexOf] = false;
-                        DateTime limitedMaxDate = startTime;
-                        int i = 0;
-                        while (i < 10000) {
-                            limitedMaxDate = limitedMaxDate.plus(period.toStandardDuration());
-                            i++;
-                        }
-
-                        if (limitedMaxDate.isBefore(endTime)) {
-                            endTime = limitedMaxDate;
-                        }
-
-                        lastEndTime = endTime;
+                } else {
+                    DateTime limitedMaxDate = startTime;
+                    int i = 0;
+                    while (i < 10000 && (limitedMaxDate.isBefore(endTime) || limitedMaxDate.equals(endTime))) {
+                        limitedMaxDate = PeriodHelper.addPeriodToDate(limitedMaxDate, period);
+                        i++;
                     }
-                } catch (Exception e) {
-                    logger.error(e);
+
+                    if (!limitedMaxDate.equals(startTime)) {
+                        endTime = limitedMaxDate;
+                        logger.info("Set Limited max date: {} for {}:{}", limitedMaxDate, child.getName(), child.getID());
+                    }
                 }
+            } catch (JEVisException e) {
+                logger.error("Error determining process limit on {}:{}", child.getName(), child.getID(), e);
+                throw new RuntimeException("Error determining process limit on " + child.getName() + ":" + child.getID() + " " + e);
             }
+        }
 
-            for (boolean b : processed) if (!b) calcJob.setHasProcessedAllInputSamples(false);
+        lastEndTime = endTime;
 
-            for (JEVisObject child : calcInputObjects) {
+        for (JEVisObject child : calcInputObjects) {
+            try {
                 JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
+
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
 
@@ -435,11 +463,12 @@ public class CalcJobFactory {
                 }
                 logger.info("Got {} samples for id {}", calcObject.getSamples().size(), calcObject.getIdentifier());
                 calcObjects.add(calcObject);
+            } catch (Exception e) {
+                logger.error("Error getting samples for {}:{}", child.getName(), child.getID(), e);
+                throw new RuntimeException("Error getting samples for " + child.getName() + ":" + child.getID() + " " + e);
             }
-        } catch (Exception ex) {
-            calcJob.setHasProcessedAllInputSamples(true);
-            logger.fatal(ex);
         }
+
 
         if (allAsync) {
             List<DateTime> allDates = new ArrayList<>();
