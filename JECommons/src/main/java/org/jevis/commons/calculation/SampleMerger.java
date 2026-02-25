@@ -123,14 +123,18 @@ public class SampleMerger {
         if (allAsync) {
             logger.debug("Only Async Variables found. Removing all values after last of variable with the least values");
             DateTime dateTime = null;
+            DateTime firstDateTime = null;
             for (List<Sample> samples : allSamples) {
                 DateTime sampleDateTime = samples.get(samples.size() - 1).getDate();
                 if (dateTime == null || dateTime.isAfter(sampleDateTime)) {
                     dateTime = sampleDateTime;
                 }
+                if (firstDateTime == null) {
+                    firstDateTime = sampleDateTime;
+                }
             }
 
-            if (dateTime != null) {
+            if (dateTime != null && !dateTime.equals(firstDateTime)) {
                 List<DateTime> toRemoveList = new ArrayList<>();
                 for (Map.Entry<DateTime, List<Sample>> entry : sampleMap.entrySet()) {
                     DateTime dateTimeKey = entry.getKey();

@@ -8,12 +8,12 @@ package org.jevis.commons.calculation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,11 +24,10 @@ import java.util.Map;
 public class CalcJob {
 
     private static final Logger logger = LogManager.getLogger(CalcJob.class);
-    private List<CalcInputObject> calcInputObjects;
+    private List<CalcInputObject> calcInputObjects = new ArrayList<>();
     private String expression;
-    private List<JEVisAttribute> outputs;
+    private List<JEVisAttribute> outputs = new ArrayList<>();
     private long calcObjID;
-    private Boolean processedAllInputSamples = true;
     private Double staticValue = 0.0;
     private Double allZeroValue;
     private String DIV0Handling = "";
@@ -57,8 +56,7 @@ public class CalcJob {
             logger.info("{} results calculated", calculateResult.size());
             saveToOutput(calculateResult);
         } catch (Exception e) {
-            setHasProcessedAllInputSamples(true);
-            logger.error(e);
+            logger.error("Error executing calcjob {}. ", calcObjID, e);
             LogTaskManager.getInstance().getTask(calcObjID).setStatus(Task.Status.FAILED);
             LogTaskManager.getInstance().getTask(calcObjID).setException(e);
         }
@@ -110,21 +108,13 @@ public class CalcJob {
 
                 output.addSamples(calculateResult);
             }
-        } catch (JEVisException ex) {
-            logger.fatal(ex);
+        } catch (Exception ex) {
+            logger.fatal("Could not save calcjob {} to output", calcObjID, ex);
         }
     }
 
     long getCalcObjectID() {
         return calcObjID;
-    }
-
-    public void setHasProcessedAllInputSamples(boolean b) {
-        processedAllInputSamples = b;
-    }
-
-    public Boolean hasProcessedAllInputSamples() {
-        return processedAllInputSamples;
     }
 
     public List<CalcInputObject> getCalcInputObjects() {
@@ -137,6 +127,10 @@ public class CalcJob {
 
     public void setOutputAttributes(List<JEVisAttribute> outputAttributes) {
         this.outputs = outputAttributes;
+    }
+
+    public List<JEVisAttribute> getOutputs() {
+        return outputs;
     }
 
     public void setCalcObjID(long calcObjID) {
@@ -174,4 +168,5 @@ public class CalcJob {
     public String getExpression() {
         return expression;
     }
+
 }

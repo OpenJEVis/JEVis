@@ -20,6 +20,7 @@ import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
@@ -71,7 +72,9 @@ public class CalcLauncher extends AbstractCliApp {
                     logger.info("Service is disabled.");
                 }
             } else {
-                logger.info("Still running queue. Going to sleep again.");
+                StringBuilder running = new StringBuilder();
+                runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
+                logger.info("Still running queue - {}. Going to sleep again.", running.toString());
             }
         }
 
@@ -90,16 +93,15 @@ public class CalcLauncher extends AbstractCliApp {
                     try {
                         Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
                         runningJobs.put(object.getID(), new DateTime());
+                        logger.info("Starting Calc Job {} for {} @ {}", object.getName(), object.getID(), new DateTime().toString(DateTimeFormat.patternForStyle("MM", I18n.getInstance().getLocale())));
 
                         LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
 
-                        CalcJob calcJob;
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
-                        do {
-                            calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
-                            calcJob.execute();
-                        } while (!calcJob.hasProcessedAllInputSamples());
+
+                        CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                        calcJob.execute();
 
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
                     } catch (Exception e) {
@@ -150,7 +152,6 @@ public class CalcLauncher extends AbstractCliApp {
         List<JEVisObject> enabledObjects = new ArrayList<>();
         SampleHandler sampleHandler = new SampleHandler();
         for (JEVisObject curObj : jevisCalcObjects) {
-            ds.reloadAttribute(curObj);
             Boolean valueAsBoolean = sampleHandler.getLastSample(curObj, CalcJobFactory.Calculation.ENABLED.getName(), false);
             if (valueAsBoolean) {
                 enabledObjects.add(curObj);
@@ -181,15 +182,13 @@ public class CalcLauncher extends AbstractCliApp {
         logger.info("Start Single Mode");
         for (Long id : ids) {
             try {
-                JEVisObject calcObject = ds.getObject(id);
+                JEVisObject object = ds.getObject(id);
 
                 try {
-                    CalcJob calcJob;
                     CalcJobFactory calcJobCreator = new CalcJobFactory();
-                    do {
-                        calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, calcObject);
-                        calcJob.execute();
-                    } while (!calcJob.hasProcessedAllInputSamples());
+
+                    CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                    calcJob.execute();
 
                 } catch (Exception e) {
                     logger.error(e);
