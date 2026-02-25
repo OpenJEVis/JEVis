@@ -31,8 +31,10 @@ public class CalcJob {
     private Double staticValue = 0.0;
     private Double allZeroValue;
     private String DIV0Handling = "";
+    private boolean newSamplesWritten;
 
     public CalcJob() {
+        newSamplesWritten = false;
     }
 
     CalcJob(List<CalcInputObject> calcInputObjects, String expression, List<JEVisAttribute> outputObjects, long calcObjID) {
@@ -40,9 +42,11 @@ public class CalcJob {
         this.expression = expression;
         this.outputs = outputObjects;
         this.calcObjID = calcObjID;
+        newSamplesWritten = false;
     }
 
-    public void execute() {
+    public boolean execute() {
+        newSamplesWritten = false;
         try {
             SampleMerger sampleMerger = new SampleMerger();
             calcInputObjects.forEach(calcObject -> {
@@ -53,6 +57,9 @@ public class CalcJob {
             logger.debug("{} mergable calculations found", mergedSamples.size());
             ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(calcObjID, expression));
             List<JEVisSample> calculateResult = resultCalc.calculateResult(DIV0Handling, staticValue, allZeroValue);
+            if (calculateResult.size() > 1) {
+                newSamplesWritten = true;
+            }
             logger.info("{} results calculated", calculateResult.size());
             saveToOutput(calculateResult);
         } catch (Exception e) {
@@ -60,6 +67,8 @@ public class CalcJob {
             LogTaskManager.getInstance().getTask(calcObjID).setStatus(Task.Status.FAILED);
             LogTaskManager.getInstance().getTask(calcObjID).setException(e);
         }
+
+        return newSamplesWritten;
     }
 
     public List<JEVisSample> getResults() {
