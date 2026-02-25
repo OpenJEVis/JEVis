@@ -100,8 +100,14 @@ public class CalcLauncher extends AbstractCliApp {
 
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
 
-                        CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
-                        calcJob.execute();
+                        boolean changed;
+                        int iteration = 0;
+
+                        do {
+                            CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                            changed = calcJob.execute();
+                            iteration++;
+                        } while (changed && iteration < 500);
 
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
                     } catch (Exception e) {
@@ -187,8 +193,14 @@ public class CalcLauncher extends AbstractCliApp {
                 try {
                     CalcJobFactory calcJobCreator = new CalcJobFactory();
 
-                    CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
-                    calcJob.execute();
+                    boolean changed;
+                    int iteration = 0;
+
+                    do {
+                        CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                        changed = calcJob.execute();
+                        iteration++;
+                    } while (changed && iteration < 500);
 
                 } catch (Exception e) {
                     logger.error(e);

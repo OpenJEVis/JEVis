@@ -8,6 +8,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -99,12 +100,15 @@ public class Calculations {
                         }
                     }
 
-                    CalcJob calcJob;
                     CalcJobFactory calcJobCreator = new CalcJobFactory();
-//                    do {
-//                        calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), calcObject.getDataSource(), calcObject);
-//                        calcJob.execute();
-//                    } while (!calcJob.hasProcessedAllInputSamples());
+                    boolean changed;
+                    int iteration = 0;
+
+                    do {
+                        CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), calcObject.getDataSource(), calcObject);
+                        changed = calcJob.execute();
+                        iteration++;
+                    } while (changed && iteration < 500);
 
                     if (wasEnabled) {
                         calcObject.getAttribute("Enabled").buildSample(new DateTime(), true).commit();

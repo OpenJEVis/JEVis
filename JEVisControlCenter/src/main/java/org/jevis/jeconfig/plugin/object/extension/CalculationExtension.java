@@ -1,31 +1,48 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXRadioButton;
+import com.jfoenix.controls.JFXTimePicker;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
+import org.jevis.commons.calculation.CalcJob;
+import org.jevis.commons.calculation.CalcJobFactory;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.CommonMethods;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.TopMenu;
+import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.FormatStyle;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
+
 
 public class CalculationExtension implements ObjectEditorExtension {
 
@@ -143,158 +160,161 @@ public class CalculationExtension implements ObjectEditorExtension {
             Label label = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.enable"));
             Label labelOutput = new Label(I18n.getInstance().getString("plugin.object.calc.output"));
 
-//            JFXButton calcNowButton = new JFXButton(I18n.getInstance().getString("plugin.object.calc.recalc"));
-//            calcNowButton.setOnAction(bEvent -> {
-//                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-//                alert.setTitle(I18n.getInstance().getString("plugin.object.calc.recalc"));
-//                alert.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.question"));
-//                TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
-//
-//                GridPane gp = new GridPane();
-//                gp.setHgap(6);
-//                gp.setVgap(6);
-//                final ToggleGroup toggleGroup = new ToggleGroup();
-//
-//                JFXRadioButton allRadioButton = new JFXRadioButton(I18n.getInstance().getString("plugin.object.report.dialog.period.all"));
-//                allRadioButton.setSelected(true);
-//                allRadioButton.setToggleGroup(toggleGroup);
-//
-//                JFXRadioButton nowRadioButton = new JFXRadioButton(I18n.getInstance().getString("graph.datehelper.referencepoint.now"));
-//                nowRadioButton.setToggleGroup(toggleGroup);
-//
-//                JFXRadioButton fromRadioButton = new JFXRadioButton(I18n.getInstance().getString("plugin.graph.dialog.export.from"));
-//                fromRadioButton.setToggleGroup(toggleGroup);
-//                JFXDatePicker fromDatePicker = new JFXDatePicker();
-//                fromDatePicker.setValue(LocalDate.now());
-//                fromDatePicker.setPrefWidth(120d);
-//                JFXTimePicker fromTimePicker = new JFXTimePicker();
-//                fromTimePicker.setValue(LocalTime.now());
-//                fromTimePicker.setPrefWidth(100d);
-//                fromTimePicker.setMaxWidth(100d);
-//                fromTimePicker.set24HourView(true);
-//                fromTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-//
-//                gp.add(allRadioButton, 0, 0);
-//                gp.add(nowRadioButton, 1, 0);
-//                gp.add(fromRadioButton, 2, 0);
-//                gp.add(fromDatePicker, 3, 0);
-//                gp.add(fromTimePicker, 4, 0);
-//
-//                alert.getDialogPane().setContent(gp);
-//
-//                alert.showAndWait().ifPresent(buttonType -> {
-//                    if (buttonType.equals(ButtonType.OK)) {
-//                        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "...");
-//                        boolean all = allRadioButton.isSelected();
-//                        boolean now = nowRadioButton.isSelected();
-//                        boolean from = fromRadioButton.isSelected();
-//                        DateTime fromDate = new DateTime(fromDatePicker.getValue().getYear(), fromDatePicker.getValue().getMonthValue(), fromDatePicker.getValue().getDayOfMonth(),
-//                                fromTimePicker.getValue().getHour(), fromTimePicker.getValue().getMinute(), fromTimePicker.getValue().getSecond(), 0);
-//
-//                        StringProperty errorMsg = new SimpleStringProperty();
-//                        logger.debug("Setting default timezone to UTC");
-//                        TimeZone defaultTimeZone = TimeZone.getDefault();
-//                        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-//                        DateTimeZone defaultDateTimeZone = DateTimeZone.getDefault();
-//                        DateTimeZone.setDefault(DateTimeZone.UTC);
-//
-//                        Task<Void> set = new Task<Void>() {
-//                            @Override
-//                            protected Void call() {
-//                                try {
-//                                    boolean wasEnabled = false;
-//                                    if (_obj.getAttribute("Enabled").hasSample()) {
-//                                        wasEnabled = _obj.getAttribute("Enabled").getLatestSample().getValueAsBoolean();
-//                                    }
-//                                    _obj.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
-//
-//                                    JEVisClass output = _obj.getDataSource().getJEVisClass("Output");
-//                                    List<JEVisObject> outputs = _obj.getChildren(output, true);
-//                                    List<JEVisObject> targets = new ArrayList<>();
-//                                    for (JEVisObject jeVisObject : outputs) {
-//                                        try {
-//                                            JEVisAttribute attribute = jeVisObject.getAttribute("Output");
-//                                            if (attribute != null && attribute.hasSample()) {
-//                                                TargetHelper th = new TargetHelper(_obj.getDataSource(), attribute);
-//                                                targets.addAll(th.getObject());
-//                                                for (JEVisObject dataObject : th.getObject()) {
-//                                                    if (all) {
-//                                                        CommonMethods.deleteAllSamples(dataObject, true, true);
-//                                                    } else if (from) {
-//                                                        CommonMethods.deleteAllSamples(dataObject, fromDate, null, true, true);
-//                                                    }
-//                                                }
-//                                            }
-//                                        } catch (Exception e) {
-//                                            logger.error("Error with output {}:{}", jeVisObject, e);
-//                                        }
-//                                    }
-//
-//                                    CalcJob calcJob;
-//                                    CalcJobFactory calcJobCreator = new CalcJobFactory();
-//                                    do {
-//                                        calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), _obj.getDataSource(), _obj);
-//                                        calcJob.execute();
-//                                    } while (!calcJob.hasProcessedAllInputSamples());
-//
-//                                    if (wasEnabled) {
-//                                        _obj.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
-//                                    }
-//
-//                                    for (JEVisObject jeVisObject : targets) {
-//                                        for (JEVisObject jeVisObject1 : jeVisObject.getChildren()) {
-//                                            if (all) {
-//                                                CommonMethods.processAllCleanData(jeVisObject1, null, null);
-//                                            } else if (from)
-//                                                CommonMethods.processAllCleanData(jeVisObject1, fromDate, null);
-//                                            else {
-//                                                CommonMethods.processAllCleanDataNoDelete(jeVisObject1);
-//                                            }
-//                                        }
-//                                    }
-//
-//                                } catch (Exception ex) {
-//                                    ex.printStackTrace();
-//                                    errorMsg.set(ex.getMessage());
-//                                    this.failed();
-//                                }
-//                                return null;
-//                            }
-//                        };
-//                        set.setOnSucceeded(event -> {
-//                            pForm.getDialogStage().close();
-//                            restoreTimeZone(defaultTimeZone, defaultDateTimeZone);
-//                        });
-//
-//                        set.setOnCancelled(event -> {
-//                            logger.debug("Setting all multiplier and differential switches cancelled");
-//                            pForm.getDialogStage().hide();
-//                            restoreTimeZone(defaultTimeZone, defaultDateTimeZone);
-//                        });
-//
-//                        set.setOnFailed(event -> {
-//                            logger.debug("Setting all multiplier and differential switches failed");
-//                            pForm.getDialogStage().hide();
-//
-//                            Alert error = new Alert(Alert.AlertType.ERROR);
-//                            error.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.title"));
-//                            TopMenu.applyActiveTheme(error.getDialogPane().getScene());
-//                            error.setContentText(errorMsg.get());
-//                            restoreTimeZone(defaultTimeZone, defaultDateTimeZone);
-//                        });
-//
-//                        pForm.activateProgressBar(set);
-//                        pForm.getDialogStage().show();
-//
-//                        new Thread(set).start();
-//                    }
-//                });
-//            });
+            JFXButton calcNowButton = new JFXButton(I18n.getInstance().getString("plugin.object.calc.recalc"));
+            calcNowButton.setOnAction(bEvent -> {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle(I18n.getInstance().getString("plugin.object.calc.recalc"));
+                alert.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.question"));
+                TopMenu.applyActiveTheme(alert.getDialogPane().getScene());
+
+                GridPane gp = new GridPane();
+                gp.setHgap(6);
+                gp.setVgap(6);
+                final ToggleGroup toggleGroup = new ToggleGroup();
+
+                JFXRadioButton allRadioButton = new JFXRadioButton(I18n.getInstance().getString("plugin.object.report.dialog.period.all"));
+                allRadioButton.setSelected(true);
+                allRadioButton.setToggleGroup(toggleGroup);
+
+                JFXRadioButton nowRadioButton = new JFXRadioButton(I18n.getInstance().getString("graph.datehelper.referencepoint.now"));
+                nowRadioButton.setToggleGroup(toggleGroup);
+
+                JFXRadioButton fromRadioButton = new JFXRadioButton(I18n.getInstance().getString("plugin.graph.dialog.export.from"));
+                fromRadioButton.setToggleGroup(toggleGroup);
+                JFXDatePicker fromDatePicker = new JFXDatePicker();
+                fromDatePicker.setValue(LocalDate.now());
+                fromDatePicker.setPrefWidth(120d);
+                JFXTimePicker fromTimePicker = new JFXTimePicker();
+                fromTimePicker.setValue(LocalTime.now());
+                fromTimePicker.setPrefWidth(100d);
+                fromTimePicker.setMaxWidth(100d);
+                fromTimePicker.set24HourView(true);
+                fromTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+                gp.add(allRadioButton, 0, 0);
+                gp.add(nowRadioButton, 1, 0);
+                gp.add(fromRadioButton, 2, 0);
+                gp.add(fromDatePicker, 3, 0);
+                gp.add(fromTimePicker, 4, 0);
+
+                alert.getDialogPane().setContent(gp);
+
+                alert.showAndWait().ifPresent(buttonType -> {
+                    if (buttonType.equals(ButtonType.OK)) {
+                        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.cleandata.reclean.title") + "...");
+                        boolean all = allRadioButton.isSelected();
+                        boolean now = nowRadioButton.isSelected();
+                        boolean from = fromRadioButton.isSelected();
+                        DateTime fromDate = new DateTime(fromDatePicker.getValue().getYear(), fromDatePicker.getValue().getMonthValue(), fromDatePicker.getValue().getDayOfMonth(),
+                                fromTimePicker.getValue().getHour(), fromTimePicker.getValue().getMinute(), fromTimePicker.getValue().getSecond(), 0);
+
+                        StringProperty errorMsg = new SimpleStringProperty();
+                        logger.debug("Setting default timezone to UTC");
+                        TimeZone defaultTimeZone = TimeZone.getDefault();
+                        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+                        DateTimeZone defaultDateTimeZone = DateTimeZone.getDefault();
+                        DateTimeZone.setDefault(DateTimeZone.UTC);
+
+                        Task<Void> set = new Task<Void>() {
+                            @Override
+                            protected Void call() {
+                                try {
+                                    boolean wasEnabled = false;
+                                    if (_obj.getAttribute("Enabled").hasSample()) {
+                                        wasEnabled = _obj.getAttribute("Enabled").getLatestSample().getValueAsBoolean();
+                                    }
+                                    _obj.getAttribute("Enabled").buildSample(new DateTime(), false).commit();
+
+                                    JEVisClass output = _obj.getDataSource().getJEVisClass("Output");
+                                    List<JEVisObject> outputs = _obj.getChildren(output, true);
+                                    List<JEVisObject> targets = new ArrayList<>();
+                                    for (JEVisObject jeVisObject : outputs) {
+                                        try {
+                                            JEVisAttribute attribute = jeVisObject.getAttribute("Output");
+                                            if (attribute != null && attribute.hasSample()) {
+                                                TargetHelper th = new TargetHelper(_obj.getDataSource(), attribute);
+                                                targets.addAll(th.getObject());
+                                                for (JEVisObject dataObject : th.getObject()) {
+                                                    if (all) {
+                                                        CommonMethods.deleteAllSamples(dataObject, true, true);
+                                                    } else if (from) {
+                                                        CommonMethods.deleteAllSamples(dataObject, fromDate, null, true, true);
+                                                    }
+                                                }
+                                            }
+                                        } catch (Exception e) {
+                                            logger.error("Error with output {}:{}", jeVisObject, e);
+                                        }
+                                    }
+
+                                    CalcJobFactory calcJobCreator = new CalcJobFactory();
+                                    boolean changed;
+                                    int iteration = 0;
+
+                                    do {
+                                        CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), _obj.getDataSource(), _obj);
+                                        changed = calcJob.execute();
+                                        iteration++;
+                                    } while (changed && iteration < 500);
+
+                                    if (wasEnabled) {
+                                        _obj.getAttribute("Enabled").buildSample(new DateTime(), true).commit();
+                                    }
+
+                                    for (JEVisObject jeVisObject : targets) {
+                                        for (JEVisObject jeVisObject1 : jeVisObject.getChildren()) {
+                                            if (all) {
+                                                CommonMethods.processAllCleanData(jeVisObject1, null, null);
+                                            } else if (from)
+                                                CommonMethods.processAllCleanData(jeVisObject1, fromDate, null);
+                                            else {
+                                                CommonMethods.processAllCleanDataNoDelete(jeVisObject1);
+                                            }
+                                        }
+                                    }
+
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                    errorMsg.set(ex.getMessage());
+                                    this.failed();
+                                }
+                                return null;
+                            }
+                        };
+                        set.setOnSucceeded(event -> {
+                            pForm.getDialogStage().close();
+                            restoreTimeZone(defaultTimeZone, defaultDateTimeZone);
+                        });
+
+                        set.setOnCancelled(event -> {
+                            logger.debug("Setting all multiplier and differential switches cancelled");
+                            pForm.getDialogStage().hide();
+                            restoreTimeZone(defaultTimeZone, defaultDateTimeZone);
+                        });
+
+                        set.setOnFailed(event -> {
+                            logger.debug("Setting all multiplier and differential switches failed");
+                            pForm.getDialogStage().hide();
+
+                            Alert error = new Alert(Alert.AlertType.ERROR);
+                            error.setHeaderText(I18n.getInstance().getString("plugin.object.calc.recalc.title"));
+                            TopMenu.applyActiveTheme(error.getDialogPane().getScene());
+                            error.setContentText(errorMsg.get());
+                            restoreTimeZone(defaultTimeZone, defaultDateTimeZone);
+                        });
+
+                        pForm.activateProgressBar(set);
+                        pForm.getDialogStage().show();
+
+                        new Thread(set).start();
+                    }
+                });
+            });
 
 
             FlowPane flowPane = new FlowPane(Orientation.HORIZONTAL, 8, 12, label, enableButton, labelOutput, buttonOutput);
             if (JEConfig.getExpert()) {
-//                flowPane.getChildren().add(calcNowButton);
+                flowPane.getChildren().add(calcNowButton);
             }
 
 
