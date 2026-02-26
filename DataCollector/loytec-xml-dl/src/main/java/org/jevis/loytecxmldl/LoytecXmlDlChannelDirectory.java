@@ -96,11 +96,11 @@ public class LoytecXmlDlChannelDirectory implements LoytecXmlDlChannelDirectoryC
             counterCheckForErrorInAPI.clear();
             listOutputChannels.forEach(channelObject -> {
                 try {
-                    JEVisAttribute attTargetId = channelObject.getAttribute(LoytecXmlDlChannel.TARGET_ID);
-                    JEVisAttribute attTrendId = channelObject.getAttribute(LoytecXmlDlChannel.TREND_ID);
+                    JEVisAttribute attTargetId = channelObject.getAttribute(LoytecXmlDlOutputChannel.TARGET_ID);
+                    JEVisAttribute attNodeId = channelObject.getAttribute(LoytecXmlDlOutputChannel.OPC_NODE_ID);
 //                    JEVisAttribute attLastReadOut = channelObject.getAttribute(LoytecXmlDlChannel.LAST_READOUT);
 //                    if (attTargetId.hasSample() && attTrendId.hasSample() && attLastReadOut.hasSample()) {
-                    if (attTargetId.hasSample() && attTrendId.hasSample()) {
+                    if (attTargetId.hasSample() && attNodeId.hasSample()) {
                         if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
                             outputChannels.add(new LoytecXmlDlOutputChannel(channelObject));
                             counterCheckForErrorInAPI.add(channelObject.getID());
