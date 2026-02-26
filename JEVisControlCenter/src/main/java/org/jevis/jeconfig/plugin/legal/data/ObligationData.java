@@ -29,13 +29,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 
 public class ObligationData {
 
     //private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(ObligationData.class);
-    private static DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    @Expose
+    @SerializedName("uuid")
+    public final SimpleStringProperty uuid = new SimpleStringProperty("uuid", I18n.getInstance().getString("jevistree.widget.column.uuid"), UUID.randomUUID().toString());
     @Expose
     @SerializedName("title")
     public final SimpleStringProperty title = new SimpleStringProperty("title", I18n.getInstance().getString("plugin.indexoflegalprovisions.obligation.title"), "");
@@ -112,7 +116,6 @@ public class ObligationData {
         try {
             propertyList = new ArrayList<>();
 
-
             registerChanges(title);
             registerChanges(designation);
             registerChanges(nr);
@@ -122,10 +125,12 @@ public class ObligationData {
             registerChanges(relevant);
             registerChanges(dateOfExamination);
             registerChanges(importanceForTheCompany);
+            registerChanges(linkToVersion);
+            registerChanges(category);
+            registerChanges(scope);
             registerChanges(deleted);
             registerChanges(attachment);
-            registerChanges(deleted);
-            registerChanges(attachment);
+
             valueChanged.set(false);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -220,6 +225,13 @@ public class ObligationData {
         object.delete();
     }
 
+    public String getUuid() {
+        return uuid.get();
+    }
+
+    public SimpleStringProperty uuidProperty() {
+        return uuid;
+    }
 
     public String getTitle() {
         return title.get();
@@ -376,6 +388,7 @@ public class ObligationData {
     @Override
     public String toString() {
         return "obligationData{" +
+                "uuid=" + uuid +
                 "nr=" + nr +
                 ", description=" + description +
                 ", issueDate=" + issueDate +
@@ -421,11 +434,11 @@ public class ObligationData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ObligationData that = (ObligationData) o;
-        return Objects.equals(title, that.title) && Objects.equals(designation, that.designation) && Objects.equals(nr, that.nr) && Objects.equals(description, that.description) && Objects.equals(issueDate, that.issueDate) && Objects.equals(currentVersionDate, that.currentVersionDate) && Objects.equals(relevant, that.relevant) && Objects.equals(dateOfExamination, that.dateOfExamination) && Objects.equals(importanceForTheCompany, that.importanceForTheCompany) && Objects.equals(linkToVersion, that.linkToVersion) && Objects.equals(category, that.category) && Objects.equals(scope, that.scope) && Objects.equals(deleted, that.deleted) && Objects.equals(attachment, that.attachment) && Objects.equals(indexOfLegalProvisions, that.indexOfLegalProvisions) && Objects.equals(valueChanged, that.valueChanged) && Objects.equals(changeListener, that.changeListener) && Objects.equals(object, that.object) && Objects.equals(propertyList, that.propertyList);
+        return Objects.equals(uuid, that.uuid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, designation, nr, description, issueDate, currentVersionDate, relevant, dateOfExamination, importanceForTheCompany, linkToVersion, category, scope, deleted, attachment, indexOfLegalProvisions, valueChanged, changeListener, object, propertyList);
+        return Objects.hash(uuid, title, designation, nr, description, issueDate, currentVersionDate, relevant, dateOfExamination, importanceForTheCompany, linkToVersion, category, scope, deleted, attachment, indexOfLegalProvisions, valueChanged, changeListener, object, propertyList);
     }
 }

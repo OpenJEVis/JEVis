@@ -1,5 +1,6 @@
 package org.jevis.loytecxmldl;
 
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.joda.time.DateTimeZone;
 
@@ -55,4 +56,6 @@ public interface LoytecXmlDlServerClass extends DataCollectorTypes.DataSource.Da
     DateTimeZone getTimezone();
 
     List<LoytecXmlDlChannelDirectory> getChannelDirectories();
+
+    JEVisObject getObject();
 }

@@ -6,6 +6,8 @@ import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.milo.opcua.stack.core.UaException;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.driver.*;
@@ -21,10 +23,7 @@ import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -33,12 +32,13 @@ import java.util.stream.Collectors;
 public class LoytecXmlDlDataSource implements DataSource {
 
     private final static Logger log = LogManager.getLogger(LoytecXmlDlDataSource.class.getName());
-    private final ConcurrentHashMap<LoytecXmlDlChannel, DateTime> activeChannels = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<LoytecXmlDlChannel, DateTime> channels = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<JEVisObject, DateTime> activeChannels = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<JEVisObject, DateTime> channels = new ConcurrentHashMap<>();
     private LoytecXmlDlServerClass dataServer;
     private SOAPDataSource soapDataSource;
     private Importer importer;
     private ExecutorService executorService;
+    private final OPCUAWriter opcuaWriter = new OPCUAWriter();
 
     @Override
     public void initialize(JEVisObject dataSourceObject) {
@@ -85,7 +85,15 @@ public class LoytecXmlDlDataSource implements DataSource {
                 Runnable runnable = getJob(channelDirectory, channel);
 
                 FutureTask<?> ft = new FutureTask<Void>(runnable, null);
-                channels.put(channel, new DateTime());
+                channels.put(channel.getJeVisObject(), new DateTime());
+                executorService.submit(ft);
+            });
+
+            channelDirectory.getOutputChannels().forEach(channel -> {
+                Runnable runnable = getJob(channelDirectory, channel);
+
+                FutureTask<?> ft = new FutureTask<Void>(runnable, null);
+                channels.put(channel.getJeVisObject(), new DateTime());
                 executorService.submit(ft);
             });
         }
@@ -117,7 +125,7 @@ public class LoytecXmlDlDataSource implements DataSource {
             List<InputStream> responseStreams;
             List<Result> results;
             List<JEVisSample> statusResults;
-            activeChannels.put(channel, new DateTime());
+            activeChannels.put(channel.getJeVisObject(), new DateTime());
 
             // Create parser
             LoytecXmlDlParser parser = new LoytecXmlDlParser();
@@ -142,7 +150,7 @@ public class LoytecXmlDlDataSource implements DataSource {
 
                 if (results.isEmpty() && statusResults.isEmpty()) {
                     log.info("The parse result is empty");
-                    removeJob(channel);
+                    removeJob(channel.getJeVisObject());
 
                     // use stream, no use later...
                 } else {
@@ -177,33 +185,70 @@ public class LoytecXmlDlDataSource implements DataSource {
                         FutureTask<?> ft = new FutureTask<Void>(runnable, null);
                         executorService.submit(ft);
                     } else {
-                        removeJob(channel);
+                        removeJob(channel.getJeVisObject());
                     }
                 }
             } catch (MalformedURLException ex) {
                 log.error("MalformedURLException. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 log.debug("MalformedURLException. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
-                removeJob(channel);
+                removeJob(channel.getJeVisObject());
             } catch (ClientProtocolException ex) {
                 log.error("Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 log.debug("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
-                removeJob(channel);
+                removeJob(channel.getJeVisObject());
             } catch (IOException ex) {
                 log.error("IO Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 log.debug("IO Exception. For channel {}:{}.", channel.getJeVisObject().getID(), channel.getName(), ex);
-                removeJob(channel);
+                removeJob(channel.getJeVisObject());
             } catch (ParseException ex) {
                 log.error("Parse Exception. For channel {}:{}. {}", channel.getJeVisObject().getID(), channel.getName(), ex.getMessage());
                 log.debug("Parse Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
-                removeJob(channel);
+                removeJob(channel.getJeVisObject());
             } catch (Exception ex) {
                 log.error("Exception. For channel {}:{}", channel.getJeVisObject().getID(), channel.getName(), ex);
-                removeJob(channel);
+                removeJob(channel.getJeVisObject());
             }
         };
     }
 
-    private void removeJob(LoytecXmlDlChannel channel) {
+    private Runnable getJob(LoytecXmlDlChannelDirectory channelDirectory, LoytecXmlDlOutputChannel channel) {
+        return () -> {
+            // For every channel
+
+            List<InputStream> responseStreams;
+            List<Result> results;
+            List<JEVisSample> statusResults;
+            activeChannels.put(channel.getJeVisObject(), new DateTime());
+            try {
+
+                opcuaWriter.connectToOPCUAServer(dataServer.getObject());
+
+                JEVisObject dataObject = channel.getTarget().getObject();
+
+                if (opcuaWriter.sendOPCUANotification(channel.getJeVisObject(), dataObject)) {
+                    setLastReadout(channel.getJeVisObject(), dataObject.getAttribute("Value").getTimestampOfLastSample());
+                }
+
+            } catch (UaException | ExecutionException | InterruptedException e) {
+                log.error(e);
+
+                OPCUAStatus opcUAStatus = new OPCUAStatus(OPCUAStatus.OPC_SERVER_NOT_REACHABLE);
+                opcUAStatus.writeStatus(channel.getJeVisObject(), DateTime.now());
+                removeJob(channel.getJeVisObject());
+            } catch (Exception e) {
+                log.error(e);
+                removeJob(channel.getJeVisObject());
+            }
+
+            opcuaWriter.disconnect();
+        };
+    }
+
+    private void setLastReadout(JEVisObject outputChannel, DateTime dateTime) throws JEVisException {
+        outputChannel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(DateTime.now(), dateTime.toString()).commit();
+    }
+
+    private void removeJob(JEVisObject channel) {
         activeChannels.remove(channel);
         channels.remove(channel);
 
