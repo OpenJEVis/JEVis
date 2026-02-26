@@ -30,10 +30,13 @@ public class LoytecXmlDlServer implements LoytecXmlDlServerClass {
     private final String logHandleBasePath;
     private final DateTimeZone timezone;
     private final List<LoytecXmlDlChannelDirectory> channelDirectories = new ArrayList<>();
+    private final JEVisObject object;
 
     public LoytecXmlDlServer(JEVisObject dataSourceObject) {
 
         log.debug("Create LoytecXmlDlServer Object");
+
+        this.object = dataSourceObject;
 
         name = dataSourceObject.getName();
         log.debug("LoytecXmlDlServer - Name: " + name);
@@ -175,5 +178,9 @@ public class LoytecXmlDlServer implements LoytecXmlDlServerClass {
             str = "*" + str;
         }
         return str;
+    }
+
+    public JEVisObject getObject() {
+        return object;
     }
 }

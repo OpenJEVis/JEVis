@@ -2,10 +2,7 @@ package org.jevis.loytecxmldl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +20,7 @@ public class LoytecXmlDlChannelDirectory implements LoytecXmlDlChannelDirectoryC
 
     private final String name;
     private final List<LoytecXmlDlChannel> channels = new ArrayList<>();
+    private final List<LoytecXmlDlOutputChannel> outputChannels = new ArrayList<>();
     private String technology;
 
     public LoytecXmlDlChannelDirectory(JEVisObject channelDirectoryObject) {
@@ -34,7 +32,9 @@ public class LoytecXmlDlChannelDirectory implements LoytecXmlDlChannelDirectoryC
 
         //todo check special classes
         String channelType = null;
+        JEVisDataSource ds = null;
         try {
+            ds = channelDirectoryObject.getDataSource();
             channelType = channelDirectoryObject.getJEVisClass().getName();
         } catch (JEVisException e) {
             log.error(e);
@@ -56,17 +56,21 @@ public class LoytecXmlDlChannelDirectory implements LoytecXmlDlChannelDirectoryC
         // Add all channels
         try {
             log.debug("Getting the channels");
-            JEVisClass channelClass = channelDirectoryObject.getDataSource().getJEVisClass(LoytecXmlDlChannelClass.NAME);
+            JEVisClass channelClass = ds.getJEVisClass(LoytecXmlDlChannelClass.NAME);
+            JEVisClass outputChannelClass = ds.getJEVisClass(LoytecXmlDlOutputChannelClass.NAME);
 
             List<JEVisObject> listChannels = new ArrayList<>();
+            List<JEVisObject> listOutputChannels = new ArrayList<>();
             channelDirectoryObject.getChildren().forEach(jeVisObject -> {
                 try {
                     if (jeVisObject.getJEVisClass().equals(channelClass)) listChannels.add(jeVisObject);
+                    else if (jeVisObject.getJEVisClass().equals(outputChannelClass))
+                        listOutputChannels.add(jeVisObject);
                 } catch (JEVisException e) {
                     log.error(e);
                 }
             });
-            log.info("Found " + listChannels.size() + " channel objects in " + channelDirectoryObject.getName() + ":" + channelDirectoryObject.getID());
+            log.info("Found {} channel objects in {}:{}", listChannels.size(), channelDirectoryObject.getName(), channelDirectoryObject.getID());
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
             listChannels.forEach(channelObject -> {
@@ -83,18 +87,43 @@ public class LoytecXmlDlChannelDirectory implements LoytecXmlDlChannelDirectoryC
                         }
                     }
                 } catch (Exception e) {
-                    log.error("No valid channel Configuration for channel: " + channelObject.getName() + ":" + channelObject.getID());
+                    log.error("No valid channel Configuration for channel: {}:{}", channelObject.getName(), channelObject.getID(), e);
                     log.debug(e);
                 }
 
             });
+
+            counterCheckForErrorInAPI.clear();
+            listOutputChannels.forEach(channelObject -> {
+                try {
+                    JEVisAttribute attTargetId = channelObject.getAttribute(LoytecXmlDlChannel.TARGET_ID);
+                    JEVisAttribute attTrendId = channelObject.getAttribute(LoytecXmlDlChannel.TREND_ID);
+//                    JEVisAttribute attLastReadOut = channelObject.getAttribute(LoytecXmlDlChannel.LAST_READOUT);
+//                    if (attTargetId.hasSample() && attTrendId.hasSample() && attLastReadOut.hasSample()) {
+                    if (attTargetId.hasSample() && attTrendId.hasSample()) {
+                        if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
+                            outputChannels.add(new LoytecXmlDlOutputChannel(channelObject));
+                            counterCheckForErrorInAPI.add(channelObject.getID());
+                            log.debug("Output Channel added");
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("No valid channel Configuration for channel: {}:{}", channelObject.getName(), channelObject.getID());
+                    log.debug(e);
+                }
+
+            });
+
+
         } catch (JEVisException e) {
             log.error("Error while adding channels");
             log.debug(e.getMessage());
         }
 
-        log.info(channelDirectoryObject.getName() + ":" + channelDirectoryObject.getID() + " has " + channels.size() + " channels.");
+        log.info("{}:{} has {} channels.", channelDirectoryObject.getName(), channelDirectoryObject.getID(), channels.size());
+        log.info("{}:{} has {} output channels.", channelDirectoryObject.getName(), channelDirectoryObject.getID(), outputChannels.size());
     }
+
 
     @Override
     public String getName() {
@@ -110,4 +139,10 @@ public class LoytecXmlDlChannelDirectory implements LoytecXmlDlChannelDirectoryC
     public List<LoytecXmlDlChannel> getChannels() {
         return channels;
     }
+
+    @Override
+    public List<LoytecXmlDlOutputChannel> getOutputChannels() {
+        return outputChannels;
+    }
+
 }

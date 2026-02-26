@@ -20,4 +20,6 @@ public interface LoytecXmlDlChannelDirectoryClass extends DataCollectorTypes.Cha
     String getTechnology();
 
     List<LoytecXmlDlChannel> getChannels();
+
+    List<LoytecXmlDlOutputChannel> getOutputChannels();
 }
