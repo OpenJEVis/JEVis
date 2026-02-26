@@ -59,7 +59,7 @@ public class OPCClient {
      * @param url - for example: opc.tcp://10.1.2.128:4840
      */
     public OPCClient(String url) {
-        logger.error("Init OPCClient with url: {}", url);
+        logger.error("Init OPC Client with url: {}", url);
         this.endpointURL = url;
 
     }
@@ -75,15 +75,15 @@ public class OPCClient {
 
         logger.debug("UserIdentityTokens:");
         for (UserTokenPolicy userIdentityToken : endpointDescription.getUserIdentityTokens()) {
-            logger.debug(" -" + userIdentityToken.toString());
+            logger.debug(" -{}", userIdentityToken.toString());
         }
 
-        logger.debug("SecurityMode: " + endpointDescription.getSecurityMode().toString());
+        logger.debug("SecurityMode: {}", endpointDescription.getSecurityMode().toString());
 
-        logger.debug("SecurityPolicyUri: " + endpointDescription.getSecurityPolicyUri());
-        logger.debug("SecurityLevel: " + endpointDescription.getSecurityLevel());
-        logger.debug("TypeId: " + endpointDescription.getTypeId());
-        logger.debug("Server: " + endpointDescription.getServer().toString());
+        logger.debug("SecurityPolicyUri: {}", endpointDescription.getSecurityPolicyUri());
+        logger.debug("SecurityLevel: {}", endpointDescription.getSecurityLevel());
+        logger.debug("TypeId: {}", endpointDescription.getTypeId());
+        logger.debug("Server: {}", endpointDescription.getServer().toString());
         return "";
     }
 

@@ -6,7 +6,6 @@ import org.eclipse.milo.opcua.sdk.client.api.identity.UsernameProvider;
 import org.eclipse.milo.opcua.stack.core.UaException;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.jeopc.OPCClient;
@@ -64,18 +63,17 @@ public class OPCUAWriter {
 
             OPCUAServer opcuaServer = new OPCUAServer(opcServerObj);
 
-            opcClient = new OPCClient(opcuaServer.getURL());//"opc.tcp://10.1.2.128:4840");
+            opcClient = new OPCClient(opcuaServer.getURL());
             EndpointDescription endpointDescription = opcClient.autoSelectEndpoint();
             opcClient.setEndpoints(endpointDescription);
 
-            if (!opcServerObj.getAttribute(USER).getLatestSample().getValue().toString().isEmpty() && !opcServerObj.getAttribute(PASSWORD).getLatestSample().getValue().toString().isEmpty()) {
-                UsernameProvider usernameProvider = new UsernameProvider(opcServerObj.getAttribute(USER).getLatestSample().getValue().toString(), opcServerObj.getAttribute(PASSWORD).getLatestSample().getValue().toString());
-                opcClient.setIdentification(usernameProvider);
-                logger.info("Connect to OPC-UA Server to: ", opcuaServer.getURL());
-                opcClient.connect();
-            }
-        } catch (JEVisException jeVisException) {
-            logger.error(jeVisException);
+            UsernameProvider usernameProvider = new UsernameProvider(opcuaServer.getUser(), opcuaServer.getPassword());
+            opcClient.setIdentification(usernameProvider);
+            logger.info("Connect to OPC-UA Server to: ", opcuaServer.getURL());
+            opcClient.connect();
+
+        } catch (Exception e) {
+            logger.error("Error connection to OPC Server", e);
         }
     }
 
