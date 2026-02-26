@@ -54,7 +54,7 @@ public class OPCUAServer {
      */
     public final String DEFAULT_READ_TIMEOUT = "60";
 
-    private int DAYS_PER_Request = 30;
+    private final int DAYS_PER_Request = 30;
     private final String host;
     private final Integer port;
     private final String protocol;
@@ -288,7 +288,7 @@ public class OPCUAServer {
                     if (dataValue.getStatusCode().isGood()) {
                         results.add(new Result(OPCUAChannel.getTargetString(), value, ts));
                     } else {
-                        statusResults.add(new VirtualSample(ts, -1l));
+                        statusResults.add(new VirtualSample(ts, -1L));
                         logger.error("Error status for value: {}", dataValue);
                     }
                 }
@@ -336,5 +336,13 @@ public class OPCUAServer {
 
         });
 
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }
