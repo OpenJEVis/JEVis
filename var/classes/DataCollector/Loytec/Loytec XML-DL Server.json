@@ -59,6 +59,24 @@
       "validity": 0,
       "inherited": true,
       "jevisClass": "Loytec XML-DL Server"
+    },
+    {
+      "name": "Server Certificate",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Loytec XML-DL Server"
+    },
+    {
+      "name": "Client Certificate",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Loytec XML-DL Server"
     }
   ]
 }
