@@ -19,17 +19,17 @@
  */
 package org.jevis.emaildatasource;
 
-import jakarta.mail.Folder;
-import jakarta.mail.MessagingException;
-import jakarta.mail.Session;
-import jakarta.mail.Store;
-import jakarta.mail.event.ConnectionEvent;
-import jakarta.mail.event.ConnectionListener;
+import com.sun.mail.imap.IMAPFolder;
+import com.sun.mail.imap.IMAPSSLStore;
+import com.sun.mail.imap.IMAPStore;
 import org.apache.logging.log4j.LogManager;
-import org.eclipse.angus.mail.imap.IMAPFolder;
-import org.eclipse.angus.mail.imap.IMAPSSLStore;
-import org.eclipse.angus.mail.imap.IMAPStore;
 
+import javax.mail.Folder;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.event.ConnectionEvent;
+import javax.mail.event.ConnectionListener;
 import java.util.Properties;
 
 
