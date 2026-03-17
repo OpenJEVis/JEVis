@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.*;
+import com.udojava.evalex.Expression;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
@@ -31,8 +32,8 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFDataFormat;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -54,7 +55,6 @@ import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.attribute.PeriodEditor;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
-import org.mariuszgromada.math.mxparser.Expression;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -786,8 +786,13 @@ public class AccountingPlugin extends TablePlugin {
 
                     if (!isText) {
                         try {
-                            Expression expression = new Expression(formulaString);
-                            Double calculate = expression.calculate();
+                            Double calculate;
+                            try {
+                                calculate = new Expression(formulaString).eval().doubleValue();
+                            } catch (Expression.ExpressionException e) {
+                                logger.error("Formula evaluation failed: {}", e.getMessage());
+                                calculate = Double.NaN;
+                            }
                             if (!calculate.isNaN()) {
                                 resultMap.put(formula.getName(), calculate);
                             }
