@@ -19,9 +19,9 @@
  */
 package org.jevis.commons.object.plugin;
 
-import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * @TODO: belogins into driver
@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "calc")
 public class JsonVirtualCalc {
 
-    public String operator;
+    private String operator;
     private String version;
     private List<JsonInput> inputs;
 
@@ -45,18 +45,6 @@ public class JsonVirtualCalc {
 
     public VirtualSumData.Operator getOperatorAsEnum() {
         return VirtualSumData.Operator.valueOf(operator);
-//        switch (operator) {
-//            case "/":
-//                return VirtualSumData.Operator.DIVIDED;
-//            case "*":
-//                return VirtualSumData.Operator.TIMES;
-//            case "+":
-//                return VirtualSumData.Operator.PLUS;
-//            case "-":
-//                return VirtualSumData.Operator.MINUS;
-//            default:
-//                return VirtualSumData.Operator.NONE;
-//        }
     }
 
     @XmlElement(name = "operator")

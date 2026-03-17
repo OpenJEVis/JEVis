@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.dtrc;
 
 import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.*;
+import com.udojava.evalex.Expression;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -57,7 +58,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.mariuszgromada.math.mxparser.Expression;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -690,10 +690,13 @@ public class OutputView extends Tab {
                         s = formulaString.replace(oneValueTypeInput.getVariableName(), String.valueOf(oneValueTypeInput.getResultMap().get(ts)));
                     }
 
-                    Expression expression = new Expression(s);
-                    Double d = expression.calculate();
-                    if (!d.isNaN()) {
-                        allResults.put(ts, d);
+                    try {
+                        Double d = new Expression(s).eval().doubleValue();
+                        if (!d.isNaN()) {
+                            allResults.put(ts, d);
+                        }
+                    } catch (Expression.ExpressionException e) {
+                        logger.error("Formula evaluation failed: {}", e.getMessage());
                     }
                 }
 
@@ -741,8 +744,11 @@ public class OutputView extends Tab {
                 logger.debug("Finished formula after formula input replacement: " + formulaString);
 
                 if (needsCalculation || formulaString.contains("if(")) {
-                    Expression expression = new Expression(formulaString);
-                    calculate = expression.calculate();
+                    try {
+                        calculate = new Expression(formulaString).eval().doubleValue();
+                    } catch (Expression.ExpressionException e) {
+                        logger.error("Formula evaluation failed: {}", e.getMessage());
+                    }
                 }
 
                 if (formula.getInputIds().size() == 0) {
@@ -756,8 +762,11 @@ public class OutputView extends Tab {
                 if (!isText) {
                     try {
                         if (calculate == 0d) {
-                            Expression expression = new Expression(formulaString);
-                            calculate = expression.calculate();
+                            try {
+                                calculate = new Expression(formulaString).eval().doubleValue();
+                            } catch (Expression.ExpressionException e) {
+                                logger.error("Formula evaluation failed: {}", e.getMessage());
+                            }
                         }
 
                         if (!calculate.isNaN() && !calculate.isInfinite()) {

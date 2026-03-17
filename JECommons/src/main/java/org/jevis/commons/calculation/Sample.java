@@ -14,7 +14,12 @@ import org.joda.time.DateTime;
 import java.math.BigDecimal;
 
 /**
- * @author broder
+ * Lightweight wrapper around a single time-series data point used internally by the
+ * calculation engine.
+ * <p>
+ * {@code date} and {@code value} may be updated after construction to allow zero-fill for
+ * ASYNC inputs. {@code variable} maps to the identifier used in the formula expression,
+ * and {@code calcInputType} records the originating {@link CalcInputType} for merger logic.
  */
 public class Sample {
     private static final Logger logger = LogManager.getLogger(Sample.class);

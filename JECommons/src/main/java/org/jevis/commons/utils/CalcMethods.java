@@ -9,11 +9,23 @@ import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * Utility methods for managing JEVis Calculation object lifecycles.
+ * <p>
+ * Key operations:
+ * <ul>
+ *   <li>{@link #deleteAllCalculationDependencies} — deletes output samples of all
+ *       calculations that (directly or transitively) write to the given object, and
+ *       temporarily disables those calculations while doing so.</li>
+ *   <li>{@link #deleteAllCalculations} — same but scoped to all raw-data objects under
+ *       a given data-source object.</li>
+ *   <li>{@link #getTranslatedFormula} — substitutes variable identifiers in a formula
+ *       string with human-readable object names.</li>
+ * </ul>
+ * Warning: {@link #getOtherDependencies} is recursive with cycle detection via a visited set.
+ */
 public class CalcMethods extends CommonMethods {
     private static final Logger logger = LogManager.getLogger(CalcMethods.class);
 
@@ -21,17 +33,15 @@ public class CalcMethods extends CommonMethods {
         JEVisClass calculationClass = null;
         JEVisClass outputClass = null;
         JEVisClass cleanDataClass = null;
-        JEVisClass rawDataClass = null;
         JEVisDataSource ds = null;
         try {
             ds = jeVisObject.getDataSource();
             calculationClass = ds.getJEVisClass("Calculation");
             outputClass = ds.getJEVisClass("Output");
-            rawDataClass = ds.getJEVisClass("Data");
             cleanDataClass = ds.getJEVisClass("Clean Data");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("", e);
         }
 
         if (ds == null) {
@@ -42,31 +52,11 @@ public class CalcMethods extends CommonMethods {
         try {
             allCalculations = ds.getObjects(calculationClass, false);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("", e);
         }
 
-        List<JEVisObject> allTargets = new ArrayList<>();
-        Map<JEVisObject, JEVisObject> targetAndCalc = new HashMap<>();
-        for (JEVisObject calcObject : allCalculations) {
-            try {
-                for (JEVisObject output : calcObject.getChildren(outputClass, false)) {
-                    JEVisAttribute attribute = output.getAttribute("Output");
-                    if (attribute != null && attribute.hasSample()) {
-                        try {
-                            TargetHelper th = new TargetHelper(ds, attribute);
-                            if (!th.getObject().isEmpty()) {
-                                allTargets.addAll(th.getObject());
-                                targetAndCalc.put(th.getObject().get(0), calcObject);
-                            }
-                        } catch (Exception e) {
-                            logger.error("Error with output {}:{}", output.getName(), output.getID(), e);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        Map<JEVisObject, JEVisObject> targetAndCalc = buildTargetCalcMap(allCalculations, outputClass, ds);
+        List<JEVisObject> allTargets = new ArrayList<>(targetAndCalc.keySet());
 
         List<JEVisObject> foundCalcTarget = new ArrayList<>();
         List<JEVisObject> calculationsToDisable = new ArrayList<>();
@@ -74,7 +64,7 @@ public class CalcMethods extends CommonMethods {
             if (jeVisObject.equals(target)) {
                 foundCalcTarget.add(target);
                 calculationsToDisable.add(targetAndCalc.get(target));
-                getOtherDependencies(target, allCalculations, foundCalcTarget, calculationsToDisable, ds, outputClass);
+                getOtherDependencies(target, allCalculations, foundCalcTarget, calculationsToDisable, ds, outputClass, new HashSet<>());
             }
         }
 
@@ -90,7 +80,7 @@ public class CalcMethods extends CommonMethods {
             try {
                 allCleanData.addAll(data.getChildren(cleanDataClass, false));
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("", e);
             }
         }
 
@@ -101,8 +91,24 @@ public class CalcMethods extends CommonMethods {
         }
     }
 
-    private static void getOtherDependencies(JEVisObject jeVisObject, List<JEVisObject> allCalculations, List<JEVisObject> foundCalcTarget, List<JEVisObject> calculationsToDisable, JEVisDataSource ds, JEVisClass outputClass) {
-        List<JEVisObject> allTargets = new ArrayList<>();
+    private static void getOtherDependencies(JEVisObject jeVisObject, List<JEVisObject> allCalculations, List<JEVisObject> foundCalcTarget, List<JEVisObject> calculationsToDisable, JEVisDataSource ds, JEVisClass outputClass, Set<Long> visited) {
+        if (!visited.add(jeVisObject.getID())) {
+            return;
+        }
+
+        Map<JEVisObject, JEVisObject> targetAndCalc = buildTargetCalcMap(allCalculations, outputClass, ds);
+        List<JEVisObject> allTargets = new ArrayList<>(targetAndCalc.keySet());
+
+        for (JEVisObject target : allTargets) {
+            if (jeVisObject.equals(target)) {
+                foundCalcTarget.add(target);
+                calculationsToDisable.add(targetAndCalc.get(target));
+                getOtherDependencies(target, allCalculations, foundCalcTarget, calculationsToDisable, ds, outputClass, visited);
+            }
+        }
+    }
+
+    private static Map<JEVisObject, JEVisObject> buildTargetCalcMap(List<JEVisObject> allCalculations, JEVisClass outputClass, JEVisDataSource ds) {
         Map<JEVisObject, JEVisObject> targetAndCalc = new HashMap<>();
         for (JEVisObject calcObject : allCalculations) {
             try {
@@ -112,7 +118,6 @@ public class CalcMethods extends CommonMethods {
                         try {
                             TargetHelper th = new TargetHelper(ds, attribute);
                             if (!th.getObject().isEmpty()) {
-                                allTargets.addAll(th.getObject());
                                 targetAndCalc.put(th.getObject().get(0), calcObject);
                             }
                         } catch (Exception e) {
@@ -121,17 +126,10 @@ public class CalcMethods extends CommonMethods {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Error processing calc object {}:{}", calcObject.getName(), calcObject.getID(), e);
             }
         }
-
-        for (JEVisObject target : allTargets) {
-            if (jeVisObject.equals(target)) {
-                foundCalcTarget.add(target);
-                calculationsToDisable.add(targetAndCalc.get(target));
-                getOtherDependencies(target, allCalculations, foundCalcTarget, calculationsToDisable, ds, outputClass);
-            }
-        }
+        return targetAndCalc;
     }
 
     public static String getTranslatedFormula(JEVisObject calculationObject) {
@@ -172,7 +170,7 @@ public class CalcMethods extends CommonMethods {
             expression = expression.replace("{", "");
             expression = expression.replace("}", "");
         } catch (Exception e) {
-
+            logger.error("Failed to translate formula for calculation object: {}", e.getMessage(), e);
         }
 
         return expression;
@@ -193,7 +191,7 @@ public class CalcMethods extends CommonMethods {
             cleanDataClass = ds.getJEVisClass("Clean Data");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("", e);
         }
 
         if (ds == null) {
@@ -204,38 +202,18 @@ public class CalcMethods extends CommonMethods {
         try {
             rawData = getAllRawDataRec(jeVisObject, rawDataClass);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("", e);
         }
 
         List<JEVisObject> allCalculations = new ArrayList<>();
         try {
             allCalculations = ds.getObjects(calculationClass, false);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("", e);
         }
 
-        List<JEVisObject> allTargets = new ArrayList<>();
-        Map<JEVisObject, JEVisObject> targetAndCalc = new HashMap<>();
-        for (JEVisObject calcObject : allCalculations) {
-            try {
-                for (JEVisObject output : calcObject.getChildren(outputClass, false)) {
-                    JEVisAttribute attribute = output.getAttribute("Output");
-                    if (attribute != null && attribute.hasSample()) {
-                        try {
-                            TargetHelper th = new TargetHelper(ds, attribute);
-                            if (!th.getObject().isEmpty()) {
-                                allTargets.addAll(th.getObject());
-                                targetAndCalc.put(th.getObject().get(0), calcObject);
-                            }
-                        } catch (Exception e) {
-                            logger.error("Error with output {}:{}", output.getName(), output.getID(), e);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        Map<JEVisObject, JEVisObject> targetAndCalc = buildTargetCalcMap(allCalculations, outputClass, ds);
+        List<JEVisObject> allTargets = new ArrayList<>(targetAndCalc.keySet());
 
         List<JEVisObject> foundCalcTarget = new ArrayList<>();
         List<JEVisObject> calculationsToDisable = new ArrayList<>();
@@ -257,7 +235,7 @@ public class CalcMethods extends CommonMethods {
             try {
                 allCleanData.addAll(data.getChildren(cleanDataClass, false));
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("", e);
             }
         }
 
