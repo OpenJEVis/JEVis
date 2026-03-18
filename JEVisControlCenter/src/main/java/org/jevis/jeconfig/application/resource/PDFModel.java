@@ -17,6 +17,7 @@ public class PDFModel {
 
     private PDDocument document;
     private PDFRenderer renderer;
+    private int pages;
 
     public PDFModel() {
     }
@@ -29,13 +30,14 @@ public class PDFModel {
         try {
             document = PDDocument.load(bytes);
             renderer = new PDFRenderer(document);
+            pages = document.getPages().getCount();
         } catch (IOException ex) {
             throw new UncheckedIOException("PDDocument throws IOException bytes=" + bytes, ex);
         }
     }
 
     public int numPages() {
-        return document.getPages().getCount();
+        return pages;
     }
 
     public ImageView getImage(int pageNumber, double zoom) {
@@ -57,5 +59,10 @@ public class PDFModel {
         }
 
         return SwingFXUtils.toFXImage(pageImage, null);
+    }
+
+    public void close() throws IOException {
+        renderer = null;
+        document.close();
     }
 }
