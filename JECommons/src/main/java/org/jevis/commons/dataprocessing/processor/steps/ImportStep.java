@@ -1,13 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jevis.commons.dataprocessing.processor.steps;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.dataprocessing.MathDataObject;
@@ -28,7 +26,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author broder
+ * Final pipeline step: persists computed samples to the JEVis data store.
+ *
+ * <p>The step collects all non-null, non-NaN, non-Infinite result values from
+ * the {@link CleanInterval} list held in the {@link ResourceManager} and
+ * writes them in chunks of up to 30 000 samples per API call
+ * ({@link #insertSamples}) to keep individual HTTP payloads manageable.</p>
+ *
+ * <p><strong>Deduplication strategy:</strong> for CLEAN and FORECAST objects
+ * the attribute may already contain samples in the time range being processed
+ * (e.g. from a previous run).  Instead of deleting each conflicting sample
+ * individually (N API calls), this step issues a single
+ * {@link JEVisAttribute#deleteSamplesBetween} call covering the entire result
+ * range before the insert loop, reducing N round-trips to one.</p>
+ *
+ * <p>For FORECAST objects whose "keep values" flag is set the existing samples
+ * are deliberately preserved and only new ones are appended.</p>
  */
 public class ImportStep implements ProcessStep {
 
@@ -60,11 +73,6 @@ public class ImportStep implements ProcessStep {
                     sample.setTimeStamp(offsetTs);
                 }
             }
-
-//            if (!resourceManager.getIntervals().isEmpty()) {
-//                DateTime lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
-//                removeOldForecastSamples(cleanObject, lastDateTimeOfResults);
-//            }
         } else if (resourceManager.getForecastDataObject() != null) {
             ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
             cleanObject = forecastDataObject.getForecastDataObject();
@@ -109,13 +117,18 @@ public class ImportStep implements ProcessStep {
         }
 
         if ((resourceManager.isClean() && !resourceManager.getIntervals().isEmpty() && !monthPeriods) || resourceManager.isForecast() && !resourceManager.getIntervals().isEmpty()) {
-//            resourceManager.getIntervals().remove(0);
             firstDateTimeOfResults = resourceManager.getIntervals().get(0).getInterval().getStart();
             lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
 
             for (JEVisSample jeVisSample : attribute.getSamples(firstDateTimeOfResults, lastDateTimeOfResults)) {
                 listOldSamples.put(jeVisSample.getTimestamp(), jeVisSample);
             }
+        }
+
+        // Batch-delete existing samples in the result range with a single API call
+        // instead of issuing one deleteSamplesBetween per sample inside the loop.
+        if (hasSamples && (resourceManager.isClean() || resourceManager.isForecast()) && !listOldSamples.isEmpty()) {
+            attribute.deleteSamplesBetween(firstDateTimeOfResults, lastDateTimeOfResults);
         }
 
         List<JEVisSample> cleanSamples = new ArrayList<>();
@@ -129,13 +142,6 @@ public class ImportStep implements ProcessStep {
             DateTime date = sample.getTimestamp();
             if (date != null) {
                 DateTime timestamp = sample.getTimestamp();
-
-                if (hasSamples && (resourceManager.isClean() || resourceManager.isForecast())) {
-                    JEVisSample smp = listOldSamples.get(timestamp);
-                    if (smp != null) {
-                        attribute.deleteSamplesBetween(timestamp, timestamp);
-                    }
-                }
                 JEVisSample sampleSql = attribute.buildSample(timestamp, value, sample.getNote());
                 cleanSamples.add(sampleSql);
             }
@@ -150,23 +156,14 @@ public class ImportStep implements ProcessStep {
         LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
     }
 
-    private void removeOldForecastSamples(JEVisObject cleanObject, DateTime lastDateTimeOfResults) {
-        try {
-            JEVisClass foreCastClass = cleanObject.getDataSource().getJEVisClass(ForecastDataObject.CLASS_NAME);
-            List<JEVisObject> children = cleanObject.getChildren(foreCastClass, false);
-            if (!children.isEmpty()) {
-                for (JEVisObject object : children) {
-                    JEVisAttribute attribute = object.getAttribute(ForecastDataObject.VALUE_ATTRIBUTE_NAME);
-                    if (attribute != null) {
-                        attribute.deleteSamplesBetween(new DateTime(1990, 1, 1, 0, 0, 0), lastDateTimeOfResults);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error(e);
-        }
-    }
-
+    /**
+     * Inserts {@code samples} into {@code attribute} in chunks of at most
+     * 30 000 entries per call to keep individual HTTP payloads manageable.
+     *
+     * @param attribute the target JEVis attribute
+     * @param samples   the fully built samples to persist; must not be empty
+     * @throws JEVisException if the underlying data-source call fails
+     */
     private void insertSamples(JEVisAttribute attribute, List<JEVisSample> samples) throws JEVisException {
         int perChunk = 30000;
         for (int i = 0; i < samples.size(); i += perChunk) {

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jevis.commons.dataprocessing.processor.workflow;
 
 import org.jevis.api.JEVisSample;
@@ -15,7 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author gschutz
+ * Represents one output time slot in the processing pipeline.
+ *
+ * <p>A {@code CleanInterval} bundles everything the pipeline needs to compute
+ * a single output sample:</p>
+ * <ul>
+ *   <li>{@link #interval} — the half-open time window [{@code start}, {@code end})
+ *       from which raw source samples are collected.</li>
+ *   <li>{@link #date} — the exact output timestamp that will be written to the
+ *       clean/forecast/math attribute (may differ from {@code interval.start}).</li>
+ *   <li>{@link #rawSamples} — the raw source samples that fall inside the
+ *       interval, populated by the alignment and preparation steps.</li>
+ *   <li>{@link #result} — the {@link VirtualSample} whose value is computed
+ *       and eventually persisted by {@link org.jevis.commons.dataprocessing.processor.steps.ImportStep}.</li>
+ * </ul>
+ *
+ * <p>Two {@code CleanInterval} objects are considered equal if their
+ * {@link #date} timestamps are equal.</p>
  */
 public class CleanInterval {
 
@@ -29,19 +40,28 @@ public class CleanInterval {
     private Period outputPeriod;
     private Integer compare = 0;
 
+    /**
+     * @param interval      the time window used to gather raw samples
+     * @param exactDateTime the timestamp to assign to the computed output sample
+     */
     public CleanInterval(Interval interval, DateTime exactDateTime) {
         this.interval = interval;
         this.date = exactDateTime;
     }
 
+    /**
+     * Returns the exact output timestamp for the computed result sample.
+     */
     public DateTime getDate() {
         return date;
     }
 
+    /** Returns the time window used to select raw input samples. */
     public Interval getInterval() {
         return interval;
     }
 
+    /** Returns the mutable list of raw samples that fall within {@link #getInterval()}. */
     public List<JEVisSample> getRawSamples() {
         return rawSamples;
     }
@@ -50,6 +70,7 @@ public class CleanInterval {
         rawSamples.add(rawSample);
     }
 
+    /** Returns the in-memory result sample whose value will be persisted by {@code ImportStep}. */
     public VirtualSample getResult() {
         return result;
     }

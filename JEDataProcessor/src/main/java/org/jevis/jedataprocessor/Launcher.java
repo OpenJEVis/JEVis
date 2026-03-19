@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jevis.jedataprocessor;
 
 import org.apache.logging.log4j.LogManager;
@@ -25,12 +20,28 @@ import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.FutureTask;
 
 /**
- * @author broder
+ * Entry point and service shell for the JEDataProcessor background service.
+ *
+ * <p>The service supports three execution modes (controlled by command-line
+ * flags parsed by {@link AbstractCliApp}):</p>
+ * <ul>
+ *   <li><strong>SINGLE</strong> — processes one or more specific object IDs
+ *       passed on the command line and then exits.</li>
+ *   <li><strong>SERVICE</strong> — runs as a long-lived daemon; on each cycle
+ *       it loads all enabled CleanData / ForecastData / MathData objects and
+ *       submits them to a thread-pool executor, then sleeps until the next
+ *       cycle.</li>
+ *   <li><strong>COMPLETE</strong> — iterates over all enabled objects once in
+ *       sequence (no thread pool) and exits.</li>
+ * </ul>
+ *
+ * <p>Running jobs are tracked in the inherited {@code runningJobs} map.  The
+ * duplicate-job guard uses {@link java.util.concurrent.ConcurrentHashMap#putIfAbsent}
+ * to prevent two threads from submitting the same object concurrently.</p>
  */
 public class Launcher extends AbstractCliApp {
 
@@ -39,7 +50,6 @@ public class Launcher extends AbstractCliApp {
     public static String KEY = "process-id";
     private final Command commands = new Command();
     private int processingSize = 50000;
-    private final boolean firstRun = true;
 
     private Launcher(String[] args, String appname) {
         super(args, appname);
@@ -59,11 +69,11 @@ public class Launcher extends AbstractCliApp {
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         processes.forEach(currentCleanDataObject -> {
-            if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
+            // putIfAbsent is atomic: only one thread can win the race to start a job.
+            if (runningJobs.putIfAbsent(currentCleanDataObject.getID(), new DateTime()) == null) {
                 Runnable runnable = () -> {
                     try {
                         Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
-                        runningJobs.put(currentCleanDataObject.getID(), new DateTime());
 
                         ProcessManager currentProcess = null;
                         try {
@@ -136,7 +146,6 @@ public class Launcher extends AbstractCliApp {
                     logger.error("Error in process of object {}", l, e);
                 }
             }
-            //runSingle(ids);
         }
     }
 
@@ -174,7 +183,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runComplete() {
-        if (checkConnection()) {
+        while (checkConnection()) {
             List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
             try {
                 enabledCleanDataObjects = getAllCleaningObjects();
@@ -189,8 +198,6 @@ public class Launcher extends AbstractCliApp {
                     logger.error("Error in process of object {}", jeVisObject.getID(), e);
                 }
             }
-
-            runComplete();
         }
     }
 
@@ -215,7 +222,7 @@ public class Launcher extends AbstractCliApp {
             logger.info("Total amount of Forecast Data Objects: {}", forecastDataObjects.size());
             mathDataClass = ds.getJEVisClass(MathDataObject.CLASS_NAME);
             mathDataObjects = ds.getObjects(mathDataClass, false);
-            logger.info("Total amount of Math Data Objects: {}", forecastDataObjects.size());
+            logger.info("Total amount of Math Data Objects: {}", mathDataObjects.size());
 
             for (JEVisObject jeVisObject : cleanDataObjects) {
                 if (isEnabled(jeVisObject)) {
@@ -247,8 +254,6 @@ public class Launcher extends AbstractCliApp {
             throw new Exception("Process classes missing", ex);
         }
         logger.info("{} objects found for cleaning", filteredObjects.size());
-
-        Collections.shuffle(filteredObjects);
 
         return filteredObjects;
     }
