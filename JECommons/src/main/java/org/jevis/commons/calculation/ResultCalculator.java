@@ -13,9 +13,21 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
- * @author broder
+ * Evaluates the formula for each merged timestamp and produces a list of output samples.
+ * <p>
+ * For each {@code (timestamp → [samples])} entry in the merged map:
+ * <ol>
+ *   <li>If all inputs are zero and an {@code allZeroReplacementValue} is configured, that
+ *       replacement value is emitted with note {@code "AllZero"}.</li>
+ *   <li>Otherwise, variables are pushed into {@link CalcTemplate} and
+ *       {@link CalcTemplate#evaluate()} is called.</li>
+ *   <li>A {@code null} result (NaN / infinite) is replaced by {@code replacementValue} with
+ *       note {@code "calc(infinite)"}.</li>
+ * </ol>
+ * Note: {@code div0Handling} is accepted but not yet evaluated — see inline TODO.
  */
 public class ResultCalculator {
 
@@ -34,7 +46,7 @@ public class ResultCalculator {
             int numberOfInputs = value.size();
             Boolean[] arrayAllZero = new Boolean[numberOfInputs];
 
-            value.forEach(sample -> arrayAllZero[value.indexOf(sample)] = sample.getValue().equals(new BigDecimal(0)));
+            IntStream.range(0, value.size()).forEach(i -> arrayAllZero[i] = value.get(i).getValue().compareTo(BigDecimal.ZERO) == 0);
 
             boolean allZero = true;
             for (Boolean b : arrayAllZero) {

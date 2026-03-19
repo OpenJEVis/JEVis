@@ -1,11 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jevis.commons.calculation;
 
-import net.sourceforge.jeval.Evaluator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -20,13 +14,28 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.jevis.commons.calculation.CalcInputType.ASYNC;
 import static org.jevis.commons.calculation.CalcInputType.PERIODIC;
 
 /**
- * @author broder
+ * Factory that creates {@link CalcJob} instances from JEVis Calculation objects.
+ * <p>
+ * Three overloads are provided:
+ * <ul>
+ *   <li>{@link #getCurrentCalcJob} — normal service mode; derives the start time from the
+ *       last output sample and iterates forward.</li>
+ *   <li>{@link #getCalcJobForTimeFrame(SampleHandler, JEVisDataSource, JEVisObject, DateTime, DateTime, Boolean)}
+ *       — explicit time window with an absolute-aggregation flag.</li>
+ *   <li>{@link #getCalcJobForTimeFrame(SampleHandler, JEVisDataSource, JEVisObject, DateTime, DateTime, AggregationPeriod)}
+ *       — explicit time window with a named aggregation period.</li>
+ * </ul>
+ * Note: {@link #lastEndTime} is stateful — a single factory instance should not be reused
+ * across independent jobs unless that carry-over behaviour is desired.
  */
 public class CalcJobFactory {
 
@@ -129,7 +138,7 @@ public class CalcJobFactory {
             if (allZeroValueAtt.hasSample())
                 allZeroValue = allZeroValueAtt.getLatestSample().getValueAsDouble();
         } catch (Exception e) {
-
+            logger.error("Failed to read calc configuration for {}: {}", calcObjID, e.getMessage(), e);
         }
 
         calcJob.setCalcInputObjects(calcInputObjects);
@@ -181,17 +190,18 @@ public class CalcJobFactory {
 
         logger.debug("{} inputs found", calcInputObjects.size());
 
-        Evaluator eval = new Evaluator();
         try {
-            eval.parse(expression);
-
+            String normalizedExpr = expression.replaceAll("#\\{(\\w+)}", "$1");
+            com.udojava.evalex.Expression mxExpr = new com.udojava.evalex.Expression(normalizedExpr);
             for (CalcInputObject var : calcInputObjects) {
-                eval.putVariable(var.getIdentifier(), "1");
+                mxExpr.setVariable(var.getIdentifier(), java.math.BigDecimal.ONE);
             }
-
-            String value = eval.evaluate();
-        } catch (Exception e) {
-            throw new RuntimeException("Error evaluating expression: " + expression, e);
+            double val = mxExpr.eval().doubleValue();
+            if (!Double.isNaN(val) && Double.isInfinite(val)) {
+                logger.warn("Expression '{}' evaluated to Infinite during validation for calc object {}", expression, calcObjID);
+            }
+        } catch (com.udojava.evalex.Expression.ExpressionException e) {
+            throw new RuntimeException("Invalid calculation expression: " + expression, e);
         }
 
         String div0Handling = null;
@@ -311,7 +321,9 @@ public class CalcJobFactory {
              * check needed for empty data rows
              */
 
-            if (Objects.requireNonNull(startTime).equals(ultimateStart)) {
+            if (startTime == null)
+                throw new IllegalStateException("Could not determine start time — no output samples found");
+            if (startTime.equals(ultimateStart)) {
                 if (!startTimeFromInputs.equals(ultimateStart))
                     startTime = startTimeFromInputs;
             }
@@ -407,7 +419,7 @@ public class CalcJobFactory {
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
 
-                if (fromTo == null && (startTime.isBefore(endTime)) || startTime.equals(endTime)) {
+                if (fromTo == null && (startTime.isBefore(endTime) || startTime.equals(endTime))) {
                     fromTo = new Interval(startTime, endTime);
                 } else {
                     continue;
@@ -492,7 +504,7 @@ public class CalcJobFactory {
                             attribute = jeVisSample.getAttribute();
                         }
                     } catch (JEVisException e) {
-                        e.printStackTrace();
+                        logger.error("", e);
                     }
                 }
 
@@ -596,7 +608,7 @@ public class CalcJobFactory {
         STATIC_VALUE("Static Value"),
         ALL_ZERO_VALUE("All Zero Value");
 
-        String name;
+        private final String name;
 
         Calculation(String name) {
             this.name = name;

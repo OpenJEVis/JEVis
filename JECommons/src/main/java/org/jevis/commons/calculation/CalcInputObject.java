@@ -27,7 +27,16 @@ import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 import static org.jevis.commons.utils.CommonMethods.getNextSiteRecursive;
 
 /**
- * @author broder
+ * Loads and holds the input samples for one variable of a JEVis Calculation object.
+ * <p>
+ * Three {@code buildSamplesFromInputType} overloads exist for different aggregation modes:
+ * <ol>
+ *   <li>No aggregation — raw samples in the given time range.</li>
+ *   <li>{@link org.jevis.commons.dataprocessing.AggregationPeriod} — server-side aggregation.</li>
+ *   <li>{@code Boolean absolute} — sums or averages within the window into a single sample.</li>
+ * </ol>
+ * If a sibling "User Data" object exists whose name contains the source object's name,
+ * user-entered override values replace the raw samples in the loaded range.
  */
 public class CalcInputObject {
 
@@ -86,24 +95,8 @@ public class CalcInputObject {
             logger.error("Could not reload attribute. ", e);
         }
 
-        JEVisObject correspondingUserDataObject = null;
-        boolean foundUserDataObject = false;
-        final JEVisClass userDataClass;
-        try {
-            JEVisObject object = valueAttribute.getObject();
-            userDataClass = valueAttribute.getDataSource().getJEVisClass("User Data");
-            for (JEVisObject parent : object.getParents()) {
-                for (JEVisObject child : parent.getChildren()) {
-                    if (child.getJEVisClass().equals(userDataClass) && child.getName().contains(object.getName())) {
-                        correspondingUserDataObject = child;
-                        foundUserDataObject = true;
-                        break;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        JEVisObject correspondingUserDataObject = findUserDataObject(valueAttribute);
+        boolean foundUserDataObject = correspondingUserDataObject != null;
 
         switch (inputType) {
             case ASYNC:
@@ -147,24 +140,8 @@ public class CalcInputObject {
             logger.error("Could not reload attribute. ", e);
         }
 
-        JEVisObject correspondingUserDataObject = null;
-        boolean foundUserDataObject = false;
-        final JEVisClass userDataClass;
-        try {
-            JEVisObject object = valueAttribute.getObject();
-            userDataClass = valueAttribute.getDataSource().getJEVisClass("User Data");
-            for (JEVisObject parent : object.getParents()) {
-                for (JEVisObject child : parent.getChildren()) {
-                    if (child.getJEVisClass().equals(userDataClass) && child.getName().contains(object.getName())) {
-                        correspondingUserDataObject = child;
-                        foundUserDataObject = true;
-                        break;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        JEVisObject correspondingUserDataObject = findUserDataObject(valueAttribute);
+        boolean foundUserDataObject = correspondingUserDataObject != null;
 
         switch (inputType) {
             case ASYNC:
@@ -207,24 +184,8 @@ public class CalcInputObject {
             logger.error("Could not reload attribute. ", e);
         }
 
-        JEVisObject correspondingUserDataObject = null;
-        boolean foundUserDataObject = false;
-        final JEVisClass userDataClass;
-        try {
-            JEVisObject object = valueAttribute.getObject();
-            userDataClass = valueAttribute.getDataSource().getJEVisClass("User Data");
-            for (JEVisObject parent : object.getParents()) {
-                for (JEVisObject child : parent.getChildren()) {
-                    if (child.getJEVisClass().equals(userDataClass) && child.getName().contains(object.getName())) {
-                        correspondingUserDataObject = child;
-                        foundUserDataObject = true;
-                        break;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        JEVisObject correspondingUserDataObject = findUserDataObject(valueAttribute);
+        boolean foundUserDataObject = correspondingUserDataObject != null;
 
         switch (inputType) {
             case ASYNC:
@@ -309,8 +270,29 @@ public class CalcInputObject {
 
             tempList = new ArrayList<>(map.values());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Could not apply user data", e);
         }
         return tempList;
+    }
+
+    /**
+     * Searches siblings of the given attribute's owner object for a "User Data" object
+     * whose name contains the owner's name, returning it if found, {@code null} otherwise.
+     */
+    private JEVisObject findUserDataObject(JEVisAttribute attr) {
+        try {
+            JEVisObject object = attr.getObject();
+            JEVisClass userDataClass = attr.getDataSource().getJEVisClass("User Data");
+            for (JEVisObject parent : object.getParents()) {
+                for (JEVisObject child : parent.getChildren()) {
+                    if (child.getJEVisClass().equals(userDataClass) && child.getName().contains(object.getName())) {
+                        return child;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not find user data object for {}", attr.getObject().getID(), e);
+        }
+        return null;
     }
 }

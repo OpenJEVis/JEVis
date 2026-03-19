@@ -19,15 +19,16 @@
  */
 package org.jevis.emaildatasource;
 
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.search.*;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.search.*;
 
 
 /**

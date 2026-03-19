@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.object.extension.calculation;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextArea;
+import com.udojava.evalex.Expression;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
@@ -10,7 +11,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import net.sourceforge.jeval.Evaluator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -27,6 +27,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -95,13 +96,10 @@ public class FormulaBox extends HBox {
     }
 
     public void eval() {
-        Evaluator eval = new Evaluator();
         try {
-            eval.parse(textArea.getText());
-
-            for (String var : variables) {
-                eval.putVariable(var, "1");
-            }
+            String normalizedExpr = textArea.getText().replaceAll("#\\{(\\w+)}", "$1");
+            Expression mxExpr = new Expression(normalizedExpr);
+            variables.forEach(var -> mxExpr.setVariable(var, BigDecimal.ONE));
 
             List<String> warnings = new ArrayList();
             List<String> error = new ArrayList<>();
@@ -181,11 +179,10 @@ public class FormulaBox extends HBox {
 
             boolean valIsOK = false;
             try {
-                String value = eval.evaluate();
+                mxExpr.eval();
                 valIsOK = true;
                 info.add(I18n.getInstance().getString("plugin.object.extension.calculation.error.noerrorformula"));
-
-            } catch (Exception ex) {
+            } catch (Expression.ExpressionException ex) {
                 error.add(String.format("%s: %S", I18n.getInstance().getString("plugin.object.extension.calculation.error.formula"), ex.getMessage()));
             }
 
@@ -304,7 +301,7 @@ public class FormulaBox extends HBox {
             alert.showAndWait();
 
 
-            ex.printStackTrace();
+            logger.error("Formula evaluation error", ex);
         }
 
     }

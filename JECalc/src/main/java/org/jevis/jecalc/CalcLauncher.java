@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jevis.jecalc;
 
 import org.apache.logging.log4j.LogManager;
@@ -29,15 +24,24 @@ import java.util.List;
 import java.util.concurrent.FutureTask;
 
 /**
- * @author broder
+ * Entry point for the JECalc background service.
+ * <p>
+ * Execution modes:
+ * <ul>
+ *   <li><b>SERVICE</b> — polls on a configurable cycle; processes all enabled Calculation objects.</li>
+ *   <li><b>SINGLE</b>  — processes the Calculation objects specified by their JEVis IDs on the
+ *       command line, then exits.</li>
+ *   <li><b>COMPLETE</b> — one-shot run of all enabled calculations, then exits.</li>
+ * </ul>
+ * Each job iterates up to 500 times (to handle cascading dependency recalculation) until
+ * no new samples are produced. A thread pool (size configured via the service object) runs
+ * jobs concurrently.
  */
 public class CalcLauncher extends AbstractCliApp {
 
     private static final Logger logger = LogManager.getLogger(CalcLauncher.class);
     private final Command commands = new Command();
     private static final String APP_INFO = "JECalc";
-
-    private final boolean firstRun = true;
 
     public CalcLauncher(String[] args, String appname) {
         super(args, appname);
@@ -99,12 +103,13 @@ public class CalcLauncher extends AbstractCliApp {
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
 
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
+                        SampleHandler sampleHandler = new SampleHandler();
 
                         boolean changed;
                         int iteration = 0;
 
                         do {
-                            CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                            CalcJob calcJob = calcJobCreator.getCurrentCalcJob(sampleHandler, ds, object);
                             changed = calcJob.execute();
                             iteration++;
                         } while (changed && iteration < 500);
@@ -192,12 +197,13 @@ public class CalcLauncher extends AbstractCliApp {
 
                 try {
                     CalcJobFactory calcJobCreator = new CalcJobFactory();
+                    SampleHandler sampleHandler = new SampleHandler();
 
                     boolean changed;
                     int iteration = 0;
 
                     do {
-                        CalcJob calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                        CalcJob calcJob = calcJobCreator.getCurrentCalcJob(sampleHandler, ds, object);
                         changed = calcJob.execute();
                         iteration++;
                     } while (changed && iteration < 500);

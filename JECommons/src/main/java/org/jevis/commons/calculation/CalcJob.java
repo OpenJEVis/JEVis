@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jevis.commons.calculation;
 
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author broder
+ * Represents a single calculation job for one JEVis Calculation object.
+ * <p>
+ * Responsibilities:
+ * <ul>
+ *   <li>Merge samples from all {@link CalcInputObject} inputs via {@link SampleMerger}.</li>
+ *   <li>Evaluate the formula for each merged timestamp via {@link ResultCalculator}.</li>
+ *   <li>Persist results to the configured output {@link org.jevis.api.JEVisAttribute}s.</li>
+ * </ul>
+ * The {@link #execute()} method drives the full pipeline and returns {@code true} when at
+ * least one new sample was written, allowing the caller to iterate until convergence.
+ * {@link #getResults()} performs the same merge+calculate step but does not persist.
  */
 public class CalcJob {
 
@@ -57,7 +62,7 @@ public class CalcJob {
             logger.debug("{} mergable calculations found", mergedSamples.size());
             ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(calcObjID, expression));
             List<JEVisSample> calculateResult = resultCalc.calculateResult(DIV0Handling, staticValue, allZeroValue);
-            if (calculateResult.size() > 1) {
+            if (calculateResult.size() > 0) {
                 newSamplesWritten = true;
             }
             logger.info("{} results calculated", calculateResult.size());
@@ -102,17 +107,8 @@ public class CalcJob {
                     }
                 }
 
-                for (JEVisSample sample : calculateResult) {
-                    DateTime date = sample.getTimestamp();
-                    if (date != null) {
-
-                        if (hasSamples) {
-                            JEVisSample smp = listOldSamples.get(date);
-                            if (smp != null) {
-                                output.deleteSamplesBetween(date, date);
-                            }
-                        }
-                    }
+                if (hasSamples && !listOldSamples.isEmpty()) {
+                    output.deleteSamplesBetween(firstDateTimeOfResults, lastDateTimeOfResults);
                 }
 
                 output.addSamples(calculateResult);

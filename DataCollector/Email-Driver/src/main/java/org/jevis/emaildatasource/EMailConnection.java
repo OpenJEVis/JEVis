@@ -20,8 +20,8 @@
 
 package org.jevis.emaildatasource;
 
-import jakarta.mail.Folder;
-import jakarta.mail.Session;
+import javax.mail.Folder;
+import javax.mail.Session;
 
 
 /**

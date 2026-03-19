@@ -19,14 +19,14 @@
  */
 package org.jevis.emaildatasource;
 
-import jakarta.mail.*;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.mail.search.SearchTerm;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.joda.time.DateTime;
 
+import javax.mail.*;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.search.SearchTerm;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;

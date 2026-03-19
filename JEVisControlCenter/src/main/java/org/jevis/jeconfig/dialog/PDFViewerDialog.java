@@ -305,6 +305,15 @@ public class PDFViewerDialog {
                 TopMenu.applyActiveTheme(scene);
             }
         });
+
+        stage.setOnCloseRequest(event -> {
+            try {
+                model.close();
+            } catch (IOException e) {
+                logger.error(e);
+            }
+        });
+
         stage.showAndWait();
     }
 

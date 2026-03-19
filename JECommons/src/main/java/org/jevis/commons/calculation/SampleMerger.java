@@ -15,7 +15,20 @@ import org.joda.time.format.DateTimeFormat;
 import java.util.*;
 
 /**
- * @author broder
+ * Merges sample lists from multiple {@link CalcInputObject} inputs into a single
+ * {@code TreeMap<DateTime, List<Sample>>} keyed by timestamp.
+ * <p>
+ * Supported {@link CalcInputType} modes:
+ * <ul>
+ *   <li><b>PERIODIC</b> — regular-interval time-series; one sample per timestamp.</li>
+ *   <li><b>ASYNC</b>    — event-driven; zero-filled at timestamps where the variable has
+ *       no value. {@link #noOfAsyncVariables} tracks how many async inputs exist so that
+ *       the completeness check is adjusted accordingly.</li>
+ *   <li><b>STATIC</b>   — single constant applied to every timestamp in the merged map.</li>
+ *   <li><b>NON_PERIODIC</b> — step-function: the most-recently-seen value is used at each
+ *       timestamp until the next change.</li>
+ * </ul>
+ * Incomplete rows (missing non-async inputs) are removed before the map is returned.
  */
 public class SampleMerger {
 
