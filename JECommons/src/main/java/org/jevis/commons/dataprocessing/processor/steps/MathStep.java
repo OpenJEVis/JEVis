@@ -1,5 +1,8 @@
 package org.jevis.commons.dataprocessing.processor.steps;
 
+import com.udojava.evalex.Expression;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -11,13 +14,11 @@ import org.jevis.commons.dataprocessing.processor.workflow.PeriodRule;
 import org.jevis.commons.dataprocessing.processor.workflow.ProcessStep;
 import org.jevis.commons.dataprocessing.processor.workflow.ResourceManager;
 import org.jevis.commons.datetime.WorkDays;
-import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
-import org.mariuszgromada.math.mxparser.Expression;
 
-import java.text.NumberFormat;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 public class MathStep implements ProcessStep {
 
+    private static final Logger logger = LogManager.getLogger(MathStep.class);
     private WorkDays workDays;
 
     @Override
@@ -464,14 +466,17 @@ public class MathStep implements ProcessStep {
     }
 
     private void calcFormula(CleanInterval interval, List<JEVisSample> samples, String formula) throws JEVisException {
-        NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getDefaultBundle().getLocale());
-
+        Expression expression = new Expression(formula);
         for (JEVisSample sample : samples) {
-            Expression expression = new Expression(formula.replace("x", nf.format(sample.getValueAsDouble())));
-            double result = expression.calculate();
-            interval.getResult().setTimeStamp(sample.getTimestamp());
-            interval.getResult().setValue(result);
-            interval.getResult().setNote("math(formula)");
+            try {
+                expression.setVariable("x", BigDecimal.valueOf(sample.getValueAsDouble()));
+                double result = expression.eval().doubleValue();
+                interval.getResult().setTimeStamp(sample.getTimestamp());
+                interval.getResult().setValue(result);
+                interval.getResult().setNote("math(formula)");
+            } catch (Expression.ExpressionException e) {
+                logger.error("Formula evaluation failed: {}", e.getMessage());
+            }
         }
     }
 }
