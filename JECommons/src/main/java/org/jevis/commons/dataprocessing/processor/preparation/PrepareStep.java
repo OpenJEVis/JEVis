@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jevis.commons.dataprocessing.processor.preparation;
 
 import org.apache.logging.log4j.LogManager;
@@ -26,16 +21,29 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Creates empty interval classes from start date to end date
+ * Preparation step for the standard clean-data pipeline.
  *
- * @author gschutz
+ * <p>This step is responsible for:</p>
+ * <ol>
+ *   <li>Fetching the raw (uncleaned) samples from the source attribute via
+ *       {@link CleanDataObject#getRawSamplesDown()}.</li>
+ *   <li>Building the grid of {@link CleanInterval} objects that define every
+ *       output time slot to be computed — either from configured period rules
+ *       ({@link CleanDataObject#getIsPeriodAligned()}) or directly from the
+ *       raw sample timestamps.</li>
+ *   <li>Back-filling additional raw samples that precede the first computed
+ *       interval so that differential and alignment steps have enough context
+ *       to compute the very first output value correctly.</li>
+ * </ol>
+ *
+ * <p>The back-fill look-up uses a {@link HashSet} of already-seen timestamps
+ * for O(1) duplicate checking, avoiding the O(existing × new) inner-loop
+ * cost of a naive list search.</p>
  */
 public class PrepareStep implements ProcessStep {
 
@@ -55,11 +63,9 @@ public class PrepareStep implements ProcessStep {
         //get the raw samples for the cleaning
         logger.info("[{}] Request raw samples", resourceManager.getID());
         List<JEVisSample> rawSamplesDown = cleanDataObject.getRawSamplesDown();
-//        List<JEVisSample> rawSamplesUp = cleanDataObject.getRawSamplesUp();
         logger.info("[{}] raw samples found for cleaning: {}", resourceManager.getID(), rawSamplesDown.size());
         LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("Raw S.", String.valueOf(rawSamplesDown.size()));
 
-//        if (rawSamplesDown.isEmpty() || rawSamplesUp.isEmpty()) {
         if (rawSamplesDown.isEmpty()) {
             throw new RuntimeException(String.format("[%s] No new raw data. Stopping this job", resourceManager.getID()));
         }
@@ -101,6 +107,18 @@ public class PrepareStep implements ProcessStep {
         int maxGapCount = 10000;
         int i = 0;
 
+        // Build O(1) lookup set to avoid O(existing × new) inner-loop deduplication.
+        Set<DateTime> existingTimestamps = rawSamples.stream()
+                .map(s -> {
+                    try {
+                        return s.getTimestamp();
+                    } catch (JEVisException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(HashSet::new));
+
         while ((currentDate.isAfter(firstTimestamp) || currentDate.equals(firstTimestamp)) &&
                 !CleanDataObject.getPeriodForDate(rawDataPeriodAlignment, firstIntervalDate).equals(Period.ZERO) &&
                 i < maxGapCount &&
@@ -113,15 +131,9 @@ public class PrepareStep implements ProcessStep {
                 currentDate = newStart;
                 List<JEVisSample> filteredList = new ArrayList<>();
                 for (JEVisSample sample : samples) {
-                    boolean tsExists = false;
-                    for (JEVisSample rawSample : rawSamples) {
-                        if (rawSample.getTimestamp().equals(sample.getTimestamp())) {
-                            tsExists = true;
-                            break;
-                        }
-                    }
-                    if (!tsExists) {
+                    if (!existingTimestamps.contains(sample.getTimestamp())) {
                         filteredList.add(sample);
+                        existingTimestamps.add(sample.getTimestamp());
                         firstRawSampleDate = sample.getTimestamp();
                     }
                 }

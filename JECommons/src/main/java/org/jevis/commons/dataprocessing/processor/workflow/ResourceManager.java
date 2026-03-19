@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jevis.commons.dataprocessing.processor.workflow;
 
 import org.apache.logging.log4j.LogManager;
@@ -23,13 +18,22 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * @author gschutz
+ * Shared-state carrier for a single data-processing pipeline run.
+ *
+ * <p>One {@code ResourceManager} is created by {@link ProcessManager} at the
+ * start of a run and passed to every {@link ProcessStep} in sequence.  Each
+ * step reads the state it needs and writes back its results so that subsequent
+ * steps can consume them.</p>
+ *
+ * <p>Between batches (when processing large datasets in chunks) the
+ * {@link ProcessManager} calls the various setters with {@code null} to clear
+ * transient state before the next batch begins.</p>
  */
 public class ResourceManager {
 
     private static final Logger logger = LogManager.getLogger(ResourceManager.class);
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
-    public List<CleanInterval> intervals = new ArrayList<>();
+    private List<CleanInterval> intervals = new ArrayList<>();
     private CleanDataObject cleanDataObject;
     private ForecastDataObject forecastDataObject;
     private MathDataObject mathDataObject;
@@ -38,8 +42,10 @@ public class ResourceManager {
     private Map<DateTime, JEVisSample> userDataMap;
     private List<JEVisSample> sampleCache = new ArrayList<>();
     private List<CleanInterval> rawIntervals = new ArrayList<>();
-    private Boolean isClean = true;
-    private Boolean isForecast = false;
+    /**
+     * Determines which pipeline variant is active for this run.
+     */
+    private ProcessingType processingType = ProcessingType.CLEAN;
     private DateTimeZone timeZone;
 
     public ResourceManager() {
@@ -175,20 +181,31 @@ public class ResourceManager {
         this.rawIntervals = rawIntervals;
     }
 
+    /** @return {@code true} if the active pipeline is {@link ProcessingType#CLEAN}. */
     public Boolean isClean() {
-        return isClean;
+        return processingType == ProcessingType.CLEAN;
     }
 
-    public void setClean(Boolean clean) {
-        isClean = clean;
-    }
-
+    /** @return {@code true} if the active pipeline is {@link ProcessingType#FORECAST}. */
     public Boolean isForecast() {
-        return isForecast;
+        return processingType == ProcessingType.FORECAST;
     }
 
-    public void setForecast(Boolean forecast) {
-        isForecast = forecast;
+    /**
+     * @return {@code true} if the active pipeline is {@link ProcessingType#MATH}.
+     */
+    public Boolean isMath() {
+        return processingType == ProcessingType.MATH;
+    }
+
+    /**
+     * Sets the active pipeline type for this run.
+     * Replaces the former {@code setClean()}/{@code setForecast()} pair.
+     *
+     * @param processingType the pipeline type determined by {@link ProcessManager}
+     */
+    public void setProcessingType(ProcessingType processingType) {
+        this.processingType = processingType;
     }
 
     public NumberFormat getNumberFormat() {
