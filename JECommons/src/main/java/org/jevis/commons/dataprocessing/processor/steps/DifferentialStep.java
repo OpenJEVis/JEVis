@@ -290,16 +290,25 @@ public class DifferentialStep implements ProcessStep {
                                 DateTime localDT = tmpTimeStamp.withZone(timeZone);
                                 DateTime lastLocalDT = lastDiffTS.withZone(timeZone);
 
-                                if (Period.years(1).equals(resetPeriod) && lastLocalDT.getYear() != localDT.getYear()) {
+                                DateTime yearStart = new DateTime(localDT.getYear(), 1, 1, 0, 0, 0, 0, timeZone);
+                                DateTime monthStart = new DateTime(localDT.getYear(), localDT.getMonthOfYear(), 1, 0, 0, 0, 0, timeZone);
+                                DateTime weekStart = localDT.withDayOfWeek(1).withTimeAtStartOfDay().withZone(timeZone);
+                                DateTime dayStart = localDT.withTimeAtStartOfDay().withZone(timeZone);
+
+                                if (Period.years(1).equals(resetPeriod)
+                                        && !yearStart.isBefore(lastLocalDT) && !yearStart.isAfter(localDT)) {
                                     cleanedVal = rawValue;
                                     note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
-                                } else if (Period.months(1).equals(resetPeriod) && lastLocalDT.getMonthOfYear() != localDT.getMonthOfYear()) {
+                                } else if (Period.months(1).equals(resetPeriod)
+                                        && !monthStart.isBefore(lastLocalDT) && !monthStart.isAfter(localDT)) {
                                     cleanedVal = rawValue;
                                     note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
-                                } else if (Period.weeks(1).equals(resetPeriod) && lastLocalDT.getWeekOfWeekyear() != localDT.getWeekOfWeekyear()) {
+                                } else if (Period.weeks(1).equals(resetPeriod)
+                                        && !weekStart.isBefore(lastLocalDT) && !weekStart.isAfter(localDT)) {
                                     cleanedVal = rawValue;
                                     note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
-                                } else if (Period.days(1).equals(resetPeriod) && lastLocalDT.getDayOfMonth() != localDT.getDayOfMonth()) {
+                                } else if (Period.days(1).equals(resetPeriod)
+                                        && !dayStart.isBefore(lastLocalDT) && !dayStart.isAfter(localDT)) {
                                     cleanedVal = rawValue;
                                     note += "," + NoteConstants.Differential.RESET_BY_PERIOD;
                                 }
