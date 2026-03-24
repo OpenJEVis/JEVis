@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
-import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +44,7 @@ public class TableSerie extends XYChartSerie {
                     setTimeStampOfLastSample(samples.get(samples.size() - 1).getTimestamp());
 
             } catch (Exception e) {
-                logger.error("Couldn't get timestamps from samples. " + e);
+                logger.error("Couldn't get timestamps from samples. ", e);
             }
         }
 
@@ -74,44 +73,8 @@ public class TableSerie extends XYChartSerie {
     }
 
 
-    public DoubleDataSet getValueDataSet() {
-        return valueDataSet;
-    }
-
-    public TableEntry getTableEntry() {
-        return tableEntry;
-    }
-
-    public DateTime getTimeStampOfFirstSample() {
-        return this.timeStampOfFirstSample;
-    }
-
-    public void setTimeStampOfFirstSample(DateTime timeStampOfFirstSample) {
-        this.timeStampOfFirstSample = timeStampOfFirstSample;
-    }
-
-    public DateTime getTimeStampOfLastSample() {
-        return this.timeStampOfLastSample;
-    }
-
-    public void setTimeStampOfLastSample(DateTime timeStampOfLastSample) {
-        this.timeStampOfLastSample = timeStampOfLastSample;
-    }
-
-    public ChartDataRow getSingleRow() {
-        return singleRow;
-    }
-
-    public void setSingleRow(ChartDataRow singleRow) {
-        this.singleRow = singleRow;
-        this.yAxis = singleRow.getAxis();
-    }
-
     public String getUnit() {
         return super.getUnit();
     }
 
-    public TreeMap<DateTime, JEVisSample> getSampleMap() {
-        return sampleMap;
-    }
 }

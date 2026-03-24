@@ -36,7 +36,6 @@ import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSample;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
@@ -51,7 +50,6 @@ import java.util.*;
 
 public class TableChartV extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChartV.class);
-    private final TableTopDatePicker tableTopDatePicker = new TableTopDatePicker();
     private final DateTime maxDate = new DateTime(9999, 1, 1, 0, 0, 0, 0);
     private final JFXCheckBox filterEnabledBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
     private final HashMap<TableColumn<TableSample, ?>, String> columnFilter = new HashMap<>();
@@ -82,8 +80,6 @@ public class TableChartV extends XYChart {
                         showColumnSums(chartModel.isShowColumnSums());
                         showRowSums(chartModel.isShowRowSums());
                         buildChart(toolBarSettings, dataSettings);
-
-                        tableTopDatePicker.initialize(singleRow, timeStampOfLastSample.get());
                     } catch (Exception e) {
                         this.failed();
                         logger.error("Could not build chart {}", chartModel.getChartName(), e);
@@ -527,8 +523,9 @@ public class TableChartV extends XYChart {
                         try {
                             Thread.sleep(1000);
                             Platform.runLater(() -> {
-                                tableHeader.getColumns().get(0).setVisible(false);
-                                tableHeader.getColumns().get(0).setVisible(true);
+                                TableView<TableSample> th = tableHeader;
+                                th.getColumns().get(0).setVisible(false);
+                                th.getColumns().get(0).setVisible(true);
                             });
                         } catch (Exception e) {
                             failed();
@@ -768,16 +765,8 @@ public class TableChartV extends XYChart {
         return column;
     }
 
-    public HBox getTopPicker() {
-        return tableTopDatePicker;
-    }
-
     @Override
     public void generateYAxis() {
-    }
-
-    public TableTopDatePicker getTableTopDatePicker() {
-        return tableTopDatePicker;
     }
 
     public ChartDataRow getSingleRow() {

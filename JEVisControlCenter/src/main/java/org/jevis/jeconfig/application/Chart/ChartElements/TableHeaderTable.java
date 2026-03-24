@@ -11,7 +11,7 @@ import org.joda.time.DateTime;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class TableHeaderTable extends TableView<TableSample> {
+public class TableHeaderTable extends TableView {
     private static Method columnToFitMethod;
 
     static {

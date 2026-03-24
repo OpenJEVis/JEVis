@@ -22,6 +22,7 @@ public class ChartModel {
     private final SimpleIntegerProperty maxFractionDigits = new SimpleIntegerProperty(this, "maxFractionDigits", 2);
     private final SimpleBooleanProperty filterEnabled = new SimpleBooleanProperty(this, "filterEnabled", false);
     private final SimpleBooleanProperty fixYAxisToZero = new SimpleBooleanProperty(this, "fixYAxisToZero", false);
+    private final SimpleBooleanProperty coloringEnabled = new SimpleBooleanProperty(this, "coloringEnabled", false);
     private final SimpleBooleanProperty showColumnSums = new SimpleBooleanProperty(this, "showColumnSums", false);
     private final SimpleBooleanProperty showRowSums = new SimpleBooleanProperty(this, "showRowSums", false);
     private final SimpleObjectProperty<LocalTime> dayStart = new SimpleObjectProperty<>(this, "dayStart", null);
@@ -241,5 +242,17 @@ public class ChartModel {
 
     public StringProperty yAxisTitleProperty() {
         return yAxisTitle;
+    }
+
+    public boolean isColoringEnabled() {
+        return coloringEnabled.get();
+    }
+
+    public void setColoringEnabled(Boolean coloringEnabled) {
+        this.coloringEnabled.set(coloringEnabled);
+    }
+
+    public SimpleBooleanProperty coloringEnabledProperty() {
+        return coloringEnabled;
     }
 }

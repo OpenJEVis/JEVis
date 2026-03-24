@@ -510,6 +510,8 @@ public class ChartPlugin implements Plugin {
                 return new TableChart(ds, chartModel);
             case TABLE_V:
                 return new TableChartV(ds, chartModel);
+            case TABLE_H:
+                return new TableChartH(ds, chartModel);
             case HEAT_MAP:
                 return new HeatMapChart(ds, chartModel);
             case AREA:
@@ -681,7 +683,7 @@ public class ChartPlugin implements Plugin {
                     allCharts.put(chartModel.getChartId(), chart);
                 }
 
-                if (chartModel.getChartType() != ChartType.TABLE && chartModel.getChartType() != ChartType.TABLE_V) {
+                if (chartModel.getChartType() != ChartType.TABLE && chartModel.getChartType() != ChartType.TABLE_V && chartModel.getChartType() != ChartType.TABLE_H) {
                     switch (chartModel.getChartType()) {
                         case BAR:
                         case PIE:
@@ -725,14 +727,14 @@ public class ChartPlugin implements Plugin {
                     TableHeader tableHeader = new TableHeader(chartModel, chart);
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
-                    if (chartModel.getChartType() != ChartType.TABLE && chartModel.getChartType() != ChartType.TABLE_V) {
+                    if (chartModel.getChartType() != ChartType.TABLE && chartModel.getChartType() != ChartType.TABLE_V
+                            && chartModel.getChartType() != ChartType.TABLE_H) {
                         bp.setTop(tableHeader);
                     } else if (chartModel.getChartType() == ChartType.TABLE) {
                         TableChart tableChart = (TableChart) chart;
                         bp.setTop(tableChart.getTopPicker());
 
-                    } else if (chartModel.getChartType() == ChartType.TABLE_V) {
-                        TableChartV tableChart = (TableChartV) chart;
+                    } else if (chartModel.getChartType() == ChartType.TABLE_V || chartModel.getChartType() == ChartType.TABLE_H) {
 
                         Label titleLabel = new Label(chartModel.getChartName());
                         titleLabel.setStyle("-fx-font-size: 14px;-fx-font-weight: bold;");
@@ -740,13 +742,26 @@ public class ChartPlugin implements Plugin {
 
                         Region spacer = new Region();
 
-                        HBox hBox = new HBox(8, titleLabel, spacer, tableChart.getFilterEnabledBox());
+                        HBox hBox = new HBox(8, titleLabel, spacer);
+
+
                         hBox.setAlignment(Pos.CENTER);
                         hBox.setMaxHeight(titleLabel.getLayoutBounds().getHeight() * 1.25);
                         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-                        TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
-                        tableChart.setTableHeader(tableHeaderTable);
+                        TableView tableHeaderTable;
+                        if (chart instanceof TableChartV) {
+                            TableChartV tableChart = (TableChartV) chart;
+                            tableHeaderTable = new TableHeaderTable(chart.getXyChartSerieList());
+                            hBox.getChildren().add(tableChart.getFilterEnabledBox());
+                            tableChart.setTableHeader((TableHeaderTable) tableHeaderTable);
+                        } else {
+                            TableChartH tableChartH = (TableChartH) chart;
+                            tableHeaderTable = new TableView<TableHSample>();
+                            tableChartH.setTableHeader(tableHeaderTable);
+                            hBox.getChildren().add(tableChartH.getFilterEnabledBox());
+                        }
+
                         tableHeaderTable.prefWidthProperty().bind(bp.widthProperty());
                         SplitPane vBox = new SplitPane();
                         vBox.setOrientation(Orientation.VERTICAL);
