@@ -9,6 +9,28 @@ import org.joda.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Configuration model for a single chart within an analysis.
+ * <p>
+ * A {@code ChartModel} carries all settings that are persisted per chart:
+ * <ul>
+ *   <li>Identity — {@code chartId}, {@code chartName}</li>
+ *   <li>Rendering — {@code chartType}, {@code orientation}, {@code colorMapping},
+ *       {@code height}</li>
+ *   <li>Numeric formatting — {@code minFractionDigits}, {@code maxFractionDigits},
+ *       {@code groupingInterval}</li>
+ *   <li>Flags — {@code filterEnabled}, {@code fixYAxisToZero}, {@code coloringEnabled},
+ *       {@code showColumnSums}, {@code showRowSums}</li>
+ *   <li>Heat-map time window — {@code dayStart}, {@code dayEnd}</li>
+ *   <li>Axis labels — {@code xAxisTitle}, {@code yAxisTitle}</li>
+ * </ul>
+ * Each field is backed by a JavaFX property so that UI components can bind to it directly.
+ * The model is serialised to JSON by {@link AnalysisHandler} and deserialised via Jackson's
+ * {@code readerForUpdating}.
+ *
+ * @see DataModel
+ * @see ChartData
+ */
 public class ChartModel {
 
     private final SimpleIntegerProperty chartId = new SimpleIntegerProperty(this, "chartId", -1);
@@ -22,6 +44,7 @@ public class ChartModel {
     private final SimpleIntegerProperty maxFractionDigits = new SimpleIntegerProperty(this, "maxFractionDigits", 2);
     private final SimpleBooleanProperty filterEnabled = new SimpleBooleanProperty(this, "filterEnabled", false);
     private final SimpleBooleanProperty fixYAxisToZero = new SimpleBooleanProperty(this, "fixYAxisToZero", false);
+    private final SimpleBooleanProperty coloringEnabled = new SimpleBooleanProperty(this, "coloringEnabled", false);
     private final SimpleBooleanProperty showColumnSums = new SimpleBooleanProperty(this, "showColumnSums", false);
     private final SimpleBooleanProperty showRowSums = new SimpleBooleanProperty(this, "showRowSums", false);
     private final SimpleObjectProperty<LocalTime> dayStart = new SimpleObjectProperty<>(this, "dayStart", null);
@@ -241,5 +264,17 @@ public class ChartModel {
 
     public StringProperty yAxisTitleProperty() {
         return yAxisTitle;
+    }
+
+    public boolean isColoringEnabled() {
+        return coloringEnabled.get();
+    }
+
+    public void setColoringEnabled(Boolean coloringEnabled) {
+        this.coloringEnabled.set(coloringEnabled);
+    }
+
+    public SimpleBooleanProperty coloringEnabledProperty() {
+        return coloringEnabled;
     }
 }

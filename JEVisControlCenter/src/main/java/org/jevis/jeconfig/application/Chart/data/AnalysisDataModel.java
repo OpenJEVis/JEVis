@@ -172,60 +172,9 @@ public class AnalysisDataModel {
                             }
                         }
                     }
-                    if (Objects.nonNull(analysis.getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME))) {
-                        JEVisSample chartPerScreenSample = analysis.getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME).getLatestSample();
-                        if (chartPerScreenSample != null) {
-                            setChartsPerScreen(chartPerScreenSample.getValueAsLong());
-                        } else {
-                            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
-                            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
-                            for (JEVisObject graphPlugin : graphServiceList) {
-                                JEVisAttribute chartsPerScreenAttribute = graphPlugin.getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME);
-                                if (chartsPerScreenAttribute != null) {
-                                    JEVisSample lastSample = chartsPerScreenAttribute.getLatestSample();
-                                    if (lastSample != null) {
-                                        setChartsPerScreen(lastSample.getValueAsLong());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (Objects.nonNull(analysis.getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME))) {
-                        JEVisSample noOfHorizontalPies = analysis.getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).getLatestSample();
-                        if (noOfHorizontalPies != null) {
-                            setHorizontalPies(noOfHorizontalPies.getValueAsLong());
-                        } else {
-                            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
-                            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
-                            for (JEVisObject graphPlugin : graphServiceList) {
-                                JEVisAttribute noOfHorizontalPiesAttribute = graphPlugin.getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME);
-                                if (noOfHorizontalPiesAttribute != null) {
-                                    JEVisSample lastSample = noOfHorizontalPiesAttribute.getLatestSample();
-                                    if (lastSample != null) {
-                                        setHorizontalPies(lastSample.getValueAsLong());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (Objects.nonNull(analysis.getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME))) {
-                        JEVisSample noOfHorizontalTables = analysis.getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).getLatestSample();
-                        if (noOfHorizontalTables != null) {
-                            setHorizontalTables(noOfHorizontalTables.getValueAsLong());
-                        } else {
-                            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
-                            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
-                            for (JEVisObject graphPlugin : graphServiceList) {
-                                JEVisAttribute noOfHorizontalTablesAttribute = graphPlugin.getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME);
-                                if (noOfHorizontalTablesAttribute != null) {
-                                    JEVisSample lastSample = noOfHorizontalTablesAttribute.getLatestSample();
-                                    if (lastSample != null) {
-                                        setHorizontalTables(lastSample.getValueAsLong());
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    setChartsPerScreen(loadLongAttributeWithFallback(analysis, NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME, getChartsPerScreen()));
+                    setHorizontalPies(loadLongAttributeWithFallback(analysis, NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME, getHorizontalPies()));
+                    setHorizontalTables(loadLongAttributeWithFallback(analysis, NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME, getHorizontalTables()));
 
                     wd = new WorkDays(analysis);
                     wd.setEnabled(isCustomWorkday());
@@ -299,6 +248,32 @@ public class AnalysisDataModel {
                 charts = chartSettings;
             }
         }
+    }
+
+    /**
+     * Loads a long-valued attribute from the given analysis object, falling back to the same
+     * attribute on any configured "Graph Plugin" service object if the analysis attribute has
+     * no sample. Returns {@code defaultValue} if neither source has data.
+     */
+    private long loadLongAttributeWithFallback(JEVisObject analysisObject, String attributeName, long defaultValue) {
+        try {
+            if (!Objects.nonNull(analysisObject.getAttribute(attributeName))) return defaultValue;
+            JEVisSample sample = analysisObject.getAttribute(attributeName).getLatestSample();
+            if (sample != null) return sample.getValueAsLong();
+
+            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
+            for (JEVisObject graphPlugin : graphServiceList) {
+                JEVisAttribute attr = graphPlugin.getAttribute(attributeName);
+                if (attr != null) {
+                    JEVisSample lastSample = attr.getLatestSample();
+                    if (lastSample != null) return lastSample.getValueAsLong();
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not load attribute '{}' from analysis or fallback", attributeName, e);
+        }
+        return defaultValue;
     }
 
     private ColorMapping parseColorMapping(String colorMappingString) {

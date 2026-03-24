@@ -20,6 +20,29 @@ import javax.measure.Prefix;
 import javax.measure.Unit;
 import javax.measure.spi.ServiceProvider;
 
+/**
+ * Configuration record for one data series within a chart.
+ * <p>
+ * A {@code ChartData} instance maps a JEVis object/attribute to a visual series and carries
+ * all per-series rendering options:
+ * <ul>
+ *   <li>Source — {@code id} (JEVis object ID), {@code attributeString} (attribute name),
+ *       {@code objectName} (resolved at runtime)</li>
+ *   <li>Display — {@code name}, {@code color}, {@code css}</li>
+ *   <li>Unit — {@code unit}, {@code unitPrefix}, {@code unitLabel}, {@code unitFormula}</li>
+ *   <li>Rendering — {@code chartType}, {@code bubbleType}, {@code axis} (Y-axis index)</li>
+ *   <li>Data processing — {@code aggregationPeriod}, {@code manipulationMode},
+ *       {@code decimalDigits}</li>
+ *   <li>Custom interval — {@code intervalEnabled}, {@code intervalStart},
+ *       {@code intervalEnd}</li>
+ *   <li>Calculation link — {@code calculation}, {@code calculationId}</li>
+ * </ul>
+ * The class is serialised to JSON by {@link AnalysisHandler} and supports {@link #clone()}
+ * for copy operations in the chart-settings dialog.
+ *
+ * @see ChartModel
+ * @see AnalysisHandler
+ */
 public class ChartData {
     private static final Logger logger = LogManager.getLogger(ChartData.class);
     private final SimpleLongProperty id = new SimpleLongProperty(this, "id", -1);
@@ -107,6 +130,13 @@ public class ChartData {
         return unitFormula;
     }
 
+    /**
+     * Constructs and returns the {@link JEVisUnit} from the persisted
+     * {@code unitFormula}, {@code unitLabel}, and {@code unitPrefix} strings.
+     * <p>Rebuilds the unit object on every call — consider caching if called frequently.</p>
+     *
+     * @return a {@link JEVisUnit} representing this series' measurement unit
+     */
     public JEVisUnit getUnit() {
         JEVisUnitImp jeVisUnitImp = new JEVisUnitImp(getUnitFormula(), getUnitLabel(), getUnitPrefix());
         unit.set(jeVisUnitImp);
@@ -378,6 +408,15 @@ public class ChartData {
         return css;
     }
 
+    /**
+     * Creates a deep copy of this {@code ChartData} with all fields duplicated.
+     * <p>
+     * The cloned instance shares no mutable state with the original and is safe to
+     * modify independently (e.g. when the user copies a series in the chart-settings dialog).
+     * </p>
+     *
+     * @return a new {@code ChartData} with identical field values
+     */
     @Override
     public ChartData clone() {
         ChartData newData = new ChartData();

@@ -3,6 +3,7 @@ package org.jevis.jeconfig.application.Chart.Charts;
 import com.ibm.icu.text.NumberFormat;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -20,6 +21,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -36,7 +38,6 @@ import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSample;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
@@ -47,11 +48,35 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Period;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+/**
+ * Vertical table chart — renders a time-series data set as a scrollable table where
+ * each row is a timestamp and each column is a data series.
+ * <p>
+ * Data flow:
+ * <ol>
+ *   <li>Each {@link XYChartSerie} is loaded in {@code addSeriesToChart()}, producing a
+ *       {@link TableSerie} with one {@link TableSample} per timestamp.</li>
+ *   <li>A composite {@code "timestamp|dataIdentifier"} key is used for O(1) sample
+ *       lookup across all series.</li>
+ *   <li>Optional row-sum and column-sum rows are computed after all series are loaded.</li>
+ *   <li>The completed table model is applied to the {@link TableHeaderTable} on the
+ *       JavaFX Application Thread after a short {@link PauseTransition} to allow the
+ *       table skin to initialise.</li>
+ * </ol>
+ * Rendering is performed asynchronously on a background {@link Task} submitted to the
+ * central status-bar executor.
+ *
+ * @see TableChartH
+ * @see TableSample
+ * @see TableSerie
+ */
 public class TableChartV extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChartV.class);
-    private final TableTopDatePicker tableTopDatePicker = new TableTopDatePicker();
     private final DateTime maxDate = new DateTime(9999, 1, 1, 0, 0, 0, 0);
     private final JFXCheckBox filterEnabledBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
     private final HashMap<TableColumn<TableSample, ?>, String> columnFilter = new HashMap<>();
@@ -82,8 +107,6 @@ public class TableChartV extends XYChart {
                         showColumnSums(chartModel.isShowColumnSums());
                         showRowSums(chartModel.isShowRowSums());
                         buildChart(toolBarSettings, dataSettings);
-
-                        tableTopDatePicker.initialize(singleRow, timeStampOfLastSample.get());
                     } catch (Exception e) {
                         this.failed();
                         logger.error("Could not build chart {}", chartModel.getChartName(), e);
@@ -124,6 +147,18 @@ public class TableChartV extends XYChart {
         return serie;
     }
 
+    /**
+     * Builds the table from the current list of {@link XYChartSerie} instances.
+     * <p>
+     * For each series a {@link TableSerie} is constructed; samples are inserted into
+     * the shared {@code tableSamples} map using a composite
+     * {@code "timestamp|dataIdentifier"} key for O(1) cross-column lookup.
+     * Optional row-sum and column-sum columns are appended at the end.
+     * The final table model is passed to the JavaFX Application Thread via a
+     * {@link PauseTransition} to allow the table skin to complete its layout.
+     * <p>
+     * Called from the background task submitted in the chart rendering pipeline.
+     */
     @Override
     public void addSeriesToChart() {
         this.columnFilter.clear();
@@ -157,13 +192,14 @@ public class TableChartV extends XYChart {
             Platform.runLater(() -> tableHeader.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY));
 
             List<TableColumn<TableSample, ?>> tableColumns = new ArrayList<>();
-            Map<UUID, TableSample> tableSamples = new HashMap<>();
+            // Composite key (timestamp + column identifier) for O(1) lookups
+            Map<String, TableSample> tableSamples = new HashMap<>();
             Period p = null;
             JEVisObject object = null;
             JEVisSample latestSample = null;
 
-            for (XYChartSerie xyChartSerie : xyChartSerieList) {
-                int index = xyChartSerieList.indexOf(xyChartSerie);
+            for (int serieIdx = 0; serieIdx < xyChartSerieList.size(); serieIdx++) {
+                XYChartSerie xyChartSerie = xyChartSerieList.get(serieIdx);
                 List<JEVisSample> samples = xyChartSerie.getSingleRow().getSamples();
 
                 if (p == null && samples.size() > 1) {
@@ -223,14 +259,15 @@ public class TableChartV extends XYChart {
 
             TableColumn<TableSample, DateTime> dateColumn = buildDateColumn(normalPattern);
 
-            Map<UUID, Double> rowSums = new HashMap<>();
+            Map<String, Double> rowSums = new HashMap<>();
             boolean nameEqualsExistingColumn = false;
 
             xyChartSerieList.stream().filter(xyChartSerie -> !listColumnTitles.contains(xyChartSerie.getTableEntryName())).forEach(xyChartSerie -> listColumnTitles.add(xyChartSerie.getTableEntryName()));
             sumSample = new TableSample(maxDate, listColumnTitles.size());
 
-            for (XYChartSerie xyChartSerie : xyChartSerieList) {
-                int index = xyChartSerieList.indexOf(xyChartSerie);
+            for (int serieIdx2 = 0; serieIdx2 < xyChartSerieList.size(); serieIdx2++) {
+                XYChartSerie xyChartSerie = xyChartSerieList.get(serieIdx2);
+                int index = serieIdx2;
 
                 TableColumn<TableSample, String> column = new TableColumn<>();
 
@@ -264,14 +301,9 @@ public class TableChartV extends XYChart {
                 for (JEVisSample jeVisSample : samples) {
                     try {
                         DateTime ts = jeVisSample.getTimestamp();
+                        String sampleKey = ts.toString() + "|" + dataIdentifier;
 
-                        TableSample tableSample = null;
-                        for (TableSample tableSample1 : tableSamples.values()) {
-                            if (tableSample1.getTimeStamp().equals(ts) && tableSample1.getColumnIdentifier().equals(dataIdentifier)) {
-                                tableSample = tableSample1;
-                                break;
-                            }
-                        }
+                        TableSample tableSample = tableSamples.get(sampleKey);
 
                         if (tableSample == null || (nameEqualsExistingColumn && !tableSample.getColumnIdentifier().equals(dataIdentifier))) {
                             TableSample nts = new TableSample(ts, listColumnTitles.size());
@@ -283,9 +315,9 @@ public class TableChartV extends XYChart {
 
                             updateSample(xyChartSerie.getNf(), sumSample, xyChartSerie, columnIndex, jeVisSample, nts);
 
-                            tableSamples.put(nts.getUuid(), nts);
+                            tableSamples.put(sampleKey, nts);
                             if (!xyChartSerie.getSingleRow().isStringData()) {
-                                rowSums.put(nts.getUuid(), jeVisSample.getValueAsDouble());
+                                rowSums.put(sampleKey, jeVisSample.getValueAsDouble());
                             }
                         } else {
                             updateSample(xyChartSerie.getNf(), sumSample, xyChartSerie, columnIndex, jeVisSample, tableSample);
@@ -293,9 +325,9 @@ public class TableChartV extends XYChart {
                                 tableSample.getChartSeries().add(xyChartSerie);
                             }
 
-                            if (!xyChartSerie.getSingleRow().isStringData()) {//* problem
-                                double aDouble = rowSums.get(tableSample.getUuid()) + jeVisSample.getValueAsDouble();
-                                rowSums.replace(tableSample.getUuid(), aDouble);
+                            if (!xyChartSerie.getSingleRow().isStringData()) {
+                                double aDouble = rowSums.getOrDefault(sampleKey, 0d) + jeVisSample.getValueAsDouble();
+                                rowSums.put(sampleKey, aDouble);
                             }
                         }
                     } catch (Exception e) {
@@ -422,16 +454,18 @@ public class TableChartV extends XYChart {
                 }
 
                 if (showRowSums) {
-                    tableSamples.put(sumSample.getUuid(), sumSample);
-                    rowSums.put(sumSample.getUuid(), sumSample.getColumnNumbers().stream().mapToDouble(aDouble -> aDouble).sum());
+                    String sumKey = sumSample.getUuid().toString();
+                    tableSamples.put(sumKey, sumSample);
+                    rowSums.put(sumKey, sumSample.getColumnNumbers().stream().mapToDouble(aDouble -> aDouble).sum());
                 }
 
                 if (showColumnSums) {
-                    tableSamples.forEach((uuid, tableSample) -> {
+                    tableSamples.forEach((key, tableSample) -> {
+                        Double rowSum = rowSums.getOrDefault(key, 0d);
                         if (!xyChartSerieList.get(0).getSingleRow().getUnit().toString().isEmpty()) {
-                            tableSample.getColumnValues().add(nf.format(rowSums.get(tableSample.getUuid())) + " " + xyChartSerieList.get(0).getSingleRow().getUnit());
+                            tableSample.getColumnValues().add(nf.format(rowSum) + " " + xyChartSerieList.get(0).getSingleRow().getUnit());
                         } else {
-                            tableSample.getColumnValues().add(nf.format(rowSums.get(tableSample.getUuid())));
+                            tableSample.getColumnValues().add(nf.format(rowSum));
                         }
                     });
                 }
@@ -521,24 +555,16 @@ public class TableChartV extends XYChart {
                     TableViewUtils.addCustomTableMenu(tableHeader, columnTitles);
                 }
 
-                Task<Void> task = new Task<Void>() {
-                    @Override
-                    protected Void call() throws Exception {
-                        try {
-                            Thread.sleep(1000);
-                            Platform.runLater(() -> {
-                                tableHeader.getColumns().get(0).setVisible(false);
-                                tableHeader.getColumns().get(0).setVisible(true);
-                            });
-                        } catch (Exception e) {
-                            failed();
-                        } finally {
-                            succeeded();
-                        }
-                        return null;
+                // Brief delay so the table skin has time to initialize before forcing a column refresh
+                PauseTransition columnRefreshDelay = new PauseTransition(Duration.millis(200));
+                columnRefreshDelay.setOnFinished(e -> {
+                    if (!tableHeader.getColumns().isEmpty()) {
+                        TableColumn<?, ?> firstCol = (TableColumn<?, ?>) tableHeader.getColumns().get(0);
+                        firstCol.setVisible(false);
+                        firstCol.setVisible(true);
                     }
-                };
-                JEConfig.getStatusBar().addTask(TableChartV.class.getName(), task, TableChartV.taskImage, true);
+                });
+                columnRefreshDelay.play();
             });
 
             tableHeader.getVisibleLeafColumns().addListener((ListChangeListener) change -> {
@@ -552,6 +578,15 @@ public class TableChartV extends XYChart {
         }
     }
 
+    /**
+     * Resolves and executes EnPI calculation objects for the current time range.
+     * <p>
+     * Each entry in {@code enpis} is run as a separate background {@link Task}.
+     * Computed results are appended to {@code values} and then inserted into the table.
+     *
+     * @param enpis  map from column index to the JEVis calculation object to execute
+     * @param values the shared observable list that backs the table view
+     */
     private void createCalculations(Map<Integer, JEVisObject> enpis, ObservableList<TableSample> values) {
         for (Map.Entry<Integer, JEVisObject> entry : enpis.entrySet()) {
             Task<Void> task = new Task<Void>() {
@@ -590,6 +625,13 @@ public class TableChartV extends XYChart {
         }
     }
 
+    /**
+     * Reapplies all active column filters to the table's {@link FilteredList}.
+     * <p>
+     * Called whenever the user changes a filter field. The predicate checks every
+     * active filter entry in {@code columnFilter} against the corresponding cell value
+     * of each {@link TableSample}.
+     */
     private void refreshTable() {
         filteredList.setPredicate(tableSample -> {
             boolean showTableSample = true;
@@ -768,16 +810,8 @@ public class TableChartV extends XYChart {
         return column;
     }
 
-    public HBox getTopPicker() {
-        return tableTopDatePicker;
-    }
-
     @Override
     public void generateYAxis() {
-    }
-
-    public TableTopDatePicker getTableTopDatePicker() {
-        return tableTopDatePicker;
     }
 
     public ChartDataRow getSingleRow() {

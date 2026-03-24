@@ -17,7 +17,6 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.utils.CalcMethods;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.dialog.ProgressForm;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
@@ -188,18 +187,18 @@ public class CommonMethods {
         return jeVisObject;
     }
 
-    public static void setEnabled(ProgressForm pForm, JEVisObject object, String selectedClass, boolean b) {
+    public static void setEnabled(JEVisObject object, String selectedClass, boolean b) {
         try {
             if (object.getJEVisClassName().equals(selectedClass) || selectedClass.equals("All")) {
                 JEVisAttribute enabled = object.getAttribute("Enabled");
                 if (enabled != null) {
                     JEVisSample sample = enabled.buildSample(new DateTime(), b);
                     sample.commit();
-                    pForm.addMessage("Set enabled attribute of object " + object.getName() + ":" + object.getID() + " to " + b);
+                    logger.debug("Set enabled attribute of object {}:{} to {}", object.getName(), object.getID(), b);
                 }
             }
             for (JEVisObject child : object.getChildren()) {
-                setEnabled(pForm, child, selectedClass, b);
+                setEnabled(child, selectedClass, b);
             }
         } catch (Exception e) {
             logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());
@@ -227,7 +226,7 @@ public class CommonMethods {
         }
     }
 
-    public static void deleteSamplesInList(ProgressForm pForm, DateTime from, DateTime to, List<JEVisObject> list) {
+    public static void deleteSamplesInList(DateTime from, DateTime to, List<JEVisObject> list) {
         for (JEVisObject object : list) {
             JEVisAttribute valueAtt = null;
             try {
@@ -238,7 +237,7 @@ public class CommonMethods {
             if (valueAtt != null) {
                 if (from == null && to == null) {
                     try {
-                        pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
+                        logger.debug("Deleting all samples of object {}:{}", object.getName(), object.getID());
                         valueAtt.deleteAllSample();
 
                         allSamplesMathData(object);
@@ -247,8 +246,8 @@ public class CommonMethods {
                     }
                 } else if (from != null && to != null) {
                     try {
-                        pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
-                                + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
+                        logger.debug("Deleting samples of object {}:{} from {} to {}", object.getName(), object.getID(),
+                                from.toString("YYYY-MM-dd HH:mm:ss"), to.toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(from, to);
 
                         fromToMathData(object, from, to);
@@ -257,9 +256,9 @@ public class CommonMethods {
                     }
                 } else if (from != null) {
                     try {
-                        pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
-                                + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + new DateTime().toString("YYYY-MM-dd HH:mm:ss"));
                         DateTime t = new DateTime();
+                        logger.debug("Deleting samples of object {}:{} from {} to {}", object.getName(), object.getID(),
+                                from.toString("YYYY-MM-dd HH:mm:ss"), t.toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(from, t);
 
                         fromToMathData(object, from, t);
@@ -268,9 +267,9 @@ public class CommonMethods {
                     }
                 } else {
                     try {
-                        pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
-                                + " from " + new DateTime(1990, 1, 1, 0, 0, 0).toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
                         DateTime f = new DateTime(1990, 1, 1, 0, 0, 0);
+                        logger.debug("Deleting samples of object {}:{} from {} to {}", object.getName(), object.getID(),
+                                f.toString("YYYY-MM-dd HH:mm:ss"), to.toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(f, to);
 
                         fromToMathData(object, f, to);
@@ -279,11 +278,11 @@ public class CommonMethods {
                     }
                 }
             }
-            pForm.addMessage("Deleted samples of object " + object.getName() + ":" + object.getID());
+            logger.debug("Deleted samples of object {}:{}", object.getName(), object.getID());
         }
     }
 
-    public static void deleteAllSamples(ProgressForm pForm, JEVisObject object, boolean rawData, boolean cleanData) {
+    public static void deleteAllSamples(JEVisObject object, boolean rawData, boolean cleanData) {
         try {
             JEVisClass dataClass = object.getDataSource().getJEVisClass("Data");
             JEVisClass stringDataClass = object.getDataSource().getJEVisClass("String Data");
@@ -312,18 +311,18 @@ public class CommonMethods {
             }
 
             for (JEVisObject child : allChildren) {
-                deleteAllSamplesFromObject(pForm, child);
+                deleteAllSamplesFromObject(child);
             }
         } catch (Exception e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
         }
     }
 
-    private static void deleteAllSamplesFromObject(ProgressForm pForm, JEVisObject object) {
+    private static void deleteAllSamplesFromObject(JEVisObject object) {
         try {
             JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
             if (value != null) {
-                pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
+                logger.debug("Deleting all samples of object {}:{}", object.getName(), object.getID());
                 value.deleteAllSample();
 
                 allSamplesMathData(object);
@@ -354,7 +353,7 @@ public class CommonMethods {
         }
     }
 
-    public static void deleteAllSamples(ProgressForm pForm, JEVisObject object, DateTime from, DateTime to, boolean rawData, boolean cleanData) {
+    public static void deleteAllSamples(JEVisObject object, DateTime from, DateTime to, boolean rawData, boolean cleanData) {
         try {
 
             JEVisClass dataClass = object.getDataSource().getJEVisClass("Data");
@@ -384,33 +383,23 @@ public class CommonMethods {
             }
 
             for (JEVisObject child : allChildren) {
-                deleteAllSamplesFromObjectWithDate(pForm, child, from, to);
+                deleteAllSamplesFromObjectWithDate(child, from, to);
             }
         } catch (Exception e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
         }
     }
 
-    private static void deleteAllSamplesFromObjectWithDate(ProgressForm pForm, JEVisObject object, DateTime from, DateTime to) {
+    private static void deleteAllSamplesFromObjectWithDate(JEVisObject object, DateTime from, DateTime to) {
         try {
             JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
             if (value != null) {
 
-                DateTime f = null;
-                if (from == null) {
-                    f = new DateTime(1990, 1, 1, 0, 0, 0);
-                } else {
-                    f = from;
-                }
+                DateTime f = (from == null) ? new DateTime(1990, 1, 1, 0, 0, 0) : from;
+                DateTime t = (to == null) ? new DateTime() : to;
 
-                DateTime t = null;
-                if (to == null) {
-                    t = new DateTime();
-                } else {
-                    t = to;
-                }
-                pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
-                        + " from " + f.toString("YYYY-MM-dd HH:mm:ss") + " to " + t.toString("YYYY-MM-dd HH:mm:ss"));
+                logger.debug("Deleting samples of object {}:{} from {} to {}", object.getName(), object.getID(),
+                        f.toString("YYYY-MM-dd HH:mm:ss"), t.toString("YYYY-MM-dd HH:mm:ss"));
                 value.deleteSamplesBetween(f, t);
 
                 fromToMathData(object, f, t);

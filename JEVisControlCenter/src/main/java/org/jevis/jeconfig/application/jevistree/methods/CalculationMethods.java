@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jeconfig.dialog.ProgressForm;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import java.util.Map;
 public class CalculationMethods extends CommonMethods {
     private static final Logger logger = LogManager.getLogger(CalculationMethods.class);
 
-    public static void deleteAllCalculations(ProgressForm pForm, JEVisObject jeVisObject, DateTime from, DateTime to) {
+    public static void deleteAllCalculations(JEVisObject jeVisObject, DateTime from, DateTime to) {
         JEVisClass calculationClass = null;
         JEVisClass outputClass = null;
         JEVisClass cleanDataClass = null;
@@ -83,10 +82,10 @@ public class CalculationMethods extends CommonMethods {
         }
 
         for (JEVisObject concernedCalculation : calculationsToDisable) {
-            setEnabled(pForm, concernedCalculation, "Calculation", false);
+            setEnabled(concernedCalculation, "Calculation", false);
         }
 
-        deleteSamplesInList(pForm, from, to, foundCalcTarget);
+        deleteSamplesInList(from, to, foundCalcTarget);
 
         List<JEVisObject> allCleanData = new ArrayList<>();
         for (JEVisObject data : foundCalcTarget) {
@@ -102,7 +101,7 @@ public class CalculationMethods extends CommonMethods {
         }
 
         for (JEVisObject concernedCalculation : calculationsToDisable) {
-            setEnabled(pForm, concernedCalculation, "Calculation", true);
+            setEnabled(concernedCalculation, "Calculation", true);
         }
     }
 

@@ -4,6 +4,8 @@ import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.joda.time.DateTime;
@@ -11,7 +13,20 @@ import org.joda.time.DateTime;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class TableHeaderTable extends TableView<TableSample> {
+/**
+ * A {@link TableView} that serves as the column-header and data table for the vertical
+ * table chart ({@link org.jevis.jeconfig.application.Chart.Charts.TableChartV}).
+ * <p>
+ * The first column (timestamp) is created in the constructor; additional series columns
+ * are added externally by the chart implementation. Provides {@link #autoFitTable()} to
+ * resize all columns to their content width using the package-private
+ * {@code TableViewSkin.resizeColumnToFitContent} method via reflection.
+ * <p>
+ * If the reflection look-up fails at class initialisation time (e.g. on non-Oracle JVMs),
+ * {@link #autoFitTable()} becomes a no-op and a log error is emitted.
+ */
+public class TableHeaderTable extends TableView {
+    private static final Logger logger = LogManager.getLogger(TableHeaderTable.class);
     private static Method columnToFitMethod;
 
     static {
@@ -19,7 +34,7 @@ public class TableHeaderTable extends TableView<TableSample> {
             columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
             columnToFitMethod.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            logger.error("Could not find TableViewSkin.resizeColumnToFitContent via reflection — autoFitTable will be a no-op", e);
         }
     }
 
@@ -48,6 +63,13 @@ public class TableHeaderTable extends TableView<TableSample> {
         return alphanumComparator;
     }
 
+    /**
+     * Resizes every column to its content width by invoking the internal
+     * {@code TableViewSkin.resizeColumnToFitContent} method via reflection.
+     * <p>
+     * This is a best-effort operation — if the skin has not yet been attached or the
+     * reflection look-up failed at class init, the call is silently skipped.
+     */
     public void autoFitTable() {
         for (Object column : getColumns()) {
             try {

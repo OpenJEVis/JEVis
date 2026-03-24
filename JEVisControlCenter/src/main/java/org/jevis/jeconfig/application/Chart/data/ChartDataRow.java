@@ -31,6 +31,25 @@ import org.joda.time.Period;
 
 import java.util.*;
 
+/**
+ * A runtime-enriched extension of {@link ChartData} that holds the actual loaded samples
+ * and computed statistics for one data series.
+ * <p>
+ * While {@link ChartData} is a lightweight, serialisable configuration record,
+ * {@code ChartDataRow} adds:
+ * <ul>
+ *   <li>Resolved JEVis object and attribute references</li>
+ *   <li>Loaded {@link JEVisSample} lists (raw + optional forecast)</li>
+ *   <li>Computed min/max/avg/sum statistics</li>
+ *   <li>Note, user-data, and alarm maps keyed by timestamp</li>
+ *   <li>Gap-filling / limit / substitution processing results</li>
+ * </ul>
+ * Instances are created from a {@link ChartData} (for loading a saved analysis) or
+ * directly (for interactive data selection in the tree).
+ *
+ * @see ChartData
+ * @see ChartModel
+ */
 public class ChartDataRow extends ChartData {
     private static final Logger logger = LogManager.getLogger(ChartDataRow.class);
     private final JEVisDataSource dataSource;
@@ -87,7 +106,8 @@ public class ChartDataRow extends ChartData {
             setId(chartData.getId());
             try {
                 setObjectName(ds.getObject(chartData.getId()));
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                logger.warn("Could not resolve JEVis object for id {}", chartData.getId(), e);
             }
             setAttributeString(chartData.getAttributeString());
             setAggregationPeriod(chartData.getAggregationPeriod());

@@ -41,6 +41,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * A JavaFX {@link Tab} that exposes the configuration UI for a single chart within the
+ * analysis editor dialog.
+ * <p>
+ * Each {@code ChartTab} is bound to one {@link ChartModel} and allows the user to:
+ * <ul>
+ *   <li>Select the chart type, orientation, and color mapping</li>
+ *   <li>Add, copy, and remove data series ({@link ChartData})</li>
+ *   <li>Configure fraction digits, grouping interval, and optional Y-axis titles</li>
+ *   <li>Enable/disable column/row sums for table charts</li>
+ *   <li>Set heat-map day-start and day-end times</li>
+ * </ul>
+ * All mutations are written back to the bound {@link ChartModel} immediately so that the
+ * analysis dialog can persist them when the user confirms.
+ */
 public class ChartTab extends Tab {
     private static final Logger logger = LogManager.getLogger(ChartTab.class);
     private final JEVisDataSource ds;
@@ -52,6 +67,7 @@ public class ChartTab extends Tab {
     private final ChartTypeComboBox chartTypeComboBox;
     private final Label labelGroupingInterval = new Label(I18n.getInstance().getString("graph.tabs.tab.groupinginterval"));
     private final Label labelFixYAxisToZero = new Label(I18n.getInstance().getString("graph.tabs.tab.fixyaxistozero"));
+    private final Label labelEnableColoring = new Label(I18n.getInstance().getString("graph.tabs.tab.enablecoloring"));
     private final Label labelShowColumnSums = new Label(I18n.getInstance().getString("graph.tabs.tab.showcolumnsums"));
     private final Label labelShowRowSums = new Label(I18n.getInstance().getString("graph.tabs.tab.showrowsums"));
     private final Label labelDayStart = new Label(I18n.getInstance().getString("graph.tabs.tab.daystart"));
@@ -59,6 +75,7 @@ public class ChartTab extends Tab {
     private final Label labelxAxisTitle = new Label(I18n.getInstance().getString("graph.tabs.tab.xaxistitle"));
     private final Label labelyAxisTitle = new Label(I18n.getInstance().getString("graph.tabs.tab.yaxistitle"));
     private final JFXCheckBox fixYAxisToZero = new JFXCheckBox();
+    private final JFXCheckBox enableColoring = new JFXCheckBox();
     private final Table chartTable;
     private final GridPane chartSettings = new GridPane();
     private final VBox vBox = new VBox();
@@ -116,6 +133,11 @@ public class ChartTab extends Tab {
             chartModel.setMaxFractionDigits(newValue.intValue());
         }
     };
+    private final ChangeListener<Boolean> enableColoringChangeListener = ((observable, oldValue, newValue) -> {
+        if (chartModel != null && !newValue.equals(oldValue)) {
+            this.chartModel.setColoringEnabled(newValue);
+        }
+    });
     private JEVisClass dataClass;
     private JEVisClass cleanDataClass;
     private JEVisClass mathDataClass;
@@ -196,7 +218,7 @@ public class ChartTab extends Tab {
         colorMappingBox = new ColorMappingBox(chartModel);
 
         if (chartModel.getDayStart() != null) {
-            dayStartPicker.setValue(LocalTime.of(chartModel.getDayStart().getHourOfDay(), chartModel.getDayStart().getMinuteOfHour(), chartModel.getDayStart().getSecondOfMinute(), chartModel.getDayStart().getMillisOfSecond() * 1000000));
+            dayStartPicker.setValue(LocalTime.of(chartModel.getDayStart().getHourOfDay(), chartModel.getDayStart().getMinuteOfHour(), chartModel.getDayStart().getSecondOfMinute(), (int) ((long) chartModel.getDayStart().getMillisOfSecond() * 1_000_000L)));
         }
         dayStartPicker.valueProperty().addListener((observableValue, localTime, t1) -> chartModel.setDayStart(new org.joda.time.LocalTime(t1.getHour(), t1.getMinute(), t1.getSecond(), t1.getNano() / 1000000)));
         dayStartPicker.setPrefWidth(100d);
@@ -204,8 +226,8 @@ public class ChartTab extends Tab {
         dayStartPicker.set24HourView(true);
         dayStartPicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        if (chartModel.getDayStart() != null) {
-            dayEndPicker.setValue(LocalTime.of(chartModel.getDayEnd().getHourOfDay(), chartModel.getDayEnd().getMinuteOfHour(), chartModel.getDayEnd().getSecondOfMinute(), chartModel.getDayEnd().getMillisOfSecond() * 1000000));
+        if (chartModel.getDayEnd() != null) {
+            dayEndPicker.setValue(LocalTime.of(chartModel.getDayEnd().getHourOfDay(), chartModel.getDayEnd().getMinuteOfHour(), chartModel.getDayEnd().getSecondOfMinute(), (int) ((long) chartModel.getDayEnd().getMillisOfSecond() * 1_000_000L)));
         }
         dayEndPicker.valueProperty().addListener((observableValue, localTime, t1) -> chartModel.setDayEnd(new org.joda.time.LocalTime(t1.getHour(), t1.getMinute(), t1.getSecond(), t1.getNano() / 1000000)));
         dayEndPicker.setPrefWidth(100d);
@@ -222,6 +244,7 @@ public class ChartTab extends Tab {
         maxFractionDigits = new NumberSpinner(new BigDecimal(maxFracs), new BigDecimal(1));
 
         fixYAxisToZero.setSelected(chartModel.isFixYAxisToZero());
+        enableColoring.setSelected(chartModel.isColoringEnabled());
         showColumnSums.setSelected(chartModel.isShowColumnSums());
         showRowSums.setSelected(chartModel.isShowRowSums());
 
@@ -340,19 +363,29 @@ public class ChartTab extends Tab {
         chartSettings.add(maxFractionDigits, 1, row);
         row++;
 
-        chartSettings.add(labelxAxisTitle, 0, row);
-        chartSettings.add(xAxisTitleTextField, 1, row);
-        row++;
+        if (chartModel.getChartType() != ChartType.TABLE && chartModel.getChartType() != ChartType.TABLE_V && chartModel.getChartType() != ChartType.TABLE_H) {
+            chartSettings.add(labelxAxisTitle, 0, row);
+            chartSettings.add(xAxisTitleTextField, 1, row);
+            row++;
 
-        chartSettings.add(labelyAxisTitle, 0, row);
-        chartSettings.add(yAxisTitleTextField, 1, row);
-        row++;
+            chartSettings.add(labelyAxisTitle, 0, row);
+            chartSettings.add(yAxisTitleTextField, 1, row);
+            row++;
+        }
 
-        if (chartModel.getChartType() == ChartType.HEAT_MAP) {
+        if (chartModel.getChartType() == ChartType.TABLE_H) {
+            chartSettings.add(labelEnableColoring, 0, row);
+            chartSettings.add(enableColoring, 1, row);
+            row++;
+        }
+
+        if (chartModel.getChartType() == ChartType.HEAT_MAP || chartModel.getChartType() == ChartType.TABLE_H) {
             chartSettings.add(labelColorMapping, 0, row);
             chartSettings.add(colorMappingBox, 1, row);
             row++;
+        }
 
+        if (chartModel.getChartType() == ChartType.HEAT_MAP) {
             chartSettings.add(labelDayStart, 0, row);
             chartSettings.add(dayStartPicker, 1, row);
             row++;
@@ -377,13 +410,15 @@ public class ChartTab extends Tab {
             chartSettings.add(fixYAxisToZero, 1, row);
         }
 
-        if (chartModel.getChartType() == ChartType.TABLE_V) {
+        if (chartModel.getChartType() == ChartType.TABLE_V || chartModel.getChartType() == ChartType.TABLE_H) {
             chartSettings.add(labelShowColumnSums, 0, row);
             chartSettings.add(showColumnSums, 1, row);
             row++;
 
-            chartSettings.add(labelShowRowSums, 0, row);
-            chartSettings.add(showRowSums, 1, row);
+            if (chartModel.getChartType() == ChartType.TABLE_V) {
+                chartSettings.add(labelShowRowSums, 0, row);
+                chartSettings.add(showRowSums, 1, row);
+            }
         }
 
         boolean isCustomPeriodEnabled = chartModel.getChartData().stream().anyMatch(ChartData::isIntervalEnabled);
@@ -514,6 +549,7 @@ public class ChartTab extends Tab {
                 setCssColumnVisible(false);
                 break;
             case TABLE_V:
+            case TABLE_H:
                 setChartTypeColumnVisible(false);
                 setColorColumnVisible(false);
                 setUnitColumnVisible(true);
@@ -540,6 +576,7 @@ public class ChartTab extends Tab {
         fixYAxisToZero.selectedProperty().addListener(fixYAxisToZeroChangeListener);
         showColumnSums.selectedProperty().addListener(showColumnSumsChangeListener);
         showRowSums.selectedProperty().addListener(showRowSumsChangeListener);
+        enableColoring.selectedProperty().addListener(enableColoringChangeListener);
     }
 
     private void disableListener() {
@@ -549,6 +586,7 @@ public class ChartTab extends Tab {
         fixYAxisToZero.selectedProperty().removeListener(fixYAxisToZeroChangeListener);
         showColumnSums.selectedProperty().removeListener(showColumnSumsChangeListener);
         showRowSums.selectedProperty().removeListener(showRowSumsChangeListener);
+        enableColoring.selectedProperty().removeListener(enableColoringChangeListener);
     }
 
     private void initializeClasses(JEVisDataSource ds) {
