@@ -26,8 +26,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -72,7 +70,10 @@ import org.jevis.jeconfig.application.jevistree.methods.AutoLimitSetting;
 import org.jevis.jeconfig.application.jevistree.methods.CalculationMethods;
 import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
-import org.jevis.jeconfig.dialog.*;
+import org.jevis.jeconfig.dialog.CommonDialogs;
+import org.jevis.jeconfig.dialog.FindDialog;
+import org.jevis.jeconfig.dialog.Response;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.object.attribute.GapFillingEditor;
 import org.jevis.jeconfig.plugin.object.classes.SelectableObject;
 import org.jevis.jeconfig.plugin.object.extension.calculation.FormulaBox;
@@ -132,32 +133,20 @@ public class TreeHelper {
 
                 alert.showAndWait().ifPresent(buttonType -> {
                     if (buttonType.equals(ButtonType.OK)) {
-                        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
-
                         Task<Void> delete = new Task<Void>() {
                             @Override
                             protected Void call() throws Exception {
+                                updateTitle(I18n.getInstance().getString("plugin.object.waitsave"));
                                 try {
                                     List<JEVisObject> tmpObjects = new ArrayList<>();
-                                    List<TreeItem<JEVisTreeRow>> deletedObj = new ArrayList<>();
                                     for (TreeItem<JEVisTreeRow> treeItem : items) {
                                         tmpObjects.add(treeItem.getValue().getJEVisObject());
                                     }
 
-
                                     for (JEVisObject object : tmpObjects) {
                                         if (object.getDataSource().getCurrentUser().canDelete(object.getID())) {
                                             Long id = object.getID();
-
-                                            for (TreeItem<JEVisTreeRow> treeItem : items) {
-                                                if (treeItem.getValue().getJEVisObject().getID().equals(object.getID())) {
-                                                    deletedObj.add(treeItem);
-                                                }
-                                            }
-
                                             object.getDataSource().deleteObject(id, deleteforever);
-
-
                                         } else {
                                             Platform.runLater(() -> {
                                                 Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
@@ -165,22 +154,8 @@ public class TreeHelper {
                                                 TopMenu.applyActiveTheme(alert1.getDialogPane().getScene());
                                                 alert1.showAndWait();
                                             });
-
                                         }
                                     }
-
-                                    /*
-                                    for (TreeItem<JEVisTreeRow> treeItem : deletedObj) {
-                                        try {
-                                            if (treeItem.getParent() != null) {
-                                                treeItem.getParent().getChildren().remove(treeItem);
-                                            }
-                                        } catch (Exception ex) {
-                                            ex.printStackTrace();
-                                        }
-                                    }
-                                    */
-
                                 } catch (Exception ex) {
                                     logger.catching(ex);
                                     CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
@@ -189,33 +164,8 @@ public class TreeHelper {
                                 return null;
                             }
                         };
-                        delete.setOnSucceeded(event -> {
-                                    pForm.getDialogStage().close();
 
-                                    // tree.getSelectionModel().clearSelection();
-                                    //tree.getSelectionModel().select(1);
-                                    //
-
-                                }
-                        );
-
-                        delete.setOnCancelled(event -> {
-                            logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
-                            pForm.getDialogStage().hide();
-                        });
-
-                        delete.setOnFailed(event -> {
-                            logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
-                            pForm.getDialogStage().hide();
-
-
-                            //tree.getSelectionModel().focus(1);
-                        });
-
-                        pForm.activateProgressBar(delete);
-                        pForm.getDialogStage().show();
-
-                        new Thread(delete).start();
+                        JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), delete, null, true);
 
                     } else {
                         // ... user chose CANCEL or closed the dialog
@@ -313,15 +263,13 @@ public class TreeHelper {
                     alert.showAndWait().ifPresent(buttonType -> {
                         if (buttonType.equals(ButtonType.OK)) {
                             try {
-
-                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title") + "...");
-
                                 Task<Void> reload = new Task<Void>() {
                                     @Override
                                     protected Void call() {
+                                        updateTitle(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             if (!changedFrom.get() && !changedTo.get()) {
-                                                DataMethods.deleteAllSamples(pForm, item.getValue().getJEVisObject(),
+                                                DataMethods.deleteAllSamples(item.getValue().getJEVisObject(),
                                                         rawData.selectedProperty().get(),
                                                         cleanData.selectedProperty().get());
                                             } else if (changedFrom.get() && !changedTo.get()) {
@@ -333,7 +281,7 @@ public class TreeHelper {
                                                         timePickerFrom.valueProperty().get().getMinute(),
                                                         timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                DataMethods.deleteAllSamples(pForm, item.getValue().getJEVisObject(),
+                                                DataMethods.deleteAllSamples(item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         null,
                                                         rawData.selectedProperty().get(),
@@ -347,7 +295,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                DataMethods.deleteAllSamples(pForm, item.getValue().getJEVisObject(),
+                                                DataMethods.deleteAllSamples(item.getValue().getJEVisObject(),
                                                         null,
                                                         dateTimeTo,
                                                         rawData.selectedProperty().get(),
@@ -369,7 +317,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                DataMethods.deleteAllSamples(pForm, item.getValue().getJEVisObject(),
+                                                DataMethods.deleteAllSamples(item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         dateTimeTo,
                                                         rawData.selectedProperty().get(),
@@ -380,22 +328,8 @@ public class TreeHelper {
                                         return null;
                                     }
                                 };
-                                reload.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                                reload.setOnCancelled(event -> {
-                                    logger.debug("Delete all samples Cancelled");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                reload.setOnFailed(event -> {
-                                    logger.debug("Delete all samples failed");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                pForm.activateProgressBar(reload);
-                                pForm.getDialogStage().show();
-
-                                new Thread(reload).start();
+                                JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), reload, null, true);
 
                             } catch (Exception ex) {
                                 logger.catching(ex);
@@ -568,22 +502,30 @@ public class TreeHelper {
                                         timePickerFrom.valueProperty().get().getMinute(),
                                         timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-
-                                for (SelectableObject dependency : objects) {
-                                    if (dependency.isSelected()) {
-                                        logger.info("deleting samples from {}:{} starting with {}", dependency.getObject().getName(), dependency.getObject().getID(), dateTimeFrom.toString());
-
-                                        try {
-                                            org.jevis.commons.utils.CommonMethods.deleteAllSamples(dependency.getObject(), dateTimeFrom, new DateTime(), true, true);
-                                        } catch (Exception e) {
-                                            logger.error("Could not delete samples from {}:{}:Value", dependency.getObject().getName(), dependency.getObject().getID());
-                                        }
-                                    }
-                                }
-
                                 confirm.close();
-                            } catch (Exception e) {
 
+                                Task<Void> deleteTask = new Task<Void>() {
+                                    @Override
+                                    protected Void call() {
+                                        updateTitle(I18n.getInstance().getString("plugin.objects.dialog.deletedependencies.title"));
+                                        for (SelectableObject dependency : objects) {
+                                            if (dependency.isSelected()) {
+                                                logger.info("deleting samples from {}:{} starting with {}", dependency.getObject().getName(), dependency.getObject().getID(), dateTimeFrom.toString());
+                                                try {
+                                                    org.jevis.commons.utils.CommonMethods.deleteAllSamples(dependency.getObject(), dateTimeFrom, new DateTime(), true, true);
+                                                } catch (Exception e) {
+                                                    logger.error("Could not delete samples from {}:{}:Value", dependency.getObject().getName(), dependency.getObject().getID());
+                                                }
+                                            }
+                                        }
+                                        return null;
+                                    }
+                                };
+
+                                JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), deleteTask, null, true);
+
+                            } catch (Exception e) {
+                                logger.error("EventDeleteAllDependencies: ", e);
                             }
                         });
 
@@ -688,15 +630,13 @@ public class TreeHelper {
                     alert.showAndWait().ifPresent(buttonType -> {
                         if (buttonType.equals(ButtonType.OK)) {
                             try {
-
-                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title") + "...");
-
                                 Task<Void> reload = new Task<Void>() {
                                     @Override
                                     protected Void call() {
+                                        updateTitle(I18n.getInstance().getString("jevistree.dialog.deleteCalculations.title"));
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             if (!changedFrom.get() && !changedTo.get()) {
-                                                CalculationMethods.deleteAllCalculations(pForm, item.getValue().getJEVisObject(), null, null);
+                                                CalculationMethods.deleteAllCalculations(item.getValue().getJEVisObject(), null, null);
                                             } else if (changedFrom.get() && !changedTo.get()) {
                                                 DateTime dateTimeFrom = new DateTime(
                                                         datePickerFrom.valueProperty().get().getYear(),
@@ -706,7 +646,7 @@ public class TreeHelper {
                                                         timePickerFrom.valueProperty().get().getMinute(),
                                                         timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                CalculationMethods.deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
+                                                CalculationMethods.deleteAllCalculations(item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         null);
                                             } else if (!changedFrom.get() && changedTo.get()) {
@@ -718,7 +658,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                CalculationMethods.deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
+                                                CalculationMethods.deleteAllCalculations(item.getValue().getJEVisObject(),
                                                         null,
                                                         dateTimeTo);
                                             } else {
@@ -738,7 +678,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                CalculationMethods.deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
+                                                CalculationMethods.deleteAllCalculations(item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         dateTimeTo);
                                             }
@@ -747,22 +687,8 @@ public class TreeHelper {
                                         return null;
                                     }
                                 };
-                                reload.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                                reload.setOnCancelled(event -> {
-                                    logger.debug("Delete all samples Cancelled");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                reload.setOnFailed(event -> {
-                                    logger.debug("Delete all samples failed");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                pForm.activateProgressBar(reload);
-                                pForm.getDialogStage().show();
-
-                                JEConfig.getStatusBar().addTask("DeleteAllCalculations", reload, null, true);
+                                JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), reload, null, true);
 
                             } catch (Exception ex) {
                                 logger.catching(ex);
@@ -839,34 +765,19 @@ public class TreeHelper {
                                         timePicker.valueProperty().get().getMinute(),
                                         timePicker.valueProperty().get().getSecond(), DateTimeZone.getDefault()); // is this timezone correct?
 
-                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setMultiplierAndDifferential.title") + "...");
-
                                 Task<Void> set = new Task<Void>() {
                                     @Override
                                     protected Void call() {
+                                        updateTitle(I18n.getInstance().getString("jevistree.dialog.setMultiplierAndDifferential.title"));
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            DataMethods.setAllMultiplierAndDifferential(pForm, item.getValue().getJEVisObject(), multiplierValue, differentialValue, dateTime);
+                                            DataMethods.setAllMultiplierAndDifferential(item.getValue().getJEVisObject(), multiplierValue, differentialValue, dateTime);
                                         }
 
                                         return null;
                                     }
                                 };
-                                set.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                                set.setOnCancelled(event -> {
-                                    logger.debug("Setting all multiplier and differential switches cancelled");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                set.setOnFailed(event -> {
-                                    logger.debug("Setting all multiplier and differential switches failed");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                pForm.activateProgressBar(set);
-                                pForm.getDialogStage().show();
-
-                                new Thread(set).start();
+                                JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), set, null, true);
 
                             } catch (Exception ex) {
                                 logger.catching(ex);
@@ -966,11 +877,10 @@ public class TreeHelper {
                                 boolean period = setPeriod.isSelected();
                                 boolean newType = setNewTypePeriod.isSelected();
 
-                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title") + "...");
-
                                 Task<Void> set = new Task<Void>() {
                                     @Override
                                     protected Void call() {
+                                        updateTitle(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title"));
                                         DateTime datetime = new DateTime(
                                                 pickerDate.valueProperty().get().getYear(),
                                                 pickerDate.valueProperty().get().getMonthValue(),
@@ -982,7 +892,7 @@ public class TreeHelper {
 
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             try {
-                                                DataMethods.setUnitAndPeriod(pForm, item.getValue().getJEVisObject(),
+                                                DataMethods.setUnitAndPeriod(item.getValue().getJEVisObject(),
                                                         unit, unitUI, period, newType, datetime, periodUI);
                                             } catch (JEVisException e) {
                                                 e.printStackTrace();
@@ -992,22 +902,8 @@ public class TreeHelper {
                                         return null;
                                     }
                                 };
-                                set.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                                set.setOnCancelled(event -> {
-                                    logger.debug("Setting all units and periods cancelled");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                set.setOnFailed(event -> {
-                                    logger.debug("Setting all units and periods failed");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                pForm.activateProgressBar(set);
-                                pForm.getDialogStage().show();
-
-                                new Thread(set).start();
+                                JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), set, null, true);
 
                             } catch (Exception ex) {
                                 logger.catching(ex);
@@ -1223,68 +1119,38 @@ public class TreeHelper {
 
                                     list.add(newConfig2);
 
-                                    final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title") + "...");
-
                                     Task<Void> set = new Task<Void>() {
                                         @Override
                                         protected Void call() {
+                                            updateTitle(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title"));
                                             for (TreeItem<JEVisTreeRow> item : items) {
-                                                DataMethods.setLimits(pForm, item.getValue().getJEVisObject(), list);
+                                                DataMethods.setLimits(item.getValue().getJEVisObject(), list);
                                             }
 
                                             return null;
                                         }
                                     };
-                                    set.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                                    set.setOnCancelled(event -> {
-                                        logger.debug("Setting all limits cancelled");
-                                        pForm.getDialogStage().hide();
-                                    });
-
-                                    set.setOnFailed(event -> {
-                                        logger.debug("Setting all limits failed");
-                                        pForm.getDialogStage().hide();
-                                    });
-
-                                    pForm.activateProgressBar(set);
-                                    pForm.getDialogStage().show();
-
-                                    new Thread(set).start();
+                                    JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), set, null, true);
                                 } else {
                                     AutoLimitSetting autoLimitSetting = new AutoLimitSetting(presetDateBox.getStartDate(), presetDateBox.getEndDate(), minIsZero.isSelected(),
                                             new BigDecimal(limit1MinSub.getText()), new BigDecimal(limit1MaxAdd.getText()),
                                             new BigDecimal(limit1MinTimesXLimit2Min.getText()),
                                             new BigDecimal(limit1MaxTimesXLimit2Max.getText()));
 
-                                    final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title") + "...");
-
                                     Task<Void> set = new Task<Void>() {
                                         @Override
                                         protected Void call() {
+                                            updateTitle(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title"));
                                             for (TreeItem<JEVisTreeRow> item : items) {
-                                                DataMethods.setAutoLimits(pForm, item.getValue().getJEVisObject(), autoLimitSetting);
+                                                DataMethods.setAutoLimits(item.getValue().getJEVisObject(), autoLimitSetting);
                                             }
 
                                             return null;
                                         }
                                     };
-                                    set.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                                    set.setOnCancelled(event -> {
-                                        logger.debug("Setting all limits cancelled");
-                                        pForm.getDialogStage().hide();
-                                    });
-
-                                    set.setOnFailed(event -> {
-                                        logger.debug("Setting all limits failed");
-                                        pForm.getDialogStage().hide();
-                                    });
-
-                                    pForm.activateProgressBar(set);
-                                    pForm.getDialogStage().show();
-
-                                    new Thread(set).start();
+                                    JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), set, null, true);
                                 }
 
                             } catch (Exception ex) {
@@ -1342,34 +1208,19 @@ public class TreeHelper {
                         if (buttonType.equals(ButtonType.OK)) {
                             try {
 
-                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title") + "...");
-
                                 Task<Void> set = new Task<Void>() {
                                     @Override
                                     protected Void call() {
+                                        updateTitle(I18n.getInstance().getString("jevistree.dialog.setSubstitutionSettingsRecursive.title"));
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            DataMethods.setSubstitutionSettings(pForm, item.getValue().getJEVisObject(), defaultConfig);
+                                            DataMethods.setSubstitutionSettings(item.getValue().getJEVisObject(), defaultConfig);
                                         }
 
                                         return null;
                                     }
                                 };
-                                set.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                                set.setOnCancelled(event -> {
-                                    logger.debug("Setting all limits cancelled");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                set.setOnFailed(event -> {
-                                    logger.debug("Setting all limits failed");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                pForm.activateProgressBar(set);
-                                pForm.getDialogStage().show();
-
-                                new Thread(set).start();
+                                JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), set, null, true);
 
                             } catch (Exception ex) {
                                 logger.catching(ex);
@@ -1614,11 +1465,10 @@ public class TreeHelper {
     }
 
     public static void EventReload(JEVisObject object, JEVisTreeItem jeVisTreeItem) {
-        final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.menu.reload") + "...");
-
         Task<Void> reload = new Task<Void>() {
             @Override
             protected Void call() {
+                updateTitle(I18n.getInstance().getString("jevistree.menu.reload"));
                 try {
                     object.getDataSource().reloadAttribute(object);
                     object.getDataSource().reloadObject(object);
@@ -1633,35 +1483,8 @@ public class TreeHelper {
                 return null;
             }
         };
-        reload.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                pForm.getDialogStage().close();
-            }
-        });
 
-        reload.setOnCancelled(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                logger.debug("Reload Cancel");
-                pForm.getDialogStage().hide();
-            }
-        });
-
-        reload.setOnFailed(new EventHandler<WorkerStateEvent>() {
-            @Override
-            public void handle(WorkerStateEvent event) {
-                logger.debug("Reload failed");
-                pForm.getDialogStage().hide();
-            }
-        });
-
-        pForm.activateProgressBar(reload);
-        pForm.getDialogStage().show();
-
-        new Thread(reload).start();
-
-
+        JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), reload, null, true);
     }
 
     public static void EventDrop(final JEVisTree tree, List<JEVisObject> dragObj, JEVisObject targetParent, CopyObjectDialog.DefaultAction mode) {
@@ -1893,16 +1716,13 @@ public class TreeHelper {
             for (JEVisObject toCopyObj : toCopyObjs) {
                 logger.debug("-> Copy ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
-                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.menu.copy") + "...");
-
                 Task<Void> upload = new Task<Void>() {
                     @Override
                     protected Void call() {
-
+                        updateTitle(I18n.getInstance().getString("jevistree.menu.copy"));
                         try {
                             String name = toCopyObj.getName();
                             if (toCopyObjs.size() == 1) name = selectedName;
-
 
                             for (int i = 0; i < createCount; i++) {
                                 String newName = name;
@@ -1921,33 +1741,8 @@ public class TreeHelper {
                         return null;
                     }
                 };
-                upload.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-                    @Override
-                    public void handle(WorkerStateEvent event) {
-                        pForm.getDialogStage().close();
-                    }
-                });
 
-                upload.setOnCancelled(new EventHandler<WorkerStateEvent>() {
-                    @Override
-                    public void handle(WorkerStateEvent event) {
-                        logger.error("Upload Cancel");
-                        pForm.getDialogStage().hide();
-                    }
-                });
-
-                upload.setOnFailed(new EventHandler<WorkerStateEvent>() {
-                    @Override
-                    public void handle(WorkerStateEvent event) {
-                        logger.error("Upload failed");
-                        pForm.getDialogStage().hide();
-                    }
-                });
-
-                pForm.activateProgressBar(upload);
-                pForm.getDialogStage().show();
-
-                new Thread(upload).start();
+                JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), upload, null, true);
 
             }
 
@@ -2161,34 +1956,19 @@ public class TreeHelper {
                         if (buttonType.equals(ButtonType.OK)) {
                             try {
 
-                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.enable.title") + "...");
-
                                 Task<Void> reload = new Task<Void>() {
                                     @Override
                                     protected Void call() {
+                                        updateTitle(I18n.getInstance().getString("jevistree.dialog.enable.title"));
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            CommonMethods.setEnabled(pForm, item.getValue().getJEVisObject(), jeVisClassComboBox.getSelectionModel().getSelectedItem(), b);
+                                            CommonMethods.setEnabled(item.getValue().getJEVisObject(), jeVisClassComboBox.getSelectionModel().getSelectedItem(), b);
                                         }
 
                                         return null;
                                     }
                                 };
-                                reload.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                                reload.setOnCancelled(event -> {
-                                    logger.debug("Set enabled Cancelled");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                reload.setOnFailed(event -> {
-                                    logger.debug("Set enabled failed");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                pForm.activateProgressBar(reload);
-                                pForm.getDialogStage().show();
-
-                                new Thread(reload).start();
+                                JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), reload, null, true);
 
                             } catch (Exception ex) {
                                 logger.catching(ex);
@@ -2238,11 +2018,10 @@ public class TreeHelper {
                         if (buttonType.equals(ButtonType.OK)) {
                             try {
 
-                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title") + "...");
-
                                 Task<Void> reload = new Task<Void>() {
                                     @Override
                                     protected Void call() {
+                                        updateTitle(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             deleteBrokenTSSamples(item.getValue().getJEVisObject());
                                         }
@@ -2250,22 +2029,8 @@ public class TreeHelper {
                                         return null;
                                     }
                                 };
-                                reload.setOnSucceeded(event -> pForm.getDialogStage().close());
 
-                                reload.setOnCancelled(event -> {
-                                    logger.debug("Delete all samples Cancelled");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                reload.setOnFailed(event -> {
-                                    logger.debug("Delete all samples failed");
-                                    pForm.getDialogStage().hide();
-                                });
-
-                                pForm.activateProgressBar(reload);
-                                pForm.getDialogStage().show();
-
-                                new Thread(reload).start();
+                                JEConfig.getStatusBar().addTask(TreeHelper.class.getName(), reload, null, true);
 
                             } catch (Exception ex) {
                                 logger.catching(ex);
