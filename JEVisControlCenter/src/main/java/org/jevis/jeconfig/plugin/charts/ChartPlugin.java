@@ -24,6 +24,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextArea;
 import de.gsi.chart.axes.AxisMode;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -34,6 +35,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -42,6 +44,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -71,12 +74,27 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author Florian Simon <florian.simon@envidatec.com>
+ * Main chart/analysis plugin for JEConfig.
+ *
+ * <p>Manages the full chart rendering lifecycle:
+ * <ul>
+ *   <li>Loading and persisting analysis configurations via {@link AnalysisHandler}</li>
+ *   <li>Creating and laying out chart UI components for all {@link ChartType} variants</li>
+ *   <li>Coordinating asynchronous data loading through the central {@link org.jevis.jeconfig.application.statusbar.Statusbar} task queue</li>
+ *   <li>Cross-chart interactions (linked zoom, mouse-over pointer, note dialogs)</li>
+ *   <li>Export to CSV, PDF, and image formats</li>
+ *   <li>Optional auto-reload timer via {@link Service}</li>
+ * </ul>
+ *
+ * <p><b>Thread safety:</b> All UI mutations must occur on the JavaFX Application Thread.
+ * Background chart rendering tasks are submitted to the Statusbar executor; post-processing
+ * runs on the FX thread via {@link #runFinalUpdates()}.
+ *
+ * @author Florian Simon {@literal <florian.simon@envidatec.com>}
  */
 public class ChartPlugin implements Plugin {
 
@@ -84,6 +102,27 @@ public class ChartPlugin implements Plugin {
     public static String PLUGIN_NAME = "Graph Plugin";
     public static String ANALYSIS_CLASS = "Analysis";
     public static String JOB_NAME = "Chart Update";
+
+    /**
+     * Height factor subtracted per chart when computing available chart area.
+     */
+    private static final double HEATMAP_HEIGHT_FACTOR = 8.5;
+    /**
+     * Minimum height reserved for table header rows (caption + borders).
+     */
+    private static final double MIN_TABLE_HEADER_HEIGHT = 30.0;
+    /**
+     * Approximate height per data row in a table chart.
+     */
+    private static final double MIN_TABLE_ROW_HEIGHT = 25.0;
+    /**
+     * Minimum auto-size height for normal (non-logical) charts.
+     */
+    private static final double AUTO_MIN_SIZE_NORMAL = 240.0;
+    /**
+     * Minimum auto-size height for logical charts.
+     */
+    private static final double AUTO_MIN_SIZE_LOGICAL = 50.0;
 
     private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
     private final ToolBarView toolBarView;
@@ -112,9 +151,9 @@ public class ChartPlugin implements Plugin {
     private Double xAxisLowerBound;
     private Double xAxisUpperBound;
     private boolean zoomed = false;
-    private Boolean temporary = false;
+    private boolean temporary = false;
     private WorkDays workDays;
-    private Long finalSeconds = 60L;
+    private long finalSeconds = 60L;
     private final Service<Void> service = new Service<Void>() {
         @Override
         protected Task<Void> createTask() {
@@ -158,38 +197,26 @@ public class ChartPlugin implements Plugin {
         this.ds = ds;
         this.name.set(newName);
 
-        /**
-         * If scene size changes and old value is not 0.0 (firsts draw) redraw
-         * TODO: resizing an window manually will cause a lot of resize changes and so redraws, solve this better
-         */
+        // Debounce resize events — rapid changes during window drag fire a single update after 200 ms
+        PauseTransition resizeDebounce = new PauseTransition(Duration.millis(200));
+        resizeDebounce.setOnFinished(e -> {
+            if (dataModel.getChartModels() == null || dataModel.getChartModels().isEmpty()) return;
+            boolean hasHeatMap = dataModel.getChartModels().stream()
+                    .anyMatch(m -> m.getChartType() == ChartType.HEAT_MAP);
+            if (hasHeatMap) {
+                update();
+            } else {
+                autoSize();
+            }
+        });
         border.heightProperty().addListener((observable, oldValue, newValue) -> {
             if (!oldValue.equals(0.0) && dataModel.getChartModels() != null && !dataModel.getChartModels().isEmpty()) {
-                boolean hasHeatMap = false;
-                for (ChartModel chartModel : dataModel.getChartModels()) {
-                    if (chartModel.getChartType() == ChartType.HEAT_MAP) {
-                        hasHeatMap = true;
-                    }
-                }
-                if (!hasHeatMap) {
-                    Platform.runLater(this::autoSize);
-                } else {
-                    update();
-                }
+                resizeDebounce.playFromStart();
             }
         });
         border.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (!oldValue.equals(0.0) && dataModel.getChartModels() != null && !dataModel.getChartModels().isEmpty()) {
-                boolean hasHeatMap = false;
-                for (ChartModel chartModel : dataModel.getChartModels()) {
-                    if (chartModel.getChartType() == ChartType.HEAT_MAP) {
-                        hasHeatMap = true;
-                    }
-                }
-                if (!hasHeatMap) {
-                    Platform.runLater(this::autoSize);
-                } else {
-                    update();
-                }
+                resizeDebounce.playFromStart();
             }
         });
 
@@ -257,25 +284,45 @@ public class ChartPlugin implements Plugin {
         }
     }
 
-    private void autoSize() {
-        Integer chartsPerScreen = dataModel.getChartsPerScreen();
+    /**
+     * Factory method: creates the concrete {@link Chart} implementation for the given model's {@link ChartType}.
+     *
+     * @param ds         active JEVis data source
+     * @param chartModel model describing the chart to construct
+     * @return a new chart instance ready to have data loaded via {@code createChart()}
+     */
+    public static Chart getChart(JEVisDataSource ds, ChartModel chartModel) {
 
-        AtomicDouble autoMinSize = new AtomicDouble(0);
-        double autoMinSizeNormal = 240;
-        double autoMinSizeLogical = 50;
-
-        if (!dataModel.getChartModels().isEmpty()) {
-            double maxHeight = border.getHeight();
-
-            for (ChartModel chartModel : dataModel.getChartModels()) {
-                if (chartModel.getChartType().equals(ChartType.LOGICAL)) {
-                    autoMinSize.set(autoMinSizeLogical);
-                } else {
-                    autoMinSize.set(autoMinSizeNormal);
-                }
-            }
-
-            autoSize(autoMinSize.get(), maxHeight, chartsPerScreen, vBox);
+        switch (chartModel.getChartType()) {
+            case LOGICAL:
+                return new LogicalChart(ds, chartModel);
+            default:
+            case LINE:
+                return new LineChart(ds, chartModel);
+            case BAR:
+                return new BarChart(ds, chartModel);
+            case COLUMN:
+                return new ColumnChart(ds, chartModel);
+            case STACKED_COLUMN:
+                return new StackedColumnChart(ds, chartModel);
+            case BUBBLE:
+                return new BubbleChart(ds, chartModel);
+            case SCATTER:
+                return new ScatterChart(ds, chartModel);
+            case PIE:
+                return new PieChart(ds, chartModel);
+            case TABLE:
+                return new TableChart(ds, chartModel);
+            case TABLE_V:
+                return new TableChartV(ds, chartModel);
+            case TABLE_H:
+                return new TableChartH(ds, chartModel);
+            case HEAT_MAP:
+                return new HeatMapChart(ds, chartModel);
+            case AREA:
+                return new AreaChart(ds, chartModel);
+            case STACKED_AREA:
+                return new StackedAreaChart(ds, chartModel);
         }
     }
 
@@ -410,6 +457,53 @@ public class ChartPlugin implements Plugin {
     public void fireCloseEvent() {
     }
 
+    /**
+     * Convenience overload that reads the current chart model state and delegates
+     * to {@link #autoSize(Double, double, Integer, VBox)}.
+     * <p>
+     * Determines the appropriate minimum chart height based on chart type
+     * (logical charts use a smaller minimum than standard charts), then invokes
+     * the full auto-size logic against the current {@code border} height.
+     */
+    private void autoSize() {
+        Integer chartsPerScreen = dataModel.getChartsPerScreen();
+
+        AtomicDouble autoMinSize = new AtomicDouble(0);
+
+        if (!dataModel.getChartModels().isEmpty()) {
+            double maxHeight = border.getHeight();
+
+            for (ChartModel chartModel : dataModel.getChartModels()) {
+                if (chartModel.getChartType().equals(ChartType.LOGICAL)) {
+                    autoMinSize.set(AUTO_MIN_SIZE_LOGICAL);
+                } else {
+                    autoMinSize.set(AUTO_MIN_SIZE_NORMAL);
+                }
+            }
+
+            autoSize(autoMinSize.get(), maxHeight, chartsPerScreen, vBox);
+        }
+    }
+
+    @Override
+    public Node getContentNode() {
+        return border;
+    }
+
+    @Override
+    public Region getIcon() {
+        return JEConfig.getSVGImage(Icon.GRAPH, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
+    }
+
+    /**
+     * Dispatches a toolbar/menu command to this plugin.
+     * <p>
+     * Recognised command codes are defined as constants in the {@link Plugin} interface
+     * (e.g. {@code Plugin.Command.SAVE}, {@code Plugin.Command.NEW}, …).
+     * Unknown codes are silently ignored.
+     *
+     * @param cmdType the command identifier
+     */
     @Override
     public void handleRequest(int cmdType) {
         try {
@@ -472,115 +566,112 @@ public class ChartPlugin implements Plugin {
                     break;
             }
         } catch (Exception ex) {
+            logger.error("handleRequest failed for command: {}", cmdType, ex);
         }
 
     }
 
-    @Override
-    public Node getContentNode() {
-        return border;
-    }
+    /**
+     * Attaches completion listeners to all outstanding XYChart tasks and calls
+     * {@link #runFinalUpdates()} once every pending task has reached a terminal state
+     * (SUCCEEDED, FAILED, or CANCELLED). Must be called on the FX thread.
+     */
+    private void scheduleFinalUpdates() {
+        List<Task<?>> pendingXYTasks = new ArrayList<>();
+        JEConfig.getStatusBar().getTaskList().forEach((t, owner) -> {
+            if (XYChart.class.getName().equals(owner)) {
+                pendingXYTasks.add(t);
+            }
+        });
 
-    @Override
-    public Region getIcon() {
-        return JEConfig.getSVGImage(Icon.GRAPH, Plugin.IconSize, Plugin.IconSize, Icon.CSS_PLUGIN);
-    }
-
-    public static Chart getChart(JEVisDataSource ds, ChartModel chartModel) {
-
-        switch (chartModel.getChartType()) {
-            case LOGICAL:
-                return new LogicalChart(ds, chartModel);
-            default:
-            case LINE:
-                return new LineChart(ds, chartModel);
-            case BAR:
-                return new BarChart(ds, chartModel);
-            case COLUMN:
-                return new ColumnChart(ds, chartModel);
-            case STACKED_COLUMN:
-                return new StackedColumnChart(ds, chartModel);
-            case BUBBLE:
-                return new BubbleChart(ds, chartModel);
-            case SCATTER:
-                return new ScatterChart(ds, chartModel);
-            case PIE:
-                return new PieChart(ds, chartModel);
-            case TABLE:
-                return new TableChart(ds, chartModel);
-            case TABLE_V:
-                return new TableChartV(ds, chartModel);
-            case TABLE_H:
-                return new TableChartH(ds, chartModel);
-            case HEAT_MAP:
-                return new HeatMapChart(ds, chartModel);
-            case AREA:
-                return new AreaChart(ds, chartModel);
-            case STACKED_AREA:
-                return new StackedAreaChart(ds, chartModel);
+        if (pendingXYTasks.isEmpty()) {
+            runFinalUpdates();
+            return;
         }
-    }
 
-    private void finalUpdates() throws InterruptedException {
-
-        AtomicBoolean hasActiveChartTasks = new AtomicBoolean(false);
-        ConcurrentHashMap<Task, String> taskList = JEConfig.getStatusBar().getTaskList();
-        for (Map.Entry<Task, String> entry : taskList.entrySet()) {
-            String s = entry.getValue();
-            if (s.equals(XYChart.class.getName())) {
-                hasActiveChartTasks.set(true);
-                break;
+        AtomicInteger remaining = new AtomicInteger(pendingXYTasks.size());
+        for (Task<?> t : pendingXYTasks) {
+            Worker.State currentState = t.getState();
+            if (currentState == Worker.State.SUCCEEDED
+                    || currentState == Worker.State.FAILED
+                    || currentState == Worker.State.CANCELLED) {
+                // Task already finished before we attached a listener
+                if (remaining.decrementAndGet() == 0) {
+                    runFinalUpdates();
+                    return;
+                }
+            } else {
+                t.stateProperty().addListener((obs, oldState, newState) -> {
+                    if (newState == Worker.State.SUCCEEDED
+                            || newState == Worker.State.FAILED
+                            || newState == Worker.State.CANCELLED) {
+                        if (remaining.decrementAndGet() == 0) {
+                            Platform.runLater(this::runFinalUpdates);
+                        }
+                    }
+                });
             }
         }
-        if (!hasActiveChartTasks.get()) {
-            Platform.runLater(() -> {
-                toolBarView.updateLayout();
+    }
 
-                StringBuilder allFormulas = new StringBuilder();
-                for (Map.Entry<Integer, Chart> entry : allCharts.entrySet()) {
-                    dataRowMap.put(entry.getValue(), entry.getValue().getChartDataRows());
+    /**
+     * Post-processing executed on the FX thread once all chart rendering tasks are complete.
+     * Wires cross-chart listeners, triggers auto-sizing, and shows regression results if requested.
+     */
+    private void runFinalUpdates() {
+        toolBarView.updateLayout();
 
-                    List<Chart> notActive = new ArrayList<>(allCharts.values());
-                    notActive.remove(entry.getValue());
-                    ChartType chartType = entry.getValue().getChartType();
+        StringBuilder allFormulas = new StringBuilder();
+        for (Map.Entry<Integer, Chart> entry : allCharts.entrySet()) {
+            dataRowMap.put(entry.getValue(), entry.getValue().getChartDataRows());
 
-                    setupListener(entry.getValue(), notActive, chartType);
+            List<Chart> notActive = new ArrayList<>(allCharts.values());
+            notActive.remove(entry.getValue());
+            ChartType chartType = entry.getValue().getChartType();
 
-                    if (entry.getValue() instanceof XYChart && toolBarView.getToolBarSettings().isCalculateRegression()) {
-                        allFormulas.append(((XYChart) entry.getValue()).getRegressionFormula().toString());
-                    }
-                }
+            setupListener(entry.getValue(), notActive, chartType);
 
-                Platform.runLater(this::autoSize);
-
-                if (toolBarView.getToolBarSettings().isCalculateRegression()) {
-                    Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
-                    infoBox.setResizable(true);
-                    infoBox.setTitle(I18n.getInstance().getString("dialog.regression.title"));
-                    infoBox.setHeaderText(I18n.getInstance().getString("dialog.regression.headertext"));
-                    JFXTextArea textArea = new JFXTextArea(allFormulas.toString());
-                    textArea.setWrapText(true);
-                    textArea.setPrefWidth(450);
-                    textArea.setPrefHeight(200);
-                    infoBox.getDialogPane().setContent(textArea);
-                    infoBox.show();
-                }
-
-                Platform.runLater(() -> {
-                    JEConfig.getStatusBar().finishProgressJob(ChartPlugin.class.getName(), "");
-                    JEConfig.getStatusBar().getPopup().hide();
-                });
-            });
-        } else {
-            Thread.sleep(500);
-            finalUpdates();
+            if (entry.getValue() instanceof XYChart && toolBarView.getToolBarSettings().isCalculateRegression()) {
+                allFormulas.append(((XYChart) entry.getValue()).getRegressionFormula().toString());
+            }
         }
+
+        autoSize();
+
+        if (toolBarView.getToolBarSettings().isCalculateRegression()) {
+            Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
+            infoBox.setResizable(true);
+            infoBox.setTitle(I18n.getInstance().getString("dialog.regression.title"));
+            infoBox.setHeaderText(I18n.getInstance().getString("dialog.regression.headertext"));
+            JFXTextArea textArea = new JFXTextArea(allFormulas.toString());
+            textArea.setWrapText(true);
+            textArea.setPrefWidth(450);
+            textArea.setPrefHeight(200);
+            infoBox.getDialogPane().setContent(textArea);
+            infoBox.show();
+        }
+
+        JEConfig.getStatusBar().finishProgressJob(ChartPlugin.class.getName(), "");
+        JEConfig.getStatusBar().getPopup().hide();
     }
 
     public Map<Chart, List<ChartDataRow>> getDataRowMap() {
         return dataRowMap;
     }
 
+    /**
+     * Rebuilds all charts from the current {@link DataModel}.
+     *
+     * <p>This method:
+     * <ol>
+     *   <li>Cancels any in-progress XYChart rendering tasks</li>
+     *   <li>Clears the existing chart scene graph</li>
+     *   <li>Creates new chart containers and submits async rendering tasks to the Statusbar executor</li>
+     *   <li>Calls {@link #scheduleFinalUpdates()} to wire listeners and auto-size once all tasks complete</li>
+     * </ol>
+     *
+     * <p>Must be called on the JavaFX Application Thread.
+     */
     public void update() {
 
         try {
@@ -588,7 +679,7 @@ public class ChartPlugin implements Plugin {
 
             JEConfig.getStatusBar().startProgressJob(ChartPlugin.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
         } catch (Exception ex) {
-
+            logger.error("Could not initialize progress job", ex);
         }
 
         JEConfig.getStatusBar().getTaskList().forEach((task, s) -> {
@@ -861,26 +952,29 @@ public class ChartPlugin implements Plugin {
             }
         });
 
-        Task task = new Task() {
-            @Override
-            protected Object call() throws Exception {
-                try {
-                    finalUpdates();
-                } catch (Exception e) {
-                    failed();
-                } finally {
-                    succeeded();
-                }
-
-                return null;
-            }
-        };
-
-
-        JEConfig.getStatusBar().addTask(ChartPlugin.class.getName(), task, taskImage, true);
-//        });
+        scheduleFinalUpdates();
     }
 
+    /**
+     * Distributes available height among chart nodes in the given {@code vBox}.
+     * <p>
+     * Rules applied (in priority order):
+     * <ol>
+     *   <li>If only one chart is present or {@code autoSize} is {@code true}, every chart fills
+     *       the full available height.</li>
+     *   <li>If {@code chartsPerScreen} is set and more than one chart exists, height is divided
+     *       evenly, with heat-map overhead ({@link #HEATMAP_HEIGHT_FACTOR}) subtracted first.</li>
+     *   <li>If total preferred height exceeds {@code maxHeight}, every chart is shrunk to
+     *       {@code autoMinSize}, then free space is redistributed equally.</li>
+     * </ol>
+     * All layout mutations are dispatched to the JavaFX Application Thread via
+     * {@link javafx.application.Platform#runLater}.
+     *
+     * @param autoMinSize     minimum height assigned to each chart node when space is tight
+     * @param maxHeight       total available height of the chart area
+     * @param chartsPerScreen how many charts should be visible without scrolling, may be {@code null}
+     * @param vBox            the container whose children are to be resized
+     */
     private void autoSize(Double autoMinSize, double maxHeight, Integer chartsPerScreen, VBox vBox) {
         double totalPrefHeight; /**
          * If auto size is on or if its only one chart scale the chart to maximize screen size
@@ -900,7 +994,7 @@ public class ChartPlugin implements Plugin {
             if (chartsPerScreen != null && noOfCharts > 1) {
                 ObservableList<Node> children = vBox.getChildren();
 
-                double height = border.getHeight() - (8.5 * noOfCharts);
+                double height = border.getHeight() - (HEATMAP_HEIGHT_FACTOR * noOfCharts);
 
                 for (Node node : children) {
                     if (node instanceof BorderPane) {
@@ -934,8 +1028,7 @@ public class ChartPlugin implements Plugin {
 
                             if (top.getItems().size() == 0) {
                                 Chart chart = allCharts.get(top.getChartId());
-                                //30 -> captions, borders and stuff, 25 -> per row
-                                heightTop = 30 + (25 * chart.getChartDataRows().size());
+                                heightTop = MIN_TABLE_HEADER_HEIGHT + (MIN_TABLE_ROW_HEIGHT * chart.getChartDataRows().size());
                             }
 
                             for (Node child : borderChildren) {
@@ -1034,6 +1127,17 @@ public class ChartPlugin implements Plugin {
         return 2;
     }
 
+    /**
+     * Wires cross-chart interaction listeners for a single chart after rendering completes.
+     * <p>
+     * For XY-type charts, registers zoom/pan axis listeners that keep all charts in
+     * {@code notActive} synchronised with the axis range of {@code cv}. For table charts
+     * and other non-XY types, no listeners are attached.
+     *
+     * @param cv        the chart whose axis changes should propagate to peers
+     * @param notActive all other visible charts that should mirror axis changes
+     * @param chartType the rendering type of {@code cv}, used to select the correct listener strategy
+     */
     private void setupListener(Chart cv, List<Chart> notActive, ChartType chartType) {
         if (cv.getChart() != null) {
             switch (chartType) {
@@ -1104,6 +1208,15 @@ public class ChartPlugin implements Plugin {
         }
     }
 
+    /**
+     * Opens the analysis identified by {@code object} in this plugin.
+     * <p>
+     * If {@code object} is a {@link JEVisObject} representing an analysis, the plugin loads
+     * its data model and triggers a chart rebuild. On the first call the toolbar's analysis
+     * combo-box is also refreshed. Unrecognised object types are silently ignored.
+     *
+     * @param object the analysis {@link JEVisObject} to open, or any other object (ignored)
+     */
     @Override
     public void openObject(Object object) {
         try {
@@ -1184,6 +1297,15 @@ public class ChartPlugin implements Plugin {
         }
     }
 
+    /**
+     * Opens the given analysis {@link JEVisObject} with pre-configured {@link DataSettings}.
+     * <p>
+     * Overrides the current manipulation mode, aggregation period, and time-frame with the
+     * values from {@code dataSettings} before loading the analysis.
+     *
+     * @param object       the analysis {@link JEVisObject} to load
+     * @param dataSettings pre-configured time/aggregation/manipulation settings to apply
+     */
     public void openObject(JEVisObject object, DataSettings dataSettings) {
         try {
             if (firstStart) {

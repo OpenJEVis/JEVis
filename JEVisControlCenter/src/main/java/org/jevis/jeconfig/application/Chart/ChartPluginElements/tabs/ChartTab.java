@@ -41,6 +41,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * A JavaFX {@link Tab} that exposes the configuration UI for a single chart within the
+ * analysis editor dialog.
+ * <p>
+ * Each {@code ChartTab} is bound to one {@link ChartModel} and allows the user to:
+ * <ul>
+ *   <li>Select the chart type, orientation, and color mapping</li>
+ *   <li>Add, copy, and remove data series ({@link ChartData})</li>
+ *   <li>Configure fraction digits, grouping interval, and optional Y-axis titles</li>
+ *   <li>Enable/disable column/row sums for table charts</li>
+ *   <li>Set heat-map day-start and day-end times</li>
+ * </ul>
+ * All mutations are written back to the bound {@link ChartModel} immediately so that the
+ * analysis dialog can persist them when the user confirms.
+ */
 public class ChartTab extends Tab {
     private static final Logger logger = LogManager.getLogger(ChartTab.class);
     private final JEVisDataSource ds;
@@ -203,7 +218,7 @@ public class ChartTab extends Tab {
         colorMappingBox = new ColorMappingBox(chartModel);
 
         if (chartModel.getDayStart() != null) {
-            dayStartPicker.setValue(LocalTime.of(chartModel.getDayStart().getHourOfDay(), chartModel.getDayStart().getMinuteOfHour(), chartModel.getDayStart().getSecondOfMinute(), chartModel.getDayStart().getMillisOfSecond() * 1000000));
+            dayStartPicker.setValue(LocalTime.of(chartModel.getDayStart().getHourOfDay(), chartModel.getDayStart().getMinuteOfHour(), chartModel.getDayStart().getSecondOfMinute(), (int) ((long) chartModel.getDayStart().getMillisOfSecond() * 1_000_000L)));
         }
         dayStartPicker.valueProperty().addListener((observableValue, localTime, t1) -> chartModel.setDayStart(new org.joda.time.LocalTime(t1.getHour(), t1.getMinute(), t1.getSecond(), t1.getNano() / 1000000)));
         dayStartPicker.setPrefWidth(100d);
@@ -211,8 +226,8 @@ public class ChartTab extends Tab {
         dayStartPicker.set24HourView(true);
         dayStartPicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        if (chartModel.getDayStart() != null) {
-            dayEndPicker.setValue(LocalTime.of(chartModel.getDayEnd().getHourOfDay(), chartModel.getDayEnd().getMinuteOfHour(), chartModel.getDayEnd().getSecondOfMinute(), chartModel.getDayEnd().getMillisOfSecond() * 1000000));
+        if (chartModel.getDayEnd() != null) {
+            dayEndPicker.setValue(LocalTime.of(chartModel.getDayEnd().getHourOfDay(), chartModel.getDayEnd().getMinuteOfHour(), chartModel.getDayEnd().getSecondOfMinute(), (int) ((long) chartModel.getDayEnd().getMillisOfSecond() * 1_000_000L)));
         }
         dayEndPicker.valueProperty().addListener((observableValue, localTime, t1) -> chartModel.setDayEnd(new org.joda.time.LocalTime(t1.getHour(), t1.getMinute(), t1.getSecond(), t1.getNano() / 1000000)));
         dayEndPicker.setPrefWidth(100d);

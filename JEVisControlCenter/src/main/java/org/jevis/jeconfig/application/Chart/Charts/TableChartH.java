@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableHSample;
@@ -32,6 +33,22 @@ import org.jevis.jeconfig.plugin.charts.ToolBarSettings;
 
 import java.util.*;
 
+/**
+ * Horizontal table chart — renders each data series as a single row with the series
+ * name, a colour-coded value cell, and the measurement unit.
+ * <p>
+ * Each series contributes exactly one {@link TableHSample} (the latest sample value).
+ * An optional sum row is appended when {@code showColumnSums} is enabled on the
+ * {@link ChartModel}.
+ * <p>
+ * Rendering is performed asynchronously on a background {@link Task} submitted to the
+ * central status-bar executor. All JavaFX scene-graph mutations are marshalled back to
+ * the Application Thread via {@link javafx.application.Platform#runLater}.
+ *
+ * @see TableChartV
+ * @see TableHSample
+ * @see ValueTableCell
+ */
 public class TableChartH extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChartH.class);
     private final JFXCheckBox filterEnabledBox = new JFXCheckBox(I18n.getInstance().getString("plugin.dtrc.dialog.limiterlabel"));
@@ -45,7 +62,7 @@ public class TableChartH extends XYChart {
     private TableView<TableHSample> tableHeader;
     private boolean blockDatePickerEvent = false;
     private Boolean showColumnSums = false;
-    private final Map<TableColumn, String> columnFilter = new HashMap<>();
+    private final Map<TableColumn<TableHSample, ?>, String> columnFilter = new HashMap<>();
 
 
     public TableChartH(JEVisDataSource ds, ChartModel chartModel) {
@@ -57,9 +74,9 @@ public class TableChartH extends XYChart {
         this.chartDataRows = new ArrayList<>();
 
         if (!instant) {
-            Task task = new Task() {
+            Task<?> task = new Task<Void>() {
                 @Override
-                protected Object call() throws Exception {
+                protected Void call() throws Exception {
                     try {
                         showColumnSums(chartModel.isShowColumnSums());
                         buildChart(toolBarSettings, dataSettings);
@@ -99,6 +116,17 @@ public class TableChartH extends XYChart {
         return serie;
     }
 
+    /**
+     * Builds the horizontal table from the current list of {@link XYChartSerie} instances.
+     * <p>
+     * For each series, the latest sample value is read and wrapped in a {@link TableHSample}.
+     * A colour-coded value cell is rendered using the series colour and a normalised
+     * value ratio ({@code (value - min) / range}); when all values are equal the ratio
+     * defaults to {@code 0.5} to avoid division by zero.
+     * An optional sum row is appended when {@code showColumnSums} is enabled.
+     * <p>
+     * All scene-graph work is dispatched to the JavaFX Application Thread.
+     */
     @Override
     public void addSeriesToChart() {
         try {
@@ -178,7 +206,9 @@ public class TableChartH extends XYChart {
                     xyChartSerie.getSingleRow().setAbsolute(true);
                     xyChartSerie.getSingleRow().setSomethingChanged(true);
 
-                    Double value = xyChartSerie.getSingleRow().getSamples().get(0).getValueAsDouble();
+                    List<JEVisSample> samples = xyChartSerie.getSingleRow().getSamples();
+                    if (samples.isEmpty()) continue;
+                    Double value = samples.get(0).getValueAsDouble();
 
                     TableHSample tableHSample = new TableHSample(xyChartSerie);
                     if (firstUnit.isEmpty()) firstUnit = tableHSample.getSampleUnit();
@@ -187,7 +217,7 @@ public class TableChartH extends XYChart {
 
                     items.add(tableHSample);
                 } catch (Exception e) {
-                    logger.error(e);
+                    logger.error("Could not build row for series '{}'", xyChartSerie.getTableEntryName(), e);
                 }
             }
 
@@ -195,7 +225,8 @@ public class TableChartH extends XYChart {
 
             if (chartModel.isColoringEnabled()) {
                 for (TableHSample data : items) {
-                    double v = (data.getSampleValue() - min) / rangeOfValues;
+                    // Guard against division by zero when all values are equal
+                    double v = (rangeOfValues > 0) ? (data.getSampleValue() - min) / rangeOfValues : 0.5;
                     Color color = Helper.getColorAt(chartModel.getColorMapping().getGradient(), v);
                     data.setSampleColor(color);
                 }
@@ -235,6 +266,9 @@ public class TableChartH extends XYChart {
         };
     }
 
+    /**
+     * Reapplies the name and value column filters to the table's {@link FilteredList}.
+     */
     private void refreshTable() {
         String nameFilter = columnFilter.getOrDefault(nameColumn, "").toLowerCase();
         String valueFilter = columnFilter.getOrDefault(valueColumn, "").toLowerCase();

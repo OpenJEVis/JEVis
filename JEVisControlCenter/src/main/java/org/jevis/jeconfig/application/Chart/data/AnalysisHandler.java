@@ -20,6 +20,22 @@ import org.joda.time.DateTime;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Serialises and deserialises a {@link DataModel} to/from JSON, and loads/saves
+ * analysis configurations stored as {@link org.jevis.api.JEVisFile} samples on a
+ * JEVis analysis object.
+ * <p>
+ * The JSON format is owned by this class — field names used in
+ * {@link #toJsonNode(DataModel)} must match the Jackson property names on
+ * {@link DataModel} / {@link ChartModel} / {@link ChartData} for round-tripping to work.
+ * <p>
+ * Backwards compatibility with the pre-JSON "old model" format is handled via
+ * {@link #convertOldToNew(AnalysisDataModel, DataModel)}.
+ *
+ * @see DataModel
+ * @see ChartModel
+ * @see ChartData
+ */
 public class AnalysisHandler {
 
     public final static String TYPE = "AnalysisHandler";
@@ -41,6 +57,16 @@ public class AnalysisHandler {
         }
     }
 
+    /**
+     * Serialises a {@link DataModel} to a Jackson {@link JsonNode}.
+     * <p>
+     * The resulting node can be written to a JSON file via Jackson's
+     * {@code ObjectMapper.writerWithDefaultPrettyPrinter()} and later
+     * deserialised back by passing it to {@link #jsonToModel(JsonNode, DataModel)}.
+     *
+     * @param dataModel the model to serialise
+     * @return a JSON object node representing the full analysis configuration
+     */
     public JsonNode toJsonNode(DataModel dataModel) {
 
         ObjectNode dataHandlerNode = JsonNodeFactory.instance.objectNode();
@@ -161,13 +187,28 @@ public class AnalysisHandler {
 
     }
 
+    /**
+     * Loads the analysis configuration stored on {@code analysisObject} into {@code dataModel}.
+     * <p>
+     * If the object carries an {@value #ANALYSIS_FILE_ATTRIBUTE_NAME} sample, the latest JSON
+     * file is parsed and merged into {@code dataModel} using Jackson's
+     * {@code readerForUpdating}. Otherwise the legacy attribute-based format is read via
+     * {@link AnalysisDataModel} and converted with {@link #convertOldToNew}.
+     * <p>
+     * Always calls {@link DataModel#reset()} first to avoid stale state from a previous load.
+     *
+     * @param analysisObject the JEVis analysis object to load from
+     * @param dataModel      the target model; its state is fully replaced
+     */
     public void loadDataModel(JEVisObject analysisObject, DataModel dataModel) {
         dataModel.reset();
 
         try {
             JEVisAttribute analysisFileAttribute = analysisObject.getAttribute(ANALYSIS_FILE_ATTRIBUTE_NAME);
-            if (analysisFileAttribute.hasSample()) {
-                JEVisFile file = analysisFileAttribute.getLatestSample().getValueAsFile();
+            if (analysisFileAttribute != null && analysisFileAttribute.hasSample()) {
+                JEVisSample latestSample = analysisFileAttribute.getLatestSample();
+                if (latestSample == null) return;
+                JEVisFile file = latestSample.getValueAsFile();
                 JsonNode jsonNode = mapper.readTree(file.getBytes());
                 jsonToModel(jsonNode, dataModel);
 
@@ -191,6 +232,16 @@ public class AnalysisHandler {
         }
     }
 
+    /**
+     * Persists the current {@link DataModel} as a JSON file sample on {@code analysisObject}.
+     * <p>
+     * The model is serialised via {@link #toJsonNode(DataModel)}, written to a
+     * {@link org.jevis.commons.JEVisFileImp} whose filename includes the current timestamp,
+     * and committed as a new sample on the {@value #ANALYSIS_FILE_ATTRIBUTE_NAME} attribute.
+     *
+     * @param analysisObject the target JEVis object to write to; no-op if {@code null}
+     * @param dataModel      the model to persist
+     */
     public void saveDataModel(JEVisObject analysisObject, DataModel dataModel) {
 
         try {
@@ -209,6 +260,16 @@ public class AnalysisHandler {
         }
     }
 
+    /**
+     * Converts a legacy {@link AnalysisDataModel} (attribute-based) to the current
+     * {@link DataModel} (JSON-based) format.
+     * <p>
+     * Called automatically by {@link #loadDataModel} when no JSON analysis file is found
+     * on the analysis object.
+     *
+     * @param oldModel  the legacy model read from JEVis attributes
+     * @param dataModel the target new-format model to populate
+     */
     private void convertOldToNew(AnalysisDataModel oldModel, DataModel dataModel) {
 
         dataModel.setAutoSize(oldModel.getAutoResize());

@@ -144,6 +144,18 @@ public class CustomMatrixPane<T extends MatrixItem> extends Region implements Ch
         heightProperty().addListener(o -> resize());
 
         series.setOnSeriesEvent(seriesEvent -> redraw());
+
+        // Hide the value tooltip when the mouse leaves the chart area.
+        setOnMouseExited(e -> {
+            if (tp.isShowing()) tp.hide();
+        });
+
+        // Hide the value tooltip when this node is removed from the scene (e.g. when
+        // the user switches to a different analysis or chart type).  Without this the
+        // tooltip remains as a floating window over the new content.
+        sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene == null && tp.isShowing()) tp.hide();
+        });
     }
 
 

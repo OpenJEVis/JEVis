@@ -6,6 +6,18 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Data model for a single row in a {@link org.jevis.jeconfig.application.Chart.Charts.TableChartH}.
+ * <p>
+ * Each {@code TableHSample} holds one data-series entry consisting of the series name,
+ * the (latest) numeric value, the measurement unit, and an optional series colour used
+ * for colour-coded value cells.
+ * <p>
+ * The special "sum" row is created via the {@link #TableHSample(double, String, String)}
+ * constructor; ordinary series rows use {@link #TableHSample(XYChartSerie)}.
+ *
+ * @see org.jevis.jeconfig.application.Chart.Charts.TableCells.ValueTableCell
+ */
 public class TableHSample {
     private static final Logger logger = LogManager.getLogger(TableHSample.class);
     private final NumberFormat nf;
@@ -30,7 +42,7 @@ public class TableHSample {
         try {
             setSampleValue(xyChartSerie.getSingleRow().getSamples().get(0).getValueAsDouble());
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Failed to read sample value for series '{}'", xyChartSerie.getTableEntryName(), e);
         }
         setSampleUnit(xyChartSerie.getUnit());
         nf = xyChartSerie.getNf();
@@ -80,7 +92,7 @@ public class TableHSample {
         this.sampleColor.set(sampleColor);
     }
 
-    public Property<Color> sampleColorProperty() {
+    public ObjectProperty<Color> sampleColorProperty() {
         return sampleColor;
     }
 

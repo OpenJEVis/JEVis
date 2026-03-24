@@ -7,6 +7,23 @@ import javafx.beans.property.SimpleStringProperty;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Top-level data model for a saved analysis in the ChartPlugin.
+ * <p>
+ * A {@code DataModel} aggregates all {@link ChartModel} instances that belong to one analysis
+ * together with display-level settings that apply globally across charts:
+ * <ul>
+ *   <li>{@code autoSize} — whether charts should fill the available height automatically</li>
+ *   <li>{@code chartsPerScreen} — how many charts are visible without scrolling</li>
+ *   <li>{@code horizontalPies} / {@code horizontalTables} — columns in pie/table layouts</li>
+ *   <li>{@code forcedInterval} — optional ISO-period string that overrides the time axis</li>
+ * </ul>
+ * This class is serialised to/from JSON by {@link AnalysisHandler} and is also the target of
+ * Jackson's {@code readerForUpdating} when loading a saved analysis file.
+ *
+ * @see ChartModel
+ * @see AnalysisHandler
+ */
 public class DataModel {
 
 
@@ -17,6 +34,9 @@ public class DataModel {
     private final SimpleStringProperty forcedInterval = new SimpleStringProperty(this, "forcedInterval", "");
     private List<ChartModel> chartModels = new ArrayList<>();
 
+    /**
+     * @return the ordered list of charts that make up this analysis
+     */
     public List<ChartModel> getChartModels() {
         return chartModels;
     }
@@ -85,6 +105,11 @@ public class DataModel {
         return forcedInterval;
     }
 
+    /**
+     * Resets this model to its default state, clearing all chart models and
+     * restoring all display settings to their defaults.
+     * <p>Should be called before loading a new analysis to avoid stale state.</p>
+     */
     public void reset() {
         autoSize.set(true);
         chartsPerScreen.set(2);
