@@ -43,6 +43,13 @@ public class LoytecXmlDlParser {
     private String valueAttribute;
     private String mainAttribute;
     private DateTimeZone timeZone;
+    public static long IN_ALARM = 1;
+    public static long FAULT = 2;
+    public static long OVERRIDDEN = 4;
+    public static long OUT_OF_SERVICE = 8;
+    public static long OFFLINE = 16;
+    public static long STATUS_NOT_AVAILABLE = 128;
+    public static long UNDEFINED = 255;
 
     public LoytecXmlDlParser() {
     }
@@ -214,7 +221,9 @@ public class LoytecXmlDlParser {
 
                 if (doubleValue != null && statusValue == null) {
                     results.add(new Result(target, doubleValue, dateTime));
-                } else if (doubleValue != null && !statusValue.equals(16L) && !statusValue.equals(255L)) {
+                } else if (doubleValue != null && !statusValue.equals(IN_ALARM) && !statusValue.equals(FAULT) &&
+                        !statusValue.equals(OVERRIDDEN) && !statusValue.equals(OUT_OF_SERVICE) &&
+                        !statusValue.equals(OFFLINE) && !statusValue.equals(UNDEFINED)) {
                     results.add(new Result(target, doubleValue, dateTime));
                     statusResults.add(new VirtualSample(dateTime, statusValue));
                 } else if (doubleValue != null) {
@@ -222,7 +231,9 @@ public class LoytecXmlDlParser {
                 } else {
                     if (objectValue != null && statusValue == null) {
                         results.add(new Result(target, objectValue, dateTime));
-                    } else if (objectValue != null && !statusValue.equals(16L) && !statusValue.equals(255L)) {
+                    } else if (objectValue != null && !statusValue.equals(IN_ALARM) && !statusValue.equals(FAULT) &&
+                            !statusValue.equals(OVERRIDDEN) && !statusValue.equals(OUT_OF_SERVICE) &&
+                            !statusValue.equals(OFFLINE) && !statusValue.equals(UNDEFINED)) {
                         results.add(new Result(target, objectValue, dateTime));
                         statusResults.add(new VirtualSample(dateTime, statusValue));
                     } else {
