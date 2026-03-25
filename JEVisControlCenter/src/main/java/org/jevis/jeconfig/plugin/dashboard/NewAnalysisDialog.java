@@ -130,7 +130,7 @@ public class NewAnalysisDialog {
                                     JEVisObject parent = item.getParents().get(0);//not save
                                     parentName = parent.getName();
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    logger.error("Failed to get parent name for analyses directory object", ex);
                                 }
 
 

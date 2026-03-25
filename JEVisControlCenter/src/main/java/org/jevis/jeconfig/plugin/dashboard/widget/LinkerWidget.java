@@ -114,8 +114,7 @@ public class LinkerWidget extends Widget {
                 Layouts.setAnchor(graphAnalysisLinker.getLinkerButton(), 0);
                 this.layout();
             } catch (Exception ex) {
-                logger.error(ex);
-                ex.printStackTrace();
+                logger.error("Failed to update linker widget config", ex);
             }
         });
 
@@ -213,7 +212,7 @@ public class LinkerWidget extends Widget {
                             analysisListView.scrollTo(selectedAnalyis);
                         }
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        logger.error("Failed to select linked analysis in list", ex);
                     }
                 }
 
@@ -224,7 +223,7 @@ public class LinkerWidget extends Widget {
                 tab.setContent(analysisListView);
 
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error("Failed to build linker widget config tab", ex);
             }
         }
 

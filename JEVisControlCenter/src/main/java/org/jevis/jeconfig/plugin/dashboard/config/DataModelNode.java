@@ -5,6 +5,13 @@ import org.jevis.jeconfig.application.Chart.ChartType;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated Legacy V1 dashboard data model node format. This class exists solely for
+ * backward-compatibility when reading old dashboard JSON files.
+ * Use {@link org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo} and the
+ * {@code config2} package instead.
+ */
+@Deprecated
 public class DataModelNode {
 
     private List<DataPointNode> data = new ArrayList<>();

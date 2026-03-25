@@ -231,7 +231,7 @@ public class ShapePojo {
                 increment = Double.parseDouble(jfxTextFieldStepDistance.getText());
 
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to commit shape pojo values", e);
             }
 
 

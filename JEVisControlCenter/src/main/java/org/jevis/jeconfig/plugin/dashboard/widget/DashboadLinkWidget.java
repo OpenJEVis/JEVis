@@ -129,7 +129,7 @@ public class DashboadLinkWidget extends Widget {
                     try {
                         linkedDashboardObj = getDataSource().getObject(dataModelNode.getDashboardObject());
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        logger.error("Failed to get linked dashboard object", ex);
                     }
                 } else {
                     logger.warn("can not find linked object");
@@ -137,8 +137,7 @@ public class DashboadLinkWidget extends Widget {
 
                 this.layout();
             } catch (Exception ex) {
-                logger.error(ex);
-                ex.printStackTrace();
+                logger.error("Failed to update dashboard link widget config", ex);
             }
         });
 
@@ -217,7 +216,7 @@ public class DashboadLinkWidget extends Widget {
                 try {
                     analysisListView.getSelectionModel().select(linkedDashboardObj);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error("Failed to select linked dashboard in list", ex);
                 }
             }
 
@@ -229,7 +228,7 @@ public class DashboadLinkWidget extends Widget {
             tab.setContent(analysisListView);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to build dashboard link widget config tab", ex);
         }
 
 

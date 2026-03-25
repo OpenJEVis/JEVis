@@ -205,7 +205,7 @@ public class WidgetPojo {
 
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to parse widget pojo from JSON", ex);
         }
 
     }

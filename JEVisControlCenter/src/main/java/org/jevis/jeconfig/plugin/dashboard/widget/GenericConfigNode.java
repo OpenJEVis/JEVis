@@ -242,82 +242,82 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         try {
             widget.getConfig().setShowShadow(showShadowField.isSelected());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set show shadow", ex);
         }
 
         try {
             widget.getConfig().setShowValue(showValueField.isSelected());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set show value", ex);
         }
 
         try {
             widget.getConfig().setTitle(nameField.getText());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set widget title", ex);
         }
 
         try {
             widget.getConfig().setTooltip(tooltipField.getText());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set widget tooltip", ex);
         }
 
         try {
             widget.getConfig().setxPosition(Double.parseDouble(xPosField.getText()));
             widget.getConfig().setyPosition(Double.parseDouble(yPosField.getText()));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to parse widget position", ex);
         }
 
         try {
             widget.getConfig().setBackgroundColor(bgColorPicker.getValue());
             widget.getConfig().setFontColor(fColorPicker.getValue());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set widget colors", ex);
         }
 
         try {
             widget.getConfig().setBorderSize(new BorderWidths(borderSizeSpinner.getValue()));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set border size", ex);
         }
 
         try {
             widget.getConfig().setDecimals(precisionSpinner.getValue());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set decimals", ex);
         }
 
 
         try {
             widget.getConfig().setFontSize(fontSizeSpinner.getValueFactory().getValue().doubleValue());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set font size", ex);
         }
 
         try {
             widget.getConfig().setFontWeight(fontWeightBox.getSelectionModel().getSelectedItem());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set font weight", ex);
         }
 
         try {
             widget.getConfig().setFontPosture(fontPostureBox.getSelectionModel().getSelectedItem());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set font posture", ex);
         }
 
         try {
             widget.getConfig().setFontUnderlined(fontUnderlined.isSelected());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set font underlined", ex);
         }
 
         try {
             widget.getConfig().setFixedTimeframe(fixedTimeFrame.isSelected());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set fixed timeframe", ex);
         }
 
         try {
@@ -333,12 +333,12 @@ public class GenericConfigNode extends Tab implements ConfigTab {
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set forced time period", ex);
         }
         try {
             widget.getConfig().setTitlePosition(alignmentBox.getValue());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set title position", ex);
         }
     }
 }

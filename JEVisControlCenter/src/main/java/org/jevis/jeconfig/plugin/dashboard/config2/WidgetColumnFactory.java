@@ -551,7 +551,7 @@ public class WidgetColumnFactory {
                                 try {
                                     setWidgetXPosition(textField, (Widget) getTableRow().getItem());
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    logger.error("Failed to set widget X position", ex);
                                 }
                             });
 
@@ -605,7 +605,7 @@ public class WidgetColumnFactory {
                                 try {
                                     setWidgetYPosition(textField, (Widget) getTableRow().getItem());
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    logger.error("Failed to set widget Y position", ex);
                                 }
                             });
                             addFocusRefreshListener(textField);
@@ -655,7 +655,7 @@ public class WidgetColumnFactory {
                                 try {
                                     setWidgetWidth(textField, (Widget) getTableRow().getItem());
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    logger.error("Failed to set widget width", ex);
                                 }
                             });
 
@@ -833,7 +833,7 @@ public class WidgetColumnFactory {
                                 try {
                                     setWidgetHeight(textField, (Widget) getTableRow().getItem());
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    logger.error("Failed to set widget height", ex);
                                 }
                             });
                             addFocusRefreshListener(textField);

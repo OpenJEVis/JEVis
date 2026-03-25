@@ -235,7 +235,7 @@ public class BatteryWidget extends Widget implements DataModelWidget {
                 updateSkin();
                 updateText();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to update battery widget skin/text", e);
             }
 
         });
@@ -285,8 +285,7 @@ public class BatteryWidget extends Widget implements DataModelWidget {
                 }
             }
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to initialize battery gauge pojo", ex);
         }
         if (batteryGaugePojo == null) {
             logger.error("Gauge Setting is null make new: " + config.getUuid());

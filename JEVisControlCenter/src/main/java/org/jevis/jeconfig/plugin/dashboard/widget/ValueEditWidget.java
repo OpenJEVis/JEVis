@@ -107,7 +107,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
                 try {
                     lastSample = sampleHandler.getChartDataRows().get(0).getAttribute().getLatestSample();
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error("Failed to get last sample for value edit widget", ex);
                 }
             } else {
                 this.sampleHandler.setAutoAggregation(true);

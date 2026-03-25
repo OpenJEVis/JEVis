@@ -52,6 +52,11 @@ public class DashBordPlugIn implements Plugin {
      * Group() is not working because of Chart problems
      */
     private final Pane zoomPane = new Pane();
+    private final ScheduledExecutorService notificationExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "dashboard-notification");
+        t.setDaemon(true);
+        return t;
+    });
     private boolean isInitialized = false;
     private JEVisDataSource jeVisDataSource;
 
@@ -152,16 +157,10 @@ public class DashBordPlugIn implements Plugin {
     }
 
     public void showMessage(String message) {
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         Platform.runLater(() -> notificationPane.show(message));
-
-        executor.schedule(new Runnable() {
-            @Override
-            public void run() {
-                notificationPane.hide();
-            }
-        }, 5, TimeUnit.SECONDS);
-
+        notificationExecutor.schedule(
+                () -> Platform.runLater(notificationPane::hide),
+                5, TimeUnit.SECONDS);
     }
 
 
@@ -293,6 +292,7 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public void fireCloseEvent() {
+        notificationExecutor.shutdownNow();
     }
 
 

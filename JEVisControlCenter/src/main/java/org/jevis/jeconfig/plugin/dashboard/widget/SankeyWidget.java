@@ -111,8 +111,7 @@ public class SankeyWidget extends Widget implements DataModelWidget {
             });
             /** workaround because we make a new chart every time**/
         } catch (Exception ex) {
-            ex.printStackTrace();
-            logger.error(ex);
+            logger.error("Failed to update sankey widget data", ex);
         }
         showProgressIndicator(false);
         updateConfig();

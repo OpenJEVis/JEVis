@@ -2,6 +2,13 @@ package org.jevis.jeconfig.plugin.dashboard.config;
 
 import javafx.beans.value.WritableValue;
 
+/**
+ * @deprecated Legacy V1 dashboard widget config property format. This class exists solely for
+ * backward-compatibility when reading old dashboard JSON files.
+ * Use {@link org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo} and the
+ * {@code config2} package instead.
+ */
+@Deprecated
 public class WidgetConfigProperty<T> {
 
     private final String name;

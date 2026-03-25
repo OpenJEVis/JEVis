@@ -1,9 +1,9 @@
 package org.jevis.jeconfig.plugin.dashboard.common;
 
+import com.itextpdf.text.*;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -130,13 +130,13 @@ public class DashboardExport {
                     Desktop desktop = Desktop.getDesktop();
                     desktop.open(file);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("Failed to open exported PDF file", e);
                 }
             }
 
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to export dashboard to PDF", ex);
         }
 
     }
@@ -189,7 +189,7 @@ public class DashboardExport {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to export dashboard to PNG", ex);
         }
         /****/
     }

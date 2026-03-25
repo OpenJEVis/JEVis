@@ -32,7 +32,7 @@ public class ArrowWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(ArrowWidget.class);
     public static String WIDGET_ID = "Arrow";
     public static String ARROW_NODE_NAME = "arrow";
-    private AnchorPane anchorPane = new AnchorPane();
+    private final AnchorPane anchorPane = new AnchorPane();
     private ArrowConfig arrowConfig;
 
     public ArrowWidget(DashboardControl control, WidgetPojo config) {
@@ -113,8 +113,7 @@ public class ArrowWidget extends Widget {
         try {
             this.arrowConfig = new ArrowConfig(this.control, this.config.getConfigNode(ARROW_NODE_NAME));
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to load arrow config node", ex);
         }
         if (arrowConfig == null) {
             logger.error("Limit is null make new: " + config.getUuid());
@@ -212,10 +211,9 @@ public class ArrowWidget extends Widget {
                 Polygon polygon = new Polygon();
                 polygon.strokeProperty().bind(polygon.fillProperty());
                 polygon.setFill(this.config.getFontColor());
-                polygon.getPoints().addAll(new Double[]{
-                        parentWidth, arrowPeak,
+                polygon.getPoints().addAll(parentWidth, arrowPeak,
                         parentWidth - arrowSize, parentHeight,
-                        parentWidth - arrowSize, 0d});
+                        parentWidth - arrowSize, 0d);
                 arrow.getChildren().addAll(rectangle, polygon);
         }
 

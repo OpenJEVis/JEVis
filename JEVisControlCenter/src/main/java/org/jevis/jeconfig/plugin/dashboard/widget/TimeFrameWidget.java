@@ -275,7 +275,7 @@ public class TimeFrameWidget extends Widget {
         try {
             this.timeFramePojo = new TimeFramePojo(this.control, this.config.getConfigNode(TIME_FRAME_DESIGN_NODE_NAME));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Failed to load time frame pojo config node", e);
         }
 
         setGraphic(anchorPane);

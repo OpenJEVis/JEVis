@@ -209,7 +209,7 @@ public class BatteryPojo {
 
                 colorValueIndicator = colorPickerAdvValueIndicator.getValue();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to commit battery pojo values", e);
             }
 
 

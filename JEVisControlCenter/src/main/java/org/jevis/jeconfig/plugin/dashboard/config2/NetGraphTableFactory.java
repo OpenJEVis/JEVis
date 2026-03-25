@@ -23,7 +23,7 @@ public class NetGraphTableFactory {
     private static final Logger logger = LogManager.getLogger(WidgetColumnFactory.class);
     private final Double numberColumDefaultSize = 70d;
     private TableView<NetGraphDataRow> tableView;
-    private BooleanProperty disable = new SimpleBooleanProperty(false) {
+    private final BooleanProperty disable = new SimpleBooleanProperty(false) {
     };
     private final ChangeListener<Boolean> focusListener = new ChangeListener<Boolean>() {
         @Override
@@ -67,7 +67,7 @@ public class NetGraphTableFactory {
                                     NetGraphDataRow gaugeSectionPojo = (NetGraphDataRow) getTableRow().getItem();
                                     gaugeSectionPojo.setMin(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    logger.error("Failed to parse net graph min value", ex);
                                 }
                             });
                             addFocusRefreshListener(textField);
@@ -77,7 +77,7 @@ public class NetGraphTableFactory {
                                     try {
                                         tableView.getSelectionModel().select((NetGraphDataRow) getTableRow().getItem());
                                     } catch (Exception e) {
-                                        e.printStackTrace();
+                                        logger.error("Failed to select net graph row on focus", e);
                                     }
                                 }
                             });
@@ -153,7 +153,7 @@ public class NetGraphTableFactory {
                                     NetGraphDataRow gaugeSectionPojo = (NetGraphDataRow) getTableRow().getItem();
                                     gaugeSectionPojo.setMax(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    logger.error("Failed to parse net graph max value", ex);
                                 }
                             });
 
@@ -163,7 +163,7 @@ public class NetGraphTableFactory {
                                     try {
                                         tableView.getSelectionModel().select((NetGraphDataRow) getTableRow().getItem());
                                     } catch (Exception e) {
-                                        e.printStackTrace();
+                                        logger.error("Failed to select net graph row on focus", e);
                                     }
                                 }
                             });

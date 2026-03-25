@@ -10,7 +10,10 @@ import javafx.scene.control.TabPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.WorkDays;
@@ -35,12 +38,28 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
-import javax.swing.event.EventListenerList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Loads and aggregates time-series samples from JEVis for a single dashboard widget.
+ *
+ * <p>A {@code DataModelDataHandler} is created per data-consuming widget and holds the
+ * widget's {@link DataModel} (chart models + forced interval configuration). On each call
+ * to {@link #update(Interval)} it:
+ * <ol>
+ *   <li>Resolves the effective interval (respecting any per-widget forced period)</li>
+ *   <li>Chooses an appropriate {@link org.jevis.commons.dataprocessing.AggregationPeriod} based on the interval duration</li>
+ *   <li>Fetches samples via {@link org.jevis.jeconfig.application.Chart.data.ChartDataRow#getSamples()}</li>
+ *   <li>Notifies registered {@link SampleHandlerEventListener}s</li>
+ * </ol>
+ *
+ * <p>Listeners are managed via a thread-safe {@link java.util.concurrent.CopyOnWriteArrayList}.
+ * The last update timestamp is also exposed as {@link #lastUpdate} for JavaFX property binding.
+ */
 public class DataModelDataHandler {
 
     public final static String TYPE = "SimpleDataHandler";
@@ -58,7 +77,7 @@ public class DataModelDataHandler {
     private final List<TimeFrame> timeFrameFactories = new ArrayList<>();
     private final ObjectMapper mapper = new ObjectMapper();
     private final PeriodComparator periodComparator = new PeriodComparator();
-    private final EventListenerList listeners = new EventListenerList();
+    private final List<SampleHandlerEventListener> listeners = new CopyOnWriteArrayList<>();
     private final List<AggregationPeriod> initialAggregation = new ArrayList<>();
     private final DataModel dataModel = new DataModel();
     private final AnalysisHandler analysisHandler = new AnalysisHandler();
@@ -81,6 +100,7 @@ public class DataModelDataHandler {
         try {
             if (config != null) {
                 JsonNode configNode = config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE);
+                // Legacy V1 format: DataModelNode — kept for backward compatibility with old dashboard files
                 if (configNode != null && configNode.get("type").asText().equals(TYPE)) {
                     DataModelNode dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
                     this.dataModel.getChartModels().add(createChartModelFromOldDataModel(dataModelNode));
@@ -162,19 +182,19 @@ public class DataModelDataHandler {
     }
 
     public void debug() {
-        System.out.println("----------------------------------------");
+        logger.debug("----------------------------------------");
         try {
-            System.out.println("Json: " + mapper.writeValueAsString(toJsonNode()));
+            logger.debug("Json: {}", mapper.writeValueAsString(toJsonNode()));
         } catch (Exception ex) {
 
         }
-        System.out.println("----");
-        System.out.println("Interval start: " + this.durationProperty.getValue().getStart());
-        System.out.println("Interval end  : " + this.durationProperty.getValue().getEnd());
-        System.out.println("Models: " + dataModel.getChartModels().size());
-        System.out.println("forcedInterval: " + forcedInterval);
-        System.out.println("Interval Factory: " + timeFrame);
-        System.out.println("isAutoAggregation: " + autoAggregation);
+        logger.debug("----");
+        logger.debug("Interval start: {}", this.durationProperty.getValue().getStart());
+        logger.debug("Interval end  : {}", this.durationProperty.getValue().getEnd());
+        logger.debug("Models: {}", dataModel.getChartModels().size());
+        logger.debug("forcedInterval: {}", forcedInterval);
+        logger.debug("Interval Factory: {}", timeFrame);
+        logger.debug("isAutoAggregation: {}", autoAggregation);
 //        getDataModel().forEach(chartDataModel -> {
 //            System.out.println("model: " + chartDataModel.getObject().getID() + " " + chartDataModel.getObject().getName());
 //            System.out.println("EnPI: " + chartDataModel.getEnPI());
@@ -183,7 +203,7 @@ public class DataModelDataHandler {
 //                System.out.println("S: " + jeVisSample);
 //            });
 //        });
-        System.out.println("----");
+        logger.debug("----");
 
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -374,24 +394,20 @@ public class DataModelDataHandler {
     }
 
     public void addEventListener(SampleHandlerEventListener listener) {
-
-        if (this.listeners.getListeners(JEVisEventListener.class).length > 0) {
-        }
-
-        this.listeners.add(SampleHandlerEventListener.class, listener);
+        this.listeners.add(listener);
     }
 
     public void removeEventListener(SampleHandlerEventListener listener) {
-        this.listeners.remove(SampleHandlerEventListener.class, listener);
+        this.listeners.remove(listener);
     }
 
-    public SampleHandlerEventListener[] getEventListener() {
-        return this.listeners.getListeners(SampleHandlerEventListener.class);
+    public List<SampleHandlerEventListener> getEventListeners() {
+        return this.listeners;
     }
 
-    private synchronized void notifyListeners(SampleHandlerEvent event) {
+    private void notifyListeners(SampleHandlerEvent event) {
         logger.debug("SampleHandlerEvent: {}", event);
-        for (SampleHandlerEventListener l : this.listeners.getListeners(SampleHandlerEventListener.class)) {
+        for (SampleHandlerEventListener l : this.listeners) {
             l.fireEvent(event);
         }
     }

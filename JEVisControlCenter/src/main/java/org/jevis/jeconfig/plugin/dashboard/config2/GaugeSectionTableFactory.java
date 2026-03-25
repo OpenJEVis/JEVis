@@ -110,7 +110,7 @@ public class GaugeSectionTableFactory {
                                     GaugeSectionPojo gaugeSectionPojo = (GaugeSectionPojo) getTableRow().getItem();
                                     gaugeSectionPojo.setStart(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    logger.error("Failed to parse gauge section start value", ex);
                                 }
                             });
                             addFocusRefreshListener(textField);
@@ -120,7 +120,7 @@ public class GaugeSectionTableFactory {
                                     try {
                                         tableView.getSelectionModel().select((GaugeSectionPojo) getTableRow().getItem());
                                     } catch (Exception e) {
-                                        e.printStackTrace();
+                                        logger.error("Failed to select gauge section row on focus", e);
                                     }
                                 }
                             });
@@ -172,7 +172,7 @@ public class GaugeSectionTableFactory {
                                     GaugeSectionPojo gaugeSectionPojo = (GaugeSectionPojo) getTableRow().getItem();
                                     gaugeSectionPojo.setEnd(Double.parseDouble(newValue));
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    logger.error("Failed to parse gauge section end value", ex);
                                 }
                             });
 
@@ -182,7 +182,7 @@ public class GaugeSectionTableFactory {
                                     try {
                                         tableView.getSelectionModel().select((GaugeSectionPojo) getTableRow().getItem());
                                     } catch (Exception e) {
-                                        e.printStackTrace();
+                                        logger.error("Failed to select gauge section row on focus", e);
                                     }
                                 }
                             });

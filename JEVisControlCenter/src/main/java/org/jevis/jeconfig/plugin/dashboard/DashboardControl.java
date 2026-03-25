@@ -44,8 +44,6 @@ import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.slideshow.SlideshowControl;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrame;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
-import org.jevis.jeconfig.plugin.dashboard.widget.TimeFrameWidget;
-import org.jevis.jeconfig.plugin.dashboard.widget.ValueWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
@@ -55,10 +53,23 @@ import org.joda.time.Period;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Central lifecycle coordinator for the Dashboard plugin.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Loading, saving and switching between dashboard configurations via {@link ConfigManager}</li>
+ *   <li>Scheduling periodic data updates for all widgets via an internal {@link Timer}</li>
+ *   <li>Managing zoom, background image, grid, and edit-mode state</li>
+ *   <li>Providing delegated access to widget selection operations through {@link WidgetSelectionController}</li>
+ * </ul>
+ *
+ * <p>All bulk-selection operations ({@code setSelectedWidgets}, {@code moveSelected}, {@code fontSizeSelected}, etc.)
+ * are delegated to {@link WidgetSelectionController}. Scheduling operations should eventually be extracted
+ * to a dedicated {@code DashboardUpdateScheduler}.
+ */
 public class DashboardControl {
 
     private static final Logger logger = LogManager.getLogger(DashboardControl.class);
@@ -70,17 +81,13 @@ public class DashboardControl {
     public static double fitToHeight = 97;
     public static double YGridSize = 25;
     public static double XGridSize = 25;
-    private final double defaultZoom = 1.0d;
     private final DashBordPlugIn dashBordPlugIn;
     private final ConfigManager configManager;
     private final JEVisDataSource jevisDataSource;
     private final ObservableList<Widget> widgetList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
-    private final Timer updateTimer = new Timer(true);
+    private final DashboardUpdateScheduler updateScheduler = new DashboardUpdateScheduler(this);
     private final Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
-    private final TimeFrame previousActiveTimeFrame = null;
-    private final Interval previousActiveInterval = null;
     private final WidgetNavigator widgetNavigator;
-    private final boolean fitToParent = false;
     public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
@@ -92,14 +99,13 @@ public class DashboardControl {
     public BooleanProperty customWorkdayProperty = new SimpleBooleanProperty(true);
     private double zoomFactor = 1.0d;
     private DashboardPojo activeDashboard;
-    private boolean isUpdateRunning = false;
     private java.io.File newBackgroundFile;
     private SideConfigPanel sideConfigPanel;
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
     private final ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
     private TimeFrame activeTimeFrame;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
-    private List<Widget> selectedWidgets = new ArrayList<>();
+    private final WidgetSelectionController selectionController = new WidgetSelectionController(this);
     private DashBoardPane dashboardPane = new DashBoardPane();
     private DashBoardToolbar toolBar;
     private String firstLoadedConfigHash = null;
@@ -109,7 +115,6 @@ public class DashboardControl {
      * we want to keep some changes when switching dashboard, these are the workaround variables
      **/
     private boolean firstDashboard = true;
-    private TimerTask updateTask;
     private WorkDays workDays;
     private SlideshowControl slideshowControl = null;
 
@@ -152,16 +157,13 @@ public class DashboardControl {
 
     public void enableHighlightGlow(boolean disable) {
         highlightProperty.setValue(disable);
-        this.widgetList.forEach(widget -> {
-            Platform.runLater(() -> {
-                try {
-                    widget.setGlow(false, highlightProperty.get());
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-            });
-
-        });
+        Platform.runLater(() -> this.widgetList.forEach(widget -> {
+            try {
+                widget.setGlow(false, highlightProperty.get());
+            } catch (Exception ex) {
+                logger.error("Failed to set glow on widget '{}'", widget.getConfig().getUuid(), ex);
+            }
+        }));
     }
 
 
@@ -246,23 +248,16 @@ public class DashboardControl {
         }
     }
 
+    /**
+     * Creates a new widget instance from a configuration POJO, assigns it the next free UUID,
+     * and returns it. The widget is NOT yet added to the widget list; call {@link #addWidget(Widget)} for that.
+     *
+     * @param widgetPojo the configuration template; its UUID will be set by this method
+     * @return the newly created widget, or {@code null} if the type is unknown
+     */
     public Widget createNewWidget(WidgetPojo widgetPojo) {
-        logger.debug("Contol.createnewWidgets: " + widgetPojo);
-
-        logger.debug("---- newWidgetS.getSe...");
-        try {
-            Class<?> clazz = Class.forName("org.jevis.jeconfig.plugin.dashboard.widget.TitleWidget");
-            Constructor<?> ctor = clazz.getConstructor(DashboardControl.class);
-            Object object = ctor.newInstance(this);
-            Widget widget = (Widget) object;
-            logger.debug("hmmmmmmmm: " + widget.getControl());
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
-
+        logger.debug("createNewWidget: {}", widgetPojo);
         widgetPojo.setUuid(getNextFreeUUID());
-//        System.out.println("createNewWidget: "+widgetPojo.getUuid());
         return configManager.createWidget(this, widgetPojo);
     }
 
@@ -294,8 +289,7 @@ public class DashboardControl {
 
             firstDashboard = false;
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to load first dashboard", ex);
         }
     }
 
@@ -395,6 +389,13 @@ public class DashboardControl {
         return this.jevisDataSource;
     }
 
+    /**
+     * Returns the plugin host. Used by {@link WidgetSelectionController} for UI callbacks.
+     */
+    DashBordPlugIn getDashBordPlugIn() {
+        return dashBordPlugIn;
+    }
+
     private void loadDashboardObjects() {
         try {
             JEVisClass dashboards = this.getDataSource().getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
@@ -410,17 +411,22 @@ public class DashboardControl {
         alert.setContentText(I18n.getInstance().getString("plugin.dashboard.dia.delete.content"));
         alert.setHeaderText(I18n.getInstance().getString("plugin.dashboard.dia.delete.header"));
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            try {
-                JEVisObject toDeleteObj = this.activeDashboard.getDashboardObject();
-                toDeleteObj.delete();
-                loadDashboardObjects();
-                selectDashboard(this.dashboardObjects.get(0));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        alert.showAndWait().ifPresent(buttonType -> {
+            if (buttonType == ButtonType.OK) {
+                try {
+                    JEVisObject toDeleteObj = this.activeDashboard.getDashboardObject();
+                    toDeleteObj.delete();
+                    loadDashboardObjects();
+                    if (this.dashboardObjects.isEmpty()) {
+                        selectDashboard(null);
+                    } else {
+                        selectDashboard(this.dashboardObjects.get(0));
+                    }
+                } catch (Exception e) {
+                    logger.error("Failed to delete dashboard", e);
+                }
             }
-        }
+        });
 
     }
 
@@ -452,9 +458,12 @@ public class DashboardControl {
     }
 
     /**
-     * Load an dashboard and view it.
+     * Loads and displays a dashboard from the given JEVis object.
      *
-     * @param object
+     * <p>If there are unsaved changes on the currently active dashboard the user is prompted to save.
+     * Passing {@code null} creates a blank "New Dashboard" with default settings.
+     *
+     * @param object the JEVis object representing the dashboard to load, or {@code null} to create a new one
      */
     public void selectDashboard(JEVisObject object) {
         logger.debug("selectDashboard: {}", object);
@@ -462,7 +471,7 @@ public class DashboardControl {
         try {
             /* check if the last dashboard was saved and if not ask user */
             if (firstLoadedConfigHash != null) {
-                String newConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
+                String newConfigHash = computeDashboardHash();
                 if (!firstLoadedConfigHash.equals(newConfigHash)) {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setContentText(I18n.getInstance().getString("plugin.dashboard.dialog.changed.text"));
@@ -482,7 +491,7 @@ public class DashboardControl {
             this.snapToGridProperty.setValue(true);
             this.backgroundImage = null;
             this.newBackgroundFile = null;
-            this.selectedWidgets = new ArrayList<>();
+            this.selectionController.clearSelection();
             this.showGridProperty.setValue(false);
 
 
@@ -546,9 +555,12 @@ public class DashboardControl {
 
 
             this.activeTimeFrame = activeDashboard.getTimeFrame();
-            //setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
+            if (this.activeTimeFrame == null) {
+                logger.warn("Dashboard '{}' has no timeframe configured, defaulting to day", activeDashboard.getTitle());
+                this.activeTimeFrame = timeFrameFactory.day();
+            }
 
-            firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
+            firstLoadedConfigHash = computeDashboardHash();
 
             setZoomFactor(activeDashboard.getZoomFactor());
 
@@ -558,8 +570,7 @@ public class DashboardControl {
             this.dashBordPlugIn.getWidgetControlPane().setContent(sideConfigPanel);
 
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to select dashboard", ex);
         }
     }
 
@@ -603,20 +614,16 @@ public class DashboardControl {
         this.editableProperty.setValue(editable);
 //        setSnapToGrid(true);
         showGrid(editable);
-        this.widgetList.forEach(widget -> {
-            Platform.runLater(() -> {
-                try {
-                    widget.setEditable(editable);
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-            });
-
-        });
+        Platform.runLater(() -> this.widgetList.forEach(widget -> {
+            try {
+                widget.setEditable(editable);
+            } catch (Exception ex) {
+                logger.error("Failed to set editable on widget '{}'", widget.getConfig().getUuid(), ex);
+            }
+        }));
         if (!editable) {
-            selectedWidgets.clear();
-
-            updateHighlightSelected();
+            selectionController.clearSelection();
+            selectionController.updateHighlightSelected();
         }
 
         showConfig();
@@ -693,6 +700,11 @@ public class DashboardControl {
         return this.activeInterval;
     }
 
+    /**
+     * Sets the active time interval and triggers a one-shot data update for all widgets.
+     *
+     * @param interval the new time interval to display; must not be {@code null}
+     */
     public void setInterval(Interval interval) {
         try {
             logger.debug("------------------ SetInterval to: {} ------------------", interval);
@@ -708,179 +720,45 @@ public class DashboardControl {
     public void switchUpdating() {
         logger.debug("switchUpdating");
 
-        if (this.isUpdateRunning) {
+        if (this.updateScheduler.isUpdateRunning()) {
             if (slideshowControl != null) {
                 slideshowControl.stop();
             } else {
-                stopAllUpdates();
+                this.updateScheduler.stopAllUpdates();
             }
-
         } else {
             if (slideshowControl != null) {
                 slideshowControl.start();
             } else {
-                runDataUpdateTasks(false);
+                this.updateScheduler.runDataUpdateTasks(false);
             }
         }
 
-        this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(isUpdateRunning);
+        this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(updateScheduler.isUpdateRunning());
     }
 
     public void setUpdateRunning(boolean updateRunning) {
-        isUpdateRunning = updateRunning;
+        this.updateScheduler.setUpdateRunning(updateRunning);
     }
 
     private void removeNode(Widget widget) {
         this.widgetList.remove(widget);
     }
 
-
-    private void stopAllUpdates() {
-        try {
-            logger.debug("stopAllUpdates: " + JEConfig.getStatusBar().getTaskList().size());
-            JEConfig.getStatusBar().stopTasks(DashBordPlugIn.class.getName());
-            this.updateTask.cancel();
-            this.isUpdateRunning = false;
-        } catch (NullPointerException nex) {
-            logger.debug(nex, nex);
-        } catch (Exception ex) {
-            logger.error("Error while stoping running task", ex);
-        }
+    /**
+     * Stops all running update tasks. Delegated to {@link DashboardUpdateScheduler}.
+     */
+    void stopAllUpdates() {
+        this.updateScheduler.stopAllUpdates();
     }
 
     /**
-     * @param runOnce if ture run the update once. False to create an update scheduler
+     * Starts widget data updates. Delegated to {@link DashboardUpdateScheduler}.
+     *
+     * @param runOnce {@code true} to execute once immediately; {@code false} for repeating schedule
      */
     public void runDataUpdateTasks(boolean runOnce) {
-        logger.debug("Restart Update Tasks: daemon");
-        logger.debug("Update Interval: {}", activeInterval);
-        AtomicInteger count = new AtomicInteger(0);
-
-        updateTask = new TimerTask() {
-            @Override
-            public void run() {
-                logger.info("Starting Updates");
-                count.set(count.get() + 1);
-                JEConfig.getStatusBar().startProgressJob("Dashboard"
-                        , DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count()
-                        , I18n.getInstance().getString("plugin.dashboard.message.startupdate"));
-                try {
-                    List<Widget> objects = new ArrayList<>();
-                    List<ValueWidget> valueWidgets = new ArrayList<>();
-                    List<TimeFrameWidget> timeFrameWidgets = new ArrayList<>();
-
-                    for (Widget widget : DashboardControl.this.widgetList) {
-                        if (widget instanceof TimeFrameWidget) {
-                            timeFrameWidgets.add((TimeFrameWidget) widget);
-                        } else if (widget instanceof ValueWidget && !valueWidgets.contains((ValueWidget) widget)) {
-                            valueWidgets.add((ValueWidget) widget);
-                        } else if (!widget.isStatic()) {
-                            if (objects.contains(widget)) {
-                                logger.warn("    --- warning duplicate widget update: {}-{}", widget.getConfig().getTitle(), widget.getConfig().getType());
-                            } else {
-                                objects.add(widget);
-                                Task<Object> updateTask = addWidgetUpdateTask(widget, activeInterval);
-                                JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
-                            }
-                        }
-                    }
-
-                    valueWidgets.sort((o1, o2) -> {
-                        try {
-                            boolean o1DependsOnO2 = o1.getDependentWidgets().contains(o2);
-                            boolean o2DependsOnO1 = o2.getDependentWidgets().contains(o1);
-
-                            if (o1DependsOnO2 && !o2DependsOnO1) {
-                                return -1;
-                            } else if (!o1DependsOnO2 && o2DependsOnO1) {
-                                return 1;
-                            } else {
-                                return 0;
-                            }
-                        } catch (Exception e) {
-                            logger.error(e);
-                            return 0;
-                        }
-                    });
-
-                    for (ValueWidget valueWidget : valueWidgets) {
-                        Task<Object> updateTask = addWidgetUpdateTask(valueWidget, activeInterval);
-                        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
-                    }
-
-                    for (TimeFrameWidget timeFrameWidget : timeFrameWidgets) {
-                        Task<Object> updateTask = addWidgetUpdateTask(timeFrameWidget, activeInterval);
-                        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
-                    }
-
-                } catch (Exception ex) {
-                    logger.error("Error while adding widgets", ex);
-                }
-                logger.info("Done task #\" + count.get()");
-            }
-        };
-
-
-        if (runOnce) {
-            this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(false);
-            this.updateTimer.schedule(updateTask, 0);
-        } else {
-            logger.info("Start updateData scheduler: {} sec, time: {}", this.activeDashboard.getUpdateRate(), new Date());
-            this.updateTimer.scheduleAtFixedRate(updateTask, 1000, this.activeDashboard.getUpdateRate() * 1000);
-            this.isUpdateRunning = true;
-        }
-        // this.updateTimer.scheduleAtFixedRate(updateTask, 1000, 30 * 1000);
-
-    }
-
-
-    private Task<Object> addWidgetUpdateTask(Widget widget, Interval interval) {
-        /**
-         if (widget == null || interval == null) {
-         logger.error("widget is null, this should not happen");
-         return;
-         }
-         **/
-
-        return new Task<Object>() {
-            @Override
-            protected Object call() throws Exception {
-                try {
-                    logger.debug("addWidgetUpdateTask: '{}'  - Interval: {}", widget.getConfig().getTitle(), interval);
-                    Platform.runLater(() -> this.updateTitle(I18n.getInstance().getString("plugin.dashboard.message.updatingwidget")
-                            + " [" + widget.typeID() + widget.getConfig().getUuid() + "] " + widget.getConfig().getTitle() + "'"));
-                    if (!widget.isStatic()) {
-                        widget.updateData(interval);
-                        logger.debug("updateData done: '{}:{}'", widget.getConfig().getTitle(), widget.getConfig().getUuid());
-                    }
-
-                    this.succeeded();
-                    logger.debug("task done: {}:{}", widget.getConfig().getTitle(), widget.getConfig().getUuid());
-                } catch (Exception ex) {
-                    this.failed();
-                    logger.error("Widget update error: [{}]", widget.getConfig().getUuid(), ex);
-                    ex.printStackTrace();
-                } finally {
-                    this.done();
-                    JEConfig.getStatusBar().progressProgressJob("Dashboard", 1
-                            , I18n.getInstance().getString("plugin.dashboard.message.finishedwidget") + " " + widget.getConfig().getUuid());
-                }
-                return null;
-            }
-        };
-    }
-
-    private synchronized boolean allJobsDone(List<Task> futures) {
-        boolean allDone = true;
-        Iterator<Task> itr = futures.iterator();
-        while (itr.hasNext()) {
-            if (!itr.next().isDone()) {
-                allDone = false;
-            }
-        }
-
-        return allDone;
-
+        this.updateScheduler.runDataUpdateTasks(runOnce);
     }
 
     public ObservableList<Widget> getWidgetList() {
@@ -927,16 +805,28 @@ public class DashboardControl {
         return this.widgetList;
     }
 
+    /**
+     * Computes a compact JSON snapshot of the current dashboard state used for dirty-detection.
+     * Uses compact (non-pretty-print) serialization for performance.
+     */
+    private String computeDashboardHash() {
+        try {
+            return this.configManager.toJson(activeDashboard, this.widgetList).toString();
+        } catch (Exception ex) {
+            logger.error("Failed to compute dashboard hash", ex);
+            return "";
+        }
+    }
+
     public void save() {
         try {
             this.configManager.openSaveUnder(this.activeDashboard, this.widgetList, this.newBackgroundFile);
             loadDashboardObjects();
             this.toolBar.updateDashboardList(getAllDashboards(), this.activeDashboard);
-            firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
+            firstLoadedConfigHash = computeDashboardHash();
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.error("Failed to save dashboard", ex);
         }
-
     }
 
     /**
@@ -961,7 +851,7 @@ public class DashboardControl {
                 updateBackground();
 
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to load background image from file", e);
             }
 
         }
@@ -1109,246 +999,112 @@ public class DashboardControl {
         });
     }
 
-    /**
-     * ----------------------------------------------------------------
-     * Selection function below.
-     * TODO: move this function to an better place
-     */
+    // -------------------------------------------------------------------------
+    // Selection — all delegated to WidgetSelectionController
+    // -------------------------------------------------------------------------
 
     public List<Widget> getSelectedWidgets() {
-        return selectedWidgets;
+        return selectionController.getSelectedWidgets();
     }
 
     public void setSelectedWidgets(List<Widget> widgets) {
-        if (this.editableProperty.get()) {
-            selectedWidgets.clear();
-            selectedWidgets.addAll(widgets);
-            updateHighlightSelected();
-            /* dashboard need focus so the key events work*/
-            dashBordPlugIn.getScrollPane().requestFocus();
-            showConfig();
-        }
+        selectionController.setSelectedWidgets(widgets);
     }
 
-    public void addToWidgetSelection(List<Widget> widgets) {
-        widgets.forEach(widget -> {
-            if (selectedWidgets.contains(widget)) {
-                selectedWidgets.remove(widget);
-            } else {
-                selectedWidgets.addAll(widgets);
-            }
-        });
-        updateHighlightSelected();
-        showConfig();
+    public void addToWidgetSelection(List<Widget> widgetsToToggle) {
+        selectionController.addToWidgetSelection(widgetsToToggle);
     }
 
     public void setSelectedWidget(Widget widget) {
-        List<Widget> selected = new ArrayList<>();
-        selected.add(widget);
-        setSelectedWidgets(selected);
+        selectionController.setSelectedWidget(widget);
     }
 
     public void setSelectAllFromType(Widget widget) {
-        List<Widget> selected = new ArrayList<>();
-        widgetList.forEach(widget1 -> {
-            if (widget.getConfig().getType().equals(widget1.getConfig().getType())) {
-                selected.add(widget1);
-            }
-        });
-        setSelectedWidgets(selected);
+        selectionController.setSelectAllFromType(widget);
     }
-
-    private void updateHighlightSelected() {
-        for (Widget widget : widgetList) {
-            widget.setGlow(selectedWidgets.contains(widget), false);
-        }
-    }
-
 
     public void moveSelected(double up, double down, double left, double right) {
-        selectedWidgets.forEach(widget -> {
-            if (up > 0) {
-                widget.getConfig().setyPosition(widget.getConfig().getyPosition() - up);
-            } else if (down > 0) {
-                widget.getConfig().setyPosition(widget.getConfig().getyPosition() + down);
-            } else if (left > 0) {
-                widget.getConfig().setxPosition(widget.getConfig().getxPosition() - left);
-            } else if (right > 0) {
-                widget.getConfig().setxPosition(widget.getConfig().getxPosition() + right);
-            }
-
-            requestViewUpdate(widget);
-        });
+        selectionController.moveSelected(up, down, left, right);
     }
 
     public void layerSelected(int layer) {
-        selectedWidgets.forEach(widget -> {
-            //System.out.println("Widget set layer to: " + widget.getConfig().getUuid() + " " + layer);
-            widget.getConfig().setLayer(layer);
-        });
-        redrawDashboardPane();
+        selectionController.layerSelected(layer);
     }
 
     public void fgColorSelected(Color color) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setFontColor(color);
-            widget.updateConfig();
-        });
-        redrawDashboardPane();
+        selectionController.fgColorSelected(color);
     }
 
     public void bgColorSelected(Color color) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setBackgroundColor(color);
-            widget.updateConfig();
-        });
+        selectionController.bgColorSelected(color);
     }
 
     public void sizeSelected(double width, double height) {
-        selectedWidgets.forEach(widget -> {
-            Size size = widget.getConfig().getSize();
-            if (width > 0) {
-                size.setWidth(width);
-            }
-            if (height > 0) {
-                size.setHeight(height);
-            }
-
-            widget.getConfig().setSize(size);
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.sizeSelected(width, height);
     }
 
     public void positionSelected(double xpos, double ypos) {
-        selectedWidgets.forEach(widget -> {
-            if (xpos > -1) {
-                widget.getConfig().setxPosition(xpos);
-            }
-            if (ypos > -1) {
-                widget.getConfig().setyPosition(ypos);
-            }
-
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.positionSelected(xpos, ypos);
     }
 
     public void equalizeDataModel() {
-        Widget lastWidget = Iterables.getLast(getSelectedWidgets());
-        if (lastWidget instanceof DataModelWidget) {
-            getSelectedWidgets().forEach(widget -> {
-                if (widget instanceof DataModelWidget && !widget.equals(lastWidget)) {
-                    //System.out.println("Is DataModelWidget: " + widget.getConfig().getUuid());
-                    ((DataModelWidget) widget).setDataHandler(((DataModelWidget) lastWidget).getDataHandler());
-                    widget.updateConfig();
-                    requestViewUpdate(widget);
-                    widget.updateData(activeInterval);
-                }
-            });
-        }
+        selectionController.equalizeDataModel();
     }
 
     public void shadowSelected(boolean shadows) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setShowShadow(shadows);
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.shadowSelected(shadows);
     }
 
     public void showValueSelected(boolean showValue) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setShowValue(showValue);
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.showValueSelected(showValue);
     }
 
     public void alignSelected(Pos pos) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setTitlePosition(pos);
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.alignSelected(pos);
     }
 
     public void fontSizeSelected(double size) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setFontSize(size);
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.fontSizeSelected(size);
     }
 
     public void fontWeightSelected(FontWeight fontWeight) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setFontWeight(fontWeight);
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.fontWeightSelected(fontWeight);
     }
 
     public void fontPostureSelected(FontPosture fontPosture) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setFontPosture(fontPosture);
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.fontPostureSelected(fontPosture);
     }
 
     public void fontUnderlinedSelected(Boolean underlined) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setFontUnderlined(underlined);
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.fontUnderlinedSelected(underlined);
     }
 
     public void setWidgetTitle(String name) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setTitle(name);
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.setWidgetTitle(name);
     }
 
     public void decimalsSelected(int size) {
-        selectedWidgets.forEach(widget -> {
-            widget.getConfig().setDecimals(size);
-            widget.updateConfig();
-            requestViewUpdate(widget);
-        });
+        selectionController.decimalsSelected(size);
     }
 
-    private void showConfig() {
-
+    /**
+     * Updates the config panel to reflect the current selection state.
+     */
+    void showConfig() {
+        List<Widget> selected = selectionController.getSelectedWidgets();
         if (sideConfigPanel != null) {
-            if (!selectedWidgets.isEmpty()) {
-                sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
+            if (!selected.isEmpty()) {
+                sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selected));
             } else {
                 sideConfigPanel.setLastSelectedWidget(null);
             }
         }
-
 
         if (editableProperty.get()) {
             this.dashBordPlugIn.showWidgetControlPane(showSideEditorProperty.get());
         } else {
             this.dashBordPlugIn.showWidgetControlPane(false);
         }
-
-
-        /**
-         if (selectedWidgets.isEmpty()) {
-         //dashBordPlugIn.getHiddenSidesPane().setPinnedSide(null);
-         this.dashBordPlugIn.showWidgetControlPane(false);
-         } else {
-         //configPanePos(configSideProperty.get(), sideConfigPanel);
-         sideConfigPanel.setLastSelectedWidget(Iterables.getLast(selectedWidgets));
-         this.dashBordPlugIn.showWidgetControlPane(true);
-         }
-         */
     }
 
     public void configPanePos(Side pos, Node node) {

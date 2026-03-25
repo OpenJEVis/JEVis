@@ -33,11 +33,25 @@ import org.jevis.jeconfig.tool.DragResizeMod;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Abstract base class for all dashboard widgets.
+ *
+ * <p>Each concrete widget subclass must implement:
+ * <ul>
+ *   <li>{@link #updateData(Interval)} — reload data from JEVis for the given time interval</li>
+ *   <li>{@link #updateConfig()} — apply the current {@link #config} POJO to the widget's visual state</li>
+ *   <li>{@link #makeContent()} — build the widget's main content node</li>
+ *   <li>{@link #typeID()} — return the widget's unique type identifier (e.g. {@code "Value"})</li>
+ *   <li>{@link #isStatic()} — return {@code true} for decorative widgets that never load data</li>
+ * </ul>
+ *
+ * <p>The widget overlay stack (from bottom to top): content → alert → edit/drag overlay.
+ * Drag-and-resize is wired automatically via {@link DragResizeMod}.
+ */
 public abstract class Widget extends Region {
     private static final Logger logger = LogManager.getLogger(Widget.class);
     public final DashboardControl control;
@@ -82,38 +96,10 @@ public abstract class Widget extends Region {
         return widthCache != 0 ? widthCache : super.computePrefWidth(height);
     }
 
-/*
-    public Widget() {
-        super();
-        this.config = new WidgetPojo();
-        this.config.setUuid(-1);
-        this.control = null;
-        this.jeVisDataSource = null;
-    }
-*/
-
     @Override
     protected double computePrefHeight(double width) {
         return heightCache != 0 ? heightCache : super.computePrefHeight(width);
-
     }
-
-    /**
-     * creates a new Widget with a default configuration
-     **/
-    /*
-    public Widget(DashboardControl control) {
-        super();
-        logger.debug("new Widget without config");
-        this.control = control;
-        this.jeVisDataSource = control.getDataSource();
-        this.config = createDefaultConfig();
-
-        initLayout();
-        setCacheHint(CacheHint.QUALITY);
-        setCache(true);
-    }
-*/
     public DashboardControl getControl() {
         return this.control;
     }
@@ -298,8 +284,7 @@ public abstract class Widget extends Region {
                 try {
                     Widget.this.openConfig();
                 } catch (Exception ex) {
-                    logger.error(ex);
-                    ex.printStackTrace();
+                    logger.error("Failed to open widget config from context menu", ex);
                 }
             }
         });
@@ -313,8 +298,7 @@ public abstract class Widget extends Region {
                     //debugLayers();
                     control.redrawDashboardPane();
                 } catch (Exception ex) {
-                    logger.error(ex);
-                    ex.printStackTrace();
+                    logger.error("Failed to move widget layer up", ex);
                 }
             }
         });
@@ -328,8 +312,7 @@ public abstract class Widget extends Region {
                     Widget.this.getConfig().setLayer(Widget.this.getConfig().getLayer() - 1);
                     control.redrawDashboardPane();
                 } catch (Exception ex) {
-                    logger.error(ex);
-                    ex.printStackTrace();
+                    logger.error("Failed to move widget layer down", ex);
                 }
             }
         });
@@ -361,16 +344,15 @@ public abstract class Widget extends Region {
                     Widget.this.openConfig();
                     event.consume();
                 } catch (Exception ex) {
-                    logger.error(ex);
-                    ex.printStackTrace();
+                    logger.error("Failed to open widget config on double-click", ex);
                 }
             }
 
             if ((event.getButton() == MouseButton.PRIMARY) && (event.getClickCount() == 1)) {
                 if (event.isControlDown()) {
-                    ArrayList arrayList = new ArrayList<>();
-                    arrayList.add(this);
-                    control.addToWidgetSelection(arrayList);
+                    List<Widget> toToggle = new ArrayList<>();
+                    toToggle.add(this);
+                    control.addToWidgetSelection(toToggle);
                     event.consume();
                 } else if (event.isAltDown()) {
                     logger.debug("Is alt selected: " + this);
@@ -403,7 +385,7 @@ public abstract class Widget extends Region {
                         alert.show();
                         event.consume();
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        logger.error("Failed to show widget JSON debug info", ex);
                     }
 
                 } else {
@@ -619,20 +601,10 @@ public abstract class Widget extends Region {
             logger.debug("Clone Widget: " + config);
             ObjectNode json = this.toNode();
             WidgetPojo newConfig = new WidgetPojo(json);
-            Widget newWidget = Widgets.createWidget(typeID(), control, newConfig);
-            return newWidget;
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            return Widgets.createWidget(typeID(), control, newConfig);
+        } catch (Exception e) {
+            logger.error("Failed to clone widget", e);
         }
-
         return null;
     }
 }

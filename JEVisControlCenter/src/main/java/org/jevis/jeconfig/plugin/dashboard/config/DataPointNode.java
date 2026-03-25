@@ -6,6 +6,13 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartType;
 
+/**
+ * @deprecated Legacy V1 dashboard data point node format. This class exists solely for
+ * backward-compatibility when reading old dashboard JSON files.
+ * Use {@link org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo} and the
+ * {@code config2} package instead.
+ */
+@Deprecated
 public class DataPointNode {
 
     private Long objectID;

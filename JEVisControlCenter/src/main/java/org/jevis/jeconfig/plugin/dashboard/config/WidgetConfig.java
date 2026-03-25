@@ -16,6 +16,13 @@ import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
 
 import java.util.*;
 
+/**
+ * @deprecated Legacy V1 dashboard widget config format. This class exists solely for
+ * backward-compatibility when reading old dashboard JSON files.
+ * Use {@link org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo} and the
+ * {@code config2} package instead.
+ */
+@Deprecated
 public class WidgetConfig {
 
 
@@ -130,7 +137,7 @@ public class WidgetConfig {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to parse widget config from JSON", ex);
         }
 
     }

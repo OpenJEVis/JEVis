@@ -150,7 +150,7 @@ public class WidgetConfigDialog extends Alert {
 //                    ((ChartTab) tab).commitChanges();
 //                }
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error("Failed to commit widget config tab changes", ex);
             }
         });
         logger.debug("done wiget config commit for: {}", getTitle());

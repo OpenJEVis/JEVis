@@ -17,6 +17,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
@@ -35,6 +37,7 @@ import org.jevis.jeconfig.tool.ScreenSize;
 
 
 public class WidgetNavigator {
+    private static final Logger logger = LogManager.getLogger(WidgetNavigator.class);
     private final double iconSize = 16;
     final Region lockIcon = JEConfig.getSVGImage(Icon.VISIBILITY_ON, this.iconSize, this.iconSize);
     final Region unlockIcon = JEConfig.getSVGImage(Icon.VISIBILITY_OFF, this.iconSize, this.iconSize);
@@ -170,21 +173,21 @@ public class WidgetNavigator {
             heightField.setText(this.control.getActiveDashboard().getSize().getHeight() + "");
             listZoomLevel.setValue(this.control.getActiveDashboard().getZoomFactor());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to initialize dashboard size fields", ex);
         }
 
         widthField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 this.control.setDashboardSize(Double.parseDouble(newValue), Double.parseDouble(heightField.getText()));
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error("Failed to parse dashboard width", ex);
             }
         });
         heightField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(newValue));
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error("Failed to parse dashboard height", ex);
             }
         });
 
@@ -208,7 +211,7 @@ public class WidgetNavigator {
             try {
                 control.setDefaultZoom(newValue);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error("Failed to set default zoom level", ex);
             }
         });
 
@@ -320,7 +323,7 @@ public class WidgetNavigator {
                 table.scrollTo(newWidget);
                 this.control.requestViewUpdate(newWidget);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error("Failed to add new widget from navigator", ex);
             }
         });
 

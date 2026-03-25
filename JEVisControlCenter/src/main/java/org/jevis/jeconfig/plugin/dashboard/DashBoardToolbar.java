@@ -225,7 +225,7 @@ public class DashBoardToolbar extends ToolBar {
                     List<Widget> newWidgets = new ArrayList<>();
 
                     dashboardControl.getSelectedWidgets().forEach(widget -> {
-                        System.out.println("--- " + widget.getConfig().getTitle());
+                        logger.debug("--- {}", widget.getConfig().getTitle());
                         double newX = widget.getXPos() - widgetX.getXPos() + leftOffset;
                         double newY = widget.getYPos() - widgetY.getYPos() + topOffset;
 
@@ -263,7 +263,7 @@ public class DashBoardToolbar extends ToolBar {
                 }
 
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.error("Failed to select dashboard from combo box", ex);
             }
         });
 
@@ -668,7 +668,7 @@ public class DashBoardToolbar extends ToolBar {
                                     Label parent = (Label) tooltip.getGraphic().getParent();
                                     parent.getTransforms().add(new Rotate(90));
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    logger.error("Failed to show tooltip", ex);
                                 }
                             });
                         }

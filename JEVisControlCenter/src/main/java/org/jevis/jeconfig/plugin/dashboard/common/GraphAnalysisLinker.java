@@ -3,6 +3,8 @@ package org.jevis.jeconfig.plugin.dashboard.common;
 import com.jfoenix.controls.JFXButton;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Tooltip;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -15,6 +17,7 @@ import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
 import org.joda.time.Interval;
 
 public class GraphAnalysisLinker {
+    private static final Logger logger = LogManager.getLogger(GraphAnalysisLinker.class);
 
     public static String ANALYSIS_LINKER_NODE = "analysisLinker";
     private final JEVisDataSource dataSource;
@@ -58,7 +61,7 @@ public class GraphAnalysisLinker {
 
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to open linked graph analysis", ex);
         }
     }
 
@@ -74,7 +77,7 @@ public class GraphAnalysisLinker {
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to apply graph analysis linker node", ex);
         }
     }
 

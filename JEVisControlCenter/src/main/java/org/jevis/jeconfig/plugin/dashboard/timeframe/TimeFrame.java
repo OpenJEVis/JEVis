@@ -1,9 +1,12 @@
 package org.jevis.jeconfig.plugin.dashboard.timeframe;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 public interface TimeFrame {
+    Logger logger = LogManager.getLogger(TimeFrame.class);
 
     String getListName();
 
@@ -32,7 +35,7 @@ public interface TimeFrame {
                 return getID().equals(((TimeFrame) other).getID());
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to compare TimeFrame IDs", ex);
         }
         return false;
     }

@@ -30,7 +30,7 @@ public class ImageConfig {
     private static final Logger logger = LogManager.getLogger(ImageConfig.class);
 
     private final String JSON_IMAGE_ID = "objectID";
-    private Long objectID = -1l;
+    private Long objectID = -1L;
 
     final DashboardControl dashboardControl;
 
@@ -46,7 +46,7 @@ public class ImageConfig {
         this.dashboardControl = control;
 
         if (jsonNode != null) {
-            objectID = jsonNode.get(JSON_IMAGE_ID).asLong(-1l);
+            objectID = jsonNode.get(JSON_IMAGE_ID).asLong(-1L);
         }
     }
 
@@ -118,7 +118,7 @@ public class ImageConfig {
                     fileButton.setGraphic(imageView);
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Failed to load image preview from file", e);
                 }
 
             }

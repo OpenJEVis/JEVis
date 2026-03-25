@@ -168,7 +168,7 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
                         }
 
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.error("Failed to build default net graph chart data on no-data", e);
                     }
                     showAlertOverview(true, I18n.getInstance().getString("plugin.dashboard.alert.nodata"));
                 }
@@ -260,7 +260,7 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
                 updateSkin();
                 updateText();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to update net graph widget skin/text", e);
             }
 
         });
@@ -321,8 +321,7 @@ public class NetGraphWidget extends Widget implements DataModelWidget {
                 }
             }
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to initialize net graph widget settings", ex);
         }
         if (netGraphPojo == null) {
             logger.error("Gauge Setting is null make new: " + config.getUuid());

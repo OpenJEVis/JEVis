@@ -181,8 +181,7 @@ public class SliderWidget extends Widget implements DataModelWidget {
             this.minMaxPojo = new MinMaxPojo(this.control, this.config.getConfigNode(SHAPE_DESIGN_NODE_NAME));
             logger.debug(minMaxPojo);
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to load min-max pojo config node", ex);
         }
         if (minMaxPojo == null) {
             logger.error("Limit is null make new: " + config.getUuid());
@@ -257,7 +256,7 @@ public class SliderWidget extends Widget implements DataModelWidget {
                     slider.setUnit(unit);
 
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error("Failed to get last sample for slider widget", ex);
                 }
             }
 
