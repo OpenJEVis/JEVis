@@ -42,6 +42,21 @@ import java.util.List;
 
 import static org.jevis.jeconfig.plugin.dashboard.config2.JsonNames.Dashboard.*;
 
+/**
+ * Handles JSON serialization and deserialization of dashboard configurations.
+ *
+ * <p>A dashboard is stored as a JSON file in a JEVis object attribute
+ * ({@link org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn#ATTRIBUTE_DATA_MODEL_FILE}).
+ * This class reads, writes, and migrates those files and also manages the background image.
+ *
+ * <p>Key methods:
+ * <ul>
+ *   <li>{@link #loadDashboard(com.fasterxml.jackson.databind.JsonNode)} — deserializes a dashboard POJO from JSON</li>
+ *   <li>{@link #saveDashboard(DashboardPojo, java.util.List, String, java.io.File)} — serializes and commits to JEVis</li>
+ *   <li>{@link #createWidget(DashboardControl, WidgetPojo)} — instantiates a widget from its type string</li>
+ *   <li>{@link #getBackgroundImage(org.jevis.api.JEVisObject)} — async loads the wallpaper image</li>
+ * </ul>
+ */
 public class ConfigManager {
 
     private static final Logger logger = LogManager.getLogger(ConfigManager.class);
@@ -87,10 +102,9 @@ public class ConfigManager {
             JEVisAttribute dataModel = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE);
 
             String filenameStr = filename.replaceAll("[^A-Za-z0-9]", "") + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json";
-            
             JEVisFileImp jsonFile = new JEVisFileImp(
-                    filename.replaceAll("[^A-Za-z0-9]", "") + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
-                    , this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode).getBytes(StandardCharsets.UTF_8));
+                    filenameStr,
+                    this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode).getBytes(StandardCharsets.UTF_8));
             JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
             newSample.commit();
 
@@ -140,8 +154,7 @@ public class ConfigManager {
 
 
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to serialize dashboard to JSON", ex);
         }
 
         return null;
@@ -277,8 +290,7 @@ public class ConfigManager {
 
 
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to load dashboard from JSON", ex);
         }
 
         return dashboardPojo;
@@ -311,7 +323,7 @@ public class ConfigManager {
         try {
             return Widgets.createWidget(widget.getType(), control, widget);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to create widget", ex);
         }
 
         return null;
@@ -325,7 +337,7 @@ public class ConfigManager {
             JEVisSample jeVisSample = bgFile.buildSample(new DateTime(), jeVisFileImp);
             jeVisSample.commit();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to set background image on JEVis object", ex);
         }
     }
 
@@ -364,7 +376,9 @@ public class ConfigManager {
         };
 
         imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
-        new Thread(imageLoadTask).start();
+        Thread bgImageThread = new Thread(imageLoadTask, "dashboard-bg-image-loader");
+        bgImageThread.setDaemon(true);
+        bgImageThread.start();
 
         return imageBoardBackground;
     }
@@ -399,7 +413,7 @@ public class ConfigManager {
                         wallPaperCopy.commit();
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error("Failed to copy wallpaper to new dashboard target", ex);
                 }
 
                 dashboardPojo.setTitle(target.getName());
@@ -409,13 +423,13 @@ public class ConfigManager {
                     saveDashboard(dashboardPojo, widgetList, target.getName(), wallpaper);
 
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error("Failed to save dashboard under new name", ex);
                 }
                 return true;
             });
             saveUnderDialog.show();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to open save-under dialog", ex);
         }
 
         /**

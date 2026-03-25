@@ -70,9 +70,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
     private Limit limit;
     private Interval lastInterval = null;
     private ChangeListener<Number> valueChangeListener = null;
-    private final ChangeListener<Number> percentListener = null;
-    private final ValueWidget limitWidget = null;
-    private final ValueWidget percentWidget = null;
     private String percentText = "";
     private Percent percent;
     private Boolean customWorkday = true;
@@ -421,8 +418,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
         try {
             this.limit = new Limit(this.control, this.config.getConfigNode(LIMIT_NODE_NAME));
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to load limit config node", ex);
         }
         if (limit == null) {
             logger.error("Limit is null make new: " + config.getUuid());
@@ -435,8 +431,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
             nfPercent.setMaximumFractionDigits(percent.getMaxFracDigits());
             nfPercent.setRoundingMode(RoundingMode.HALF_UP);
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to load percent config node", ex);
         }
         if (percent == null) {
             logger.error("Percent is null make new: " + config.getUuid());

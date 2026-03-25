@@ -326,8 +326,7 @@ public class ShapeWidget extends Widget implements DataModelWidget {
             this.shapeConfig = new ShapePojo(this.control, this.config.getConfigNode(SHAPE_DESIGN_NODE_NAME));
             logger.debug(shapeConfig);
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to load shape config node", ex);
         }
         if (shapeConfig == null) {
             logger.error("Limit is null make new: " + config.getUuid());

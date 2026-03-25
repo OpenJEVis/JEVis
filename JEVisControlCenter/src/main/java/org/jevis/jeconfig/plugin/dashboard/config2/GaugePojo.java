@@ -8,7 +8,6 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -18,7 +17,6 @@ import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TableView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -52,9 +50,9 @@ public class GaugePojo {
 
     private boolean inPercent = false;
 
-    private ObservableList<GaugeSectionPojo> sections = FXCollections.observableArrayList();
+    private final ObservableList<GaugeSectionPojo> sections = FXCollections.observableArrayList();
 
-    private List<GaugeSectionPojo> sectionsComitted = new ArrayList<>();
+    private final List<GaugeSectionPojo> sectionsComitted = new ArrayList<>();
 
     final DashboardControl dashboardControl;
 
@@ -246,7 +244,7 @@ public class GaugePojo {
             @Override
             public void onChanged(Change change) {
                 while (change.next()) {
-                    System.out.println(change.getList());
+                    logger.debug("{}", change.getList());
                     if (change.getList().size() > 0) {
                         maxTextField.setText(String.valueOf(sections.stream().max(Comparator.comparing(GaugeSectionPojo::getEnd)).get().getEnd()));
                         minTextField.setText(String.valueOf(sections.stream().min(Comparator.comparing(GaugeSectionPojo::getStart)).get().getStart()));
@@ -388,7 +386,7 @@ public class GaugePojo {
 //                sectionsComitted.addAll(sections);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to commit gauge pojo values", e);
             }
 
 

@@ -124,8 +124,7 @@ public class PieWidget extends Widget implements DataModelWidget {
 
 
                     } catch (Exception ex) {
-                        logger.error(ex);
-                        ex.printStackTrace();
+                        logger.error("Failed to calculate pie chart slice value", ex);
                     }
                 } else {
                     logger.debug("Empty Samples for: {}", this.config.getTitle());
@@ -177,8 +176,7 @@ public class PieWidget extends Widget implements DataModelWidget {
                 applyColors(colors);
                 showProgressIndicator(false);
             } catch (Exception ex) {
-                logger.error(ex);
-                ex.printStackTrace();
+                logger.error("Failed to update pie chart data", ex);
             }
 
         });
@@ -230,7 +228,7 @@ public class PieWidget extends Widget implements DataModelWidget {
             this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, WIDGET_ID);
             this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to initialize pie widget data handler", ex);
         }
         /** we have to disable animation or the color will be wrong ever second update**/
         chart.setAnimated(false);

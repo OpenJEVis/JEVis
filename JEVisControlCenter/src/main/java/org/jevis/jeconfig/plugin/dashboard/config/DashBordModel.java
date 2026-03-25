@@ -41,8 +41,12 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * Configuration for an BashBoard Analysis
+ * @deprecated Legacy V1 dashboard configuration format. This class exists solely for
+ *             backward-compatibility when reading old dashboard JSON files.
+ *             Use {@link org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo} and the
+ *             {@code config2} package instead.
  */
+@Deprecated
 public class DashBordModel {
     private static final Logger logger = LogManager.getLogger(DashBordModel.class);
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
@@ -323,12 +327,13 @@ public class DashBordModel {
             };
 
             imageLoadTask.setOnSucceeded(e -> this.imageBoardBackground.setValue(imageLoadTask.getValue()));
-            new Thread(imageLoadTask).start();
+            Thread bgImageThread = new Thread(imageLoadTask, "dashboard-bg-image-loader");
+            bgImageThread.setDaemon(true);
+            bgImageThread.start();
 
 
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to load background image from JEVis attribute", ex);
         }
     }
 
@@ -397,7 +402,7 @@ public class DashBordModel {
             }
             this.analysisObject = analysisObject;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to save dashboard", ex);
         }
 
 

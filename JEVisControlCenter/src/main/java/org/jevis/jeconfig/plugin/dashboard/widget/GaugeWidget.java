@@ -281,8 +281,7 @@ public class GaugeWidget extends Widget implements DataModelWidget {
                 }
             }
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to initialize gauge widget settings", ex);
         }
         if (gaugeSettings == null) {
             logger.error("Gauge Setting is null make new: " + config.getUuid());

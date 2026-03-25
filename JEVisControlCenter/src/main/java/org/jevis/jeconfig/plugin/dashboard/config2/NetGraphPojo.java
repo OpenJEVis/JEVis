@@ -339,7 +339,7 @@ public class NetGraphPojo {
 
 
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to commit net graph pojo values", e);
             }
 
 

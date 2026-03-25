@@ -37,7 +37,7 @@ public class ImageWidget extends Widget {
 
     private static final Logger logger = LogManager.getLogger(ImageWidget.class);
     public static String WIDGET_ID = "Image";
-    private BorderPane rootPane = new BorderPane();
+    private final BorderPane rootPane = new BorderPane();
     private ImageConfig imageConfig;
     public static String IMAGE_NODE_NAME = "image";
     private ImageView imageView;
@@ -132,8 +132,7 @@ public class ImageWidget extends Widget {
         try {
             this.imageConfig = new ImageConfig(this.control, this.config.getConfigNode(IMAGE_NODE_NAME));
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to load image widget config node", ex);
         }
 
     }

@@ -160,7 +160,7 @@ public class IncrementPojo {
                 increment = Double.parseDouble(incrementTextField.getText());
 
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to commit increment pojo value", e);
             }
 
 

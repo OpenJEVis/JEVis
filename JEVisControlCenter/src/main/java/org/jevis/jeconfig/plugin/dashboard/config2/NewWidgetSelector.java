@@ -11,6 +11,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.Icon;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 
 public class NewWidgetSelector extends GridPane {
 
+    private static final Logger logger = LogManager.getLogger(NewWidgetSelector.class);
 
     final JFXComboBox<WidgetSelection> widgetComboBox = new JFXComboBox<>();
     final ObjectProperty<Widget> selectedWidgetProperty = new SimpleObjectProperty<>();
@@ -107,7 +110,7 @@ public class NewWidgetSelector extends GridPane {
                                 preview.setFitHeight(25);
                                 //setGraphic(preview);
                             } catch (Exception ex) {
-                                ex.printStackTrace();
+                                logger.error("Failed to render widget selection cell", ex);
                             }
                         }
 

@@ -258,8 +258,7 @@ public class ChartWidget extends Widget implements DataModelWidget {
                     logger.error(ex);
                 }
             } catch (Exception ex) {
-                logger.error(ex);
-                ex.printStackTrace();
+                logger.error("Failed to update chart widget style", ex);
             }
         });
     }

@@ -251,7 +251,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                 updateSkin();
                 updateText();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to update linear gauge widget skin/text", e);
             }
 
         });
@@ -317,8 +317,7 @@ public class LinearGaugeWidget extends Widget implements DataModelWidget {
                 }
             }
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to initialize linear gauge widget settings", ex);
         }
         if (gaugeSettings == null) {
             logger.error("Gauge Setting is null make new: " + config.getUuid());

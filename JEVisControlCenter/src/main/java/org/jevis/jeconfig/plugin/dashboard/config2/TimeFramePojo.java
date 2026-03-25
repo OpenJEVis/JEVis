@@ -15,7 +15,6 @@ import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
-import org.jevis.jeconfig.plugin.dashboard.datahandler.SampleHandlerEventListener;
 import org.jevis.jeconfig.plugin.dashboard.widget.TimeFrameWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
@@ -189,9 +188,8 @@ public class TimeFramePojo {
 
         try {
             widgetObjects.forEach(timeFrameWidgetObject -> {
-                for (SampleHandlerEventListener sampleHandlerEventListener : timeFrameWidgetObject.getWidget().getDataHandler().getEventListener()) {
-                    timeFrameWidgetObject.getWidget().getDataHandler().removeEventListener(sampleHandlerEventListener);
-                }
+                new ArrayList<>(timeFrameWidgetObject.getWidget().getDataHandler().getEventListeners())
+                        .forEach(l -> timeFrameWidgetObject.getWidget().getDataHandler().removeEventListener(l));
             });
             widgetObjects.clear();
 

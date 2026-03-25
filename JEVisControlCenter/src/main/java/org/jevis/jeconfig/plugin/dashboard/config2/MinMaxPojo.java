@@ -179,7 +179,7 @@ public class MinMaxPojo {
                 maximum = Double.parseDouble(maxTextField.getText());
 
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to commit min/max pojo values", e);
             }
 
 

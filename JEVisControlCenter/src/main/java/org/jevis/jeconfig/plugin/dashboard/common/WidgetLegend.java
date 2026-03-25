@@ -10,6 +10,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
@@ -17,6 +19,7 @@ import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import java.lang.reflect.Field;
 
 public class WidgetLegend extends Legend {
+    private static final Logger logger = LogManager.getLogger(WidgetLegend.class);
 
 
     public Legend.LegendItem buildHorizontalLegendItem(String name, Color color, Color fontcolor, double fontSize, JEVisObject obj, boolean isAlert, String alertText, boolean wrapText) {
@@ -73,7 +76,7 @@ public class WidgetLegend extends Legend {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to configure legend item label", ex);
         }
 
         return item;
@@ -135,7 +138,7 @@ public class WidgetLegend extends Legend {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to configure vertical legend item label", ex);
         }
 
         return item;

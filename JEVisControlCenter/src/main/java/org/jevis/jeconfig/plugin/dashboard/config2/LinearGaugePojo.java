@@ -423,7 +423,7 @@ public class LinearGaugePojo {
                 colorBorder = colorPickerAdvBoarderColor.getValue();
                 colorValueIndicator = colorPickerAdvValueIndicator.getValue();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to commit linear gauge pojo values", e);
             }
 
 

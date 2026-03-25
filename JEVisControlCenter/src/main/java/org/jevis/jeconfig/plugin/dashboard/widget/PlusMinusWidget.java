@@ -177,8 +177,7 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
             this.incrementPojo = new IncrementPojo(this.control, this.config.getConfigNode(SHAPE_DESIGN_NODE_NAME));
             logger.debug(incrementPojo);
         } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
+            logger.error("Failed to load increment pojo config node", ex);
         }
         if (incrementPojo == null) {
             logger.error("Limit is null make new: " + config.getUuid());
@@ -252,7 +251,7 @@ public class PlusMinusWidget extends Widget implements DataModelWidget {
                     String unit = sampleHandler.getChartDataRows().get(0).getAttribute().getDisplayUnit().getLabel();
                     minusPlus.setUnit(unit);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error("Failed to get last sample for plus-minus widget", ex);
                 }
             }
 

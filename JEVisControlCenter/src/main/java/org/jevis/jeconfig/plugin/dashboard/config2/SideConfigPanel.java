@@ -615,7 +615,7 @@ public class SideConfigPanel extends GridPane {
                                                 + objectRelations.getRelativePath(jeVisObject)
                                                 + jeVisObject.getName()));
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                logger.error("Failed to set tooltip for JEVis object", e);
                             }
 
                         }
@@ -645,7 +645,7 @@ public class SideConfigPanel extends GridPane {
                             try {
                                 setTooltip(new Tooltip(objectRelations.getObjectPath(item) + objectRelations.getRelativePath(item) + item.getName()));
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                logger.error("Failed to set tooltip for JEVis object", e);
                             }
                         } else {
                             setText(null);

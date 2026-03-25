@@ -6,6 +6,8 @@ import com.jfoenix.skins.JFXDatePickerSkin;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Popup;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -15,6 +17,7 @@ import java.time.LocalDate;
 
 public class TimeFrameEditor extends Popup {
 
+    private static final Logger logger = LogManager.getLogger(TimeFrameEditor.class);
     private final SimpleObjectProperty<Interval> intervalProperty;
     private TimeFrame timeFrame;
     private static Method getPopupContent;
@@ -24,7 +27,7 @@ public class TimeFrameEditor extends Popup {
             getPopupContent = JFXDatePickerSkin.class.getDeclaredMethod("getPopupContent");
             getPopupContent.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            logger.error("Failed to access JFXDatePickerSkin popup content method via reflection", e);
         }
     }
 
@@ -41,9 +44,9 @@ public class TimeFrameEditor extends Popup {
         try {
             popupContent = (JFXDatePickerContent) TimeFrameEditor.getPopupContent.invoke(datePickerSkin);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            logger.error("Failed to invoke getPopupContent on date picker skin", e);
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            logger.error("InvocationTargetException when getting date picker popup content", e);
         }
 
 

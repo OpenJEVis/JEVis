@@ -48,7 +48,7 @@ public class SankeyPojo {
 
     final DashboardControl dashboardControl;
 
-    private TableView sankeyTable;
+    private final TableView sankeyTable;
 
     private JFXCheckBox jfxCheckBoxShowValue;
 
@@ -57,7 +57,7 @@ public class SankeyPojo {
     private JFXComboBox<String> jfxComboBoxRefersTo;
     private JFXTextField jfxTextFieldGap;
     private JFXTextField jfxTextFieldErrorTolerance;
-    private Map<Integer, Spinner<Integer>> offsetUIList = new HashMap<>();
+    private final Map<Integer, Spinner<Integer>> offsetUIList = new HashMap<>();
     private Map<Integer, Integer> offsetMap = new HashMap<>();
 
 
@@ -114,7 +114,7 @@ public class SankeyPojo {
                 retrieveSankeyDataRowObjects(jsonNode);
                 retrieveOffsets(jsonNode);
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Failed to retrieve Sankey data rows or offsets", e);
                 throw new RuntimeException(e);
             }
         }

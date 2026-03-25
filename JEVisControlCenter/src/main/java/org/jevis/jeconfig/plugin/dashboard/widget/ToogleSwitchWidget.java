@@ -218,7 +218,7 @@ public class ToogleSwitchWidget extends Widget implements DataModelWidget {
 
                     lastSample = sampleHandler.getChartDataRows().get(0).getAttribute().getLatestSample();
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error("Failed to get last sample for toggle switch widget", ex);
                 }
             }
 

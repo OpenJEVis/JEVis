@@ -47,6 +47,10 @@ public class DashBoardPane extends Pane {
     private boolean gridIsVisible = false;
     private double mouseDownX;
     private double mouseDownY;
+    private double lastGridWidth = -1;
+    private double lastGridHeight = -1;
+    private double lastXInterval = -1;
+    private double lastYInterval = -1;
 
     /**
      * Dummy Pane fif no Dashboard is loaded
@@ -342,8 +346,20 @@ public class DashBoardPane extends Pane {
         this.setMaxHeight(newValue.getHeight());
         this.setMinHeight(newValue.getHeight());
         this.setPrefHeight(newValue.getHeight());
-        createGrid(analysis.xGridInterval / 4, analysis.yGridInterval / 4, new ArrayList<>(), xGridsFine, yGridsFine);
-        createGrid(analysis.xGridInterval, analysis.yGridInterval, visibleGrid, xGrids, yGrids);
+
+        double w = newValue.getWidth();
+        double h = newValue.getHeight();
+        double xi = analysis.xGridInterval;
+        double yi = analysis.yGridInterval;
+        boolean gridDirty = (w != lastGridWidth || h != lastGridHeight || xi != lastXInterval || yi != lastYInterval);
+        if (gridDirty) {
+            lastGridWidth = w;
+            lastGridHeight = h;
+            lastXInterval = xi;
+            lastYInterval = yi;
+            createGrid(xi / 4, yi / 4, new ArrayList<>(), xGridsFine, yGridsFine);
+            createGrid(xi, yi, visibleGrid, xGrids, yGrids);
+        }
     }
 
 //    /**
@@ -364,34 +380,7 @@ public class DashBoardPane extends Pane {
 
     public void showGrid(boolean show) {
         gridIsVisible = show;
-        Platform.runLater(() -> {
-            DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
-            //DashBoardPane.this.getChildren().remove(dragBox);
-        });
-
-        if (show) {
-            Platform.runLater(() -> {
-                // DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
-                DashBoardPane.this.getChildren().addAll(this.visibleGrid);
-            });
-
-            /*
-            if (!DashBoardPane.this.getChildren().contains(visibleGrid.get(0))) {
-                Platform.runLater(() -> DashBoardPane.this.getChildren().addAll(this.visibleGrid));
-            }*/
-
-            if (!DashBoardPane.this.getChildren().contains(dragBox)) {
-                // Platform.runLater(() -> DashBoardPane.this.getChildren().add(dragBox));
-            }
-        } else {
-
-            Platform.runLater(() -> {
-                // DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
-                DashBoardPane.this.getChildren().remove(dragBox);
-            });
-
-
-        }
+        Platform.runLater(() -> this.visibleGrid.forEach(line -> line.setVisible(show)));
     }
 
     /**
@@ -404,6 +393,8 @@ public class DashBoardPane extends Pane {
      */
     public void createGrid(double xGridInterval, double yGridInterval, List<Line> visibleGrid, List<Double> xGrid, List<Double> yGrid) {
         logger.debug("createGrid: {},{}", xGridInterval, yGridInterval);
+
+        // Remove old lines from scene graph before rebuilding
         getChildren().removeAll(visibleGrid);
 
         double totalHeight = analysis.getSize().getHeight();
@@ -415,45 +406,40 @@ public class DashBoardPane extends Pane {
 
         xGrid.clear();
         yGrid.clear();
-        this.visibleGrid.clear();
+        visibleGrid.clear();
 
-        /** rows **/
+        /** vertical lines (columns) **/
         for (int i = 0; i < maxColumns; i++) {
             double xPos = i * xGridInterval;
             xGrid.add(xPos);
 
-            Line line = new Line();
+            Line line = new Line(xPos, 0.0, xPos, totalHeight);
             line.setId("grid");
-            line.setStartX(xPos);
-            line.setStartY(0.0f);
-            line.setEndX(xPos);
-            line.setEndY(totalHeight);
             line.getStrokeDashArray().addAll(strokeDashArray);
             line.setOpacity(opacity);
             if (i % 4 == 0) line.setStroke(Color.MEDIUMSLATEBLUE);
             line.setMouseTransparent(true);
+            line.setVisible(gridIsVisible);
             visibleGrid.add(line);
-
         }
 
-        /** columns **/
+        /** horizontal lines (rows) **/
         for (int i = 0; i < maxRows; i++) {
             double yPos = i * yGridInterval;
             yGrid.add(yPos);
 
-            Line line = new Line();
+            Line line = new Line(0, yPos, totalWidth, yPos);
             line.setId("grid");
-            line.setStartX(0);
-            line.setStartY(yPos);
-            line.setEndX(totalWidth);
-            line.setEndY(yPos);
             line.getStrokeDashArray().addAll(strokeDashArray);
             line.setOpacity(opacity);
             if (i % 4 == 0) line.setStroke(Color.MEDIUMSLATEBLUE);
             line.setMouseTransparent(true);
+            line.setVisible(gridIsVisible);
             visibleGrid.add(line);
-
         }
+
+        // Add lines to scene graph once — visibility toggled via setVisible(), not add/remove
+        getChildren().addAll(visibleGrid);
     }
 
 

@@ -182,7 +182,7 @@ public class WebPieWidget extends Widget {
             this.sampleHandler = new DataModelDataHandler(getDataSource(), this.control, this.config, this.getId());
             this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Failed to initialize web pie widget data handler", ex);
         }
 
         Platform.runLater(() -> {
