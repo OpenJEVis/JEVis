@@ -223,7 +223,7 @@ public class LoytecXmlDlParser {
                     results.add(new Result(target, doubleValue, dateTime));
                 } else if (doubleValue != null && !statusValue.equals(IN_ALARM) && !statusValue.equals(FAULT) &&
                         !statusValue.equals(OVERRIDDEN) && !statusValue.equals(OUT_OF_SERVICE) &&
-                        !statusValue.equals(OFFLINE) && !statusValue.equals(UNDEFINED)) {
+                        !statusValue.equals(OFFLINE) && !statusValue.equals(STATUS_NOT_AVAILABLE) && !statusValue.equals(UNDEFINED)) {
                     results.add(new Result(target, doubleValue, dateTime));
                     statusResults.add(new VirtualSample(dateTime, statusValue));
                 } else if (doubleValue != null) {
@@ -233,7 +233,7 @@ public class LoytecXmlDlParser {
                         results.add(new Result(target, objectValue, dateTime));
                     } else if (objectValue != null && !statusValue.equals(IN_ALARM) && !statusValue.equals(FAULT) &&
                             !statusValue.equals(OVERRIDDEN) && !statusValue.equals(OUT_OF_SERVICE) &&
-                            !statusValue.equals(OFFLINE) && !statusValue.equals(UNDEFINED)) {
+                            !statusValue.equals(OFFLINE) && !statusValue.equals(STATUS_NOT_AVAILABLE) && !statusValue.equals(UNDEFINED)) {
                         results.add(new Result(target, objectValue, dateTime));
                         statusResults.add(new VirtualSample(dateTime, statusValue));
                     } else {
