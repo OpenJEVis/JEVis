@@ -40,6 +40,18 @@ import java.net.HttpURLConnection;
 import java.util.*;
 
 /**
+ * WebService-backed implementation of {@link JEVisClass}.
+ *
+ * <p>A JEVis class defines the schema for JEVis objects: their allowed attribute
+ * types, inheritance hierarchy, valid parent/child class relationships, and
+ * uniqueness constraints. This implementation fetches class metadata from the
+ * JEWebService REST API and caches it locally. Icon data is loaded on demand and
+ * uploaded separately when {@link #commit()} is called with a changed icon.</p>
+ *
+ * <p>Instances are constructed by {@link JEVisDataSourceWS} when class definitions
+ * are loaded from the server. They are not intended to be created directly by
+ * application code.</p>
+ *
  * @author fs
  */
 public class JEVisClassWS implements JEVisClass {
@@ -56,6 +68,12 @@ public class JEVisClassWS implements JEVisClass {
     private List<JEVisClassRelationship> relations = new ArrayList<>();
     private boolean iconChanged = false;
 
+    /**
+     * Constructs a {@code JEVisClassWS} from its JSON DTO.
+     *
+     * @param ds   the owning data source
+     * @param json the raw JSON representation of the class definition
+     */
     public JEVisClassWS(JEVisDataSourceWS ds, JsonJEVisClass json) {
         this.ds = ds;
         this.json = json;
@@ -87,16 +105,33 @@ public class JEVisClassWS implements JEVisClass {
         }
     }
 
+    /**
+     * Registers a {@link JEVisEventListener} to be notified of changes to this
+     * class definition.
+     *
+     * @param listener the listener to register; must not be {@code null}
+     */
     @Override
     public void addEventListener(JEVisEventListener listener) {
         listeners.add(JEVisEventListener.class, listener);
     }
 
+    /**
+     * Unregisters a previously added {@link JEVisEventListener}.
+     *
+     * @param listener the listener to remove
+     */
     @Override
     public void removeEventListener(JEVisEventListener listener) {
         listeners.remove(JEVisEventListener.class, listener);
     }
 
+    /**
+     * Dispatches the given event to all registered listeners synchronously.
+     * This method is thread-safe ({@code synchronized}).
+     *
+     * @param event the event to broadcast; must not be {@code null}
+     */
     @Override
     public synchronized void notifyListeners(JEVisEvent event) {
 
@@ -106,22 +141,49 @@ public class JEVisClassWS implements JEVisClass {
     }
 
 
+    /**
+     * Deletes the type with the given name from this class definition.
+     *
+     * <p><b>Note:</b> not yet implemented — always returns {@code false}.</p>
+     *
+     * @param type the name of the type to delete
+     * @return {@code false} always
+     */
     @Override
     public boolean deleteType(String type) {
         //TODO re-implement
         return false;
     }
 
+    /**
+     * Returns the unique name that identifies this JEVis class.
+     *
+     * @return the class name; never {@code null}
+     */
     @Override
     public String getName() {
         return this.json.getName();
     }
 
+    /**
+     * Sets the name of this JEVis class. Changes are not persisted until
+     * {@link #commit()} is called.
+     *
+     * @param name the new class name; must not be {@code null}
+     */
     @Override
     public void setName(String name) {
         this.json.setName(name);
     }
 
+    /**
+     * Returns the icon image for this class. The icon is fetched from the
+     * server on first access and cached locally. If no icon is available, a
+     * placeholder image is returned and the {@code iconChanged} flag is set so
+     * the default is committed on the next {@link #commit()} call.
+     *
+     * @return the class icon as a {@link BufferedImage}; never {@code null}
+     */
     @Override
     public BufferedImage getIcon() {
         if (image == null) {
@@ -136,6 +198,13 @@ public class JEVisClassWS implements JEVisClass {
 
     }
 
+    /**
+     * Sets the class icon from a PNG file on disk. The image is read
+     * immediately; changes are uploaded to the server on the next
+     * {@link #commit()} call.
+     *
+     * @param icon the PNG file to use as the class icon
+     */
     @Override
     public void setIcon(File icon) {
         try {
@@ -147,6 +216,12 @@ public class JEVisClassWS implements JEVisClass {
         }
     }
 
+    /**
+     * Sets the class icon directly from a {@link BufferedImage}. Changes are
+     * uploaded to the server on the next {@link #commit()} call.
+     *
+     * @param icon the image to use as the class icon; must not be {@code null}
+     */
     @Override
     public void setIcon(BufferedImage icon) {
         this.image = icon;
@@ -154,16 +229,34 @@ public class JEVisClassWS implements JEVisClass {
 
     }
 
+    /**
+     * Returns the human-readable description of this JEVis class.
+     *
+     * @return the class description; may be {@code null} if not set
+     */
     @Override
     public String getDescription() {
         return json.getDescription();
     }
 
+    /**
+     * Sets the human-readable description for this JEVis class. Changes are
+     * not persisted until {@link #commit()} is called.
+     *
+     * @param description the description text; may be {@code null}
+     */
     @Override
     public void setDescription(String description) {
         json.setDescription(description);
     }
 
+    /**
+     * Returns all attribute types defined for this JEVis class, sorted by
+     * GUI position. The type list is lazily initialized from the JSON DTO on
+     * first access.
+     *
+     * @return a sorted list of {@link JEVisType} instances; never {@code null}
+     */
     @Override
     public List<JEVisType> getTypes() {
 
@@ -189,6 +282,14 @@ public class JEVisClassWS implements JEVisClass {
         return types;
     }
 
+    /**
+     * Returns the type with the given name, or {@code null} if no such type
+     * is defined for this class.
+     *
+     * @param typename the exact name of the type to look up
+     * @return the matching {@link JEVisType}, or {@code null}
+     * @throws JEVisException if the type list cannot be retrieved
+     */
     @Override
     public JEVisType getType(String typename) throws JEVisException {
 
@@ -202,6 +303,14 @@ public class JEVisClassWS implements JEVisClass {
 
     }
 
+    /**
+     * Creates a new attribute type with the given name and adds it to this
+     * class definition. The type is not persisted until {@link #commit()} is
+     * called.
+     *
+     * @param name the name for the new type; must not be {@code null}
+     * @return the newly created {@link JEVisType}
+     */
     @Override
     public JEVisType buildType(String name) {
         JEVisType newType = new JEVisTypeWS(ds, name, getName());
@@ -210,6 +319,13 @@ public class JEVisClassWS implements JEVisClass {
 
     }
 
+    /**
+     * Returns the parent class that this class inherits from, or {@code null}
+     * if this class has no parent (i.e., it is a root class in the hierarchy).
+     *
+     * @return the inherited superclass, or {@code null}
+     * @throws JEVisException if the class relationships cannot be retrieved
+     */
     @Override
     public JEVisClass getInheritance() throws JEVisException {
         for (JEVisClassRelationship crel : getRelationships()) {
@@ -224,6 +340,13 @@ public class JEVisClassWS implements JEVisClass {
         return null;
     }
 
+    /**
+     * Returns all classes that directly or transitively inherit from this class
+     * (i.e., the full set of subclasses in the inheritance hierarchy).
+     *
+     * @return a list of heir classes; never {@code null}
+     * @throws JEVisException if the class relationships cannot be retrieved
+     */
     @Override
     public List<JEVisClass> getHeirs() throws JEVisException {
         List<JEVisClass> heirs = new LinkedList<JEVisClass>();
@@ -240,6 +363,15 @@ public class JEVisClassWS implements JEVisClass {
         return heirs;
     }
 
+    /**
+     * Returns all JEVis classes under which objects of this class are permitted
+     * to be created (i.e., valid parent classes). Inherited valid-parent
+     * relationships from the superclass hierarchy are included. The returned
+     * list is sorted by class name.
+     *
+     * @return a sorted list of valid parent classes; never {@code null}
+     * @throws JEVisException if the class relationships cannot be retrieved
+     */
     @Override
     public List<JEVisClass> getValidParents() throws JEVisException {
         List<JEVisClass> validParents = new LinkedList<JEVisClass>();
@@ -275,6 +407,14 @@ public class JEVisClassWS implements JEVisClass {
         return validParents;
     }
 
+    /**
+     * Returns all JEVis classes that are permitted to be created as direct
+     * children of objects of this class. Directory classes may always appear
+     * under another directory of the same type.
+     *
+     * @return a sorted list of valid child classes; never {@code null}
+     * @throws JEVisException if the class relationships cannot be retrieved
+     */
     @Override
     public List<JEVisClass> getValidChildren() throws JEVisException {
         List<JEVisClass> validParents = new LinkedList<>();
@@ -307,6 +447,14 @@ public class JEVisClassWS implements JEVisClass {
         return validParents;
     }
 
+    /**
+     * Returns {@code true} if objects of this class are permitted to be
+     * created as children of objects of {@code jevisClass}.
+     *
+     * @param jevisClass the prospective parent class
+     * @return {@code true} if this class is a valid child of {@code jevisClass}
+     * @throws JEVisException if the valid-parents list cannot be computed
+     */
     @Override
     public boolean isAllowedUnder(JEVisClass jevisClass) throws JEVisException {
         List<JEVisClass> valid = getValidParents();
@@ -318,21 +466,47 @@ public class JEVisClassWS implements JEVisClass {
         return false;
     }
 
+    /**
+     * Returns whether only one object of this class may exist under any given
+     * parent. Unique classes prevent duplicate instances under the same parent
+     * object.
+     *
+     * @return {@code true} if this class is unique
+     */
     @Override
     public boolean isUnique() {
         return json.getUnique();
     }
 
+    /**
+     * Sets the uniqueness constraint for this class. Changes are not persisted
+     * until {@link #commit()} is called.
+     *
+     * @param unique {@code true} to allow only one instance per parent
+     */
     @Override
     public void setUnique(boolean unique) {
         json.setUnique(unique);
     }
 
+    /**
+     * Deletes this JEVis class from the system. This is an irreversible
+     * operation — all objects of this class will also be affected.
+     *
+     * @return {@code true} if the deletion succeeded
+     */
     @Override
     public boolean delete() {
         return ds.deleteClass(getName());
     }
 
+    /**
+     * Returns all class-level relationships for this class (e.g., inheritance,
+     * valid-parent constraints). The list is lazily populated from the JSON DTO
+     * on first access.
+     *
+     * @return a list of class relationships; never {@code null}
+     */
     @Override
     public List<JEVisClassRelationship> getRelationships() {
         if (relations.isEmpty() && json.getRelationships() != null) {
@@ -348,6 +522,13 @@ public class JEVisClassWS implements JEVisClass {
         return relations;
     }
 
+    /**
+     * Returns all class relationships of the specified type.
+     *
+     * @param type the relationship type constant (see {@link JEVisConstants.ClassRelationship})
+     * @return a filtered list of matching class relationships; never {@code null}
+     * @throws JEVisException if the relationship list cannot be retrieved
+     */
     @Override
     public List<JEVisClassRelationship> getRelationships(int type) throws JEVisException {
         List<JEVisClassRelationship> tmp = new LinkedList<>();
@@ -361,6 +542,15 @@ public class JEVisClassWS implements JEVisClass {
         return tmp;
     }
 
+    /**
+     * Returns all class relationships of the specified type and direction.
+     *
+     * @param type      the relationship type constant
+     * @param direction {@link JEVisConstants.Direction#FORWARD} if this class is the start,
+     *                  {@link JEVisConstants.Direction#BACKWARD} if this class is the end
+     * @return a filtered list of matching class relationships; never {@code null}
+     * @throws JEVisException if the relationship list cannot be retrieved
+     */
     @Override
     public List<JEVisClassRelationship> getRelationships(int type, int direction) throws JEVisException {
         List<JEVisClassRelationship> tmp = new LinkedList<JEVisClassRelationship>();
@@ -376,6 +566,19 @@ public class JEVisClassWS implements JEVisClass {
         return tmp;
     }
 
+    /**
+     * Creates a new class relationship between this class and {@code jclass}.
+     * For {@link JEVisConstants.Direction#FORWARD FORWARD} direction the
+     * relationship is {@code this → jclass}; for
+     * {@link JEVisConstants.Direction#BACKWARD BACKWARD} it is
+     * {@code jclass → this}.
+     *
+     * @param jclass    the other class in the relationship
+     * @param type      the relationship type constant
+     * @param direction the direction of the relationship from this class's perspective
+     * @return the newly created {@link JEVisClassRelationship}
+     * @throws JEVisException if the server request fails
+     */
     @Override
     public JEVisClassRelationship buildRelationship(JEVisClass jclass, int type, int direction) throws JEVisException {
         JEVisClassRelationship rel;
@@ -388,12 +591,23 @@ public class JEVisClassWS implements JEVisClass {
         return rel;
     }
 
+    /**
+     * Removes the given class relationship from the server.
+     *
+     * @param rel the relationship to delete
+     * @throws JEVisException if the server request fails
+     */
     @Override
     public void deleteRelationship(JEVisClassRelationship rel) throws JEVisException {
         ds.deleteClassRelationship(rel.getStartName(), rel.getEndName(), rel.getType());
 
     }
 
+    /**
+     * Returns the {@link JEVisDataSource} this class definition belongs to.
+     *
+     * @return the owning data source; never {@code null}
+     */
     @Override
     public JEVisDataSource getDataSource() {
         return ds;
@@ -433,6 +647,14 @@ public class JEVisClassWS implements JEVisClass {
         }
     }
 
+    /**
+     * Persists all pending changes for this class definition to the server via
+     * a POST request. If the icon has been changed, it is uploaded in a
+     * separate request afterwards. The local JSON DTO is updated with the
+     * server's response, and the data source's class cache is refreshed.
+     *
+     * @throws JEVisException if the server request fails or the response cannot be parsed
+     */
     @Override
     public void commit() throws JEVisException {
         try {
@@ -459,17 +681,37 @@ public class JEVisClassWS implements JEVisClass {
         ds.reloadClasses();
     }
 
+    /**
+     * Rolls back any uncommitted changes to this class definition.
+     *
+     * @throws UnsupportedOperationException always — not yet implemented
+     */
     @Override
     public void rollBack() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    /**
+     * Returns whether this class definition has uncommitted local changes.
+     *
+     * <p><b>Note:</b> change detection is not yet implemented — always returns
+     * {@code false}.</p>
+     *
+     * @return {@code false} always
+     */
     @Override
     public boolean hasChanged() {
         //TODO: class compare
         return false;
     }
 
+    /**
+     * Compares this class to another {@link JEVisClass} alphabetically by name.
+     *
+     * @param o the other class to compare to
+     * @return a negative, zero, or positive integer as this class name is
+     * lexicographically less than, equal to, or greater than the other's
+     */
     @Override
     public int compareTo(JEVisClass o) {
         try {
@@ -479,6 +721,13 @@ public class JEVisClassWS implements JEVisClass {
         }
     }
 
+    /**
+     * Checks equality based solely on class name. Two {@link JEVisClass}
+     * instances are considered equal if they share the same name.
+     *
+     * @param o the object to compare with
+     * @return {@code true} if {@code o} is a {@link JEVisClass} with the same name
+     */
     @Override
     public boolean equals(Object o) {
         try {

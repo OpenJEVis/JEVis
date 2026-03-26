@@ -44,29 +44,65 @@ import java.util.List;
 import java.util.Locale;
 
 /**
+ * JDBC accessor for the {@code sample} table.
+ * <p>
+ * Handles insertion, retrieval, and deletion of time-series samples for
+ * JEVis object attributes. File samples (BLOBs) are managed via separate
+ * insert/get methods.
+ *
  * @author Florian Simon<florian.simon@envidatec.com>
  */
 public class SampleTable {
 
+    /**
+     * Name of the database table managed by this class.
+     */
     public final static String TABLE = "sample";
+    /** Column: sample value (string representation). */
     public final static String COLUMN_VALUE = "value";
+    /** Column: attribute name. */
     public final static String COLUMN_ATTRIBUTE = "attribute";
-    public final static String COLUMN_TIMESTAMP = "timestamp";//rename into ts?
+    /**
+     * Column: sample timestamp.
+     */
+    public final static String COLUMN_TIMESTAMP = "timestamp";
+    /** Column: row-insert timestamp. */
     public final static String COLUMN_INSERT_TIMESTAMP = "insertts";
+    /** Column: owning object ID. */
     public final static String COLUMN_OBJECT = "object";
+    /** Column: manipulation ID (reserved). */
     public final static String COLUMN_MANID = "manid";
+    /** Column: free-text note attached to a sample. */
     public final static String COLUMN_NOTE = "note";
+    /** Column: BLOB data for file samples. */
     public final static String COLUMN_FILE = "file";
+    /** Column: original filename for file samples. */
     public final static String COLUMN_FILE_NAME = "filename";
     private static final Logger logger = LogManager.getLogger(SampleTable.class);
     private final SQLDataSource _connection;
 
+    /**
+     * Creates a {@code SampleTable} accessor backed by the given data source.
+     *
+     * @param ds the per-request SQL data source
+     */
     public SampleTable(SQLDataSource ds) {
         _connection = ds;
     }
 
+    /**
+     * Inserts or updates a list of samples for the given object/attribute, splitting
+     * them into chunks of at most 100 000 rows to respect the MySQL
+     * {@code max_allowed_packet} limit.
+     *
+     * @param object    the owning object ID
+     * @param attribute the attribute name
+     * @param priType   the JEVis primitive-type constant (see {@link JEVisConstants.PrimitiveType})
+     * @param samples   the samples to persist
+     * @return the total number of rows affected
+     * @throws JEVisException if a database or encoding error occurs
+     */
     public int insertSamples(long object, String attribute, int priType, List<JsonSample> samples) throws JEVisException {
-        //Benchmark benchmark = new Benchmark();
         int perChunk = 100000;// careful, if value is bigger sql has a limit per transaction. 1mio is test only with small ints
         int count = 0;
         for (int i = 0; i < samples.size(); i += perChunk) {
@@ -79,18 +115,21 @@ public class SampleTable {
                 break;
             }
         }
-        //benchmark.printBechmark("Imported: " + count + " samples");
-//        samples.clear();
         return count;
     }
 
     /**
-     * TODO: batch the insert because mysql has a limit for a request
-     * "max_allowed_packet=32M"
+     * Inserts a single chunk of samples using a multi-row {@code INSERT … ON DUPLICATE KEY UPDATE}.
+     * <p>
+     * Password samples are stored as PBKDF2 hashes. Numeric samples are
+     * validated and stored with their appropriate SQL type.
      *
-     * @param object
-     * @param attribute
-     * @param samples
+     * @param object    the owning object ID
+     * @param attribute the attribute name
+     * @param priType   the JEVis primitive-type constant
+     * @param samples   the chunk of samples (must be ≤ 100 000)
+     * @return the number of rows affected
+     * @throws JEVisException if a database or encoding error occurs
      */
     private int insertSamplesChunk(long object, String attribute, int priType, List<JsonSample> samples) throws JEVisException {
         String sql = String.format("INSERT IGNORE into %s(%s,%s,%s,%s,%s,%s,%s) VALUES",
@@ -104,8 +143,6 @@ public class SampleTable {
             build.append("(?,?,?,?,?,?,?)");
             if (i < samples.size() - 1) {
                 build.append(", ");
-            } else {
-//                    build.append(";");
             }
         }
 
@@ -116,7 +153,7 @@ public class SampleTable {
                 + COLUMN_MANID + "=VALUES(" + COLUMN_MANID + ") ";
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sqlWithUpdate)) {
-            Calendar cal = Calendar.getInstance();//care tor TZ?
+            Calendar cal = Calendar.getInstance();
             long now = cal.getTimeInMillis();
             DoubleValidator dv = DoubleValidator.getInstance();
 
@@ -129,12 +166,8 @@ public class SampleTable {
                 ps.setTimestamp(++p, new Timestamp(ts.getMillis()));
                 switch (priType) {
                     case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
-                        //Passwords will be stored as Saled Hash
                         ps.setString(++p, PasswordHash.createHash(sample.getValue()));
                         break;
-//                    case JEVisConstants.PrimitiveType.FILE:
-//                        ps.setNull(++p, Types.VARCHAR);
-//                        break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
                         if (sample.getValue().equals("1") || sample.getValue().equals("2")) {
                             ps.setBoolean(++p, "1".equals(sample.getValue()));
@@ -159,11 +192,9 @@ public class SampleTable {
                         break;
                 }
 
-//                ps.setString(++p, sample.getManipulation().toString());
                 ps.setNull(++p, Types.INTEGER);
                 ps.setString(++p, sample.getNote());
                 ps.setTimestamp(++p, new Timestamp(now));
-
 
             }
             logger.trace("SQL: {}", ps);
@@ -188,6 +219,17 @@ public class SampleTable {
 
     }
 
+    /**
+     * Inserts or updates a file sample (BLOB) for the given object/attribute at
+     * the specified timestamp.
+     *
+     * @param object the owning object ID
+     * @param att    the attribute name
+     * @param from   the sample timestamp
+     * @param file   the file to store
+     * @return {@code true} if the insert/update affected at least one row
+     * @throws JEVisException if the database operation fails
+     */
     public boolean insertFile(long object, String att, DateTime from, JEVisFile file) throws JEVisException {
         String sql = String.format("INSERT IGNORE into %s(%s,%s,%s,%s,%s,%s) VALUES (?,?,?,?,?,?)",
                 TABLE, COLUMN_OBJECT, COLUMN_ATTRIBUTE, COLUMN_TIMESTAMP, COLUMN_INSERT_TIMESTAMP, COLUMN_FILE_NAME, COLUMN_FILE);
@@ -198,7 +240,7 @@ public class SampleTable {
                 + COLUMN_FILE_NAME + "=VALUES(" + COLUMN_FILE_NAME + "), "
                 + COLUMN_FILE + "=VALUES(" + COLUMN_FILE + ")";
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            Calendar cal = Calendar.getInstance();//care tor TZ?
+            Calendar cal = Calendar.getInstance();
             long now = cal.getTimeInMillis();
             ps.setLong(1, object);
             ps.setString(2, att);
@@ -223,6 +265,17 @@ public class SampleTable {
 
     }
 
+    /**
+     * Retrieves a file sample (BLOB) for the given object/attribute at an
+     * optional timestamp. If {@code from} is {@code null}, the most recent file
+     * sample is returned.
+     *
+     * @param object the owning object ID
+     * @param att    the attribute name
+     * @param from   the exact timestamp to look up, or {@code null} for the latest
+     * @return the {@link JEVisFile}, or {@code null} if no matching row exists
+     * @throws JEVisException if the query fails
+     */
     public JEVisFile getFileSample(long object, String att, DateTime from) throws JEVisException {
 
         String sql = String.format("select %s,%s from %s where %s=? and %s=? %s=?",
@@ -268,6 +321,19 @@ public class SampleTable {
         return null;
     }
 
+    /**
+     * Returns samples for the given object/attribute within the specified time
+     * range. Either bound may be {@code null} to indicate an open interval.
+     * Results are ordered by timestamp ascending.
+     *
+     * @param object the owning object ID
+     * @param att    the attribute name
+     * @param from   the inclusive start timestamp, or {@code null} for no lower bound
+     * @param until  the inclusive end timestamp, or {@code null} for no upper bound
+     * @param limit  the maximum number of samples to return
+     * @return an ordered list of matching {@link JsonSample} instances
+     * @throws JEVisException if the query fails
+     */
     public List<JsonSample> getSamples(long object, String att, DateTime from, DateTime until, long limit) throws JEVisException {
         logger.debug("getSamples: {}:{} from: {} until: {}", object, att, from, until);
         List<JsonSample> samples = new ArrayList<>();
@@ -285,7 +351,6 @@ public class SampleTable {
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY)) {
-            //ps.setFetchDirection(ResultSet.FETCH_FORWARD);
             int pos = 1;
 
             ps.setLong(pos++, object);
@@ -314,13 +379,22 @@ public class SampleTable {
 
     }
 
+    /**
+     * Deletes all samples for the given object/attribute combination.
+     *
+     * @param object the owning object ID
+     * @param att    the attribute name
+     * @return {@code true} if the deletion succeeded (including zero-row deletes)
+     */
     public boolean deleteAllSamples(long object, String att) {
         String sql = String.format("delete from %s where %s=? and %s=?", TABLE, COLUMN_ATTRIBUTE, COLUMN_OBJECT);
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, att);
             ps.setLong(2, object);
-            logger.debug("SQL: {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL: {}", ps);
+            }
             ps.executeUpdate();
             _connection.getAttributeTable().updateMinMaxTS(object, att);
             return true;
@@ -331,6 +405,13 @@ public class SampleTable {
 
     }
 
+    /**
+     * Deletes all samples for each object ID in the given list.
+     *
+     * @param object the list of object IDs whose samples should be removed
+     * @return {@code true} always (individual failures are logged but do not
+     *         cause a {@code false} return)
+     */
     public boolean deleteAllSamples(List<Long> object) {
         String sql = String.format("delete from %s where %s=?", TABLE, COLUMN_OBJECT);
 
@@ -338,7 +419,9 @@ public class SampleTable {
             try {
                 try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
                     ps.setLong(1, aLong);
-                    logger.debug("SQL: {}", ps);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("SQL: {}", ps);
+                    }
 
                     ps.executeUpdate();
                 } catch (SQLException ex) {
@@ -354,6 +437,17 @@ public class SampleTable {
 
     }
 
+    /**
+     * Deletes samples for the given object/attribute within an optional time
+     * window. If both {@code from} and {@code until} are {@code null}, all
+     * samples are deleted.
+     *
+     * @param object the owning object ID
+     * @param att    the attribute name
+     * @param from   the inclusive start of the deletion window, or {@code null}
+     * @param until  the inclusive end of the deletion window, or {@code null}
+     * @return {@code true} if the deletion succeeded
+     */
     public boolean deleteSamples(long object, String att, DateTime from, DateTime until) {
         String sql = String.format("delete from %s where %s=? and %s=?", TABLE, COLUMN_ATTRIBUTE, COLUMN_OBJECT);
 
@@ -380,7 +474,9 @@ public class SampleTable {
                 ps.setTimestamp(i, new Timestamp(until.getMillis()));
             }
 
-            logger.debug("SQL: {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL: {}", ps);
+            }
             ps.execute();
             _connection.getAttributeTable().updateMinMaxTS(object, att);
             return true;
@@ -391,19 +487,22 @@ public class SampleTable {
 
     }
 
+    /**
+     * Deletes user activity log entries older than one year from the
+     * {@code Activities} attribute of all {@code User} objects.
+     * Called periodically for GDPR compliance.
+     *
+     * @return {@code true} if the statement executed without error
+     */
     public boolean deleteOldLogging() {
         String sql = String.format("delete from %s " +
                         "where attribute=\"%s\" and timestamp<=DATE(NOW()-INTERVAL 1 YEAR) " +
                         "and object in (select ID from object where object.type=\"%s\");"
                 , TABLE, "Activities", "User");
 
-
-        //from sample where attribute="Activities" and timestamp<=DATE(NOW()-INTERVAL 1 YEAR) and object in (select ID from object where object.type="User");
-
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             logger.error("SQL: {}", ps);
             ps.execute();
-            //_connection.getAttributeTable().updateMinMaxTS(object, att);
             return true;
         } catch (SQLException ex) {
             logger.error(ex);
@@ -412,6 +511,15 @@ public class SampleTable {
 
     }
 
+    /**
+     * Returns all samples for the given object/attribute without a row limit,
+     * ordered by timestamp ascending.
+     *
+     * @param object the owning object ID
+     * @param att    the attribute name
+     * @return an ordered list of all samples
+     * @throws SQLException if the query fails
+     */
     public List<JsonSample> getAll(long object, String att) throws SQLException {
         List<JsonSample> samples = new ArrayList<>();
 
@@ -442,6 +550,14 @@ public class SampleTable {
     }
 
 
+    /**
+     * Returns the most recent sample for the given object/attribute.
+     *
+     * @param object the owning object ID
+     * @param att    the attribute name
+     * @return the latest {@link JsonSample}, or {@code null} if no samples exist
+     * @throws JEVisException if the query fails
+     */
     public JsonSample getLatest(long object, String att) throws JEVisException {
         String sql = String.format("select * from %s where %s=? and %s=? order by %s DESC limit 1",
                 TABLE, COLUMN_OBJECT, COLUMN_ATTRIBUTE, COLUMN_TIMESTAMP);

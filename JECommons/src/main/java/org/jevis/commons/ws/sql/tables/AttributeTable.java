@@ -43,32 +43,57 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * JDBC accessor for the {@code attribute} table.
+ * <p>
+ * Manages CRUD operations for JEVis object attributes and keeps the
+ * min/max timestamp statistics in sync after sample changes.
+ *
  * @author florian.simon@envidatec.com
  */
 public class AttributeTable {
 
+    /**
+     * Name of the database table managed by this class.
+     */
     public final static String TABLE = "attribute";
+    /** Column: owning object ID (foreign key). */
     public final static String COLUMN_OBJECT = "object";
+    /** Column: attribute name. */
     public final static String COLUMN_NAME = "name";
+    /** Column: timestamp of the earliest sample. */
     public final static String COLUMN_MIN_TS = "mints";
+    /** Column: timestamp of the most recent sample. */
     public final static String COLUMN_MAX_TS = "maxts";
+    /** Column: cached sample count. */
     public final static String COLUMN_COUNT = "samplecount";
+    /** Column: input unit (JSON string). */
     public final static String COLUMN_INPUT_UNIT = "inputunit";
+    /** Column: input sample rate (ISO period string). */
     public final static String COLUMN_INPUT_RATE = "inputrate";
+    /** Column: display unit (JSON string). */
     public final static String COLUMN_DISPLAY_UNIT = "displayunit";
+    /** Column: display sample rate (ISO period string). */
     public final static String COLUMN_DISPLAY_RATE = "displayrate";
     private static final Logger logger = LogManager.getLogger(AttributeTable.class);
     private final SQLDataSource ds;
 
+    /**
+     * Creates an {@code AttributeTable} accessor backed by the given data source.
+     *
+     * @param ds the per-request SQL data source
+     */
     public AttributeTable(SQLDataSource ds) {
         this.ds = ds;
     }
 
 
     /**
-     * @param object
-     * @return
-     * @throws JEVisException
+     * Returns all attributes for the given object, including the latest sample
+     * value (joined from the {@code sample} table).
+     *
+     * @param object the owning object ID
+     * @return a list of {@link JsonAttribute} instances; empty if none found
+     * @throws JEVisException if the query fails
      */
     public List<JsonAttribute> getAttributes(long object) throws JEVisException {
         logger.trace("getAttributes ");
@@ -80,7 +105,9 @@ public class AttributeTable {
         try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
             ps.setLong(1, object);
 
-            logger.debug("SQL {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL {}", ps);
+            }
             ResultSet rs = ps.executeQuery();
 
 
@@ -105,6 +132,14 @@ public class AttributeTable {
         return attributes;
     }
 
+    /**
+     * Returns a single attribute by object ID and attribute name, including the
+     * latest sample value joined from the {@code sample} table.
+     *
+     * @param object the owning object ID
+     * @param name   the attribute name
+     * @return the matching {@link JsonAttribute}, or {@code null} if not found
+     */
     public JsonAttribute getAttribute(long object, String name) {
         logger.trace("getAttribute:  {}, {}", object, name);
 
@@ -119,7 +154,9 @@ public class AttributeTable {
             ps.setLong(1, object);
             ps.setString(2, name);
 
-            logger.debug("SQL {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL {}", ps);
+            }
             ResultSet rs = ps.executeQuery();
 
 
@@ -142,6 +179,13 @@ public class AttributeTable {
     }
 
 
+    /**
+     * Returns all attributes across all objects, including the latest sample
+     * value for each. Used for bulk permission checking in the REST layer.
+     *
+     * @return a list of all {@link JsonAttribute} instances
+     * @throws JEVisException if the query fails
+     */
     public List<JsonAttribute> getAllAttributes() throws JEVisException {
         logger.trace("getAllAttributes ");
         List<JsonAttribute> attributes = new ArrayList<>();
@@ -150,7 +194,9 @@ public class AttributeTable {
 
         try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
 
-            logger.debug("SQL {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL {}", ps);
+            }
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
@@ -173,11 +219,15 @@ public class AttributeTable {
     }
 
     /**
-     * Prototype for an DataProcessor JobListener
-     * Does not work because of the Monthly Row -> Monthly Clean problem
+     * Returns a list of objects whose raw {@code Value} attribute has a newer
+     * sample than the corresponding clean attribute. Intended as input for the
+     * JEDataProcessor job scheduler.
+     * <p>
+     * <b>Note:</b> The monthly-row / monthly-clean edge case is not yet handled
+     * correctly.
      *
-     * @return
-     * @throws JEVisException
+     * @return a list of objects that need processing
+     * @throws JEVisException if the query fails
      */
     public List<JsonObject> getDataProcessorTodoList() throws JEVisException {
         logger.trace("getAllAttributes ");
@@ -188,7 +238,9 @@ public class AttributeTable {
 
         try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
 
-            logger.debug("SQL {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL {}", ps);
+            }
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
@@ -245,6 +297,11 @@ public class AttributeTable {
     }
 
 
+    /**
+     * Deletes all attribute rows for the given object ID.
+     *
+     * @param objectID the object whose attributes should be removed
+     */
     public void delete(long objectID) {
         logger.debug("delete attributes: {}", objectID);
         String sqlUpdate = String.format("delete from %s where %s=? ", TABLE, COLUMN_OBJECT);
@@ -261,26 +318,17 @@ public class AttributeTable {
     }
 
     /**
-     * Update the min/max/count if samples changed for an attribute
-     * TODO: this could be an trigger in mysql direct
+     * Refreshes the {@code mints}, {@code maxts}, and {@code samplecount}
+     * columns for the given object/attribute by querying the {@code sample} table.
+     * <p>
+     * This method is called automatically after every sample insert or delete.
+     * It could be replaced by a MySQL trigger for better atomicity.
      *
-     * @param objectID
-     * @param attribute
+     * @param objectID  the owning object ID
+     * @param attribute the attribute name
      */
     public void updateMinMaxTS(long objectID, String attribute) {
         logger.debug("updateMinMaxTS: {}:{}", objectID, attribute);
-        /* with count
-         String selectSQL = String.format("select min(%s) as min,max(%s) as max,count(%s) as count " +
-                        "from %s where object=? and attribute=?  ",
-                SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.TABLE);
-
-        String sqlUpdate = String.format("insert into %s ( %s,%s,%s,%s,%s) " +
-                        "VALUES (?,?,?,?,?) " +
-                        "ON DUPLICATE KEY UPDATE  %s=VALUES(%s), %s=VALUES(%s), %s=VALUES(%s)",
-                TABLE, COLUMN_MIN_TS, COLUMN_MAX_TS, COLUMN_COUNT, COLUMN_OBJECT, COLUMN_NAME,
-                COLUMN_MIN_TS, COLUMN_MIN_TS, COLUMN_MAX_TS, COLUMN_MAX_TS, COLUMN_COUNT, COLUMN_COUNT);
-
-         */
 
         String selectSQL = String.format("select min(%s) as min,max(%s) as max " +
                         "from %s where object=? and attribute=?  ",
@@ -293,21 +341,19 @@ public class AttributeTable {
                 TABLE, COLUMN_MIN_TS, COLUMN_MAX_TS, COLUMN_COUNT, COLUMN_OBJECT, COLUMN_NAME,
                 COLUMN_MIN_TS, COLUMN_MIN_TS, COLUMN_MAX_TS, COLUMN_MAX_TS, COLUMN_COUNT, COLUMN_COUNT);
 
-        //logger.error("SqlS1: {}", selectSQL);
-        //logger.error("SqlS2: {}", sqlUpdate);
-
         try (PreparedStatement ps = ds.getConnection().prepareStatement(selectSQL)) {
 
 
             ps.setLong(1, objectID);
             ps.setString(2, attribute);
-            logger.debug("SQL {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL {}", ps);
+            }
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Timestamp mindate = rs.getTimestamp("min");
                 Timestamp maxdate = rs.getTimestamp("max");
-                //long count = rs.getLong("count"); // tmp disabled for performance
                 long count = 0;
                 if (mindate != null) {//tmp performance workaround.
                     count = 1;
@@ -315,7 +361,6 @@ public class AttributeTable {
                 logger.debug("count: {},min: {}", count, mindate);
 
                 try (PreparedStatement psUpdate = ds.getConnection().prepareStatement(sqlUpdate)) {
-                    logger.debug("SQL2.update: {}", psUpdate);
                     /** values */
                     if (mindate != null) {
                         psUpdate.setTimestamp(1, mindate);
@@ -331,7 +376,9 @@ public class AttributeTable {
                     psUpdate.setLong(4, objectID);
                     psUpdate.setString(5, attribute);
 
-                    logger.debug("SQL: {}", psUpdate);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("SQL: {}", psUpdate);
+                    }
                     psUpdate.executeUpdate();
 
                 } catch (SQLException ex) {
@@ -349,8 +396,13 @@ public class AttributeTable {
 
 
     /**
-     * @param att
-     * @throws JEVisException
+     * Inserts or updates attribute metadata (units and sample rates) for the
+     * given object/attribute pair. If a row already exists it is updated via
+     * {@code ON DUPLICATE KEY UPDATE}.
+     *
+     * @param object the owning object ID
+     * @param att    the attribute to persist
+     * @throws JEVisException if the name is missing or a database error occurs
      */
     public void updateAttribute(long object, JsonAttribute att) throws JEVisException {
 
@@ -358,7 +410,6 @@ public class AttributeTable {
                 TABLE, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT, COLUMN_DISPLAY_RATE, COLUMN_INPUT_RATE, COLUMN_OBJECT, COLUMN_NAME, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT, COLUMN_DISPLAY_RATE, COLUMN_INPUT_RATE);
 
         try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
-//            Gson gson = new Gson();
             JEVisUnit fallbackUnit = new JEVisUnitImp(AbstractUnit.ONE);
 
             if (att.getDisplayUnit() != null) {
@@ -402,7 +453,9 @@ public class AttributeTable {
                 throw new JEVisException("Missing attribute name", 326543);
             }
 
-            logger.debug("SQL: {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL: {}", ps);
+            }
 
             ps.executeUpdate();
         } catch (SQLException ex) {

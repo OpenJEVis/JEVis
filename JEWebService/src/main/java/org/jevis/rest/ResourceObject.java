@@ -43,7 +43,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This Class handels all the JEVisObject related requests
+ * Jersey REST resource that handles all JEVisObject CRUD operations.
+ *
+ * <p>Endpoints:
+ * <ul>
+ *   <li>{@code GET /objects} — list objects, optionally filtered by class, root, parent, child</li>
+ *   <li>{@code GET /objects/{id}} — fetch a single object by ID</li>
+ *   <li>{@code GET /objects/{id}/relationships} — list relationships for one object</li>
+ *   <li>{@code POST /objects} — create a new object (or move an existing one)</li>
+ *   <li>{@code POST /objects/{id}} — update an existing object</li>
+ *   <li>{@code DELETE /objects/{id}} — delete or mark-as-deleted an object</li>
+ * </ul>
  *
  * @author Florian Simon<florian.simon@openjevis.org>
  */
@@ -51,28 +61,28 @@ import java.util.stream.Collectors;
 public class ResourceObject {
 
     private static final Logger logger = LogManager.getLogger(ResourceObject.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private SQLDataSource ds = null;
     private List<JsonObject> returnList;
 
     /**
-     * Get an list of JEVisObject Resource.
-     * <p>
-     * TODO: maybe use an async response!?
-     * https://jersey.java.net/documentation/latest/async.html
+     * Returns all JEVisObjects visible to the authenticated user, with optional filters.
      *
-     * @param httpHeaders
-     * @param request
-     * @param url
-     * @param root
-     * @param inherit
-     * @param parent
-     * @param name
-     * @param detailed
-     * @param rel
-     * @param child
-     * @param jclass
-     * @return
+     * @param httpHeaders     HTTP headers (used for authentication)
+     * @param request         JAX-RS request context
+     * @param url             URI info context
+     * @param serviceContext  web service context
+     * @param root            if {@code true}, return only root objects
+     * @param jclass          if non-empty, filter by JEVis class name
+     * @param inherit         if {@code true}, include objects of subclasses when filtering by class
+     * @param name            reserved (currently unused filter)
+     * @param detailed        reserved (currently unused)
+     * @param rel             if {@code true}, embed relationships in each returned object
+     * @param deletedObjects  if {@code true}, include soft-deleted objects; otherwise only live objects
+     * @param parent          filter by parent object ID (0 = not used)
+     * @param child           filter to return only the given child ID (0 = not used)
+     * @return 200 OK with JSON array of {@link org.jevis.commons.ws.json.JsonObject},
+     *         401 UNAUTHORIZED, or 500 on error
      */
     @GET
     @Logged
@@ -137,8 +147,15 @@ public class ResourceObject {
 
 
     /**
-     * @param id
-     * @return
+     * Returns all relationships involving the object with the given ID, filtered to those the
+     * authenticated user may read.
+     *
+     * @param id          the JEVis object ID
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @return 200 OK with JSON array of {@link org.jevis.commons.ws.json.JsonRelationship},
+     *         401 UNAUTHORIZED, or 500 on error
      */
     @GET
     @Logged
@@ -172,6 +189,17 @@ public class ResourceObject {
 
     }
 
+    /**
+     * Deletes or soft-deletes the object with the given ID.
+     *
+     * @param httpHeaders   HTTP headers (used for authentication)
+     * @param request       JAX-RS request context
+     * @param url           URI info context
+     * @param deleteForever if {@code true}, permanently removes the object;
+     *                      otherwise marks it as deleted (recoverable)
+     * @param id            the JEVis object ID to delete
+     * @return 200 OK on success, 401 UNAUTHORIZED, or 500 on error
+     */
     @DELETE
     @Logged
     @Path("/{id}")
@@ -221,15 +249,17 @@ public class ResourceObject {
     }
 
     /**
-     * TODO: check this
-     * Is this function in use, because some sub function are not implemented?
+     * Creates a new JEVisObject under the parent specified in the request body, or moves an existing
+     * object if {@code copy} is a valid source object ID.
      *
-     * @param httpHeaders
-     * @param request
-     * @param url
-     * @param copyObject
-     * @param object
-     * @return
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param copyObject  if &gt; 0, move this object ID to the new parent instead of creating a new one
+     * @param object      JSON body representing the new {@link org.jevis.commons.ws.json.JsonObject}
+     * @return 200 OK with the created/moved {@link org.jevis.commons.ws.json.JsonObject},
+     *         400 BAD REQUEST on parse error, 401 UNAUTHORIZED, 404 NOT FOUND if parent or class is missing,
+     *         or 500 on error
      */
     @POST
     @Logged
@@ -246,7 +276,7 @@ public class ResourceObject {
             try {
                 this.ds = new SQLDataSource(httpHeaders, request, url);
 
-                JsonObject json = objectMapper.readValue(object, JsonObject.class);
+                JsonObject json = OBJECT_MAPPER.readValue(object, JsonObject.class);
                 if (this.ds.getJEVisClass(json.getJevisClass()) == null) {
                     return Response.status(Response.Status.NOT_FOUND).entity("JEVisClass not found").build();
                 }
@@ -269,7 +299,7 @@ public class ResourceObject {
 
                         String jsonString = null;
                         if (json.getI18n() != null && !json.getI18n().isEmpty()) {
-                            jsonString = objectMapper.writeValueAsString(json.getI18n());
+                            jsonString = OBJECT_MAPPER.writeValueAsString(json.getI18n());
                         }
 
                         JsonObject newObj = this.ds.buildObject(json, parentObj.getId(), jsonString);
@@ -313,6 +343,20 @@ public class ResourceObject {
     }
 
 
+    /**
+     * Updates an existing JEVisObject (name, public flag, and i18n metadata).
+     *
+     * <p>Only the object owner with WRITE permission may update it. The {@code public} flag
+     * can only be changed by a system administrator.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          the JEVis object ID to update
+     * @param object      JSON body with the updated {@link org.jevis.commons.ws.json.JsonObject}
+     * @return 200 OK with the updated object, 304 NOT MODIFIED if permission denied,
+     * 401 UNAUTHORIZED, or 500 on error
+     */
     @POST
     @Logged
     @Produces(MediaType.APPLICATION_JSON)
@@ -329,12 +373,12 @@ public class ResourceObject {
             logger.debug("post Object: " + object);
             this.ds = new SQLDataSource(httpHeaders, request, url);
 
-            JsonObject json = objectMapper.readValue(object, JsonObject.class);
+            JsonObject json = OBJECT_MAPPER.readValue(object, JsonObject.class);
             JsonObject existingObj = this.ds.getObject(id);
             if (existingObj != null && this.ds.getUserManager().canWrite(json)) {
                 String jsonstring = null;
                 if (json.getI18n() != null && !json.getI18n().isEmpty()) {
-                    jsonstring = objectMapper.writeValueAsString(json.getI18n());
+                    jsonstring = OBJECT_MAPPER.writeValueAsString(json.getI18n());
                 }
 
                 if (existingObj.getDeleteTS() != null && json.getDeleteTS() == null) {
@@ -382,12 +426,17 @@ public class ResourceObject {
     }
 
     /**
-     * Get the JEVisObject with the given id.
+     * Returns the JEVisObject with the given ID.
      *
-     * @param httpHeaders
-     * @param detailed
-     * @param id          jevis internal id of an JEVisObject
-     * @return
+     * @param httpHeaders     HTTP headers (used for authentication)
+     * @param request         JAX-RS request context
+     * @param url             URI info context
+     * @param detailed        reserved (currently unused)
+     * @param includeChildren if {@code true}, recursively include all child objects
+     * @param id              the JEVis object ID to fetch
+     * @return 200 OK with the {@link org.jevis.commons.ws.json.JsonObject},
+     *         400 BAD REQUEST if ID is missing, 404 NOT FOUND if inaccessible,
+     *         401 UNAUTHORIZED, or 500 on error
      */
     @GET
     @Logged
@@ -424,6 +473,9 @@ public class ResourceObject {
         }
     }
 
+    /**
+     * Jersey lifecycle callback — clears transient per-request state after the response is committed.
+     */
     @PostConstruct
     public void postConstruct() {
         if (this.returnList != null) {

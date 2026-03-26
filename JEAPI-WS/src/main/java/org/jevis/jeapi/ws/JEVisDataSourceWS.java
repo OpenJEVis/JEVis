@@ -52,6 +52,26 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
+ * HTTP/REST implementation of {@link JEVisDataSource} that communicates with a JEWebService
+ * backend over {@link HTTPConnection}.
+ *
+ * <h2>Caching model</h2>
+ * <p>This class maintains several in-memory caches that are populated lazily on first access
+ * and invalidated explicitly via {@link #clearCache()} or {@link #reloadObjects()}:
+ * <ul>
+ *   <li>{@link #objectCache} — all {@link JEVisObject} instances, keyed by ID</li>
+ *   <li>{@link #objectRelMapCache} — per-object {@link JEVisRelationship} lists</li>
+ *   <li>{@link #attributeCache} — per-object {@link JEVisAttribute} lists</li>
+ *   <li>{@link #classCache} — all {@link JEVisClass} definitions, keyed by name</li>
+ * </ul>
+ * <p>The volatile boolean flags ({@code objectLoaded}, {@code orLoaded}, etc.) guard each
+ * cache section to prevent redundant server round-trips in a multi-threaded JavaFX
+ * environment.
+ *
+ * <h2>Preloading</h2>
+ * <p>{@link #preload()} bulk-fetches classes, objects, relationships, and attributes in a
+ * single call sequence so that subsequent accesses are served entirely from cache.
+ *
  * @author fs
  */
 public class JEVisDataSourceWS implements JEVisDataSource {
@@ -92,22 +112,31 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     //    private Gson gson = new Gson();
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
-    private boolean allAttributesPreloaded = false;
-    private boolean classLoaded = false;
-    private boolean objectLoaded = false;
-    private boolean deletedObjectLoaded = false;
-    private boolean orLoaded = false;
+    private volatile boolean allAttributesPreloaded = false;
+    private volatile boolean classLoaded = false;
+    private volatile boolean objectLoaded = false;
+    private volatile boolean deletedObjectLoaded = false;
+    private volatile boolean orLoaded = false;
     private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
     /**
      * fallback because some old client will call preload but we now a days do per default
      **/
-    private boolean hasPreloaded = false;
+    private volatile boolean hasPreloaded = false;
 
+    /**
+     * Creates a data source pre-configured to connect to the given host URL.
+     *
+     * @param host the base URL of the JEWebService (e.g. {@code "http://myserver:8080"})
+     */
     public JEVisDataSourceWS(String host) {
         this.host = host;
         configureObjectMapper();
     }
 
+    /**
+     * Creates a data source without a pre-configured host.
+     * The host must be supplied via {@link #setConfiguration(List)} before connecting.
+     */
     public JEVisDataSourceWS() {
         configureObjectMapper();
     }
@@ -231,6 +260,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     }
 
+    /**
+     * Returns the root objects visible to the current user.
+     *
+     * <p>Root objects are determined by following MEMBER_READ → ROOT relationships from the
+     * current user's groups. Objects whose parent is also a root are excluded so that the
+     * returned list is the minimal set of top-level accessible objects.
+     *
+     * @return list of root {@link JEVisObject}s; never {@code null}
+     */
     @Override
     public List<JEVisObject> getRootObjects() {
         /**
@@ -303,6 +341,16 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return objs;
     }
 
+    /**
+     * Returns the {@link JEVisObject} with the given ID, using the in-memory cache first and
+     * falling back to the server if not found.
+     *
+     * <p>IDs that were previously resolved to {@code null} (i.e. the object does not exist or is
+     * not accessible) are stored in a negative cache to avoid repeated server round-trips.
+     *
+     * @param id the object ID, or {@code null}
+     * @return the object, or {@code null} if not accessible
+     */
     @Override
     public JEVisObject getObject(Long id) {
         if (id != null) {
@@ -323,6 +371,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     }
 
+    /**
+     * Returns all JEVisObjects visible to the current user.
+     *
+     * <p>Objects are loaded from the server on the first call and then served from the in-memory
+     * {@link #objectCache}. Call {@link #reloadObjects()} to force a full refresh.
+     *
+     * @return list of all accessible objects; never {@code null}
+     */
     @Override
     public List<JEVisObject> getObjects() {
         logger.debug("getObjects");
@@ -402,6 +458,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     }
 
+    /**
+     * Returns all relationships visible to the current user.
+     *
+     * <p>On the first call, all relationships are fetched from the server and stored in a
+     * per-object map ({@link #objectRelMapCache}). Subsequent calls return a freshly flattened
+     * view of the map. The deduplication step uses object identity (see
+     * {@link #relationshipMapToList()}) so the same server-provided instance is not included
+     * twice (it is stored once per object at each end of the relationship).
+     *
+     * @return flat, deduplicated list of all relationships; never {@code null}
+     */
     @Override
     public List<JEVisRelationship> getRelationships() {
         logger.debug("getAllRelationships");
@@ -449,10 +516,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     /**
-     * Load all attributes for all objects.
+     * Bulk-loads all attributes for all objects from the server and populates
+     * {@link #attributeCache}.
      *
-     * @return
-     * @throws JEVisException
+     * <p>This is a one-shot operation: once {@link #allAttributesPreloaded} is {@code true} the
+     * method returns immediately. After loading, objects without server-side attributes have
+     * empty lists synthesised from their class type definitions (see
+     * {@link #fixMissingAttributes(JEVisObject, List)}).
+     *
+     * @throws JEVisException if the server request fails
      */
     @Override
     public void getAttributes() throws JEVisException {
@@ -530,6 +602,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         }
     }
 
+    /**
+     * Authenticates using HTTP Basic credentials and initialises the current-user context.
+     *
+     * @param username the account name
+     * @param password the plaintext password
+     * @return {@code true} if authentication succeeded
+     * @throws JEVisException if the server is unreachable or returns an error
+     */
     @Override
     public boolean connect(String username, String password) throws JEVisException {
         logger.debug("Connect with user {} to: {}", username, this.host);
@@ -559,6 +639,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         }
     }
 
+    /**
+     * Authenticates using an SSO token (e.g. Microsoft/OAuth bearer token) and initialises a
+     * session-based connection. The session key is stored in {@link HTTPConnection} for
+     * subsequent requests.
+     *
+     * @param token the SSO bearer token
+     * @return {@code true} if authentication succeeded
+     * @throws JEVisException if the server is unreachable or the token is invalid
+     */
     @Override
     public boolean connect(String token) throws JEVisException {
         // get Session
@@ -840,6 +929,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         }
     }
 
+    /**
+     * Performs a full cache reload: clears all in-memory caches, then re-fetches relationships,
+     * objects, and attributes from the server in sequence.
+     *
+     * <p>This is the heaviest refresh operation. Prefer targeted reloads
+     * ({@link #reloadAttribute(JEVisAttribute)}, {@link #reloadObject(JEVisObject)}) when only a
+     * subset of data has changed.
+     */
     @Override
     public void reloadObjects() {
 
@@ -927,6 +1024,13 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         JEVisObject newObj = getObjectWS(object.getID());
     }
 
+    /**
+     * Clears all in-memory caches and resets all loaded flags without fetching new data.
+     *
+     * <p>After this call, the next access to any data (objects, relationships, attributes,
+     * classes) will trigger a fresh server request. Note that the class cache is intentionally
+     * not cleared (commented out) because class definitions rarely change at runtime.
+     */
     @Override
     public void clearCache() {
 //        classCache.clear();
@@ -1127,8 +1231,24 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         benchmark.printBechmark("updating deleted object cache done for " + jsonObjects.size() + " objects");
     }
 
+    /**
+     * Flattens the per-object relationship map into a deduplicated list.
+     *
+     * <p>Each relationship is stored in two per-object lists (once for the start object,
+     * once for the end object). An {@link java.util.IdentityHashMap} is used for O(1)
+     * deduplication by object identity, avoiding the overhead of {@code .distinct()} on a
+     * stream.
+     *
+     * @return a flat, deduplicated list of all cached relationships
+     */
     private List<JEVisRelationship> relationshipMapToList() {
-        return this.objectRelMapCache.entrySet().stream().flatMap(entry -> entry.getValue().stream()).distinct().collect(Collectors.toList());
+        IdentityHashMap<JEVisRelationship, Object> seen = new IdentityHashMap<>();
+        for (List<JEVisRelationship> rels : this.objectRelMapCache.values()) {
+            for (JEVisRelationship rel : rels) {
+                seen.put(rel, Boolean.TRUE);
+            }
+        }
+        return new ArrayList<>(seen.keySet());
     }
 
     public void reloadRelationships(long id) {

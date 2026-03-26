@@ -51,7 +51,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * this Class handles all the JEVisSample related requests
+ * Jersey REST resource that serves aggregated/manipulated ("virtual") samples for a given
+ * object/attribute pair without the client having to request raw data first.
+ *
+ * <p>Unlike {@link ResourceSample}, aggregation is always applied server-side here.
+ * The manipulation mode and aggregation period are provided as query parameters.
+ *
+ * <p>Endpoints:
+ * <ul>
+ *   <li>{@code GET /objects/{id}/attributes/{attribute}/virtualsamples} — retrieve aggregated samples</li>
+ * </ul>
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -65,15 +74,25 @@ public class ResourceVirtualSample {
     private final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
 
     /**
-     * Get the samples from an object/Attribute
+     * Returns server-side aggregated and manipulated samples for the given object/attribute.
      *
-     * @param httpHeaders
-     * @param id
-     * @param attribute
-     * @param start
-     * @param end
-     * @param onlyLatest
-     * @return
+     * <p>Raw samples are loaded from the database, converted to {@link org.jevis.api.JEVisSample}
+     * objects, and then processed by {@link org.jevis.commons.ws.sql.sg.JsonSampleGenerator} using
+     * the requested aggregation period and manipulation mode.
+     *
+     * @param httpHeaders        HTTP headers (used for authentication)
+     * @param request            JAX-RS request context
+     * @param url                URI info context
+     * @param id                 JEVis object ID
+     * @param attribute          attribute name (e.g. {@code "Value"})
+     * @param start              lower bound (yyyyMMdd'T'HHmmss), or {@code null}
+     * @param end                upper bound (yyyyMMdd'T'HHmmss), or {@code null}
+     * @param manipulationMode   manipulation mode (e.g. {@link org.jevis.commons.dataprocessing.ManipulationMode#CUMULATIVE})
+     * @param aggregationPeriod  aggregation period (e.g. {@link org.jevis.commons.dataprocessing.AggregationPeriod#DAILY})
+     * @param limit              maximum number of raw samples to load before aggregation (default 1 000 000)
+     * @param onlyLatest         if {@code true}, return only the most-recent sample without aggregation
+     * @return 200 OK with JSON array of {@link org.jevis.commons.ws.json.JsonSample},
+     *         401 UNAUTHORIZED, 404 NOT FOUND if the object or attribute is missing, or 500 on error
      */
     @GET
     @Logged
@@ -607,6 +626,9 @@ public class ResourceVirtualSample {
     }
 
 
+    /**
+     * Jersey lifecycle callback — clears transient per-request state after the response is committed.
+     */
     @PostConstruct
     public void postConstruct() {
         if (this.list != null) {

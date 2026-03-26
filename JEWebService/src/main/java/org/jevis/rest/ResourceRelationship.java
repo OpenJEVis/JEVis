@@ -39,7 +39,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO: is this service in use yet?
+ * Jersey REST resource that handles top-level JEVisRelationship CRUD operations.
+ *
+ * <p>Endpoints:
+ * <ul>
+ *   <li>{@code GET    /relationships}      — list all relationships visible to the user</li>
+ *   <li>{@code GET    /relationships/{id}} — list all relationships for one object ID</li>
+ *   <li>{@code POST   /relationships}      — create a new relationship</li>
+ *   <li>{@code DELETE /relationships}      — delete a relationship by {@code from/to/type} params</li>
+ * </ul>
  *
  * @author Florian Simon<florian.simon@openjevis.org>
  */
@@ -47,10 +55,19 @@ import java.util.List;
 public class ResourceRelationship {
 
     private static final Logger logger = LogManager.getLogger(ResourceRelationship.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private SQLDataSource ds = null;
     private List<JsonRelationship> jsonRelationships;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Returns all relationships that the authenticated user is permitted to read.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @return 200 OK with JSON array of {@link org.jevis.commons.ws.json.JsonRelationship},
+     * 401 UNAUTHORIZED, or 500 on error
+     */
     @GET
     @Logged
     @Produces(MediaType.APPLICATION_JSON)
@@ -77,6 +94,19 @@ public class ResourceRelationship {
     }
 
 
+    /**
+     * Creates a new relationship between two objects.
+     *
+     * <p>The authenticated user must have WRITE permission on both the {@code from} and {@code to}
+     * objects. Membership-type changes automatically invalidate the access-control cache.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param input       JSON body of the {@link org.jevis.commons.ws.json.JsonRelationship} to create
+     * @return 200 OK with the stored relationship, 401 UNAUTHORIZED, or 500 on error
+     * @throws Exception if the data source or cache update fails
+     */
     @POST
     @Logged
     @Produces(MediaType.APPLICATION_JSON)
@@ -90,7 +120,7 @@ public class ResourceRelationship {
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 //            JsonRelationship json = (new Gson()).fromJson(input, JsonRelationship.class);
-            JsonRelationship json = objectMapper.readValue(input, JsonRelationship.class);
+            JsonRelationship json = OBJECT_MAPPER.readValue(input, JsonRelationship.class);
             JsonObject fromObj = ds.getObject(json.getFrom());
             JsonObject toObj = ds.getObject(json.getTo());
 
@@ -114,13 +144,20 @@ public class ResourceRelationship {
     }
 
     /**
-     * TODO: why did i made it with parameters und not with json in this case?
+     * Deletes the relationship identified by the {@code from}, {@code to}, and {@code type}
+     * query parameters.
      *
-     * @param httpHeaders
-     * @param from
-     * @param to
-     * @param type
-     * @return
+     * <p>The authenticated user must have WRITE permission on both objects. Membership-type
+     * deletions automatically invalidate the access-control cache.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param from        source object ID
+     * @param to          target object ID
+     * @param type        relationship type constant (see {@link org.jevis.api.JEVisConstants.ObjectRelationship})
+     * @return 200 OK if deleted, 304 NOT MODIFIED if not found, 400 BAD REQUEST if any param is missing,
+     *         401 UNAUTHORIZED, or 500 on error
      */
     @DELETE
     @Logged
@@ -168,6 +205,17 @@ public class ResourceRelationship {
 
     }
 
+    /**
+     * Returns all relationships that involve the object with the given ID (either as {@code from}
+     * or {@code to} end).
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          JEVis object ID
+     * @return 200 OK with JSON array of {@link org.jevis.commons.ws.json.JsonRelationship},
+     *         401 UNAUTHORIZED, or 500 on error
+     */
     @GET
     @Logged
     @Path("{id}")
@@ -203,6 +251,9 @@ public class ResourceRelationship {
 
     }
 
+    /**
+     * Jersey lifecycle callback — clears transient per-request state after the response is committed.
+     */
     @PostConstruct
     public void postConstruct() {
         if (jsonRelationships != null) {

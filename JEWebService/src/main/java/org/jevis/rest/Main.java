@@ -40,14 +40,32 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Main class.
+ * Entry point for the JEWebService Grizzly HTTP server.
+ *
+ * <p>Start-up sequence:
+ * <ol>
+ *   <li>Parse the optional {@code config.xml} path from {@code args[0]}.</li>
+ *   <li>Read server configuration via {@link Config#readConfigurationFile(File)}.</li>
+ *   <li>Initialize the DBCP2 connection pool via {@link ConnectionFactory}.</li>
+ *   <li>Register Jersey resource packages and start the Grizzly HTTP (or HTTPS) server.</li>
+ *   <li>Optionally clean orphaned file-store folders if {@code args[1]} is {@code "true"}.</li>
+ * </ol>
  */
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
+    /**
+     * Human-readable version string, populated from the JAR filename and creation date.
+     */
     public static String VERSION = "JEWebService Version";
 
     /**
-     * Main method.
+     * Starts the JEWebService.
+     *
+     * @param args optional: {@code args[0]} path to {@code config.xml};
+     *             {@code args[1]} {@code "true"} to clean orphaned file-store folders on startup
+     * @throws SQLException            if the database connection cannot be established
+     * @throws AuthenticationException if authentication cannot be configured
+     * @throws JEVisException          if JEVis initialization fails
      */
     public static void main(String[] args) throws SQLException, AuthenticationException, JEVisException {
         //read Config
@@ -189,6 +207,12 @@ public class Main {
         }
     }
 
+    /**
+     * Scans the configured file-store directory and deletes any sub-folder whose name (a JEVis
+     * object ID) no longer corresponds to an existing object in the database.
+     *
+     * @param dbConn an open database connection used to look up objects
+     */
     private static void cleanFilesFolder(Connection dbConn) {
         try {
             String dir = Config.getFileDir().getAbsolutePath();
@@ -221,6 +245,13 @@ public class Main {
         }
     }
 
+    /**
+     * Returns the names of all immediate sub-directories in {@code dir}.
+     *
+     * @param dir absolute path to the directory to list
+     * @return set of directory names (not full paths)
+     * @throws IOException if the directory cannot be listed
+     */
     private static Set<String> listFilesUsingFilesList(String dir) throws IOException {
         try (Stream<Path> stream = Files.list(Paths.get(dir))) {
             return stream

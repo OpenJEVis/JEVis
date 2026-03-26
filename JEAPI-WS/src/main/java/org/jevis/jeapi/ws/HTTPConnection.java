@@ -42,24 +42,53 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
- * Helper class to build HTTP connections to the JEWebservice.
+ * Low-level HTTP helper that builds authenticated connections to the JEWebService REST API.
+ *
+ * <h2>Authentication modes</h2>
+ * <ul>
+ *   <li><b>Basic auth</b> — username/password encoded in the {@code Authorization} header</li>
+ *   <li><b>Session</b> — a session token passed in the {@code session} header
+ *       (set via {@link #setSession(Session)})</li>
+ *   <li><b>SSO / Entra</b> — a bearer token passed in the {@code Authorization} header
+ *       (set via {@link #setTokenLogin(String)})</li>
+ * </ul>
+ *
+ * <h2>SSL trust modes</h2>
+ * Configured at construction time via {@link Trust}:
+ * <ul>
+ *   <li>{@link Trust#SYSTEM} — uses the JVM default trust store</li>
+ *   <li>{@link Trust#ALWAYS} — disables certificate validation (accepts self-signed certs)</li>
+ *   <li>{@link Trust#WINDOWS} — uses the Windows-ROOT trust store</li>
+ * </ul>
+ *
+ * <h2>Retry policy</h2>
+ * <p>Streaming requests ({@link #getInputStreamRequest}) retry up to {@value #RETRIES} times
+ * with a {@value #RETRY_DELAY_MS} ms delay between attempts.
  *
  * @author fs
- * @TODO there is to much duplicate code here. There is much to improve.
- * @TODO the error handling is bad
  */
 public class HTTPConnection {
 
+    /**
+     * Date/time formatter for URL path parameters (yyyyMMdd'T'HHmmss, UTC).
+     */
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
     private static final Logger logger = LogManager.getLogger(HTTPConnection.class);
     private static final long RETRY_DELAY_MS = 5000;
     private static final int RETRIES = 3;
+    /** Base path for all v1 API endpoints. */
     public static String API_PATH_V1 = "JEWebService/v1/";
+    /** Path segment for the objects resource. */
     public static String RESOURCE_OBJECTS = "objects";
+    /** Path segment for the classes resource. */
     public static String RESOURCE_CLASSES = "classes";
+    /** Path segment for the attributes resource. */
     public static String RESOURCE_ATTRIBUTES = "attributes";
+    /** Path segment for the types resource. */
     public static String RESOURCE_TYPES = "types";
+    /** Path segment for the i18n resource. */
     public static String RESOURCE_I18N = "i18n";
+    /** Path segment for the access-control resource. */
     public static String RESOURCE_ACCESSCONTROL = "accesscontrol";
     private final String baseURL;
     private final String username;
@@ -71,6 +100,14 @@ public class HTTPConnection {
     private Trust trustmode = Trust.ALWAYS;
 
 
+    /**
+     * Creates a new connection factory for the given endpoint and credentials.
+     *
+     * @param baseurl   the base URL of the JEWebService (e.g., {@code "http://myserver:8080"})
+     * @param username  the account name for Basic authentication
+     * @param password  the password for Basic authentication
+     * @param trustMode the SSL trust mode to apply ({@link Trust#ALWAYS} accepts self-signed certs)
+     */
     public HTTPConnection(String baseurl, String username, String password, Trust trustMode) {
         this.baseURL = baseurl;
         this.username = username;
@@ -91,15 +128,14 @@ public class HTTPConnection {
         }
     }
 
-    public void setTokenLogin(String token) {
-        this.SSOtoken = token;
-    }
-
-    public void setSession(Session session) {
-        this.session = session;
-    }
-
-
+    /**
+     * Reads the full response body of an already-connected {@link HttpURLConnection}
+     * into a {@link StringBuffer}.
+     *
+     * @param conn an open connection whose response input stream is ready to read
+     * @return the response body as a string buffer
+     * @throws IOException if the stream cannot be read
+     */
     public static StringBuffer getPayload(HttpURLConnection conn) throws IOException {
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(conn.getInputStream()));
@@ -113,6 +149,27 @@ public class HTTPConnection {
 //            logger.trace("Payload: {}", response);
 
         return response;
+    }
+
+    /**
+     * Switches this connection to SSO/Entra bearer-token authentication.
+     * When set, this token is sent as the {@code Authorization} header value
+     * instead of the Basic-auth credentials.
+     *
+     * @param token the Entra/SSO access token
+     */
+    public void setTokenLogin(String token) {
+        this.SSOtoken = token;
+    }
+
+    /**
+     * Switches this connection to session-cookie authentication.
+     * The session ID is sent in the {@code session} request header.
+     *
+     * @param session the active {@link Session}
+     */
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     /**
@@ -156,7 +213,7 @@ public class HTTPConnection {
             String proxyHost = "";
             int proxyPort = 3128;
 
-            if (System.getProperty("java.net.useSystemProxies").toLowerCase().equals("true")) {
+            if (System.getProperty("java.net.useSystemProxies").equalsIgnoreCase("true")) {
 
                 List l = null;
                 try {
@@ -236,6 +293,14 @@ public class HTTPConnection {
 
     }
 
+    /**
+     * Opens a raw {@link HttpURLConnection} to the given resource path (no auth header added).
+     * Spaces in the path are percent-encoded.
+     *
+     * @param resource the relative resource path (e.g., {@code "JEWebService/v1/objects"})
+     * @return an open but not yet connected {@link HttpURLConnection}
+     * @throws IOException if the URL is malformed or the connection cannot be opened
+     */
     public HttpURLConnection getHTTPConnection(String resource) throws IOException {
         resource = resource.replaceAll("\\s+", "%20");
         URL url = new URL(this.baseURL + "/" + resource);
@@ -254,12 +319,14 @@ public class HTTPConnection {
     }
 
     /**
-     * TODO: this function need an rework. The error handling a retry function are suboptimal
+     * Performs a GET request and returns the response body as an {@link InputStream}.
+     * The request is retried up to {@value #RETRIES} times with a {@value #RETRY_DELAY_MS} ms delay.
+     * Supports gzip-compressed responses transparently.
      *
-     * @param resource
-     * @return
-     * @throws IOException
-     * @throws InterruptedException
+     * @param resource the relative resource path
+     * @return the response input stream, or {@code null} if all retries fail
+     * @throws IOException          if a connection error occurs on the final attempt
+     * @throws InterruptedException if the retry sleep is interrupted
      */
     public InputStream getInputStreamRequest(String resource) throws IOException, InterruptedException {
         int retry = 0;
@@ -324,6 +391,13 @@ public class HTTPConnection {
         return null;
     }
 
+    /**
+     * Performs an authenticated GET request and decodes the response as a {@link BufferedImage}.
+     *
+     * @param resource the relative resource path
+     * @return the decoded image, or {@code null} if the server returned a non-200 response
+     * @throws IOException if the request or image decoding fails
+     */
     public BufferedImage getIconRequest(String resource) throws IOException {
         Date start = new Date();
         HttpURLConnection conn = getHTTPConnection(resource);
@@ -353,6 +427,13 @@ public class HTTPConnection {
 
     }
 
+    /**
+     * Performs an authenticated GET request and returns the full response body as a byte array.
+     *
+     * @param resource the relative resource path
+     * @return the response bytes, or {@code null} if the server returned a non-200 response
+     * @throws IOException if the request fails
+     */
     public byte[] getByteRequest(String resource) throws IOException {
         HttpURLConnection conn = getHTTPConnection(resource);
         conn.setRequestMethod("GET");
@@ -379,6 +460,16 @@ public class HTTPConnection {
 
     }
 
+    /**
+     * Performs an authenticated POST request with a JSON body, returning the response body.
+     * Supports gzip-compressed responses transparently.
+     *
+     * @param resource the relative resource path
+     * @param json     the JSON string to send as the request body
+     * @return the response body as a {@link StringBuffer}
+     * @throws IOException      if the request fails
+     * @throws JEVisException   if the server returns a non-2xx status (exception code = HTTP status code)
+     */
     public StringBuffer postRequest(String resource, String json) throws IOException, JEVisException {
         Date start = new Date();
         HttpURLConnection con = getHTTPConnection(resource);
@@ -443,6 +534,13 @@ public class HTTPConnection {
 
     }
 
+    /**
+     * Performs a GET request (without auth) and returns the response body.
+     *
+     * @param resource the relative resource path
+     * @return the response body, or {@code null} if the server returned a non-200 response
+     * @throws IOException if the request fails
+     */
     public StringBuffer getRequest(String resource) throws IOException {
         Date start = new Date();
         HttpURLConnection con = getHTTPConnection(resource);
@@ -473,12 +571,15 @@ public class HTTPConnection {
     }
 
     /**
-     * @param resource
-     * @return
-     * @throws MalformedURLException
-     * @throws ProtocolException
-     * @throws IOException
-     * @TODO this is not a generic post Connection like the name implies
+     * Opens an authenticated POST connection configured for binary file upload
+     * ({@code Content-Type: application/octet-stream}).
+     * The caller is responsible for writing to and closing the connection's output stream.
+     *
+     * @param resource the relative resource path
+     * @return a connected {@link HttpURLConnection} ready for streaming
+     * @throws MalformedURLException if {@code resource} produces an invalid URL
+     * @throws ProtocolException     if the HTTP method cannot be set
+     * @throws IOException           if the connection cannot be opened
      */
     public HttpURLConnection getPostFileConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
         Date start = new Date();
@@ -503,12 +604,15 @@ public class HTTPConnection {
     }
 
     /**
-     * @param resource
-     * @return
-     * @throws MalformedURLException
-     * @throws ProtocolException
-     * @throws IOException
-     * @TODO this is not a generic post Connection like the name implies
+     * Opens an authenticated POST connection configured for PNG icon upload
+     * ({@code Content-Type: image/png}).
+     * The caller is responsible for writing to and closing the connection's output stream.
+     *
+     * @param resource the relative resource path
+     * @return a connected {@link HttpURLConnection} ready for streaming
+     * @throws MalformedURLException if {@code resource} produces an invalid URL
+     * @throws ProtocolException     if the HTTP method cannot be set
+     * @throws IOException           if the connection cannot be opened
      */
     public HttpURLConnection getPostIconConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
         Date start = new Date();//replace spaces
@@ -532,6 +636,14 @@ public class HTTPConnection {
 
     }
 
+    /**
+     * Opens an authenticated GET connection with gzip encoding enabled.
+     * The connection is already executed (response code is available) when returned.
+     *
+     * @param resource the relative resource path
+     * @return the executed {@link HttpURLConnection}
+     * @throws IOException if the connection or request fails
+     */
     public HttpURLConnection getGetConnection(String resource) throws IOException {
         Date start = new Date();
         HttpURLConnection conn = getHTTPConnection(resource);
@@ -549,6 +661,14 @@ public class HTTPConnection {
 
     }
 
+    /**
+     * Opens an authenticated DELETE connection.
+     * The connection is already executed (response code is available) when returned.
+     *
+     * @param resource the relative resource path
+     * @return the executed {@link HttpURLConnection}
+     * @throws IOException if the connection or request fails
+     */
     public HttpURLConnection getDeleteConnection(String resource) throws IOException {
         Date start = new Date();
         //replace spaces
@@ -566,6 +686,14 @@ public class HTTPConnection {
 
     }
 
+    /**
+     * SSL certificate trust mode for HTTPS connections.
+     * <ul>
+     *   <li>{@code ALWAYS} — disables all certificate validation (accepts self-signed certs)</li>
+     *   <li>{@code SYSTEM} — uses the JVM default trust store</li>
+     *   <li>{@code WINDOWS} — uses the Windows-ROOT system trust store</li>
+     * </ul>
+     */
     public enum Trust {
         ALWAYS, SYSTEM, WINDOWS
     }
