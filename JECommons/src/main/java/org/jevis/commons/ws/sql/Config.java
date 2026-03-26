@@ -22,6 +22,7 @@ package org.jevis.commons.ws.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
@@ -33,9 +34,20 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
+ * Application-wide configuration holder for the JEWebService.
+ * <p>
+ * Configuration values are read once from a single XML config file via
+ * {@link #readConfigurationFile(File)} and then stored as public static fields
+ * for fast access throughout the application.
+ *
+ * <p>The class also manages the JEVis class definition cache
+ * ({@link #getClassCache()}). The cache is populated lazily from JSON files
+ * on disk and is bounded by the number of class definition files present in
+ * the configured class directory.
+ *
  * @author Florian Simon<florian.simon@envidatec.com>
  */
 public class Config {
@@ -44,23 +56,48 @@ public class Config {
     private static final List<String> jeccFiles = new ArrayList<>();
     private static final List<String> javaFiles = new ArrayList<>();
     private static final List<String> cors = new ArrayList<>();
-    //@Singleton
+    /**
+     * Bounded Guava cache for JEVis class definitions. Entries expire 30 minutes
+     * after write so stale class definitions are automatically evicted without a
+     * service restart. Maximum size of 500 comfortably covers any realistic
+     * deployment (typical installs have fewer than 200 classes).
+     */
+    private static final Cache<String, JsonJEVisClass> classCache = CacheBuilder.newBuilder()
+            .maximumSize(500)
+            .expireAfterWrite(30, TimeUnit.MINUTES)
+            .build();
+    /**
+     * MySQL port (default {@code "3306"}). Set by {@link #readConfigurationFile}.
+     */
     public static String dbPort = "3306";
+    /** MySQL host name or IP address. Set by {@link #readConfigurationFile}. */
     public static String dbIP = "127.0.0.1";
+    /** HTTP port for the Grizzly embedded server (informational only). */
     public static String port = "80";
+    /** MySQL user name. Set by {@link #readConfigurationFile}. */
     public static String dbUser = "jevis";
+    /** MySQL password. Set by {@link #readConfigurationFile}. */
     public static String dbPw = "jevistest";
+    /** MySQL schema/database name. Set by {@link #readConfigurationFile}. */
     public static String schema = "jevis";
+    /** Extra JDBC connection options (appended to the JDBC URL). */
     public static String options = "";
+    /** System-admin account name. Set by {@link #readConfigurationFile}. */
     public static String rootUser = "jevis";
+    /** System-admin password. Set by {@link #readConfigurationFile}. */
     public static String rootPW = "jevis";
+    /** Base URI of this JEWebService instance. Set by {@link #readConfigurationFile}. */
     public static String url = "http://localhost:8080/JEWebservice/";
+    /** Path to the Java KeyStore file for HTTPS. Set by {@link #readConfigurationFile}. */
     public static String keyFile = "";
+    /** Password for the Java KeyStore. Set by {@link #readConfigurationFile}. */
     public static String keyFilePW = "";
+    /** KeyStore type (e.g., {@code "JKS"}, {@code "PKCS12"}). Set by {@link #readConfigurationFile}. */
     public static String keyType = "";
+    /** Object ID of the demo root object (self-registration feature), or {@code -1}. */
     public static long demoRoot = -1;
+    /** Object ID of the demo user group (self-registration feature), or {@code -1}. */
     public static long demoGroup = -1;
-    public static String registrationKey = "";
     private static boolean fileIsLoaded = false;
     private static File i18nDir;
     private static File fileDir;
@@ -70,7 +107,8 @@ public class Config {
     private static String latestJavaVersion = "0";
     private static String webDir = "";
     private static String installerDir = "/var/www/html/installer";
-    private static final ConcurrentHashMap<String, JsonJEVisClass> classCache = new ConcurrentHashMap<>();
+    /** API key required for self-registration requests. Set by {@link #readConfigurationFile}. */
+    public static String registrationKey = "";
     private static String latestJECCPath;
     private static String latestJavaPath;
     private static List<File> classFiles;
@@ -80,77 +118,107 @@ public class Config {
     private static String entraAUTHORITY = "";
     private static String entraClientSecret = "";
     private static String entraConfigToken = "";
+    /** Shared HTTP-session cache; entries are managed by {@link CachedAccessControl}. */
+    public static Cache<String, Session> sessions;
+    /** HTTP session idle-timeout in minutes, read from the config file. */
+    public static int sessiontimeout;
 
-
+    /** @return the configured MySQL host name or IP address. */
     public static String getDBHost() {
         return dbIP;
     }
 
+    /** @return the configured MySQL port (default {@code "3306"}). */
     public static String getDBPort() {
         return dbPort;
     }
 
+    /** @return the MySQL user name used for all connections. */
     public static String getDBUser() {
         return dbUser;
     }
 
+    /** @return the MySQL password used for all connections. */
     public static String getDBPW() {
         return dbPw;
     }
 
+    /** @return the MySQL schema/database name. */
     public static String getSchema() {
         return schema;
     }
 
+    /** @return any extra JDBC connection options (may be empty). */
     public static String getConnectionOptions() {
         return options;
     }
 
+    /** @return the directory containing JEVis class JSON definition files. */
     public static File getClassDir() {
         return classDir;
     }
 
+    /** @return the root directory for file-sample storage. */
     public static File getFileDir() {
         return fileDir;
     }
 
+    /** @return the directory containing i18n property files. */
     public static File getI18nDir() {
         return i18nDir;
     }
 
+    /** @return the base URI of the running JEWebService instance. */
     public static String getURI() {
         return url;
     }
 
+    /** @return the path to the Java KeyStore file used for HTTPS. */
     public static String getKeyStoreFile() {
         return keyFile;
     }
 
+    /** @return the password for the Java KeyStore. */
     public static String getKeyStorePW() {
         return keyFilePW;
     }
 
+    /** @return the KeyStore type (e.g., {@code "JKS"}, {@code "PKCS12"}). */
     public static String getKeyType() {
         return keyType;
     }
 
+    /** @return the directory containing Freemarker templates. */
     public static File getFreemarkerDir() {
         return freemarkerDir;
     }
 
+    /** @return the path to the optional embedded web application directory. */
     public static String getWebDir() {
         return webDir;
     }
 
+    /** @return the list of allowed CORS origins (may be empty). */
     public static List<String> getCORS() {
         return cors;
     }
 
-    public static Cache<String, Session> sessions;
-    public static int sessiontimeout;
-
+    /**
+     * Returns the JEVis class definition cache as an unmodifiable view, initializing
+     * it from disk on the first call (or after expiry).
+     * <p>
+     * The underlying cache is a bounded Guava {@link Cache} keyed by class name.
+     * It is populated by reading all {@code *.json} files found recursively under
+     * the configured class directory. Inheritance relationships between classes
+     * are resolved by {@link JEVisClassHelper#completeClasses} after loading.
+     *
+     * <p>Entries expire 30 minutes after write, ensuring stale class definitions
+     * are eventually evicted. Maximum capacity is 500 entries.
+     *
+     * @return a live {@link Map} view of the class definition cache
+     */
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
-        if (classCache.isEmpty()) {
+        if (classCache.size() == 0) {
             logger.debug("initializing class cache");
             try {
                 File classDir = Config.getClassDir();
@@ -171,16 +239,25 @@ public class Config {
                     }
                 }
 
-                JEVisClassHelper.completeClasses(classCache);
+                JEVisClassHelper.completeClasses(classCache.asMap());
                 logger.debug("initialized class cache");
             } catch (Exception ex) {
                 logger.error("Error while caching classes", ex);
             }
 
         }
-        return classCache;
+        return classCache.asMap();
     }
 
+    /**
+     * Reads a String configuration value, returning {@code defaultValue} if
+     * the key is absent or any error occurs.
+     *
+     * @param config       the parsed XML configuration
+     * @param key          the XPath key to look up
+     * @param defaultValue the fallback value
+     * @return the configured value or {@code defaultValue}
+     */
     public static String getParameter(XMLConfiguration config, String key, String defaultValue) {
         try {
             if (config.getString(key) == null) return defaultValue;
@@ -191,6 +268,15 @@ public class Config {
         }
     }
 
+    /**
+     * Reads a {@code long} configuration value, returning {@code defaultValue} if
+     * the key is absent or any error occurs.
+     *
+     * @param config       the parsed XML configuration
+     * @param key          the XPath key to look up
+     * @param defaultValue the fallback value
+     * @return the configured value or {@code defaultValue}
+     */
     public static long getParameter(XMLConfiguration config, String key, long defaultValue) {
         try {
             return config.getLong(key);
@@ -200,6 +286,14 @@ public class Config {
         }
     }
 
+    /**
+     * Reads the XML configuration file and populates all static config fields.
+     * <p>
+     * This method is idempotent: once the file has been loaded successfully
+     * ({@code fileIsLoaded == true}), subsequent calls are no-ops.
+     *
+     * @param cfile the XML config file to read (e.g., {@code config.xml})
+     */
     public static void readConfigurationFile(File cfile) {
         try {
 
@@ -266,18 +360,28 @@ public class Config {
         }
     }
 
+    /** @return the Microsoft Entra config-token string used for SSO. */
     public static String getEntraConfigToken() {
         return entraConfigToken;
     }
 
+    /** @return the version string of the latest JEVisControlCenter JAR found on disk. */
     public static String getLatestJECCVersion() {
         return latestJECCVersion;
     }
 
+    /** @return the absolute path to the latest JEVisControlCenter JAR on disk. */
     public static String getLatestJECCPath() {
         return latestJECCPath;
     }
 
+    /**
+     * Scans the standard deployment directory for the latest JEVisControlCenter JAR,
+     * populates {@link #latestJECCVersion} and {@link #latestJECCPath}, and returns
+     * the version string.
+     *
+     * @return the latest JECC version string, or {@code "0"} if none is found
+     */
     public static String getJECCVersion() {
         try {
             String homeDirectory = System.getProperty("user.home");
@@ -317,22 +421,33 @@ public class Config {
         return latestJECCVersion;
     }
 
+    /** @return the list of absolute paths to all JEVisControlCenter JARs found on disk. */
     public static List<String> getJECCFilesPath() {
         return jeccFiles;
     }
 
+    /** @return the list of absolute paths to all Java runtime archives found on disk. */
     public static List<String> getJavaFilesPath() {
         return javaFiles;
     }
 
+    /** @return the version string of the latest Java runtime archive found on disk. */
     public static String getLatestJavaVersion() {
         return latestJavaVersion;
     }
 
+    /** @return the absolute path to the latest Java runtime archive on disk. */
     public static String getLatestJavaPath() {
         return latestJavaPath;
     }
 
+    /**
+     * Scans the standard deployment directory for the latest Java runtime archive,
+     * populates {@link #latestJavaVersion} and {@link #latestJavaPath}, and returns
+     * the version string.
+     *
+     * @return the latest Java version string, or {@code "0"} if none is found
+     */
     public static String getJavaVersion() {
         try {
             String homeDirectory = System.getProperty("user.home");
@@ -369,21 +484,27 @@ public class Config {
         return latestJavaVersion;
     }
 
+    /** @return the API key required for self-registration requests. */
     public static String getRegistrationAPIKey() {
-//        readConfigurationFile();
         return registrationKey;
     }
 
+    /** @return the JEVis object ID of the demo user's group, or {@code -1} if not configured. */
     public static long getDemoGroup() {
-//        readConfigurationFile();
         return demoGroup;
     }
 
+    /** @return the JEVis object ID of the demo root object, or {@code -1} if not configured. */
     public static long getDemoRoot() {
-//        readConfigurationFile();
         return demoRoot;
     }
 
+    /**
+     * Disconnects the given {@link JEVisDataSource}, logging and swallowing any
+     * exception. Safe to call with a {@code null} argument.
+     *
+     * @param ds the data source to disconnect, or {@code null}
+     */
     public static void CloseDS(JEVisDataSource ds) {
         try {
             if (ds != null) {
@@ -394,6 +515,12 @@ public class Config {
         }
     }
 
+    /**
+     * Disconnects the given {@link SQLDataSource}, logging and swallowing any
+     * exception. Safe to call with a {@code null} argument.
+     *
+     * @param ds the data source to disconnect, or {@code null}
+     */
     public static void CloseDS(SQLDataSource ds) {
         try {
             if (ds != null) {
@@ -422,46 +549,57 @@ public class Config {
     }
 
 
+    /** @return the directory used by the software installer endpoint. */
     public static String getInstallerDir() {
         return installerDir;
     }
 
+    /** @return {@code true} if Microsoft Entra (Azure AD) SSO is enabled. */
     public static boolean isEntraEnabled() {
         return entraEnabled;
     }
 
+    /** @param entraEnabled {@code true} to enable Entra SSO at runtime. */
     public static void setEntraEnabled(boolean entraEnabled) {
         Config.entraEnabled = entraEnabled;
     }
 
+    /** @return the Entra/Azure AD application (client) ID. */
     public static String getEntraClientID() {
         return entraClientID;
     }
 
+    /** @param entraClientID the Entra application (client) ID. */
     public static void setEntraClientID(String entraClientID) {
         Config.entraClientID = entraClientID;
     }
 
+    /** @return the Entra/Azure AD tenant ID. */
     public static String getEntraTenantID() {
         return entraTenantID;
     }
 
+    /** @param entraTenantID the Entra tenant ID. */
     public static void setEntraTenantID(String entraTenantID) {
         Config.entraTenantID = entraTenantID;
     }
 
+    /** @return the Entra/Azure AD authority URL. */
     public static String getEntraAUTHORITY() {
         return entraAUTHORITY;
     }
 
+    /** @param entraAUTHORITY the Entra authority URL. */
     public static void setEntraAUTHORITY(String entraAUTHORITY) {
         Config.entraAUTHORITY = entraAUTHORITY;
     }
 
+    /** @return the Entra/Azure AD client secret. */
     public static String getEntraClientSecret() {
         return entraClientSecret;
     }
 
+    /** @param entraClientSecret the Entra client secret. */
     public static void setEntraClientSecret(String entraClientSecret) {
         Config.entraClientSecret = entraClientSecret;
     }

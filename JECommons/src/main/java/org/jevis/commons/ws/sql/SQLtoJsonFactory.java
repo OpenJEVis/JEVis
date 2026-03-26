@@ -43,7 +43,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This Factory can convert JEAPI interfaces into a JSON representation
+ * Utility class that converts JDBC {@link java.sql.ResultSet} rows into the
+ * JSON DTO objects used by the JEWebService REST layer.
+ * <p>
+ * All methods are static; this class cannot be instantiated.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -62,6 +65,16 @@ public class SQLtoJsonFactory {
     //    private static final Gson gson = new Gson();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Builds a {@link JsonAttribute} from the current row of a result set that
+     * joins the {@code attribute}, {@code sample} (latest value), and
+     * {@code object} (class name) tables.
+     *
+     * @param rs the current result set row
+     * @return the populated {@link JsonAttribute}, or {@code null} if the
+     * class/type combination is unknown
+     * @throws SQLException if a column cannot be read
+     */
     public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQLException {
         JsonType type = JEVisClassHelper.getType(rs.getString(ObjectTable.COLUMN_CLASS), rs.getString(AttributeTable.COLUMN_NAME));
         if (type == null) {
@@ -142,9 +155,12 @@ public class SQLtoJsonFactory {
 
 
     /**
-     * Build a JSON representation of a JEVisObject
+     * Builds a {@link JsonObject} from the current row of an {@code object}
+     * table result set, including i18n metadata if present.
      *
-     * @return
+     * @param rs the current result set row
+     * @return the populated {@link JsonObject}
+     * @throws SQLException if a column cannot be read
      */
     public static JsonObject buildObject(ResultSet rs) throws SQLException {
         JsonObject json = new JsonObject();
@@ -175,9 +191,12 @@ public class SQLtoJsonFactory {
 
 
     /**
-     * Build a JSON representation of a JEVisRelationship
+     * Builds a {@link JsonRelationship} from the current row of a
+     * {@code relationship} table result set.
      *
-     * @return
+     * @param rs the current result set row
+     * @return the populated {@link JsonRelationship}
+     * @throws SQLException if a column cannot be read
      */
     public static JsonRelationship buildRelationship(ResultSet rs) throws SQLException {
         JsonRelationship json = new JsonRelationship();
@@ -189,6 +208,14 @@ public class SQLtoJsonFactory {
     }
 
 
+    /**
+     * Distributes a flat list of {@link JsonType} objects into their owning
+     * {@link JsonJEVisClass} entries in the given map, creating the type list
+     * for each class if it does not yet exist.
+     *
+     * @param classes a mutable class map (name → class) to populate
+     * @param types   the type definitions to distribute
+     */
     public static void addTypesToClasses(Map<String, JsonJEVisClass> classes, List<JsonType> types) {
         for (JsonType t : types) {
             try {
@@ -205,6 +232,13 @@ public class SQLtoJsonFactory {
         }
     }
 
+    /**
+     * Converts a list of {@link JsonJEVisClass} objects into a map keyed by
+     * class name using Guava's {@code Maps.uniqueIndex}.
+     *
+     * @param classes the list of class definitions
+     * @return an immutable map from class name to class definition
+     */
     public static Map<String, JsonJEVisClass> toMap(List<JsonJEVisClass> classes) {
         Map<String, JsonJEVisClass> map = Maps.uniqueIndex(classes, new Function<JsonJEVisClass, String>() {
             @Override
@@ -216,9 +250,12 @@ public class SQLtoJsonFactory {
     }
 
     /**
-     * Build a JSON representation of a JEVIsSample
+     * Builds a {@link JsonSample} from the current row of a {@code sample}
+     * table result set. Timestamps are formatted as ISO-8601 strings.
      *
-     * @return
+     * @param rs the current result set row
+     * @return the populated {@link JsonSample}
+     * @throws SQLException if a column cannot be read
      */
     public static JsonSample buildSample(ResultSet rs) throws SQLException {
         JsonSample json = new JsonSample();

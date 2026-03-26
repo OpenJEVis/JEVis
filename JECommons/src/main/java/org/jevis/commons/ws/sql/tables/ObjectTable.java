@@ -33,28 +33,52 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * JDBC accessor for the {@code object} table.
+ * <p>
+ * Provides CRUD operations for JEVis objects and helpers for recursive
+ * subtree traversal.
+ *
  * @author Florian Simon<florian.simon@envidatec.com>
  */
 public class ObjectTable {
 
+    /**
+     * Name of the database table managed by this class.
+     */
     public final static String TABLE = "object";
+    /** Column: object ID (primary key). */
     public final static String COLUMN_ID = "id";
+    /** Column: display name. */
     public final static String COLUMN_NAME = "name";
+    /** Column: JEVis class name. */
     public final static String COLUMN_CLASS = "type";
+    /** Column: public-visibility flag. */
     public final static String COLUMN_PUBLIC = "public";
+    /** Column: link target (unused in current schema). */
     public final static String COLUMN_LINK = "link";
+    /** Column: soft-delete timestamp. */
     public final static String COLUMN_DELETE = "deletets";
+    /** Column: i18n JSON string. */
     public final static String COLUMN_I18N = "i18n";
-    public final static String COLUMN_GROUP = "groupid";//remove ID from name
+    /**
+     * Column: group ID.
+     */
+    public final static String COLUMN_GROUP = "groupid";
     private static final Logger logger = LogManager.getLogger(ObjectTable.class);
     private final SQLDataSource _connection;
 
+    /**
+     * Creates an {@code ObjectTable} accessor backed by the given data source.
+     *
+     * @param ds the per-request SQL data source
+     */
     public ObjectTable(SQLDataSource ds) {
         _connection = ds;
     }
 
     /**
-     * Debug the connection settings
+     * Logs the current character-set configuration of the database connection
+     * at DEBUG level. Intended for connection debugging only.
      */
     public void debugConnection() {
         String charVarsSQL = "show variables like 'char%'";
@@ -65,7 +89,9 @@ public class ObjectTable {
         try {
             ps = _connection.getConnection().prepareStatement(charVarsSQL);
 
-            logger.debug("SQL: {}", ps.toString());
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL: {}", ps.toString());
+            }
 
             rs = ps.executeQuery();
 
@@ -87,11 +113,16 @@ public class ObjectTable {
     }
 
     /**
-     * @param name
-     * @param jclass
-     * @param parent
-     * @return
-     * @throws JEVisException
+     * Inserts a new object into the database, creates a PARENT relationship to
+     * the given parent, and copies all OWNER relationships from the parent.
+     *
+     * @param name     the display name for the new object
+     * @param jclass   the JEVis class name
+     * @param parent   the ID of the parent object
+     * @param isPublic whether the object is publicly visible
+     * @param i18n     i18n JSON string, may be {@code null}
+     * @return the newly created {@link JsonObject}
+     * @throws JEVisException if the insert or relationship creation fails
      */
     public JsonObject insertObject(String name, String jclass, long parent, boolean isPublic, String i18n) throws JEVisException {
         String sql = String.format("insert into %s(%s, %s, %s, %s) values(?,?,?,?)", TABLE, COLUMN_NAME, COLUMN_CLASS, COLUMN_PUBLIC, COLUMN_I18N);
@@ -103,7 +134,9 @@ public class ObjectTable {
             ps.setBoolean(3, isPublic);
             ps.setString(4, i18n);
 
-            logger.debug("SQL: {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL: {}", ps);
+            }
             int count = ps.executeUpdate();
             if (count == 1) {
                 ResultSet rs = ps.getGeneratedKeys();
@@ -135,6 +168,16 @@ public class ObjectTable {
 
     }
 
+    /**
+     * Updates the name, public flag, and i18n metadata of an existing object.
+     *
+     * @param id       the object ID to update
+     * @param newname  the new display name
+     * @param ispublic the new public-visibility flag
+     * @param i18n     the new i18n JSON string
+     * @return the updated {@link JsonObject}
+     * @throws JEVisException if the update fails
+     */
     public JsonObject updateObject(long id, String newname, boolean ispublic, String i18n) throws JEVisException {
         String sql = String.format("update %s set %s=?,%s=?,%s=? where %s=?", TABLE, COLUMN_NAME, COLUMN_PUBLIC, COLUMN_I18N, COLUMN_ID);
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
@@ -143,7 +186,9 @@ public class ObjectTable {
             ps.setString(3, i18n);
             ps.setLong(4, id);
 
-            logger.debug("SQL: {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL: {}", ps);
+            }
             int count = ps.executeUpdate();
             if (count == 1) {
                 return getObject(id);
@@ -158,10 +203,17 @@ public class ObjectTable {
 
     }
 
+    /**
+     * Retrieves a single object by ID from the database and resolves its parent
+     * relationship.
+     *
+     * @param id the object ID
+     * @return the matching {@link JsonObject}, or {@code null} if not found
+     * @throws JEVisException if a database error occurs
+     */
     public JsonObject getObject(Long id) throws JEVisException {
         logger.trace("getObject: {} ", id);
 
-        //String sql = String.format("select o.* from %s o where  o.%s=? and o.%s is null limit 1 ", TABLE, COLUMN_ID, COLUMN_DELETE);
         String sql = String.format("select o.* from %s o where  o.%s=? limit 1 ", TABLE, COLUMN_ID);
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
@@ -191,10 +243,15 @@ public class ObjectTable {
     }
 
 
+    /**
+     * Returns all public objects in the database.
+     *
+     * @return a list of publicly-visible {@link JsonObject} instances
+     * @throws JEVisException if the query fails
+     */
     public List<JsonObject> getAllPublicObjects() throws JEVisException {
         logger.trace("getPublicObjects");
 
-        //String sql = String.format("select * from %s where %s is null and %s=1", TABLE, COLUMN_DELETE, COLUMN_PUBLIC);
         String sql = String.format("select * from %s where %s=1", TABLE, COLUMN_PUBLIC);
 
 
@@ -217,9 +274,14 @@ public class ObjectTable {
         return objects;
     }
 
+    /**
+     * Returns all objects in the database (including soft-deleted ones).
+     *
+     * @return a list of all {@link JsonObject} instances
+     * @throws JEVisException if the query fails
+     */
     public List<JsonObject> getAllObjects() throws JEVisException {
 
-        //String sql = String.format("select * from %s where %s is null", TABLE, COLUMN_DELETE);
         String sql = String.format("select * from %s", TABLE);
 
         List<JsonObject> objects = new ArrayList<>();
@@ -241,6 +303,13 @@ public class ObjectTable {
         return objects;
     }
 
+    /**
+     * Returns all objects that have been soft-deleted (i.e., have a non-null
+     * {@code deletets} column).
+     *
+     * @return a list of deleted {@link JsonObject} instances
+     * @throws JEVisException if the query fails
+     */
     public List<JsonObject> getAllDeletedObjects() throws JEVisException {
 
         String sql = String.format("select * from %s where %s is not null", TABLE, COLUMN_DELETE);
@@ -265,6 +334,12 @@ public class ObjectTable {
     }
 
 
+    /**
+     * Returns all objects whose JEVis class is {@code "Group"}, keyed by ID.
+     *
+     * @return a map from object ID to {@link JsonObject} for all group objects
+     * @throws JEVisException if the query fails
+     */
     public Map<Long, JsonObject> getGroupObjects() throws JEVisException {
 
         String sql = String.format("select * from %s where %s is null and %s=?", TABLE, COLUMN_DELETE, COLUMN_CLASS);
@@ -290,31 +365,62 @@ public class ObjectTable {
         return objects;
     }
 
+    /**
+     * Recursively collects all descendant objects of {@code parentObj} into
+     * {@code objs}.
+     *
+     * <p><b>Performance:</b> Builds a {@code childrenByParent} lookup map once
+     * from the full set of PARENT-type relationships before recursing, so that
+     * each recursive step is O(1) instead of re-scanning the relationship list.
+     * This eliminates the O(n × depth) query pattern present in naïve
+     * implementations.
+     *
+     * @param objs      the accumulator list; descendants are appended here
+     * @param parentObj the root of the subtree to collect
+     */
     public void getAllChildren(List<JsonObject> objs, JsonObject parentObj) {
+        List<JsonRelationship> allParentRels = _connection.getRelationships(JEVisConstants.ObjectRelationship.PARENT);
 
-        List<JsonRelationship> allObjects = _connection.getRelationships(JEVisConstants.ObjectRelationship.PARENT);
-
-        for (JsonRelationship ob : allObjects) {
-
-            try {
-                //child -> parent
-                if (ob.getTo() == parentObj.getId()) {
-                    JsonObject child = _connection.getObject(ob.getFrom());
-
-                    if (child != null) {
-                        objs.add(child);
-                        getAllChildren(objs, child);
-                    }
-
-                }
-            } catch (Exception ex) {
-            }
+        // Build a parent-ID → [child-IDs] map once; O(n) where n = total relationships
+        Map<Long, List<Long>> childrenByParent = new HashMap<>();
+        for (JsonRelationship rel : allParentRels) {
+            childrenByParent.computeIfAbsent(rel.getTo(), k -> new ArrayList<>()).add(rel.getFrom());
         }
 
+        collectChildren(objs, parentObj.getId(), childrenByParent);
     }
 
+    /**
+     * Internal recursive helper for {@link #getAllChildren}. Uses the
+     * pre-built map for O(1) child lookups per node.
+     */
+    private void collectChildren(List<JsonObject> objs, long parentId, Map<Long, List<Long>> childrenByParent) {
+        List<Long> childIds = childrenByParent.get(parentId);
+        if (childIds == null) return;
+        for (long childId : childIds) {
+            try {
+                JsonObject child = _connection.getObject(childId);
+                if (child != null) {
+                    objs.add(child);
+                    collectChildren(objs, childId, childrenByParent);
+                }
+            } catch (Exception ex) {
+                logger.trace("Could not load child {}: {}", childId, ex.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Permanently deletes the given object and all its descendants from the
+     * database, including their samples and relationships.
+     *
+     * @param obj the object to delete
+     * @return {@code true} if at least one row was deleted
+     */
     public boolean deleteObjectFromDB(JsonObject obj) {
-        logger.debug("deleteObjectFromDB: " + obj);
+        if (logger.isDebugEnabled()) {
+            logger.debug("deleteObjectFromDB: " + obj);
+        }
         String sql = String.format("delete from %s where %s IN(", TABLE, COLUMN_ID);
         List<JsonObject> children = new ArrayList<>();
         children.add(obj);
@@ -341,7 +447,9 @@ public class ObjectTable {
                 raw++;
             }
 
-            logger.debug("SQL: {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL: {}", ps);
+            }
             int count = ps.executeUpdate();
             if (count > 0) {
                 List<Long> ids = new ArrayList<>();
@@ -360,6 +468,14 @@ public class ObjectTable {
         return false;
     }
 
+    /**
+     * Soft-deletes the given object and all its descendants by setting their
+     * {@code deletets} column to the current timestamp and converting their
+     * PARENT relationships to DELETED_PARENT.
+     *
+     * @param obj the object to mark as deleted
+     * @return {@code true} if at least one row was updated
+     */
     public boolean markObjectAsDeleted(JsonObject obj) {
 
         String sql = String.format("update %s set %s=? where %s IN(", TABLE, COLUMN_DELETE, COLUMN_ID);
@@ -396,7 +512,6 @@ public class ObjectTable {
             int count = ps.executeUpdate();
             if (count > 0) {
                 /* remove parent relationship and add delete relationship*/
-                //List<JsonRelationship> rels = _connection.getRelationshipTable().getAllForObject(obj.getId(), JEVisConstants.ObjectRelationship.DELETED_PARENT);
                 _connection.getRelationshipTable().changeType(obj.getId(), JEVisConstants.ObjectRelationship.PARENT, JEVisConstants.ObjectRelationship.DELETED_PARENT);
 
                 return true;
@@ -410,6 +525,13 @@ public class ObjectTable {
 
     }
 
+    /**
+     * Restores a previously soft-deleted object (and all its descendants) by
+     * clearing their {@code deletets} column.
+     *
+     * @param obj the object to restore
+     * @return {@code true} if at least one row was updated
+     */
     public boolean restoreObjectAsDeleted(JsonObject obj) {
 
         String sql = String.format("update %s set %s=? where %s IN(", TABLE, COLUMN_DELETE, COLUMN_ID);
@@ -439,13 +561,11 @@ public class ObjectTable {
                 ps.setLong(raw, ch.getId());
                 raw++;
             }
-            logger.debug("SQL: {}", ps);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SQL: {}", ps);
+            }
             int count = ps.executeUpdate();
             if (count > 0) {
-                /* remove parent relationship and add delete relationship*/
-                //List<JsonRelationship> rels = _connection.getRelationshipTable().getAllForObject(obj.getId(), JEVisConstants.ObjectRelationship.DELETED_PARENT);
-                //_connection.getRelationshipTable().changeType(obj.getId(), JEVisConstants.ObjectRelationship.PARENT, JEVisConstants.ObjectRelationship.DELETED_PARENT);
-
                 return true;
             }
 

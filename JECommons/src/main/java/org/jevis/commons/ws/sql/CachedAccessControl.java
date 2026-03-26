@@ -18,16 +18,42 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Application-scoped singleton that caches user credentials and group
+ * membership relationships to avoid repeated database round-trips on every
+ * request.
+ *
+ * <p>The cache is invalidated lazily: a flag ({@link #needUpdate}) is set
+ * when a relevant change is detected (e.g., membership relationship created or
+ * a user's password updated). The next request then calls {@link #updateCache}
+ * before processing begins.
+ *
+ * <p>Sessions are cached using a Guava {@link Cache} with a configurable TTL
+ * (see {@link Config#sessiontimeout}) that expires both after write and after
+ * access.
+ */
 public class CachedAccessControl {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CachedAccessControl.class);
     private static CachedAccessControl fastUserManager = null;
+    /**
+     * Per-user group memberships, keyed by user ID.
+     */
     private final Map<Long, List<JsonRelationship>> groupMemberships = new ConcurrentHashMap();
+    /** Flag set when a structural change (membership/password) requires a cache refresh. */
     private final AtomicBoolean needUpdate = new AtomicBoolean(false);
+    /** All known users, keyed by lowercase account name. */
     private Map<String, JEVisUserSQL> users;
-    private Cache<String, Session> sessions;
+    /** Active HTTP sessions. Entries expire after write and after access. */
+    private final Cache<String, Session> sessions;
     private SQLDataSource ds;
 
+    /**
+     * Creates a new {@code CachedAccessControl} instance with a session cache
+     * configured according to {@link Config#sessiontimeout}.
+     *
+     * @throws Exception if the Guava cache builder fails
+     */
     public CachedAccessControl() throws Exception {
         sessions = CacheBuilder.newBuilder()
                 .expireAfterWrite(Config.sessiontimeout, TimeUnit.MINUTES)
@@ -35,6 +61,15 @@ public class CachedAccessControl {
                 .build();
     }
 
+    /**
+     * Returns the shared singleton instance, initializing and populating it
+     * on the first call or refreshing it if the update flag is set.
+     *
+     * @param ds         the current request's data source (used for refresh queries)
+     * @param supportSSO {@code true} if SSO token validation is enabled
+     * @return the singleton instance
+     * @throws Exception if cache initialization or refresh fails
+     */
     public static CachedAccessControl getInstance(SQLDataSource ds, boolean supportSSO) throws Exception {
         if (fastUserManager != null) {
             if (fastUserManager.needUpdate()) fastUserManager.updateCache(ds);
@@ -50,10 +85,23 @@ public class CachedAccessControl {
     }
 
 
+    /**
+     * Reloads only the user map from the database.
+     *
+     * @param dataSource the data source to query
+     * @throws JEVisException if the query fails
+     */
     public synchronized void updateUser(SQLDataSource dataSource) throws JEVisException {
         users = dataSource.getLoginTable().getAllUser();
     }
 
+    /**
+     * Fully refreshes the user map and group-membership cache from the database.
+     * Clears the {@link #needUpdate} flag on completion.
+     *
+     * @param dataSource the data source to query
+     * @throws Exception if the query fails
+     */
     public synchronized void updateCache(SQLDataSource dataSource) throws Exception {
         logger.error("Update Access Control Cache");
         needUpdate.set(false);
@@ -74,7 +122,8 @@ public class CachedAccessControl {
     }
 
     /**
-     * Debug helper
+     * Prints the current session and user cache to stdout.
+     * Intended for debugging only.
      */
     public void printCache() {
         System.out.println("Sessions: ");
@@ -93,7 +142,6 @@ public class CachedAccessControl {
                 if (jsonRelationship.getType() == 101) {
                     System.out.println("Group: " + jsonRelationship.getTo());
                 }
-                // System.out.println(jsonRelationship);
             });
             System.out.println("ReadGIDs:");
             ds.getUserManager().getReadGIDS().forEach(aLong -> {
@@ -105,7 +153,10 @@ public class CachedAccessControl {
     }
 
     /**
-     * Check if a new ObjectRelationship type is a Membership
+     * Checks whether the given relationship type affects membership data and,
+     * if so, marks the cache as needing an update.
+     *
+     * @param relationshipType the relationship type constant to evaluate
      */
     public void checkForChanges(int relationshipType) {
         try {
@@ -115,7 +166,6 @@ public class CachedAccessControl {
                 case JEVisConstants.ObjectRelationship.MEMBER_WRITE:
                 case JEVisConstants.ObjectRelationship.MEMBER_EXECUTE:
                 case JEVisConstants.ObjectRelationship.MEMBER_CREATE:
-                    //updateCache();
                     needUpdate.set(true);
                     break;
                 default:
@@ -127,6 +177,12 @@ public class CachedAccessControl {
         }
     }
 
+    /**
+     * Convenience overload of {@link #checkForChanges(int)} that inspects the
+     * type of the given relationship.
+     *
+     * @param relationship the relationship whose type is evaluated
+     */
     public void checkForChanges(JsonRelationship relationship) {
         try {
             checkForChanges(relationship.getType());
@@ -135,10 +191,18 @@ public class CachedAccessControl {
         }
     }
 
+    /**
+     * Marks the cache as stale if the given attribute change affects
+     * authentication data (e.g., a {@code User} object's {@code Password}
+     * attribute).
+     *
+     * @param object    the changed object
+     * @param attribute the attribute name that changed
+     * @param change    the type of change
+     */
     public void checkForChanges(JsonObject object, String attribute, Change change) {
         try {
             if (attribute.equals("Password") && object.getJevisClass().equals("User")) {
-                //updateCache();
                 needUpdate.set(true);
             }
 
@@ -147,13 +211,18 @@ public class CachedAccessControl {
         }
     }
 
+    /**
+     * Marks the cache as stale if the changed object is a {@code User} or
+     * {@code Group} that has been added, deleted, or modified.
+     *
+     * @param object the changed object
+     * @param change the type of change
+     */
     public void checkForChanges(JsonObject object, Change change) {
         try {
             if (object.getName().equals("User") && (change == Change.DELETE || change == Change.ADD || change == Change.CHANGE)) {
-                //updateCache();
                 needUpdate.set(true);
             } else if (object.getName().equals("Group") && (change == Change.DELETE || change == Change.ADD)) {
-                //updateCache();
                 needUpdate.set(true);
             }
 
@@ -163,11 +232,24 @@ public class CachedAccessControl {
     }
 
 
+    /**
+     * Returns all membership relationships for the given user ID.
+     *
+     * @param userID the user's object ID
+     * @return a list of membership relationships; empty if none
+     */
     public List<JsonRelationship> getUserMemberships(long userID) {
         return groupMemberships.getOrDefault(userID, new ArrayList<>());
     }
 
 
+    /**
+     * Returns the cached {@link JEVisUserSQL} for the given account name, or
+     * {@code null} if the account does not exist.
+     *
+     * @param userName the account name (case-insensitive)
+     * @return the user, or {@code null}
+     */
     public JEVisUserSQL getUser(String userName) {
         try {
             return users.get(userName.toLowerCase(Locale.ROOT));
@@ -178,10 +260,25 @@ public class CachedAccessControl {
         }
     }
 
+    /**
+     * Returns the full user map, keyed by lowercase account name.
+     *
+     * @return an unmodifiable view of all cached users
+     */
     public Map<String, JEVisUserSQL> getUsers() {
         return users;
     }
 
+    /**
+     * Validates the given plaintext password against the stored PBKDF2 hash
+     * for the named user.
+     *
+     * @param userName the account name
+     * @param password the plaintext password to validate
+     * @return {@code true} if the password is correct
+     * @throws NoSuchAlgorithmException if the hash algorithm is unavailable
+     * @throws InvalidKeySpecException  if the stored hash is malformed
+     */
     public boolean validLogin(String userName, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         JEVisUserSQL user = users.get(userName.toLowerCase(Locale.ROOT));
         if (user != null && PasswordHash.validatePassword(password, user.getPassword())) {
@@ -193,15 +290,41 @@ public class CachedAccessControl {
 
     }
 
+    /**
+     * Returns {@code true} if the cache requires a refresh before the next
+     * request is processed.
+     *
+     * @return {@code true} if stale
+     */
     public boolean needUpdate() {
         return needUpdate.get();
     }
 
+    /**
+     * Returns the Guava session cache. Sessions expire after both write and
+     * access, with the TTL configured via {@link Config#sessiontimeout}.
+     *
+     * @return the session cache
+     */
     public Cache<String, Session> getSessions() {
         return sessions;
     }
 
+    /**
+     * The type of structural change that triggered a cache staleness check.
+     */
     public enum Change {
-        ADD, DELETE, CHANGE
+        /**
+         * An object was added.
+         */
+        ADD,
+        /**
+         * An object was deleted.
+         */
+        DELETE,
+        /**
+         * An object was modified.
+         */
+        CHANGE
     }
 }

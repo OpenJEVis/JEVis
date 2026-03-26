@@ -52,7 +52,26 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * this Class handles all the JEVisSample related requests
+ * Jersey REST resource that handles all JEVisSample read, write, and delete operations.
+ *
+ * <p>Endpoints:
+ * <ul>
+ *   <li>{@code GET  /objects/{id}/attributes/{attribute}/samples} — retrieve samples in a time range,
+ *       optionally with aggregation ({@code ap}/{@code mm}) and timezone ({@code tz})</li>
+ *   <li>{@code POST /objects/{id}/attributes/{attribute}/samples} — post new samples (JSON array)</li>
+ *   <li>{@code DELETE /objects/{id}/attributes/{attribute}/samples} — delete samples in a range</li>
+ *   <li>{@code GET  /objects/{id}/attributes/{attribute}/samples/files/{timestamp}} — download a file sample</li>
+ *   <li>{@code POST /objects/{id}/attributes/{attribute}/samples/files/{timestamp}} — upload a file sample</li>
+ * </ul>
+ *
+ * <p>Write permission rules:
+ * <ul>
+ *   <li>Normal attributes require WRITE permission.</li>
+ *   <li>Classes in {@link #executeUpdateExceptions} also allow users with EXECUTE permission to
+ *       post/update notes or alarm configuration.</li>
+ *   <li>Users may always modify their own non-privileged attributes (but not {@code Enabled} or
+ *       {@code Sys Admin}).</li>
+ * </ul>
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -61,7 +80,7 @@ public class ResourceSample {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceSample.class);
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /**
      * List of classes which can be updated with execute permission
      **/
@@ -73,6 +92,20 @@ public class ResourceSample {
 
     //JEWebService/v1/files/8598/attributes/File/samples/files/20180604T141441?filename=nb-configuration.xml
     //JEWebService/v1/objects/{id}/attributes/{attribute}/samples
+
+    /**
+     * Uploads a binary file as a file sample for the given object/attribute at a specific timestamp.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          JEVis object ID
+     * @param attribute   attribute name
+     * @param filename    original filename (default {@code "nameless.file"})
+     * @param timestamp   sample timestamp in ISO format, or {@code "now"}
+     * @param payload     the raw binary content of the file
+     * @return 201 CREATED on success, or an appropriate error response
+     */
     @POST
     @Logged
     @Path("/files/{timestamp}")
@@ -196,6 +229,17 @@ public class ResourceSample {
         }
     }
 
+    /**
+     * Downloads the binary file sample for the given object/attribute at a specific timestamp.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          JEVis object ID
+     * @param attribute   attribute name
+     * @param timestamp   sample timestamp in ISO format, or {@code "latest"}
+     * @return 200 OK with the file bytes, 404 NOT_FOUND if absent, or 500 on error
+     */
     @GET
     @Logged
     @Path("/files/{timestamp}")
@@ -267,15 +311,27 @@ public class ResourceSample {
     }
 
     /**
-     * Get the samples from an object/Attribute
+     * Returns time-series samples for the given object/attribute combination.
      *
-     * @param httpHeaders
-     * @param id
-     * @param attribute
-     * @param start
-     * @param end
-     * @param onlyLatest
-     * @return
+     * <p>If both {@code ap} and {@code mm} are empty or {@code "NONE"}, raw database samples are
+     * returned. Otherwise a {@link org.jevis.commons.ws.sql.sg.JsonSampleGenerator} is used to
+     * aggregate and manipulate the values server-side.
+     *
+     * @param httpHeaders        HTTP headers (used for authentication)
+     * @param request            JAX-RS request context
+     * @param url                URI info context
+     * @param id                 JEVis object ID
+     * @param attribute          attribute name (e.g. {@code "Value"})
+     * @param start              ISO-8601 / yyyyMMdd'T'HHmmss lower bound (inclusive), or {@code null}
+     * @param end                ISO-8601 / yyyyMMdd'T'HHmmss upper bound (inclusive), or {@code null}
+     * @param customWorkDay      if {@code true}, apply custom work-day shift in aggregation
+     * @param aggregationPeriod  aggregation period string (e.g. {@code "DAILY"}); empty = none
+     * @param manipulationMode   manipulation mode string (e.g. {@code "CUMULATIVE"}); empty = none
+     * @param timeZone           IANA timezone ID used for aggregation boundaries (default {@code "UTC"})
+     * @param limit              maximum number of samples to return (default 1 000 000)
+     * @param onlyLatest         if {@code true}, return only the single most-recent sample
+     * @return 200 OK with JSON array of {@link org.jevis.commons.ws.json.JsonSample},
+     *         401 UNAUTHORIZED, 404 NOT FOUND if object or attribute is missing, or 500 on error
      */
     @GET
     @Logged
@@ -375,6 +431,21 @@ public class ResourceSample {
 
     }
 
+    /**
+     * Stores a JSON array of samples for the given object/attribute.
+     *
+     * <p>Callers need WRITE permission, or EXECUTE permission for classes listed in
+     * {@link #executeUpdateExceptions} (in which case only note changes are persisted).
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          JEVis object ID
+     * @param attribute   attribute name
+     * @param input       JSON array body of {@link org.jevis.commons.ws.json.JsonSample} objects
+     * @return 201 CREATED on success, 400 BAD REQUEST on parse error,
+     * 401 UNAUTHORIZED, 403 FORBIDDEN if permission is insufficient, or 500 on error
+     */
     @POST
     @Logged
     @Consumes(MediaType.APPLICATION_JSON)
@@ -434,7 +505,7 @@ public class ResourceSample {
 
                 JsonAttribute att = ds.getAttribute(id, attribute);
                 if (att.getType().equals(attribute)) {
-                    List<JsonSample> samples = new ArrayList<>(Arrays.asList(objectMapper.readValue(input, JsonSample[].class)));
+                    List<JsonSample> samples = new ArrayList<>(Arrays.asList(OBJECT_MAPPER.readValue(input, JsonSample[].class)));
                     JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
 
 
@@ -511,6 +582,21 @@ public class ResourceSample {
         }
     }
 
+    /**
+     * Deletes samples for the given object/attribute within the specified time range.
+     *
+     * <p>If neither {@code from} nor {@code until} is provided, all samples are deleted.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          JEVis object ID
+     * @param attribute   attribute name
+     * @param start       ISO-8601 / yyyyMMdd'T'HHmmss lower bound, or {@code null}
+     * @param end         ISO-8601 / yyyyMMdd'T'HHmmss upper bound, or {@code null}
+     * @param onlyLatest  reserved (currently unused)
+     * @return 200 OK on success, 401 UNAUTHORIZED, or 500 on error
+     */
     @DELETE
     @Logged
     public Response deleteSamples(
@@ -591,6 +677,9 @@ public class ResourceSample {
         }
     }
 
+    /**
+     * Jersey lifecycle callback — clears transient per-request state after the response is committed.
+     */
     @PostConstruct
     public void postConstruct() {
         if (list != null) {

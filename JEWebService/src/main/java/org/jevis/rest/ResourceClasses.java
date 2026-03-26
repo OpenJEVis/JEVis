@@ -43,7 +43,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class handel all the JEVIsObjects related requests
+ * Jersey REST resource that handles JEVisClass (schema) CRUD operations and icon serving.
+ *
+ * <p>Endpoints:
+ * <ul>
+ *   <li>{@code GET    /classes}          — list all JEVisClasses</li>
+ *   <li>{@code GET    /classes/{name}}   — fetch one class by name</li>
+ *   <li>{@code POST   /classes/{name}}   — create or update a class (sysadmin only)</li>
+ *   <li>{@code DELETE /classes/{name}}   — delete a class definition (sysadmin only)</li>
+ *   <li>{@code GET    /classes/{name}/icon} — fetch the class icon image</li>
+ *   <li>{@code POST   /classes/{name}/icon} — upload a new class icon (sysadmin only)</li>
+ * </ul>
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -51,7 +61,7 @@ import java.util.List;
 public class ResourceClasses {
 
     private static final Logger logger = LogManager.getLogger(ResourceClasses.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private SQLDataSource ds = null;
     private List<File> classIconFiles;
 
@@ -73,10 +83,13 @@ public class ResourceClasses {
     }
 
     /**
-     * Returns an List of JEVisClasses as Json
+     * Returns all known JEVisClasses as a JSON collection.
      *
-     * @param httpHeaders
-     * @return
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @return 200 OK with a collection of {@link org.jevis.commons.ws.json.JsonJEVisClass},
+     *         401 UNAUTHORIZED, or 500 on error
      */
     @GET
     @Logged
@@ -101,11 +114,14 @@ public class ResourceClasses {
     }
 
     /**
-     * Returns the requested JEVisClass
+     * Returns the JEVisClass with the given name.
      *
-     * @param httpHeaders
-     * @param name
-     * @return
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param name        class name (e.g. {@code "Data"})
+     * @return 200 OK with the {@link org.jevis.commons.ws.json.JsonJEVisClass},
+     *         401 UNAUTHORIZED, 404 NOT FOUND if the class is unknown, or 500 on error
      */
     @GET
     @Logged
@@ -133,6 +149,16 @@ public class ResourceClasses {
 
     }
 
+    /**
+     * Deletes the JEVisClass definition file for the given class name.
+     * Only system administrators may call this endpoint.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param name        class name to delete
+     * @return 200 OK on success, 401 UNAUTHORIZED, 404 NOT FOUND, or 500 on error
+     */
     @DELETE
     @Logged
     @Path("/{name}")
@@ -178,6 +204,18 @@ public class ResourceClasses {
 
     }
 
+    /**
+     * Creates or replaces the JEVisClass definition for the given name.
+     * Only system administrators may call this endpoint; changes are immediately reflected in the
+     * class cache.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param name        class name to create or replace
+     * @param input       JSON body of the {@link org.jevis.commons.ws.json.JsonJEVisClass}
+     * @return 200 OK with the stored class, 401 UNAUTHORIZED, or 500 on error
+     */
     @POST
     @Logged
     @Produces(MediaType.APPLICATION_JSON)
@@ -195,7 +233,7 @@ public class ResourceClasses {
 
             if (ds.getUserManager().isSysAdmin()) {
 //                JsonJEVisClass json = (new Gson()).fromJson(input, JsonJEVisClass.class);//parse it again to be save and to make it pretty
-                JsonJEVisClass json = objectMapper.readValue(input, JsonJEVisClass.class);
+                JsonJEVisClass json = OBJECT_MAPPER.readValue(input, JsonJEVisClass.class);
 //                Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
                 PrintWriter writer = new PrintWriter(Config.getClassDir().getAbsoluteFile() + "/" + name + ".json", "UTF-8");
@@ -221,11 +259,17 @@ public class ResourceClasses {
     }
 
     /**
-     * Returns the Icon of the requested JEVisClass
+     * Returns the icon image for the requested JEVisClass.
      *
-     * @param httpHeaders
-     * @param name
-     * @return
+     * <p>Searches the configured class icon directory for a file whose base name (without extension)
+     * matches {@code name} (case-insensitive). Falls back to {@code MissingPlaceholder.png} if no
+     * match is found.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param name        class name whose icon is requested
+     * @return 200 OK with the image bytes, 401 UNAUTHORIZED, or 500 on error
      */
     @GET
     @Logged
@@ -267,6 +311,13 @@ public class ResourceClasses {
 
     }
 
+    /**
+     * Helper that builds the class response from the in-memory cache.
+     *
+     * @param classname if {@code null} or empty, returns all classes; otherwise returns the single
+     *                  named class or 404 if not found
+     * @return JAX-RS {@link Response}
+     */
     public Response getClassResponse(String classname) {
         if (classname == null || classname.isEmpty()) {
             return Response.ok(Config.getClassCache().values()).build();
@@ -281,10 +332,16 @@ public class ResourceClasses {
 
 
     /**
-     * @param httpHeaders
-     * @param name
-     * @param imageBytes
-     * @return
+     * Uploads a new icon image for the given JEVisClass.
+     * Only system administrators may call this endpoint. The uploaded image is stored as a PNG and
+     * the icon file cache is invalidated.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param name        class name for which to store the icon
+     * @param imageBytes  raw image bytes (PNG, JPG, or GIF)
+     * @return 200 OK on success, 401 UNAUTHORIZED, or 500 on error
      */
     @POST
     @Path("/{name}/icon")
@@ -334,6 +391,9 @@ public class ResourceClasses {
 
     }
 
+    /**
+     * Jersey lifecycle callback — clears transient per-request state after the response is committed.
+     */
     @PostConstruct
     public void postConstruct() {
         if (ds != null) {

@@ -37,7 +37,15 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * This Class handels all request for JEVisAttributes
+ * Jersey REST resource that handles all JEVisAttribute read and write operations.
+ *
+ * <p>Endpoints:
+ * <ul>
+ *   <li>{@code GET  /objects/{id}/attributes} — list all attributes of an object</li>
+ *   <li>{@code GET  /objects/{id}/attributes/{attribute}} — fetch one named attribute</li>
+ *   <li>{@code POST /objects/{id}/attributes/{attribute}} — update attribute metadata
+ *       (input/display unit, sample rate)</li>
+ * </ul>
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -46,17 +54,20 @@ import java.util.List;
 public class ResourceAttribute {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceAttribute.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private SQLDataSource ds = null;
     private List<JsonAttribute> attributes;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * Returns an list of all attributes under the given object
+     * Returns all attributes for the given object, including the latest sample value and
+     * min/max timestamps, provided the authenticated user has READ access.
      *
-     * @param httpHeaders
-     * @param id
-     * @return
-     * @throws JEVisException
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          JEVis object ID
+     * @return 200 OK with JSON array of {@link org.jevis.commons.ws.json.JsonAttribute},
+     *         401 UNAUTHORIZED, 404 NOT FOUND if the object is inaccessible, or 500 on error
      */
     @GET
     @Logged
@@ -93,12 +104,16 @@ public class ResourceAttribute {
     }
 
     /**
-     * Returns an specific attribute
+     * Returns a single named attribute for the given object.
      *
-     * @param httpHeaders
-     * @param id
-     * @param attribute
-     * @return
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          JEVis object ID
+     * @param attribute   attribute name (e.g. {@code "Value"})
+     * @return 200 OK with the {@link org.jevis.commons.ws.json.JsonAttribute},
+     *         401 UNAUTHORIZED, 404 NOT FOUND if the object or attribute is inaccessible,
+     *         or 500 on error
      */
     @GET
     @Logged
@@ -141,6 +156,20 @@ public class ResourceAttribute {
 
     }
 
+    /**
+     * Updates the metadata of a single attribute (e.g. input/display unit, sample rate).
+     *
+     * <p>The authenticated user must have WRITE permission on the parent object.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          JEVis object ID
+     * @param attribute   attribute name
+     * @param payload     JSON body representing the updated {@link org.jevis.commons.ws.json.JsonAttribute}
+     * @return 200 OK with the updated attribute, 204 NO CONTENT if payload is empty,
+     * 401 UNAUTHORIZED, 404 NOT FOUND if the object is inaccessible, or 500 on error
+     */
     @POST
     @Logged
     @Produces(MediaType.APPLICATION_JSON)
@@ -165,7 +194,7 @@ public class ResourceAttribute {
 
                 if (ds.getUserManager().canWrite(obj)) {
 //                JsonAttribute json = (new Gson()).fromJson(payload, JsonAttribute.class);
-                    JsonAttribute json = objectMapper.readValue(payload, JsonAttribute.class);
+                    JsonAttribute json = OBJECT_MAPPER.readValue(payload, JsonAttribute.class);
                     ds.setAttribute(id, json);
                     ds.logUserAction(SQLDataSource.LOG_EVENT.UPDATE_ATTRIBUTE, String.format("%s:%s", id, attribute));
                     return Response.ok(json).build();
@@ -184,6 +213,9 @@ public class ResourceAttribute {
         }
     }
 
+    /**
+     * Jersey lifecycle callback — clears transient per-request state after the response is committed.
+     */
     @PostConstruct
     public void postConstruct() {
         if (attributes != null) {
