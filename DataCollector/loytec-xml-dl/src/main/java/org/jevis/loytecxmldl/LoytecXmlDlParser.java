@@ -91,7 +91,8 @@ public class LoytecXmlDlParser {
             for (Document d : documents) {
                 if (logger.getLevel().equals(Level.DEBUG)) {
                     try {
-                        printDocument(d, logger.getMessageFactory());
+                        //TODO: Disabled:  cannot be cast to java.io.OutputStream exeption
+                        //printDocument(d, logger.getMessageFactory());
 
                     } catch (TransformerException | IOException e) {
                         e.printStackTrace();
