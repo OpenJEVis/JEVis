@@ -196,7 +196,7 @@ public class HTTPDataSource {
 
         /* Fallback for older Configuration were we only had BASIC auth*/
         if (authScheme == null) {
-            if (userName != null || userName.isEmpty()) {
+            if (userName != null && !userName.isEmpty()) {
                 return AUTH_SCHEME.BASIC;
             }
         }

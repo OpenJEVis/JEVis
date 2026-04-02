@@ -51,7 +51,7 @@ public class PathFollower {
                     });
 
                 } catch (Exception e) {
-                    logger.error("Error while init PathFollower: {}", e, e);
+                    logger.error("Error while init PathFollower: {}", e);
                 }
 
             }
@@ -131,7 +131,7 @@ public class PathFollower {
                     matches.add(absoluteURL);
                 }
             } catch (Exception ex) {
-                logger.error(ex, ex);
+                logger.error("Error processing link element", ex);
             }
         });
 
@@ -235,7 +235,7 @@ public class PathFollower {
                         logger.trace("No pattern attribute");
                     }
                 } catch (Exception ex) {
-                    logger.error("Error while parsing Match Pattern ", ex, ex);
+                    logger.error("Error while parsing Match Pattern", ex);
                 }
                 ;
 
@@ -259,7 +259,7 @@ public class PathFollower {
                         logger.error("No path attribute");
                     }
                 } catch (Exception ex) {
-                    logger.error("Error while parsing Element Index, using default: {}", takeElement, ex, ex);
+                    logger.error("Error while parsing Element Index, using default: {}", takeElement, ex);
                 }
                 ;
 
@@ -281,12 +281,12 @@ public class PathFollower {
                         });
                     }
                 } catch (Exception ex) {
-                    logger.error("Error while finding SubLinks", ex, ex);
+                    logger.error("Error while finding SubLinks", ex);
                 }
 
 
             } catch (Exception ex) {
-                logger.error(ex, ex);
+                logger.error("Error in getLink for object: {}", obj, ex);
             }
             logger.debug("Final path url: {}", url);
         }

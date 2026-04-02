@@ -16,9 +16,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -33,6 +34,22 @@ public class ResourceIcons {
     public final static String TEMPDIR = "JEWebService";
     public final static String TEMPFILE = "allIcons.zip";
     private SQLDataSource ds = null;
+
+    private static List<File> listIconFilesRecursive(File dir) {
+        List<File> result = new ArrayList<>();
+        if (dir == null || dir.listFiles() == null) return result;
+        for (File entry : dir.listFiles()) {
+            if (entry.isFile()) {
+                String n = entry.getName();
+                if (n.endsWith(".png") || n.endsWith(".jpg") || n.endsWith(".gif")) {
+                    result.add(entry);
+                }
+            } else {
+                result.addAll(listIconFilesRecursive(entry));
+            }
+        }
+        return result;
+    }
 
     @GET
     @Logged
@@ -60,13 +77,7 @@ public class ResourceIcons {
 
             byte[] buffer = new byte[1024];
 
-            FileFilter ff = new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    return pathname.getName().endsWith(".png");
-                }
-            };
-            for (File imageFile : Config.getClassDir().listFiles(ff)) {
+            for (File imageFile : listIconFilesRecursive(Config.getClassDir())) {
                 ZipEntry ze = new ZipEntry(imageFile.getName());
                 zos.putNextEntry(ze);
                 FileInputStream in = new FileInputStream(imageFile);

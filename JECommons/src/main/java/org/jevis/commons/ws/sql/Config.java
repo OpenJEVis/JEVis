@@ -218,6 +218,7 @@ public class Config {
      * @return a live {@link Map} view of the class definition cache
      */
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
+        classCache.cleanUp();
         if (classCache.size() == 0) {
             logger.debug("initializing class cache");
             try {

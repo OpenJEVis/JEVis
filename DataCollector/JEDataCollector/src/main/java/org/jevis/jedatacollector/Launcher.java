@@ -118,6 +118,7 @@ public class Launcher extends AbstractCliApp {
     }
 
     private void runDataSource(JEVisObject object, DataSource dataSource, boolean finish) {
+        boolean attemptedRun = false;
         try {
             runningJobs.put(object.getID(), new DateTime());
             LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
@@ -127,6 +128,7 @@ public class Launcher extends AbstractCliApp {
 
             dataSource.initialize(object);
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
+            attemptedRun = true;
             dataSource.run();
         } catch (Exception e) {
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
@@ -135,7 +137,7 @@ public class Launcher extends AbstractCliApp {
         } finally {
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
 
-            if (finish) {
+            if (finish && attemptedRun) {
                 dataSource.finishCurrentRun(object);
             }
 

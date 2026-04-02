@@ -68,7 +68,8 @@ public class JEVisHTTPDataSource implements DataSource {
                 }
 
 
-                if (this._httpdatasource.getStatusLine().getStatusCode() < 200 && this._httpdatasource.getStatusLine().getStatusCode() >= 300) {
+                int statusCode = this._httpdatasource.getStatusLine().getStatusCode();
+                if (statusCode < 200 || statusCode >= 300) {
                     logger.error("API Returned Error Code :{}", this._httpdatasource.getStatusLine().getStatusCode());
                     return;
                 }
@@ -193,7 +194,7 @@ public class JEVisHTTPDataSource implements DataSource {
 
 
         } catch (Exception ex) {
-            logger.fatal(ex, ex);
+            logger.error("Error initializing HTTP data source attributes", ex);
         }
     }
 
@@ -221,7 +222,7 @@ public class JEVisHTTPDataSource implements DataSource {
             httpChannel.setChannelObject(channel);
             return _httpdatasource.sendSampleRequest(httpChannel);
         } catch (Exception ex) {
-            logger.error(ex, ex);
+            logger.error("Error sending sample request for channel", ex);
         }
 
         return new ArrayList<>();
