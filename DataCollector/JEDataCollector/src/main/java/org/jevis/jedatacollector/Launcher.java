@@ -150,7 +150,7 @@ public class Launcher extends AbstractCliApp {
             StringBuilder running = new StringBuilder();
             runningJobs.forEach((aLong, dateTime) -> running.append(aLong));
 
-            logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.toString(), running.toString());
+            logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.length(), running.length());
 
             checkLastJob();
         }
