@@ -145,20 +145,32 @@ public interface DataSource {
     }
 
     default void finishCurrentRun(JEVisObject object) {
-        Long cycleTime = getCycleTime(object);
+        finishCurrentRun(object, true, "");
+    }
+
+    default void finishCurrentRun(JEVisObject object, boolean success, String message) {
         DateTime lastRun = getLastRun(object);
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
             if (lastRunAttribute != null) {
                 lastRunAttribute.deleteSamplesBetween(new DateTime(1990, 1, 1, 0, 0, 0, 0), lastRun.minusMonths(1));
 
-                DateTime dateTime = lastRun.plusMillis(cycleTime.intValue());
-                JEVisSample newSample = lastRunAttribute.buildSample(DateTime.now(), dateTime);
+                DateTime now = DateTime.now();
+                JEVisSample newSample = lastRunAttribute.buildSample(now, now);
+                if (success) {
+                    newSample.setNote("0");
+                } else {
+                    String note = "1";
+                    if (message != null && !message.isEmpty()) {
+                        note = "1: " + (message.length() > 200 ? message.substring(0, 200) : message);
+                    }
+                    newSample.setNote(note);
+                }
                 newSample.commit();
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source last run time: ", e);
+            logger.error("Could not update Last Run: ", e);
         }
     }
 }
