@@ -55,20 +55,25 @@ public class JEVisHTTPDataSource implements DataSource {
             httpChannels.clear();
             List<Result> results = new ArrayList<>();
 
+            logger.info("Start Channel: {}:{} TS: {} enddate: {},",channel.getID(),channel.getName(),_httpdatasource.getLastReadout(),_httpdatasource.getEndDateTime());
+
             try {
                 List<InputStream> input = this.sendSampleRequest(channel);
-
+/*
                 if (_httpdatasource.getEndDateTime().isAfterNow() || _httpdatasource.getLastReadout().isAfterNow()) {
                     logger.error("Start or End Date in Future Stop from trying to fetching Data from API");
                     return;
                 }
+
                 if (_httpdatasource.getLastReadout().plusMinutes(20).isAfter(_httpdatasource.getEndDateTime())) {
                     logger.error("Start Date is Less than 20 Minutes Before End Date Stop from trying to fetch Data from API");
                     return;
                 }
+                 */
 
 
                 int statusCode = this._httpdatasource.getStatusLine().getStatusCode();
+                logger.debug("Response Code; {}",statusCode);
                 if (statusCode < 200 || statusCode >= 300) {
                     logger.error("API Returned Error Code :{}", this._httpdatasource.getStatusLine().getStatusCode());
                     return;

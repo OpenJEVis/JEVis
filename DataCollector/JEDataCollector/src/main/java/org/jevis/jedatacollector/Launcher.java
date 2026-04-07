@@ -148,7 +148,7 @@ public class Launcher extends AbstractCliApp {
             finished.append(length);
 
             StringBuilder running = new StringBuilder();
-            runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
+            runningJobs.forEach((aLong, dateTime) -> running.append(aLong));
 
             logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.toString(), running.toString());
 
@@ -204,15 +204,6 @@ public class Launcher extends AbstractCliApp {
 
             if (plannedJobs.isEmpty() && runningJobs.isEmpty()) {
                 TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-//                if (!firstRun) {
-//                    try {
-//                        ds.clearCache();
-//                        ds.preload();
-//                    } catch (JEVisException e) {
-//                        logger.error(e);
-//                    }
-//                } else firstRun = false;
-
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 
                 if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
