@@ -55,10 +55,11 @@ public class JEVisHTTPDataSource implements DataSource {
             httpChannels.clear();
             List<Result> results = new ArrayList<>();
 
-            logger.info("Start Channel: {}:{} TS: {} enddate: {},",channel.getID(),channel.getName(),_httpdatasource.getLastReadout(),_httpdatasource.getEndDateTime());
 
             try {
                 List<InputStream> input = this.sendSampleRequest(channel);
+                logger.info("Start Channel: {}:{} TS: {} enddate: {},",channel.getID(),channel.getName(),_httpdatasource.getLastReadout(),_httpdatasource.getEndDateTime());
+
 /*
                 if (_httpdatasource.getEndDateTime().isAfterNow() || _httpdatasource.getLastReadout().isAfterNow()) {
                     logger.error("Start or End Date in Future Stop from trying to fetching Data from API");
@@ -114,7 +115,7 @@ public class JEVisHTTPDataSource implements DataSource {
             } catch (Exception ex) {
                 logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error(ex);
         }
     }
