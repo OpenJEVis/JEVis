@@ -3,10 +3,6 @@ package org.jevis.commons.driver;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -15,14 +11,14 @@ import org.joda.time.format.DateTimeFormatter;
 public class Parameter implements VarFiller.VarFunction {
     @Expose
     @SerializedName("format")
-    private final StringProperty format = new SimpleStringProperty();
+    private String format;
     @Expose
     @SerializedName("Parameter")
-    private final ObjectProperty<VarFiller.Variable> variable = new SimpleObjectProperty<>();
+    private VarFiller.Variable variable;
 
     @Expose
     @SerializedName("Timezone")
-    private final StringProperty timezone = new SimpleStringProperty(DateTimeZone.UTC.getID());
+    private String timezone = DateTimeZone.UTC.getID();
 
     @JsonIgnore
     private DateTime lastTS;
@@ -51,7 +47,7 @@ public class Parameter implements VarFiller.VarFunction {
                     return Long.toString(dateTime.getMillis() / 1000L);
                 } else {
                     DateTimeFormatter fmt = DateTimeFormat.forPattern(format);
-                    return fmt.print(dateTime.withZone(DateTimeZone.forID(timezone.get())));
+                    return fmt.print(dateTime.withZone(DateTimeZone.forID(timezone)));
                 }
 
 
@@ -74,8 +70,8 @@ public class Parameter implements VarFiller.VarFunction {
     private String getLasTs() {
         if (lastTS != null) {
             System.out.println(getLastTS());
-            System.out.println(timezone.get());
-            System.out.println(getLastTS().withZone(DateTimeZone.forID(timezone.get())));
+            System.out.println(timezone);
+            System.out.println(getLastTS().withZone(DateTimeZone.forID(timezone)));
 
 
             return format(getFormat(), getLastTS());
@@ -107,38 +103,26 @@ public class Parameter implements VarFiller.VarFunction {
     }
 
     public String getFormat() {
-        return format.get();
-    }
-
-    public void setFormat(String format) {
-        this.format.set(format);
-    }
-
-    public StringProperty formatProperty() {
         return format;
     }
 
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
     public VarFiller.Variable getVariable() {
-        return variable.get();
-    }
-
-    public void setVariable(VarFiller.Variable variable) {
-        this.variable.set(variable);
-    }
-
-    public ObjectProperty<VarFiller.Variable> variableProperty() {
         return variable;
     }
 
+    public void setVariable(VarFiller.Variable variable) {
+        this.variable = variable;
+    }
+
     public String getTimezone() {
-        return timezone.get();
+        return timezone;
     }
 
     public void setTimezone(String timezone) {
-        this.timezone.set(timezone);
-    }
-
-    public StringProperty timezoneProperty() {
-        return timezone;
+        this.timezone = timezone;
     }
 }

@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.plugin.object.extension.paramter;
 
 
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -21,12 +23,14 @@ public class ParameterTable extends TableView<Parameter> {
     public void buildTable() {
         TableColumn<Parameter, String> format = new TableColumn(I18n.getInstance().getString("plugin.objects.extension.paramter.source"));
         format.setCellFactory(TextFieldTableCell.forTableColumn());
-        format.setCellValueFactory(param -> param.getValue().formatProperty());
+        format.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFormat()));
+        format.setOnEditCommit(event -> event.getRowValue().setFormat(event.getNewValue()));
         format.setEditable(true);
 
         TableColumn<Parameter, VarFiller.Variable> sourceCol = new TableColumn(I18n.getInstance().getString("plugin.objects.extension.paramter.format"));
         sourceCol.setCellFactory(ComboBoxTableCell.forTableColumn(VarFiller.Variable.LAST_TS, VarFiller.Variable.CURRENT_TS, VarFiller.Variable.CURRENT_TS2));
-        sourceCol.setCellValueFactory(param -> param.getValue().variableProperty());
+        sourceCol.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getVariable()));
+        sourceCol.setOnEditCommit(event -> event.getRowValue().setVariable(event.getNewValue()));
         sourceCol.setEditable(true);
 
 
@@ -34,7 +38,8 @@ public class ParameterTable extends TableView<Parameter> {
 
         TableColumn<Parameter, String> timeZoneCol = new TableColumn(I18n.getInstance().getString("plugin.objects.extension.paramter.timezone"));
         timeZoneCol.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(DateTimeZone.getAvailableIDs())));
-        timeZoneCol.setCellValueFactory(param -> param.getValue().timezoneProperty());
+        timeZoneCol.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getTimezone()));
+        timeZoneCol.setOnEditCommit(event -> event.getRowValue().setTimezone(event.getNewValue()));
         timeZoneCol.setEditable(true);
 
 
