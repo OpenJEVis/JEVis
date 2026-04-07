@@ -81,7 +81,23 @@ public class HTTPDataSource {
         String path = channel.getPath();
         lastReadout = channel.getLastReadout();
 
+        if (path == null || path.isEmpty()) {
+            logger.debug("[{}] Path is null or empty, aborting sendSampleRequest", channelID);
+            return answer;
+        }
+        if (lastReadout == null) {
+            logger.debug("[{}] lastReadout is null, aborting sendSampleRequest", channelID);
+            return answer;
+        }
+
         endDateTime = getCurrentTime(channel.getChannelObject(), lastReadout);
+
+        if (endDateTime == null) {
+            logger.debug("[{}] endDateTime is null, aborting sendSampleRequest", channelID);
+            return answer;
+        }
+
+        logger.debug("[{}] Time range: lastReadout={} endDateTime={}", channelID, lastReadout, endDateTime);
 
         if (path.startsWith("/")) {
             path = path.substring(1);
@@ -90,19 +106,22 @@ public class HTTPDataSource {
         ParameterHelper parameterHelper = new ParameterHelper(lastReadout, endDateTime);
         path = parameterHelper.getNewPath(path, channel.getChannelObject());
 
-        logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {}", channelID, serverURL, userName, password);
+        logger.debug("[{}] Connection setting: server={} user={} authScheme={} connectTimeout={}s readTimeout={}s",
+                channelID, serverURL, userName, authScheme, connectionTimeout, readTimeout);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
 
         if (needUrlConfig) {/*only the first channel needs to configure the server url*/
             if (ssl) {/* Workaround if the protocol is not in the url**/
                 if (!serverURL.startsWith("https")) {
                     serverURL = "https://" + serverURL;
+                    logger.debug("[{}] Added https:// prefix to serverURL", channelID);
                 }
                 /* We trust self signed certificates for now, this way is not save **/
                 DataSourceHelper.doTrustToCertificates();
             } else {
                 if (!serverURL.startsWith("http")) {
                     serverURL = "http://" + serverURL;
+                    logger.debug("[{}] Added http:// prefix to serverURL", channelID);
                 }
             }
 
@@ -120,9 +139,10 @@ public class HTTPDataSource {
             /** Fallback if the URL does contain the port and the Port attribute has none **/
             URL url = new URL(serverURL);
             if (port == null && url.getPort() > -1) {
-                logger.info("[{}] Port not set in Attribute, using port from URL: {}", channelID, port);
+                logger.info("[{}] Port not set in Attribute, using port from URL: {}", channelID, url.getPort());
                 setPort(url.getPort());
             }
+            logger.debug("[{}] Server URL configured: {}", channelID, serverURL);
             needUrlConfig = false;
         }
 
@@ -152,18 +172,18 @@ public class HTTPDataSource {
         String contentURL = path;
         contentURL = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), contentURL, timeZone);
         contentURL = HTTPDataSource.FixURL(contentURL);
-        logger.debug("[{}] Channel URL: {}", channelID, contentURL);
+        logger.debug("[{}] Channel URL after parameter substitution: {}", channelID, contentURL);
 
         String getRequest = "";
         if (pathFollower.isActive()) {
-            logger.debug("[{}] Using Dynamic Link", channelID);
+            logger.debug("[{}] Using Dynamic Link follower", channelID);
             pathFollower.setConnection(httpClient, requestConfig);
             getRequest = pathFollower.startFetching(serverURL, contentURL);
-            logger.debug("[{}] Final target url after following links: {}", channelID, getRequest);
+            logger.debug("[{}] Final target URL after following links: {}", channelID, getRequest);
         } else {
             getRequest = serverURL + contentURL;
         }
-        logger.info("[{}] send HTTP.get: {}", channelID, getRequest);
+        logger.info("[{}] Sending HTTP GET: {}", channelID, getRequest);
 
         HttpGet get = new HttpGet(getRequest);
         get.setConfig(requestConfig);
@@ -175,19 +195,22 @@ public class HTTPDataSource {
 
         statusLine = oResponse.getStatusLine();
 
-        logger.info("[{}] HTTP response status code: {}", channelID, oResponse.getStatusLine());
+        logger.info("[{}] HTTP response: {}", channelID, oResponse.getStatusLine());
+        logger.debug("[{}] Response content-type: {}", channelID,
+                oResponse.containsHeader("Content-Type") ? oResponse.getFirstHeader("Content-Type").getValue() : "n/a");
 
         if (oResponse.getStatusLine().getStatusCode() == 200) {
             channel.setNextReadout(endDateTime);
         }
         HttpEntity oEntity = oResponse.getEntity();
         String oXmlString = EntityUtils.toString(oEntity);
-        logger.debug("[{}] Content length to parse: {}", channelID, oXmlString.length());
-        logger.debug("[{}] Content to parse: {}", channelID, oXmlString);
+        logger.debug("[{}] Response content length: {} chars", channelID, oXmlString.length());
+        logger.debug("[{}] Response content: {}", channelID, oXmlString);
         EntityUtils.consume(oEntity);
         InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
         answer.add(stream);
 
+        logger.info("[{}] sendSampleRequest completed, {} stream(s) returned", channelID, answer.size());
         return answer;
     }
 
