@@ -242,7 +242,7 @@ public class JEVisHTTPDataSource implements DataSource {
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
             List<JEVisObject> channels = channelDir.getChildren(channelClass, false);
-            logger.info("Found {} channel objects in {}:{}", channels.size(), channelDir.getName(), channelDir.getID());
+            logger.debug("Found {} channel objects in {}:{}", channels.size(), channelDir.getName(), channelDir.getID());
 
             channels.forEach(channelObject -> {
                 if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
