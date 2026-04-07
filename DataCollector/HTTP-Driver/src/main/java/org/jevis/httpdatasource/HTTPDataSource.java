@@ -257,7 +257,6 @@ public class HTTPDataSource {
 
             if (channel.getAttribute("Chunk Size(s)").hasSample()) {
                 if (DateTime.now().isBefore(lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue()))) {
-                    logger.debug("now");
                     return DateTime.now();
                 } else {
                     logger.debug("plusSeconds(channel.getAttribute(\"Chunk Size(s)\").getLatestSample().getValueAsDouble().intValue()");
@@ -278,7 +277,7 @@ public class HTTPDataSource {
     }
 
     public void setDateTimeZone(DateTimeZone timeZone) {
-        logger.info("TIMEZONE: {}", timeZone);
+        logger.debug("TIMEZONE: {}", timeZone);
         this.timeZone = timeZone;
     }
 
