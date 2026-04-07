@@ -8,7 +8,7 @@ import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.classes.JC;
-import org.jevis.commons.gson.GsonBuilder;
+import com.google.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Type;
@@ -53,7 +53,7 @@ public class ParameterHelper {
 
         String json = new String(jeVisFile.getBytes(), StandardCharsets.UTF_8);
 
-        Gson gson = GsonBuilder.createDefaultBuilder().create();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         Type listType = new TypeToken<ArrayList<Parameter>>() {
         }.getType();
         List<Parameter> Parameters = gson.fromJson(json, listType);
