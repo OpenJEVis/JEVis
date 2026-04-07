@@ -89,15 +89,6 @@ public class LoytecXmlDlParser {
             List<Document> documents = (List<Document>) converter.getConvertedInput(Document.class);
 
             for (Document d : documents) {
-                if (logger.getLevel().equals(Level.DEBUG)) {
-                    try {
-                        //TODO: Disabled:  cannot be cast to java.io.OutputStream exeption
-                        //printDocument(d, logger.getMessageFactory());
-
-                    } catch (TransformerException | IOException e) {
-                        e.printStackTrace();
-                    }
-                }
 
                 NodeList elementsByTagName = d.getElementsByTagName(mainElement);
 
