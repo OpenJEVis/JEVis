@@ -147,6 +147,10 @@ public interface DataSource {
         return aLong;
     }
 
+    default DateTime getNextRun(JEVisObject object) {
+        return getLastRun(object).plusMillis(getCycleTime(object).intValue());
+    }
+
     default void finishCurrentRun(JEVisObject object) {
         finishCurrentRun(object, true, "");
     }
@@ -161,11 +165,11 @@ public interface DataSource {
                 DateTime now = DateTime.now();
                 JEVisSample newSample = lastRunAttribute.buildSample(now, now);
                 if (success) {
-                    newSample.setNote("0");
+                    newSample.setNote("OK");
                 } else {
-                    String note = "1";
+                    String note = "ERROR";
                     if (message != null && !message.isEmpty()) {
-                        note = "1: " + (message.length() > 200 ? message.substring(0, 200) : message);
+                        note = "ERROR: " + (message.length() > 200 ? message.substring(0, 200) : message);
                     }
                     newSample.setNote(note);
                 }
@@ -174,6 +178,23 @@ public interface DataSource {
 
         } catch (JEVisException e) {
             logger.error("Could not update Last Run: ", e);
+        }
+    }
+
+    default void markAsIdle(JEVisObject object) {
+        try {
+            JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
+            if (lastRunAttribute != null) {
+                JEVisSample latestSample = lastRunAttribute.getLatestSample();
+                if (latestSample != null) {
+                    DateTime nextRun = getNextRun(object);
+                    JEVisSample idleSample = lastRunAttribute.buildSample(latestSample.getTimestamp(), latestSample.getTimestamp());
+                    idleSample.setNote("IDLE: " + nextRun.toString());
+                    idleSample.commit();
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not mark data source as idle: ", e);
         }
     }
 }

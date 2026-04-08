@@ -78,7 +78,8 @@ public class Launcher extends AbstractCliApp {
                             logger.info("DataSource {}:{} is ready.", object.getName(), object.getID());
                             runDataSource(object, dataSource, true);
                         } else {
-                            logger.info("DataSource {}:{} is not ready.", object.getName(), object.getID());
+                            logger.info("DataSource {}:{} is not ready. Next run at: {}", object.getName(), object.getID(), dataSource.getNextRun(object));
+                            dataSource.markAsIdle(object);
                             if (plannedJobs.containsKey(object.getID())) {
                                 Boolean manualTrigger = sampleHandler.getLastSample(object, DataCollectorTypes.DataSource.MANUAL_TRIGGER, false);
                                 if (manualTrigger) {
