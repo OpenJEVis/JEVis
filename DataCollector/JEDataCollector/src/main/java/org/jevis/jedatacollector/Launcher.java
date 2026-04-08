@@ -134,7 +134,7 @@ public class Launcher extends AbstractCliApp {
             attemptedRun = true;
             dataSource.run();
             success = true;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             try {
                 LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
             } catch (Exception ignore) {}
