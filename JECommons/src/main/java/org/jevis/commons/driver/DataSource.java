@@ -81,7 +81,10 @@ public interface DataSource {
             DateTime lastRun = getLastRun(object);
             Long cycleTime = getCycleTime(object);
             DateTime nextRun = lastRun.plusMillis(cycleTime.intValue());
-            return DateTime.now().withZone(getTimeZone(object)).equals(nextRun) || DateTime.now().isAfter(nextRun);
+            boolean ready = DateTime.now().isAfter(nextRun) || DateTime.now().withZone(getTimeZone(object)).equals(nextRun);
+            logger.info("isReady [{}]: lastRun={}, cycleTime={}ms, nextRun={}, ready={}",
+                    object.getName(), lastRun, cycleTime, nextRun, ready);
+            return ready;
         } catch (Exception ex) {
             logger.error("Error while checking isReady for '{}':{}", object, ex, ex);
             return false;
@@ -114,7 +117,7 @@ public interface DataSource {
             if (lastRunAttribute != null) {
                 JEVisSample lastSample = lastRunAttribute.getLatestSample();
                 if (lastSample != null) {
-                    dateTime = new DateTime(lastSample.getValueAsString());
+                    dateTime = lastSample.getTimestamp();
                 }
             }
 
@@ -144,21 +147,54 @@ public interface DataSource {
         return aLong;
     }
 
+    default DateTime getNextRun(JEVisObject object) {
+        return getLastRun(object).plusMillis(getCycleTime(object).intValue());
+    }
+
     default void finishCurrentRun(JEVisObject object) {
-        Long cycleTime = getCycleTime(object);
+        finishCurrentRun(object, true, "");
+    }
+
+    default void finishCurrentRun(JEVisObject object, boolean success, String message) {
         DateTime lastRun = getLastRun(object);
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
             if (lastRunAttribute != null) {
                 lastRunAttribute.deleteSamplesBetween(new DateTime(1990, 1, 1, 0, 0, 0, 0), lastRun.minusMonths(1));
 
-                DateTime dateTime = lastRun.plusMillis(cycleTime.intValue());
-                JEVisSample newSample = lastRunAttribute.buildSample(DateTime.now(), dateTime);
+                DateTime now = DateTime.now();
+                JEVisSample newSample = lastRunAttribute.buildSample(now, now);
+                if (success) {
+                    newSample.setNote("OK");
+                } else {
+                    String note = "ERROR";
+                    if (message != null && !message.isEmpty()) {
+                        note = "ERROR: " + (message.length() > 200 ? message.substring(0, 200) : message);
+                    }
+                    newSample.setNote(note);
+                }
                 newSample.commit();
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source last run time: ", e);
+            logger.error("Could not update Last Run: ", e);
+        }
+    }
+
+    default void markAsIdle(JEVisObject object) {
+        try {
+            JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
+            if (lastRunAttribute != null) {
+                JEVisSample latestSample = lastRunAttribute.getLatestSample();
+                if (latestSample != null) {
+                    DateTime nextRun = getNextRun(object);
+                    JEVisSample idleSample = lastRunAttribute.buildSample(latestSample.getTimestamp(), latestSample.getTimestamp());
+                    idleSample.setNote("IDLE: " + nextRun.toString());
+                    idleSample.commit();
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not mark data source as idle: ", e);
         }
     }
 }

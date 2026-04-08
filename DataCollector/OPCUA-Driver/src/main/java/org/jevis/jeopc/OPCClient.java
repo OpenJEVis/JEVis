@@ -1,8 +1,7 @@
 package org.jevis.jeopc;
 
 import com.google.common.collect.Lists;
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
+
 import org.apache.logging.log4j.LogManager;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.UaClient;
@@ -434,7 +433,7 @@ public class OPCClient {
      * @param list of the OPC-UA Nodes
      * @param rootFolder of OPC-UA
      */
-    public void browse(ObservableList<PathReferenceDescription> list, String rootFolder) {
+    public void browse(List<PathReferenceDescription> list, String rootFolder) {
         NodeId nodeId = Identifiers.RootFolder;
 
         PathReferenceDescription pathReferenceDescription = null;
@@ -573,7 +572,7 @@ public class OPCClient {
         return null;
     }
 
-    private void browseTree(ObservableList<PathReferenceDescription> list, String xpathParent, NodeId browseRoot) {
+    private void browseTree(List<PathReferenceDescription> list, String xpathParent, NodeId browseRoot) {
         BrowseDescription browse = new BrowseDescription(
                 browseRoot,
                 BrowseDirection.Forward,
@@ -608,10 +607,8 @@ public class OPCClient {
 
                 logger.debug("Add to Map: {}-{}", xpath, rd);
                 if (rd.getNodeClass().getValue() == 1 || (rd.getNodeClass().getValue() == 2 )) {
-                    Platform.runLater(() -> {
-                        logger.debug(pathReferenceDescription.getPath());
-                        list.add(pathReferenceDescription);
-                    });
+                    logger.debug(pathReferenceDescription.getPath());
+                    list.add(pathReferenceDescription);
                 }
 
 

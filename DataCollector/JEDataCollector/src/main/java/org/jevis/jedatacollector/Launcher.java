@@ -78,7 +78,8 @@ public class Launcher extends AbstractCliApp {
                             logger.info("DataSource {}:{} is ready.", object.getName(), object.getID());
                             runDataSource(object, dataSource, true);
                         } else {
-                            logger.info("DataSource {}:{} is not ready.", object.getName(), object.getID());
+                            logger.info("DataSource {}:{} is not ready. Next run at: {}", object.getName(), object.getID(), dataSource.getNextRun(object));
+                            dataSource.markAsIdle(object);
                             if (plannedJobs.containsKey(object.getID())) {
                                 Boolean manualTrigger = sampleHandler.getLastSample(object, DataCollectorTypes.DataSource.MANUAL_TRIGGER, false);
                                 if (manualTrigger) {
@@ -119,6 +120,8 @@ public class Launcher extends AbstractCliApp {
 
     private void runDataSource(JEVisObject object, DataSource dataSource, boolean finish) {
         boolean attemptedRun = false;
+        boolean success = false;
+        String errorMessage = "";
         try {
             runningJobs.put(object.getID(), new DateTime());
             LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
@@ -130,15 +133,25 @@ public class Launcher extends AbstractCliApp {
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
             attemptedRun = true;
             dataSource.run();
-        } catch (Exception e) {
-            LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
+            success = true;
+        } catch (Throwable e) {
+            try {
+                LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
+            } catch (Exception ignore) {}
             logger.error("Error in job {}:{}", object.getName(), object.getID(), e);
+            String msg = e.getClass().getSimpleName();
+            if (msg.isEmpty()) msg = e.getClass().getName();
+            if (e.getMessage() != null && !e.getMessage().isEmpty()) {
+                String firstLine = e.getMessage().split("\n")[0].trim();
+                if (!firstLine.isEmpty()) msg += ": " + firstLine;
+            }
+            errorMessage = msg.length() > 200 ? msg.substring(0, 200) : msg;
 
         } finally {
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
 
             if (finish && attemptedRun) {
-                dataSource.finishCurrentRun(object);
+                dataSource.finishCurrentRun(object, success, errorMessage);
             }
 
             StringBuilder finished = new StringBuilder();
