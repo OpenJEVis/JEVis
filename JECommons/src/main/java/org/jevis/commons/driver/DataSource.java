@@ -81,7 +81,10 @@ public interface DataSource {
             DateTime lastRun = getLastRun(object);
             Long cycleTime = getCycleTime(object);
             DateTime nextRun = lastRun.plusMillis(cycleTime.intValue());
-            return DateTime.now().withZone(getTimeZone(object)).equals(nextRun) || DateTime.now().isAfter(nextRun);
+            boolean ready = DateTime.now().isAfter(nextRun) || DateTime.now().withZone(getTimeZone(object)).equals(nextRun);
+            logger.info("isReady [{}]: lastRun={}, cycleTime={}ms, nextRun={}, ready={}",
+                    object.getName(), lastRun, cycleTime, nextRun, ready);
+            return ready;
         } catch (Exception ex) {
             logger.error("Error while checking isReady for '{}':{}", object, ex, ex);
             return false;
@@ -114,7 +117,7 @@ public interface DataSource {
             if (lastRunAttribute != null) {
                 JEVisSample lastSample = lastRunAttribute.getLatestSample();
                 if (lastSample != null) {
-                    dateTime = new DateTime(lastSample.getValueAsString());
+                    dateTime = lastSample.getTimestamp();
                 }
             }
 
