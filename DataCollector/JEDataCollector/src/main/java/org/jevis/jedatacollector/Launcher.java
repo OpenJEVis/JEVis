@@ -134,12 +134,15 @@ public class Launcher extends AbstractCliApp {
             dataSource.run();
             success = true;
         } catch (Exception e) {
-            LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
+            try {
+                LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
+            } catch (Exception ignore) {}
             logger.error("Error in job {}:{}", object.getName(), object.getID(), e);
             String msg = e.getClass().getSimpleName();
-            if (e.getMessage() != null) {
+            if (msg.isEmpty()) msg = e.getClass().getName();
+            if (e.getMessage() != null && !e.getMessage().isEmpty()) {
                 String firstLine = e.getMessage().split("\n")[0].trim();
-                msg += ": " + firstLine;
+                if (!firstLine.isEmpty()) msg += ": " + firstLine;
             }
             errorMessage = msg.length() > 200 ? msg.substring(0, 200) : msg;
 
