@@ -94,28 +94,32 @@ public class AlarmProcess {
             boolean hasData = true;
             List<JEVisObject> enabledAlarms = new ArrayList<>();
             for (JEVisObject obj : allCleanDataObjects) {
-                CleanDataObject cleanDataObject = new CleanDataObject(obj);
-                boolean alarmEnabled = false;
-                JEVisAttribute alarmEnabledAttribute = cleanDataObject.getAlarmEnabledAttribute();
-                if (alarmEnabledAttribute != null && alarmEnabledAttribute.hasSample()) {
-                    JEVisSample latestSample = alarmEnabledAttribute.getLatestSample();
-                    if (latestSample != null) {
-                        try {
-                            alarmEnabled = latestSample.getValueAsBoolean();
-                            enabledAlarms.add(obj);
+                try {
+                    CleanDataObject cleanDataObject = new CleanDataObject(obj);
+                    boolean alarmEnabled = false;
+                    JEVisAttribute alarmEnabledAttribute = cleanDataObject.getAlarmEnabledAttribute();
+                    if (alarmEnabledAttribute != null && alarmEnabledAttribute.hasSample()) {
+                        JEVisSample latestSample = alarmEnabledAttribute.getLatestSample();
+                        if (latestSample != null) {
+                            try {
+                                alarmEnabled = latestSample.getValueAsBoolean();
+                                enabledAlarms.add(obj);
 
-                            if (!alarmEnabled) continue;
-                        } catch (JEVisException e) {
-                            logger.error("Error while getting alarm enabled attribute sample", e);
+                                if (!alarmEnabled) continue;
+                            } catch (JEVisException e) {
+                                logger.error("Error while getting alarm enabled attribute sample", e);
+                            }
                         }
-                    }
-                } else continue;
+                    } else continue;
 
-                DateTime lastTS = cleanDataObject.getFirstDate();
-                if (alarmPeriod != Period.NONE && alarmEnabled && !lastTS.isAfter(end)) {
-                    logger.debug("Object {}:{} has last ts of {} that is not after {}", obj.getName(), obj.getID(), lastTS, end);
-                    hasData = false;
-                    break;
+                    DateTime lastTS = cleanDataObject.getFirstDate();
+                    if (alarmPeriod != Period.NONE && alarmEnabled && !lastTS.isAfter(end)) {
+                        logger.debug("Object {}:{} has last ts of {} that is not after {}", obj.getName(), obj.getID(), lastTS, end);
+                        hasData = false;
+                        break;
+                    }
+                }catch(Exception ex){
+                    logger.error("Error in obj: {}",obj,ex);
                 }
             }
 
