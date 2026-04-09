@@ -168,7 +168,7 @@ public class Launcher extends AbstractCliApp {
         } finally {
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
 
-            if (finish && attemptedRun) {
+            if (finish) {
                 dataSource.finishCurrentRun(object, success, errorMessage);
             }
             lastRunTimes.put(object.getID(), DateTime.now());
