@@ -41,7 +41,6 @@ public class Launcher extends AbstractCliApp {
     private final ConcurrentHashMap<Long, FutureTask<?>> runnables = new ConcurrentHashMap<>();
     private final SampleHandler sampleHandler = new SampleHandler();
     private final ConcurrentHashMap<Long, DateTime> lastRunTimes = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Long, Long> idleNotifiedForCycleTime = new ConcurrentHashMap<>();
 
     /**
      * @param args the command line arguments
@@ -89,19 +88,13 @@ public class Launcher extends AbstractCliApp {
 
                         if (dueForRun) {
                             logger.info("DataSource {}:{} is ready.", object.getName(), id);
-                            idleNotifiedForCycleTime.remove(id);
                             runDataSource(object, dataSource, true);
                         } else {
                             logger.info("DataSource {}:{} is not ready. Next run at: {}", object.getName(), id, nextRun);
-                            if (!cycleTime.equals(idleNotifiedForCycleTime.get(id))) {
-                                dataSource.markAsIdle(object, nextRun);
-                                idleNotifiedForCycleTime.put(id, cycleTime);
-                            }
                             if (plannedJobs.containsKey(id)) {
                                 Boolean manualTrigger = sampleHandler.getLastSample(object, DataCollectorTypes.DataSource.MANUAL_TRIGGER, false);
                                 if (manualTrigger) {
                                     logger.info("DataSource {}:{} has active manual trigger.", object.getName(), id);
-                                    idleNotifiedForCycleTime.remove(id);
                                     runDataSource(object, dataSource, true);
                                     try {
                                         JEVisAttribute attribute = object.getAttribute(DataCollectorTypes.DataSource.MANUAL_TRIGGER);

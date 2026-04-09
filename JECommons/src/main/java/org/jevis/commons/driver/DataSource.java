@@ -163,14 +163,16 @@ public interface DataSource {
                 lastRunAttribute.deleteSamplesBetween(new DateTime(1990, 1, 1, 0, 0, 0, 0), lastRun.minusMonths(1));
 
                 DateTime now = DateTime.now();
+                DateTime nextRun = now.plusMillis(getCycleTime(object).intValue());
                 JEVisSample newSample = lastRunAttribute.buildSample(now, now);
                 if (success) {
-                    newSample.setNote("OK");
+                    newSample.setNote("OK | next: " + nextRun.toString());
                 } else {
                     String note = "ERROR";
                     if (message != null && !message.isEmpty()) {
                         note = "ERROR: " + (message.length() > 200 ? message.substring(0, 200) : message);
                     }
+                    note += " | next: " + nextRun.toString();
                     newSample.setNote(note);
                 }
                 newSample.commit();
