@@ -108,6 +108,8 @@ public class HTTPDataSource {
         ParameterHelper parameterHelper = new ParameterHelper(lastReadout, endDateTime);
         path = parameterHelper.getNewPath(path, channel.getChannelObject());
 
+        logger.info("[{}] Raw config before URL build: serverURL='{}' port={} ssl={} needUrlConfig={}",
+                channelID, serverURL, port, ssl, needUrlConfig);
         logger.debug("[{}] Connection setting: server={} user={} authScheme={} connectTimeout={}s readTimeout={}s",
                 channelID, serverURL, userName, authScheme, connectionTimeout, readTimeout);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
