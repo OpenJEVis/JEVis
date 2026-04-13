@@ -8,10 +8,12 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
@@ -158,12 +160,25 @@ public class HTTPDataSource {
 
         //HttpHost targetHost = new HttpHost(url.getHost(), port, url.getProtocol());
 
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
-                SSLContexts.createDefault(),
-                new String[]{"TLSv1.2", "TLSv1.3"},
-                null,
-                SSLConnectionSocketFactory.getDefaultHostnameVerifier()
-        );
+        SSLConnectionSocketFactory sslsf;
+        try {
+            sslsf = new SSLConnectionSocketFactory(
+                    new SSLContextBuilder()
+                            .loadTrustMaterial(null, (chain, authType) -> true)
+                            .build(),
+                    new String[]{"TLSv1.2", "TLSv1.3"},
+                    null,
+                    NoopHostnameVerifier.INSTANCE
+            );
+        } catch (Exception e) {
+            logger.warn("[{}] Could not create trust-all SSL context, falling back to default: {}", channelID, e.getMessage());
+            sslsf = new SSLConnectionSocketFactory(
+                    SSLContexts.createDefault(),
+                    new String[]{"TLSv1.2", "TLSv1.3"},
+                    null,
+                    SSLConnectionSocketFactory.getDefaultHostnameVerifier()
+            );
+        }
 
         CloseableHttpClient httpClient;
         if (userName != null && !userName.isEmpty()) {
