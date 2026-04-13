@@ -74,6 +74,11 @@ public class HTTPConnection {
      */
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
     private static final Logger logger = LogManager.getLogger(HTTPConnection.class);
+
+    static {
+        // Enforce TLS 1.2+ globally for all HTTPS connections (Java 1.8 defaults to older TLS versions)
+        System.setProperty("https.protocols", "TLSv1.2,TLSv1.3");
+    }
     private static final long RETRY_DELAY_MS = 5000;
     private static final int RETRIES = 3;
     /** Base path for all v1 API endpoints. */
