@@ -163,14 +163,16 @@ public interface DataSource {
                 lastRunAttribute.deleteSamplesBetween(new DateTime(1990, 1, 1, 0, 0, 0, 0), lastRun.minusMonths(1));
 
                 DateTime now = DateTime.now();
+                DateTime nextRun = now.plusMillis(getCycleTime(object).intValue());
                 JEVisSample newSample = lastRunAttribute.buildSample(now, now);
                 if (success) {
-                    newSample.setNote("OK");
+                    newSample.setNote("OK | next: " + nextRun.toString());
                 } else {
                     String note = "ERROR";
                     if (message != null && !message.isEmpty()) {
                         note = "ERROR: " + (message.length() > 200 ? message.substring(0, 200) : message);
                     }
+                    note += " | next: " + nextRun.toString();
                     newSample.setNote(note);
                 }
                 newSample.commit();
@@ -181,20 +183,22 @@ public interface DataSource {
         }
     }
 
-    default void markAsIdle(JEVisObject object) {
+    default void markAsIdle(JEVisObject object, DateTime nextRun) {
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
             if (lastRunAttribute != null) {
                 JEVisSample latestSample = lastRunAttribute.getLatestSample();
-                if (latestSample != null) {
-                    DateTime nextRun = getNextRun(object);
-                    JEVisSample idleSample = lastRunAttribute.buildSample(latestSample.getTimestamp(), latestSample.getTimestamp());
-                    idleSample.setNote("IDLE: " + nextRun.toString());
-                    idleSample.commit();
-                }
+                DateTime sampleTime = latestSample != null ? latestSample.getTimestamp() : DateTime.now();
+                JEVisSample idleSample = lastRunAttribute.buildSample(sampleTime, sampleTime);
+                idleSample.setNote("IDLE: " + nextRun.toString());
+                idleSample.commit();
             }
         } catch (JEVisException e) {
             logger.error("Could not mark data source as idle: ", e);
         }
+    }
+
+    default void markAsIdle(JEVisObject object) {
+        markAsIdle(object, getNextRun(object));
     }
 }

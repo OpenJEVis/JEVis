@@ -40,6 +40,7 @@ public class Launcher extends AbstractCliApp {
     private boolean firstRun = true;
     private final ConcurrentHashMap<Long, FutureTask<?>> runnables = new ConcurrentHashMap<>();
     private final SampleHandler sampleHandler = new SampleHandler();
+    private final ConcurrentHashMap<Long, DateTime> lastRunTimes = new ConcurrentHashMap<>();
 
     /**
      * @param args the command line arguments
@@ -72,25 +73,35 @@ public class Launcher extends AbstractCliApp {
                 Runnable runnable = () -> {
                     try {
                         Thread.currentThread().setName(object.getID().toString());
-
+                        Long id = object.getID();
                         DataSource dataSource = DataSourceFactory.getDataSource(object);
-                        if (dataSource.isReady(object)) {
-                            logger.info("DataSource {}:{} is ready.", object.getName(), object.getID());
+
+                        boolean dueForRun = !lastRunTimes.containsKey(id);
+                        DateTime nextRun = null;
+                        Long cycleTime = null;
+
+                        if (!dueForRun) {
+                            cycleTime = dataSource.getCycleTime(object);
+                            nextRun = lastRunTimes.get(id).plusMillis(cycleTime.intValue());
+                            dueForRun = !DateTime.now().isBefore(nextRun);
+                        }
+
+                        if (dueForRun) {
+                            logger.info("DataSource {}:{} is ready.", object.getName(), id);
                             runDataSource(object, dataSource, true);
                         } else {
-                            logger.info("DataSource {}:{} is not ready. Next run at: {}", object.getName(), object.getID(), dataSource.getNextRun(object));
-                            dataSource.markAsIdle(object);
-                            if (plannedJobs.containsKey(object.getID())) {
+                            logger.info("DataSource {}:{} is not ready. Next run at: {}", object.getName(), id, nextRun);
+                            if (plannedJobs.containsKey(id)) {
                                 Boolean manualTrigger = sampleHandler.getLastSample(object, DataCollectorTypes.DataSource.MANUAL_TRIGGER, false);
                                 if (manualTrigger) {
-                                    logger.info("DataSource {}:{} has active manual trigger.", object.getName(), object.getID());
-                                    runDataSource(object, dataSource, false);
+                                    logger.info("DataSource {}:{} has active manual trigger.", object.getName(), id);
+                                    runDataSource(object, dataSource, true);
                                     try {
                                         JEVisAttribute attribute = object.getAttribute(DataCollectorTypes.DataSource.MANUAL_TRIGGER);
                                         JEVisSample sample = attribute.buildSample(DateTime.now(), false);
                                         sample.commit();
                                     } catch (Exception e) {
-                                        logger.error("Could not disable manual trigger for datasource {}:{}", object.getName(), object.getID());
+                                        logger.error("Could not disable manual trigger for datasource {}:{}", object.getName(), id);
                                         removeJob(object);
                                     }
                                 } else {
@@ -150,9 +161,10 @@ public class Launcher extends AbstractCliApp {
         } finally {
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
 
-            if (finish && attemptedRun) {
+            if (finish) {
                 dataSource.finishCurrentRun(object, success, errorMessage);
             }
+            lastRunTimes.put(object.getID(), DateTime.now());
 
             StringBuilder finished = new StringBuilder();
             finished.append(object.getID()).append(" in ");
