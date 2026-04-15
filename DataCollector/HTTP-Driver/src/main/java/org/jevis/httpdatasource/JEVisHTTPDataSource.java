@@ -95,10 +95,7 @@ public class JEVisHTTPDataSource implements DataSource {
                         }
                     }
                 } else {
-                    Channel httpChannel = httpChannels.stream().filter(c -> c.getChannelObject().equals(channel)).findFirst().orElse(null);
-                    if (httpChannel != null && httpChannel.getNextReadout() != null) {
-                        JEVisImporterAdapter.setLastReadout(httpChannel.getChannelObject(), httpChannel.getNextReadout());
-                    }
+                    logger.info("No results for channel {}:{} - Last Readout unchanged", channel.getID(), channel.getName());
                 }
             } catch (MalformedURLException ex) {
                 logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
