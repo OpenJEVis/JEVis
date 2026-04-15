@@ -242,10 +242,12 @@ public class JEVisImporter implements Importer {
                         return null;
                     }));
 
-                    logger.info("Import samples: key: {} , values: {}, first: {}, last: {}", key.getObject().getName(), values.size()
-                    , !values.isEmpty() ?  values.getFirst().toString() : " no Sample"
-                    , !values.isEmpty() ?  values.getLast().toString() : " no Sample");
-                    key.addSamples(values);
+
+                    String firstSample = !values.isEmpty() ?  values.get(0).toString() : " no Sample";
+                    String lastSample = !values.isEmpty() ?  values.get(values.size()-1).toString() : " no Sample";
+
+                    logger.info("Import samples: key: {} , values: {}, first: {}, last: {}",
+                            key.getObject().getName(), values.size(), firstSample  , lastSample,  key.addSamples(values));
 
                     DateTime timeStampOfLastSample = values.get(values.size() - 1).getTimestamp();
                     if (lastTSTotal == null || timeStampOfLastSample.isBefore(lastTSTotal)) {
