@@ -229,7 +229,6 @@ public class JEVisImporter implements Importer {
             }
 
             //do the import into the JEVis DB
-            //logger.info("Total List Count: {}",toImportList.size());
             for (Map.Entry<JEVisAttribute, List<JEVisSample>> entrySet : toImportList.entrySet()) {
                 try {
                     JEVisAttribute key = entrySet.getKey();
@@ -243,9 +242,12 @@ public class JEVisImporter implements Importer {
                         return null;
                     }));
 
-                    //Bulk Import
-                    logger.info("Import samples: key: {} , values: {}", key.getObject().getName(), values.size());
-                    key.addSamples(values);
+
+                    String firstSample = !values.isEmpty() ?  values.get(0).toString() : " no Sample";
+                    String lastSample = !values.isEmpty() ?  values.get(values.size()-1).toString() : " no Sample";
+
+                    logger.info("Import: {}-{} , values: {}, first: {}, last: {}",
+                            key.getObject().getID(),key.getObject().getName(), values.size(), firstSample  , lastSample,  key.addSamples(values));
 
                     DateTime timeStampOfLastSample = values.get(values.size() - 1).getTimestamp();
                     if (lastTSTotal == null || timeStampOfLastSample.isBefore(lastTSTotal)) {
