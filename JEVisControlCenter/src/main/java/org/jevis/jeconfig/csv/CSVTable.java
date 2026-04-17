@@ -44,24 +44,23 @@ import java.util.List;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class CSVTable extends TableView<CSVLine> {
+public class CSVTable extends TableView<ImportLine> {
 
     private static final Logger logger = LogManager.getLogger(CSVTable.class);
     private final JEVisDataSource ds;
-    private CSVParser parser;
+    private ImportParser parser;
     private List<CSVColumnHeader> header = new ArrayList<>();
     private String customNote = "";
     private JEVisAttribute preSelectedTarget = null;
 
-    public CSVTable(JEVisDataSource ds, CSVParser parser, JEVisAttribute preSelectedTarget) {
+    public CSVTable(JEVisDataSource ds, ImportParser parser, JEVisAttribute preSelectedTarget) {
         super();
         this.parser = parser;
         this.ds = ds;
         this.preSelectedTarget = preSelectedTarget;
-        setItems(FXCollections.observableArrayList(parser.getRows()));
+        setItems(FXCollections.observableArrayList(parser.getLines()));
         setMaxHeight(1024);
         updateColumns();
-
     }
 
     public void setTarget(JEVisAttribute preSelectedTarget) {
@@ -72,15 +71,15 @@ public class CSVTable extends TableView<CSVLine> {
         getColumns().clear();
         header = new ArrayList<>();
 
-        TableColumn<CSVLine, String> lineColumn = new TableColumn("Nr.");
-        lineColumn.setCellFactory(new Callback<TableColumn<CSVLine, String>, TableCell<CSVLine, String>>() {
+        TableColumn<ImportLine, String> lineColumn = new TableColumn("Nr.");
+        lineColumn.setCellFactory(new Callback<TableColumn<ImportLine, String>, TableCell<ImportLine, String>>() {
             @Override
-            public TableCell<CSVLine, String> call(TableColumn<CSVLine, String> param) {
-                TableCell<CSVLine, String> cell = new TableCell<CSVLine, String>() {
+            public TableCell<ImportLine, String> call(TableColumn<ImportLine, String> param) {
+                TableCell<ImportLine, String> cell = new TableCell<ImportLine, String>() {
                     @Override
                     protected void updateItem(String item, boolean empty) {
                         super.updateItem(item, empty);
-                        setText("" + (getTableRow().getIndex() + 1 + +parser.getHeader()));
+                        setText("" + (getTableRow().getIndex() + 1 + parser.getHeaderLines()));
                     }
                 };
                 return cell;
@@ -91,7 +90,7 @@ public class CSVTable extends TableView<CSVLine> {
 
         for (int i = 0; i < parser.getColumnCount(); i++) {
             String columnName = "Column " + i;
-            TableColumn<CSVLine, String> column = new TableColumn(columnName);
+            TableColumn<ImportLine, String> column = new TableColumn(columnName);
             final CSVColumnHeader header = new CSVColumnHeader(this, i, preSelectedTarget);
             this.header.add(header);
             column.setSortable(false);//layout problem
@@ -111,7 +110,6 @@ public class CSVTable extends TableView<CSVLine> {
             column.setGraphic(header.getGraphic());
 
             getColumns().add(column);
-
         }
     }
 
@@ -139,10 +137,10 @@ public class CSVTable extends TableView<CSVLine> {
                     }
                 }
 
-                List<CSVLine> toImportList = new ArrayList<>();
-                parser.getRows().forEach(csvLine -> {
-                    if (!csvLine.isEmpty()) {
-                        toImportList.add(csvLine);
+                List<ImportLine> toImportList = new ArrayList<>();
+                parser.getLines().forEach(line -> {
+                    if (!line.isEmpty()) {
+                        toImportList.add(line);
                     }
                 });
                 if (dateColumn != null || timeColumn != null) {
@@ -150,7 +148,7 @@ public class CSVTable extends TableView<CSVLine> {
                     List<DateTime> listTime = new ArrayList<>();
                     for (CSVColumnHeader header1 : header) {
                         if (header1.getMeaning() == CSVColumnHeader.Meaning.Date) {
-                            for (CSVLine line : toImportList) {
+                            for (ImportLine line : toImportList) {
                                 try {
                                     listDate.add(header1.getValueAsDate(line.getColumn(header1.getColumn())));
                                 } catch (ParseException e) {
@@ -158,7 +156,7 @@ public class CSVTable extends TableView<CSVLine> {
                                 }
                             }
                         } else if (header1.getMeaning() == CSVColumnHeader.Meaning.Time) {
-                            for (CSVLine line : toImportList) {
+                            for (ImportLine line : toImportList) {
                                 try {
                                     listTime.add(header1.getValueAsDate(line.getColumn(header1.getColumn())));
                                 } catch (ParseException e) {
@@ -188,7 +186,7 @@ public class CSVTable extends TableView<CSVLine> {
                     if (header1.getMeaning() == CSVColumnHeader.Meaning.Value || header1.getMeaning() == CSVColumnHeader.Meaning.Text) {
                         List<JEVisSample> _newSamples = new ArrayList<>();
 
-                        for (CSVLine line : toImportList) {
+                        for (ImportLine line : toImportList) {
                             try {
                                 DateTime ts = null;
                                 int rowNumber = line.getRowNumber();
@@ -218,7 +216,6 @@ public class CSVTable extends TableView<CSVLine> {
                         }
                         try {
                             logger.debug("Import " + _newSamples.size() + " sample(s) into " + header1.getTarget().getObject().getID() + "." + header1.getTarget().getName());
-//                            importedSize+= header.getTarget().addSamples(_newSamples); // not working because of missing API implementation
                             header1.getTarget().addSamples(_newSamples);
                             importedSize += _newSamples.size();
                         } catch (Exception ex) {
@@ -252,23 +249,19 @@ public class CSVTable extends TableView<CSVLine> {
         }
     }
 
-
     public void refreshTable() {
-//        getItems().clear();
-        ObservableList<CSVLine> observableList = FXCollections.observableArrayList(parser.parse());
+        parser.refresh();
+        ObservableList<ImportLine> observableList = FXCollections.observableArrayList(parser.getLines());
         Platform.runLater(() -> {
-//            updateColumns();
             setItems(observableList);
         });
-
     }
 
-
-    public void setCSVParser(CSVParser parser) {
+    public void setParser(ImportParser parser) {
         this.parser = parser;
     }
 
-    public CSVParser getParser() {
+    public ImportParser getParser() {
         return parser;
     }
 

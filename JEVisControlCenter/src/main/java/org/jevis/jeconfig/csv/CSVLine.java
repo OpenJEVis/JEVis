@@ -28,7 +28,7 @@ import java.util.Arrays;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class CSVLine {
+public class CSVLine implements ImportLine {
 
     private static final Logger logger = LogManager.getLogger(CSVLine.class);
     private int _coloumCount = 0;

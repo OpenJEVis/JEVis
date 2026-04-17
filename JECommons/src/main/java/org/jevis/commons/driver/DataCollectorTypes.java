@@ -22,6 +22,24 @@ package org.jevis.commons.driver;
 import org.jevis.api.JEVisObject;
 
 /**
+ * Central registry of JEVis class names and attribute names used by the JEDataCollector framework.
+ *
+ * <p>The hierarchy mirrors the JEVis object tree:
+ * <ul>
+ *   <li>{@link JEDataCollector} – the top-level service object; holds global settings such as
+ *       maximum thread count and timeout.</li>
+ *   <li>{@link DataSourceDriverDirectory}, {@link ParserDriverDirectory}, etc. – container objects
+ *       that hold {@link Driver} child objects, each describing one loadable driver JAR.</li>
+ *   <li>{@link DataSource} – base type for all data-source objects (e.g. "FTP Server",
+ *       "HTTP Server"); defines common scheduling attributes like {@code Cycle Time} and
+ *       {@code Last Run}.</li>
+ *   <li>{@link Channel} – leaf objects under a data source that describe individual data points
+ *       to be collected.</li>
+ * </ul>
+ *
+ * <p>String constants defined here must match the JEVis class/attribute names stored in the
+ * database schema (see {@code var/classes/DataCollector/} JSON definitions).
+ *
  * @author bf
  */
 public interface DataCollectorTypes {
@@ -209,6 +227,7 @@ public interface DataCollectorTypes {
 
             interface HTTP extends DataServer {
                 String AUTHENTICATION = "Authentication";
+                String TRUST_ALL_CERTIFICATES = "Trust All Certificates";
             }
 
         }

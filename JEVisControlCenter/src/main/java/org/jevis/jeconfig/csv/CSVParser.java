@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class CSVParser {
+public class CSVParser implements ImportParser {
 
     private static final Logger logger = LogManager.getLogger(CSVParser.class);
     private File file;
@@ -159,5 +159,27 @@ public class CSVParser {
 
     public void setHeader(int header) {
         this.header = header;
+    }
+
+    // --- ImportParser interface ---
+
+    @Override
+    public List<ImportLine> getLines() {
+        return new ArrayList<>(rows);
+    }
+
+    @Override
+    public int getHeaderLines() {
+        return header;
+    }
+
+    @Override
+    public void setHeaderLines(int count) {
+        setHeader(count);
+    }
+
+    @Override
+    public void refresh() {
+        parse();
     }
 }

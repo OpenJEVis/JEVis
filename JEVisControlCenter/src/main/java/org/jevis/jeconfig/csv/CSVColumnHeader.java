@@ -78,7 +78,7 @@ public class CSVColumnHeader {
     private final Label typeL = new Label(I18n.getInstance().getString("csv.table.meaning"));
     private final Label formatL = new Label(I18n.getInstance().getString("csv.table.format"));
     private final DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
-    private final HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
+    private final HashMap<Integer, ImportLine> _lines = new HashMap<Integer, ImportLine>();
     private final HashMap<Integer, SimpleObjectProperty<Node>> _valueProperty = new HashMap<Integer, SimpleObjectProperty<Node>>();
     private final HashMap<Integer, CSVCellGraphic> _valueGraphic = new HashMap<Integer, CSVCellGraphic>();
     private final CSVTable _table;
@@ -155,11 +155,11 @@ public class CSVColumnHeader {
 
             SimpleObjectProperty prop = (SimpleObjectProperty) pairs.getValue();
             CSVCellGraphic graphic = _valueGraphic.get(pairs.getKey());
-            CSVLine csvLIne = _lines.get(pairs.getKey());
+            ImportLine importLine = _lines.get(pairs.getKey());
 
-            graphic.setText(getFormattedValue(csvLIne.getColumn(columnNr)));
-            graphic.setValid(valueIsValid(csvLIne.getColumn(columnNr)));
-            graphic.setToolTipText("Original: '" + csvLIne.getColumn(columnNr) + "'");
+            graphic.setText(getFormattedValue(importLine.getColumn(columnNr)));
+            graphic.setValid(valueIsValid(importLine.getColumn(columnNr)));
+            graphic.setToolTipText("Original: '" + importLine.getColumn(columnNr) + "'");
 
             if (getMeaning() == Meaning.Ignore) {
                 graphic.setIgnore();
@@ -193,7 +193,7 @@ public class CSVColumnHeader {
         return _decimalSeparator;
     }
 
-    public SimpleObjectProperty getValueProperty(CSVLine line) {
+    public SimpleObjectProperty getValueProperty(ImportLine line) {
         int lineNumber = line.getRowNumber();
         if (_valueProperty.containsKey(lineNumber)) {
             return _valueProperty.get(lineNumber);
@@ -675,7 +675,7 @@ public class CSVColumnHeader {
             Iterator it = _lines.entrySet().iterator();
             while (it.hasNext()) {
                 try {
-                    Map.Entry<Integer, CSVLine> pairs = (Map.Entry) it.next();
+                    Map.Entry<Integer, ImportLine> pairs = (Map.Entry) it.next();
 
                     workaround++;
                     if (workaround == 3) {
