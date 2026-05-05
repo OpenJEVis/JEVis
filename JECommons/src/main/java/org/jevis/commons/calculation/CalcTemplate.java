@@ -61,7 +61,7 @@ public class CalcTemplate {
             }
             return result;
         } catch (Expression.ExpressionException | ArithmeticException e) {
-            logger.error("Expression evaluation failed for calc object {}: {}", calcObjectId, e.getMessage());
+            logger.warn("Expression evaluation failed for calc object {}: {}", calcObjectId, e.getMessage());
             return null;
         }
     }
