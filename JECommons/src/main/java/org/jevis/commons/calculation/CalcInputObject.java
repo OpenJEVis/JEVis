@@ -11,6 +11,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.classes.JC;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
@@ -53,15 +54,15 @@ public class CalcInputObject {
         this.valueAttribute = valueAttribute;
 
         try {
-            JEVisClass siteClass = valueAttribute.getObject().getDataSource().getJEVisClass("Building");
+            JEVisClass siteClass = valueAttribute.getObject().getDataSource().getJEVisClass(JC.MonitoredObject.Building.name);
             JEVisObject site = getNextSiteRecursive(valueAttribute.getObject(), siteClass);
-            JEVisAttribute zoneAtt = site.getAttribute("Timezone");
+            JEVisAttribute zoneAtt = site.getAttribute(JC.MonitoredObject.Building.a_Timezone);
             if (zoneAtt.hasSample()) {
                 String zoneStr = zoneAtt.getLatestSample().getValueAsString();
                 dateTimeZone = DateTimeZone.forID(zoneStr);
             }
         } catch (Exception e) {
-            logger.error("Could not get Site timezone", e);
+            logger.error("Could not get Site timezone for object {}:{}", valueAttribute.getObject().getName(), valueAttribute.getObject().getID(), e);
         }
     }
 
