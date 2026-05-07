@@ -63,6 +63,14 @@
       "jevisClass": "HTTP Server"
     },
     {
+      "name": "Bearer Auth Login Url",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HTTP Server"
+    },
+    {
       "name": "Trust All Certificates",
       "primitiveType": 4,
       "guiType": "Check Box",
