@@ -62,6 +62,14 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "HTTP Channel"
+    },
+    {
+      "name": "Get Request Body",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "HTTP Channel"
     }
   ]
 }
