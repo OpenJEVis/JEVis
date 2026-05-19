@@ -193,18 +193,18 @@ public class ProcessManager {
         } else if (processingType == ProcessingType.FORECAST) {
             ForecastDataObject fdo = resourceManager.getForecastDataObject();
             JEVisObject fObj = fdo.getForecastDataObject();
-            logger.info("[{}:{}] Starting Process", fObj.getName(), resourceManager.getID());
+            logger.info("[{}:{}] Starting Process", fObj.getName(), fObj.getID());
 
             Long cycleTime = fdo.getCycleTime(fObj);
             if (cycleTime == null || cycleTime <= 0) {
                 logger.warn("[{}:{}] Forecast cycle time invalid ({}); skipping run to prevent infinite loop",
-                        fObj.getName(), resourceManager.getID(), cycleTime);
+                        fObj.getName(), fObj.getID(), cycleTime);
             } else {
                 int safety = 0;
                 while (fdo.isReady(fObj)) {
                     if (++safety > MAX_REPROCESS_ITERATIONS) {
                         logger.error("[{}:{}] Forecast loop hit safety cap of {} iterations; aborting",
-                                fObj.getName(), resourceManager.getID(), MAX_REPROCESS_ITERATIONS);
+                                fObj.getName(), fObj.getID(), MAX_REPROCESS_ITERATIONS);
                         break;
                     }
                     DateTime before = fdo.getLastRun(fObj);
@@ -213,7 +213,7 @@ public class ProcessManager {
                     DateTime after = fdo.getLastRun(fObj);
                     if (after == null || !after.isAfter(before)) {
                         logger.error("[{}:{}] Forecast 'Last Run' did not advance ({} -> {}); aborting to prevent infinite loop",
-                                fObj.getName(), resourceManager.getID(), before, after);
+                                fObj.getName(), fObj.getID(), before, after);
                         break;
                     }
 
@@ -223,23 +223,23 @@ public class ProcessManager {
                 }
             }
 
-            logger.info("[{}:{}] Finished", fObj.getName(), resourceManager.getID());
+            logger.info("[{}:{}] Finished", fObj.getName(), fObj.getID());
         } else if (processingType == ProcessingType.MATH) {
             MathDataObject mdo = resourceManager.getMathDataObject();
             JEVisObject mObj = mdo.getMathDataObject();
-            logger.info("[{}:{}] Starting Process", mObj.getName(), resourceManager.getID());
+            logger.info("[{}:{}] Starting Process", mObj.getName(), mObj.getID());
 
             DateTime initialLastRun = mdo.getLastRun(mObj);
             DateTime initialNextRun = mdo.getNextRun();
             if (initialNextRun == null || !initialNextRun.isAfter(initialLastRun)) {
                 logger.warn("[{}:{}] Math next run ({}) does not advance past last run ({}); skipping run to prevent infinite loop",
-                        mObj.getName(), resourceManager.getID(), initialNextRun, initialLastRun);
+                        mObj.getName(), mObj.getID(), initialNextRun, initialLastRun);
             } else {
                 int safety = 0;
                 while (mdo.isReady()) {
                     if (++safety > MAX_REPROCESS_ITERATIONS) {
                         logger.error("[{}:{}] Math loop hit safety cap of {} iterations; aborting",
-                                mObj.getName(), resourceManager.getID(), MAX_REPROCESS_ITERATIONS);
+                                mObj.getName(), mObj.getID(), MAX_REPROCESS_ITERATIONS);
                         break;
                     }
                     DateTime before = mdo.getLastRun(mObj);
@@ -248,7 +248,7 @@ public class ProcessManager {
                     DateTime after = mdo.getLastRun(mObj);
                     if (after == null || !after.isAfter(before)) {
                         logger.error("[{}:{}] Math 'Last Run' did not advance ({} -> {}); aborting to prevent infinite loop",
-                                mObj.getName(), resourceManager.getID(), before, after);
+                                mObj.getName(), mObj.getID(), before, after);
                         break;
                     }
 
@@ -258,7 +258,7 @@ public class ProcessManager {
                 }
             }
 
-            logger.info("[{}:{}] Finished", mObj.getName(), resourceManager.getID());
+            logger.info("[{}:{}] Finished", mObj.getName(), mObj.getID());
         }
     }
 
