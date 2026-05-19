@@ -1,23 +1,32 @@
 package org.jevis.httpdatasource;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSourceHelper;
@@ -25,8 +34,10 @@ import org.jevis.commons.driver.ParameterHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -43,21 +54,63 @@ public class HTTPDataSource {
     private Integer connectionTimeout;
     private Integer readTimeout;
     private String userName;
+    private String bearerAuthLoginUrl;
     private String password;
     private DateTimeZone timeZone;
     private Boolean ssl = false;
+    private Boolean trustAllCertificates = false;
     private DateTime lastReadout;
     private DateTime endDateTime;
     private StatusLine statusLine;
     private AUTH_SCHEME authScheme;
     private Long id;
     private String name;
-    private boolean needUrlConfig = true;
+    private String bearerToken;
+    private boolean urlNormalized = false;
+    private boolean bearerInitialized = false;
+    private CloseableHttpClient httpClient;
 
     public static String FixURL(String url) {
         url = url.replaceAll("(?<!(http:|https:))/+", "/");
         url = url.replaceAll(" ", "%20");
         return url;
+    }
+
+    /**
+     * Extract a bearer token from an auth-endpoint response body.
+     * Handles plain text, JSON-quoted strings, and JSON objects with
+     * common token field names (access_token, token, bearerToken, ...).
+     */
+    static String extractBearerToken(String body) {
+        if (body == null) {
+            return null;
+        }
+        String trimmed = body.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+
+        if (trimmed.startsWith("{")) {
+            for (String key : new String[]{"access_token", "token", "bearerToken", "bearer_token", "id_token", "jwt"}) {
+                String pattern = "\"" + key + "\"";
+                int idx = trimmed.indexOf(pattern);
+                if (idx < 0) continue;
+                int colon = trimmed.indexOf(':', idx + pattern.length());
+                if (colon < 0) continue;
+                int q1 = trimmed.indexOf('"', colon + 1);
+                if (q1 < 0) continue;
+                int q2 = trimmed.indexOf('"', q1 + 1);
+                if (q2 < 0) continue;
+                return trimmed.substring(q1 + 1, q2);
+            }
+            return trimmed;
+        }
+
+        if (trimmed.length() >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+            return trimmed.substring(1, trimmed.length() - 1);
+        }
+
+        return trimmed;
     }
 
     public DateTime getLastReadout() {
@@ -80,28 +133,16 @@ public class HTTPDataSource {
         logger.info("sendSampleRequest to http channel: {}:{}", channel.getChannelObject().getName(), channel.getChannelObject().getID());
 
         String channelID = channel.getChannelObject().getID().toString();
-        List<InputStream> answer = new ArrayList<InputStream>();
+        List<InputStream> answer = new ArrayList<>();
+
+        this.statusLine = null;
+
+        CloseableHttpClient client = getOrBuildHttpClient(channelID);
 
         String path = channel.getPath();
         lastReadout = channel.getLastReadout();
 
-        if (path == null || path.isEmpty()) {
-            logger.debug("[{}] Path is null or empty, aborting sendSampleRequest", channelID);
-            return answer;
-        }
-        if (lastReadout == null) {
-            logger.debug("[{}] lastReadout is null, aborting sendSampleRequest", channelID);
-            return answer;
-        }
-
         endDateTime = getCurrentTime(channel.getChannelObject(), lastReadout);
-
-        if (endDateTime == null) {
-            logger.debug("[{}] endDateTime is null, aborting sendSampleRequest", channelID);
-            return answer;
-        }
-
-        logger.debug("[{}] Time range: lastReadout={} endDateTime={}", channelID, lastReadout, endDateTime);
 
         if (path.startsWith("/")) {
             path = path.substring(1);
@@ -110,136 +151,220 @@ public class HTTPDataSource {
         ParameterHelper parameterHelper = new ParameterHelper(lastReadout, endDateTime);
         path = parameterHelper.getNewPath(path, channel.getChannelObject());
 
-        logger.info("[{}] Raw config before URL build: serverURL='{}' port={} ssl={} needUrlConfig={}",
-                channelID, serverURL, port, ssl, needUrlConfig);
-        logger.debug("[{}] Connection setting: server={} user={} authScheme={} connectTimeout={}s readTimeout={}s",
-                channelID, serverURL, userName, authScheme, connectionTimeout, readTimeout);
+        logger.debug("[{}] Connection Setting: Server: {} User: {} PW: {} authScheme: {}", channelID, serverURL, userName, password, authScheme);
         PathFollower pathFollower = new PathFollower(channel.getChannelObject());
 
-        if (needUrlConfig) {/*only the first channel needs to configure the server url*/
-            if (ssl) {/* Workaround if the protocol is not in the url**/
-                if (!serverURL.startsWith("https")) {
-                    serverURL = "https://" + serverURL;
-                    logger.debug("[{}] Added https:// prefix to serverURL", channelID);
-                }
-                /* We trust self signed certificates for now, this way is not save **/
-                DataSourceHelper.doTrustToCertificates();
-            } else {
-                if (!serverURL.startsWith("http")) {
-                    serverURL = "http://" + serverURL;
-                    logger.debug("[{}] Added http:// prefix to serverURL", channelID);
-                }
-            }
-
-            if (serverURL.endsWith("/")) {
-                serverURL = serverURL.substring(0, serverURL.length() - 1);
-            }
-
-            if (port != null) {
-                serverURL += ":" + port;
-            }
-
-            serverURL += "/";
-
-
-            /** Fallback if the URL does contain the port and the Port attribute has none **/
-            URL url = new URL(serverURL);
-            if (port == null && url.getPort() > -1) {
-                logger.info("[{}] Port not set in Attribute, using port from URL: {}", channelID, url.getPort());
-                setPort(url.getPort());
-            }
-            logger.debug("[{}] Server URL configured: {}", channelID, serverURL);
-            needUrlConfig = false;
-        }
-
+        normalizeServerURL(channelID);
+        ensureBearerToken(client, channelID);
 
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectTimeout(connectionTimeout * 1000)
                 .setSocketTimeout(readTimeout * 1000)
                 .build();
 
-        //HttpHost targetHost = new HttpHost(url.getHost(), port, url.getProtocol());
+        String contentURL = path;
+        contentURL = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), contentURL, timeZone);
+        contentURL = HTTPDataSource.FixURL(contentURL);
+        logger.debug("[{}] Channel URL: {}", channelID, contentURL);
 
-        SSLConnectionSocketFactory sslsf;
-        try {
-            sslsf = new SSLConnectionSocketFactory(
-                    new SSLContextBuilder()
-                            .loadTrustMaterial(null, (chain, authType) -> true)
-                            .build(),
-                    new String[]{"TLSv1.2", "TLSv1.3"},
-                    null,
-                    NoopHostnameVerifier.INSTANCE
-            );
-        } catch (Exception e) {
-            logger.warn("[{}] Could not create trust-all SSL context, falling back to default: {}", channelID, e.getMessage());
-            sslsf = new SSLConnectionSocketFactory(
-                    SSLContexts.createDefault(),
-                    new String[]{"TLSv1.2", "TLSv1.3"},
-                    null,
-                    SSLConnectionSocketFactory.getDefaultHostnameVerifier()
-            );
+        String getRequest;
+        if (pathFollower.isActive()) {
+            logger.debug("[{}] Using Dynamic Link", channelID);
+            pathFollower.setConnection(client, requestConfig);
+            getRequest = pathFollower.startFetching(serverURL, contentURL);
+            logger.debug("[{}] Final target url after following links: {}", channelID, getRequest);
+        } else {
+            getRequest = serverURL + contentURL;
+        }
+        logger.info("[{}] Sending HTTP GET: {}", channelID, getRequest);
+
+        HttpGetWithBody get = new HttpGetWithBody(getRequest);
+        get.setConfig(requestConfig);
+        if (authScheme.equals(AUTH_SCHEME.BEARER)) {
+            if (bearerToken == null || bearerToken.isEmpty()) {
+                logger.error("[{}] BEARER auth: no token available — sending request without Authorization header (will likely fail with 401)", channelID);
+            } else {
+                get.addHeader("Authorization", "Bearer " + bearerToken);
+            }
+            get.addHeader("Accept", "application/json");
+            get.addHeader("Content-Type", "application/json");
+            if (channel.getGetRequestBody() != null) {
+                get.setEntity(new StringEntity(channel.getGetRequestBody(), StandardCharsets.UTF_8));
+            }
         }
 
-        CloseableHttpClient httpClient;
+        try {
+            URL parsedUrl = new URL(getRequest);
+            java.net.InetAddress resolved = java.net.InetAddress.getByName(parsedUrl.getHost());
+            logger.info("[{}] Resolved host '{}' -> {}", channelID, parsedUrl.getHost(), resolved.getHostAddress());
+        } catch (Exception dnsEx) {
+            logger.warn("[{}] DNS resolution failed for URL '{}': {}", channelID, getRequest, dnsEx.getMessage());
+        }
+
+        try (CloseableHttpResponse oResponse = client.execute(get)) {
+            statusLine = oResponse.getStatusLine();
+            logger.info("[{}] HTTP response status code: {}", channelID, oResponse.getStatusLine());
+
+            if (oResponse.getStatusLine().getStatusCode() == 200) {
+                channel.setNextReadout(endDateTime);
+            }
+            HttpEntity oEntity = oResponse.getEntity();
+            String oXmlString = EntityUtils.toString(oEntity);
+            logger.debug("[{}] Content length to parse: {}", channelID, oXmlString.length());
+            logger.debug("[{}] Content to parse: {}", channelID, oXmlString);
+            EntityUtils.consume(oEntity);
+            InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
+            answer.add(stream);
+        }
+
+        return answer;
+    }
+
+    private CloseableHttpClient getOrBuildHttpClient(String channelID) throws Exception {
+        if (httpClient != null) {
+            return httpClient;
+        }
+
+        SSLConnectionSocketFactory sslSocketFactory;
+        if (ssl && trustAllCertificates) {
+            TrustStrategy trustStrategy = (certs, authType) -> true;
+            SSLContext sslContext = SSLContextBuilder.create().loadTrustMaterial(null, trustStrategy).build();
+            sslSocketFactory = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
+            logger.info("[{}] trustAllCertificates=true — disabling certificate trust AND hostname verification", channelID);
+        } else {
+            sslSocketFactory = SSLConnectionSocketFactory.getSocketFactory();
+        }
+
+        Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                .register("https", sslSocketFactory)
+                .build();
+
+        PoolingHttpClientConnectionManager pool = new PoolingHttpClientConnectionManager(registry);
+        pool.setMaxTotal(10);
+        pool.setDefaultMaxPerRoute(5);
+
+        HttpClientBuilder builder = HttpClientBuilder.create()
+                .setConnectionManager(pool);
+
         if (userName != null && !userName.isEmpty()) {
             CredentialsProvider provider = new BasicCredentialsProvider();
             provider.setCredentials(
                     AuthScope.ANY,
                     new UsernamePasswordCredentials(userName, password)
             );
-            httpClient = HttpClientBuilder.create()
-                    .setSSLSocketFactory(sslsf)
-                    .setDefaultCredentialsProvider(provider)
-                    .build();
+            builder.setDefaultCredentialsProvider(provider);
+        }
+
+        httpClient = builder.build();
+        return httpClient;
+    }
+
+    public void close() {
+        if (httpClient != null) {
+            try {
+                httpClient.close();
+            } catch (java.io.IOException e) {
+                logger.warn("Error closing HTTP client: {}", e.getMessage());
+            }
+            httpClient = null;
+        }
+    }
+
+    private void normalizeServerURL(String channelID) throws Exception {
+        if (urlNormalized) {
+            return;
+        }
+        if (ssl) {
+            if (!serverURL.startsWith("https")) {
+                serverURL = "https://" + serverURL;
+            }
+            if (trustAllCertificates) {
+                /* Self-signed cert workaround — only when explicitly allowed. **/
+                DataSourceHelper.doTrustToCertificates();
+            }
         } else {
-            httpClient = HttpClientBuilder.create()
-                    .setSSLSocketFactory(sslsf)
-                    .build();
+            if (!serverURL.startsWith("http")) {
+                serverURL = "http://" + serverURL;
+            }
         }
 
-        String contentURL = path;
-        contentURL = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), contentURL, timeZone);
-        contentURL = HTTPDataSource.FixURL(contentURL);
-        logger.debug("[{}] Channel URL after parameter substitution: {}", channelID, contentURL);
+        /* Parse the URL and rebuild it with the port placed between host and path,
+         * regardless of whether the user entered just a host, a host+port, or a full
+         * URL with a path (e.g. "https://example.com/api"). */
+        URL parsedServerURL = new URL(serverURL);
+        String protocol = parsedServerURL.getProtocol();
+        String host = parsedServerURL.getHost();
+        int urlPort = parsedServerURL.getPort();
+        String urlPath = parsedServerURL.getPath();
 
-        String getRequest = "";
-        if (pathFollower.isActive()) {
-            logger.debug("[{}] Using Dynamic Link follower", channelID);
-            pathFollower.setConnection(httpClient, requestConfig);
-            getRequest = pathFollower.startFetching(serverURL, contentURL);
-            logger.debug("[{}] Final target URL after following links: {}", channelID, getRequest);
-        } else {
-            getRequest = serverURL + contentURL;
+        int finalPort = (port != null && port > 0) ? port : urlPort;
+
+        StringBuilder rebuilt = new StringBuilder();
+        rebuilt.append(protocol).append("://").append(host);
+        if (finalPort > -1) {
+            rebuilt.append(':').append(finalPort);
         }
-        logger.info("[{}] Sending HTTP GET: {}", channelID, getRequest);
-
-        HttpGet get = new HttpGet(getRequest);
-        get.setConfig(requestConfig);
-        /* will ne needed soon for the login/session function*/
-        //get.setHeader("Cookie","rumo.https.sid=s%3AFBq0m630dDxN_sxFE_mruwf0WZ1BwVCZ.wxdwlbmPdmIVjN3c35xDA%2BbaaO630r9F5USbw5oq7Po;");
-        //System.out.println("Header: \n"+get.getAllHeaders());
-
-        HttpResponse oResponse = httpClient.execute(get);
-
-        statusLine = oResponse.getStatusLine();
-
-        logger.info("[{}] HTTP response: {}", channelID, oResponse.getStatusLine());
-        logger.debug("[{}] Response content-type: {}", channelID,
-                oResponse.containsHeader("Content-Type") ? oResponse.getFirstHeader("Content-Type").getValue() : "n/a");
-
-        if (oResponse.getStatusLine().getStatusCode() == 200) {
-            channel.setNextReadout(endDateTime);
+        if (urlPath != null && !urlPath.isEmpty()) {
+            rebuilt.append(urlPath);
         }
-        HttpEntity oEntity = oResponse.getEntity();
-        String oXmlString = EntityUtils.toString(oEntity);
-        logger.debug("[{}] Response content length: {} chars", channelID, oXmlString.length());
-        logger.debug("[{}] Response content: {}", channelID, oXmlString);
-        EntityUtils.consume(oEntity);
-        InputStream stream = new ByteArrayInputStream(oXmlString.getBytes(StandardCharsets.UTF_8));
-        answer.add(stream);
+        if (rebuilt.charAt(rebuilt.length() - 1) != '/') {
+            rebuilt.append('/');
+        }
+        serverURL = rebuilt.toString();
+        logger.debug("[{}] Server URL after port/path normalization: {}", channelID, serverURL);
 
-        logger.info("[{}] sendSampleRequest completed, {} stream(s) returned", channelID, answer.size());
-        return answer;
+        if (port == null && urlPort > -1) {
+            logger.info("[{}] Port not set in Attribute, using port from URL: {}", channelID, urlPort);
+            setPort(urlPort);
+        }
+
+        urlNormalized = true;
+    }
+
+    private void ensureBearerToken(CloseableHttpClient client, String channelID) {
+        if (bearerInitialized) {
+            return;
+        }
+        if (!authScheme.equals(AUTH_SCHEME.BEARER)) {
+            bearerInitialized = true;
+            return;
+        }
+
+        String tokenUrl = bearerAuthLoginUrl;
+        logger.info("[{}] BEARER auth: requesting token from {}", channelID, tokenUrl);
+
+        HttpPost post = new HttpPost(tokenUrl);
+        post.addHeader("Content-Type", "application/json");
+        post.addHeader("Accept", "application/json");
+        final String json = "{\"username\":\"" + userName + "\",\"password\":\"" + password + "\",\"caller\":\"\"}";
+        logger.debug("[{}] BEARER auth: POST body (password redacted): {\"username\":\"{}\",\"password\":\"***\",\"caller\":\"\"}", channelID, userName);
+        final StringEntity entity = new StringEntity(json, StandardCharsets.UTF_8);
+        post.setEntity(entity);
+
+        try (CloseableHttpResponse response = client.execute(post)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            String body = "";
+            if (response.getEntity() != null) {
+                body = EntityUtils.toString(response.getEntity());
+            }
+            logger.info("[{}] BEARER auth: token endpoint responded status={} bodyLength={}", channelID, statusCode, body.length());
+            logger.debug("[{}] BEARER auth: raw response body: {}", channelID, body);
+
+            if (statusCode == HttpStatus.SC_OK) {
+                bearerToken = extractBearerToken(body);
+                if (bearerToken == null || bearerToken.isEmpty()) {
+                    logger.error("[{}] BEARER auth: token endpoint returned 200 but no token could be extracted from body: {}", channelID, body);
+                } else {
+                    logger.info("[{}] BEARER auth: token obtained (length={})", channelID, bearerToken.length());
+                }
+            } else {
+                logger.error("[{}] BEARER auth: token request FAILED — status={} body={}", channelID, statusCode, body);
+            }
+        } catch (Exception ex) {
+            logger.error("[{}] BEARER auth: exception while requesting token from {}: {}", channelID, tokenUrl, ex.getMessage(), ex);
+        }
+        bearerInitialized = true;
     }
 
     public AUTH_SCHEME getAuthScheme() {
@@ -250,9 +375,14 @@ public class HTTPDataSource {
             if (userName != null && !userName.isEmpty()) {
                 return AUTH_SCHEME.BASIC;
             }
+            return AUTH_SCHEME.NONE;
         }
 
         return authScheme;
+    }
+
+    public void setBearerAuthLoginUrl(String _bearerAuthLoginUrl) {
+        this.bearerAuthLoginUrl = _bearerAuthLoginUrl;
     }
 
     public void setAuthScheme(AUTH_SCHEME authScheme) {
@@ -287,12 +417,39 @@ public class HTTPDataSource {
         this.userName = _userName;
     }
 
+    public void setTrustAllCertificates(Boolean trustAllCertificates) {
+        this.trustAllCertificates = trustAllCertificates;
+    }
+
     public void setPassword(String _password) {
         this.password = _password;
     }
 
     public void setSsl(Boolean _ssl) {
         this.ssl = _ssl;
+    }
+
+    private DateTime getCurrentTime(JEVisObject channel, DateTime lastReadout) {
+        try {
+            if (lastReadout == null) {
+                return DateTime.now().withZone(getDateTimeZone());
+            }
+            JEVisAttribute chunkAttr = channel.getAttribute("Chunk Size(s)");
+            if (chunkAttr != null && chunkAttr.hasSample()) {
+                int chunkSeconds = chunkAttr.getLatestSample().getValueAsDouble().intValue();
+                if (DateTime.now().isBefore(lastReadout.plusSeconds(chunkSeconds))) {
+                    logger.debug("Channel {}:{} using now as current time", channel.getName(), channel.getID());
+                    return DateTime.now();
+                } else {
+                    logger.debug("Channel {}:{} using now + chunk size in seconds as current time", channel.getName(), channel.getID());
+                    return lastReadout.plusSeconds(chunkSeconds);
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        return DateTime.now().withZone(getDateTimeZone());
     }
 
     public String getName() {
@@ -303,24 +460,8 @@ public class HTTPDataSource {
         this.name = _name;
     }
 
-    private DateTime getCurrentTime(JEVisObject channel, DateTime lastReadout) {
-        try {
-
-            if (channel.getAttribute("Chunk Size(s)").hasSample()) {
-                if (DateTime.now().isBefore(lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue()))) {
-                    return DateTime.now();
-                } else {
-                    logger.debug("plusSeconds(channel.getAttribute(\"Chunk Size(s)\").getLatestSample().getValueAsDouble().intValue()");
-                    return lastReadout.plusSeconds(channel.getAttribute("Chunk Size(s)").getLatestSample().getValueAsDouble().intValue());
-                }
-            } else {
-                DateTime.now();
-            }
-        } catch (Exception e) {
-            logger.error(e);
-        }
-
-        return DateTime.now().withZone(getDateTimeZone());
+    public enum AUTH_SCHEME {
+        BASIC, DIGEST, BEARER, NONE
     }
 
     public DateTimeZone getDateTimeZone() {
@@ -332,8 +473,16 @@ public class HTTPDataSource {
         this.timeZone = timeZone;
     }
 
-    public enum AUTH_SCHEME {
-        BASIC, DIGEST, NONE
+    static class HttpGetWithBody extends HttpEntityEnclosingRequestBase {
+        public HttpGetWithBody(String uri) {
+            super();
+            setURI(URI.create(uri));
+        }
+
+        @Override
+        public String getMethod() {
+            return "GET";
+        }
     }
 
     // interfaces

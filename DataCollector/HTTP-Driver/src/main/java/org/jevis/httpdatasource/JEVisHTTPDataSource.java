@@ -6,6 +6,7 @@ package org.jevis.httpdatasource;
  */
 
 import org.apache.http.ParseException;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,17 +31,20 @@ import java.util.List;
 public class JEVisHTTPDataSource implements DataSource {
     private static final Logger logger = LogManager.getLogger(JEVisHTTPDataSource.class);
     private final List<JEVisObject> _channels = new ArrayList<>();
-    private final List<Channel> httpChannels = new ArrayList<>();
     private DateTimeZone timeZone;
     private Importer _importer;
     private HTTPDataSource _httpdatasource;
 
     @Override
     public void run() {
-
-        for (JEVisObject channel : _channels) {
-
-            runChannel(channel);
+        try {
+            for (JEVisObject channel : _channels) {
+                runChannel(channel);
+            }
+        } finally {
+            if (_httpdatasource != null) {
+                _httpdatasource.close();
+            }
         }
     }
 
@@ -52,7 +56,6 @@ public class JEVisHTTPDataSource implements DataSource {
             Parser parser = ParserFactory.getParser(parserObject);
             parser.initialize(parserObject);
 
-            httpChannels.clear();
             List<Result> results = new ArrayList<>();
 
 
@@ -73,10 +76,16 @@ public class JEVisHTTPDataSource implements DataSource {
                  */
 
 
-                int statusCode = this._httpdatasource.getStatusLine().getStatusCode();
-                logger.debug("Response Code; {}",statusCode);
+                StatusLine status = this._httpdatasource.getStatusLine();
+                if (status == null) {
+                    logger.error("No HTTP response for channel {}:{} — request failed (see prior error). Skipping.",
+                            channel.getID(), channel.getName());
+                    return;
+                }
+                int statusCode = status.getStatusCode();
+                logger.debug("Response Code; {}", statusCode);
                 if (statusCode < 200 || statusCode >= 300) {
-                    logger.error("API Returned Error Code :{}", this._httpdatasource.getStatusLine().getStatusCode());
+                    logger.error("API Returned Error Code :{}", statusCode);
                     return;
                 }
 
@@ -126,10 +135,12 @@ public class JEVisHTTPDataSource implements DataSource {
             JEVisType connectionTimeoutType = httpType.getType(HTTPTypes.CONNECTION_TIMEOUT);
             JEVisType readTimeoutType = httpType.getType(HTTPTypes.READ_TIMEOUT);
             JEVisType userType = httpType.getType(HTTPTypes.USER);
+            JEVisType bearerAuthLoginUrlType = httpType.getType(HTTPTypes.BEARER_AUTH_LOGIN_URL);
             JEVisType passwordType = httpType.getType(HTTPTypes.PASSWORD);
             JEVisType timezoneType = httpType.getType(HTTPTypes.TIMEZONE);
             //JEVisType enableType = httpType.getType(HTTPTypes.ENABLE);
             JEVisType authType = httpType.getType(HTTPTypes.HTTP.AUTHENTICATION);
+            JEVisType trustAllCertificatesType = httpType.getType(HTTPTypes.HTTP.TRUST_ALL_CERTIFICATES);
 
             String serverURL = DatabaseHelper.getObjectAsString(httpObject, server);
             Integer port = DatabaseHelper.getObjectAsInteger(httpObject, portType);
@@ -137,6 +148,8 @@ public class JEVisHTTPDataSource implements DataSource {
             Integer readTimeout = DatabaseHelper.getObjectAsInteger(httpObject, readTimeoutType);
             Boolean ssl = DatabaseHelper.getObjectAsBoolean(httpObject, sslType);
             JEVisAttribute userAttr = httpObject.getAttribute(userType);
+            JEVisAttribute bearerAuthLoginUrlAttr = httpObject.getAttribute(bearerAuthLoginUrlType);
+            Boolean trustAllCertificates = DatabaseHelper.getObjectAsBoolean(httpObject, trustAllCertificatesType);
             //JEVisAttribute timeZoneAttr = httpObject.getAttribute(timezoneType);
             //JEVisAttribute authTypeAttr = httpObject.getAttribute(authType);
 
@@ -164,6 +177,13 @@ public class JEVisHTTPDataSource implements DataSource {
             }
 //            _lastReadout = DatabaseHelper.getObjectAsDate(httpObject, lastReadout, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
 
+            String bearerAuthLoginUrl = null;
+            if (!bearerAuthLoginUrlAttr.hasSample()) {
+                bearerAuthLoginUrl = "";
+            } else {
+                bearerAuthLoginUrl = (String) bearerAuthLoginUrlAttr.getLatestSample().getValue();
+            }
+
             _httpdatasource = new HTTPDataSource();
             _httpdatasource.setId(httpObject.getID());
             _httpdatasource.setName(httpObject.getName());
@@ -173,9 +193,10 @@ public class JEVisHTTPDataSource implements DataSource {
             _httpdatasource.setReadTimeout(readTimeout);
             _httpdatasource.setServerURL(serverURL);
             _httpdatasource.setSsl(ssl);
+            _httpdatasource.setTrustAllCertificates(trustAllCertificates);
             _httpdatasource.setUserName(userName);
             _httpdatasource.setDateTimeZone(timeZone);
-
+            _httpdatasource.setBearerAuthLoginUrl(bearerAuthLoginUrl);
 
             String authString = DatabaseHelper.getObjectAsString(httpObject, authType);
             if (authString != null && !authString.isEmpty()) {
@@ -206,12 +227,14 @@ public class JEVisHTTPDataSource implements DataSource {
         try {
             Channel httpChannel = new Channel();
 
-            httpChannels.add(httpChannel);
             JEVisClass channelClass = channel.getJEVisClass();
             JEVisType pathType = channelClass.getType(HTTPChannelTypes.PATH);
             String path = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(HTTPChannelTypes.LAST_READOUT);
             DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
+
+            JEVisType getRequestBodyType = channelClass.getType(HTTPChannelTypes.GET_REQUEST_BODY);
+            String getRequestBody = DatabaseHelper.getObjectAsString(channel, getRequestBodyType);
 
             JEVisType readoutOffsetType = channelClass.getType(HTTPChannelTypes.READOUT_OFFSET);
             Long readoutOffset = DatabaseHelper.getObjectAsLong(channel, readoutOffsetType);
@@ -222,10 +245,12 @@ public class JEVisHTTPDataSource implements DataSource {
 
             httpChannel.setLastReadout(lastReadout);
             httpChannel.setPath(path);
+            httpChannel.setGetRequestBody(getRequestBody);
             httpChannel.setChannelObject(channel);
             return _httpdatasource.sendSampleRequest(httpChannel);
         } catch (Exception ex) {
-            logger.error("Error sending sample request for channel", ex);
+            logger.error("Error sending sample request for channel {}:{} - {}",
+                    channel.getID(), channel.getName(), ex.getMessage(), ex);
         }
 
         return new ArrayList<>();
@@ -288,6 +313,7 @@ public class JEVisHTTPDataSource implements DataSource {
         String PASSWORD = "Password";
         String SSL = "SSL";
         String USER = "User";
+        String BEARER_AUTH_LOGIN_URL = "Bearer Auth Login Url";
     }
 
     interface HTTPChannelDirectoryTypes extends DataCollectorTypes.ChannelDirectory {

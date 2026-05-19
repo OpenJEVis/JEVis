@@ -239,6 +239,7 @@ public interface DataCollectorTypes {
         String LAST_READOUT = "Last Readout";
         String MAX_READOUT = "Max Readout";
         String READOUT_OFFSET = "Readout Offset";
+        String GET_REQUEST_BODY = "Get Request Body";
 
         interface FTPChannel extends Channel {
 
