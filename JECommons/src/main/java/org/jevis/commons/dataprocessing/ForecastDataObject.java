@@ -417,7 +417,7 @@ public class ForecastDataObject {
         return zone;
     }
 
-    private DateTime getLastRun(JEVisObject object) {
+    public DateTime getLastRun(JEVisObject object) {
         DateTime dateTime = new DateTime(1990, 1, 1, 0, 0, 0).withZone(getTimeZone());
 
         try {
@@ -436,7 +436,7 @@ public class ForecastDataObject {
         return dateTime;
     }
 
-    private Long getCycleTime(JEVisObject object) {
+    public Long getCycleTime(JEVisObject object) {
         Long aLong = null;
 
         try {

@@ -15,6 +15,7 @@ import org.jevis.commons.dataprocessing.processor.preparation.PrepareMath;
 import org.jevis.commons.dataprocessing.processor.preparation.PrepareStep;
 import org.jevis.commons.dataprocessing.processor.steps.*;
 import org.jevis.commons.utils.CommonMethods;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ import java.util.List;
 public class ProcessManager {
 
     private static final Logger logger = LogManager.getLogger(ProcessManager.class);
+    private static final int MAX_REPROCESS_ITERATIONS = 100_000;
     private final ResourceManager resourceManager;
     private final ObjectHandler objectHandler;
     private final int processingSize;
@@ -189,27 +191,74 @@ public class ProcessManager {
                 reinitializeCleanData();
             } while (!isFinished);
         } else if (processingType == ProcessingType.FORECAST) {
-            logger.info("[{}:{}] Starting Process", resourceManager.getForecastDataObject().getForecastDataObject().getName(), resourceManager.getID());
+            ForecastDataObject fdo = resourceManager.getForecastDataObject();
+            JEVisObject fObj = fdo.getForecastDataObject();
+            logger.info("[{}:{}] Starting Process", fObj.getName(), resourceManager.getID());
 
-            while (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject())) {
-                reRun();
-                resourceManager.getForecastDataObject().finishCurrentRun(resourceManager.getForecastDataObject().getForecastDataObject());
+            Long cycleTime = fdo.getCycleTime(fObj);
+            if (cycleTime == null || cycleTime <= 0) {
+                logger.warn("[{}:{}] Forecast cycle time invalid ({}); skipping run to prevent infinite loop",
+                        fObj.getName(), resourceManager.getID(), cycleTime);
+            } else {
+                int safety = 0;
+                while (fdo.isReady(fObj)) {
+                    if (++safety > MAX_REPROCESS_ITERATIONS) {
+                        logger.error("[{}:{}] Forecast loop hit safety cap of {} iterations; aborting",
+                                fObj.getName(), resourceManager.getID(), MAX_REPROCESS_ITERATIONS);
+                        break;
+                    }
+                    DateTime before = fdo.getLastRun(fObj);
+                    reRun();
+                    fdo.finishCurrentRun(fObj);
+                    DateTime after = fdo.getLastRun(fObj);
+                    if (after == null || !after.isAfter(before)) {
+                        logger.error("[{}:{}] Forecast 'Last Run' did not advance ({} -> {}); aborting to prevent infinite loop",
+                                fObj.getName(), resourceManager.getID(), before, after);
+                        break;
+                    }
 
-                reinitializeForecastData();
+                    reinitializeForecastData();
+                    fdo = resourceManager.getForecastDataObject();
+                    fObj = fdo.getForecastDataObject();
+                }
             }
 
-            logger.info("[{}:{}] Finished", resourceManager.getForecastDataObject().getForecastDataObject().getName(), resourceManager.getID());
+            logger.info("[{}:{}] Finished", fObj.getName(), resourceManager.getID());
         } else if (processingType == ProcessingType.MATH) {
-            logger.info("[{}:{}] Starting Process", resourceManager.getMathDataObject().getMathDataObject().getName(), resourceManager.getID());
+            MathDataObject mdo = resourceManager.getMathDataObject();
+            JEVisObject mObj = mdo.getMathDataObject();
+            logger.info("[{}:{}] Starting Process", mObj.getName(), resourceManager.getID());
 
-            while (resourceManager.getMathDataObject().isReady()) {
-                reRun();
-                resourceManager.getMathDataObject().finishCurrentRun(resourceManager.getMathDataObject().getMathDataObject());
+            DateTime initialLastRun = mdo.getLastRun(mObj);
+            DateTime initialNextRun = mdo.getNextRun();
+            if (initialNextRun == null || !initialNextRun.isAfter(initialLastRun)) {
+                logger.warn("[{}:{}] Math next run ({}) does not advance past last run ({}); skipping run to prevent infinite loop",
+                        mObj.getName(), resourceManager.getID(), initialNextRun, initialLastRun);
+            } else {
+                int safety = 0;
+                while (mdo.isReady()) {
+                    if (++safety > MAX_REPROCESS_ITERATIONS) {
+                        logger.error("[{}:{}] Math loop hit safety cap of {} iterations; aborting",
+                                mObj.getName(), resourceManager.getID(), MAX_REPROCESS_ITERATIONS);
+                        break;
+                    }
+                    DateTime before = mdo.getLastRun(mObj);
+                    reRun();
+                    mdo.finishCurrentRun(mObj);
+                    DateTime after = mdo.getLastRun(mObj);
+                    if (after == null || !after.isAfter(before)) {
+                        logger.error("[{}:{}] Math 'Last Run' did not advance ({} -> {}); aborting to prevent infinite loop",
+                                mObj.getName(), resourceManager.getID(), before, after);
+                        break;
+                    }
 
-                reinitializeMathData();
+                    reinitializeMathData();
+                    mdo = resourceManager.getMathDataObject();
+                    mObj = mdo.getMathDataObject();
+                }
             }
 
-            logger.info("[{}:{}] Finished", resourceManager.getMathDataObject().getMathDataObject().getName(), resourceManager.getID());
+            logger.info("[{}:{}] Finished", mObj.getName(), resourceManager.getID());
         }
     }
 

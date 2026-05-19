@@ -599,7 +599,7 @@ public class MathDataObject {
         return PeriodHelper.getNextPeriod(lastRun, period, getTimeZone(), referencePeriodCount.intValue(), getPeriodAlignment().get(0).getPeriod());
     }
 
-    private DateTime getLastRun(JEVisObject object) {
+    public DateTime getLastRun(JEVisObject object) {
         DateTime dateTime = new DateTime(1990, 1, 1, 0, 0, 0);
 
         try {
