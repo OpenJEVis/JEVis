@@ -1,6 +1,7 @@
 package org.jevis.commons.driver;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisAttribute;
@@ -8,7 +9,6 @@ import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.classes.JC;
-import com.google.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Type;
@@ -30,6 +30,15 @@ public class ParameterHelper {
     }
 
     public String getNewPath(String path, JEVisObject channelObject) {
+        return fillVariables(path, channelObject);
+    }
+
+    /**
+     * Replaces parameter placeholders (e.g. {CURRENT_TS}) defined in the
+     * channel's ParameterConfig in the given text. Used for both the request
+     * path and the request body.
+     */
+    public String fillVariables(String text, JEVisObject channelObject) {
         JEVisFile parameterFile = null;
         if (channelObject != null) {
             try {
@@ -40,10 +49,10 @@ public class ParameterHelper {
             }
         }
 
-        if (parameterFile == null) return path;
+        if (parameterFile == null) return text;
 
         Map<VarFiller.Variable, VarFiller.VarFunction> parameterMap = getParamterMap(parameterFile);
-        VarFiller varFiller = new VarFiller(path, parameterMap);
+        VarFiller varFiller = new VarFiller(text, parameterMap);
 
         return varFiller.getFilledURIString();
     }

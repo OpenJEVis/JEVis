@@ -189,7 +189,8 @@ public class HTTPDataSource {
             get.addHeader("Accept", "application/json");
             get.addHeader("Content-Type", "application/json");
             if (channel.getGetRequestBody() != null) {
-                get.setEntity(new StringEntity(channel.getGetRequestBody(), StandardCharsets.UTF_8));
+                String requestBody = parameterHelper.fillVariables(channel.getGetRequestBody(), channel.getChannelObject());
+                get.setEntity(new StringEntity(requestBody, StandardCharsets.UTF_8));
             }
         }
 
