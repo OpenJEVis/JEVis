@@ -133,6 +133,7 @@ public class MSOauth2 {
                     try {
                         JSONObject role = roles.getJSONObject(i);
                         groups.add(role.get("id").toString());
+                        logger.debug("SSO found Usergroup: {}", role.get("id").toString());
                     } catch (Exception ex) {
                         logger.debug("Error while parsing Group ID {}", ex, ex);
                     }

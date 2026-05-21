@@ -64,23 +64,29 @@ public class ResourceSession {
                 throw new AuthenticationException("token header is missing");
             }
             String token = httpHeaders.getRequestHeader("token").get(0);
+            logger.debug("SSO login attempt: token: {}", token);
+
             CachedAccessControl cac = CachedAccessControl.getInstance(ds, true);
             MSOauth2 msOauth2 = new MSOauth2(Config.getEntraAUTHORITY(), Config.getEntraClientID(), Config.getEntraClientSecret());
             String userName = msOauth2.getUserDisplayName(token);
+            logger.debug("SSO Username match: {}", userName);
             List<String> msGroups = msOauth2.getUserGroups(token);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Found {} user groups: {}", msGroups.size(), String.join(" , ", msGroups));
-            }
+            logger.debug("SSO Found {} user groups: {}", msGroups.size(), String.join(" , ", msGroups));
 
             List<JEVisUserSQL> foundUsers = new ArrayList<>();
             for (JEVisUserSQL user : cac.getUsers().values()) {
                 if (msGroups.contains(user.getEntraID())) {
                     foundUsers.add(user);
+                    logger.debug("SSO found user in Group; {} - {}", user, user.getEntraID());
                 }
             }
 
-            if (!foundUsers.get(0).isEnabled()) return Response.status(Response.Status.UNAUTHORIZED).build();
+
             if (foundUsers.isEmpty()) return Response.status(Response.Status.NOT_FOUND).build();
+            logger.debug("SSO User found");
+
+            if (!foundUsers.get(0).isEnabled()) return Response.status(Response.Status.UNAUTHORIZED).build();
+            logger.debug("SSO User is enabled");
 
             List<String> commonKeys = new ArrayList<>(cac.getUsers().keySet());
             commonKeys.retainAll(msGroups);
@@ -88,17 +94,23 @@ public class ResourceSession {
             foundUsers.get(0).getUserObject().setName(userName);
             foundUsers.get(0).setLastName(userName);
             ds.setUser(foundUsers.get(0));
+            logger.debug("SSO User is use: {}", foundUsers.get(0));
 
             Session session = new Session(true, foundUsers.get(0).getUserObject(), msOauth2.getUserDisplayName(token), token);
             session.setJevisUser(foundUsers.get(0));
             cac.getSessions().put(session.getId(), session);
 
+            logger.debug("SSO login successful for user: {}", foundUsers.get(0));
             return Response.ok(session).build();
 
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } catch (Exception jex) {
-            logger.catching(jex);
+            if (logger.isDebugEnabled()) {
+                logger.error("SSO Login failed for Token: {}", httpHeaders.getRequestHeader("token"), jex);
+            } else {
+                logger.error("SSO Login failed for Token: {}", httpHeaders.getRequestHeader("token"), jex.getMessage());
+            }
             return Response.serverError().build();
         } finally {
             Config.CloseDS(ds);
