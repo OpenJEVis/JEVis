@@ -44,21 +44,22 @@ public class AlarmRow {
 
         this.isValue = new SimpleDoubleProperty(this, "isValue");
         try {
-            this.isValue.set(alarm.getIsValue());
+            if (alarm.getIsValue() != null) this.isValue.set(alarm.getIsValue());
         } catch (Exception e) {
             logger.error(e);
         }
 
         this.setValue = new SimpleDoubleProperty(this, "setValue");
         try {
-            this.setValue.set(alarm.getSetValue());
+            if (alarm.getSetValue() != null) this.setValue.set(alarm.getSetValue());
         } catch (Exception e) {
             logger.error(e);
         }
 
         this.unit = new SimpleStringProperty(this, "unit");
         try {
-            unit.set(UnitManager.getInstance().format(alarm.getAttribute().getDisplayUnit()));
+            if (alarm.getAttribute() != null)
+                unit.set(UnitManager.getInstance().format(alarm.getAttribute().getDisplayUnit()));
         } catch (Exception e) {
             logger.error(e);
         }
@@ -72,14 +73,14 @@ public class AlarmRow {
 
         this.logValue = new SimpleIntegerProperty(this, "logValue");
         try {
-            this.logValue.set(alarm.getLogValue());
+            if (alarm.getLogValue() != null) this.logValue.set(alarm.getLogValue());
         } catch (Exception e) {
             logger.error(e);
         }
 
         this.tolerance = new SimpleDoubleProperty(this, "tolerance");
         try {
-            this.tolerance.set(alarm.getTolerance());
+            if (alarm.getTolerance() != null) this.tolerance.set(alarm.getTolerance());
         } catch (Exception e) {
             logger.error(e);
         }

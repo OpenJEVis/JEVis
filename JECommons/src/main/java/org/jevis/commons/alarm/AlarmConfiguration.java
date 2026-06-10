@@ -143,7 +143,9 @@ public class AlarmConfiguration {
 
     public Boolean isChecked() {
         try {
-            JEVisSample latestSample = getCheckedAttribute().getLatestSample();
+            JEVisAttribute checkedAttribute = getCheckedAttribute();
+            if (checkedAttribute == null) return false;
+            JEVisSample latestSample = checkedAttribute.getLatestSample();
             if (latestSample != null) {
                 return latestSample.getValueAsBoolean();
             } else return false;
