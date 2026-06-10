@@ -1112,7 +1112,10 @@ public class XYChart implements Chart {
             tableData.add(y2SumSerie.getTableEntry());
         }
 
-        Platform.runLater(() -> chart.getRenderers().addAll(allRenderer));
+        de.gsi.chart.Chart localChart = chart;
+        if (localChart != null) {
+            Platform.runLater(() -> localChart.getRenderers().addAll(allRenderer));
+        }
         Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
     }
 
