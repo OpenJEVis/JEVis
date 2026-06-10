@@ -112,7 +112,7 @@ public class AlarmPlugin implements Plugin {
             return Comparator.comparing(AlarmRow::getDateTime).reversed().compare(o1, o2);
         }
     };
-    private final List<AlarmRow> data = new ArrayList<>();
+    private final List<AlarmRow> data = Collections.synchronizedList(new ArrayList<>());
     private final TableView<AlarmRow> tableView = new TableView<>();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
     private final JFXDatePicker startDatePicker = new JFXDatePicker();
@@ -298,8 +298,12 @@ public class AlarmPlugin implements Plugin {
         }
         pagination.setPageCount(numOfPages);
         int fromIndex = pageIndex * ROWS_PER_PAGE;
-        int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, data.size());
-        tableView.setItems(FXCollections.observableArrayList(data.subList(fromIndex, toIndex)));
+        final List<AlarmRow> page;
+        synchronized (data) {
+            int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, data.size());
+            page = new ArrayList<>(data.subList(fromIndex, toIndex));
+        }
+        tableView.setItems(FXCollections.observableArrayList(page));
 
         return tableView;
     }    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();    //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();    private final JFXComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
@@ -315,7 +319,7 @@ public class AlarmPlugin implements Plugin {
             }
         }
         if (!hasActiveChartTasks.get()) {
-            JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
+            Platform.runLater(() -> JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", ""));
             data.sort(Comparator.comparing(AlarmRow::getDateTime).reversed());
 
             Platform.runLater(() -> {
@@ -361,10 +365,11 @@ public class AlarmPlugin implements Plugin {
                         this.done();
                         data.addAll(list);
 
-                        JEConfig.getStatusBar().progressProgressJob(
-                                "AlarmConfigs",
-                                1,
-                                I18n.getInstance().getString("plugin.alarms.message.finishedalarmconfig") + " " + alarmConfiguration.getName());
+                        Platform.runLater(() ->
+                                JEConfig.getStatusBar().progressProgressJob(
+                                        "AlarmConfigs",
+                                        1,
+                                        I18n.getInstance().getString("plugin.alarms.message.finishedalarmconfig") + " " + alarmConfiguration.getName()));
                     }
 
                     return list;

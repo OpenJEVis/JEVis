@@ -571,10 +571,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                  * Give objects which have no attributes an empty list
                  */
                 this.objectCache.keySet().forEach(aLong -> {
-                    if (!this.attributeCache.containsKey(aLong)) {
-                        this.attributeCache.put(aLong, new ArrayList<>());
-                    }
-                    fixMissingAttributes(getObject(aLong), this.attributeCache.get(aLong));
+                    List<JEVisAttribute> atts = this.attributeCache.computeIfAbsent(aLong, k -> new CopyOnWriteArrayList<>());
+                    fixMissingAttributes(getObject(aLong), atts);
 
                 });
                 logger.debug("done fixing attributes");
@@ -1435,33 +1433,19 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     private JEVisAttribute updateAttributeCache(JsonAttribute jSonAttribute) {
-        if (this.attributeCache.containsKey(jSonAttribute.getObjectID())) {
-            for (JEVisAttribute att : this.attributeCache.get(jSonAttribute.getObjectID())) {
-                if (att.getName().equals(jSonAttribute.getType())) {
-                    /**
-                     * cast needs to be removed
-                     */
-                    ((JEVisAttributeWS) att).update(jSonAttribute);
-                    logger.debug("Update existing att: {}.{}", jSonAttribute.getObjectID(), jSonAttribute.getType());
-                    return att;
-                }
+        List<JEVisAttribute> list = this.attributeCache.computeIfAbsent(jSonAttribute.getObjectID(), k -> new CopyOnWriteArrayList<>());
+        for (JEVisAttribute att : list) {
+            if (att.getName().equals(jSonAttribute.getType())) {
+                ((JEVisAttributeWS) att).update(jSonAttribute);
+                logger.debug("Update existing att: {}.{}", jSonAttribute.getObjectID(), jSonAttribute.getType());
+                return att;
             }
-        } else {
-            logger.trace("Create attribute list for : {}", jSonAttribute.getObjectID());
-            this.attributeCache.put(jSonAttribute.getObjectID(), new ArrayList<>());
         }
 
-
         JEVisAttributeWS newAttribute = new JEVisAttributeWS(this, jSonAttribute);
-        this.attributeCache.get(jSonAttribute.getObjectID()).add(newAttribute);
-//        logger.debug("add new attribute: {}.{}", jSonAttribute.getObjectID(), jSonAttribute.getType());
+        list.add(newAttribute);
 
         return newAttribute;
-
-
-        //TODO: this should not happen in the normal workflow but we never know?
-
-
     }
 
     private void removeObjectFromRelationshipsCache(long objectID) {
