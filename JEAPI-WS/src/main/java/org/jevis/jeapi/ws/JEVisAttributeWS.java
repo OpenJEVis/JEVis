@@ -35,6 +35,8 @@ import tech.units.indriya.AbstractUnit;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -222,7 +224,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
                             + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH
                             + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.FILES.PATH
                             + HTTPConnection.FMT.print(s.getTimestamp())
-                            + "?" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.FILES.OPTIONS.FILENAME + s.getValueAsFile().getFilename();
+                            + "?" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.FILES.OPTIONS.FILENAME + URLEncoder.encode(s.getValueAsFile().getFilename(), StandardCharsets.UTF_8.name());
 
                     HttpURLConnection connection = ds.getHTTPConnection().getPostFileConnection(resource);
 //                    logger.trace("Upload file-------------: {}", s.getValueAsFile().getBytes().length);
