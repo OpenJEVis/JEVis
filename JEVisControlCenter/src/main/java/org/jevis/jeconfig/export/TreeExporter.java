@@ -22,11 +22,15 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.CommonMethods;
 import org.jevis.commons.ws.json.JsonFactory;
+import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.application.Chart.data.AnalysisHandler;
 import org.jevis.jeconfig.application.Chart.data.ChartData;
 import org.jevis.jeconfig.application.Chart.data.ChartModel;
 import org.jevis.jeconfig.application.Chart.data.DataModel;
+import org.jevis.jeconfig.plugin.accounting.AccountingTemplateHandler;
+import org.jevis.jeconfig.plugin.accounting.SelectionTemplate;
+import org.jevis.jeconfig.plugin.scada.SCADAPlugin;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -49,6 +53,7 @@ public class TreeExporter {
     private static final Logger logger = LogManager.getLogger(TreeExporter.class);
     private static final int BUFFER_SIZE = 4096;
     private static final String FILE_DATE_FORMAT = "yyyyMMddHHmmss";
+    private static final String RELATIONSHIPS_FILE = "relationships.json";
 
     private final String OBJECT_NAME = "name";
     private final String OBJECT_CLASS = "class";
@@ -75,6 +80,34 @@ public class TreeExporter {
         this.mapper.getFactory().disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
     }
 
+    /**
+     * Creates a JavaFX {@link Task} that imports a previously exported {@code .jex} archive into the
+     * JEVis tree as children of {@code parent}.
+     *
+     * <p>The import runs four post-processing phases after all objects and their attribute samples
+     * have been created, to remap old object IDs (from the export system) to the new IDs assigned
+     * during import:
+     * <ol>
+     *   <li><b>String target attributes</b> ({@link GUIConstants#TARGET_OBJECT} /
+     *       {@link GUIConstants#TARGET_ATTRIBUTE}): TargetHelper strings of the form
+     *       {@code "objectId:attributeName"} are resolved via {@link #updateTargetAttributes}.</li>
+     *   <li><b>Long target attributes</b> ({@link GUIConstants#BASIC_TARGET_LONG}): Raw Long
+     *       object IDs stored in attributes with the "Target Selector" display type are resolved
+     *       via {@link #updateTargetLongAttributes}.</li>
+     *   <li><b>File-embedded IDs</b>: Specific file attributes whose content references object
+     *       IDs by JSON key are post-processed by {@link #updateTargetsInFiles}. Covered types:
+     *       Analysis File, Dashboard Data Model File, Accounting Template File, SCADA Data Model.</li>
+     *   <li><b>Relationships</b>: If the archive contains {@value #RELATIONSHIPS_FILE}, access-control
+     *       relationships (OWNER, MEMBER_*, ROLE_*) are recreated via {@link #importRelationships}.
+     *       Missing the file is silently ignored for backward compatibility with older archives.
+     *       Note: {@code PASSWORD_PBKDF2} attributes are intentionally excluded from export, so
+     *       imported User objects will have no password — administrators must reset them manually.</li>
+     * </ol>
+     *
+     * @param file   the {@code .jex} archive to import
+     * @param parent the JEVis object that will be the parent of all imported root objects
+     * @return a Task that performs the import; must be submitted to a thread or executor
+     */
     public Task importFromFile(File file, JEVisObject parent) {
         return new Task() {
             @Override
@@ -110,11 +143,14 @@ public class TreeExporter {
                     Map<JEVisAttribute, JsonNode> targets = new HashMap<>();
                     Map<Long, JEVisObject> createdObjects = new HashMap<>();
                     List<JEVisAttribute> fileAttributes = new ArrayList<>();
+                    Map<JEVisAttribute, JsonNode> longTargets = new HashMap<>();
 
-                    readTmpFilesToJEVis(messages, tmpDir, parent, createdObjects, targets, fileAttributes);
+                    readTmpFilesToJEVis(messages, tmpDir, parent, createdObjects, targets, fileAttributes, longTargets);
 
                     updateTargetAttributes(createdObjects, targets);
+                    updateTargetLongAttributes(createdObjects, longTargets);
                     updateTargetsInFiles(parent.getDataSource(), createdObjects, fileAttributes);
+                    importRelationships(parent.getDataSource(), tmpDir, createdObjects);
 
                     logger.info("All Done");
                     succeeded();
@@ -130,6 +166,33 @@ public class TreeExporter {
         };
     }
 
+    /**
+     * Post-import phase C: remaps object IDs embedded inside the content of specific file and
+     * string attributes whose format is known to contain JEVis object ID references.
+     *
+     * <p>Handled attribute types:
+     * <ul>
+     *   <li>{@link JC.Analysis#a_AnalysisFile} — remaps {@code id} and {@code calculationId} in each
+     *       {@link ChartData} of every chart model in the analysis.</li>
+     *   <li>{@link JC.DashboardAnalysis#a_DataModelFile} — remaps JSON keys {@code "id"},
+     *       {@code "calculationId"}, {@code "dashboardObject"}, and {@code "objectID"} in the
+     *       dashboard data model JSON.</li>
+     *   <li>{@link JC.AccountingConfiguration#a_TemplateFile} — remaps {@code objectID} on each
+     *       {@code TemplateInput}, the {@code templateSelection} ID, and TargetHelper target strings
+     *       on linked {@code TemplateOutput} entries.</li>
+     *   <li>SCADA {@code "Data Model"} STRING attribute — remaps {@code "objectID"} values embedded
+     *       in the JSON stored as the attribute's string value.</li>
+     * </ul>
+     *
+     * <p>For all cases, if an old ID is not present in {@code createdObjects} (it was a cross-tree
+     * reference to an object that already exists on the target system), a live datasource lookup is
+     * attempted as a fallback before logging a warning and skipping the entry.
+     *
+     * @param ds             live datasource used for cross-tree ID fallback lookups
+     * @param createdObjects mapping of old (export) object IDs to newly created {@link JEVisObject}s
+     * @param fileAttributes all non-target attributes collected during import; only those with
+     *                       recognized names are processed
+     */
     private void updateTargetsInFiles(JEVisDataSource ds, Map<Long, JEVisObject> createdObjects, List<JEVisAttribute> fileAttributes) throws JEVisException, IOException {
         for (JEVisAttribute fileAttribute : fileAttributes) {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -144,14 +207,32 @@ public class TreeExporter {
 
                 for (ChartModel chartModel : dataModel.getChartModels()) {
                     for (ChartData chartData : chartModel.getChartData()) {
+                        // Remap primary data object ID
                         long oldId = chartData.getId();
-                        JEVisObject newObject = createdObjects.get(oldId);
-                        Long newId = newObject.getID();
-                        chartData.setId(newId);
+                        JEVisObject resolved = resolveObject(ds, createdObjects, oldId);
+                        if (resolved != null) {
+                            chartData.setId(resolved.getID());
+                        } else {
+                            logger.warn("Cannot resolve ChartData id {} in Analysis File of object {}",
+                                    oldId, fileAttribute.getObject().getID());
+                        }
+
+                        // Remap calculation object ID when the series uses a formula
+                        if (chartData.isCalculation() && chartData.getCalculationId() > 0) {
+                            long oldCalcId = chartData.getCalculationId();
+                            JEVisObject resolvedCalc = resolveObject(ds, createdObjects, oldCalcId);
+                            if (resolvedCalc != null) {
+                                chartData.setCalculationId(resolvedCalc.getID());
+                            } else {
+                                logger.warn("Cannot resolve calculationId {} in Analysis File of object {}",
+                                        oldCalcId, fileAttribute.getObject().getID());
+                            }
+                        }
                     }
                 }
 
                 analysisHandler.saveDataModel(fileAttribute.getObject(), dataModel);
+
             } else if (fileAttribute.getName().equals(JC.DashboardAnalysis.a_DataModelFile)) {
                 JEVisSample latestSample = fileAttribute.getLatestSample();
 
@@ -160,29 +241,178 @@ public class TreeExporter {
 
                     if (file != null && file.getBytes() != null && file.getBytes().length > 0) {
                         JsonNode jsonNode = mapper.readTree(file.getBytes());
-                        String jsonNodePrettyString = jsonNode.toPrettyString();
+                        String json = jsonNode.toPrettyString();
 
+                        // Remap "id" — primary data object references in chart data
                         for (JsonNode id : jsonNode.findValues("id")) {
-                            JEVisObject jeVisObject = createdObjects.get(id.asLong());
-                            if (jeVisObject != null) {
-                                String oldValue = "\"id\" : " + id;
-                                String newValue = "\"id\" : " + jeVisObject.getID();
-                                jsonNodePrettyString = jsonNodePrettyString.replaceAll(oldValue, newValue);
+                            JEVisObject obj = resolveObject(ds, createdObjects, id.asLong());
+                            if (obj != null) {
+                                json = json.replace("\"id\" : " + id, "\"id\" : " + obj.getID());
+                            }
+                        }
+
+                        // Remap "calculationId" — formula/calculation object references
+                        for (JsonNode calcId : jsonNode.findValues("calculationId")) {
+                            long oldCalcId = calcId.asLong(-1);
+                            if (oldCalcId > 0) {
+                                JEVisObject obj = resolveObject(ds, createdObjects, oldCalcId);
+                                if (obj != null) {
+                                    json = json.replace("\"calculationId\" : " + oldCalcId,
+                                            "\"calculationId\" : " + obj.getID());
+                                }
+                            }
+                        }
+
+                        // Remap "dashboardObject" — DashboardLinkerNode references to other dashboards
+                        for (JsonNode dashObj : jsonNode.findValues("dashboardObject")) {
+                            long oldDashId = dashObj.asLong(-1);
+                            if (oldDashId > 0) {
+                                JEVisObject obj = resolveObject(ds, createdObjects, oldDashId);
+                                if (obj != null) {
+                                    json = json.replace("\"dashboardObject\" : " + oldDashId,
+                                            "\"dashboardObject\" : " + obj.getID());
+                                }
+                            }
+                        }
+
+                        // Remap "objectID" — ImageConfig file-object references (stored as JSON string)
+                        for (JsonNode objIdNode : jsonNode.findValues("objectID")) {
+                            long oldObjId = objIdNode.asLong(-1);
+                            if (oldObjId > 0) {
+                                JEVisObject obj = resolveObject(ds, createdObjects, oldObjId);
+                                if (obj != null) {
+                                    // ImageConfig serializes the Long as a JSON string value
+                                    json = json.replace("\"objectID\" : \"" + oldObjId + "\"",
+                                            "\"objectID\" : \"" + obj.getID() + "\"");
+                                    // Handle numeric form used by other widgets
+                                    json = json.replace("\"objectID\" : " + oldObjId,
+                                            "\"objectID\" : " + obj.getID());
+                                }
                             }
                         }
 
                         JEVisFileImp jsonFile = new JEVisFileImp(
                                 file.getFilename(),
-                                jsonNodePrettyString.getBytes(StandardCharsets.UTF_8)
+                                json.getBytes(StandardCharsets.UTF_8)
                         );
                         JEVisSample newSample = fileAttribute.buildSample(new DateTime(), jsonFile);
                         newSample.commit();
                     }
                 }
+
+            } else if (fileAttribute.getName().equals(JC.AccountingConfiguration.a_TemplateFile)) {
+                // Covers both JC.AccountingConfiguration and JC.ResultCalculationTemplate,
+                // which both use the same attribute name and JSON format.
+                try {
+                    AccountingTemplateHandler handler = new AccountingTemplateHandler();
+                    handler.setTemplateObject(fileAttribute.getObject());
+                    SelectionTemplate template = handler.getSelectionTemplate();
+
+                    if (template != null) {
+                        // Remap the selected template definition object
+                        Long oldTemplateId = template.getTemplateSelection();
+                        if (oldTemplateId != null && oldTemplateId > 0) {
+                            JEVisObject resolved = resolveObject(ds, createdObjects, oldTemplateId);
+                            if (resolved != null) {
+                                template.setTemplateSelection(resolved.getID());
+                            } else {
+                                logger.warn("Cannot resolve templateSelection id {} in Template File of object {}",
+                                        oldTemplateId, fileAttribute.getObject().getID());
+                            }
+                        }
+
+                        // Remap objectID on each selected data input
+                        for (org.jevis.jeconfig.plugin.dtrc.TemplateInput input : template.getSelectedInputs()) {
+                            Long oldId = input.getObjectID();
+                            if (oldId != null && oldId > 0) {
+                                JEVisObject resolved = resolveObject(ds, createdObjects, oldId);
+                                if (resolved != null) {
+                                    input.setObjectID(resolved.getID());
+                                } else {
+                                    logger.warn("Cannot resolve TemplateInput objectID {} in Template File of object {}",
+                                            oldId, fileAttribute.getObject().getID());
+                                }
+                            }
+                        }
+
+                        // Remap TargetHelper target strings on linked outputs
+                        for (org.jevis.jeconfig.plugin.dtrc.TemplateOutput output : template.getLinkedOutputs()) {
+                            if (Boolean.TRUE.equals(output.getLink()) && output.getTarget() != null
+                                    && !output.getTarget().isEmpty()) {
+                                try {
+                                    output.setTarget(resolveTargetValue(createdObjects, fileAttribute, output.getTarget()));
+                                } catch (Exception e) {
+                                    logger.warn("Cannot remap accounting output target '{}' on object {}",
+                                            output.getTarget(), fileAttribute.getObject().getID(), e);
+                                }
+                            }
+                        }
+
+                        handler.setSelectionTemplate(template);
+                        byte[] updatedBytes = objectMapper.writerWithDefaultPrettyPrinter()
+                                .writeValueAsBytes(handler.toJsonNode());
+                        JEVisFileImp updatedFile = new JEVisFileImp("template.json", updatedBytes);
+                        JEVisSample newSample = fileAttribute.buildSample(new DateTime(), updatedFile);
+                        newSample.commit();
+                    }
+                } catch (Exception e) {
+                    logger.error("Failed to remap Template File for object {}",
+                            fileAttribute.getObject().getID(), e);
+                }
+
+            } else if (fileAttribute.getName().equals(SCADAPlugin.ATTRIBUTE_DATA_MODEL)
+                    && fileAttribute.getObject().getJEVisClassName().equals(SCADAPlugin.CLASS_SCADA_ANALYSIS)) {
+                // SCADA "Data Model" is a STRING attribute whose value is JSON containing objectID fields
+                try {
+                    JEVisSample latestSample = fileAttribute.getLatestSample();
+                    if (latestSample != null) {
+                        String jsonString = latestSample.getValueAsString();
+                        if (jsonString != null && !jsonString.isEmpty()) {
+                            JsonNode rootNode = objectMapper.readTree(jsonString);
+                            String json = rootNode.toPrettyString();
+                            boolean modified = false;
+
+                            for (JsonNode objIdNode : rootNode.findValues("objectID")) {
+                                long oldId = objIdNode.asLong(-1);
+                                if (oldId > 0) {
+                                    JEVisObject resolved = resolveObject(ds, createdObjects, oldId);
+                                    if (resolved != null) {
+                                        json = json.replace("\"objectID\" : " + oldId,
+                                                "\"objectID\" : " + resolved.getID());
+                                        modified = true;
+                                    } else {
+                                        logger.warn("Cannot resolve SCADA objectID {} in Data Model of object {}",
+                                                oldId, fileAttribute.getObject().getID());
+                                    }
+                                }
+                            }
+
+                            if (modified) {
+                                JEVisSample newSample = fileAttribute.buildSample(new DateTime(), json);
+                                newSample.commit();
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("Failed to remap SCADA Data Model for object {}",
+                            fileAttribute.getObject().getID(), e);
+                }
             }
         }
     }
 
+    /**
+     * Post-import phase B: remaps TargetHelper string values in attributes with the
+     * {@link GUIConstants#TARGET_OBJECT} or {@link GUIConstants#TARGET_ATTRIBUTE} display type.
+     *
+     * <p>TargetHelper strings have the form {@code "objectId:attributeName"} or a semicolon-separated
+     * list for multi-select attributes. Each object ID is resolved first from {@code createdObjects}
+     * (an object that was re-created during this import), then via a live datasource lookup for
+     * cross-tree references that already exist on the target system.
+     *
+     * @param createdObjects mapping of old (export) object IDs to newly created {@link JEVisObject}s
+     * @param targets        deferred target attributes and their exported sample JSON nodes
+     */
     private void updateTargetAttributes(Map<Long, JEVisObject> createdObjects, Map<JEVisAttribute, JsonNode> targets) {
         for (Map.Entry<JEVisAttribute, JsonNode> entry : targets.entrySet()) {
             JEVisAttribute jeVisAttribute = entry.getKey();
@@ -232,6 +462,76 @@ public class TreeExporter {
         }
     }
 
+    /**
+     * Post-import phase B2: remaps raw Long object IDs stored in attributes with the
+     * {@link GUIConstants#BASIC_TARGET_LONG} ("Target Selector") display type.
+     *
+     * <p>These attributes (e.g. "Source Id" on JEVis Channel objects) hold a single Long value that
+     * is a JEVis object ID. Each old ID is resolved first from {@code createdObjects}, then via a
+     * live datasource lookup for cross-tree references. Entries that cannot be resolved are logged
+     * and skipped.
+     *
+     * @param createdObjects mapping of old (export) object IDs to newly created {@link JEVisObject}s
+     * @param longTargets    deferred BASIC_TARGET_LONG attributes and their exported sample JSON nodes
+     */
+    private void updateTargetLongAttributes(Map<Long, JEVisObject> createdObjects, Map<JEVisAttribute, JsonNode> longTargets) {
+        for (Map.Entry<JEVisAttribute, JsonNode> entry : longTargets.entrySet()) {
+            JEVisAttribute jeVisAttribute = entry.getKey();
+            JsonNode jSamples = entry.getValue();
+            List<JEVisSample> samples = new ArrayList<>();
+
+            for (JsonNode jSample : jSamples) {
+                try {
+                    DateTime ts = DateTime.parse(jSample.get(SAMPLE_TS).asText());
+                    long oldId = jSample.get(SAMPLE_VALUE).asLong();
+
+                    JEVisObject resolved = createdObjects.get(oldId);
+                    if (resolved == null) {
+                        try {
+                            resolved = jeVisAttribute.getObject().getDataSource().getObject(oldId);
+                        } catch (Exception ignored) {
+                        }
+                    }
+
+                    if (resolved != null) {
+                        samples.add(jeVisAttribute.buildSample(ts, resolved.getID(),
+                                jSample.get(NOTE).asText()));
+                    } else {
+                        logger.warn("Cannot resolve BASIC_TARGET_LONG id {} for attribute '{}' on object {}",
+                                oldId, jeVisAttribute.getName(), jeVisAttribute.getObject().getID());
+                    }
+                } catch (Exception ex) {
+                    logger.error("Error remapping BASIC_TARGET_LONG sample: {}", jSample, ex);
+                }
+            }
+
+            try {
+                if (!samples.isEmpty()) {
+                    jeVisAttribute.addSamples(samples);
+                }
+            } catch (Exception e) {
+                logger.error("Failed to commit BASIC_TARGET_LONG samples for attribute '{}'",
+                        jeVisAttribute.getName(), e);
+            }
+        }
+    }
+
+    /**
+     * Resolves a TargetHelper string from the exported format (old object ID) to the format valid
+     * on the target system (new object ID).
+     *
+     * <p>The TargetHelper format is {@code "objectId:attributeName"}, or just {@code "objectId"} if
+     * the attribute name defaults to {@code "Value"}. Resolution tries {@code createdObjects} first
+     * (the object was re-created during this import), then falls back to a live datasource lookup
+     * for objects that already exist on the target system with the same numeric ID.
+     *
+     * @param createdObjects  mapping of old (export) IDs to newly created objects
+     * @param targetAttribute the attribute being resolved; used to obtain the datasource for fallback
+     * @param rawTarget       the TargetHelper string from the export, e.g. {@code "12345:Value"}
+     * @return the TargetHelper string with the ID updated to the target system's ID
+     * @throws JEVisException           if the object cannot be resolved on the target system
+     * @throws IllegalArgumentException if {@code rawTarget} is null or empty
+     */
     private String resolveTargetValue(Map<Long, JEVisObject> createdObjects,
                                       JEVisAttribute targetAttribute,
                                       String rawTarget) throws JEVisException {
@@ -274,12 +574,43 @@ public class TreeExporter {
         throw new JEVisException("Cannot resolve target object id: " + objectId, 145415);
     }
 
+    /**
+     * Reads the extracted ZIP contents from {@code directory} recursively and creates JEVis objects
+     * and attribute samples on the server.
+     *
+     * <p>Three types of entries are processed per directory level:
+     * <ol>
+     *   <li><b>Object JSON files</b> ({@code o_<id>.json}): a new JEVis object is created under
+     *       {@code parent}; the mapping {@code oldId → newObject} is stored in {@code createdObjects}.</li>
+     *   <li><b>Attribute JSON files</b> ({@code a_<id>_<attrName>.json}): non-FILE, non-PASSWORD
+     *       attribute metadata and samples are applied to the corresponding newly created object.
+     *       Attributes with display types {@link GUIConstants#TARGET_OBJECT},
+     *       {@link GUIConstants#TARGET_ATTRIBUTE}, or {@link GUIConstants#BASIC_TARGET_LONG} are
+     *       deferred to {@code targets} or {@code longTargets} for ID remapping after all objects
+     *       are created. All other attributes are added to {@code fileAttributes} for potential
+     *       content-level remapping in {@link #updateTargetsInFiles}.</li>
+     *   <li><b>Attribute directories</b> ({@code a_<id>_<attrName>/}): FILE-type attribute samples
+     *       are reconstructed from the contained timestamp sub-directories and files. These attributes
+     *       are also added to {@code fileAttributes} so {@link #updateTargetsInFiles} can post-process
+     *       their content (e.g. Analysis File, Data Model File, Template File).</li>
+     * </ol>
+     * Numeric sub-directories ({@code <id>/}) trigger recursive calls for child objects.
+     *
+     * @param message        property used to push status messages to the UI task
+     * @param directory      current directory to process
+     * @param parent         JEVis object under which new objects at this level are created
+     * @param createdObjects accumulates old-ID → new-object mappings across all recursive calls
+     * @param targets        accumulates deferred TARGET_OBJECT / TARGET_ATTRIBUTE attribute samples
+     * @param fileAttributes accumulates all non-deferred attributes for {@link #updateTargetsInFiles}
+     * @param longTargets    accumulates deferred BASIC_TARGET_LONG attribute samples
+     */
     private void readTmpFilesToJEVis(StringProperty message,
                                      Path directory,
                                      JEVisObject parent,
                                      Map<Long, JEVisObject> createdObjects,
                                      Map<JEVisAttribute, JsonNode> targets,
-                                     List<JEVisAttribute> fileAttributes) {
+                                     List<JEVisAttribute> fileAttributes,
+                                     Map<JEVisAttribute, JsonNode> longTargets) {
         try {
             Set<Path> objectFiles = listObjectFiles(directory);
 
@@ -366,10 +697,16 @@ public class TreeExporter {
                     JEVisType type = jevisAttribute.getType();
                     String guiDisplayType = type.getGUIDisplayType();
 
-                    if (guiDisplayType != null && (guiDisplayType.equals(GUIConstants.TARGET_OBJECT.getId())
-                            || guiDisplayType.equals(GUIConstants.TARGET_ATTRIBUTE.getId()))) {
-                        targets.put(jevisAttribute, jSamples);
-                        continue;
+                    if (guiDisplayType != null) {
+                        if (guiDisplayType.equals(GUIConstants.TARGET_OBJECT.getId())
+                                || guiDisplayType.equals(GUIConstants.TARGET_ATTRIBUTE.getId())) {
+                            targets.put(jevisAttribute, jSamples);
+                            continue;
+                        }
+                        if (guiDisplayType.equals(GUIConstants.BASIC_TARGET_LONG.getId())) {
+                            longTargets.put(jevisAttribute, jSamples);
+                            continue;
+                        }
                     }
 
                     for (JsonNode jSample : jSamples) {
@@ -430,6 +767,9 @@ public class TreeExporter {
                 }
 
                 jevisAttribute.addSamples(fileSamples);
+                // Register FILE attributes for content-level ID remapping (e.g. Analysis File,
+                // Data Model File, Template File) — these go through updateTargetsInFiles().
+                fileAttributes.add(jevisAttribute);
             }
 
             Set<Path> objectFolders = listObjectFolders(directory);
@@ -443,7 +783,7 @@ public class TreeExporter {
                     continue;
                 }
 
-                readTmpFilesToJEVis(message, objectFolderPath, correspondingJEVisObject, createdObjects, targets, fileAttributes);
+                readTmpFilesToJEVis(message, objectFolderPath, correspondingJEVisObject, createdObjects, targets, fileAttributes, longTargets);
             }
         } catch (Exception e) {
             logger.error(e);
@@ -511,6 +851,26 @@ public class TreeExporter {
         bos.close();
     }
 
+    /**
+     * Creates a JavaFX {@link Task} that exports the given objects and all their descendants into a
+     * {@code .jex} ZIP archive at {@code file}.
+     *
+     * <p>The archive contains:
+     * <ul>
+     *   <li>One {@code o_<id>.json} per object with its name, class, and localized names.</li>
+     *   <li>One {@code a_<id>_<attrName>.json} per non-FILE, non-PASSWORD attribute with metadata
+     *       and all samples.</li>
+     *   <li>One {@code a_<id>_<attrName>/<timestamp>/<filename>} entry per FILE attribute sample.</li>
+     *   <li>An optional {@value #RELATIONSHIPS_FILE} in the archive root containing OWNER,
+     *       MEMBER_*, and ROLE_* relationships for all exported objects (see
+     *       {@link #exportRelationships}).</li>
+     * </ul>
+     * {@code PASSWORD_PBKDF2} attributes are intentionally excluded from export.
+     *
+     * @param file    output file path for the {@code .jex} archive
+     * @param objects root objects to export; all their descendants are included recursively
+     * @return a Task that performs the export; must be submitted to a thread or executor
+     */
     public Task exportToFileTask(File file, List<JEVisObject> objects) {
         return new Task() {
             @Override
@@ -531,6 +891,7 @@ public class TreeExporter {
                     ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
 
                     writeZipOutputStream(zipOutputStream, objects, "", message, jobNo, jobCount);
+                    exportRelationships(zipOutputStream, allObjects);
 
                     zipOutputStream.close();
                     outputStream.close();
@@ -611,6 +972,239 @@ public class TreeExporter {
             } catch (Exception e) {
                 logger.error("Failed to write object {}:{}", object.getName(), object.getID(), e);
             }
+        }
+    }
+
+    /**
+     * Collects access-control relationships for all exported objects and writes them as
+     * {@value #RELATIONSHIPS_FILE} into the ZIP archive root.
+     *
+     * <p>Three categories of relationships are exported:
+     * <ul>
+     *   <li>{@link JEVisConstants.ObjectRelationship#OWNER} (100) — for every exported object,
+     *       recording which groups have access to it.</li>
+     *   <li>{@code MEMBER_READ..MEMBER_DELETE} (101–105) — for every exported object of class
+     *       {@link JEVisConstants.Class#USER}, recording group memberships and their permission level.</li>
+     *   <li>{@code ROLE_MEMBER..ROLE_DELETE} (200–205) — for every exported object of class
+     *       {@link JC.UserRole#name}, recording which users belong to the role and which groups
+     *       the role has access to.</li>
+     * </ul>
+     *
+     * <p>Older importers that do not understand {@value #RELATIONSHIPS_FILE} will simply ignore the
+     * entry, ensuring backward compatibility of the archive format.
+     *
+     * <p>Note: {@code PASSWORD_PBKDF2} attributes are never exported. Users imported from this
+     * archive will have no password and require a manual password reset.
+     *
+     * @param zipOutputStream the open ZIP stream to write to (must not be closed by this method)
+     * @param allObjects      flat list of every exported JEVis object (root and all descendants)
+     */
+    private void exportRelationships(ZipOutputStream zipOutputStream, List<JEVisObject> allObjects) {
+        try {
+            List<JsonRelationship> relationships = new ArrayList<>();
+            Set<String> seen = new HashSet<>();
+
+            for (JEVisObject object : allObjects) {
+                try {
+                    // OWNER: every object → the groups that can access it
+                    collectRelationships(relationships, seen, object,
+                            JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD);
+
+                    String className = object.getJEVisClassName();
+
+                    // MEMBER_*: User objects → the groups they belong to (with permission type)
+                    if (JEVisConstants.Class.USER.equals(className)) {
+                        for (int type : new int[]{
+                                JEVisConstants.ObjectRelationship.MEMBER_READ,
+                                JEVisConstants.ObjectRelationship.MEMBER_WRITE,
+                                JEVisConstants.ObjectRelationship.MEMBER_EXECUTE,
+                                JEVisConstants.ObjectRelationship.MEMBER_CREATE,
+                                JEVisConstants.ObjectRelationship.MEMBER_DELETE}) {
+                            collectRelationships(relationships, seen, object, type,
+                                    JEVisConstants.Direction.FORWARD);
+                        }
+                    }
+
+                    // ROLE_*: User Role objects → their user members and group access
+                    if (JC.UserRole.name.equals(className)) {
+                        for (int type : new int[]{
+                                JEVisConstants.ObjectRelationship.ROLE_MEMBER,
+                                JEVisConstants.ObjectRelationship.ROLE_READ,
+                                JEVisConstants.ObjectRelationship.ROLE_WRITE,
+                                JEVisConstants.ObjectRelationship.ROLE_EXECUTE,
+                                JEVisConstants.ObjectRelationship.ROLE_CREATE,
+                                JEVisConstants.ObjectRelationship.ROLE_DELETE}) {
+                            collectRelationships(relationships, seen, object, type,
+                                    JEVisConstants.Direction.FORWARD);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("Failed to collect relationships for object {}:{}",
+                            object.getName(), object.getID(), e);
+                }
+            }
+
+            ZipEntry relEntry = new ZipEntry(RELATIONSHIPS_FILE);
+            zipOutputStream.putNextEntry(relEntry);
+            mapper.writeValue(zipOutputStream, relationships);
+            logger.info("Exported {} relationships to {}", relationships.size(), RELATIONSHIPS_FILE);
+        } catch (Exception e) {
+            logger.error("Failed to export relationships", e);
+        }
+    }
+
+    /**
+     * Collects all relationships of the given {@code type} and {@code direction} from {@code object}
+     * into {@code list}, deduplicating via {@code seen}.
+     *
+     * @param list      target list to add collected relationships to
+     * @param seen      set of {@code "from_to_type"} keys used for deduplication
+     * @param object    the JEVis object whose relationships are queried
+     * @param type      the relationship type constant from {@link JEVisConstants.ObjectRelationship}
+     * @param direction {@link JEVisConstants.Direction#FORWARD} or {@link JEVisConstants.Direction#BACKWARD}
+     */
+    private void collectRelationships(List<JsonRelationship> list, Set<String> seen,
+                                      JEVisObject object, int type, int direction) throws JEVisException {
+        for (JEVisRelationship rel : object.getRelationships(type, direction)) {
+            String key = rel.getStartID() + "_" + rel.getEndID() + "_" + rel.getType();
+            if (seen.add(key)) {
+                JsonRelationship jr = new JsonRelationship();
+                jr.setFrom(rel.getStartID());
+                jr.setTo(rel.getEndID());
+                jr.setType(rel.getType());
+                list.add(jr);
+            }
+        }
+    }
+
+    /**
+     * Post-import phase D: recreates access-control relationships from {@value #RELATIONSHIPS_FILE}
+     * in the extracted archive.
+     *
+     * <p>Resolution strategy (in priority order):
+     * <ol>
+     *   <li>Check {@code createdObjects} — the object was part of this import and received a new ID.</li>
+     *   <li>Fall back to {@code ds.getObject(oldId)} — the object already exists on the target
+     *       system with the same numeric ID (e.g. a cross-tree reference to a shared group).</li>
+     * </ol>
+     *
+     * <p>If {@value #RELATIONSHIPS_FILE} is absent in the archive, the method returns immediately
+     * without error, ensuring backward compatibility with pre-relationship {@code .jex} files.
+     *
+     * <p>After all relationships are created, {@link JEVisDataSource#updateAccessControl()} is called
+     * to flush the server-side ACL cache, making permissions effective immediately.
+     *
+     * <p>Note: {@code PASSWORD_PBKDF2} attributes are not included in the export. Imported User
+     * objects will have no password — administrators must reset passwords after import.
+     *
+     * @param ds             live datasource used to create relationships and flush the ACL cache
+     * @param tmpDir         directory into which the archive was extracted
+     * @param createdObjects mapping of old export IDs to newly created {@link JEVisObject}s
+     */
+    private void importRelationships(JEVisDataSource ds, Path tmpDir, Map<Long, JEVisObject> createdObjects) {
+        Path relFile = tmpDir.resolve(RELATIONSHIPS_FILE);
+        if (!Files.exists(relFile)) {
+            logger.info("No {} in archive — skipping relationship import", RELATIONSHIPS_FILE);
+            return;
+        }
+
+        try {
+            List<JsonRelationship> relationships = mapper.readValue(
+                    relFile.toFile(),
+                    mapper.getTypeFactory().constructCollectionType(List.class, JsonRelationship.class));
+
+            logger.info("Importing {} relationships", relationships.size());
+            int created = 0;
+            int skipped = 0;
+            int consecutiveFailures = 0;
+            final int FAILURE_ABORT_THRESHOLD = 5;
+
+            for (int i = 0; i < relationships.size(); i++) {
+                JsonRelationship rel = relationships.get(i);
+                try {
+                    long newFrom = resolveIdForRelationship(ds, createdObjects, rel.getFrom());
+                    long newTo = resolveIdForRelationship(ds, createdObjects, rel.getTo());
+
+                    if (newFrom > 0 && newTo > 0) {
+                        JEVisRelationship newRel = ds.buildRelationship(newFrom, newTo, rel.getType());
+                        if (newRel != null) {
+                            created++;
+                            consecutiveFailures = 0;
+                        } else {
+                            logger.warn("Failed to recreate relationship: from={} to={} type={}",
+                                    newFrom, newTo, rel.getType());
+                            skipped++;
+                            consecutiveFailures++;
+                        }
+                    } else {
+                        logger.warn("Skipping unresolvable relationship: from={} (resolved={}) to={} (resolved={}) type={}",
+                                rel.getFrom(), newFrom, rel.getTo(), newTo, rel.getType());
+                        skipped++;
+                    }
+                } catch (Exception e) {
+                    logger.error("Failed to recreate relationship {}", rel, e);
+                    skipped++;
+                    consecutiveFailures++;
+                }
+
+                if (consecutiveFailures >= FAILURE_ABORT_THRESHOLD) {
+                    int remaining = relationships.size() - (i + 1);
+                    skipped += remaining;
+                    logger.error("Aborting relationship import after {} consecutive failures — the target server may not support the relationship API (older JEWebService version?). {} relationships were not attempted.",
+                            consecutiveFailures, remaining);
+                    break;
+                }
+            }
+
+            logger.info("Relationship import complete: {} created, {} skipped", created, skipped);
+            ds.updateAccessControl();
+        } catch (Exception e) {
+            logger.error("Failed to load or apply {}", RELATIONSHIPS_FILE, e);
+        }
+    }
+
+    /**
+     * Resolves an old (exported) object ID to the current system's object ID.
+     *
+     * <p>Tries {@code createdObjects} first (object was re-created during import), then falls back
+     * to a live datasource lookup (object already exists on the target system).
+     *
+     * @param ds             live datasource for fallback lookup
+     * @param createdObjects mapping of old IDs to newly created objects
+     * @param oldId          the object ID as it appeared in the export
+     * @return the resolved ID on the current system, or {@code -1} if the object cannot be found
+     */
+    private long resolveIdForRelationship(JEVisDataSource ds, Map<Long, JEVisObject> createdObjects, long oldId) {
+        JEVisObject obj = createdObjects.get(oldId);
+        if (obj != null) return obj.getID();
+        try {
+            obj = ds.getObject(oldId);
+            if (obj != null) return obj.getID();
+        } catch (Exception ignored) {
+        }
+        return -1L;
+    }
+
+    /**
+     * Resolves an old (exported) object ID to the corresponding {@link JEVisObject} on the current
+     * system.
+     *
+     * <p>Tries {@code createdObjects} first (object was re-created during import with a new ID),
+     * then falls back to a live datasource lookup for objects that already exist on the target
+     * system (cross-tree references).
+     *
+     * @param ds             live datasource for fallback lookup
+     * @param createdObjects mapping of old IDs to newly created objects
+     * @param oldId          the object ID as it appeared in the export
+     * @return the resolved {@link JEVisObject}, or {@code null} if not found on either path
+     */
+    private JEVisObject resolveObject(JEVisDataSource ds, Map<Long, JEVisObject> createdObjects, long oldId) {
+        JEVisObject obj = createdObjects.get(oldId);
+        if (obj != null) return obj;
+        try {
+            return ds.getObject(oldId);
+        } catch (Exception ignored) {
+            return null;
         }
     }
 

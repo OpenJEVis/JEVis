@@ -1053,27 +1053,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         logger.debug("updateAccessControl");
         String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_ACCESSCONTROL + "/update";
         try {
-
             InputStream inputStream = this.con.getInputStreamRequest(resource);
-            this.objectMapper.readValue(inputStream, JsonObject.class);
-            /*
-            JsonObject json = null;
             if (inputStream != null) {
-                json = this.objectMapper.readValue(inputStream, JsonObject.class);
                 inputStream.close();
             }
-            */
-
-            /** TODO: implement error handling **/
-
-        } catch (JsonParseException ex) {
-            logger.error("Json parse exception. Error while fetching Object: {}", ex);
-        } catch (JsonMappingException ex) {
-            logger.error("Object is not accessible: {}", ex);
         } catch (IOException ex) {
-            logger.error("IO exception. Error while fetching Object: {}", ex);
+            logger.error("IO exception while updating access control: {}", ex.getMessage());
         } catch (Exception ex) {
-            logger.error("Unexpected exception while fetching Object: {}, reason: {}", ex.getMessage());
+            logger.error("Unexpected exception while updating access control: {}", ex.getMessage());
         }
     }
 

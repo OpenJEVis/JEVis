@@ -209,7 +209,7 @@ public class I18nWS {
 
         for (JsonI18nType type : json.getTypes()) {
             if (type.getType().equalsIgnoreCase(typeName)) {
-                if (type.getDescriptions().containsKey(locale.getLanguage())) {
+                if (type.getDescriptions() != null && type.getDescriptions().containsKey(locale.getLanguage())) {
                     return type.getDescriptions().get(locale.getLanguage());
                 } else {
                     logger.warn("Type description not found: {}-{}", jevisClass, typeName);

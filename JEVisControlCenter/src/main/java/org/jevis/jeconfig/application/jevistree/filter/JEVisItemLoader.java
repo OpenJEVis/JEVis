@@ -406,7 +406,7 @@ public class JEVisItemLoader {
 
                  */
                 if (event.getObject() instanceof JEVisObject) {
-                    logger.error("Object Event [{}]: object [{}]{}  Source: {}", event.getType(), object.getID(), object.getName(), event.getSource());
+                    logger.debug("Object Event [{}]: object [{}]{}  Source: {}", event.getType(), object.getID(), object.getName(), event.getSource());
                     JEVisObject detectedObject = (JEVisObject) event.getObject();
                     JEVisTreeItem treeItem = getItemForObject(detectedObject);
                     JEVisTreeItem treeItemBin = getItemForObject(recycleBinObject);
@@ -445,13 +445,13 @@ public class JEVisItemLoader {
 
                             break;
                         case OBJECT_NEW_CHILD:
-                            logger.error("New Child Event: {}", event);
+                            logger.debug("New Child Event: {}", event);
                             JEVisObject newObject = (JEVisObject) event.getObject();
 
                             if (newObject != null && !this.itemObjectLinker.containsKey(newObject)) {
                                 buildItems(newObject);
                             } else if (newObject != null && this.itemObjectLinker.containsKey(newObject)) {
-                                logger.error("Remove item from cache: {}", newObject);
+                                logger.debug("Remove item from cache: {}", newObject);
                                 this.itemObjectLinker.remove(newObject);
                                 buildItems(newObject);
                             }
@@ -520,7 +520,7 @@ public class JEVisItemLoader {
                     }
                 }
             } catch (Exception ex) {
-                logger.error("Error in Object event", ex, ex);
+                logger.error("Error in Object event", ex);
             }
 
         });

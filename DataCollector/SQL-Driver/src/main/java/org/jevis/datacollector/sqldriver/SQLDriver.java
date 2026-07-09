@@ -107,9 +107,8 @@ public class SQLDriver implements DataSource {
                                     resultSamples.add(targetAttribute.buildSample(dateTime, sValue, note));
                                 }
 
-
                             } catch (Exception ex) {
-                                logger.error("Error in Row: ", ex);
+                                logger.warn("[{}:{}] Error in Row for query {}: ", sqlServerObj.getID(), sqlServerObj.getName(), requestParameters.getExecutableQuery(), ex);
                                 logStatus(5, new DateTime(), "SQL Error: " + ex);
                             }
                         }
