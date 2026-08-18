@@ -99,6 +99,7 @@ public class HTTPConnection {
     private final String username;
     private final String password;
     private final int readTimeout = 120000;//millis
+    private final int connectTimeout = 30000;//millis
     private String SSOtoken = null;
     private Session session = null;
     private Proxy proxy = null;
@@ -318,6 +319,10 @@ public class HTTPConnection {
             conn = (HttpURLConnection) url.openConnection(proxy);
 
         }
+
+        conn.setConnectTimeout(this.connectTimeout);
+        conn.setReadTimeout(this.readTimeout);
+
         return conn;
 
 
@@ -435,34 +440,57 @@ public class HTTPConnection {
     /**
      * Performs an authenticated GET request and returns the full response body as a byte array.
      *
+     * <p>Retries up to {@value #RETRIES} times, with a {@value #RETRY_DELAY_MS} ms delay, if the
+     * connection times out or fails to connect — this is what a stalled download (e.g. a large file
+     * attachment) looks like, and one transient stall shouldn't permanently drop that file.
+     *
      * @param resource the relative resource path
      * @return the response bytes, or {@code null} if the server returned a non-200 response
-     * @throws IOException if the request fails
+     * @throws IOException if the request still fails after all retries
      */
     public byte[] getByteRequest(String resource) throws IOException {
-        HttpURLConnection conn = getHTTPConnection(resource);
-        conn.setRequestMethod("GET");
-        addAuth(conn, this.username, this.password);
+        int retry = 0;
 
-        conn.setRequestProperty("User-Agent", "JEAPI-WS");
+        while (true) {
+            try {
+                HttpURLConnection conn = getHTTPConnection(resource);
+                conn.setRequestMethod("GET");
+                addAuth(conn, this.username, this.password);
 
-        logger.debug("HTTP request {}", conn.getURL());
+                conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
-        int responseCode = conn.getResponseCode();
-        logger.trace("responseCode {}", responseCode);
+                logger.debug("HTTP request {}", conn.getURL());
 
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            InputStream inputStream = conn.getInputStream();
-            byte[] response = IOUtils.toByteArray(inputStream);
-            inputStream.close();
-            conn.disconnect();
+                int responseCode = conn.getResponseCode();
+                logger.trace("responseCode {}", responseCode);
 
-            return response;
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = conn.getInputStream();
+                    byte[] response = IOUtils.toByteArray(inputStream);
+                    inputStream.close();
+                    conn.disconnect();
 
-        } else {
-            return null;
+                    return response;
+
+                } else {
+                    return null;
+                }
+            } catch (SocketTimeoutException | ConnectException ex) {
+                retry++;
+                if (retry >= RETRIES) {
+                    logger.error("Giving up on '{}' after {} attempts", resource, retry, ex);
+                    throw ex;
+                }
+
+                logger.warn("Timeout fetching '{}', retry {}/{}", resource, retry, RETRIES, ex);
+                try {
+                    Thread.sleep(RETRY_DELAY_MS);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw ex;
+                }
+            }
         }
-
     }
 
     /**

@@ -1032,7 +1032,7 @@ public class SQLDataSource {
 
             // because jevis will not create default attributes or manage the update of types
             // we check that all and only all types are there
-            if (jc.getTypes() != null) {
+            if (jc != null && jc.getTypes() != null) {
                 for (JsonType type : jc.getTypes()) {
                     boolean exists = false;
                     for (JsonAttribute att : atts) {
@@ -1069,7 +1069,7 @@ public class SQLDataSource {
                 return result;
 
             }
-            logger.info("Empty Type list for class: " + jc.getName());
+            logger.warn("Empty Type list for class: {}", (jc != null ? jc.getName() : "null (class not in cache)"));
             return new ArrayList<>();
         } catch (Exception ex) {
             logger.info("================= Error in attribute: " + objectID);
