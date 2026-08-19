@@ -106,10 +106,12 @@ public class SQLDataSource {
     public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url, boolean needLogin) throws AuthenticationException, JEVisException {
 
         boolean success = false;
+        Connection conn = null;
         try {
             ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
 
-            this.dbConn = ConnectionFactory.getInstance().getConnection();
+            conn = ConnectionFactory.getInstance().getConnection();
+            this.dbConn = conn;
 
             if (this.dbConn.isValid(2000)) {
 
@@ -128,9 +130,9 @@ public class SQLDataSource {
             logger.error(se);
             throw new JEVisException("Database connection error", 5438, se);
         } finally {
-            if (!success && this.dbConn != null) {
+            if (!success && conn != null) {
                 try {
-                    this.dbConn.close();
+                    conn.close();
                 } catch (SQLException closeEx) {
                     logger.error("Error closing DB connection after failed SQLDataSource construction", closeEx);
                 }
