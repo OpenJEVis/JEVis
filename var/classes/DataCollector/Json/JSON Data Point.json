@@ -64,6 +64,22 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "JSON Data Point"
+    },
+    {
+      "name": "Date Time Path",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JSON Data Point"
+    },
+    {
+      "name": "Date Time Format",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JSON Data Point"
     }
   ]
 }

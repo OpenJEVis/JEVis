@@ -297,6 +297,8 @@ public interface DataCollectorTypes {
             String REGEX = "Regex Value";
             String STATUS_PATH = "Status Path";
             String STAUS_VALUE_OK = "Status Value OK";
+            String DATE_TIME_PATH = "Date Time Path";
+            String DATE_TIME_FORMAT = "Date Time Format";
         }
 
         interface MSCONSChannel extends Channel {

@@ -837,6 +837,8 @@ public interface JC {
             String a_RegexValue = "Regex Value";
             String a_StatusPath = "Status Path";
             String a_StatusValueOK = "Status Value OK";
+            String a_DateTimePath = "Date Time Path";
+            String a_DateTimeFormat = "Date Time Format";
         }
     }
 

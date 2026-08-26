@@ -49,6 +49,10 @@ public class JsonParserTest {
     JEVisAttribute a_statusOk;
     @Mock
     JEVisAttribute a_stausPath;
+    @Mock
+    JEVisAttribute a_channelDateTimePath;
+    @Mock
+    JEVisAttribute a_channelDateTimeFormat;
 
     @Mock
     JEVisSample date_timeSample;
@@ -69,6 +73,29 @@ public class JsonParserTest {
 
     @Mock
     JEVisType targetIdType;
+
+    @Mock
+    JEVisObject jevisObjectChannel2;
+    @Mock
+    JEVisAttribute a_dataPointPath2;
+    @Mock
+    JEVisAttribute a_valueFormat2;
+    @Mock
+    JEVisAttribute a_statusOk2;
+    @Mock
+    JEVisAttribute a_stausPath2;
+    @Mock
+    JEVisAttribute a_channelDateTimePath2;
+    @Mock
+    JEVisAttribute a_channelDateTimeFormat2;
+    @Mock
+    JEVisSample dataPointPathSample2;
+    @Mock
+    JEVisSample valueFormatSample2;
+    @Mock
+    JEVisSample channelDateTimePathSample2;
+    @Mock
+    JEVisSample channelDateTimeFormatSample2;
 
     @Spy
     DatabaseHelper databaseHelper;
@@ -103,11 +130,15 @@ public class JsonParserTest {
         Mockito.when(jevisObejctChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH)).thenReturn(a_dataPointPath);
         Mockito.when(jevisObejctChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.VALUE_FORMAT)).thenReturn(a_valueFormat);
         Mockito.when(jevisObejctChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.STAUS_VALUE_OK)).thenReturn(a_statusOk);
+        Mockito.when(jevisObejctChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATE_TIME_PATH)).thenReturn(a_channelDateTimePath);
+        Mockito.when(jevisObejctChannel.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATE_TIME_FORMAT)).thenReturn(a_channelDateTimeFormat);
 
         Mockito.when(a_stausPath.hasSample()).thenReturn(false);
         Mockito.when(a_dataPointPath.hasSample()).thenReturn(true);
         Mockito.when(a_valueFormat.hasSample()).thenReturn(true);
         Mockito.when(a_statusOk.hasSample()).thenReturn(false);
+        Mockito.when(a_channelDateTimePath.hasSample()).thenReturn(false);
+        Mockito.when(a_channelDateTimeFormat.hasSample()).thenReturn(false);
 
         Mockito.when(a_dataPointPath.getLatestSample()).thenReturn(dataPointPathSample);
 
@@ -323,5 +354,64 @@ public class JsonParserTest {
         }
     }
 
+    @Test
+    void jsonResult_twoChannels_secondUsesOwnDateTimePathOverride() {
+        try {
+            // global/parser-level date time path matches channel 1's structure (channel 1 relies on the legacy splice fallback)
+            Mockito.when(date_timeSample.getValueAsString()).thenReturn("target cells.access (kg).date");
+            Mockito.when(dataPointPathSample.getValueAsString()).thenReturn("target cells.access (kg).value");
+            Mockito.when(dateTimeFormatSample.getValueAsString()).thenReturn("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+            // channel 2 lives under a differently-shaped branch: the legacy splice would produce
+            // "power consumption.access (kg).date", which doesn't exist - it needs its own override.
+            Mockito.when(jevisObjectChannel2.getAttribute(DataCollectorTypes.Channel.JSONChannel.STATUS_PATH)).thenReturn(a_stausPath2);
+            Mockito.when(jevisObjectChannel2.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATA_POINT_PATH)).thenReturn(a_dataPointPath2);
+            Mockito.when(jevisObjectChannel2.getAttribute(DataCollectorTypes.Channel.JSONChannel.VALUE_FORMAT)).thenReturn(a_valueFormat2);
+            Mockito.when(jevisObjectChannel2.getAttribute(DataCollectorTypes.Channel.JSONChannel.STAUS_VALUE_OK)).thenReturn(a_statusOk2);
+            Mockito.when(jevisObjectChannel2.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATE_TIME_PATH)).thenReturn(a_channelDateTimePath2);
+            Mockito.when(jevisObjectChannel2.getAttribute(DataCollectorTypes.Channel.JSONChannel.DATE_TIME_FORMAT)).thenReturn(a_channelDateTimeFormat2);
+
+            Mockito.when(a_stausPath2.hasSample()).thenReturn(false);
+            Mockito.when(a_statusOk2.hasSample()).thenReturn(false);
+
+            Mockito.when(a_dataPointPath2.hasSample()).thenReturn(true);
+            Mockito.when(a_dataPointPath2.getLatestSample()).thenReturn(dataPointPathSample2);
+            Mockito.when(dataPointPathSample2.getValueAsString()).thenReturn("power consumption.power consumption kWh.reading");
+
+            Mockito.when(a_valueFormat2.hasSample()).thenReturn(true);
+            Mockito.when(a_valueFormat2.getLatestSample()).thenReturn(valueFormatSample2);
+            Mockito.when(valueFormatSample2.getValueAsString()).thenReturn("Double");
+
+            Mockito.when(a_channelDateTimePath2.hasSample()).thenReturn(true);
+            Mockito.when(a_channelDateTimePath2.getLatestSample()).thenReturn(channelDateTimePathSample2);
+            Mockito.when(channelDateTimePathSample2.getValueAsString()).thenReturn("power consumption.power consumption kWh.timestamp");
+
+            Mockito.when(a_channelDateTimeFormat2.hasSample()).thenReturn(true);
+            Mockito.when(a_channelDateTimeFormat2.getLatestSample()).thenReturn(channelDateTimeFormatSample2);
+            Mockito.when(channelDateTimeFormatSample2.getValueAsString()).thenReturn("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+            Mockito.when(jevisObjectChannel2.getDataSource()).thenReturn(jeVisDataSource);
+
+            List<JEVisObject> channels = new ArrayList<>();
+            channels.add(jevisObejctChannel);
+            channels.add(jevisObjectChannel2);
+            Mockito.when(jsonParser.getChannels(parserJEVisObject)).thenReturn(channels);
+
+            jsonParser.initialize(parserJEVisObject);
+            InputStream inputStream = new FileInputStream(new File("src/test/resources/test4.json"));
+            List<InputStream> inputStreams = new ArrayList<>();
+            inputStreams.add(inputStream);
+            jsonParser.parse(inputStreams, DateTimeZone.UTC);
+
+            // channel 1: 2 samples via the legacy splice fallback, channel 2: 3 samples via its own override - both must import
+            assertEquals(5, jsonParser.getResult().size());
+            List<Object> values = jsonParser.getResult().stream().map(result -> result.getValue()).collect(Collectors.toList());
+            assertTrue(values.contains(10.0) && values.contains(12.0));
+            assertTrue(values.contains(100.0) && values.contains(110.0) && values.contains(120.0));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
