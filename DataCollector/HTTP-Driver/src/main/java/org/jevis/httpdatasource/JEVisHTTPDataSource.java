@@ -16,6 +16,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
+import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -269,7 +270,7 @@ public class JEVisHTTPDataSource implements DataSource {
             JEVisClass channelClass = httpObject.getDataSource().getJEVisClass(HTTPChannelTypes.NAME);
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
-            List<JEVisObject> channels = channelDir.getChildren(channelClass, false);
+            List<JEVisObject> channels = CommonMethods.getChildrenRecursive(httpObject, channelClass);
             logger.debug("Found {} channel objects in {}:{}", channels.size(), channelDir.getName(), channelDir.getID());
 
             channels.forEach(channelObject -> {
