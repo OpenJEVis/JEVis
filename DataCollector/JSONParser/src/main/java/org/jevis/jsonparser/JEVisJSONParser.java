@@ -17,6 +17,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
 import org.joda.time.format.ISODateTimeFormat;
 
 import java.io.InputStream;
@@ -70,6 +71,7 @@ public class JEVisJSONParser implements Parser {
             for (int i = 0; i < bound; i++) {
                 if (i < valueList.size()) {
                     DateTime dateTime = finalDateTimeList.get(i);
+                    if (dateTime == null) continue;
                     Object o = valueList.get(i);
                     if (map.put(dateTime, o) != null) {
                         logger.error("Duplicate key");
@@ -81,7 +83,9 @@ public class JEVisJSONParser implements Parser {
             int bound = finalDateTimeList.size();
             for (int i = 0; i < bound; i++) {
                 if (i < statusList.size() && statusList.get(i).equals(OK)) {
-                    if (map.put(finalDateTimeList.get(i), valueList.get(i)) != null) {
+                    DateTime dateTime = finalDateTimeList.get(i);
+                    if (dateTime == null) continue;
+                    if (map.put(dateTime, valueList.get(i)) != null) {
                         logger.error("Duplicate key");
                     }
                 }
@@ -115,13 +119,6 @@ public class JEVisJSONParser implements Parser {
             String dateTimePath = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).getLatestSample().getValueAsString();
             input.forEach(inputStream -> {
                 JSONParser jsonParser = new JSONParser(inputStream);
-
-                try {
-                    if (!parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).hasSample()) return;
-
-                } catch (Exception e) {
-                    logger.error(e);
-                }
 
                 jsonChannels.forEach(jsonChannel -> {
                     try {
@@ -157,12 +154,11 @@ public class JEVisJSONParser implements Parser {
     }
 
     private List<DateTime> getDateTimes(String dateTimePath, JSONParser jsonParser) throws JEVisException {
-        List<DateTime> dateTimes = new ArrayList<>();
-        String dateTimeFormat = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).getLatestSample().getValueAsString();
+        String dateTimeFormat = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).hasSample() ?
+                parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimeFormat).getLatestSample().getValueAsString() :
+                "";
 
-
-        dateTimes = convertDateTime(dateTimePath, jsonParser, dateTimeFormat);
-        return dateTimes;
+        return convertDateTime(dateTimePath, jsonParser, dateTimeFormat);
     }
 
     private List<Result> getResults(String valuePath, JSONParser jsonParser, List<DateTime> finalDateTimes, JEVisObject jsonChannel) throws JEVisException {
@@ -247,22 +243,41 @@ public class JEVisJSONParser implements Parser {
         return strings;
     }
 
+    private DateTimeFormatter buildFormatter(String pattern) {
+        Matcher m = Pattern.compile("^(.*)(\\.S+)$").matcher(pattern);
+        if (m.matches()) {
+            DateTimeFormatter base = DateTimeFormat.forPattern(m.group(1));
+            DateTimeFormatter fraction = DateTimeFormat.forPattern(m.group(2));
+            return new DateTimeFormatterBuilder()
+                    .append(base.getParser())
+                    .appendOptional(fraction.getParser())
+                    .toFormatter();
+        }
+        return DateTimeFormat.forPattern(pattern);
+    }
+
     private List<DateTime> convertDateTime(String dateTimePath, JSONParser jsonParser, String dateTimeFormat) {
         DateTimeFormatter FMT = null;
-        if (dateTimeFormat.equalsIgnoreCase("ISO8601")) {
+        boolean epochMillis = dateTimeFormat.equalsIgnoreCase("EPOCHMILLISECONDS");
+        if (dateTimeFormat.isEmpty() || dateTimeFormat.equalsIgnoreCase("ISO8601")) {
             FMT = ISODateTimeFormat.dateTimeParser();
-        } else if (!dateTimeFormat.equalsIgnoreCase("EPOCHMILLISECONDS")) {
-            FMT = DateTimeFormat.forPattern(dateTimeFormat);
+        } else if (!epochMillis) {
+            FMT = buildFormatter(dateTimeFormat);
         }
 
         List<JsonNode> dateTimesJSON = jsonParser.parse(dateTimePath);
         List<DateTime> dateTimes = new ArrayList<>();
         for (JsonNode jsonNode : dateTimesJSON) {
             DateTime dateTime = null;
-            if (dateTimeFormat.equalsIgnoreCase("EPOCHMILLISECONDS")) {
-                dateTime = new DateTime(Long.valueOf(jsonNode.asText()), timeZone);
-            } else if (FMT != null) {
-                dateTime = FMT.parseDateTime(jsonNode.asText());
+            String raw = jsonNode.asText();
+            try {
+                if (epochMillis) {
+                    dateTime = new DateTime(Long.parseLong(raw), timeZone);
+                } else if (FMT != null) {
+                    dateTime = FMT.parseDateTime(raw);
+                }
+            } catch (Exception e) {
+                logger.warn("Could not parse date/time '{}' with format '{}' (path '{}'), skipping sample", raw, dateTimeFormat, dateTimePath, e);
             }
             dateTimes.add(dateTime);
         }
