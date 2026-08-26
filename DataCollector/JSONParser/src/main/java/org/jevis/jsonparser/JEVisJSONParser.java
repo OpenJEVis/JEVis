@@ -115,8 +115,9 @@ public class JEVisJSONParser implements Parser {
     public void parse(List<InputStream> input, DateTimeZone timezone) {
         try {
             this.timeZone = timezone;
-            if (!parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).hasSample()) return;
-            String dateTimePath = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).getLatestSample().getValueAsString();
+            String dateTimePath = parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).hasSample() ?
+                    parserObject.getAttribute(JC.Parser.JSONParser.a_dateTimePath).getLatestSample().getValueAsString() :
+                    "";
             input.forEach(inputStream -> {
                 JSONParser jsonParser = new JSONParser(inputStream);
 
