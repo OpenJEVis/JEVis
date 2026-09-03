@@ -19,9 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -77,32 +74,6 @@ public class JEVisClassWS implements JEVisClass {
     public JEVisClassWS(JEVisDataSourceWS ds, JsonJEVisClass json) {
         this.ds = ds;
         this.json = json;
-    }
-
-    /**
-     * TMP solution
-     * <p>
-     * TODO: remove, does not belong here
-     */
-    public static ImageView getImage(String icon, double height, double width) {
-        ImageView image = new ImageView(getImage(icon));
-        image.fitHeightProperty().set(height);
-        image.fitWidthProperty().set(width);
-        return image;
-    }
-
-    /**
-     * TMP solution
-     * <p>
-     * TODO: remove, does not belong here
-     */
-    public static Image getImage(String icon) {
-        try {
-            return new Image(JEVisClassWS.class.getResourceAsStream("/" + icon));
-        } catch (Exception ex) {
-            logger.info("Could not load icon: /icons/{}", icon);
-            return new Image(JEVisClassWS.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
-        }
     }
 
     /**
@@ -191,7 +162,16 @@ public class JEVisClassWS implements JEVisClass {
         }
 
         if (image == null) {
-            image = SwingFXUtils.fromFXImage(JEVisClassWS.getImage("1472562626_unknown.png", 60, 60).getImage(), null);
+            try {
+                image = ImageIO.read(JEVisClassWS.class.getResourceAsStream("/1472562626_unknown.png"));
+            } catch (Exception ex) {
+                logger.info("Could not load icon: /1472562626_unknown.png");
+                try {
+                    image = ImageIO.read(JEVisClassWS.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
+                } catch (Exception ex2) {
+                    logger.error("Could not load fallback icon", ex2);
+                }
+            }
             iconChanged = true;
         }
         return image;
