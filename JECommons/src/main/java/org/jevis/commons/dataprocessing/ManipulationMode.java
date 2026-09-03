@@ -1,7 +1,5 @@
 package org.jevis.commons.dataprocessing;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.jevis.commons.i18n.I18n;
 
 import java.util.ArrayList;
@@ -150,7 +148,7 @@ public enum ManipulationMode {
         }
     }
 
-    public static ObservableList<String> getListNamesManipulationModes() {
+    public static List<String> getListNamesManipulationModes() {
         List<String> tempList = new ArrayList<>();
 
         for (ManipulationMode manipulationMode : ManipulationMode.values()) {
@@ -195,6 +193,6 @@ public enum ManipulationMode {
                     tempList.add(I18n.getInstance().getString("plugin.graph.interval.preset"));
             }
         }
-        return FXCollections.observableArrayList(tempList);
+        return tempList;
     }
 }

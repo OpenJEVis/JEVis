@@ -1,7 +1,5 @@
 package org.jevis.commons.dataprocessing;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.jevis.commons.i18n.I18n;
 import org.joda.time.Period;
 
@@ -203,7 +201,7 @@ public enum AggregationPeriod {
         }
     }
 
-    public static ObservableList<String> getListNamesAggregationPeriods() {
+    public static List<String> getListNamesAggregationPeriods() {
         List<String> tempList = new ArrayList<>();
 
         for (AggregationPeriod aggregationPeriod : AggregationPeriod.values()) {
@@ -237,7 +235,7 @@ public enum AggregationPeriod {
                     break;
             }
         }
-        return FXCollections.observableArrayList(tempList);
+        return tempList;
     }
 
     public org.jevis.commons.datetime.Period toPeriod() {

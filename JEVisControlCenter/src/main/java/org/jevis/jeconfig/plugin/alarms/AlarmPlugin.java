@@ -249,7 +249,19 @@ public class AlarmPlugin implements Plugin {
         checkAll.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkAll);
         checkAll.setOnMouseClicked(event -> {
-            getAllAlarmConfigs().forEach(alarmConfiguration -> alarmConfiguration.setChecked(true));
+            boolean allowed = true;
+            for (AlarmConfiguration alarmConfiguration : getAllAlarmConfigs()) {
+                if (!alarmConfiguration.setChecked(true)) {
+                    allowed = false;
+                }
+            }
+            if (!allowed) {
+                Platform.runLater(() -> {
+                    Alert alert1 = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                    alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                    alert1.showAndWait();
+                });
+            }
             reload.fire();
         });
 

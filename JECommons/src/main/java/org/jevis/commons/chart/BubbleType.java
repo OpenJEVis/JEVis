@@ -1,8 +1,5 @@
 package org.jevis.commons.chart;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,13 +53,13 @@ public enum BubbleType {
         return NONE;
     }
 
-    public static ObservableList<String> getListNamesBubbleTypes() {
+    public static List<String> getListNamesBubbleTypes() {
         List<String> tempList = new ArrayList<>();
         for (BubbleType bt : BubbleType.values()) {
             tempList.add(bt.toString());
         }
 
-        return FXCollections.observableArrayList(tempList);
+        return tempList;
     }
 
     @Override

@@ -18,9 +18,9 @@ import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.driver.Parameter;
-import org.jevis.commons.gson.GsonBuilder;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.gson.GsonBuilder;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Type;

@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.input.KeyCode;
@@ -11,7 +12,7 @@ public class AggregationPeriodBox extends DisabledItemsComboBox<String> {
 
 
     public AggregationPeriodBox(AggregationPeriod aggregationPeriod) {
-        super(AggregationPeriod.getListNamesAggregationPeriods());
+        super(FXCollections.observableArrayList(AggregationPeriod.getListNamesAggregationPeriods()));
 
         getSelectionModel().select(AggregationPeriod.parseAggregationIndex(aggregationPeriod));
     }

@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.input.KeyCode;
@@ -11,7 +12,7 @@ public class ManipulationModeBox extends DisabledItemsComboBox<String> {
 
 
     public ManipulationModeBox(ManipulationMode manipulationMode) {
-        super(ManipulationMode.getListNamesManipulationModes());
+        super(FXCollections.observableArrayList(ManipulationMode.getListNamesManipulationModes()));
 
         getSelectionModel().select(ManipulationMode.parseManipulationIndex(manipulationMode));
     }

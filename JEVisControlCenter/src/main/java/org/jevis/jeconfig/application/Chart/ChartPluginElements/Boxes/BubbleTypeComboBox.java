@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.input.KeyCode;
@@ -10,7 +11,7 @@ import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 public class BubbleTypeComboBox extends DisabledItemsComboBox<String> {
 
     public BubbleTypeComboBox(BubbleType bubbleType) {
-        super(BubbleType.getListNamesBubbleTypes());
+        super(FXCollections.observableArrayList(BubbleType.getListNamesBubbleTypes()));
 
         this.getSelectionModel().select(BubbleType.parseBubbleIndex(bubbleType));
 

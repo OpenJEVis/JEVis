@@ -1,14 +1,11 @@
 package org.jevis.commons.alarm;
 
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.classes.JC;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
-import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
@@ -155,7 +152,11 @@ public class AlarmConfiguration {
         return false;
     }
 
-    public void setChecked(Boolean checked) {
+    /**
+     * @return true if the checked state was written, false if the current user lacks permission
+     * (callers with a GUI should show a warning to the user in that case) or the write failed.
+     */
+    public boolean setChecked(Boolean checked) {
         try {
             if (ds.getCurrentUser().canWrite(object.getID()) || ds.getCurrentUser().canExecute(object.getID())) {
                 JEVisAttribute checkedAttribute = object.getAttribute(ALARM_CHECKED);
@@ -168,15 +169,13 @@ public class AlarmConfiguration {
                     }
                     sample.commit();
                 }
+                return true;
             } else {
-                Platform.runLater(() -> {
-                    Alert alert1 = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
-                    alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
-                    alert1.showAndWait();
-                });
+                return false;
             }
         } catch (Exception e) {
             logger.error("Could not set checked attribute for object {}:{}", object.getName(), object.getID(), e);
+            return false;
         }
     }
 
