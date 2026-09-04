@@ -254,13 +254,16 @@ public class CalcInputObject {
             for (JEVisSample userValue : userValues) {
                 DateTime ts = userValue.getTimestamp();
                 try {
+                    JEVisSample original = map.get(ts);
                     String note = "";
-                    if (map.get(ts) != null) {
-                        note += map.get(ts).getNote();
+                    JEVisAttribute sampleAttribute = valueAttribute;
+                    if (original != null) {
+                        note += original.getNote();
+                        sampleAttribute = original.getAttribute();
                     }
                     VirtualSample virtualSample = new VirtualSample(ts, userValue.getValueAsDouble());
                     virtualSample.setNote(note + "," + USER_VALUE);
-                    virtualSample.setAttribute(map.get(ts).getAttribute());
+                    virtualSample.setAttribute(sampleAttribute);
 
                     map.remove(ts);
                     map.put(ts, virtualSample);
