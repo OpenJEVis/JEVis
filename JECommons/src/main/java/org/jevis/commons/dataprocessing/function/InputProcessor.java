@@ -73,7 +73,7 @@ public class InputProcessor {
                                 JsonObject parent = ds.getObject(rel.getTo());
                                 List<JsonRelationship> parentRelationships = ds.getRelationships(parent.getId());
                                 for (JsonRelationship pRel : parentRelationships) {
-                                    if (rel.getType() == 1 && rel.getTo() == parent.getId()) {
+                                    if (pRel.getType() == 1 && pRel.getTo() == parent.getId()) {
                                         JsonObject child = ds.getObject(pRel.getFrom());
                                         if (child.getJevisClass().equals("User Data") && child.getName().contains(object.getName())) {
                                             correspondingUserDataObject = child;
