@@ -43,9 +43,19 @@ public class CalcJobFactory {
     private final CalcJob calcJob;
     private List<JEVisObject> calcInputObjects = new ArrayList<>();
     private DateTime lastEndTime;
+    private boolean lastFetchTruncated;
 
     public CalcJobFactory() {
         this.calcJob = new CalcJob();
+    }
+
+    /**
+     * @return true if the most recent {@link #getCurrentCalcJob} call had to clamp its input
+     * fetch window at the 10,000-period safety limit, meaning genuine backlog remains beyond
+     * what was just fetched and another pass is worthwhile.
+     */
+    public boolean isLastFetchTruncated() {
+        return lastFetchTruncated;
     }
 
     public CalcJob getCalcJobForTimeFrame(SampleHandler sampleHandler, JEVisDataSource ds, JEVisObject jevisObject,
@@ -355,6 +365,7 @@ public class CalcJobFactory {
     }
 
     private List<CalcInputObject> getInputDataObjects(JEVisObject jevisObject, DateTime startTime, JEVisDataSource ds) {
+        lastFetchTruncated = false;
         List<CalcInputObject> calcObjects = new ArrayList<>();
         Interval fromTo = null;
         DateTime endTime = new DateTime(2050, 12, 31, 23, 59, 59, 999);
@@ -445,6 +456,7 @@ public class CalcJobFactory {
 
                     if (!limitedMaxDate.equals(startTime)) {
                         endTime = limitedMaxDate;
+                        lastFetchTruncated = true;
                         logger.info("Set Limited max date: {} for {}:{}", limitedMaxDate, child.getName(), child.getID());
                     }
                 }

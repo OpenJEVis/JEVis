@@ -62,7 +62,7 @@ public class CalcJob {
             logger.debug("{} mergable calculations found", mergedSamples.size());
             ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(calcObjID, expression));
             List<JEVisSample> calculateResult = resultCalc.calculateResult(DIV0Handling, staticValue, allZeroValue);
-            if (calculateResult.size() > 1) {
+            if (calculateResult.size() > 0) {
                 newSamplesWritten = true;
             }
             logger.info("{} results calculated", calculateResult.size());

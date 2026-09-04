@@ -112,7 +112,7 @@ public class CalcLauncher extends AbstractCliApp {
                             CalcJob calcJob = calcJobCreator.getCurrentCalcJob(sampleHandler, ds, object);
                             changed = calcJob.execute();
                             iteration++;
-                        } while (changed && iteration < 500);
+                        } while (changed && calcJobCreator.isLastFetchTruncated() && iteration < 500);
 
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
                     } catch (Exception e) {
