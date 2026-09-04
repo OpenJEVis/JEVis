@@ -379,8 +379,8 @@ public class ChartDataRow extends ChartData {
                         if (!isCalculation() || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
                             List<JEVisSample> unmodifiedSamples = attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString(), DateTimeZone.getDefault().getID());
                             if (!isStringData) {
-                                applyUserData(unmodifiedSamples);
                                 samples = factorizeSamples(unmodifiedSamples);
+                                applyUserData(samples);
 
                                 if (absolute && !samples.isEmpty()) {
                                     logger.debug("Getting manipulated data");
@@ -584,7 +584,7 @@ public class ChartDataRow extends ChartData {
 
     private void applyUserData(List<JEVisSample> unmodifiedSamples) {
         try {
-            if (!getUserDataMap().isEmpty() && aggregationPeriod == AggregationPeriod.NONE) {
+            if (!getUserDataMap().isEmpty()) {
 
                 List<JEVisSample> samplesToRemove = new ArrayList<>();
                 List<JEVisSample> samplesToAdd = new ArrayList<>();
