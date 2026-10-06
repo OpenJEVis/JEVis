@@ -41,6 +41,7 @@ public class CSVParser {
     private static final Logger logger = LogManager.getLogger(CSVParser.class);
     private static final String UTF8_BOM = "\uFEFF";
     private final List<Result> _results = new ArrayList<Result>();
+    private final Map<ResultKey, Integer> resultIndexes = new LinkedHashMap<ResultKey, Integer>();
     private final ParserReport report = new ParserReport();
     private DateTimeZone timeZone;
     private String dpType;
@@ -58,6 +59,69 @@ public class CSVParser {
     private Charset charset;
     private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
     private Converter _converter;
+
+    /**
+     * Adds a parsed value using last-file-wins semantics. Input streams are
+     * expected to be ordered from the oldest to the newest file. If a later
+     * stream contains the same target, attribute and timestamp, its value
+     * replaces the value parsed from an earlier stream.
+     */
+    private void addResult(Result result) {
+        ResultKey key = new ResultKey(result);
+        Integer existingIndex = resultIndexes.get(key);
+        if (existingIndex == null) {
+            resultIndexes.put(key, _results.size());
+            _results.add(result);
+        } else {
+            Result previous = _results.set(existingIndex, result);
+            logger.debug("Replacing duplicate CSV value for target {}, attribute {}, timestamp {}: {} -> {}",
+                    result.getTargetStr(), result.getAttribute(), result.getDate(),
+                    previous.getValue(), result.getValue());
+        }
+    }
+
+    private void parseLine(String[] line) {
+        logger.debug("Parse line: {}", line);
+        DateTime dateTime = getDateTime(line);
+
+        if (dateTime == null) {
+            logger.debug("DateTime var is null: Date Error");
+            report.addError(new LineError(-3, -2, null, "Date Error"));
+            return;//if there is no date the whole line is invalid... or generate a date?
+        } else {
+            logger.debug("DateTime parsed: {}", dateTime);
+        }
+
+        for (DataPoint dp : _dataPoints) {
+            try {
+                logger.debug("-DP: value index: {}, mapping identifier: '{}', target: {}", dp.getValueIndex(), dp.getMappingIdentifier(), dp.getTarget());
+                Integer valueIndex = dp.getValueIndex();
+                String target = dp.getTarget();
+
+                String sVal = null;
+                Double value = null;
+                sVal = line[valueIndex].trim();
+                logger.debug("-- ValueString: {}", sVal);
+
+                //todo bind locale to language or location?? ad thousands separator without regex
+                if (decimalSeparator == null || decimalSeparator.equals(",")) {
+                    NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
+                    value = nf_in.parse(sVal).doubleValue();
+                } else if (decimalSeparator.equals(".")) {
+                    NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
+                    value = nf_out.parse(sVal).doubleValue();
+                }
+
+                Result tempResult = new Result(target, value, dateTime);
+                addResult(tempResult);
+                report.addSuccess(currLineIndex, valueIndex);
+            } catch (Exception ex) {
+                report.addError(new LineError(currLineIndex, -2, ex, "Unexpected Exception"));
+//                ex.printStackTrace();
+            }
+        }
+        logger.debug("Result: {}", _results.size());
+    }
 
     private void calculateColumns(String stringArrayInput) {
         String[] line = stringArrayInput.split(String.valueOf(delimiter), -1);
@@ -193,51 +257,10 @@ public class CSVParser {
         return result;
     }
 
-    private void parseLine(String[] line) {
-        logger.debug("Parse line: {}", line);
-        DateTime dateTime = getDateTime(line);
-
-        if (dateTime == null) {
-            logger.debug("DateTime var is null: Date Error");
-            report.addError(new LineError(-3, -2, null, "Date Error"));
-            return;//if there is no date the whole line is invalid... or generate a date?
-        } else {
-            logger.debug("DateTime parsed: {}", dateTime);
-        }
-
-        for (DataPoint dp : _dataPoints) {
-            try {
-                logger.debug("-DP: value index: {}, mapping identifier: '{}', target: {}", dp.getValueIndex(), dp.getMappingIdentifier(), dp.getTarget());
-                Integer valueIndex = dp.getValueIndex();
-                String target = dp.getTarget();
-
-                String sVal = null;
-                Double value = null;
-                sVal = line[valueIndex].trim();
-                logger.debug("-- ValueString: {}", sVal);
-
-                //todo bind locale to language or location?? ad thousands separator without regex
-                if (decimalSeparator == null || decimalSeparator.equals(",")) {
-                    NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
-                    value = nf_in.parse(sVal).doubleValue();
-                } else if (decimalSeparator.equals(".")) {
-                    NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
-                    value = nf_out.parse(sVal).doubleValue();
-                }
-
-                Result tempResult = new Result(target, value, dateTime);
-                _results.add(tempResult);
-                report.addSuccess(currLineIndex, valueIndex);
-            } catch (Exception ex) {
-                report.addError(new LineError(currLineIndex, -2, ex, "Unexpected Exception"));
-//                ex.printStackTrace();
-            }
-        }
-        logger.debug("Result: {}", _results.size());
-    }
-
     public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
         this.timeZone = timeZone;
+        _results.clear();
+        resultIndexes.clear();
         for (InputStream inputStream : inputList) {
             logger.info("Importing importSteam");
             _converter.convertInput(inputStream, charset);
@@ -318,7 +341,7 @@ public class CSVParser {
                                             value = nf_out.parse(sVal).doubleValue();
                                         }
                                         Result tempResult = new Result(target, value, dateTime);
-                                        _results.add(tempResult);
+                                        addResult(tempResult);
                                         report.addSuccess(currLineIndex, valueIndex);
                                     } catch (Exception ex) {
                                         report.addError(new LineError(currLineIndex, -2, ex, "Unexpected Exception"));
@@ -345,6 +368,37 @@ public class CSVParser {
         report.print();
         logger.info("Finished Importing importSteam");
 
+    }
+
+    private static final class ResultKey {
+        private final String target;
+        private final String attribute;
+        private final long timestamp;
+
+        private ResultKey(Result result) {
+            this.target = result.getTargetStr();
+            this.attribute = result.getAttribute();
+            this.timestamp = result.getDate().getMillis();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof ResultKey)) {
+                return false;
+            }
+            ResultKey other = (ResultKey) obj;
+            return timestamp == other.timestamp
+                    && Objects.equals(target, other.target)
+                    && Objects.equals(attribute, other.attribute);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(target, attribute, timestamp);
+        }
     }
 
     private String[] removeQuotes(String[] line) {

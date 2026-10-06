@@ -37,8 +37,7 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -102,6 +101,7 @@ public class DataSourceHelper {
 //        String fileName = null;
         String fileNameScheme = pathStream[pathStream.length - 1];
         String currentfolder = null;
+        Map<String, Long> modificationTimes = new HashMap<String, Long>();
         try {
             for (String folder : matchingPaths) {
                 currentfolder = folder;
@@ -155,7 +155,12 @@ public class DataSourceHelper {
                         }
                     }
 
-                    fileNames.add(folder + file.getName());
+                    String matchedFileName = folder + file.getName();
+                    fileNames.add(matchedFileName);
+                    long modificationTime = file.getTimestamp() == null
+                            ? Long.MIN_VALUE
+                            : file.getTimestamp().getTimeInMillis();
+                    modificationTimes.put(matchedFileName, modificationTime);
                 }
             }
         } catch (IOException ex) {
@@ -166,6 +171,11 @@ public class DataSourceHelper {
         if (matchingPaths.isEmpty()) {
             logger.error("Cant find suitable files on the device");
         }
+        // CSVParser resolves duplicate timestamps with last-stream-wins
+        // semantics. Therefore files must be returned oldest first.
+        fileNames.sort(Comparator
+                .comparingLong((String name) -> modificationTimes.getOrDefault(name, Long.MIN_VALUE))
+                .thenComparing(Comparator.naturalOrder()));
 //        logger.info("filenamesize"+fileNames.size());
         return fileNames;
     }

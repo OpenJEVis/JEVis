@@ -32,9 +32,7 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.Security;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 
@@ -74,20 +72,27 @@ public class sFTPDataSource implements DataSource {
 
     public List<String> findMatchingFiles(SftpClient sftp, String regexPattern, DateTime lastReadOut) throws IOException {
         List<String> matchingFiles = new ArrayList<>();
+        Map<String, Long> modificationTimes = new HashMap<>();
         Pattern pattern = Pattern.compile(regexPattern);
 
         String rootPath = extractRootPath(regexPattern);
 
         if (!rootPath.isEmpty()) {
-            walkAndMatch(sftp, rootPath, pattern, lastReadOut, matchingFiles);
+            walkAndMatch(sftp, rootPath, pattern, lastReadOut, matchingFiles, modificationTimes);
         } else {
-            walkAndMatch(sftp, "/", pattern, lastReadOut, matchingFiles);
+            walkAndMatch(sftp, "/", pattern, lastReadOut, matchingFiles, modificationTimes);
         }
 
+        // CSVParser resolves duplicate timestamps with last-stream-wins
+        // semantics. Therefore files must be downloaded oldest first.
+        matchingFiles.sort(Comparator
+                .comparingLong((String path) -> modificationTimes.getOrDefault(path, Long.MIN_VALUE))
+                .thenComparing(Comparator.naturalOrder()));
         return matchingFiles;
     }
 
-    private void walkAndMatch(SftpClient sftp, String currentPath, Pattern pattern, DateTime lastReadOut, List<String> result) throws IOException {
+    private void walkAndMatch(SftpClient sftp, String currentPath, Pattern pattern, DateTime lastReadOut,
+                              List<String> result, Map<String, Long> modificationTimes) throws IOException {
         logger.debug("{}: walkAndMatch: path: {} ,Last-TS: {}", logDataSourceID, currentPath, lastReadOut);
         for (SftpClient.DirEntry entry : sftp.readDir(currentPath)) {
             String name = entry.getFilename();
@@ -97,10 +102,11 @@ public class sFTPDataSource implements DataSource {
             String fullPath = currentPath.endsWith("/") ? currentPath + name : currentPath + "/" + name;
 
             if (entry.getAttributes().isDirectory()) {
-                walkAndMatch(sftp, fullPath, pattern, lastReadOut, result); // rekursiv tiefer gehen
+                walkAndMatch(sftp, fullPath, pattern, lastReadOut, result, modificationTimes); // rekursiv tiefer gehen
             } else {
                 if (pattern.matcher(fullPath).matches() && entry.getAttributes().getModifyTime().toMillis() > lastReadOut.getMillis()) {
                     result.add(fullPath);
+                    modificationTimes.put(fullPath, entry.getAttributes().getModifyTime().toMillis());
                     logger.debug("{}: File matches: {}", logDataSourceID, fullPath);
                 } else {
                     logger.debug("{}: File does not match: {}", logDataSourceID, fullPath);
