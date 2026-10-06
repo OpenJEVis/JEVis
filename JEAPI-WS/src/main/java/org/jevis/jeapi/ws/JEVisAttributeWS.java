@@ -55,6 +55,8 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     public static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     private static final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
+    private static final String SAMPLE_UPLOAD_REVISION = "2026-10-05-adaptive-upload-v7";
+    private static final int MAX_SCALAR_SAMPLES_PER_REQUEST = 5000;
     private final JEVisDataSourceWS ds;
     private JsonAttribute json;
     /**
@@ -175,43 +177,16 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     @Override
     public int addSamples(List<JEVisSample> samples) throws JEVisException {
+        logger.debug("JEVisAttributeWS sample upload revision: {}", SAMPLE_UPLOAD_REVISION);
         logger.debug("addSamples toWS: O|a: {}|{} samples: {}", getObjectID(), getName(), samples.size());
-        List<JsonSample> jsonSamples = new ArrayList<>();
         int imported = 0;
 
         int primType = getPrimitiveType();
         if (primType != JEVisConstants.PrimitiveType.FILE) {
-            try {
-
-                for (JEVisSample s : samples) {
-                    JsonSample jsonSample = JsonFactory.buildSample(s, primType);
-                    jsonSamples.add(jsonSample);
-                }
-
-
-                //JEWebService/v1/files/8598/attributes/File/samples/files/20180604T141441?filename=nb-configuration.xml
-                //JEWebService/v1/objects/{id}/attributes/{attribute}/samples
-                String resource = REQUEST.API_PATH_V1
-                        + REQUEST.OBJECTS.PATH
-                        + getObjectID() + "/"
-                        + REQUEST.OBJECTS.ATTRIBUTES.PATH
-                        + getName() + "/"
-                        + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH;
-
-//                String requestjson = new Gson().toJson(jsonSamples, new TypeToken<List<JsonSample>>() {
-//                }.getType());
-                String json = this.ds.getObjectMapper().writeValueAsString(jsonSamples);
-
-//                logger.debug("Payload. {}", requestjson);
-                /** TODO: implement this function into ws **/
-                StringBuffer response = ds.getHTTPConnection().postRequest(resource, json);
-
-                logger.debug("Response.payload: {}", response);
-
-            } catch (Exception ex) {
-                logger.catching(ex);
+            for (int from = 0; from < samples.size(); from += MAX_SCALAR_SAMPLES_PER_REQUEST) {
+                int to = Math.min(from + MAX_SCALAR_SAMPLES_PER_REQUEST, samples.size());
+                imported += postScalarSampleRangeWithRetry(samples, primType, from, to, samples.size());
             }
-
         } else {
             //Also upload die byte file, filename is in json
             for (JEVisSample s : samples)
@@ -253,6 +228,55 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
 
         return imported;
+    }
+
+    /**
+     * Posts one bounded range of scalar samples. If the proxy rejects the JSON body with HTTP 413,
+     * the range is split recursively until it fits. This protects every caller of the WS API
+     * (CSV import, TreeExporter and other bulk operations), independent of the configured proxy
+     * request-size limit.
+     */
+    private int postScalarSampleRangeWithRetry(List<JEVisSample> samples,
+                                               int primitiveType,
+                                               int from,
+                                               int to,
+                                               int total) throws JEVisException {
+        try {
+            List<JsonSample> jsonSamples = new ArrayList<>(to - from);
+            for (int i = from; i < to; i++) {
+                jsonSamples.add(JsonFactory.buildSample(samples.get(i), primitiveType));
+            }
+
+            String resource = REQUEST.API_PATH_V1
+                    + REQUEST.OBJECTS.PATH
+                    + getObjectID() + "/"
+                    + REQUEST.OBJECTS.ATTRIBUTES.PATH
+                    + getName() + "/"
+                    + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH;
+            String json = this.ds.getObjectMapper().writeValueAsString(jsonSamples);
+            StringBuffer response = ds.getHTTPConnection().postRequest(resource, json);
+
+            logger.debug("Response.payload: {}", response);
+            logger.info("Imported scalar samples {}-{} of {} into object {} attribute '{}'",
+                    from + 1, to, total, getObjectID(), getName());
+            return to - from;
+        } catch (JEVisException ex) {
+            int size = to - from;
+            if (ex.getCode() == 413 && size > 1) {
+                int middle = from + size / 2;
+                logger.warn("Sample request for object {} attribute '{}' with {} samples was too large; retrying as {} and {} samples",
+                        getObjectID(), getName(), size, middle - from, to - middle);
+                return postScalarSampleRangeWithRetry(samples, primitiveType, from, middle, total)
+                        + postScalarSampleRangeWithRetry(samples, primitiveType, middle, to, total);
+            }
+            logger.catching(ex);
+            throw ex;
+        } catch (Exception ex) {
+            logger.catching(ex);
+            throw new JEVisException("Could not add samples " + (from + 1) + "-" + to
+                    + " of " + total + " to object " + getObjectID() + " attribute '"
+                    + getName() + "'", 8236350, ex);
+        }
     }
 
     /**

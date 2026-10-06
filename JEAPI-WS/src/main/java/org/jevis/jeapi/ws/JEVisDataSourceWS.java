@@ -1546,28 +1546,33 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             if (inputStream != null) {
                 jsons = new ArrayList<>(Arrays.asList(this.objectMapper.readValue(inputStream, JsonSample[].class)));
                 inputStream.close();
+            } else {
+                throw new IOException("Sample response stream is null");
             }
         } catch (IllegalArgumentException ex) {
-            logger.error("Illegal argument exception. Error in getting samples.", ex);
-            return new ArrayList<>();
+            throw new IllegalStateException("Illegal argument while loading samples for object "
+                    + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
         } catch (JsonParseException ex) {
-            logger.error("Json parse exception. Error in getting samples.", ex);
-            return new ArrayList<>();
+            throw new IllegalStateException("Invalid sample JSON for object "
+                    + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
         } catch (JsonMappingException ex) {
-            logger.error("Json mapping exception. Error in getting samples.", ex);
-            return new ArrayList<>();
+            throw new IllegalStateException("Could not map samples for object "
+                    + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
         } catch (IOException ex) {
-            logger.error("IO exception. Error in getting samples.", ex);
-            return new ArrayList<>();
+            throw new IllegalStateException("I/O error while loading samples for object "
+                    + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
         } catch (InterruptedException e) {
-            logger.error("Interrupted exception. Error in getting samples.", e);
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while loading samples for object "
+                    + att.getObjectID() + " attribute '" + att.getName() + "'", e);
         }
 
         for (JsonSample sample : jsons) {
             try {
                 samples.add(new JEVisSampleWS(this, sample, att));
             } catch (Exception ex) {
-                logger.error("Error parsing sample {} of attribute {}:{}", sample.toString(), att.getObject().getID(), att.getName());
+                throw new IllegalStateException("Could not parse sample " + sample + " for object "
+                        + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
             }
         }
 
@@ -1611,28 +1616,33 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             if (inputStream != null) {
                 jsons = new ArrayList<>(Arrays.asList(this.objectMapper.readValue(inputStream, JsonSample[].class)));
                 inputStream.close();
+            } else {
+                throw new IOException("Sample response stream is null");
             }
         } catch (IllegalArgumentException ex) {
-            logger.error("Illegal argument exception. Error in getting samples.", ex);
-            return new ArrayList<>();
+            throw new IllegalStateException("Illegal argument while loading samples for object "
+                    + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
         } catch (JsonParseException ex) {
-            logger.error("Json parse exception. Error in getting samples.", ex);
-            return new ArrayList<>();
+            throw new IllegalStateException("Invalid sample JSON for object "
+                    + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
         } catch (JsonMappingException ex) {
-            logger.error("Json mapping exception. Error in getting samples.", ex);
-            return new ArrayList<>();
+            throw new IllegalStateException("Could not map samples for object "
+                    + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
         } catch (IOException ex) {
-            logger.error("IO exception. Error in getting samples.", ex);
-            return new ArrayList<>();
+            throw new IllegalStateException("I/O error while loading samples for object "
+                    + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
         } catch (InterruptedException e) {
-            logger.error("Interrupted exception. Error in getting samples.", e);
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while loading samples for object "
+                    + att.getObjectID() + " attribute '" + att.getName() + "'", e);
         }
 
         for (JsonSample sample : jsons) {
             try {
                 samples.add(new JEVisSampleWS(this, sample, att));
             } catch (Exception ex) {
-                logger.error("Error parsing sample {} of attribute {}:{}", sample.toString(), att.getObject().getID(), att.getName());
+                throw new IllegalStateException("Could not parse sample " + sample + " for object "
+                        + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
             }
         }
 
@@ -1643,7 +1653,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 logger.debug("Add additional samples: {}", nextList.size());
                 samples.addAll(nextList);
             } catch (Exception ex) {
-                logger.error(ex);
+                throw new IllegalStateException("Could not load the next sample page for object "
+                        + att.getObjectID() + " attribute '" + att.getName() + "'", ex);
             }
         }
 
