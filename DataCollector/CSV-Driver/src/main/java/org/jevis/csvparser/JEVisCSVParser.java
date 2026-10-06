@@ -41,7 +41,7 @@ import java.util.List;
  * @author broder
  */
 public class JEVisCSVParser implements Parser {
-    public static final String VERSION = "Version 1.2.4 2026-10-06 (newer-file-wins)";
+    public static final String VERSION = "Version 1.2.5 2026-10-06 (newer-file-wins diagnostics)";
     private static final Logger logger = LogManager.getLogger(JEVisCSVParser.class);
     private DateTimeZone timeZone;
     private CSVParser _csvParser;

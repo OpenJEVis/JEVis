@@ -59,6 +59,8 @@ public class CSVParser {
     private Charset charset;
     private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
     private Converter _converter;
+    private int parsedCandidates;
+    private int replacedDuplicates;
 
     /**
      * Adds a parsed value using last-file-wins semantics. Input streams are
@@ -67,12 +69,14 @@ public class CSVParser {
      * replaces the value parsed from an earlier stream.
      */
     private void addResult(Result result) {
+        parsedCandidates++;
         ResultKey key = new ResultKey(result);
         Integer existingIndex = resultIndexes.get(key);
         if (existingIndex == null) {
             resultIndexes.put(key, _results.size());
             _results.add(result);
         } else {
+            replacedDuplicates++;
             Result previous = _results.set(existingIndex, result);
             logger.debug("Replacing duplicate CSV value for target {}, attribute {}, timestamp {}: {} -> {}",
                     result.getTargetStr(), result.getAttribute(), result.getDate(),
@@ -261,7 +265,13 @@ public class CSVParser {
         this.timeZone = timeZone;
         _results.clear();
         resultIndexes.clear();
+        parsedCandidates = 0;
+        replacedDuplicates = 0;
+        int streamIndex = 0;
         for (InputStream inputStream : inputList) {
+            streamIndex++;
+            int candidatesBeforeStream = parsedCandidates;
+            int replacementsBeforeStream = replacedDuplicates;
             logger.info("Importing importSteam");
             _converter.convertInput(inputStream, charset);
 
@@ -362,10 +372,15 @@ public class CSVParser {
             } else {
                 logger.error("Cant parse or cant find any data to parse");
             }
+            logger.info("CSV stream {}/{} parsed: candidates={}, duplicate replacements={}, unique results so far={}",
+                    streamIndex, inputList.size(), parsedCandidates - candidatesBeforeStream,
+                    replacedDuplicates - replacementsBeforeStream, _results.size());
         }
 
         //print error report based on Logger level
         report.print();
+        logger.info("CSV parsing summary: streams={}, candidates={}, duplicate replacements={}, unique results={}",
+                inputList.size(), parsedCandidates, replacedDuplicates, _results.size());
         logger.info("Finished Importing importSteam");
 
     }

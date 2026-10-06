@@ -246,8 +246,10 @@ public class JEVisImporter implements Importer {
                     String firstSample = !values.isEmpty() ?  values.get(0).toString() : " no Sample";
                     String lastSample = !values.isEmpty() ?  values.get(values.size()-1).toString() : " no Sample";
 
-                    logger.info("Import: {}-{} , values: {}, first: {}, last: {}",
-                            key.getObject().getID(),key.getObject().getName(), values.size(), firstSample  , lastSample,  key.addSamples(values));
+                    int imported = key.addSamples(values);
+                    logger.info("Import: {}-{}, submitted: {}, API accepted: {}, first: {}, last: {}",
+                            key.getObject().getID(), key.getObject().getName(), values.size(), imported,
+                            firstSample, lastSample);
 
                     DateTime timeStampOfLastSample = values.get(values.size() - 1).getTimestamp();
                     if (lastTSTotal == null || timeStampOfLastSample.isBefore(lastTSTotal)) {
@@ -265,7 +267,8 @@ public class JEVisImporter implements Importer {
                         }
                     }
 
-                    logger.info("Object: [{}] {}  Imported: {} LastTS: {}", key.getObject().getID(), key.getObject().getName(), values.size(), timeStampOfLastSample);
+                    logger.info("Object: [{}] {} Submitted: {} API accepted: {} LastTS: {}",
+                            key.getObject().getID(), key.getObject().getName(), values.size(), imported, timeStampOfLastSample);
 
                 } catch (Exception ex) {
                     logger.fatal("Unexpected error while import: ", ex);
