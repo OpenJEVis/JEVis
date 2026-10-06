@@ -165,9 +165,15 @@ public class sFTPDataSource implements DataSource {
                                     JEVisClass channelClass = channel.getJEVisClass();
                                     JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.PATH);
                                     String regexPattern = DatabaseHelper.getObjectAsString(channel, pathType);
-                                    JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
+                                    JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.LAST_READOUT);
                                     DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
 
+                                    JEVisType readoutOffsetType = channelClass.getType(DataCollectorTypes.Channel.sFTPChannel.READOUT_OFFSET);
+                                    Long readoutOffset = DatabaseHelper.getObjectAsLong(channel, readoutOffsetType);
+
+                                    if (readoutOffset != null && lastReadout != null) {
+                                        lastReadout = lastReadout.minus(readoutOffset);
+                                    }
 
                                     List<String> matches = findMatchingFiles(sftp, regexPattern, lastReadout);
                                     logger.info("{}: {} files matches Pattern, starting download", logDataSourceID, matches.size());

@@ -144,6 +144,14 @@ public class FTPDataSource implements DataSource {
         String filePath = DatabaseHelper.getObjectAsString(channel, pathType);
         JEVisType lastReadoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
         DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, lastReadoutType);
+
+        JEVisType readoutOffsetType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.READOUT_OFFSET);
+        Long readoutOffset = DatabaseHelper.getObjectAsLong(channel, readoutOffsetType);
+
+        if (readoutOffset != null && lastReadout != null) {
+            lastReadout = lastReadout.minus(readoutOffset);
+        }
+
         JEVisType maxReadoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.MAX_READOUT);
         Long maxReadout = DatabaseHelper.getObjectAsLong(channel, maxReadoutType);
 
