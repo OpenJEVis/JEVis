@@ -25,10 +25,12 @@ import org.jevis.commons.utils.CommonMethods;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.KeyPair;
 import java.security.Security;
 import java.time.Duration;
@@ -38,6 +40,7 @@ import java.util.regex.Pattern;
 
 public class sFTPDataSource implements DataSource {
     private static final Logger logger = LogManager.getLogger(sFTPDataSource.class);
+    private static final String VERSION = "2026-10-06-sequential-download-v1";
     private final List<JEVisObject> channels = new ArrayList<>();
     private String serverURL;
     private Integer port;
@@ -125,6 +128,7 @@ public class sFTPDataSource implements DataSource {
 
     @Override
     public void run() {
+        logger.info("{}: sFTP datasource revision: {}", logDataSourceID, VERSION);
         try (SshClient client = SshClient.setUpDefaultClient()) {
 
             client.setServerKeyVerifier(AcceptAllServerKeyVerifier.INSTANCE);
@@ -166,6 +170,7 @@ public class sFTPDataSource implements DataSource {
                                 parser.initialize(parserObject);
                                 logger.debug("{}: initialized parser {}", logDataSourceID, parser);
                                 List<InputStream> input = new ArrayList<>();
+                                List<Path> downloadedFiles = new ArrayList<>();
                                 try {
 
                                     JEVisClass channelClass = channel.getJEVisClass();
@@ -189,8 +194,17 @@ public class sFTPDataSource implements DataSource {
                                     for (String path : matches) {
                                         try {
                                             logger.debug("{}: Start Download: {}", logDataSourceID, path);
-                                            InputStream inputStream = sftp.read(path);
-                                            input.add(inputStream);
+                                            Path downloadedFile = Files.createTempFile("jevis-sftp-", ".download");
+                                            downloadedFiles.add(downloadedFile);
+
+                                            // sftp.read() occupies a transfer handle until its stream is closed.
+                                            // Spool one file at a time so the server never sees all selected
+                                            // files as concurrent transfers. Parsing then uses local streams.
+                                            try (InputStream remoteInput = sftp.read(path)) {
+                                                Files.copy(remoteInput, downloadedFile, StandardCopyOption.REPLACE_EXISTING);
+                                            }
+
+                                            input.add(new BufferedInputStream(Files.newInputStream(downloadedFile)));
                                             logger.debug("{}: Finished Download: {}", logDataSourceID, path);
                                         } catch (IOException e) {
                                             logger.error("{}: Error while reading path: {}: {}", logDataSourceID, path, e);
@@ -208,16 +222,6 @@ public class sFTPDataSource implements DataSource {
                                     parser.parse(input, timezone);
 
                                     JEVisImporterAdapter.importResults(parser.getResult(), importer, channel);
-
-                                    /* Close input Streams */
-                                    for (InputStream inputStream : input) {
-                                        try {
-                                            inputStream.close();
-                                        } catch (IOException e) {
-                                            logger.error("{}: Error while closing file: {}", logDataSourceID, e);
-                                            throw new RuntimeException(e);
-                                        }
-                                    }
 
                                     /* Delete File */
                                     matches.removeAll(failedPaths);
@@ -239,6 +243,22 @@ public class sFTPDataSource implements DataSource {
                                     logger.debug("{}: Parse Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
                                 } catch (Exception ex) {
                                     logger.error("{}: Exception. For channel {}:{}", logDataSourceID, channel.getID(), channel.getName(), ex);
+                                } finally {
+                                    for (InputStream inputStream : input) {
+                                        try {
+                                            inputStream.close();
+                                        } catch (IOException e) {
+                                            logger.warn("{}: Error while closing local download: {}", logDataSourceID, e.getMessage());
+                                        }
+                                    }
+                                    for (Path downloadedFile : downloadedFiles) {
+                                        try {
+                                            Files.deleteIfExists(downloadedFile);
+                                        } catch (IOException e) {
+                                            logger.warn("{}: Error while deleting temporary download {}: {}",
+                                                    logDataSourceID, downloadedFile, e.getMessage());
+                                        }
+                                    }
                                 }
                             }
                         } catch (Exception ex) {
