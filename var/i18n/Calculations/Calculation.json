@@ -111,6 +111,17 @@
         "th": "ทุกอย่างเป็น 0 ค่า",
         "ar": "كل شيء 0 قيمة"
       }
+    },
+    {
+      "type": "Reprocessing Periods",
+      "descriptions": {
+        "de": "Anzahl der Perioden, die vor dem letzten Ausgabewert erneut berechnet werden, um rückwirkende Korrekturen automatisch zu übernehmen",
+        "en": "Number of periods before the last output value to recompute, so retroactive corrections are picked up automatically"
+      },
+      "names": {
+        "de": "Wiederverarbeitungsperioden",
+        "en": "Reprocessing Periods"
+      }
     }
   ]
 }

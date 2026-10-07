@@ -24,8 +24,8 @@
     {
       "type": "Datapoint Alignment",
       "descriptions": {
-        "de": "Die Richtung in der die Daten in der Datei zeitbasiert aufgetragen sind",
-        "en": "The time-based direction in which data is written in the file.",
+        "de": "ROW: Die Zeitachse läuft zeilenweise von oben nach unten. COLUMN: Die Zeitachse läuft spaltenweise von links nach rechts.",
+        "en": "ROW: the time axis runs down the rows. COLUMN: the time axis runs across the columns from left to right.",
         "ar": "الاتجاه الذي يتم فيه رسم البيانات الموجودة في الملف بمرور الوقت"
       },
       "names": {
@@ -37,9 +37,9 @@
     {
       "type": "Datapoint Index",
       "descriptions": {
-        "de": "Der Datenpunkt Index definiert die Spalte bzw. Zeile der CSV-Datei in der der Datenpunkt angegeben wird.",
+        "de": "ROW: Zeile mit den Datenpunkt-Bezeichnern. COLUMN: Spalte mit den Datenpunkt-Bezeichnern. Die Zählung beginnt einheitlich bei 1; 0 ist ungültig.",
         "ru": "Datapoint Index description",
-        "en": "The Datapoint Index defines the column or row of the CSV file where the data point is specified.",
+        "en": "ROW: row containing the data point identifiers. COLUMN: column containing the data point identifiers. Indexes start at 1; 0 is invalid.",
         "ar": "يحدد فهرس نقطة البيانات العمود أو السطر من ملف CSV الذي يتم فيه تحديد نقطة البيانات."
       },
       "names": {
@@ -65,8 +65,8 @@
     {
       "type": "Date Index",
       "descriptions": {
-        "de": "Gibt die Spalte bzw. Zeile an, in der das Datum angegeben wird.",
-        "en": "Defines the column or row, where the date is stored.",
+        "de": "ROW: Spalte mit dem Datum. COLUMN: Zeile mit dem Datum. Die Zählung beginnt bei 1; 0 ist ungültig.",
+        "en": "ROW: column containing the date. COLUMN: row containing the date. Indexes start at 1; 0 is invalid.",
         "ar": "فهرس التاريخ"
       },
       "names": {
@@ -107,8 +107,8 @@
     {
       "type": "Number Of Headlines",
       "descriptions": {
-        "de": "Definiert die Anzahl der Kopfzeilen der CSV-Datei, welche ignoriert werden.",
-        "en": "Defines the number of headlines of the CSV file to be ignored.",
+        "de": "Anzahl der Einträge am Anfang der Zeitachse, die ignoriert werden: bei ROW führende Zeilen, bei COLUMN führende Spalten. Dies ist eine Anzahl und darf daher 0 sein.",
+        "en": "Number of leading time-axis entries to ignore: leading rows for ROW and leading columns for COLUMN. This is a count and may therefore be 0.",
         "ar": "يحدد عدد رؤوس ملفات CSV التي يتم سوف يتم تجاهلها."
       },
       "names": {
@@ -162,9 +162,9 @@
     {
       "type": "Time Index",
       "descriptions": {
-        "de": "Gibt die Spalte bzw. Zeile an, in der die Zeit angegeben wird.",
+        "de": "ROW: Spalte mit der Uhrzeit. COLUMN: Zeile mit der Uhrzeit. Die Zählung beginnt bei 1; 0 ist ungültig.",
         "ru": "Определяет столбец или строку, где хранится время.",
-        "en": "Defines the column or row, where the time is stored.",
+        "en": "ROW: column containing the time. COLUMN: row containing the time. Indexes start at 1; 0 is invalid.",
         "ar": "يحدد العمود أو الصف الذي يتم إعطاء الوقت فيه."
       },
       "names": {

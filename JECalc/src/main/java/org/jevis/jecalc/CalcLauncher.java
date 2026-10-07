@@ -18,9 +18,7 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.PeriodFormat;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.FutureTask;
 
 /**
@@ -91,59 +89,178 @@ public class CalcLauncher extends AbstractCliApp {
         logger.info("Number of Calc Jobs: {}", enabledCalcObject.size());
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
-        enabledCalcObject.forEach(object -> {
-            if (!runningJobs.containsKey(object.getID())) {
-                Runnable runnable = () -> {
-                    try {
-                        Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
-                        runningJobs.put(object.getID(), new DateTime());
-                        logger.info("Starting Calc Job {} for {} @ {}", object.getName(), object.getID(), new DateTime().toString(DateTimeFormat.patternForStyle("MM", I18n.getInstance().getLocale())));
+        List<List<JEVisObject>> levels = buildDependencyLevels(enabledCalcObject);
 
-                        LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
-
-                        CalcJobFactory calcJobCreator = new CalcJobFactory();
-                        SampleHandler sampleHandler = new SampleHandler();
-
-                        boolean changed;
-                        int iteration = 0;
-
-                        do {
-                            CalcJob calcJob = calcJobCreator.getCurrentCalcJob(sampleHandler, ds, object);
-                            changed = calcJob.execute();
-                            iteration++;
-                        } while (changed && calcJobCreator.isLastFetchTruncated() && iteration < 500);
-
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
-                    } catch (Exception e) {
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
-
-                        logger.error("Failed Job: {}:{}", object.getName(), object.getID(), e);
-
-                    } finally {
-                        StringBuilder finished = new StringBuilder();
-                        finished.append(object.getID()).append(" in ");
-                        String length = new Period(runningJobs.get(object.getID()), new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
-                        removeJob(object);
-                        finished.append(length);
-
-                        StringBuilder running = new StringBuilder();
-                        runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
-
-                        logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.toString(), running.toString());
-
-                        checkLastJob();
-                    }
-                };
-
-                FutureTask<?> ft = new FutureTask<Void>(runnable, null);
-
-                runnables.put(object.getID(), ft);
-                executor.submit(ft);
-            } else {
-                logger.info("Still processing Job {}:{}", object.getName(), object.getID());
+        for (List<JEVisObject> level : levels) {
+            List<FutureTask<?>> submitted = new ArrayList<>();
+            for (JEVisObject object : level) {
+                if (!runningJobs.containsKey(object.getID())) {
+                    submitted.add(submitJob(object));
+                } else {
+                    logger.info("Still processing Job {}:{}", object.getName(), object.getID());
+                }
             }
-        });
+
+            // Parallelize within a level, but wait for the whole level to finish before
+            // submitting the next one, so a Calc's freshly written output is visible to
+            // any Calc in the next level that consumes it, within the same cycle.
+            for (FutureTask<?> ft : submitted) {
+                try {
+                    ft.get();
+                } catch (Exception e) {
+                    logger.error("Error while waiting for calc job dependency level to complete", e);
+                }
+            }
+        }
+    }
+
+    private FutureTask<?> submitJob(JEVisObject object) {
+        Runnable runnable = () -> {
+            try {
+                Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
+                runningJobs.put(object.getID(), new DateTime());
+                logger.info("Starting Calc Job {} for {} @ {}", object.getName(), object.getID(), new DateTime().toString(DateTimeFormat.patternForStyle("MM", I18n.getInstance().getLocale())));
+
+                LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
+                LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
+
+                CalcJobFactory calcJobCreator = new CalcJobFactory();
+                SampleHandler sampleHandler = new SampleHandler();
+
+                boolean changed;
+                int iteration = 0;
+
+                do {
+                    CalcJob calcJob = calcJobCreator.getCurrentCalcJob(sampleHandler, ds, object);
+                    changed = calcJob.execute();
+                    iteration++;
+                } while (changed && calcJobCreator.isLastFetchTruncated() && iteration < 500);
+
+                LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+            } catch (Exception e) {
+                LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
+
+                logger.error("Failed Job: {}:{}", object.getName(), object.getID(), e);
+
+            } finally {
+                StringBuilder finished = new StringBuilder();
+                finished.append(object.getID()).append(" in ");
+                String length = new Period(runningJobs.get(object.getID()), new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
+                removeJob(object);
+                finished.append(length);
+
+                StringBuilder running = new StringBuilder();
+                runningJobs.forEach((aLong, dateTime) -> running.append(aLong).append(" - started: ").append(dateTime).append(" "));
+
+                logger.info("Queued Jobs: {} | Finished {} | running Jobs: {}", plannedJobs.size(), finished.toString(), running.toString());
+
+                checkLastJob();
+            }
+        };
+
+        FutureTask<?> ft = new FutureTask<Void>(runnable, null);
+
+        runnables.put(object.getID(), ft);
+        executor.submit(ft);
+        return ft;
+    }
+
+    /**
+     * Groups enabled Calculations into dependency levels via Kahn's algorithm, based on a
+     * producer→consumer graph: an edge exists from Calc A to Calc B when A's output attribute
+     * feeds one of B's inputs. Jobs within a level have no relation to each other and are run in
+     * parallel; {@link #executeCalcJobs} waits for a level to finish before submitting the next,
+     * so same-cycle producer→consumer chains converge in one pass instead of needing a second
+     * poll cycle. Falls back to a single shuffled level (today's behavior) if a cycle is detected
+     * or dependency resolution fails.
+     */
+    private List<List<JEVisObject>> buildDependencyLevels(List<JEVisObject> enabledCalcObjects) {
+        Map<Long, JEVisObject> byId = new HashMap<>();
+        Map<Long, CalcJobFactory.CalcDependencyInfo> depInfo = new HashMap<>();
+
+        for (JEVisObject object : enabledCalcObjects) {
+            byId.put(object.getID(), object);
+            try {
+                depInfo.put(object.getID(), new CalcJobFactory().resolveDependencyInfo(object, ds));
+            } catch (Exception e) {
+                logger.error("Could not resolve dependencies for calc {}:{}, treating as independent", object.getName(), object.getID(), e);
+                depInfo.put(object.getID(), new CalcJobFactory.CalcDependencyInfo(object.getID(), Collections.emptyList(), Collections.emptyList()));
+            }
+        }
+
+        // output object id -> ids of enabled calcs that produce it
+        Map<Long, Set<Long>> producersByOutputObject = new HashMap<>();
+        for (CalcJobFactory.CalcDependencyInfo info : depInfo.values()) {
+            for (Long outputObjectId : info.getOutputObjectIds()) {
+                producersByOutputObject.computeIfAbsent(outputObjectId, k -> new HashSet<>()).add(info.getCalcObjectId());
+            }
+        }
+
+        // producer calc id -> ids of calcs that consume one of its outputs
+        Map<Long, Set<Long>> consumers = new HashMap<>();
+        Map<Long, Integer> inDegree = new HashMap<>();
+        for (Long id : byId.keySet()) {
+            consumers.put(id, new HashSet<>());
+            inDegree.put(id, 0);
+        }
+        for (CalcJobFactory.CalcDependencyInfo info : depInfo.values()) {
+            Set<Long> producerIds = new HashSet<>();
+            for (Long inputObjectId : info.getInputObjectIds()) {
+                Set<Long> producers = producersByOutputObject.get(inputObjectId);
+                if (producers != null) {
+                    for (Long producerId : producers) {
+                        if (!producerId.equals(info.getCalcObjectId())) {
+                            producerIds.add(producerId);
+                        }
+                    }
+                }
+            }
+            for (Long producerId : producerIds) {
+                if (consumers.get(producerId).add(info.getCalcObjectId())) {
+                    inDegree.merge(info.getCalcObjectId(), 1, Integer::sum);
+                }
+            }
+        }
+
+        List<List<JEVisObject>> levels = new ArrayList<>();
+        Map<Long, Integer> remainingInDegree = new HashMap<>(inDegree);
+        Set<Long> processed = new HashSet<>();
+        int totalNodes = byId.size();
+
+        while (processed.size() < totalNodes) {
+            List<Long> currentLevelIds = new ArrayList<>();
+            for (Long id : byId.keySet()) {
+                if (!processed.contains(id) && remainingInDegree.get(id) == 0) {
+                    currentLevelIds.add(id);
+                }
+            }
+
+            if (currentLevelIds.isEmpty()) {
+                logger.warn("Cycle detected in Calculation dependency graph; falling back to unordered execution for {} remaining object(s)", totalNodes - processed.size());
+                List<JEVisObject> remaining = new ArrayList<>();
+                for (Long id : byId.keySet()) {
+                    if (!processed.contains(id)) {
+                        remaining.add(byId.get(id));
+                    }
+                }
+                Collections.shuffle(remaining);
+                levels.add(remaining);
+                break;
+            }
+
+            Collections.shuffle(currentLevelIds);
+            List<JEVisObject> level = new ArrayList<>();
+            for (Long id : currentLevelIds) {
+                level.add(byId.get(id));
+                processed.add(id);
+                for (Long consumerId : consumers.get(id)) {
+                    remainingInDegree.merge(consumerId, -1, Integer::sum);
+                }
+            }
+            levels.add(level);
+        }
+
+        return levels;
     }
 
     private List<JEVisObject> getEnabledCalcObjects() {
@@ -172,8 +289,8 @@ public class CalcLauncher extends AbstractCliApp {
             }
         }
 
-        Collections.shuffle(enabledObjects);
-
+        // Ordering is now handled per-cycle in buildDependencyLevels(), which shuffles within
+        // each dependency level rather than the whole flat list.
         return enabledObjects;
     }
 
@@ -206,7 +323,7 @@ public class CalcLauncher extends AbstractCliApp {
                         CalcJob calcJob = calcJobCreator.getCurrentCalcJob(sampleHandler, ds, object);
                         changed = calcJob.execute();
                         iteration++;
-                    } while (changed && iteration < 500);
+                    } while (changed && calcJobCreator.isLastFetchTruncated() && iteration < 500);
 
                 } catch (Exception e) {
                     logger.error(e);

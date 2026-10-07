@@ -176,11 +176,17 @@ public class PrepareStep implements ProcessStep {
 
         int indexLastRawSample = cleanDataObject.getRawSamplesDown().size() - 1;
         Period lastPeriod = CleanDataObject.getPeriodForDate(cleanDataObject.getCleanDataPeriodAlignment(), cleanDataObject.getRawSamplesDown().get(indexLastRawSample).getTimestamp());
+        // Step back N periods (default 1 = today's behavior) so retroactive upstream corrections
+        // landing up to N periods before the last-written sample get regenerated automatically.
+        int reprocessingPeriods = cleanDataObject.getReprocessingPeriods();
+        Period lookbackPeriod = lastPeriod.multipliedBy(reprocessingPeriods);
         if (dtEnd.isBefore(dtStart) && IntStream.of(lastPeriod.getYears(), lastPeriod.getMonths(), lastPeriod.getWeeks()).anyMatch(i -> i > 0)) {
-            currentDate = currentDate.minus(lastPeriod);
-            maxEndDate = maxEndDate.minus(lastPeriod);
+            currentDate = currentDate.minus(lookbackPeriod);
+            maxEndDate = maxEndDate.minus(lookbackPeriod);
         } else if (IntStream.of(lastPeriod.getYears(), lastPeriod.getMonths()).anyMatch(i -> i > 0) && firstIsDifferential) {
-            maxEndDate = maxEndDate.minus(lastPeriod);
+            maxEndDate = maxEndDate.minus(lookbackPeriod);
+        } else if (reprocessingPeriods > 1) {
+            currentDate = currentDate.minus(lookbackPeriod.minus(lastPeriod));
         }
 
         logger.info("[{}] getIntervals: currentDate: {}  MaxEndDate: {} ", cleanDataObject.getCleanObject().getID(), currentDate, maxEndDate);

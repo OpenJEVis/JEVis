@@ -190,6 +190,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
+    },
+    {
+      "name": "Reprocessing Periods",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 21,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Clean Data"
     }
   ]
 }

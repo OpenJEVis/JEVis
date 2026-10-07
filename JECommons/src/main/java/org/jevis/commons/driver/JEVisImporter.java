@@ -38,6 +38,7 @@ import java.util.*;
  */
 public class JEVisImporter implements Importer {
     private static final Logger logger = LogManager.getLogger(JEVisImporter.class);
+    private static final String IMPORT_REVISION = "2026-10-06-import-status-v2";
 
     private JEVisDataSource client = null;
     private JEVisObject dataSource;
@@ -101,7 +102,7 @@ public class JEVisImporter implements Importer {
 
     @Override
     public DateTime importResult(List<Result> results) {
-        logger.debug("--Starting SampleImport v2.5  --");
+        logger.info("JEVisImporter revision: {}", IMPORT_REVISION);
         try {
             DateTime lastTSTotal = null;
             if (results.isEmpty()) {
@@ -246,9 +247,9 @@ public class JEVisImporter implements Importer {
                     String firstSample = !values.isEmpty() ?  values.get(0).toString() : " no Sample";
                     String lastSample = !values.isEmpty() ?  values.get(values.size()-1).toString() : " no Sample";
 
-                    int imported = key.addSamples(values);
-                    logger.info("Import: {}-{}, submitted: {}, API accepted: {}, first: {}, last: {}",
-                            key.getObject().getID(), key.getObject().getName(), values.size(), imported,
+                    int addSamplesResult = key.addSamples(values);
+                    logger.info("Import: {}-{}, submitted: {}, addSamples result: {}, first: {}, last: {}",
+                            key.getObject().getID(), key.getObject().getName(), values.size(), addSamplesResult,
                             firstSample, lastSample);
 
                     DateTime timeStampOfLastSample = values.get(values.size() - 1).getTimestamp();
@@ -267,12 +268,17 @@ public class JEVisImporter implements Importer {
                         }
                     }
 
-                    logger.info("Object: [{}] {} Submitted: {} API accepted: {} LastTS: {}",
-                            key.getObject().getID(), key.getObject().getName(), values.size(), imported, timeStampOfLastSample);
+                    logger.info("Object: [{}] {} Submitted: {} addSamples result: {} LastTS: {}",
+                            key.getObject().getID(), key.getObject().getName(), values.size(), addSamplesResult, timeStampOfLastSample);
 
                 } catch (Exception ex) {
+                    errorImport++;
                     logger.fatal("Unexpected error while import: ", ex);
                 }
+            }
+            if (errorImport > 0) {
+                logger.error("Import finished with {} error(s); Last Readout will not be advanced", errorImport);
+                return null;
             }
             if (lastTSTotal != null) {
                 return lastTSTotal.withZone(timezone);

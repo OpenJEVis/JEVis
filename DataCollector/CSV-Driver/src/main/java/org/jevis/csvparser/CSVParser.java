@@ -32,7 +32,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * @author broder
@@ -55,7 +54,6 @@ public class CSVParser {
     private String timeFormat;
     private String decimalSeparator;
     private String thousandSeparator;
-    private Integer currLineIndex;
     private Charset charset;
     private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
     private Converter _converter;
@@ -84,181 +82,149 @@ public class CSVParser {
         }
     }
 
-    private void parseLine(String[] line) {
-        logger.debug("Parse line: {}", line);
-        DateTime dateTime = getDateTime(line);
-
-        if (dateTime == null) {
-            logger.debug("DateTime var is null: Date Error");
-            report.addError(new LineError(-3, -2, null, "Date Error"));
-            return;//if there is no date the whole line is invalid... or generate a date?
-        } else {
-            logger.debug("DateTime parsed: {}", dateTime);
-        }
-
-        for (DataPoint dp : _dataPoints) {
-            try {
-                logger.debug("-DP: value index: {}, mapping identifier: '{}', target: {}", dp.getValueIndex(), dp.getMappingIdentifier(), dp.getTarget());
-                Integer valueIndex = dp.getValueIndex();
-                String target = dp.getTarget();
-
-                String sVal = null;
-                Double value = null;
-                sVal = line[valueIndex].trim();
-                logger.debug("-- ValueString: {}", sVal);
-
-                //todo bind locale to language or location?? ad thousands separator without regex
-                if (decimalSeparator == null || decimalSeparator.equals(",")) {
-                    NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
-                    value = nf_in.parse(sVal).doubleValue();
-                } else if (decimalSeparator.equals(".")) {
-                    NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
-                    value = nf_out.parse(sVal).doubleValue();
-                }
-
-                Result tempResult = new Result(target, value, dateTime);
-                addResult(tempResult);
-                report.addSuccess(currLineIndex, valueIndex);
-            } catch (Exception ex) {
-                report.addError(new LineError(currLineIndex, -2, ex, "Unexpected Exception"));
-//                ex.printStackTrace();
-            }
-        }
-        logger.debug("Result: {}", _results.size());
-    }
-
-    private void calculateColumns(String stringArrayInput) {
-        String[] line = stringArrayInput.split(String.valueOf(delimiter), -1);
-        if (quote != null) {
+    private String[] splitLine(String input) {
+        String[] line;
+        if (quote != null && !quote.isEmpty()) {
+            line = input.split(delimiter + "(?=(?:[^" + quote + "]*" + quote + "[^" + quote + "]*" + quote + ")*[^" + quote + "]*$)", -1);
             line = removeQuotes(line);
+        } else {
+            line = input.split(String.valueOf(delimiter), -1);
         }
-        Map<String, Integer> columnMap = new HashMap<>();
-        for (int i = 0; i < line.length; i++) {
-            String curString = line[i].trim();
-            if (!curString.isEmpty()) {
-                columnMap.put(curString, i);
+        return line;
+    }
+
+    private Map<DataPoint, Integer> resolveValueIndexes(String[][] table, boolean rowAlignment) {
+        Map<DataPoint, Integer> indexes = new IdentityHashMap<DataPoint, Integer>();
+        for (DataPoint dataPoint : _dataPoints) {
+            Integer configuredIndex = dataPoint.getValueIndex();
+            if (configuredIndex != null) {
+                indexes.put(dataPoint, configuredIndex);
+                continue;
+            }
+
+            String mappingIdentifier = dataPoint.getMappingIdentifier();
+            if (mappingIdentifier == null || mappingIdentifier.trim().isEmpty()) {
+                logger.error("CSV data point for target {} has neither Mapping Identifier nor Value Index", dataPoint.getTarget());
+                continue;
+            }
+
+            Integer resolved = rowAlignment
+                    ? findInRow(table, dpIndex, mappingIdentifier)
+                    : findInColumn(table, dpIndex, mappingIdentifier);
+            if (resolved == null) {
+                logger.error("Mapping Identifier '{}' for target {} was not found in Datapoint Index {}",
+                        mappingIdentifier, dataPoint.getTarget(), dpIndex == null ? null : dpIndex + 1);
+            } else {
+                indexes.put(dataPoint, resolved);
             }
         }
+        return indexes;
+    }
 
-        StringBuilder sb = new StringBuilder();
-        Iterator<Entry<String, Integer>> iter = columnMap.entrySet().iterator();
-        while (iter.hasNext()) {
-            Entry<String, Integer> entry = iter.next();
-            sb.append(entry.getKey());
-            sb.append('=').append('"');
-            sb.append(entry.getValue());
-            sb.append('"');
-            if (iter.hasNext()) {
-                sb.append(',').append(' ');
+    private Integer findInRow(String[][] table, Integer rowIndex, String identifier) {
+        if (rowIndex == null || rowIndex < 0 || rowIndex >= table.length) {
+            logger.error("Datapoint Index must reference an existing row for ROW alignment");
+            return null;
+        }
+        for (int column = 0; column < table[rowIndex].length; column++) {
+            if (identifier.equals(table[rowIndex][column].trim())) {
+                return column;
             }
         }
-        logger.debug("MAP: {}", sb.toString());
+        return null;
+    }
 
+    private Integer findInColumn(String[][] table, Integer columnIndex, String identifier) {
+        if (columnIndex == null || columnIndex < 0) {
+            logger.error("Datapoint Index must reference an existing column for COLUMN alignment");
+            return null;
+        }
+        for (int row = 0; row < table.length; row++) {
+            String value = getCell(table, row, columnIndex);
+            if (value != null && identifier.equals(value.trim())) {
+                return row;
+            }
+        }
+        return null;
+    }
 
-        for (DataPoint dp : _dataPoints) {
-            String mappingIdentifier = dp.getMappingIdentifier();
-            //VERY VERY VERY DIRTY CODE, PLEASE DONT USE IT
-            Integer columnIndex = null;
-            if (mappingIdentifier != null) {
-                columnIndex = columnMap.get(mappingIdentifier);
-                dp.setValueIndex(columnIndex);
+    private void parseRows(String[][] table) {
+        logger.debug("Traversing ROW alignment (time axis from top to bottom)");
+        Map<DataPoint, Integer> valueIndexes = resolveValueIndexes(table, true);
+        int firstRow = headerLines == null ? 0 : Math.max(0, headerLines);
+        for (int row = firstRow; row < table.length; row++) {
+            if (dpIndex != null && row == dpIndex) {
+                continue;
+            }
+            DateTime dateTime = getDateTime(getCell(table, row, dateIndex), getCell(table, row, timeIndex), row);
+            if (dateTime == null) {
+                report.addError(new LineError(row, -2, null, "Date Error"));
+                continue;
+            }
+            for (DataPoint dataPoint : _dataPoints) {
+                Integer valueIndex = valueIndexes.get(dataPoint);
+                if (valueIndex != null) {
+                    addDataPointValue(dataPoint, getCell(table, row, valueIndex), dateTime, row, valueIndex);
+                }
             }
         }
     }
 
-    private void calculateColumnsColumn(String[] stringArrayInput) {
-
-        List<String> columns = new ArrayList<>();
-        for (String s : stringArrayInput) {
-            String[] line = s.split(String.valueOf(delimiter), -1);
-            for (int i = 0, lineLength = line.length; i < lineLength; i++) {
-                String lineSub = line[i];
-
-                if (columns.size() > i) {
-                    String s1 = columns.get(i);
-                    s1 += delimiter + lineSub;
-                    columns.set(i, s1);
-                } else {
-                    columns.add(lineSub);
+    private void parseColumns(String[][] table) {
+        logger.debug("Traversing COLUMN alignment (time axis from left to right)");
+        Map<DataPoint, Integer> valueIndexes = resolveValueIndexes(table, false);
+        int firstColumn = headerLines == null ? 0 : Math.max(0, headerLines);
+        int columns = getMaximumColumnCount(table);
+        for (int column = firstColumn; column < columns; column++) {
+            if (dpIndex != null && column == dpIndex) {
+                continue;
+            }
+            DateTime dateTime = getDateTime(getCell(table, dateIndex, column), getCell(table, timeIndex, column), column);
+            if (dateTime == null) {
+                report.addError(new LineError(column, -2, null, "Date Error"));
+                continue;
+            }
+            for (DataPoint dataPoint : _dataPoints) {
+                Integer valueIndex = valueIndexes.get(dataPoint);
+                if (valueIndex != null) {
+                    addDataPointValue(dataPoint, getCell(table, valueIndex, column), dateTime, column, valueIndex);
                 }
-
-            }
-        }
-
-        if (quote != null) {
-            List<String> columnsWOQuotes = new ArrayList<>();
-            for (String s : columns) {
-                String newStr = s.replaceAll(quote, "");
-                columnsWOQuotes.add(newStr);
-            }
-
-            columns = columnsWOQuotes;
-        }
-
-        Map<String, Integer> columnMap = new HashMap<>();
-        for (int i = 0; i < columns.size(); i++) {
-            String curString = columns.get(i).trim();
-            if (!curString.isEmpty()) {
-                columnMap.put(curString, i);
-            }
-        }
-
-        StringBuilder sb = new StringBuilder();
-        Iterator<Entry<String, Integer>> iter = columnMap.entrySet().iterator();
-        while (iter.hasNext()) {
-            Entry<String, Integer> entry = iter.next();
-            sb.append(entry.getKey());
-            sb.append('=').append('"');
-            sb.append(entry.getValue());
-            sb.append('"');
-            if (iter.hasNext()) {
-                sb.append(',').append(' ');
-            }
-        }
-        logger.debug("MAP: {}", sb.toString());
-
-
-        for (DataPoint dp : _dataPoints) {
-            String mappingIdentifier = dp.getMappingIdentifier();
-            Integer column = null;
-            if (mappingIdentifier != null && dp.getValueIndex() == null) {
-                column = getIntByIdentifier(mappingIdentifier, columnMap);
-            } else if (dp.getValueIndex() == null) {
-                column = dpIndex;
-            }
-
-            if (column != null) {
-                dp.setValueIndex(column);
             }
         }
     }
 
-    private Integer getIntByIdentifier(String mapIdent, Map<String, Integer> columnMap) {
-        Integer result;
-        for (Map.Entry<String, Integer> entry : columnMap.entrySet()) {
-            String[] line = entry.getKey().split(String.valueOf(delimiter), -1);
-
-            for (int i = 0; i < line.length; i++) {
-                if (line[i].equals(mapIdent)) {
-                    return i;
-                }
+    private void addDataPointValue(DataPoint dataPoint, String valueString, DateTime dateTime,
+                                   int recordIndex, int valueIndex) {
+        try {
+            if (valueString == null || valueString.trim().isEmpty()) {
+                return;
             }
+            NumberFormat numberFormat = decimalSeparator == null || decimalSeparator.equals(",")
+                    ? NumberFormat.getNumberInstance(Locale.GERMANY)
+                    : NumberFormat.getNumberInstance(Locale.UK);
+            Double value = numberFormat.parse(valueString.trim()).doubleValue();
+            addResult(new Result(dataPoint.getTarget(), value, dateTime));
+            report.addSuccess(recordIndex, valueIndex);
+        } catch (Exception ex) {
+            report.addError(new LineError(recordIndex, valueIndex, ex, "Value parsing error"));
+            logger.warn("Could not parse CSV value '{}' for target {} at record {}",
+                    valueString, dataPoint.getTarget(), recordIndex + 1, ex);
         }
-        result = columnMap.get(mapIdent);
-        if (result == null) {
-            logger.debug("FIND MAP failed: {}", mapIdent);
-            mapIdent = mapIdent.replace("ä", "?");
-            mapIdent = mapIdent.replace("Ä", "?");
-            mapIdent = mapIdent.replace("ü", "?");
-            mapIdent = mapIdent.replace("Ü", "?");
-            mapIdent = mapIdent.replace("ö", "?");
-            mapIdent = mapIdent.replace("Ö", "?");
-            mapIdent = mapIdent.replace("ß", "?");
-            logger.debug("FIND MAP replaced: {}", mapIdent);
-            result = columnMap.get(mapIdent);
-            logger.debug("FIND MAP result: {}", result);
+    }
+
+    private String getCell(String[][] table, Integer row, Integer column) {
+        if (row == null || column == null || row < 0 || column < 0 || row >= table.length || column >= table[row].length) {
+            return null;
         }
-        return result;
+        return table[row][column];
+    }
+
+    private int getMaximumColumnCount(String[][] table) {
+        int columns = 0;
+        for (String[] row : table) {
+            columns = Math.max(columns, row.length);
+        }
+        return columns;
     }
 
     public void parse(List<InputStream> inputList, DateTimeZone timeZone) {
@@ -284,87 +250,17 @@ public class CSVParser {
             }
 
             logger.info("Total count of lines {}", stringArrayInput.length);
-            if (dpType != null && dpType.equals("ROW")) {
-                calculateColumns(stringArrayInput[dpIndex]);
-            } else {
-                calculateColumnsColumn(stringArrayInput);
+            String[][] table = new String[stringArrayInput.length][];
+            for (int row = 0; row < stringArrayInput.length; row++) {
+                table[row] = splitLine(stringArrayInput[row]);
             }
-            logger.error("Total lines/columns: {}", stringArrayInput.length);
+            logger.info("CSV dimensions: rows={}, columns={}, alignment={}",
+                    table.length, getMaximumColumnCount(table), dpType);
 
-            if (dpType != null && dpType.equals("ROW")) {
-                logger.debug("Traversing ROWs");
-                for (int i = headerLines + 1; i < stringArrayInput.length; i++) {
-                    currLineIndex = i;
-                    try {
-                        //TODO 1,"1,1",1 is not working yet
-                        String[] line = stringArrayInput[i].split(String.valueOf(delimiter), -1);
-                        if (quote != null) {
-                            line = removeQuotes(line);
-                        }
-
-                        parseLine(line);
-                    } catch (Exception e) {
-                        report.addError(new LineError(currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
-                        logger.error("Detected a Problem in the Parsing Process in line {}", currLineIndex, e);
-                    }
-                }
+            if ("COLUMN".equals(dpType)) {
+                parseColumns(table);
             } else {
-                logger.debug("Traversing Columns");
-                for (int i = headerLines; i < stringArrayInput.length; i++) {
-                    currLineIndex = i;
-                    try {
-
-                        String[] line;
-                        if (quote != null) {
-                            line = stringArrayInput[i].split(delimiter + "(?=(?:[^" + quote + "]*" + quote + "[^" + quote + "]*" + quote + ")*[^" + quote + "]*$)");
-                            line = removeQuotes(line);
-                        } else {
-                            line = stringArrayInput[i].split(String.valueOf(delimiter), -1);
-                        }
-
-                        DateTime dateTime = getDateTime(line);
-
-                        if (dateTime == null) {
-                            report.addError(new LineError(-3, -2, null, "Date Error"));
-                            logger.error("Detected a Problem in the Parsing Process in line {}. Date Error", currLineIndex);
-                            return;
-                        }
-
-
-                        for (DataPoint dp : _dataPoints) {
-                            for (String s : line) {
-                                if (s.equals(dp.getMappingIdentifier())) {
-                                    try {
-                                        String mappingIdentifier = dp.getMappingIdentifier();
-                                        Integer valueIndex = dp.getValueIndex();
-                                        String target = dp.getTarget();
-
-                                        String sVal = null;
-                                        Double value = null;
-                                        sVal = line[valueIndex];
-                                        //todo bind locale to language or location?? add thousands separator without regex
-                                        if (decimalSeparator == null || decimalSeparator.equals(",")) {
-                                            NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
-                                            value = nf_in.parse(sVal).doubleValue();
-                                        } else if (decimalSeparator.equals(".")) {
-                                            NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
-                                            value = nf_out.parse(sVal).doubleValue();
-                                        }
-                                        Result tempResult = new Result(target, value, dateTime);
-                                        addResult(tempResult);
-                                        report.addSuccess(currLineIndex, valueIndex);
-                                    } catch (Exception ex) {
-                                        report.addError(new LineError(currLineIndex, -2, ex, "Unexpected Exception"));
-                                        logger.error("Detect a Problem in the Parsing Process in line {}. Value parsing Error", currLineIndex);
-                                    }
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        report.addError(new LineError(currLineIndex, -2, e, "Detected a Problem in the Parsing Process"));
-                        logger.error("Detect a Problem in the Parsing Process in line {}", currLineIndex, e);
-                    }
-                }
+                parseRows(table);
             }
 //        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Number of Results: " + _results.size());
             if (!_results.isEmpty()) {
@@ -383,6 +279,48 @@ public class CSVParser {
                 inputList.size(), parsedCandidates, replacedDuplicates, _results.size());
         logger.info("Finished Importing importSteam");
 
+    }
+
+    private DateTime getDateTime(String dateValue, String timeValue, int recordIndex) {
+        if (dateFormat == null) {
+            logger.error("No date format found");
+            return null;
+        }
+        String input = "";
+        String pattern = "";
+        try {
+            if (dateValue == null) {
+                throw new IllegalArgumentException("Date Index is outside the CSV dimensions");
+            }
+            String date = dateValue.trim();
+            pattern = dateFormat;
+            input = date;
+
+            if (timeFormat != null && !timeFormat.isEmpty() && timeIndex != null) {
+                if (timeValue == null) {
+                    throw new IllegalArgumentException("Time Index is outside the CSV dimensions");
+                }
+                String time = timeValue.trim();
+                pattern += " " + timeFormat;
+                input += " " + time;
+            }
+            logger.debug("-Parse: pattern: {}, timezone: {}, input: '{}'", pattern, timeZone, input);
+            return TimeConverter.parseDateTime(input, pattern, timeZone);
+        } catch (Exception ex) {
+            logger.warn("Date not parsable at record {}: input='{}', pattern='{}', Date Index={}, Time Index={}",
+                    recordIndex + 1, input, pattern,
+                    dateIndex == null ? null : dateIndex + 1,
+                    timeIndex == null ? null : timeIndex + 1, ex);
+            return null;
+        }
+    }
+
+    private String[] removeQuotes(String[] line) {
+        String[] removed = new String[line.length];
+        for (int i = 0; i < line.length; i++) {
+            removed[i] = line[i].replace(quote, "");
+        }
+        return removed;
     }
 
     private static final class ResultKey {
@@ -414,49 +352,6 @@ public class CSVParser {
         public int hashCode() {
             return Objects.hash(target, attribute, timestamp);
         }
-    }
-
-    private String[] removeQuotes(String[] line) {
-        String[] removed = new String[line.length];
-        for (int i = 0; i < line.length; i++) {
-            removed[i] = line[i].replace(quote, "");
-        }
-        return removed;
-    }
-
-    private DateTime getDateTime(String[] line) {
-        logger.debug("getDateTime column: {} pattern: '{}' line: {}", dateIndex, dateFormat, line);
-
-        if (dateFormat == null) {
-            logger.error("No date format found");
-            return null;
-        }
-        String input = "";
-        String pattern = "";
-        try {
-            String date = line[dateIndex].trim();
-            pattern = dateFormat;
-            input = date;
-
-            if (timeFormat != null && timeIndex > -1) {
-                String time = line[timeIndex].trim();
-                pattern += " " + timeFormat;
-                input += " " + time;
-            }
-            logger.debug("-Parse: pattern: {}, timezone: {}, input: '{}'", pattern, timeZone, input);
-            return TimeConverter.parseDateTime(input, pattern, timeZone);
-        } catch (Exception ex) {
-            logger.warn("Pattern: {}", pattern);
-            logger.warn("Date not parsable: {}", input);
-            logger.warn("Line not parsable: {}", Arrays.toString(line));
-            logger.warn("DateFormat: {}", dateFormat);
-            logger.warn("DateIndex: {}", dateIndex);
-            logger.warn("TimeFormat: {}", timeFormat);
-            logger.warn("TimeIndex: {}", timeIndex);
-            logger.warn("Exception: ", ex);
-            return null;
-        }
-
     }
 
     public ParserReport getReport() {

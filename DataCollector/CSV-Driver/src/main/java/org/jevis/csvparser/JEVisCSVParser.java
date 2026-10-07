@@ -41,7 +41,7 @@ import java.util.List;
  * @author broder
  */
 public class JEVisCSVParser implements Parser {
-    public static final String VERSION = "Version 1.2.5 2026-10-06 (newer-file-wins diagnostics)";
+    public static final String VERSION = "Version 1.3.0 2026-10-07 (symmetric ROW/COLUMN, one-based indexes)";
     private static final Logger logger = LogManager.getLogger(JEVisCSVParser.class);
     private DateTimeZone timeZone;
     private CSVParser _csvParser;
@@ -70,25 +70,28 @@ public class JEVisCSVParser implements Parser {
                 headerLines = 0;
             }
 
-            Integer dpIndex = DatabaseHelper.getObjectAsInteger(parserObject, dpIndexType);
-            if (dpIndex != null) {
-                dpIndex--;
-            }
+            Integer dpIndex = toZeroBasedIndex(
+                    DatabaseHelper.getObjectAsInteger(parserObject, dpIndexType),
+                    CSVParserTypes.DATAPOINT_INDEX, false);
 
             String dpType = DatabaseHelper.getObjectAsString(parserObject, dpTypeType);
-            if (dpType == null) {
+            if (dpType == null || dpType.trim().isEmpty()) {
                 dpType = "ROW";
+            } else {
+                dpType = dpType.trim().toUpperCase();
+                if (!dpType.equals("ROW") && !dpType.equals("COLUMN")) {
+                    logger.warn("Unknown Datapoint Alignment '{}'; using ROW", dpType);
+                    dpType = "ROW";
+                }
             }
 
-            Integer dateIndex = DatabaseHelper.getObjectAsInteger(parserObject, dateIndexType);
-            if (dateIndex != null) {
-                dateIndex--;
-            }
+            Integer dateIndex = toZeroBasedIndex(
+                    DatabaseHelper.getObjectAsInteger(parserObject, dateIndexType),
+                    CSVParserTypes.DATE_INDEX, true);
 
-            Integer timeIndex = DatabaseHelper.getObjectAsInteger(parserObject, timeIndexType);
-            if (timeIndex != null) {
-                timeIndex--;
-            }
+            Integer timeIndex = toZeroBasedIndex(
+                    DatabaseHelper.getObjectAsInteger(parserObject, timeIndexType),
+                    CSVParserTypes.TIME_INDEX, false);
 
             String charset = DatabaseHelper.getObjectAsString(parserObject, charsetType);
             Charset cset;
@@ -101,6 +104,9 @@ public class JEVisCSVParser implements Parser {
             String dateFormat = DatabaseHelper.getObjectAsString(parserObject, dateFormatType);
 
             String timeFormat = DatabaseHelper.getObjectAsString(parserObject, timeFormatType);
+            if (timeFormat != null && !timeFormat.trim().isEmpty() && timeIndex == null) {
+                throw new IllegalArgumentException("Time Index is required when Time Format is configured");
+            }
 
             String decimalSeparator = DatabaseHelper.getObjectAsString(parserObject, decimalSeparatorType);
 
@@ -125,6 +131,19 @@ public class JEVisCSVParser implements Parser {
         }
     }
 
+    private Integer toZeroBasedIndex(Integer configuredIndex, String name, boolean required) {
+        if (configuredIndex == null) {
+            if (required) {
+                throw new IllegalArgumentException(name + " is required and must start at 1");
+            }
+            return null;
+        }
+        if (configuredIndex < 1) {
+            throw new IllegalArgumentException(name + " must be 1 or greater; 0 is not a valid CSV row/column number");
+        }
+        return configuredIndex - 1;
+    }
+
     private void initializeCSVDataPointParser(JEVisObject parserObject) {
         try {
             JEVisClass dpClass = parserObject.getDataSource().getJEVisClass(CSVDataPointTypes.NAME);
@@ -139,6 +158,9 @@ public class JEVisCSVParser implements Parser {
 
                     Long datapointID = dp.getID();
                     String mappingIdentifier = DatabaseHelper.getObjectAsString(dp, mappingIdentifierType);
+                    if (mappingIdentifier != null && mappingIdentifier.trim().isEmpty()) {
+                        mappingIdentifier = null;
+                    }
                     String targetString = DatabaseHelper.getObjectAsString(dp, targetType);
                     String target = null;
 
@@ -160,13 +182,20 @@ public class JEVisCSVParser implements Parser {
 
                     Integer valueIndex = null;
                     try {
-                        if (valueString != null) {
-                            valueIndex = Integer.parseInt(valueString);
-                            valueIndex--;
+                        if (valueString != null && !valueString.trim().isEmpty()) {
+                            int configuredValueIndex = Integer.parseInt(valueString.trim());
+                            if (configuredValueIndex < 1) {
+                                throw new IllegalArgumentException("Value Index must be 1 or greater; 0 is not valid");
+                            }
+                            valueIndex = configuredValueIndex - 1;
                         }
                     } catch (Exception ex) {
                         logger.warn("DataPoint value index error: {}:{}", dp.getName(), dp.getID(), ex);
-//                    ex.printStackTrace();
+                    }
+                    if (mappingIdentifier == null && valueIndex == null) {
+                        logger.warn("Skipping CSV Data Point {}:{} because neither Mapping Identifier nor a valid Value Index is configured",
+                                dp.getName(), dp.getID());
+                        continue;
                     }
                     DataPoint csvdp = new DataPoint();
                     csvdp.setMappingIdentifier(mappingIdentifier);

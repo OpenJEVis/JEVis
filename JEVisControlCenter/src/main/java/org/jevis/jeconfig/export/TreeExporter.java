@@ -11,6 +11,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,10 +38,7 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -49,9 +50,14 @@ import java.util.zip.ZipOutputStream;
 public class TreeExporter {
 
     private static final Logger logger = LogManager.getLogger(TreeExporter.class);
+    private static final String IMPORTER_REVISION = "2026-10-05-adaptive-upload-v7";
+    private static final String EXPORTER_REVISION = "2026-10-05-adaptive-upload-v7";
     private static final int BUFFER_SIZE = 4096;
+    private static final int SAMPLE_IMPORT_CHUNK_SIZE = 5000;
     private static final String FILE_DATE_FORMAT = "yyyyMMddHHmmss";
+    private static final String FILE_DATE_FORMAT_WITH_MILLIS = "yyyyMMddHHmmssSSS";
     private static final String RELATIONSHIPS_FILE = "relationships.json";
+    private static final String EXPORT_MANIFEST_FILE = "export-manifest.json";
 
     private final String OBJECT_NAME = "name";
     private final String OBJECT_CLASS = "class";
@@ -78,6 +84,59 @@ public class TreeExporter {
         this.mapper.getFactory().disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
     }
 
+    private void showProcessReport(ProcessReport report, Throwable taskFailure) {
+        if (taskFailure != null && report.errors == 0) {
+            report.error(report.operation + " wurde abgebrochen", taskFailure);
+        }
+
+        boolean failed = taskFailure != null;
+        boolean hasProblems = report.errors > 0 || report.warnings > 0;
+        Alert.AlertType type = failed ? Alert.AlertType.ERROR
+                : hasProblems ? Alert.AlertType.WARNING : Alert.AlertType.INFORMATION;
+        Alert alert = new Alert(type);
+        alert.setTitle("JEVis " + report.operation);
+        alert.setHeaderText(failed
+                ? report.operation + " fehlgeschlagen"
+                : report.errors > 0 ? report.operation + " mit Fehlern abgeschlossen"
+                  : report.warnings > 0 ? report.operation + " mit Warnungen abgeschlossen"
+                    : report.operation + " erfolgreich abgeschlossen");
+
+        long seconds = Math.max(0, (System.currentTimeMillis() - report.startedAt) / 1000);
+        String expected = report.expectedObjects > 0 ? " / " + report.expectedObjects : "";
+        alert.setContentText(
+                "Datei: " + report.sourceOrTarget + "\n"
+                        + "Dauer: " + seconds + " s\n"
+                        + "Objekte: " + report.objects + expected + "\n"
+                        + "Attribute: " + report.attributes + "\n"
+                        + "Samples: " + report.samples + "\n"
+                        + "Datei-Samples: " + report.fileSamples + "\n"
+                        + "Beziehungen: " + report.relationships + "\n"
+                        + "Übersprungen: " + report.skipped + "\n"
+                        + "Warnungen: " + report.warnings + "\n"
+                        + "Fehler: " + report.errors);
+
+        if (!report.details.isEmpty()) {
+            String detailText = String.join(System.lineSeparator(), report.details);
+            if (report.omittedDetails > 0) {
+                detailText += System.lineSeparator() + "... " + report.omittedDetails
+                        + " weitere Meldungen (siehe Logdatei)";
+            }
+            TextArea textArea = new TextArea(detailText);
+            textArea.setEditable(false);
+            textArea.setWrapText(true);
+            textArea.setMaxWidth(Double.MAX_VALUE);
+            textArea.setMaxHeight(Double.MAX_VALUE);
+            GridPane.setVgrow(textArea, Priority.ALWAYS);
+            GridPane.setHgrow(textArea, Priority.ALWAYS);
+            GridPane detailPane = new GridPane();
+            detailPane.setMaxWidth(Double.MAX_VALUE);
+            detailPane.add(textArea, 0, 0);
+            alert.getDialogPane().setExpandableContent(detailPane);
+            alert.getDialogPane().setExpanded(hasProblems);
+        }
+        alert.showAndWait();
+    }
+
     /**
      * Creates a JavaFX {@link Task} that imports a previously exported {@code .jex} archive into the
      * JEVis tree as children of {@code parent}.
@@ -95,8 +154,8 @@ public class TreeExporter {
      *   <li><b>File-embedded IDs</b>: Specific file attributes whose content references object
      *       IDs by JSON key are post-processed by {@link #updateTargetsInFiles}. Covered types:
      *       Analysis File, Dashboard Data Model File, Accounting Template File, SCADA Data Model.</li>
-     *   <li><b>Relationships</b>: If the archive contains {@value #RELATIONSHIPS_FILE}, access-control
-     *       relationships (OWNER, MEMBER_*, ROLE_*) are recreated via {@link #importRelationships}.
+     *   <li><b>Relationships</b>: If the archive contains {@value #RELATIONSHIPS_FILE}, exported
+     *       functional and access-control relationships are recreated via {@link #importRelationships}.
      *       Missing the file is silently ignored for backward compatibility with older archives.
      *       Note: {@code PASSWORD_PBKDF2} attributes are intentionally excluded from export, so
      *       imported User objects will have no password — administrators must reset them manually.</li>
@@ -106,13 +165,15 @@ public class TreeExporter {
      * @param parent the JEVis object that will be the parent of all imported root objects
      * @return a Task that performs the import; must be submitted to a thread or executor
      */
-    public Task importFromFile(File file, JEVisObject parent) {
-        return new Task() {
+    public Task<Void> importFromFile(File file, JEVisObject parent) {
+        final ProcessReport report = new ProcessReport("Import", file);
+        return new Task<Void>() {
             @Override
-            protected Void call() {
+            protected Void call() throws Exception {
                 try {
                     logger.info("==========================================");
                     logger.info("importFromFile: {} parent: {}", file, parent);
+                    logger.info("TreeExporter importer revision: {}", IMPORTER_REVISION);
 
                     StringProperty messages = new SimpleStringProperty();
                     messages.addListener((observable, oldValue, newValue) -> updateMessage(newValue));
@@ -124,7 +185,11 @@ public class TreeExporter {
 
                     while (zipFileEntries.hasMoreElements()) {
                         ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
-                        File destFile = new File(tmpDir.toFile(), entry.getName());
+                        Path destinationPath = tmpDir.resolve(entry.getName()).normalize();
+                        if (!destinationPath.startsWith(tmpDir)) {
+                            throw new IOException("Unsafe ZIP entry outside import directory: " + entry.getName());
+                        }
+                        File destFile = destinationPath.toFile();
                         File destinationParent = destFile.getParentFile();
 
                         destinationParent.mkdirs();
@@ -142,24 +207,54 @@ public class TreeExporter {
                     Map<Long, JEVisObject> createdObjects = new HashMap<>();
                     List<JEVisAttribute> fileAttributes = new ArrayList<>();
                     Map<JEVisAttribute, JsonNode> longTargets = new HashMap<>();
+                    Set<Long> archiveObjectIds = collectArchiveObjectIds(tmpDir);
+                    report.expectedObjects = archiveObjectIds.size();
+                    validateExportManifest(tmpDir, archiveObjectIds.size());
 
-                    readTmpFilesToJEVis(messages, tmpDir, parent, createdObjects, targets, fileAttributes, longTargets);
+                    readTmpFilesToJEVis(messages, tmpDir, parent, createdObjects, targets,
+                            fileAttributes, longTargets, report);
+                    if (createdObjects.size() != archiveObjectIds.size()) {
+                        logger.warn("Object import incomplete: {} of {} archive objects were created. See earlier errors for the first rejected class or object.",
+                                createdObjects.size(), archiveObjectIds.size());
+                        report.warning("Nicht alle Objekte wurden erstellt: " + createdObjects.size()
+                                + " von " + archiveObjectIds.size());
+                    } else {
+                        logger.info("Created all {} objects from archive", createdObjects.size());
+                    }
 
-                    updateTargetAttributes(createdObjects, targets);
-                    updateTargetLongAttributes(createdObjects, longTargets);
-                    updateTargetsInFiles(parent.getDataSource(), createdObjects, fileAttributes);
-                    importRelationships(parent.getDataSource(), tmpDir, createdObjects);
+                    updateTargetAttributes(createdObjects, targets, report);
+                    updateTargetLongAttributes(createdObjects, longTargets, report);
+                    updateTargetsInFiles(parent.getDataSource(), createdObjects, archiveObjectIds,
+                            fileAttributes, report);
+                    importRelationships(parent.getDataSource(), tmpDir, createdObjects, archiveObjectIds, report);
 
                     logger.info("All Done");
-                    succeeded();
                 } catch (Exception ex) {
-                    failed();
                     logger.error("Failed extracting files from archive.", ex);
-                } finally {
-                    done();
+                    report.error("Import wurde abgebrochen", ex);
+                    throw ex;
                 }
 
                 return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                super.succeeded();
+                showProcessReport(report, null);
+            }
+
+            @Override
+            protected void failed() {
+                super.failed();
+                showProcessReport(report, getException());
+            }
+
+            @Override
+            protected void cancelled() {
+                super.cancelled();
+                showProcessReport(report,
+                        new java.util.concurrent.CancellationException("Import wurde abgebrochen"));
             }
         };
     }
@@ -188,10 +283,17 @@ public class TreeExporter {
      *
      * @param ds             live datasource used for cross-tree ID fallback lookups
      * @param createdObjects mapping of old (export) object IDs to newly created {@link JEVisObject}s
+     * @param archiveObjectIds IDs represented by object files in the archive; failed archive
+     *                         objects must not fall back to a coincidentally equal target-system ID
      * @param fileAttributes all non-target attributes collected during import; only those with
      *                       recognized names are processed
+     * @param report         accumulates remapping results, warnings and errors for the UI summary
      */
-    private void updateTargetsInFiles(JEVisDataSource ds, Map<Long, JEVisObject> createdObjects, List<JEVisAttribute> fileAttributes) throws JEVisException, IOException {
+    private void updateTargetsInFiles(JEVisDataSource ds,
+                                      Map<Long, JEVisObject> createdObjects,
+                                      Set<Long> archiveObjectIds,
+                                      List<JEVisAttribute> fileAttributes,
+                                      ProcessReport report) throws JEVisException, IOException {
         for (JEVisAttribute fileAttribute : fileAttributes) {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -213,6 +315,9 @@ public class TreeExporter {
                         } else {
                             logger.warn("Cannot resolve ChartData id {} in Analysis File of object {}",
                                     oldId, fileAttribute.getObject().getID());
+                            report.warning("ChartData-ID " + oldId + " in Analysis File von Objekt "
+                                    + fileAttribute.getObject().getID() + " konnte nicht aufgelöst werden");
+                            report.skipped++;
                         }
 
                         // Remap calculation object ID when the series uses a formula
@@ -224,6 +329,9 @@ public class TreeExporter {
                             } else {
                                 logger.warn("Cannot resolve calculationId {} in Analysis File of object {}",
                                         oldCalcId, fileAttribute.getObject().getID());
+                                report.warning("Calculation-ID " + oldCalcId + " in Analysis File von Objekt "
+                                        + fileAttribute.getObject().getID() + " konnte nicht aufgelöst werden");
+                                report.skipped++;
                             }
                         }
                     }
@@ -232,70 +340,41 @@ public class TreeExporter {
                 analysisHandler.saveDataModel(fileAttribute.getObject(), dataModel);
 
             } else if (fileAttribute.getName().equals(JC.DashboardAnalysis.a_DataModelFile)) {
-                JEVisSample latestSample = fileAttribute.getLatestSample();
-
-                if (latestSample != null) {
-                    JEVisFile file = latestSample.getValueAsFile();
-
-                    if (file != null && file.getBytes() != null && file.getBytes().length > 0) {
-                        JsonNode jsonNode = mapper.readTree(file.getBytes());
-                        String json = jsonNode.toPrettyString();
-
-                        // Remap "id" — primary data object references in chart data
-                        for (JsonNode id : jsonNode.findValues("id")) {
-                            JEVisObject obj = resolveObject(ds, createdObjects, id.asLong());
-                            if (obj != null) {
-                                json = json.replace("\"id\" : " + id, "\"id\" : " + obj.getID());
-                            }
-                        }
-
-                        // Remap "calculationId" — formula/calculation object references
-                        for (JsonNode calcId : jsonNode.findValues("calculationId")) {
-                            long oldCalcId = calcId.asLong(-1);
-                            if (oldCalcId > 0) {
-                                JEVisObject obj = resolveObject(ds, createdObjects, oldCalcId);
-                                if (obj != null) {
-                                    json = json.replace("\"calculationId\" : " + oldCalcId,
-                                            "\"calculationId\" : " + obj.getID());
-                                }
-                            }
-                        }
-
-                        // Remap "dashboardObject" — DashboardLinkerNode references to other dashboards
-                        for (JsonNode dashObj : jsonNode.findValues("dashboardObject")) {
-                            long oldDashId = dashObj.asLong(-1);
-                            if (oldDashId > 0) {
-                                JEVisObject obj = resolveObject(ds, createdObjects, oldDashId);
-                                if (obj != null) {
-                                    json = json.replace("\"dashboardObject\" : " + oldDashId,
-                                            "\"dashboardObject\" : " + obj.getID());
-                                }
-                            }
-                        }
-
-                        // Remap "objectID" — ImageConfig file-object references (stored as JSON string)
-                        for (JsonNode objIdNode : jsonNode.findValues("objectID")) {
-                            long oldObjId = objIdNode.asLong(-1);
-                            if (oldObjId > 0) {
-                                JEVisObject obj = resolveObject(ds, createdObjects, oldObjId);
-                                if (obj != null) {
-                                    // ImageConfig serializes the Long as a JSON string value
-                                    json = json.replace("\"objectID\" : \"" + oldObjId + "\"",
-                                            "\"objectID\" : \"" + obj.getID() + "\"");
-                                    // Handle numeric form used by other widgets
-                                    json = json.replace("\"objectID\" : " + oldObjId,
-                                            "\"objectID\" : " + obj.getID());
-                                }
-                            }
-                        }
-
-                        JEVisFileImp jsonFile = new JEVisFileImp(
-                                file.getFilename(),
-                                json.getBytes(StandardCharsets.UTF_8)
-                        );
-                        JEVisSample newSample = fileAttribute.buildSample(new DateTime(), jsonFile);
-                        newSample.commit();
+                try {
+                    JEVisSample latestSample = fileAttribute.getLatestSample();
+                    if (latestSample == null) {
+                        report.warning("Dashboard " + fileAttribute.getObject().getID()
+                                + " besitzt nach dem Import kein Data-Model-Sample");
+                        continue;
                     }
+
+                    JEVisFile file = latestSample.getValueAsFile();
+                    if (file == null || file.getBytes() == null || file.getBytes().length == 0) {
+                        report.error("Data Model File von Dashboard "
+                                + fileAttribute.getObject().getID() + " enthält keine Daten", null);
+                        continue;
+                    }
+
+                    JsonNode jsonNode = mapper.readTree(file.getBytes());
+                    Map<Long, Long> resolvedIds = new HashMap<>();
+                    Set<Long> warnedUnresolvedIds = new HashSet<>();
+                    int remapped = remapDashboardReferences(jsonNode, null, ds, createdObjects,
+                            archiveObjectIds, resolvedIds, warnedUnresolvedIds, report,
+                            fileAttribute.getObject().getID());
+                    report.info("Dashboard " + fileAttribute.getObject().getID() + ": "
+                            + remapped + " Objekt-ID-Referenzen umgesetzt");
+
+                    JEVisFileImp jsonFile = new JEVisFileImp(
+                            file.getFilename(),
+                            mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(jsonNode)
+                    );
+                    JEVisSample newSample = fileAttribute.buildSample(new DateTime(), jsonFile);
+                    newSample.commit();
+                } catch (Exception e) {
+                    logger.error("Failed to remap Dashboard Data Model File for object {}",
+                            fileAttribute.getObject().getID(), e);
+                    report.error("Dashboard Data Model File von Objekt "
+                            + fileAttribute.getObject().getID() + " konnte nicht umgesetzt werden", e);
                 }
 
             } else if (fileAttribute.getName().equals(JC.AccountingConfiguration.a_TemplateFile)) {
@@ -316,6 +395,9 @@ public class TreeExporter {
                             } else {
                                 logger.warn("Cannot resolve templateSelection id {} in Template File of object {}",
                                         oldTemplateId, fileAttribute.getObject().getID());
+                                report.warning("Template-ID " + oldTemplateId + " in Objekt "
+                                        + fileAttribute.getObject().getID() + " konnte nicht aufgelöst werden");
+                                report.skipped++;
                             }
                         }
 
@@ -329,6 +411,9 @@ public class TreeExporter {
                                 } else {
                                     logger.warn("Cannot resolve TemplateInput objectID {} in Template File of object {}",
                                             oldId, fileAttribute.getObject().getID());
+                                    report.warning("TemplateInput-ID " + oldId + " in Objekt "
+                                            + fileAttribute.getObject().getID() + " konnte nicht aufgelöst werden");
+                                    report.skipped++;
                                 }
                             }
                         }
@@ -342,6 +427,9 @@ public class TreeExporter {
                                 } catch (Exception e) {
                                     logger.warn("Cannot remap accounting output target '{}' on object {}",
                                             output.getTarget(), fileAttribute.getObject().getID(), e);
+                                    report.warning("Accounting-Ziel '" + output.getTarget()
+                                            + "' konnte nicht umgesetzt werden");
+                                    report.skipped++;
                                 }
                             }
                         }
@@ -356,6 +444,8 @@ public class TreeExporter {
                 } catch (Exception e) {
                     logger.error("Failed to remap Template File for object {}",
                             fileAttribute.getObject().getID(), e);
+                    report.error("Template File von Objekt " + fileAttribute.getObject().getID()
+                            + " konnte nicht umgesetzt werden", e);
                 }
 
             } else if (fileAttribute.getName().equals(SCADAPlugin.ATTRIBUTE_DATA_MODEL)
@@ -381,6 +471,9 @@ public class TreeExporter {
                                     } else {
                                         logger.warn("Cannot resolve SCADA objectID {} in Data Model of object {}",
                                                 oldId, fileAttribute.getObject().getID());
+                                        report.warning("SCADA-Objekt-ID " + oldId + " in Objekt "
+                                                + fileAttribute.getObject().getID() + " konnte nicht aufgelöst werden");
+                                        report.skipped++;
                                     }
                                 }
                             }
@@ -394,8 +487,161 @@ public class TreeExporter {
                 } catch (Exception e) {
                     logger.error("Failed to remap SCADA Data Model for object {}",
                             fileAttribute.getObject().getID(), e);
+                    report.error("SCADA Data Model von Objekt " + fileAttribute.getObject().getID()
+                            + " konnte nicht umgesetzt werden", e);
                 }
             }
+        }
+    }
+
+    /**
+     * Rewrites JEVis object references in a dashboard JSON tree without touching unrelated IDs
+     * such as widget UUIDs or TimeFrameWidget selected-widget IDs.
+     *
+     * <p>Supported dashboard formats:
+     * <ul>
+     *   <li>Current AnalysisHandler data series: {@code chartData[].id} and
+     *       {@code chartData[].calculationId}</li>
+     *   <li>Legacy SimpleDataHandler rows: {@code objectID}, {@code cleanObjectID} and
+     *       {@code calculationID}</li>
+     *   <li>Dashboard links and image/file references: {@code dashboardObject} and
+     *       {@code objectID}</li>
+     *   <li>NetGraph and Sankey rows, including Sankey {@code children}</li>
+     * </ul>
+     * Numeric JSON values remain numeric and string values remain strings.
+     */
+    private int remapDashboardReferences(JsonNode node,
+                                         String containerName,
+                                         JEVisDataSource ds,
+                                         Map<Long, JEVisObject> createdObjects,
+                                         Set<Long> archiveObjectIds,
+                                         Map<Long, Long> resolvedIds,
+                                         Set<Long> warnedUnresolvedIds,
+                                         ProcessReport report,
+                                         long dashboardObjectId) {
+        if (node == null) return 0;
+
+        int remapped = 0;
+        if (node.isObject()) {
+            ObjectNode objectNode = (ObjectNode) node;
+            List<String> fieldNames = new ArrayList<>();
+            objectNode.fieldNames().forEachRemaining(fieldNames::add);
+
+            for (String fieldName : fieldNames) {
+                JsonNode value = objectNode.get(fieldName);
+                if (isDashboardReferenceField(fieldName, containerName)) {
+                    remapped += remapDashboardReference(objectNode, fieldName, value, ds,
+                            createdObjects, archiveObjectIds, resolvedIds, warnedUnresolvedIds,
+                            report, dashboardObjectId);
+                } else if ("children".equals(fieldName)
+                        && "sankeyDataRows".equals(containerName) && value != null && value.isArray()) {
+                    remapped += remapDashboardReferenceArray((ArrayNode) value, ds, createdObjects,
+                            archiveObjectIds, resolvedIds, warnedUnresolvedIds, report,
+                            dashboardObjectId, "sankeyDataRows[].children");
+                }
+
+                remapped += remapDashboardReferences(value, fieldName, ds, createdObjects,
+                        archiveObjectIds, resolvedIds, warnedUnresolvedIds, report,
+                        dashboardObjectId);
+            }
+        } else if (node.isArray()) {
+            for (JsonNode child : node) {
+                remapped += remapDashboardReferences(child, containerName, ds, createdObjects,
+                        archiveObjectIds, resolvedIds, warnedUnresolvedIds, report,
+                        dashboardObjectId);
+            }
+        }
+        return remapped;
+    }
+
+    private boolean isDashboardReferenceField(String fieldName, String containerName) {
+        if ("objectID".equals(fieldName)
+                || "cleanObjectID".equals(fieldName)
+                || "calculationID".equals(fieldName)
+                || "calculationId".equals(fieldName)
+                || "dashboardObject".equals(fieldName)) {
+            return true;
+        }
+
+        return "id".equals(fieldName)
+                && ("chartData".equals(containerName)
+                || "netGraphDataRows".equals(containerName)
+                || "sankeyDataRows".equals(containerName));
+    }
+
+    private int remapDashboardReference(ObjectNode parent,
+                                        String fieldName,
+                                        JsonNode value,
+                                        JEVisDataSource ds,
+                                        Map<Long, JEVisObject> createdObjects,
+                                        Set<Long> archiveObjectIds,
+                                        Map<Long, Long> resolvedIds,
+                                        Set<Long> warnedUnresolvedIds,
+                                        ProcessReport report,
+                                        long dashboardObjectId) {
+        if (value == null || (!value.isNumber() && !value.isTextual())) return 0;
+        long oldId = value.asLong(-1);
+        if (oldId <= 0) return 0;
+
+        long newId = resolveIdForRelationship(ds, createdObjects, archiveObjectIds, resolvedIds, oldId);
+        if (newId <= 0) {
+            warnUnresolvedDashboardReference(oldId, fieldName, dashboardObjectId,
+                    warnedUnresolvedIds, report);
+            report.skipped++;
+            return 0;
+        }
+
+        if (value.isTextual()) {
+            parent.put(fieldName, Long.toString(newId));
+        } else {
+            parent.put(fieldName, newId);
+        }
+        return newId != oldId ? 1 : 0;
+    }
+
+    private int remapDashboardReferenceArray(ArrayNode values,
+                                             JEVisDataSource ds,
+                                             Map<Long, JEVisObject> createdObjects,
+                                             Set<Long> archiveObjectIds,
+                                             Map<Long, Long> resolvedIds,
+                                             Set<Long> warnedUnresolvedIds,
+                                             ProcessReport report,
+                                             long dashboardObjectId,
+                                             String fieldName) {
+        int remapped = 0;
+        for (int i = 0; i < values.size(); i++) {
+            JsonNode value = values.get(i);
+            if (value == null || (!value.isNumber() && !value.isTextual())) continue;
+            long oldId = value.asLong(-1);
+            if (oldId <= 0) continue;
+
+            long newId = resolveIdForRelationship(ds, createdObjects, archiveObjectIds,
+                    resolvedIds, oldId);
+            if (newId <= 0) {
+                warnUnresolvedDashboardReference(oldId, fieldName, dashboardObjectId,
+                        warnedUnresolvedIds, report);
+                report.skipped++;
+                continue;
+            }
+
+            values.set(i, value.isTextual()
+                    ? JsonNodeFactory.instance.textNode(Long.toString(newId))
+                    : JsonNodeFactory.instance.numberNode(newId));
+            if (newId != oldId) remapped++;
+        }
+        return remapped;
+    }
+
+    private void warnUnresolvedDashboardReference(long oldId,
+                                                  String fieldName,
+                                                  long dashboardObjectId,
+                                                  Set<Long> warnedUnresolvedIds,
+                                                  ProcessReport report) {
+        if (warnedUnresolvedIds.add(oldId)) {
+            String text = "Dashboard " + dashboardObjectId + ": Referenz " + fieldName
+                    + " mit alter Objekt-ID " + oldId + " konnte nicht aufgelöst werden";
+            logger.warn(text);
+            report.warning(text);
         }
     }
 
@@ -411,7 +657,9 @@ public class TreeExporter {
      * @param createdObjects mapping of old (export) object IDs to newly created {@link JEVisObject}s
      * @param targets        deferred target attributes and their exported sample JSON nodes
      */
-    private void updateTargetAttributes(Map<Long, JEVisObject> createdObjects, Map<JEVisAttribute, JsonNode> targets) {
+    private void updateTargetAttributes(Map<Long, JEVisObject> createdObjects,
+                                        Map<JEVisAttribute, JsonNode> targets,
+                                        ProcessReport report) {
         for (Map.Entry<JEVisAttribute, JsonNode> entry : targets.entrySet()) {
             JEVisAttribute jeVisAttribute = entry.getKey();
             JsonNode jsonNode = entry.getValue();
@@ -447,15 +695,21 @@ public class TreeExporter {
                     jeVisSamples.add(sample);
                 } catch (Exception ex) {
                     logger.error("Error while creating Target sample: {}", jSample, ex);
+                    report.error("Target-Sample konnte nicht aufgebaut werden: " + jSample, ex);
+                    report.skipped++;
                 }
             }
 
             try {
                 if (!jeVisSamples.isEmpty()) {
-                    jeVisAttribute.addSamples(jeVisSamples);
+                    addSamplesInChunks(jeVisAttribute, jeVisSamples);
+                    report.samples += jeVisSamples.size();
                 }
             } catch (Exception e) {
                 logger.error(e);
+                report.error("Target-Samples für Objekt " + jeVisAttribute.getObject().getID()
+                        + ", Attribut '" + jeVisAttribute.getName() + "' konnten nicht gespeichert werden", e);
+                report.skipped += jeVisSamples.size();
             }
         }
     }
@@ -472,7 +726,9 @@ public class TreeExporter {
      * @param createdObjects mapping of old (export) object IDs to newly created {@link JEVisObject}s
      * @param longTargets    deferred BASIC_TARGET_LONG attributes and their exported sample JSON nodes
      */
-    private void updateTargetLongAttributes(Map<Long, JEVisObject> createdObjects, Map<JEVisAttribute, JsonNode> longTargets) {
+    private void updateTargetLongAttributes(Map<Long, JEVisObject> createdObjects,
+                                            Map<JEVisAttribute, JsonNode> longTargets,
+                                            ProcessReport report) {
         for (Map.Entry<JEVisAttribute, JsonNode> entry : longTargets.entrySet()) {
             JEVisAttribute jeVisAttribute = entry.getKey();
             JsonNode jSamples = entry.getValue();
@@ -497,20 +753,349 @@ public class TreeExporter {
                     } else {
                         logger.warn("Cannot resolve BASIC_TARGET_LONG id {} for attribute '{}' on object {}",
                                 oldId, jeVisAttribute.getName(), jeVisAttribute.getObject().getID());
+                        report.warning("Ziel-ID " + oldId + " für Attribut '"
+                                + jeVisAttribute.getName() + "' konnte nicht aufgelöst werden");
+                        report.skipped++;
                     }
                 } catch (Exception ex) {
                     logger.error("Error remapping BASIC_TARGET_LONG sample: {}", jSample, ex);
+                    report.error("Long-Target-Sample konnte nicht umgesetzt werden: " + jSample, ex);
+                    report.skipped++;
                 }
             }
 
             try {
                 if (!samples.isEmpty()) {
-                    jeVisAttribute.addSamples(samples);
+                    addSamplesInChunks(jeVisAttribute, samples);
+                    report.samples += samples.size();
                 }
             } catch (Exception e) {
                 logger.error("Failed to commit BASIC_TARGET_LONG samples for attribute '{}'",
                         jeVisAttribute.getName(), e);
+                report.error("Long-Target-Samples für Attribut '" + jeVisAttribute.getName()
+                        + "' konnten nicht gespeichert werden", e);
+                report.skipped += samples.size();
             }
+        }
+    }
+
+    /**
+     * Reads the extracted ZIP contents from {@code directory} recursively and creates JEVis objects
+     * and attribute samples on the server.
+     *
+     * <p>Three types of entries are processed per directory level:
+     * <ol>
+     *   <li><b>Object JSON files</b> ({@code o_<id>.json}): a new JEVis object is created under
+     *       {@code parent}; the mapping {@code oldId → newObject} is stored in {@code createdObjects}.</li>
+     *   <li><b>Attribute JSON files</b> ({@code a_<id>_<attrName>.json}): non-FILE, non-PASSWORD
+     *       attribute metadata and samples are applied to the corresponding newly created object.
+     *       Attributes with display types {@link GUIConstants#TARGET_OBJECT},
+     *       {@link GUIConstants#TARGET_ATTRIBUTE}, or {@link GUIConstants#BASIC_TARGET_LONG} are
+     *       deferred to {@code targets} or {@code longTargets} for ID remapping after all objects
+     *       are created. All other attributes are added to {@code fileAttributes} for potential
+     *       content-level remapping in {@link #updateTargetsInFiles}.</li>
+     *   <li><b>Attribute directories</b> ({@code a_<id>_<attrName>/}): FILE-type attribute samples
+     *       are reconstructed from the contained timestamp sub-directories and files. These attributes
+     *       are also added to {@code fileAttributes} so {@link #updateTargetsInFiles} can post-process
+     *       their content (e.g. Analysis File, Data Model File, Template File).</li>
+     * </ol>
+     * Numeric sub-directories ({@code <id>/}) trigger recursive calls for child objects.
+     *
+     * @param message        property used to push status messages to the UI task
+     * @param directory      current directory to process
+     * @param parent         JEVis object under which new objects at this level are created
+     * @param createdObjects accumulates old-ID → new-object mappings across all recursive calls
+     * @param targets        accumulates deferred TARGET_OBJECT / TARGET_ATTRIBUTE attribute samples
+     * @param fileAttributes accumulates all non-deferred attributes for {@link #updateTargetsInFiles}
+     * @param longTargets    accumulates deferred BASIC_TARGET_LONG attribute samples
+     */
+    private void readTmpFilesToJEVis(StringProperty message,
+                                     Path directory,
+                                     JEVisObject parent,
+                                     Map<Long, JEVisObject> createdObjects,
+                                     Map<JEVisAttribute, JsonNode> targets,
+                                     List<JEVisAttribute> fileAttributes,
+                                     Map<JEVisAttribute, JsonNode> longTargets,
+                                     ProcessReport report) {
+        try {
+            Set<Path> objectFiles = listObjectFiles(directory);
+
+            for (Path objectPath : objectFiles) {
+                try {
+                    JsonNode jsonObjectNode = mapper.readTree(objectPath.toFile());
+
+                    logger.info("Create Object: {} [{}]", jsonObjectNode.get(OBJECT_NAME), jsonObjectNode.get(OBJECT_CLASS));
+                    message.setValue("Create Object " + jsonObjectNode.get(OBJECT_NAME) + "[" + jsonObjectNode.get(OBJECT_CLASS) + "]");
+
+                    JEVisClass objClass = parent.getDataSource().getJEVisClass(jsonObjectNode.get(OBJECT_CLASS).asText());
+
+                    if (objClass == null) {
+                        logger.error("Class does not exist, skipping object file: {}", objectPath);
+                        report.error("Klasse fehlt; Objektdatei wird übersprungen: " + objectPath, null);
+                        report.skipped++;
+                        continue;
+                    }
+
+                    if (!parent.getAllowedChildrenClasses().contains(objClass)) {
+                        logger.error("Class '{}' is not allowed under '{}' (object file: {})",
+                                objClass.getName(), parent.getJEVisClassName(), objectPath);
+                        report.error("Klasse '" + objClass.getName() + "' ist unter '"
+                                + parent.getJEVisClassName() + "' nicht erlaubt: " + objectPath, null);
+                        report.skipped++;
+                        continue;
+                    }
+
+                    JEVisObject jeVisObject = parent.buildObject(jsonObjectNode.get(OBJECT_NAME).asText(), objClass);
+                    jeVisObject.commit();
+                    Thread.sleep(500);
+
+                    createdObjects.put(
+                            Long.parseLong(FilenameUtils.removeExtension(objectPath.getFileName().toString()).substring(2)),
+                            jeVisObject
+                    );
+                    report.objects++;
+
+                    if (jsonObjectNode.get(OBJECT_LANG) != null && jsonObjectNode.get(OBJECT_LANG).isArray()) {
+                        for (JsonNode jsonNode1 : jsonObjectNode.get(OBJECT_LANG)) {
+                            jsonNode1.fieldNames().forEachRemaining(s -> jeVisObject.setLocalName(s, jsonNode1.get(s).asText()));
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("Failed to import object file {}. Other objects will still be attempted.", objectPath, e);
+                    report.error("Objektdatei konnte nicht importiert werden: " + objectPath, e);
+                    report.skipped++;
+                }
+            }
+
+            // Build the complete object tree before importing attributes. Previously, an exception
+            // in one attribute prevented this recursion and silently dropped the whole subtree.
+            Set<Path> objectFolders = listObjectFolders(directory);
+
+            for (Path objectFolderPath : objectFolders) {
+                try {
+                    long oldObjectId = Long.parseLong(objectFolderPath.getFileName().toString());
+                    JEVisObject correspondingJEVisObject = createdObjects.get(oldObjectId);
+
+                    if (correspondingJEVisObject == null) {
+                        logger.error("Could not find created parent object for imported folder id {}. Subtree {} cannot be imported.",
+                                oldObjectId, objectFolderPath);
+                        report.error("Übergeordnetes Objekt " + oldObjectId
+                                + " fehlt; Teilbaum wird übersprungen: " + objectFolderPath, null);
+                        report.skipped++;
+                        continue;
+                    }
+
+                    readTmpFilesToJEVis(message, objectFolderPath, correspondingJEVisObject,
+                            createdObjects, targets, fileAttributes, longTargets, report);
+                } catch (Exception e) {
+                    logger.error("Failed to import object subtree {}. Other subtrees will still be attempted.",
+                            objectFolderPath, e);
+                    report.error("Teilbaum konnte nicht importiert werden: " + objectFolderPath, e);
+                    report.skipped++;
+                }
+            }
+
+            Set<Path> attributeFiles = listAttributeFiles(directory);
+
+            for (Path attributePath : attributeFiles) {
+                try {
+                    JsonNode jsonAttributeNode = mapper.readTree(attributePath.toFile());
+                    String attributeFileString = FilenameUtils
+                            .removeExtension(Paths.get(attributePath.getFileName().toString()).getFileName().toString())
+                            .replaceFirst("a_", "");
+                    int indexOf = attributeFileString.indexOf("_");
+                    long oldObjectId = Long.parseLong(attributeFileString.substring(0, indexOf));
+
+                    JEVisObject correspondingJEVisObject = createdObjects.get(oldObjectId);
+                    if (correspondingJEVisObject == null) {
+                        logger.error("Could not find created object for imported id {} (attribute file: {})",
+                                oldObjectId, attributePath);
+                        report.error("Objekt " + oldObjectId + " für Attributdatei fehlt: " + attributePath, null);
+                        report.skipped++;
+                        continue;
+                    }
+
+                    JsonNode attributeNameNode = jsonAttributeNode.get(ATTRIBUTE_NAME);
+                    if (attributeNameNode == null || attributeNameNode.asText().trim().isEmpty()) {
+                        logger.error("Attribute file {} has no valid '{}' field", attributePath, ATTRIBUTE_NAME);
+                        report.error("Attributdatei enthält keinen gültigen Namen: " + attributePath, null);
+                        report.skipped++;
+                        continue;
+                    }
+
+                    String attributeName = attributeNameNode.asText();
+                    logger.info("Creating Attribute: {}", attributeName);
+                    JEVisAttribute jevisAttribute = correspondingJEVisObject.getAttribute(attributeName);
+                    if (jevisAttribute == null) {
+                        logger.warn("Attribute '{}' from {} does not exist on imported object {}:{} and will be skipped",
+                                attributeName, attributePath, correspondingJEVisObject.getName(), correspondingJEVisObject.getID());
+                        report.warning("Attribut '" + attributeName + "' existiert am Zielobjekt nicht: " + attributePath);
+                        report.skipped++;
+                        continue;
+                    }
+
+                    if (jsonAttributeNode.get(ATTRIBUTE_UNIT) != null) {
+                        JsonNode unit = jsonAttributeNode.get(ATTRIBUTE_UNIT);
+                        String unitString = mapper.writeValueAsString(unit);
+                        JEVisUnitImp jevUnitImp = new JEVisUnitImp(mapper.readValue(unitString, org.jevis.commons.ws.json.JsonUnit.class));
+                        jevisAttribute.setInputUnit(jevUnitImp);
+                        jevisAttribute.setDisplayUnit(jevUnitImp);
+                    }
+
+                    if (jsonAttributeNode.get(ATTRIBUTE_RATE) != null) {
+                        jevisAttribute.setInputSampleRate(Period.parse(jsonAttributeNode.get(ATTRIBUTE_RATE).asText()));
+                        jevisAttribute.setDisplaySampleRate(Period.parse(jsonAttributeNode.get(ATTRIBUTE_RATE).asText()));
+                    }
+
+                    jevisAttribute.commit();
+                    Thread.sleep(500);
+                    report.attributes++;
+
+                    JsonNode jSamples = jsonAttributeNode.get(ATTRIBUTE_SAMPLES);
+                    if (jSamples != null && jSamples.isArray()) {
+                        List<JEVisSample> jeVisSamples = new ArrayList<>();
+                        JEVisType type = jevisAttribute.getType();
+                        String guiDisplayType = type.getGUIDisplayType();
+
+                        if (guiDisplayType != null) {
+                            if (guiDisplayType.equals(GUIConstants.TARGET_OBJECT.getId())
+                                    || guiDisplayType.equals(GUIConstants.TARGET_ATTRIBUTE.getId())) {
+                                targets.put(jevisAttribute, jSamples);
+                                continue;
+                            }
+                            if (guiDisplayType.equals(GUIConstants.BASIC_TARGET_LONG.getId())) {
+                                longTargets.put(jevisAttribute, jSamples);
+                                continue;
+                            }
+                        }
+
+                        for (JsonNode jSample : jSamples) {
+                            try {
+                                DateTime dateTime = DateTime.parse(jSample.get(SAMPLE_TS).asText());
+                                JsonNode noteNode = jSample.get(NOTE);
+                                JEVisSample sample = jevisAttribute.buildSample(
+                                        dateTime,
+                                        jSample.get(SAMPLE_VALUE).asText(),
+                                        noteNode != null && !noteNode.isNull() ? noteNode.asText() : ""
+                                );
+                                jeVisSamples.add(sample);
+                            } catch (Exception ex) {
+                                logger.error("Error while creating sample from {} in {}", jSample, attributePath, ex);
+                                report.error("Sample konnte nicht aufgebaut werden in " + attributePath, ex);
+                                report.skipped++;
+                            }
+                        }
+
+                        if (!jeVisSamples.isEmpty()) {
+                            addSamplesInChunks(jevisAttribute, jeVisSamples);
+                            report.samples += jeVisSamples.size();
+                        }
+                    }
+
+                    fileAttributes.add(jevisAttribute);
+                } catch (Exception e) {
+                    logger.error("Failed to import attribute file {}. Other attributes and subtrees remain unaffected.",
+                            attributePath, e);
+                    report.error("Attributdatei konnte nicht importiert werden: " + attributePath, e);
+                    report.skipped++;
+                }
+            }
+
+            Set<Path> folderPaths = listFileFolders(directory);
+
+            for (Path folderPath : folderPaths) {
+                try {
+                    String objectString = folderPath.getFileName().toString().substring(2);
+                    String folderName = Paths.get(objectString).getFileName().toString();
+                    int indexOf = folderName.indexOf("_");
+                    long oldObjectId = Long.parseLong(folderName.substring(0, indexOf));
+                    String attributeString = folderName.substring(indexOf + 1);
+
+                    JEVisObject correspondingJEVisObject = createdObjects.get(oldObjectId);
+                    if (correspondingJEVisObject == null) {
+                        logger.error("Could not find created object for imported id {} (file attribute folder: {})",
+                                oldObjectId, folderPath);
+                        report.error("Objekt " + oldObjectId + " für Datei-Attribut fehlt: " + folderPath, null);
+                        report.skipped++;
+                        continue;
+                    }
+
+                    JEVisAttribute jevisAttribute = correspondingJEVisObject.getAttribute(attributeString);
+                    if (jevisAttribute == null) {
+                        logger.warn("File attribute '{}' from {} does not exist on imported object {}:{} and will be skipped",
+                                attributeString, folderPath, correspondingJEVisObject.getName(), correspondingJEVisObject.getID());
+                        report.warning("Datei-Attribut '" + attributeString
+                                + "' existiert am Zielobjekt nicht: " + folderPath);
+                        report.skipped++;
+                        continue;
+                    }
+                    report.attributes++;
+
+                    List<JEVisSample> fileSamples = new ArrayList<>();
+                    Set<Path> fileDateFolders = listFileDateTimeFolders(folderPath);
+
+                    for (Path fileDateFolderPath : fileDateFolders) {
+                        try {
+                            File[] files = fileDateFolderPath.toFile().listFiles();
+                            if (files == null) {
+                                continue;
+                            }
+
+                            for (File listFile : files) {
+                                DateTime dateTime = parseFileSampleTimestamp(
+                                        fileDateFolderPath.getFileName().toString());
+                                JEVisFile jeVisFile = new JEVisFileImp(listFile.getName(), listFile);
+                                fileSamples.add(jevisAttribute.buildSample(dateTime, jeVisFile));
+                            }
+                        } catch (Exception e) {
+                            logger.error("Failed to import file samples from {}", fileDateFolderPath, e);
+                            report.error("Datei-Samples konnten nicht gelesen werden: " + fileDateFolderPath, e);
+                            report.skipped++;
+                        }
+                    }
+
+                    if (!fileSamples.isEmpty()) {
+                        addSamplesInChunks(jevisAttribute, fileSamples);
+                        report.fileSamples += fileSamples.size();
+                    }
+                    // Register FILE attributes for content-level ID remapping (e.g. Analysis File,
+                    // Data Model File, Template File) — these go through updateTargetsInFiles().
+                    fileAttributes.add(jevisAttribute);
+                } catch (Exception e) {
+                    logger.error("Failed to import file attribute folder {}. Other attributes and subtrees remain unaffected.",
+                            folderPath, e);
+                    report.error("Datei-Attributordner konnte nicht importiert werden: " + folderPath, e);
+                    report.skipped++;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Failed to read import directory {}", directory, e);
+            report.error("Importverzeichnis konnte nicht gelesen werden: " + directory, e);
+        }
+    }
+
+    /**
+     * Returns every object ID represented by an {@code o_<id>.json} entry in the archive.
+     * This lets relationship import distinguish an external reference from an archive object
+     * whose creation failed, avoiding pointless HTTP lookups for the latter.
+     */
+    private Set<Long> collectArchiveObjectIds(Path root) throws IOException {
+        try (Stream<Path> stream = Files.walk(root)) {
+            return stream
+                    .filter(Files::isRegularFile)
+                    .map(path -> path.getFileName().toString())
+                    .filter(name -> name.startsWith("o_") && name.endsWith(".json"))
+                    .map(name -> name.substring(2, name.length() - 5))
+                    .map(value -> {
+                        try {
+                            return Long.parseLong(value);
+                        } catch (NumberFormatException e) {
+                            logger.warn("Ignoring object file with invalid id: o_{}.json", value);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
         }
     }
 
@@ -572,219 +1157,96 @@ public class TreeExporter {
         throw new JEVisException("Cannot resolve target object id: " + objectId, 145415);
     }
 
+    private void validateExportManifest(Path root, int actualObjectFiles) throws IOException {
+        Path manifestPath = root.resolve(EXPORT_MANIFEST_FILE);
+        if (!Files.exists(manifestPath)) {
+            logger.info("No {} in archive; importing legacy export without completeness metadata",
+                    EXPORT_MANIFEST_FILE);
+            return;
+        }
+
+        JsonNode manifest = mapper.readTree(manifestPath.toFile());
+        boolean complete = manifest.path("complete").asBoolean(false);
+        long expected = manifest.path("objectsExpected").asLong(-1);
+        long written = manifest.path("objectsWritten").asLong(-1);
+        if (!complete || expected < 0 || written != expected || actualObjectFiles != written) {
+            throw new IOException("Export manifest validation failed: complete=" + complete
+                    + ", expected=" + expected + ", written=" + written
+                    + ", objectFiles=" + actualObjectFiles);
+        }
+        logger.info("Validated export manifest: {} complete objects, {} scalar samples, {} file samples, {} relationships",
+                written,
+                manifest.path("samplesWritten").asLong(0),
+                manifest.path("fileSamplesWritten").asLong(0),
+                manifest.path("relationshipsWritten").asLong(0));
+    }
+
     /**
-     * Reads the extracted ZIP contents from {@code directory} recursively and creates JEVis objects
-     * and attribute samples on the server.
-     *
-     * <p>Three types of entries are processed per directory level:
-     * <ol>
-     *   <li><b>Object JSON files</b> ({@code o_<id>.json}): a new JEVis object is created under
-     *       {@code parent}; the mapping {@code oldId → newObject} is stored in {@code createdObjects}.</li>
-     *   <li><b>Attribute JSON files</b> ({@code a_<id>_<attrName>.json}): non-FILE, non-PASSWORD
-     *       attribute metadata and samples are applied to the corresponding newly created object.
-     *       Attributes with display types {@link GUIConstants#TARGET_OBJECT},
-     *       {@link GUIConstants#TARGET_ATTRIBUTE}, or {@link GUIConstants#BASIC_TARGET_LONG} are
-     *       deferred to {@code targets} or {@code longTargets} for ID remapping after all objects
-     *       are created. All other attributes are added to {@code fileAttributes} for potential
-     *       content-level remapping in {@link #updateTargetsInFiles}.</li>
-     *   <li><b>Attribute directories</b> ({@code a_<id>_<attrName>/}): FILE-type attribute samples
-     *       are reconstructed from the contained timestamp sub-directories and files. These attributes
-     *       are also added to {@code fileAttributes} so {@link #updateTargetsInFiles} can post-process
-     *       their content (e.g. Analysis File, Data Model File, Template File).</li>
-     * </ol>
-     * Numeric sub-directories ({@code <id>/}) trigger recursive calls for child objects.
-     *
-     * @param message        property used to push status messages to the UI task
-     * @param directory      current directory to process
-     * @param parent         JEVis object under which new objects at this level are created
-     * @param createdObjects accumulates old-ID → new-object mappings across all recursive calls
-     * @param targets        accumulates deferred TARGET_OBJECT / TARGET_ATTRIBUTE attribute samples
-     * @param fileAttributes accumulates all non-deferred attributes for {@link #updateTargetsInFiles}
-     * @param longTargets    accumulates deferred BASIC_TARGET_LONG attribute samples
+     * Persists samples in bounded requests. A complete historic Value attribute can contain
+     * hundreds of thousands of samples; sending it as one JSON request can exceed the proxy or
+     * web-service request limit and previously resulted in the whole attribute being lost.
      */
-    private void readTmpFilesToJEVis(StringProperty message,
-                                     Path directory,
-                                     JEVisObject parent,
-                                     Map<Long, JEVisObject> createdObjects,
-                                     Map<JEVisAttribute, JsonNode> targets,
-                                     List<JEVisAttribute> fileAttributes,
-                                     Map<JEVisAttribute, JsonNode> longTargets) {
+    private void addSamplesInChunks(JEVisAttribute attribute, List<JEVisSample> samples) throws JEVisException {
+        if (samples == null || samples.isEmpty()) {
+            return;
+        }
+
+        int total = samples.size();
+        logger.info("Importing {} samples into object {} attribute '{}' in chunks of at most {}",
+                total, attribute.getObject().getID(), attribute.getName(), SAMPLE_IMPORT_CHUNK_SIZE);
+
+        for (int from = 0; from < total; from += SAMPLE_IMPORT_CHUNK_SIZE) {
+            int to = Math.min(from + SAMPLE_IMPORT_CHUNK_SIZE, total);
+            addSampleChunkWithRetry(attribute, samples, from, to, total);
+        }
+    }
+
+    /**
+     * Uploads one range and recursively halves it when the reverse proxy reports HTTP 413.
+     * The effective request-size limit may differ between JEWebService installations, so a
+     * fixed number of samples alone is not reliable.
+     */
+    private void addSampleChunkWithRetry(JEVisAttribute attribute,
+                                         List<JEVisSample> samples,
+                                         int from,
+                                         int to,
+                                         int total) throws JEVisException {
         try {
-            Set<Path> objectFiles = listObjectFiles(directory);
-
-            for (Path objectPath : objectFiles) {
-                JsonNode jsonObjectNode = mapper.readTree(objectPath.toFile());
-
-                logger.info("Create Object: {} [{}]", jsonObjectNode.get(OBJECT_NAME), jsonObjectNode.get(OBJECT_CLASS));
-                message.setValue("Create Object " + jsonObjectNode.get(OBJECT_NAME) + "[" + jsonObjectNode.get(OBJECT_CLASS) + "]");
-
-                JEVisClass objClass = parent.getDataSource().getJEVisClass(jsonObjectNode.get(OBJECT_CLASS).asText());
-
-                if (objClass == null) {
-                    logger.error("Class does not exist, skipping to next: {}", jsonObjectNode.get(OBJECT_CLASS));
-                    continue;
-                }
-
-                if (!parent.getAllowedChildrenClasses().contains(objClass)) {
-                    logger.error("Class '{}' is not allowed under: '{}'", objClass.getName(), parent.getJEVisClassName());
-                    continue;
-                }
-
-                JEVisObject jeVisObject = parent.buildObject(jsonObjectNode.get(OBJECT_NAME).asText(), objClass);
-                jeVisObject.commit();
-                Thread.sleep(500);
-
-                createdObjects.put(
-                        Long.parseLong(FilenameUtils.removeExtension(objectPath.getFileName().toString()).substring(2)),
-                        jeVisObject
-                );
-
-                if (jsonObjectNode.get(OBJECT_LANG) != null && jsonObjectNode.get(OBJECT_LANG).isArray()) {
-                    for (JsonNode jsonNode1 : jsonObjectNode.get(OBJECT_LANG)) {
-                        jsonNode1.fieldNames().forEachRemaining(s -> jeVisObject.setLocalName(s, jsonNode1.get(s).asText()));
-                    }
-                }
+            attribute.addSamples(samples.subList(from, to));
+            logger.info("Imported samples {}-{} of {} into object {} attribute '{}'",
+                    from + 1, to, total, attribute.getObject().getID(), attribute.getName());
+        } catch (JEVisException e) {
+            int size = to - from;
+            if (e.getCode() == 413 && size > 1) {
+                int middle = from + size / 2;
+                logger.warn("Sample request for object {} attribute '{}' with {} samples was too large; retrying as {} and {} samples",
+                        attribute.getObject().getID(), attribute.getName(), size,
+                        middle - from, to - middle);
+                addSampleChunkWithRetry(attribute, samples, from, middle, total);
+                addSampleChunkWithRetry(attribute, samples, middle, to, total);
+                return;
             }
 
-            Set<Path> attributeFiles = listAttributeFiles(directory);
+            throw new JEVisException("Failed importing samples " + (from + 1) + "-" + to
+                    + " of " + total + " into object " + attribute.getObject().getID()
+                    + " attribute '" + attribute.getName() + "'", e.getCode(), e);
+        }
+    }
 
-            for (Path attributePath : attributeFiles) {
-                JsonNode jsonAttributeNode = mapper.readTree(attributePath.toFile());
-                String attributeFileString = FilenameUtils
-                        .removeExtension(Paths.get(attributePath.getFileName().toString()).getFileName().toString())
-                        .replaceFirst("a_", "");
-                int indexOf = attributeFileString.indexOf("_");
-                Long oldObjectId = Long.parseLong(attributeFileString.substring(0, indexOf));
+    public Set<Path> listFileDateTimeFolders(Path dir) throws IOException {
+        try (Stream<Path> stream = Files.list(dir)) {
+            return stream
+                    .filter(path -> Files.isDirectory(path) && isFileSampleTimestamp(path.getFileName().toString()))
+                    .collect(Collectors.toSet());
+        }
+    }
 
-                JEVisObject correspondingJEVisObject = createdObjects.get(oldObjectId);
-                if (correspondingJEVisObject == null) {
-                    logger.error("Could not find created object for imported id {}", oldObjectId);
-                    continue;
-                }
-
-                logger.info("Creating Attribute: {}", jsonAttributeNode.get(ATTRIBUTE_NAME));
-                JEVisAttribute jevisAttribute = correspondingJEVisObject.getAttribute(jsonAttributeNode.get(ATTRIBUTE_NAME).asText());
-
-                if (jsonAttributeNode.get(ATTRIBUTE_UNIT) != null) {
-                    try {
-                        JsonNode unit = jsonAttributeNode.get(ATTRIBUTE_UNIT);
-                        String unitString = mapper.writeValueAsString(unit);
-                        JEVisUnitImp jevUnitImp = new JEVisUnitImp(mapper.readValue(unitString, org.jevis.commons.ws.json.JsonUnit.class));
-                        jevisAttribute.setInputUnit(jevUnitImp);
-                        jevisAttribute.setDisplayUnit(jevUnitImp);
-                    } catch (Exception ex) {
-                        logger.error("Unit Error: ", ex);
-                    }
-                }
-
-                if (jsonAttributeNode.get(ATTRIBUTE_RATE) != null) {
-                    try {
-                        jevisAttribute.setInputSampleRate(Period.parse(jsonAttributeNode.get(ATTRIBUTE_RATE).asText()));
-                        jevisAttribute.setDisplaySampleRate(Period.parse(jsonAttributeNode.get(ATTRIBUTE_RATE).asText()));
-                    } catch (Exception e) {
-                        logger.error("Rate Error: ", e);
-                    }
-                }
-
-                jevisAttribute.commit();
-                Thread.sleep(500);
-
-                JsonNode jSamples = jsonAttributeNode.get(ATTRIBUTE_SAMPLES);
-                if (jSamples != null && jSamples.isArray()) {
-                    List<JEVisSample> jeVisSamples = new ArrayList<>();
-                    JEVisType type = jevisAttribute.getType();
-                    String guiDisplayType = type.getGUIDisplayType();
-
-                    if (guiDisplayType != null) {
-                        if (guiDisplayType.equals(GUIConstants.TARGET_OBJECT.getId())
-                                || guiDisplayType.equals(GUIConstants.TARGET_ATTRIBUTE.getId())) {
-                            targets.put(jevisAttribute, jSamples);
-                            continue;
-                        }
-                        if (guiDisplayType.equals(GUIConstants.BASIC_TARGET_LONG.getId())) {
-                            longTargets.put(jevisAttribute, jSamples);
-                            continue;
-                        }
-                    }
-
-                    for (JsonNode jSample : jSamples) {
-                        try {
-                            DateTime dateTime = DateTime.parse(jSample.get(SAMPLE_TS).asText());
-                            JEVisSample sample = jevisAttribute.buildSample(
-                                    dateTime,
-                                    jSample.get(SAMPLE_VALUE).asText(),
-                                    jSample.get(NOTE).asText()
-                            );
-                            jeVisSamples.add(sample);
-                        } catch (Exception ex) {
-                            logger.error("Error while creating Sample: {}", jSample, ex);
-                        }
-                    }
-
-                    if (!jeVisSamples.isEmpty()) {
-                        jevisAttribute.addSamples(jeVisSamples);
-                    }
-                }
-
-                fileAttributes.add(jevisAttribute);
-            }
-
-            Set<Path> folderPaths = listFileFolders(directory);
-
-            for (Path folderPath : folderPaths) {
-                String objectString = folderPath.getFileName().toString().substring(2);
-                String folderName = Paths.get(objectString).getFileName().toString();
-                int indexOf = folderName.indexOf("_");
-                Long oldObjectId = Long.parseLong(folderName.substring(0, indexOf));
-                String attributeString = folderName.substring(indexOf + 1);
-
-                JEVisObject correspondingJEVisObject = createdObjects.get(oldObjectId);
-                JEVisAttribute jevisAttribute = correspondingJEVisObject.getAttribute(attributeString);
-
-                List<JEVisSample> fileSamples = new ArrayList<>();
-                Set<Path> fileDateFolders = listFileDateTimeFolders(folderPath);
-
-                for (Path fileDateFolderPath : fileDateFolders) {
-                    try {
-                        File[] files = fileDateFolderPath.toFile().listFiles();
-                        if (files == null) {
-                            continue;
-                        }
-
-                        for (File listFile : files) {
-                            DateTime dateTime = DateTime.parse(
-                                    fileDateFolderPath.getFileName().toString(),
-                                    DateTimeFormat.forPattern(FILE_DATE_FORMAT)
-                            );
-                            JEVisFile jeVisFile = new JEVisFileImp(listFile.getName(), listFile);
-                            fileSamples.add(jevisAttribute.buildSample(dateTime, jeVisFile));
-                        }
-                    } catch (Exception e) {
-                        logger.error(e);
-                    }
-                }
-
-                jevisAttribute.addSamples(fileSamples);
-                // Register FILE attributes for content-level ID remapping (e.g. Analysis File,
-                // Data Model File, Template File) — these go through updateTargetsInFiles().
-                fileAttributes.add(jevisAttribute);
-            }
-
-            Set<Path> objectFolders = listObjectFolders(directory);
-
-            for (Path objectFolderPath : objectFolders) {
-                Long oldObjectId = Long.parseLong(objectFolderPath.getFileName().toString());
-                JEVisObject correspondingJEVisObject = createdObjects.get(oldObjectId);
-
-                if (correspondingJEVisObject == null) {
-                    logger.error("Could not find created parent object for imported folder id {}", oldObjectId);
-                    continue;
-                }
-
-                readTmpFilesToJEVis(message, objectFolderPath, correspondingJEVisObject, createdObjects, targets, fileAttributes, longTargets);
-            }
-        } catch (Exception e) {
-            logger.error(e);
+    private boolean isFileSampleTimestamp(String value) {
+        try {
+            parseFileSampleTimestamp(value);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 
@@ -828,25 +1290,22 @@ public class TreeExporter {
         }
     }
 
-    public Set<Path> listFileDateTimeFolders(Path dir) throws IOException {
-        try (Stream<Path> stream = Files.list(dir)) {
-            return stream
-                    .filter(path -> Files.isDirectory(path)
-                            && DateTime.parse(path.getFileName().toString(), DateTimeFormat.forPattern(FILE_DATE_FORMAT)) != null)
-                    .collect(Collectors.toSet());
+    private DateTime parseFileSampleTimestamp(String value) {
+        if (value != null && value.length() == FILE_DATE_FORMAT_WITH_MILLIS.length()) {
+            return DateTime.parse(value, DateTimeFormat.forPattern(FILE_DATE_FORMAT_WITH_MILLIS));
         }
+        return DateTime.parse(value, DateTimeFormat.forPattern(FILE_DATE_FORMAT));
     }
 
     private void extractFile(InputStream zipIn, String filePath) throws IOException {
-        BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)));
-        byte[] bytesIn = new byte[BUFFER_SIZE];
-        int read;
-
-        while ((read = zipIn.read(bytesIn)) != -1) {
-            bos.write(bytesIn, 0, read);
+        try (InputStream input = zipIn;
+             BufferedOutputStream output = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
+            byte[] bytesIn = new byte[BUFFER_SIZE];
+            int read;
+            while ((read = input.read(bytesIn)) != -1) {
+                output.write(bytesIn, 0, read);
+            }
         }
-
-        bos.close();
     }
 
     /**
@@ -859,9 +1318,9 @@ public class TreeExporter {
      *   <li>One {@code a_<id>_<attrName>.json} per non-FILE, non-PASSWORD attribute with metadata
      *       and all samples.</li>
      *   <li>One {@code a_<id>_<attrName>/<timestamp>/<filename>} entry per FILE attribute sample.</li>
-     *   <li>An optional {@value #RELATIONSHIPS_FILE} in the archive root containing OWNER,
-     *       MEMBER_*, and ROLE_* relationships for all exported objects (see
-     *       {@link #exportRelationships}).</li>
+     *   <li>{@value #RELATIONSHIPS_FILE} containing every non-structural relationship touching an
+     *       exported object, including LINK, data-flow, ownership, membership, and role relations.</li>
+     *   <li>{@value #EXPORT_MANIFEST_FILE} containing completeness counters and the format version.</li>
      * </ul>
      * {@code PASSWORD_PBKDF2} attributes are intentionally excluded from export.
      *
@@ -869,49 +1328,103 @@ public class TreeExporter {
      * @param objects root objects to export; all their descendants are included recursively
      * @return a Task that performs the export; must be submitted to a thread or executor
      */
-    public Task exportToFileTask(File file, List<JEVisObject> objects) {
-        return new Task() {
+    public Task<Void> exportToFileTask(File file, List<JEVisObject> objects) {
+        final ProcessReport report = new ProcessReport("Export", file);
+        final ExportStats stats = new ExportStats();
+        return new Task<Void>() {
             @Override
-            protected Void call() {
+            protected Void call() throws Exception {
+                if (file == null) {
+                    throw new IllegalArgumentException("Export file must not be null");
+                }
+                if (objects == null || objects.isEmpty()) {
+                    throw new IllegalArgumentException("At least one object must be selected for export");
+                }
+                if (objects.get(0) == null) {
+                    throw new IllegalArgumentException("Export root must not be null");
+                }
+                JEVisDataSource exportDataSource = objects.get(0).getDataSource();
+                for (JEVisObject root : objects) {
+                    if (root == null || root.getDataSource() != exportDataSource) {
+                        throw new IllegalArgumentException("All export roots must belong to the same data source");
+                    }
+                }
+
+                Path target = file.toPath().toAbsolutePath();
+                Path targetDirectory = target.getParent();
+                Files.createDirectories(targetDirectory);
+                String prefix = target.getFileName().toString();
+                if (prefix.length() < 3) {
+                    prefix = "jex" + prefix;
+                }
+                Path temporaryFile = Files.createTempFile(targetDirectory, prefix + ".", ".part");
+
                 try {
                     StringProperty message = new SimpleStringProperty();
                     message.addListener((observable, oldValue, newValue) -> updateMessage(newValue));
-
-                    if (!objects.isEmpty()) {
-                        try {
-                            // Bulk-load every attribute for every object in one request, so the
-                            // per-object getAttributes() calls below hit a warm cache instead of
-                            // each triggering their own network round trip.
-                            objects.get(0).getDataSource().getAttributes();
-                        } catch (Exception e) {
-                            logger.warn("Could not bulk-preload attributes; falling back to per-object loading", e);
-                        }
-                    }
+                    logger.info("TreeExporter exporter revision: {}", EXPORTER_REVISION);
 
                     Map<Long, List<JEVisObject>> childrenMap = buildChildrenMap(objects);
                     List<JEVisObject> allObjects = flattenTree(objects, childrenMap);
+                    report.expectedObjects = allObjects.size();
 
                     AtomicReference<Integer> jobNo = new AtomicReference<>(0);
                     int jobCount = allObjects.size();
 
-                    OutputStream outputStream = Files.newOutputStream(file.toPath());
-                    ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
+                    try (OutputStream outputStream = Files.newOutputStream(temporaryFile);
+                         ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)) {
+                        writeZipOutputStream(zipOutputStream, objects, "", message, jobNo, jobCount,
+                                childrenMap, new HashSet<>(), stats, report);
+                        stats.relationships = exportRelationships(zipOutputStream, allObjects);
+                        writeExportManifest(zipOutputStream, objects, allObjects.size(), stats);
+                    }
 
-                    writeZipOutputStream(zipOutputStream, objects, "", message, jobNo, jobCount, childrenMap);
-                    exportRelationships(zipOutputStream, allObjects);
+                    if (stats.objects != allObjects.size()) {
+                        throw new IOException("Export validation failed: expected " + allObjects.size()
+                                + " objects but wrote " + stats.objects);
+                    }
 
-                    zipOutputStream.close();
-                    outputStream.close();
-
-                    succeeded();
+                    moveCompletedExport(temporaryFile, target);
+                    report.copyExportStats(stats);
+                    if (stats.skippedPasswords > 0) {
+                        report.info(stats.skippedPasswords
+                                + " Passwort-Attribute wurden absichtlich nicht exportiert");
+                    }
+                    logger.info("Export complete: {} objects, {} attributes, {} scalar samples, {} file samples, {} relationships -> {}",
+                            stats.objects, stats.attributes, stats.samples, stats.fileSamples,
+                            stats.relationships, target);
                 } catch (Exception ex) {
-                    logger.error(ex);
-                    failed();
-                } finally {
-                    done();
+                    report.copyExportStats(stats);
+                    try {
+                        Files.deleteIfExists(temporaryFile);
+                    } catch (IOException cleanupError) {
+                        ex.addSuppressed(cleanupError);
+                    }
+                    logger.error("Export failed. The existing target file was not replaced: {}", target, ex);
+                    report.error("Export fehlgeschlagen; eine vorhandene Zieldatei wurde nicht ersetzt", ex);
+                    throw ex;
                 }
 
                 return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                super.succeeded();
+                showProcessReport(report, null);
+            }
+
+            @Override
+            protected void failed() {
+                super.failed();
+                showProcessReport(report, getException());
+            }
+
+            @Override
+            protected void cancelled() {
+                super.cancelled();
+                showProcessReport(report,
+                        new java.util.concurrent.CancellationException("Export wurde abgebrochen"));
             }
         };
     }
@@ -920,13 +1433,13 @@ public class TreeExporter {
      * Walks {@code roots} and all their descendants exactly once, fetching each object's children
      * a single time via {@link JEVisObject#getChildren()} and caching the result. Used so that both
      * the job-count/relationship export and the actual ZIP write share one tree walk instead of two,
-     * and so a failure listing one object's children doesn't abort the whole export — just that
-     * object's subtree is logged as incomplete and treated as childless.
+     * A failure listing any object's children aborts the export so that a partial archive can never
+     * replace an existing valid export.
      *
      * @param roots the top-level objects being exported
      * @return map of object ID to its direct children
      */
-    private Map<Long, List<JEVisObject>> buildChildrenMap(List<JEVisObject> roots) {
+    private Map<Long, List<JEVisObject>> buildChildrenMap(List<JEVisObject> roots) throws JEVisException {
         Map<Long, List<JEVisObject>> map = new HashMap<>();
         Deque<JEVisObject> queue = new ArrayDeque<>(roots);
 
@@ -938,12 +1451,14 @@ public class TreeExporter {
 
             try {
                 List<JEVisObject> children = current.getChildren();
+                if (children == null) {
+                    children = Collections.emptyList();
+                }
                 map.put(current.getID(), children);
                 queue.addAll(children);
             } catch (Exception e) {
-                logger.error("Could not list children of object {}:{} — its subtree will be incomplete in this export",
-                        current.getName(), current.getID(), e);
-                map.put(current.getID(), Collections.emptyList());
+                throw new JEVisException("Could not list children of object " + current.getID()
+                        + ". Export aborted to avoid an incomplete archive.", 8236360, e);
             }
         }
 
@@ -957,9 +1472,13 @@ public class TreeExporter {
     private List<JEVisObject> flattenTree(List<JEVisObject> roots, Map<Long, List<JEVisObject>> childrenMap) {
         List<JEVisObject> result = new ArrayList<>();
         Deque<JEVisObject> queue = new ArrayDeque<>(roots);
+        Set<Long> visited = new HashSet<>();
 
         while (!queue.isEmpty()) {
             JEVisObject current = queue.poll();
+            if (!visited.add(current.getID())) {
+                continue;
+            }
             result.add(current);
             queue.addAll(childrenMap.getOrDefault(current.getID(), Collections.emptyList()));
         }
@@ -973,111 +1492,121 @@ public class TreeExporter {
                                       StringProperty message,
                                       AtomicReference<Integer> jobNo,
                                       int jobCount,
-                                      Map<Long, List<JEVisObject>> childrenMap) {
+                                      Map<Long, List<JEVisObject>> childrenMap,
+                                      Set<Long> writtenObjectIds,
+                                      ExportStats stats,
+                                      ProcessReport report) throws Exception {
         for (JEVisObject object : objects) {
-            try {
-                jobNo.set(jobNo.get() + 1);
-
-                message.set("Prepare Export Job [" + jobNo.get() + "/" + jobCount + "] object: ["
-                        + object.getID() + "] " + object.getName());
-
-                logger.debug("Exporting object: {}:{}", object.getName(), object.getID());
-
-                ZipEntry objectZipEntry = new ZipEntry(folder + "o_" + object.getID() + ".json");
-                zipOutputStream.putNextEntry(objectZipEntry);
-                ObjectNode objectNode = toJson(object);
-                mapper.writeValue(zipOutputStream, objectNode);
-
-                for (JEVisAttribute jeVisAttribute : object.getAttributes()) {
-                    try {
-                        logger.debug("Exporting attribute {} of object {}:{}.",
-                                jeVisAttribute.getName(), object.getName(), object.getID());
-
-                        if (jeVisAttribute.getPrimitiveType() != JEVisConstants.PrimitiveType.FILE
-                                && jeVisAttribute.getPrimitiveType() != JEVisConstants.PrimitiveType.PASSWORD_PBKDF2) {
-                            ZipEntry attributeZipEntry = new ZipEntry(folder + "a_"
-                                    + object.getID() + "_" + jeVisAttribute.getName() + ".json");
-                            zipOutputStream.putNextEntry(attributeZipEntry);
-
-                            writeAttributeJson(zipOutputStream, jeVisAttribute);
-                        } else if (jeVisAttribute.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE) {
-                            if (jeVisAttribute.hasSample()) {
-                                List<JEVisSample> allSamples = jeVisAttribute.getAllSamples();
-
-                                logger.debug("Found {} file samples for attribute {} of object {}:{}. Writing to export file...",
-                                        allSamples.size(), jeVisAttribute.getName(), object.getName(), object.getID());
-
-                                int fileNo = 0;
-                                for (JEVisSample sample : allSamples) {
-                                    fileNo++;
-                                    try {
-                                        if (allSamples.size() > 1) {
-                                            message.set("Prepare Export Job [" + jobNo.get() + "/" + jobCount + "] object: ["
-                                                    + object.getID() + "] " + object.getName()
-                                                    + " — attachment " + fileNo + "/" + allSamples.size());
-                                        }
-
-                                        JEVisFile sampleValueAsFile = sample.getValueAsFile();
-
-                                        if (sampleValueAsFile == null
-                                                || sampleValueAsFile.getFilename() == null
-                                                || sampleValueAsFile.getFilename().trim().isEmpty()) {
-                                            logger.warn("Skipping unreadable file sample at {} for attribute {} of object {}:{} (file or filename missing)",
-                                                    sample.getTimestamp(), jeVisAttribute.getName(), object.getName(), object.getID());
-                                            continue;
-                                        }
-
-                                        if (sampleValueAsFile.getBytes() == null) {
-                                            logger.warn("Skipping file sample {} at {} for attribute {} of object {}:{} (file content missing)",
-                                                    sampleValueAsFile.getFilename(), sample.getTimestamp(), jeVisAttribute.getName(), object.getName(), object.getID());
-                                            continue;
-                                        }
-
-                                        ZipEntry sampleFileZipEntry = new ZipEntry(folder + "a_"
-                                                + object.getID() + "_" + jeVisAttribute.getName()
-                                                + "/" + sample.getTimestamp().toString(FILE_DATE_FORMAT)
-                                                + "/" + sampleValueAsFile.getFilename().trim());
-                                        zipOutputStream.putNextEntry(sampleFileZipEntry);
-                                        zipOutputStream.write(sampleValueAsFile.getBytes());
-                                    } catch (Exception e) {
-                                        logger.error("Failed to write file sample at {} for attribute {} of object {}:{}",
-                                                sample.getTimestamp(), jeVisAttribute.getName(), object.getName(), object.getID(), e);
-                                    }
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        logger.error("Failed to write attribute {} of object {}:{}",
-                                jeVisAttribute.getName(), object.getName(), object.getID(), e);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Failed to write object {}:{}", object.getName(), object.getID(), e);
+            if (!writtenObjectIds.add(object.getID())) {
+                logger.warn("Skipping duplicate or cyclic object reference for id {}", object.getID());
+                continue;
             }
 
-            // Recurse into children regardless of whether this object's own write above succeeded,
-            // so a transient failure on one object doesn't silently drop its entire subtree from
-            // the export. Children were already fetched once into childrenMap up front.
+            jobNo.set(jobNo.get() + 1);
+            message.set("Prepare Export Job [" + jobNo.get() + "/" + jobCount + "] object: ["
+                    + object.getID() + "] " + object.getName());
+
+            logger.debug("Exporting object: {}:{}", object.getName(), object.getID());
+
+            ZipEntry objectZipEntry = new ZipEntry(folder + "o_" + object.getID() + ".json");
+            zipOutputStream.putNextEntry(objectZipEntry);
+            try {
+                mapper.writeValue(zipOutputStream, toJson(object));
+            } finally {
+                zipOutputStream.closeEntry();
+            }
+            stats.objects++;
+
+            // Link objects expose their target's attributes. Exporting those attributes under the
+            // link would duplicate target data; the LINK relationship is exported separately.
+            if (!"Link".equals(object.getJEVisClassName())) {
+                for (JEVisAttribute jeVisAttribute : object.getAttributes()) {
+                    logger.debug("Exporting attribute {} of object {}:{}.",
+                            jeVisAttribute.getName(), object.getName(), object.getID());
+
+                    int primitiveType = jeVisAttribute.getPrimitiveType();
+                    if (primitiveType == JEVisConstants.PrimitiveType.PASSWORD_PBKDF2) {
+                        stats.skippedPasswords++;
+                        continue;
+                    }
+
+                    String attributeName = validateZipPathSegment(jeVisAttribute.getName(), "attribute name");
+                    if (primitiveType != JEVisConstants.PrimitiveType.FILE) {
+                        ZipEntry attributeZipEntry = new ZipEntry(folder + "a_"
+                                + object.getID() + "_" + attributeName + ".json");
+                        zipOutputStream.putNextEntry(attributeZipEntry);
+                        try {
+                            stats.samples += writeAttributeJson(zipOutputStream, jeVisAttribute);
+                        } finally {
+                            zipOutputStream.closeEntry();
+                        }
+                        stats.attributes++;
+                    } else if (jeVisAttribute.hasSample()) {
+                        List<JEVisSample> allSamples = jeVisAttribute.getAllSamples();
+                        if (allSamples == null) {
+                            throw new IOException("Sample query returned null for FILE attribute "
+                                    + jeVisAttribute.getName() + " on object " + object.getID());
+                        }
+                        int fileNo = 0;
+                        for (JEVisSample sample : allSamples) {
+                            fileNo++;
+                            if (allSamples.size() > 1) {
+                                message.set("Prepare Export Job [" + jobNo.get() + "/" + jobCount + "] object: ["
+                                        + object.getID() + "] " + object.getName()
+                                        + " — attachment " + fileNo + "/" + allSamples.size());
+                            }
+
+                            String exportedFilename = sample.getValueAsString();
+                            JEVisFile sampleFile = sample.getValueAsFile();
+                            if (sampleFile == null || sampleFile.getBytes() == null) {
+                                logger.warn("Retrying missing file content for '{}' at {} on object {} attribute '{}'",
+                                        exportedFilename, sample.getTimestamp(), object.getID(), jeVisAttribute.getName());
+                                sampleFile = sample.getValueAsFile();
+                            }
+
+                            String filename = sampleFile != null && sampleFile.getFilename() != null
+                                    && !sampleFile.getFilename().trim().isEmpty()
+                                    ? sampleFile.getFilename() : exportedFilename;
+                            byte[] bytes = sampleFile != null ? sampleFile.getBytes() : null;
+                            if (filename == null || filename.trim().isEmpty() || bytes == null) {
+                                String description = "Datei-Sample '" + String.valueOf(filename)
+                                        + "' vom " + sample.getTimestamp() + " bei Objekt " + object.getID()
+                                        + ", Attribut '" + jeVisAttribute.getName()
+                                        + "' hat keinen abrufbaren Inhalt und wurde übersprungen";
+                                logger.warn(description);
+                                report.warning(description);
+                                report.skipped++;
+                                continue;
+                            }
+
+                            ZipEntry sampleFileZipEntry = new ZipEntry(folder + "a_"
+                                    + object.getID() + "_" + attributeName
+                                    + "/" + sample.getTimestamp().toString(FILE_DATE_FORMAT_WITH_MILLIS)
+                                    + "/" + sanitizeFileName(filename));
+                            zipOutputStream.putNextEntry(sampleFileZipEntry);
+                            try {
+                                zipOutputStream.write(bytes);
+                            } finally {
+                                zipOutputStream.closeEntry();
+                            }
+                            stats.fileSamples++;
+                        }
+                        stats.attributes++;
+                    }
+                }
+            }
+
             String newFolder = folder + object.getID() + "/";
             List<JEVisObject> children = childrenMap.getOrDefault(object.getID(), Collections.emptyList());
-            writeZipOutputStream(zipOutputStream, children, newFolder, message, jobNo, jobCount, childrenMap);
+            writeZipOutputStream(zipOutputStream, children, newFolder, message, jobNo, jobCount,
+                    childrenMap, writtenObjectIds, stats, report);
         }
     }
 
     /**
-     * Collects access-control relationships for all exported objects and writes them as
-     * {@value #RELATIONSHIPS_FILE} into the ZIP archive root.
-     *
-     * <p>Three categories of relationships are exported:
-     * <ul>
-     *   <li>{@link JEVisConstants.ObjectRelationship#OWNER} (100) — for every exported object,
-     *       recording which groups have access to it.</li>
-     *   <li>{@code MEMBER_READ..MEMBER_DELETE} (101–105) — for every exported object of class
-     *       {@link JEVisConstants.Class#USER}, recording group memberships and their permission level.</li>
-     *   <li>{@code ROLE_MEMBER..ROLE_DELETE} (200–205) — for every exported object of class
-     *       {@link JC.UserRole#name}, recording which users belong to the role and which groups
-     *       the role has access to.</li>
-     * </ul>
+     * Collects every non-structural relationship touching an exported object and writes it to
+     * {@value #RELATIONSHIPS_FILE}. PARENT is represented by the ZIP directory hierarchy and
+     * DELETED_PARENT is intentionally excluded.
      *
      * <p>Older importers that do not understand {@value #RELATIONSHIPS_FILE} will simply ignore the
      * entry, ensuring backward compatibility of the archive format.
@@ -1088,92 +1617,108 @@ public class TreeExporter {
      * @param zipOutputStream the open ZIP stream to write to (must not be closed by this method)
      * @param allObjects      flat list of every exported JEVis object (root and all descendants)
      */
-    private void exportRelationships(ZipOutputStream zipOutputStream, List<JEVisObject> allObjects) {
-        try {
-            List<JsonRelationship> relationships = new ArrayList<>();
-            Set<String> seen = new HashSet<>();
+    private long exportRelationships(ZipOutputStream zipOutputStream, List<JEVisObject> allObjects) throws Exception {
+        List<JsonRelationship> relationships = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
 
-            for (JEVisObject object : allObjects) {
-                try {
-                    // OWNER: every object → the groups that can access it
-                    collectRelationships(relationships, seen, object,
-                            JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD);
+        for (JEVisObject object : allObjects) {
+            for (JEVisRelationship rel : object.getRelationships()) {
+                // The directory hierarchy already represents PARENT. DELETED_PARENT describes
+                // trash/history state and must not be recreated in a normal import.
+                if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT
+                        || rel.getType() == JEVisConstants.ObjectRelationship.DELETED_PARENT) {
+                    continue;
+                }
 
-                    String className = object.getJEVisClassName();
-
-                    // MEMBER_*: User objects → the groups they belong to (with permission type)
-                    if (JEVisConstants.Class.USER.equals(className)) {
-                        for (int type : new int[]{
-                                JEVisConstants.ObjectRelationship.MEMBER_READ,
-                                JEVisConstants.ObjectRelationship.MEMBER_WRITE,
-                                JEVisConstants.ObjectRelationship.MEMBER_EXECUTE,
-                                JEVisConstants.ObjectRelationship.MEMBER_CREATE,
-                                JEVisConstants.ObjectRelationship.MEMBER_DELETE}) {
-                            collectRelationships(relationships, seen, object, type,
-                                    JEVisConstants.Direction.FORWARD);
-                        }
-                    }
-
-                    // ROLE_*: User Role objects → their user members and group access
-                    if (JC.UserRole.name.equals(className)) {
-                        for (int type : new int[]{
-                                JEVisConstants.ObjectRelationship.ROLE_MEMBER,
-                                JEVisConstants.ObjectRelationship.ROLE_READ,
-                                JEVisConstants.ObjectRelationship.ROLE_WRITE,
-                                JEVisConstants.ObjectRelationship.ROLE_EXECUTE,
-                                JEVisConstants.ObjectRelationship.ROLE_CREATE,
-                                JEVisConstants.ObjectRelationship.ROLE_DELETE}) {
-                            collectRelationships(relationships, seen, object, type,
-                                    JEVisConstants.Direction.FORWARD);
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("Failed to collect relationships for object {}:{}",
-                            object.getName(), object.getID(), e);
+                String key = rel.getStartID() + "_" + rel.getEndID() + "_" + rel.getType();
+                if (seen.add(key)) {
+                    JsonRelationship jsonRelationship = new JsonRelationship();
+                    jsonRelationship.setFrom(rel.getStartID());
+                    jsonRelationship.setTo(rel.getEndID());
+                    jsonRelationship.setType(rel.getType());
+                    relationships.add(jsonRelationship);
                 }
             }
+        }
 
-            ZipEntry relEntry = new ZipEntry(RELATIONSHIPS_FILE);
-            zipOutputStream.putNextEntry(relEntry);
+        ZipEntry relEntry = new ZipEntry(RELATIONSHIPS_FILE);
+        zipOutputStream.putNextEntry(relEntry);
+        try {
             mapper.writeValue(zipOutputStream, relationships);
-            logger.info("Exported {} relationships to {}", relationships.size(), RELATIONSHIPS_FILE);
-        } catch (Exception e) {
-            logger.error("Failed to export relationships", e);
+        } finally {
+            zipOutputStream.closeEntry();
+        }
+        logger.info("Exported {} relationships to {}", relationships.size(), RELATIONSHIPS_FILE);
+        return relationships.size();
+    }
+
+    private void writeExportManifest(ZipOutputStream zipOutputStream,
+                                     List<JEVisObject> roots,
+                                     int expectedObjects,
+                                     ExportStats stats) throws IOException {
+        ObjectNode manifest = mapper.createObjectNode();
+        manifest.put("formatVersion", 2);
+        manifest.put("exporterRevision", EXPORTER_REVISION);
+        manifest.put("created", new DateTime().toString());
+        manifest.put("complete", stats.objects == expectedObjects);
+        manifest.put("objectsExpected", expectedObjects);
+        manifest.put("objectsWritten", stats.objects);
+        manifest.put("attributesWritten", stats.attributes);
+        manifest.put("samplesWritten", stats.samples);
+        manifest.put("fileSamplesWritten", stats.fileSamples);
+        manifest.put("relationshipsWritten", stats.relationships);
+        manifest.put("passwordAttributesSkipped", stats.skippedPasswords);
+        ArrayNode rootIds = manifest.putArray("rootObjectIds");
+        for (JEVisObject root : roots) {
+            rootIds.add(root.getID());
+        }
+
+        ZipEntry manifestEntry = new ZipEntry(EXPORT_MANIFEST_FILE);
+        zipOutputStream.putNextEntry(manifestEntry);
+        try {
+            mapper.writeValue(zipOutputStream, manifest);
+        } finally {
+            zipOutputStream.closeEntry();
         }
     }
 
-    /**
-     * Collects all relationships of the given {@code type} and {@code direction} from {@code object}
-     * into {@code list}, deduplicating via {@code seen}.
-     *
-     * @param list      target list to add collected relationships to
-     * @param seen      set of {@code "from_to_type"} keys used for deduplication
-     * @param object    the JEVis object whose relationships are queried
-     * @param type      the relationship type constant from {@link JEVisConstants.ObjectRelationship}
-     * @param direction {@link JEVisConstants.Direction#FORWARD} or {@link JEVisConstants.Direction#BACKWARD}
-     */
-    private void collectRelationships(List<JsonRelationship> list, Set<String> seen,
-                                      JEVisObject object, int type, int direction) throws JEVisException {
-        for (JEVisRelationship rel : object.getRelationships(type, direction)) {
-            String key = rel.getStartID() + "_" + rel.getEndID() + "_" + rel.getType();
-            if (seen.add(key)) {
-                JsonRelationship jr = new JsonRelationship();
-                jr.setFrom(rel.getStartID());
-                jr.setTo(rel.getEndID());
-                jr.setType(rel.getType());
-                list.add(jr);
-            }
+    private void moveCompletedExport(Path temporaryFile, Path target) throws IOException {
+        try {
+            Files.move(temporaryFile, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(temporaryFile, target, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
+    private String validateZipPathSegment(String value, String description) throws IOException {
+        if (value == null || value.trim().isEmpty()
+                || value.contains("/") || value.contains("\\") || value.contains("..")) {
+            throw new IOException("Unsafe " + description + " for ZIP entry: " + value);
+        }
+        return value;
+    }
+
+    private String sanitizeFileName(String filename) throws IOException {
+        String normalized = filename.replace('\\', '/');
+        int lastSlash = normalized.lastIndexOf('/');
+        String baseName = lastSlash >= 0 ? normalized.substring(lastSlash + 1) : normalized;
+        baseName = baseName.replace("..", "_").replaceAll("[\\p{Cntrl}]", "_").trim();
+        if (baseName.isEmpty()) {
+            throw new IOException("Unsafe or empty file name in FILE sample: " + filename);
+        }
+        return baseName;
+    }
+
     /**
-     * Post-import phase D: recreates access-control relationships from {@value #RELATIONSHIPS_FILE}
-     * in the extracted archive.
+     * Post-import phase D: recreates functional and access-control relationships from
+     * {@value #RELATIONSHIPS_FILE} in the extracted archive.
      *
      * <p>Resolution strategy (in priority order):
      * <ol>
      *   <li>Check {@code createdObjects} — the object was part of this import and received a new ID.</li>
-     *   <li>Fall back to {@code ds.getObject(oldId)} — the object already exists on the target
+     *   <li>If the ID belongs to an archive object whose creation failed, return unresolved without
+     *       querying the target server with the obsolete ID.</li>
+     *   <li>For external references only, fall back to {@code ds.getObject(oldId)} — the object already exists on the target
      *       system with the same numeric ID (e.g. a cross-tree reference to a shared group).</li>
      * </ol>
      *
@@ -1189,11 +1734,17 @@ public class TreeExporter {
      * @param ds             live datasource used to create relationships and flush the ACL cache
      * @param tmpDir         directory into which the archive was extracted
      * @param createdObjects mapping of old export IDs to newly created {@link JEVisObject}s
+     * @param archiveObjectIds all object IDs represented by object files in the archive
      */
-    private void importRelationships(JEVisDataSource ds, Path tmpDir, Map<Long, JEVisObject> createdObjects) {
+    private void importRelationships(JEVisDataSource ds, Path tmpDir,
+                                     Map<Long, JEVisObject> createdObjects,
+                                     Set<Long> archiveObjectIds,
+                                     ProcessReport report) {
         Path relFile = tmpDir.resolve(RELATIONSHIPS_FILE);
         if (!Files.exists(relFile)) {
             logger.info("No {} in archive — skipping relationship import", RELATIONSHIPS_FILE);
+            report.info("Das Archiv enthält keine " + RELATIONSHIPS_FILE
+                    + " (bei älteren Exporten normal)");
             return;
         }
 
@@ -1207,12 +1758,16 @@ public class TreeExporter {
             int skipped = 0;
             int consecutiveFailures = 0;
             final int FAILURE_ABORT_THRESHOLD = 5;
+            Map<Long, Long> resolvedIds = new HashMap<>();
+            Set<Long> warnedUnresolvedIds = new HashSet<>();
 
             for (int i = 0; i < relationships.size(); i++) {
                 JsonRelationship rel = relationships.get(i);
                 try {
-                    long newFrom = resolveIdForRelationship(ds, createdObjects, rel.getFrom());
-                    long newTo = resolveIdForRelationship(ds, createdObjects, rel.getTo());
+                    long newFrom = resolveIdForRelationship(ds, createdObjects, archiveObjectIds,
+                            resolvedIds, rel.getFrom());
+                    long newTo = resolveIdForRelationship(ds, createdObjects, archiveObjectIds,
+                            resolvedIds, rel.getTo());
 
                     if (newFrom > 0 && newTo > 0) {
                         JEVisRelationship newRel = ds.buildRelationship(newFrom, newTo, rel.getType());
@@ -1223,16 +1778,33 @@ public class TreeExporter {
                             logger.warn("Failed to recreate relationship: from={} to={} type={}",
                                     newFrom, newTo, rel.getType());
                             skipped++;
+                            report.warning("Beziehung konnte nicht erstellt werden: "
+                                    + newFrom + " -> " + newTo + " (Typ " + rel.getType() + ")");
                             consecutiveFailures++;
                         }
                     } else {
-                        logger.warn("Skipping unresolvable relationship: from={} (resolved={}) to={} (resolved={}) type={}",
+                        if (newFrom <= 0 && warnedUnresolvedIds.add(rel.getFrom())) {
+                            logger.warn("Cannot resolve relationship endpoint {}{}",
+                                    rel.getFrom(), archiveObjectIds.contains(rel.getFrom())
+                                            ? " because its object file could not be imported"
+                                            : " because it does not exist on the target system");
+                        }
+                        if (newTo <= 0 && warnedUnresolvedIds.add(rel.getTo())) {
+                            logger.warn("Cannot resolve relationship endpoint {}{}",
+                                    rel.getTo(), archiveObjectIds.contains(rel.getTo())
+                                            ? " because its object file could not be imported"
+                                            : " because it does not exist on the target system");
+                        }
+                        logger.debug("Skipping unresolvable relationship: from={} (resolved={}) to={} (resolved={}) type={}",
                                 rel.getFrom(), newFrom, rel.getTo(), newTo, rel.getType());
                         skipped++;
+                        report.warning("Beziehung mit nicht auflösbarem Endpunkt übersprungen: "
+                                + rel.getFrom() + " -> " + rel.getTo() + " (Typ " + rel.getType() + ")");
                     }
                 } catch (Exception e) {
                     logger.error("Failed to recreate relationship {}", rel, e);
                     skipped++;
+                    report.error("Beziehung konnte nicht erstellt werden: " + rel, e);
                     consecutiveFailures++;
                 }
 
@@ -1241,37 +1813,146 @@ public class TreeExporter {
                     skipped += remaining;
                     logger.error("Aborting relationship import after {} consecutive failures — the target server may not support the relationship API (older JEWebService version?). {} relationships were not attempted.",
                             consecutiveFailures, remaining);
+                    report.error("Beziehungsimport nach " + consecutiveFailures
+                            + " aufeinanderfolgenden Fehlern abgebrochen; " + remaining
+                            + " Beziehungen wurden nicht versucht", null);
                     break;
                 }
             }
 
             logger.info("Relationship import complete: {} created, {} skipped", created, skipped);
+            report.relationships += created;
+            report.skipped += skipped;
             ds.updateAccessControl();
         } catch (Exception e) {
             logger.error("Failed to load or apply {}", RELATIONSHIPS_FILE, e);
+            report.error(RELATIONSHIPS_FILE + " konnte nicht geladen oder angewendet werden", e);
         }
     }
 
     /**
      * Resolves an old (exported) object ID to the current system's object ID.
      *
-     * <p>Tries {@code createdObjects} first (object was re-created during import), then falls back
-     * to a live datasource lookup (object already exists on the target system).
+     * <p>Tries {@code createdObjects} first (object was re-created during import). An ID represented
+     * by an object file but missing from that map is known to have failed import and is not looked up
+     * under its obsolete ID. Only external references fall back to a live datasource lookup.
      *
      * @param ds             live datasource for fallback lookup
      * @param createdObjects mapping of old IDs to newly created objects
+     * @param archiveObjectIds all IDs represented by object files in the archive
+     * @param resolvedIds    per-import cache, including failed resolutions ({@code -1})
      * @param oldId          the object ID as it appeared in the export
      * @return the resolved ID on the current system, or {@code -1} if the object cannot be found
      */
-    private long resolveIdForRelationship(JEVisDataSource ds, Map<Long, JEVisObject> createdObjects, long oldId) {
+    private long resolveIdForRelationship(JEVisDataSource ds,
+                                          Map<Long, JEVisObject> createdObjects,
+                                          Set<Long> archiveObjectIds,
+                                          Map<Long, Long> resolvedIds,
+                                          long oldId) {
+        Long cached = resolvedIds.get(oldId);
+        if (cached != null) return cached;
+
         JEVisObject obj = createdObjects.get(oldId);
-        if (obj != null) return obj.getID();
+        if (obj != null) {
+            resolvedIds.put(oldId, obj.getID());
+            return obj.getID();
+        }
+
+        // The ID belongs to this archive but was not created. A lookup by the old ID on the
+        // target server cannot resolve it and only produces a misleading HTTP 404 response.
+        if (archiveObjectIds.contains(oldId)) {
+            resolvedIds.put(oldId, -1L);
+            return -1L;
+        }
+
         try {
             obj = ds.getObject(oldId);
-            if (obj != null) return obj.getID();
+            if (obj != null) {
+                resolvedIds.put(oldId, obj.getID());
+                return obj.getID();
+            }
         } catch (Exception ignored) {
         }
+        resolvedIds.put(oldId, -1L);
         return -1L;
+    }
+
+    /**
+     * Writes a non-FILE, non-PASSWORD attribute (metadata + all samples) directly onto {@code out}
+     * as a single streamed JSON object, instead of building an in-memory Jackson tree first. For
+     * attributes with long sample histories this avoids holding every sample as both a
+     * {@link JEVisSample} and a duplicate JSON-tree node in memory at once.
+     *
+     * @param out       the open ZIP stream, positioned at the attribute's entry
+     * @param attribute the attribute to serialize
+     */
+    private long writeAttributeJson(ZipOutputStream out, JEVisAttribute attribute) throws Exception {
+        logger.info("Writing attribute {} of object {}:{}",
+                attribute.getName(), attribute.getObject().getName(), attribute.getObject().getID());
+
+        JsonGenerator gen = mapper.getFactory().createGenerator(out);
+        gen.setCodec(mapper);
+        gen.writeStartObject();
+        gen.writeStringField(ATTRIBUTE_NAME, attribute.getName());
+        long writtenSamples = 0;
+
+        if (attribute.getInputSampleRate() != null) {
+            gen.writeStringField(ATTRIBUTE_RATE, attribute.getInputSampleRate().toString());
+        }
+
+        if (attribute.getInputUnit() != null) {
+            gen.writeObjectField(ATTRIBUTE_UNIT, JsonFactory.buildUnit(attribute.getInputUnit()));
+        }
+
+        if (attribute.hasSample()) {
+            List<JEVisSample> allSamples = attribute.getAllSamples();
+            if (allSamples == null) {
+                throw new IOException("Sample query returned null for attribute "
+                        + attribute.getName() + " on object " + attribute.getObjectID());
+            }
+
+            logger.info("Found {} samples on attribute {}. Writing samples.",
+                    allSamples.size(), attribute.getName());
+
+            gen.writeArrayFieldStart(ATTRIBUTE_SAMPLES);
+            if (isScalarPrimitiveType(attribute.getPrimitiveType())) {
+                for (JEVisSample jeVisSample : allSamples) {
+                    gen.writeStartObject();
+                    gen.writeStringField(SAMPLE_TS, jeVisSample.getTimestamp().toString());
+                    gen.writeStringField(SAMPLE_VALUE, jeVisSample.getValueAsString());
+                    String note = jeVisSample.getNote();
+                    gen.writeStringField(NOTE, note != null ? note : "");
+                    gen.writeEndObject();
+                    writtenSamples++;
+                }
+            }
+            gen.writeEndArray();
+        }
+
+        gen.writeEndObject();
+        gen.close();
+        return writtenSamples;
+    }
+
+    public ObjectNode toJson(JEVisObject object) throws JEVisException {
+        ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
+        objectNode.put(OBJECT_NAME, object.getName());
+
+        logger.info("Created object {}", object.getName());
+
+        objectNode.put(OBJECT_CLASS, object.getJEVisClassName());
+        ArrayNode arrayNode = objectNode.putArray(OBJECT_LANG);
+
+        for (Map.Entry<String, String> entry : object.getLocalNameList().entrySet()) {
+            String lang = entry.getKey();
+            String translatedName = entry.getValue();
+
+            ObjectNode langNode = JsonNodeFactory.instance.objectNode();
+            langNode.put(lang, translatedName);
+            arrayNode.add(langNode);
+        }
+
+        return objectNode;
     }
 
     /**
@@ -1312,90 +1993,71 @@ public class TreeExporter {
                 || primitiveType == JEVisConstants.PrimitiveType.STRING;
     }
 
-    /**
-     * Writes a non-FILE, non-PASSWORD attribute (metadata + all samples) directly onto {@code out}
-     * as a single streamed JSON object, instead of building an in-memory Jackson tree first. For
-     * attributes with long sample histories this avoids holding every sample as both a
-     * {@link JEVisSample} and a duplicate JSON-tree node in memory at once.
-     *
-     * @param out       the open ZIP stream, positioned at the attribute's entry
-     * @param attribute the attribute to serialize
-     */
-    private void writeAttributeJson(ZipOutputStream out, JEVisAttribute attribute) throws IOException {
-        logger.info("Writing attribute {} of object {}:{}",
-                attribute.getName(), attribute.getObject().getName(), attribute.getObject().getID());
-
-        JsonGenerator gen = mapper.getFactory().createGenerator(out);
-        gen.setCodec(mapper);
-        gen.writeStartObject();
-        gen.writeStringField(ATTRIBUTE_NAME, attribute.getName());
-
-        try {
-            if (attribute.getInputSampleRate() != null) {
-                gen.writeStringField(ATTRIBUTE_RATE, attribute.getInputSampleRate().toString());
-            }
-
-            if (attribute.getInputUnit() != null) {
-                gen.writeObjectField(ATTRIBUTE_UNIT, JsonFactory.buildUnit(attribute.getInputUnit()));
-            }
-
-            if (attribute.hasSample()) {
-                List<JEVisSample> allSamples = attribute.getAllSamples();
-
-                logger.info("Found {} samples on attribute {}. Writing samples.",
-                        allSamples.size(), attribute.getName());
-
-                gen.writeArrayFieldStart(ATTRIBUTE_SAMPLES);
-                if (isScalarPrimitiveType(attribute.getPrimitiveType())) {
-                    for (JEVisSample jeVisSample : allSamples) {
-                        try {
-                            gen.writeStartObject();
-                            gen.writeStringField(SAMPLE_TS, jeVisSample.getTimestamp().toString());
-                            gen.writeStringField(SAMPLE_VALUE, jeVisSample.getValueAsString());
-                            gen.writeStringField(NOTE, jeVisSample.getNote());
-                            gen.writeEndObject();
-                        } catch (Exception ex) {
-                            logger.error(ex);
-                        }
-                    }
-                }
-                gen.writeEndArray();
-            }
-        } catch (Exception e) {
-            logger.error(e);
-        }
-
-        gen.writeEndObject();
-        gen.flush();
+    private static final class ExportStats {
+        private long objects;
+        private long attributes;
+        private long samples;
+        private long fileSamples;
+        private long relationships;
+        private long skippedPasswords;
     }
 
-    public ObjectNode toJson(JEVisObject object) {
-        ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
-        objectNode.put(OBJECT_NAME, object.getName());
+    private static final class ProcessReport {
+        private static final int MAX_DETAILS = 250;
+        private final String operation;
+        private final String sourceOrTarget;
+        private final long startedAt = System.currentTimeMillis();
+        private final List<String> details = new ArrayList<>();
+        private long expectedObjects;
+        private long objects;
+        private long attributes;
+        private long samples;
+        private long fileSamples;
+        private long relationships;
+        private long skipped;
+        private long warnings;
+        private long errors;
+        private long omittedDetails;
 
-        logger.info("Created object {}", object.getName());
-
-        try {
-            objectNode.put(OBJECT_CLASS, object.getJEVisClassName());
-
-            ArrayNode arrayNode = objectNode.putArray(OBJECT_LANG);
-
-            for (Map.Entry<String, String> entry : object.getLocalNameList().entrySet()) {
-                try {
-                    String lang = entry.getKey();
-                    String translatedName = entry.getValue();
-
-                    ObjectNode langNode = JsonNodeFactory.instance.objectNode();
-                    langNode.put(lang, translatedName);
-                    arrayNode.add(langNode);
-                } catch (Exception ex) {
-                    logger.error("Error while exporting language: {} ", entry.getKey(), ex);
-                }
-            }
-        } catch (Exception e) {
-            logger.error(e);
+        private ProcessReport(String operation, File file) {
+            this.operation = operation;
+            this.sourceOrTarget = file == null ? "" : file.getAbsolutePath();
         }
 
-        return objectNode;
+        private void info(String text) {
+            addDetail("INFO", text, null);
+        }
+
+        private void warning(String text) {
+            warnings++;
+            addDetail("WARNUNG", text, null);
+        }
+
+        private void error(String text, Throwable throwable) {
+            errors++;
+            addDetail("FEHLER", text, throwable);
+        }
+
+        private void addDetail(String level, String text, Throwable throwable) {
+            if (details.size() >= MAX_DETAILS) {
+                omittedDetails++;
+                return;
+            }
+            StringBuilder line = new StringBuilder(level).append(": ").append(text);
+            if (throwable != null && throwable.getMessage() != null
+                    && !throwable.getMessage().trim().isEmpty()) {
+                line.append(" (").append(throwable.getMessage()).append(')');
+            }
+            details.add(line.toString());
+        }
+
+        private void copyExportStats(ExportStats stats) {
+            objects = stats.objects;
+            attributes = stats.attributes;
+            samples = stats.samples;
+            fileSamples = stats.fileSamples;
+            relationships = stats.relationships;
+            skipped = stats.skippedPasswords;
+        }
     }
 }

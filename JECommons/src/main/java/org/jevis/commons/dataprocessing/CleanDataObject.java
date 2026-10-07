@@ -56,6 +56,7 @@ public class CleanDataObject {
     private Boolean isPeriodAligned;
     private List<DifferentialRule> differentialRules;
     private Integer periodOffset;
+    private Integer reprocessingPeriods;
     private Boolean valueIsQuantity;
     private List<JEVisSample> multiplier;
     private Double offset;
@@ -605,6 +606,19 @@ public class CleanDataObject {
             periodOffset = periodOffsetLong.intValue();
         }
         return periodOffset;
+    }
+
+    /**
+     * Number of periods to step back from the last written sample before regenerating intervals,
+     * so retroactive upstream corrections landing up to N periods in the past get picked up
+     * automatically. Defaults to 1 (today's behavior: only the last-written period is redone).
+     */
+    public Integer getReprocessingPeriods() {
+        if (reprocessingPeriods == null) {
+            Long reprocessingPeriodsLong = sampleHandler.getLastSample(getCleanObject(), REPROCESSING_PERIODS.getAttributeName(), 1L);
+            reprocessingPeriods = Math.max(1, reprocessingPeriodsLong.intValue());
+        }
+        return reprocessingPeriods;
     }
 
     public Boolean getValueIsQuantity() {
@@ -1263,6 +1277,7 @@ public class CleanDataObject {
     public enum AttributeName {
 
         PERIOD_OFFSET("Period Offset"),
+        REPROCESSING_PERIODS("Reprocessing Periods"),
         PERIOD_ALIGNMENT("Period Alignment"),
         VALUE_QUANTITY("Value is a Quantity"),
         CONVERSION_DIFFERENTIAL("Conversion to Differential"),

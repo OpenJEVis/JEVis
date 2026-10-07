@@ -35,12 +35,20 @@ public class JEVisImporterAdapter {
 
     public synchronized static void importResults(List<Result> results, Importer importer, JEVisObject channel) {
         DateTime date = importer.importResult(results);
+        if (date == null) {
+            logger.error("Result import failed or was incomplete; Last Readout remains unchanged");
+            return;
+        }
         setLastReadout(channel, date);
         logger.info("Result List was imported to JEVis Last Readout was set To: {}", date);
     }
 
     public synchronized static void importResultsWithLastReadoutOffset(List<Result> results, Importer importer, JEVisObject channel, int offset) {
         DateTime date = importer.importResult(results);
+        if (date == null) {
+            logger.error("Result import failed or was incomplete; Last Readout remains unchanged");
+            return;
+        }
         date = date.plusSeconds(offset);
         setLastReadout(channel, date);
         logger.info("Result List was imported to JEVis with Last Readout Offset set To: {}", date);
@@ -76,6 +84,10 @@ public class JEVisImporterAdapter {
     }
 
     public static void setLastReadout(JEVisObject channel, DateTime lastDateTime) {
+        if (lastDateTime == null) {
+            logger.error("Cannot set Last Readout without a timestamp");
+            return;
+        }
         try {
             String toString = lastDateTime.toString();
 

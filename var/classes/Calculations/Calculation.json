@@ -54,6 +54,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Calculation"
+    },
+    {
+      "name": "Reprocessing Periods",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Calculation"
     }
   ]
 }

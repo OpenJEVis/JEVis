@@ -187,7 +187,8 @@ public class CalcJobFactory {
             if (outputAttributes.size() == 1 && !startTime.equals(new DateTime(0))) {
                 JEVisObject object = outputAttributes.get(0).getObject();
                 Period period = CleanDataObject.getPeriodForDate(object, startTime);
-                startTime = startTime.minus(period);
+                int reprocessingPeriods = getReprocessingPeriods(sampleHandler, jevisObject);
+                startTime = startTime.minus(period.multipliedBy(reprocessingPeriods));
             }
 
         } else startTime = lastEndTime;
@@ -606,6 +607,51 @@ public class CalcJobFactory {
     }
 
 
+    /**
+     * Number of periods to step back from the last output sample before resuming, so retroactive
+     * upstream corrections landing up to N periods in the past get picked up automatically.
+     * Defaults to 1 (today's behavior: only the last output period is redone).
+     */
+    private int getReprocessingPeriods(SampleHandler sampleHandler, JEVisObject jevisObject) {
+        Long reprocessingPeriods = sampleHandler.getLastSample(jevisObject, Calculation.REPROCESSING_PERIODS.getName(), 1L);
+        return Math.max(1, reprocessingPeriods.intValue());
+    }
+
+    /**
+     * Resolves which JEVis objects this Calculation writes to and reads from, without building a
+     * full {@link CalcJob}. Used by callers (e.g. {@code CalcLauncher}) to build a producer/consumer
+     * graph across all enabled Calculations, so same-cycle chains can be executed in dependency
+     * order instead of arbitrary/parallel order.
+     */
+    public CalcDependencyInfo resolveDependencyInfo(JEVisObject jevisObject, JEVisDataSource ds) {
+        List<Long> outputObjectIds = new ArrayList<>();
+        for (JEVisAttribute attribute : getAllOutputAttributes(jevisObject)) {
+            try {
+                outputObjectIds.add(attribute.getObject().getID());
+            } catch (Exception e) {
+                logger.error("Could not resolve output object for dependency graph, calc id {}", jevisObject.getID(), e);
+            }
+        }
+
+        List<Long> inputObjectIds = new ArrayList<>();
+        for (JEVisObject inputChild : getCalcInputObjects(jevisObject)) {
+            try {
+                JEVisAttribute targetAttr = inputChild.getAttribute(Calculation.INPUT_DATA.getName());
+                TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+                if (!targetHelper.getAttribute().isEmpty()) {
+                    JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+                    if (valueAttribute != null) {
+                        inputObjectIds.add(valueAttribute.getObject().getID());
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Could not resolve input target for dependency graph, calc id {}, input id {}", jevisObject.getID(), inputChild.getID(), e);
+            }
+        }
+
+        return new CalcDependencyInfo(jevisObject.getID(), outputObjectIds, inputObjectIds);
+    }
+
     public enum Calculation {
 
         CLASS("Calculation"),
@@ -618,7 +664,8 @@ public class CalcJobFactory {
         INPUT_TYPE("Input Data Type"),
         DIV0_HANDLING("DIV0 Handling"),
         STATIC_VALUE("Static Value"),
-        ALL_ZERO_VALUE("All Zero Value");
+        ALL_ZERO_VALUE("All Zero Value"),
+        REPROCESSING_PERIODS("Reprocessing Periods");
 
         private final String name;
 
@@ -630,6 +677,33 @@ public class CalcJobFactory {
             return name;
         }
 
+    }
+
+    /**
+     * Producer/consumer resolution for one Calculation, used only for dependency graph building.
+     */
+    public static class CalcDependencyInfo {
+        private final long calcObjectId;
+        private final List<Long> outputObjectIds;
+        private final List<Long> inputObjectIds;
+
+        public CalcDependencyInfo(long calcObjectId, List<Long> outputObjectIds, List<Long> inputObjectIds) {
+            this.calcObjectId = calcObjectId;
+            this.outputObjectIds = outputObjectIds;
+            this.inputObjectIds = inputObjectIds;
+        }
+
+        public long getCalcObjectId() {
+            return calcObjectId;
+        }
+
+        public List<Long> getOutputObjectIds() {
+            return outputObjectIds;
+        }
+
+        public List<Long> getInputObjectIds() {
+            return inputObjectIds;
+        }
     }
 
 }

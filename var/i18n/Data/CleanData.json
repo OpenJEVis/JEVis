@@ -374,6 +374,17 @@
         "en": "Alarm Log",
         "ar": "سجل الإنذار"
       }
+    },
+    {
+      "type": "Reprocessing Periods",
+      "descriptions": {
+        "de": "Anzahl der Perioden, die vor dem letzten geschriebenen Wert erneut verarbeitet werden, um rückwirkende Korrekturen automatisch zu übernehmen",
+        "en": "Number of periods before the last written value to reprocess, so retroactive corrections are picked up automatically"
+      },
+      "names": {
+        "de": "Wiederverarbeitungsperioden",
+        "en": "Reprocessing Periods"
+      }
     }
   ]
 }
