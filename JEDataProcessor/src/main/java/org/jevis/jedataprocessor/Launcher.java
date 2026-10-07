@@ -83,14 +83,12 @@ public class Launcher extends AbstractCliApp {
                             ds.reloadAttribute(currentCleanDataObject);
                             currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds), processingSize);
                             currentProcess.start();
+                            LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
                         } catch (Exception ex) {
                             logger.debug("Error in job {}:{}", currentCleanDataObject.getName(), currentCleanDataObject.getID(), ex);
                             if (currentProcess != null) currentProcess.setFinished(true);
                             LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
-                            removeJob(currentCleanDataObject);
                         }
-
-                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
 
@@ -99,7 +97,10 @@ public class Launcher extends AbstractCliApp {
                     } finally {
                         StringBuilder finished = new StringBuilder();
                         finished.append(currentCleanDataObject.getID()).append(" in ");
-                        String length = new Period(runningJobs.get(currentCleanDataObject.getID()), new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
+                        DateTime started = runningJobs.get(currentCleanDataObject.getID());
+                        String length = started != null
+                                ? new Period(started, new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()))
+                                : "unknown duration";
                         removeJob(currentCleanDataObject);
                         finished.append(length);
 

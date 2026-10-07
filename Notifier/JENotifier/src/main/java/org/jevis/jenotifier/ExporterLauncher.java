@@ -92,18 +92,18 @@ public class ExporterLauncher extends AbstractCliApp {
                             logger.error("Has no new Data");
                         }
 
+                        LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setStatus(Task.Status.FINISHED);
+
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setStatus(Task.Status.FAILED);
-                        removeJob(exporterObject.getExportObject());
-
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                        checkLastJob();
+                        logger.error("Export job failed for object {}", exporterObject.getObjectID(), e);
                     } finally {
-                        LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setStatus(Task.Status.FINISHED);
                         StringBuilder finished = new StringBuilder();
                         finished.append(exporterObject.getObjectID()).append(" in ");
-                        String length = new Period(runningJobs.get(exporterObject.getObjectID()), new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()));
+                        DateTime started = runningJobs.get(exporterObject.getObjectID());
+                        String length = started != null
+                                ? new Period(started, new DateTime()).toString(PeriodFormat.wordBased(I18n.getInstance().getLocale()))
+                                : "unknown duration";
                         removeJob(exporterObject.getExportObject());
                         finished.append(length);
 

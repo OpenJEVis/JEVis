@@ -430,12 +430,12 @@ public abstract class AbstractCliApp {
     }
 
     protected void removeJob(JEVisObject object) {
-        runnables.forEach((objectID, futureTask) -> {
-            if (objectID.equals(object.getID())) {
-                futureTask.cancel(true);
-            }
-        });
-
+        // This method is called by the worker itself after normal completion.
+        // Cancelling its own FutureTask here changes the final state from
+        // "completed" to "cancelled". Callers waiting on the task with get()
+        // would consequently receive a CancellationException although the job
+        // finished successfully. Real cancellation (for example on timeout)
+        // is handled explicitly in checkForTimeout().
         runningJobs.remove(object.getID());
         plannedJobs.remove(object.getID());
         runnables.remove(object.getID());

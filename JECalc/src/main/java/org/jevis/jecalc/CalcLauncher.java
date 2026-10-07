@@ -19,7 +19,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.PeriodFormat;
 
 import java.util.*;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.*;
 
 /**
  * Entry point for the JECalc background service.
@@ -40,6 +40,7 @@ public class CalcLauncher extends AbstractCliApp {
     private static final Logger logger = LogManager.getLogger(CalcLauncher.class);
     private final Command commands = new Command();
     private static final String APP_INFO = "JECalc";
+    private static final long JOB_WAIT_CHECK_SECONDS = 10L;
 
     public CalcLauncher(String[] args, String appname) {
         super(args, appname);
@@ -92,10 +93,10 @@ public class CalcLauncher extends AbstractCliApp {
         List<List<JEVisObject>> levels = buildDependencyLevels(enabledCalcObject);
 
         for (List<JEVisObject> level : levels) {
-            List<FutureTask<?>> submitted = new ArrayList<>();
+            Map<Long, FutureTask<?>> submitted = new LinkedHashMap<>();
             for (JEVisObject object : level) {
                 if (!runningJobs.containsKey(object.getID())) {
-                    submitted.add(submitJob(object));
+                    submitted.put(object.getID(), submitJob(object));
                 } else {
                     logger.info("Still processing Job {}:{}", object.getName(), object.getID());
                 }
@@ -104,12 +105,40 @@ public class CalcLauncher extends AbstractCliApp {
             // Parallelize within a level, but wait for the whole level to finish before
             // submitting the next one, so a Calc's freshly written output is visible to
             // any Calc in the next level that consumes it, within the same cycle.
-            for (FutureTask<?> ft : submitted) {
-                try {
-                    ft.get();
-                } catch (Exception e) {
-                    logger.error("Error while waiting for calc job dependency level to complete", e);
+            for (Map.Entry<Long, FutureTask<?>> entry : submitted.entrySet()) {
+                if (!waitForJob(entry.getKey(), entry.getValue())) {
+                    logger.warn("Stopping this calculation cycle; dependent levels will not be started");
+                    return;
                 }
+            }
+        }
+    }
+
+    /**
+     * Waits for a calculation while keeping the service timeout monitoring active.
+     *
+     * @return {@code true} only when the job completed normally
+     */
+    private boolean waitForJob(Long objectId, FutureTask<?> futureTask) {
+        while (true) {
+            try {
+                futureTask.get(JOB_WAIT_CHECK_SECONDS, TimeUnit.SECONDS);
+                return true;
+            } catch (TimeoutException e) {
+                // executeCalcJobs() waits synchronously for a dependency level.
+                // Therefore the regular service loop cannot perform this check.
+                checkForTimeout();
+            } catch (CancellationException e) {
+                logger.warn("Calculation job {} was cancelled, probably because its maximum runtime was exceeded", objectId);
+                return false;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.warn("Waiting for calculation job {} was interrupted", objectId);
+                return false;
+            } catch (ExecutionException e) {
+                Throwable cause = e.getCause() != null ? e.getCause() : e;
+                logger.error("Calculation job {} failed while waiting for dependency level", objectId, cause);
+                return false;
             }
         }
     }

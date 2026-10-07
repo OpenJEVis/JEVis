@@ -38,7 +38,6 @@ public class Launcher extends AbstractCliApp {
     private static final Logger logger = LogManager.getLogger(Launcher.class);
     private final Command commands = new Command();
     private boolean firstRun = true;
-    private final ConcurrentHashMap<Long, FutureTask<?>> runnables = new ConcurrentHashMap<>();
     private final SampleHandler sampleHandler = new SampleHandler();
     private final ConcurrentHashMap<Long, DateTime> lastRunTimes = new ConcurrentHashMap<>();
 
@@ -130,7 +129,6 @@ public class Launcher extends AbstractCliApp {
     }
 
     private void runDataSource(JEVisObject object, DataSource dataSource, boolean finish) {
-        boolean attemptedRun = false;
         boolean success = false;
         String errorMessage = "";
         try {
@@ -142,7 +140,6 @@ public class Launcher extends AbstractCliApp {
 
             dataSource.initialize(object);
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
-            attemptedRun = true;
             dataSource.run();
             success = true;
         } catch (Throwable e) {
@@ -159,7 +156,11 @@ public class Launcher extends AbstractCliApp {
             errorMessage = msg.length() > 200 ? msg.substring(0, 200) : msg;
 
         } finally {
-            LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+            try {
+                LogTaskManager.getInstance().getTask(object.getID()).setStatus(success ? Task.Status.FINISHED : Task.Status.FAILED);
+            } catch (Exception e) {
+                logger.warn("Could not update task status for data source {}:{}", object.getName(), object.getID(), e);
+            }
 
             if (finish) {
                 dataSource.finishCurrentRun(object, success, errorMessage);
