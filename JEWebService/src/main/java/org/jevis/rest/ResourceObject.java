@@ -36,7 +36,6 @@ import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.xml.ws.WebServiceContext;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -71,7 +70,6 @@ public class ResourceObject {
      * @param httpHeaders     HTTP headers (used for authentication)
      * @param request         JAX-RS request context
      * @param url             URI info context
-     * @param serviceContext  web service context
      * @param root            if {@code true}, return only root objects
      * @param jclass          if non-empty, filter by JEVis class name
      * @param inherit         if {@code true}, include objects of subclasses when filtering by class
@@ -91,7 +89,6 @@ public class ResourceObject {
             @Context HttpHeaders httpHeaders,
             @Context Request request,
             @Context UriInfo url,
-            @Context WebServiceContext serviceContext,
             @DefaultValue("false") @QueryParam("root") boolean root,
             @DefaultValue("") @QueryParam("class") String jclass,
             @DefaultValue("true") @QueryParam("inherit") boolean inherit,
