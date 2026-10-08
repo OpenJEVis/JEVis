@@ -32,6 +32,7 @@ import java.sql.SQLException;
 public class ConnectionFactory {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ConnectionFactory.class);
+    private static final String MYSQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
     private static ConnectionFactory instance;
     private BasicDataSource ds;
 
@@ -79,6 +80,10 @@ public class ConnectionFactory {
             }
 
             ds = new BasicDataSource();
+            // Use Connector/J 8 explicitly. This also prevents an obsolete
+            // Connector/J 5.x driver from being selected if an old jar is
+            // still present on the application class path.
+            ds.setDriverClassName(MYSQL_DRIVER_CLASS);
             ds.setUrl(conString);
             ds.setUsername(dbUser);
             ds.setPassword(dbPW);
