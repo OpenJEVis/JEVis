@@ -61,8 +61,11 @@ public class Main {
     /**
      * Starts the JEWebService.
      *
-     * @param args optional: {@code args[0]} path to {@code config.xml};
-     *             {@code args[1]} {@code "true"} to clean orphaned file-store folders on startup
+     * @param args optional: path to {@code config.xml}, either as the first
+     *             positional argument or as {@code -c <path>},
+     *             {@code --config <path>} or {@code --config=<path>}; followed
+     *             optionally by {@code "true"} to clean orphaned file-store
+     *             folders on startup
      * @throws SQLException            if the database connection cannot be established
      * @throws AuthenticationException if authentication cannot be configured
      * @throws JEVisException          if JEVis initialization fails
@@ -93,8 +96,26 @@ public class Main {
 
         logger.info("Start - {}", VERSION);
 
+        int nextArgumentIndex = 0;
         if (args.length >= 1) {
-            configfile = new File(args[0]);
+            if ("-c".equals(args[0]) || "--config".equals(args[0])) {
+                if (args.length < 2 || args[1].trim().isEmpty()) {
+                    throw new IllegalArgumentException("Missing configuration file after " + args[0]);
+                }
+                configfile = new File(args[1]);
+                nextArgumentIndex = 2;
+            } else if (args[0].startsWith("--config=")) {
+                String configPath = args[0].substring("--config=".length()).trim();
+                if (configPath.isEmpty()) {
+                    throw new IllegalArgumentException("Missing configuration file after --config=");
+                }
+                configfile = new File(configPath);
+                nextArgumentIndex = 1;
+            } else {
+                // Backwards-compatible positional syntax: java -jar ... /path/config.xml
+                configfile = new File(args[0]);
+                nextArgumentIndex = 1;
+            }
         } else {
             //default workaround
             configfile = new File("config.xml");
@@ -107,8 +128,8 @@ public class Main {
         }
         Config.readConfigurationFile(configfile);
 
-        if (args.length >= 2) {
-            cleanFiles = Boolean.parseBoolean(args[1]);
+        if (args.length > nextArgumentIndex) {
+            cleanFiles = Boolean.parseBoolean(args[nextArgumentIndex]);
         }
 
         //Test Connection parameter
