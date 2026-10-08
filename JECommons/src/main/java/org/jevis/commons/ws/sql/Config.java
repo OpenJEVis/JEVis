@@ -350,14 +350,14 @@ public class Config {
                     fileIsLoaded = true;
                 } else {
                     logger.fatal("Warning config file does not exist: {}", cfile.getAbsolutePath());
-//                    Logger.getLogger(Config.class.getName()).log(Level.SEVERE, "Warning config file does not exist: " + cfile.getAbsolutePath());
+                    throw new IllegalStateException("Config file does not exist: " + cfile.getAbsolutePath());
                 }
 
             }
 
         } catch (ConfigurationException ex) {
             logger.fatal("Unable to read config", ex);
-//            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Unable to read config file: " + cfile.getAbsolutePath(), ex);
         }
     }
 

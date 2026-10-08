@@ -111,6 +111,10 @@ public class ConnectionFactory {
             try {
                 return ds.getConnection();
             } catch (SQLException ex) {
+                if (isAuthenticationFailure(ex)) {
+                    logger.error("SQL authentication failed; retries cannot resolve invalid credentials or account permissions");
+                    throw ex;
+                }
                 return getConnection(0);
             }
         } else {
@@ -141,6 +145,10 @@ public class ConnectionFactory {
 
                 } catch (SQLException sqlex) {
                     logger.error("SQL Connection error: {}", sqlex.toString(), sqlex);
+                    if (isAuthenticationFailure(sqlex)) {
+                        logger.error("SQL authentication failed; stopping retries");
+                        throw sqlex;
+                    }
                     return getConnection(++retry);
                 }
 
@@ -154,6 +162,25 @@ public class ConnectionFactory {
             throw new SQLException("No SQL Connection");
         }
 
+    }
+
+    /**
+     * Authentication failures are permanent until the configuration or MySQL
+     * account is changed. Retrying them only delays startup and repeats the
+     * same stack trace.
+     */
+    private boolean isAuthenticationFailure(Throwable error) {
+        Throwable current = error;
+        while (current != null) {
+            if (current instanceof SQLException) {
+                SQLException sqlException = (SQLException) current;
+                if ("28000".equals(sqlException.getSQLState()) || sqlException.getErrorCode() == 1045) {
+                    return true;
+                }
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 
 }

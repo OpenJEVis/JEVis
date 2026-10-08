@@ -118,8 +118,9 @@ public class Main {
 //
 //            // }
 //        }
-        logger.info("DBHost: {}\nDBPort: {}\nDBSchema: {}\nDBUSer: {}\nDBPW: {} \nDBOptions: '{}'",
-                Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
+        logger.info("DBHost: {}\nDBPort: {}\nDBSchema: {}\nDBUser: {}\nDB password configured: {}\nDBOptions: '{}'",
+                Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(),
+                Config.getDBPW() != null && !Config.getDBPW().isEmpty(), Config.getConnectionOptions());
         ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
 
 
