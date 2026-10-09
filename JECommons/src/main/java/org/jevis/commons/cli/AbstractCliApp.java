@@ -193,15 +193,27 @@ public abstract class AbstractCliApp {
             comm.usage();
         } else {
 
+            if (settings.config == null || !settings.config.isFile() || !settings.config.canRead()) {
+                logger.fatal("Configuration file not found or not readable: {}",
+                        settings.config != null ? settings.config.getAbsolutePath() : null);
+                System.exit(1);
+            }
+
             try {
                 optMap.putAll(ConfHelper.ParseJEVisConfiguration(settings.config, JEVIS_BRANCH, optMap));
                 optMap.putAll(ConfHelper.ParseJEVisConfiguration(settings.config, AUTH_BRANCH, optMap));
             } catch (ConfigurationException ex) {
-                logger.warn("Configuration parsing failed. Сheck the configuration file", ex);
+                logger.fatal("Configuration parsing failed. Check the configuration file: {}", settings.config.getAbsolutePath(), ex);
+                System.exit(1);
             }
 
             if (!settings.options.isEmpty()) {
                 optMap.putAll(ConfHelper.ParseJEVisConfiguration(settings.options, optMap));
+            }
+
+            if (optMap.get(DS) == null) {
+                logger.fatal("No <datasource> section found under <jevis> in configuration file: {}", settings.config.getAbsolutePath());
+                System.exit(1);
             }
 
             DataSourceLoader dsl = new DataSourceLoader();
@@ -209,7 +221,8 @@ public abstract class AbstractCliApp {
             try {
                 ds = dsl.getDataSource(optMap.get(DS));
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                logger.fatal("JEVisDataSource not created. Сheck the configuration file data.", ex);
+                logger.fatal("JEVisDataSource not created. Check the configuration file data.", ex);
+                System.exit(1);
             }
 
             ds.setConfiguration(new ArrayList<>(optMap.values()));

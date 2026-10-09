@@ -163,8 +163,13 @@ public class Launcher extends AbstractCliApp {
 
     private boolean isReady(JEVisObject object) {
         DateTime lastRun = getLastRun(object);
-        DateTime nextRun = lastRun.plusMillis(cycleTime);
-        return DateTime.now().equals(nextRun) || DateTime.now().isAfter(nextRun);
+        DateTime nextRun = lastRun.plus(getObjectCycleTime(object));
+        return !DateTime.now().isBefore(nextRun);
+    }
+
+    private long getObjectCycleTime(JEVisObject object) {
+        long objectCycleTime = getCycleTimeFromService(object);
+        return objectCycleTime > 0 ? objectCycleTime : cycleTime;
     }
 
     private DateTime getLastRun(JEVisObject object) {
@@ -192,8 +197,14 @@ public class Launcher extends AbstractCliApp {
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
             if (lastRunAttribute != null) {
-                DateTime dateTime = lastRun.plusMillis(cycleTime);
-                JEVisSample newSample = lastRunAttribute.buildSample(DateTime.now(), dateTime);
+                // Each JEStatus service object has its own cycle time (e.g. 86400000 for a daily report).
+                // Advance by whole cycles to keep the configured time of day, but skip missed cycles
+                // so a long downtime does not trigger one report per polling interval.
+                long objectCycleTime = getObjectCycleTime(object);
+                DateTime now = DateTime.now();
+                long elapsedCycles = Math.max(1, (now.getMillis() - lastRun.getMillis()) / objectCycleTime);
+                DateTime dateTime = lastRun.plus(elapsedCycles * objectCycleTime);
+                JEVisSample newSample = lastRunAttribute.buildSample(now, dateTime);
                 newSample.commit();
             }
 

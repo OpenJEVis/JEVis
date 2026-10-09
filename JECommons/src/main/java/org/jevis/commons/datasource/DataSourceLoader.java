@@ -47,6 +47,9 @@ public class DataSourceLoader {
      * @throws IllegalAccessException
      */
     public JEVisDataSource getDataSource(JEVisOption config) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        if (config == null) {
+            throw new ClassNotFoundException("DataSource option group not found");
+        }
         logger.trace("DSL config.size: {}", config.getOptions().size());
         if (config.getKey().equalsIgnoreCase(CommonOptions.DataSource.DataSource.getKey())) {
 
@@ -62,6 +65,7 @@ public class DataSourceLoader {
             }
 
         } else {
+
             throw new ClassNotFoundException("DataSource option group not found");
         }
 
