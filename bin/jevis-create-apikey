@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# Creates an API key for a JEVis service account and writes it to etc/service.key (readable only by jevis).
+# The services read it via <authentication><apikeyfile> in etc/jevis.xml.
+#
+# Usage: jevis-create-apikey "<service user name>" ["<key name>"] [key file]
+#
+# Needs the database migration V10__Create_Auth_Tables.sql (mysqldb: mvn flyway:migrate).
+
+source /etc/jevis/jevis.env
+
+if [ -z "$1" ]; then
+	echo "Usage: $0 \"<service user name>\" [\"<key name>\"] [key file]" >&2
+	exit 2
+fi
+
+USER_NAME="$1"
+KEY_NAME="${2:-services@$(hostname)}"
+KEY_FILE="${3:-${JEVIS_HOME}/etc/service.key}"
+JAR=$(ls -t ${JEVIS_HOME}/JEWebService/target/JEWebservice-*-jar-with-dependencies.jar 2>/dev/null | head -n 1)
+
+if [ -z "$JAR" ]; then
+	echo "JEWebService jar not found, build JEVis first." >&2
+	exit 1
+fi
+
+umask 077
+KEY=$(java -Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2_service.xml \
+	-DserviceLogFile=${JEVIS_HOME}/var/log/jevis-create-apikey.log \
+	-jar "$JAR" ${JEVIS_HOME}/etc/webservice.xml --create-api-key "$USER_NAME" "$KEY_NAME" | tail -n 1)
+
+if [[ "$KEY" != jvk_* ]]; then
+	echo "Could not create the API key, see ${JEVIS_HOME}/var/log/jevis-create-apikey.log" >&2
+	exit 1
+fi
+
+echo "$KEY" > "$KEY_FILE"
+chmod 600 "$KEY_FILE"
+echo "API key for '$USER_NAME' written to $KEY_FILE"
+echo "Restart the JEVis services to use it."
