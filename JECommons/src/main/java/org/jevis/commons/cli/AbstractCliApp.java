@@ -35,6 +35,10 @@ import org.jevis.commons.task.TaskPrinter;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -52,6 +56,10 @@ public abstract class AbstractCliApp {
     private static final String DS = "datasource";
     private static final String JEVUSER = "jevisuser";
     private static final String JEVPW = "jevispass";
+    private static final String APIKEY = "apikey";
+    private static final String APIKEYFILE = "apikeyfile";
+    private static final String ENV_API_KEY = "JEVIS_API_KEY";
+    private boolean passwordWarningShown = false;
     protected final ConcurrentHashMap<Long, DateTime> runningJobs = new ConcurrentHashMap<>();
 
     private final Map<String, JEVisOption> optMap;
@@ -149,9 +157,22 @@ public abstract class AbstractCliApp {
 
         if (counter < 12) {
             try {
-                active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
+                String apiKey = resolveApiKey();
+                if (apiKey != null) {
+                    active = ds.connectWithApiKey(apiKey);
+                } else if (optMap.get(JEVUSER) != null && optMap.get(JEVPW) != null) {
+                    if (!passwordWarningShown) {
+                        passwordWarningShown = true;
+                        logger.warn("The service logs in with <jevisuser>/<jevispass>. This is deprecated, "
+                                + "create an API key for a service account and use <authentication><apikey> instead.");
+                    }
+                    active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
+                } else {
+                    logger.fatal("No credentials configured: set <authentication><apikey>, <apikeyfile> or the environment variable {}", ENV_API_KEY);
+                    active = false;
+                }
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Login failed: {}", e.getMessage(), e);
             }
 
             if (!active) {
@@ -166,6 +187,33 @@ public abstract class AbstractCliApp {
         }
 
         return active;
+    }
+
+    /**
+     * Returns the API key of the service account. Order: environment variable {@value #ENV_API_KEY}, the file
+     * {@code <authentication><apikeyfile>}, then {@code <authentication><apikey>}.
+     *
+     * @return the key, or {@code null} if none is configured
+     */
+    private String resolveApiKey() {
+        String env = System.getenv(ENV_API_KEY);
+        if (env != null && !env.trim().isEmpty()) {
+            return env.trim();
+        }
+        JEVisOption keyFile = optMap.get(APIKEYFILE);
+        if (keyFile != null && keyFile.getValue() != null && !keyFile.getValue().trim().isEmpty()) {
+            try {
+                String key = new String(Files.readAllBytes(Paths.get(keyFile.getValue().trim())), StandardCharsets.UTF_8).trim();
+                if (!key.isEmpty()) return key;
+            } catch (IOException ex) {
+                logger.error("Could not read API key file {}: {}", keyFile.getValue(), ex.getMessage());
+            }
+        }
+        JEVisOption key = optMap.get(APIKEY);
+        if (key != null && key.getValue() != null && !key.getValue().trim().isEmpty()) {
+            return key.getValue().trim();
+        }
+        return null;
     }
 
     protected void sleep() {

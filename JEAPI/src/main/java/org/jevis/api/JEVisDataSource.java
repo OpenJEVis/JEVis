@@ -189,6 +189,17 @@ public interface JEVisDataSource {
     boolean connect(String token)throws JEVisException;
 
     /**
+     * Connect to the DataSource with the API key of a service account ({@code jvk_<id>.<secret>}).
+     *
+     * @param apiKey the API key
+     * @return true if the connection was successful
+     * @throws JEVisException if the server is not reachable
+     */
+    default boolean connectWithApiKey(String apiKey) throws JEVisException {
+        throw new UnsupportedOperationException("API keys are not supported by " + getClass().getSimpleName());
+    }
+
+    /**
      * Close the DataSource connection
      *
      * @return

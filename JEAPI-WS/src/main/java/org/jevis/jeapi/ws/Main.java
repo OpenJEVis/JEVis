@@ -34,7 +34,7 @@ public class Main {
     public static void main(String[] args) throws JEVisException {
         JEVisDataSource ds = new JEVisDataSourceWS();
         ds.init(null);
-        ds.connect("Sys Admin", "OpenJEVis2016");
+        ds.connect(System.getenv("JEVIS_USER"), System.getenv("JEVIS_PASSWORD"));
 
         logger.info("Test#0");
         logger.info("User: " + ds.getCurrentUser().getFirstName() + " " + ds.getCurrentUser().getLastName());

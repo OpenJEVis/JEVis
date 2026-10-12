@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
+import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -88,116 +89,19 @@ public class ResourceSample {
     public final List<String> executeUpdateExceptions = Arrays.asList(executeClasses);
     private SQLDataSource ds = null;
     private List<JsonSample> list;
+    private static final String PASSWORD_MASK = "********";
+    private static final String OWN_PASSWORD_MESSAGE = "Use POST /JEWebService/v1/auth/password to change your own password";
     //public final List<String> executeUpdateExceptions = Lists.newArrayList("Data Notes", "User Data", "Clean Data");
 
     //JEWebService/v1/files/8598/attributes/File/samples/files/20180604T141441?filename=nb-configuration.xml
     //JEWebService/v1/objects/{id}/attributes/{attribute}/samples
 
     /**
-     * Uploads a binary file as a file sample for the given object/attribute at a specific timestamp.
-     *
-     * @param httpHeaders HTTP headers (used for authentication)
-     * @param request     JAX-RS request context
-     * @param url         URI info context
-     * @param id          JEVis object ID
-     * @param attribute   attribute name
-     * @param filename    original filename (default {@code "nameless.file"})
-     * @param timestamp   sample timestamp in ISO format, or {@code "now"}
-     * @param payload     the raw binary content of the file
-     * @return 201 CREATED on success, or an appropriate error response
+     * Users change their own password with {@code POST /auth/password}, which requires the old password. Only legacy
+     * clients using Basic auth may still write it as sample, their request already contains the current password.
      */
-    @POST
-    @Logged
-    @Path("/files/{timestamp}")
-    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    public Response postSampleFiles(
-            @Context HttpHeaders httpHeaders,
-            @Context Request request,
-            @Context UriInfo url,
-            @PathParam("id") long id,
-            @PathParam("attribute") String attribute,
-            @DefaultValue("nameless.file") @QueryParam("filename") String filename,
-            @DefaultValue("now") @PathParam("timestamp") String timestamp,
-            //            @DefaultValue("file.file") @QueryParam("filename") String filename,
-            InputStream payload
-    ) {
-        try {
-            ds = new SQLDataSource(httpHeaders, request, url);
-
-            JsonObject obj = ds.getObject(id);
-            if (obj == null) {
-                return Response.status(Status.NOT_FOUND)
-                        .entity("Object is not accessible").build();
-            }
-
-            if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
-                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                    return Response.status(Status.FORBIDDEN).entity("User is not allowed to change its own status").build();
-                } else {
-                    // allow user to change its own user attributes
-                }
-
-
-            } else {
-                ds.getUserManager().canWrite(obj);
-            }
-
-            if (timestamp.equals("now")) {
-                timestamp = fmt.print(new DateTime());
-            }
-
-            // this is invalidating the user check
-            // ds.getUserManager().canWrite(obj);//can throw exception
-
-            //Your local disk path where you want to store the file
-            String uploadedFileLocation = createFilePattern(id, attribute, filename, fmt.parseDateTime(timestamp));
-
-            File objFile = new File(uploadedFileLocation);
-            if (objFile.exists()) {
-                objFile.delete();
-            } else {
-                if (!objFile.getParentFile().exists()) {
-                    objFile.getParentFile().mkdirs();
-                }
-            }
-
-            saveToFile(payload, uploadedFileLocation);
-
-            JsonSample sample = new JsonSample();
-            sample.setTs(JsonFactory.sampleDTF.print(fmt.parseDateTime(timestamp)));
-            sample.setValue(filename);
-            sample.setNote("Uploaded by " + ds.getCurrentUser().getAccountName());
-
-            List<JsonSample> samples = new ArrayList<>();
-            samples.add(sample);
-
-            JsonType type = JEVisClassHelper.getType(obj.getJevisClass(), attribute);
-
-
-            int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
-            samples.clear();
-
-            if (obj.getJevisClass().equals("User")) {
-                if (attribute.equals("Password") || attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                    CachedAccessControl.getInstance(ds,true).updateUser(ds);
-                }
-            }
-
-
-            return Response.status(Status.OK).build();
-
-        } catch (AuthenticationException ex) {
-            logger.error("Auth error: {}", ex);
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-//            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
-
-        } catch (Exception jex) {
-            logger.catching(jex);
-            return Response.serverError().build();
-        } finally {
-            Config.CloseDS(ds);
-        }
-
+    private static boolean canChangeOwnPasswordHere(SQLDataSource ds, String attribute) {
+        return !"Password".equals(attribute) || ds.getAuthMethod() == SQLDataSource.AuthMethod.BASIC;
     }
 
 
@@ -311,6 +215,225 @@ public class ResourceSample {
     }
 
     /**
+     * Returns {@code true} if the attribute stores a password hash that must never leave the server.
+     */
+    private static boolean isPasswordAttribute(JsonObject obj, JsonAttribute att) {
+        return att.getPrimitiveType() == JEVisConstants.PrimitiveType.PASSWORD_PBKDF2
+                || ("User".equals(obj.getJevisClass()) && "Password".equals(att.getType()));
+    }
+
+    /**
+     * Replaces the stored password hash with a placeholder; timestamp and note are kept for auditing.
+     */
+    private static void maskPasswordValue(JsonSample sample) {
+        sample.setValue(PASSWORD_MASK);
+    }
+
+    /**
+     * Deletes samples for the given object/attribute within the specified time range.
+     *
+     * <p>If neither {@code from} nor {@code until} is provided, all samples are deleted.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          JEVis object ID
+     * @param attribute   attribute name
+     * @param start       ISO-8601 / yyyyMMdd'T'HHmmss lower bound, or {@code null}
+     * @param end         ISO-8601 / yyyyMMdd'T'HHmmss upper bound, or {@code null}
+     * @param onlyLatest  reserved (currently unused)
+     * @return 200 OK on success, 401 UNAUTHORIZED, or 500 on error
+     */
+    @DELETE
+    @Logged
+    public Response deleteSamples(
+            @Context HttpHeaders httpHeaders,
+            @Context Request request,
+            @Context UriInfo url,
+            @PathParam("id") long id,
+            @PathParam("attribute") String attribute,
+            @QueryParam("from") String start,
+            @QueryParam("until") String end,
+            @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest) {
+
+        try {
+            logger.debug("Delete Sample: {}:{} from:{} to:{}", id, attribute, start, end);
+            ds = new SQLDataSource(httpHeaders, request, url);
+
+            JsonObject object = ds.getObject(id);
+
+            if (object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()) {
+                if (attribute.equals("Sys Admin")) {
+                    throw new JEVisException("permission denied", 3023);
+                }
+            }
+
+            if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
+                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                    throw new JEVisException("permission denied", 3022);
+                }
+            } else if (object.getJevisClass().equals("Data Notes") || object.getJevisClass().equals("User Data")) {
+                if (!ds.getUserManager().canExecuteWOE(object)) {
+                    ds.getUserManager().canDelete(object);
+                }
+            } else {
+                ds.getUserManager().canDelete(object);
+            }
+            DateTime startDate = null;
+            DateTime endDate = null;
+            if (onlyLatest) {
+
+                //TODO
+            } else {
+                // define the timerange to delete samples from
+                if (start != null) {
+                    startDate = fmt.parseDateTime(start);
+                }
+                if (end != null) {
+                    endDate = fmt.parseDateTime(end);
+                }
+            }
+
+            if (startDate == null && endDate == null) {
+                logger.debug("Delete All");
+                ds.deleteAllSample(object.getId(), attribute);
+            } else {
+                logger.debug("Delete Between");
+                ds.deleteSamplesBetween(object.getId(), attribute, startDate, endDate);
+            }
+
+            ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE, String.format("%s:%s|%s -> %s", id, attribute, startDate, endDate));
+
+            try {
+                CachedAccessControl.getInstance(ds,true).checkForChanges(object, attribute, CachedAccessControl.Change.DELETE);
+            } catch (Exception ex) {
+                logger.error(ex, ex);
+            }
+
+
+            return Response.status(Status.OK).build();
+
+        } catch (AuthenticationException ex) {
+            logger.catching(ex);
+            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+        } catch (Exception jex) {
+            logger.catching(jex);
+            return Response.serverError().build();
+        } finally {
+            Config.CloseDS(ds);
+        }
+    }
+
+    /**
+     * Uploads a binary file as a file sample for the given object/attribute at a specific timestamp.
+     *
+     * @param httpHeaders HTTP headers (used for authentication)
+     * @param request     JAX-RS request context
+     * @param url         URI info context
+     * @param id          JEVis object ID
+     * @param attribute   attribute name
+     * @param filename    original filename (default {@code "nameless.file"})
+     * @param timestamp   sample timestamp in ISO format, or {@code "now"}
+     * @param payload     the raw binary content of the file
+     * @return 201 CREATED on success, or an appropriate error response
+     */
+    @POST
+    @Logged
+    @Path("/files/{timestamp}")
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    public Response postSampleFiles(
+            @Context HttpHeaders httpHeaders,
+            @Context Request request,
+            @Context UriInfo url,
+            @PathParam("id") long id,
+            @PathParam("attribute") String attribute,
+            @DefaultValue("nameless.file") @QueryParam("filename") String filename,
+            @DefaultValue("now") @PathParam("timestamp") String timestamp,
+            //            @DefaultValue("file.file") @QueryParam("filename") String filename,
+            InputStream payload
+    ) {
+        try {
+            ds = new SQLDataSource(httpHeaders, request, url);
+
+            JsonObject obj = ds.getObject(id);
+            if (obj == null) {
+                return Response.status(Status.NOT_FOUND)
+                        .entity("Object is not accessible").build();
+            }
+
+            if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
+                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                    return Response.status(Status.FORBIDDEN).entity("User is not allowed to change its own status").build();
+                } else if (!canChangeOwnPasswordHere(ds, attribute)) {
+                    return Response.status(Status.FORBIDDEN).entity(OWN_PASSWORD_MESSAGE).build();
+                } else {
+                    // allow user to change its own user attributes
+                }
+
+
+            } else {
+                ds.getUserManager().canWrite(obj);
+            }
+
+            if (timestamp.equals("now")) {
+                timestamp = fmt.print(new DateTime());
+            }
+
+            // this is invalidating the user check
+            // ds.getUserManager().canWrite(obj);//can throw exception
+
+            //Your local disk path where you want to store the file
+            String uploadedFileLocation = createFilePattern(id, attribute, filename, fmt.parseDateTime(timestamp));
+
+            File objFile = new File(uploadedFileLocation);
+            if (objFile.exists()) {
+                objFile.delete();
+            } else {
+                if (!objFile.getParentFile().exists()) {
+                    objFile.getParentFile().mkdirs();
+                }
+            }
+
+            saveToFile(payload, uploadedFileLocation);
+
+            JsonSample sample = new JsonSample();
+            sample.setTs(JsonFactory.sampleDTF.print(fmt.parseDateTime(timestamp)));
+            sample.setValue(filename);
+            sample.setNote("Uploaded by " + ds.getCurrentUser().getAccountName());
+
+            List<JsonSample> samples = new ArrayList<>();
+            samples.add(sample);
+
+            JsonType type = JEVisClassHelper.getType(obj.getJevisClass(), attribute);
+
+
+            int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
+            samples.clear();
+
+            if (obj.getJevisClass().equals("User")) {
+                if (attribute.equals("Password") || attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                    CachedAccessControl.getInstance(ds,true).updateUser(ds);
+                }
+            }
+
+
+            return Response.status(Status.OK).build();
+
+        } catch (AuthenticationException ex) {
+            logger.error("Auth error: {}", ex);
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+//            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+
+        } catch (Exception jex) {
+            logger.catching(jex);
+            return Response.serverError().build();
+        } finally {
+            Config.CloseDS(ds);
+        }
+
+    }
+
+    /**
      * Returns time-series samples for the given object/attribute combination.
      *
      * <p>If both {@code ap} and {@code mm} are empty or {@code "NONE"}, raw database samples are
@@ -393,11 +516,14 @@ public class ResourceSample {
                 }
             }
 
+            boolean isPasswordHash = isPasswordAttribute(obj, att);
+
             if (onlyLatest) {
                 logger.trace("Last sample mode");
 
                 JsonSample sample = ds.getLastSample(id, attribute);
                 if (sample != null) {
+                    if (isPasswordHash) maskPasswordValue(sample);
                     return Response.ok(sample).build();
                 } else {
                     return Response.status(Status.NOT_FOUND).entity("Has no samples").build();
@@ -415,6 +541,12 @@ public class ResourceSample {
                 JsonSampleGenerator sg = new JsonSampleGenerator(ds, obj, att, startDate, endDate, customWorkDay, mm, ap, dateTimeZone);
 
                 list = sg.getAggregatedSamples();
+            }
+
+            if (isPasswordHash && list != null) {
+                for (JsonSample sample : list) {
+                    maskPasswordValue(sample);
+                }
             }
 
             return Response
@@ -460,7 +592,11 @@ public class ResourceSample {
         if (input != null && !input.isEmpty()) {
             try {
                 ds = new SQLDataSource(httpHeaders, request, url);
-                logger.debug("Post: {}-{}  input: {}", id, attribute, input);
+                if ("Password".equals(attribute)) {
+                    logger.debug("Post: {}-{}", id, attribute);
+                } else {
+                    logger.debug("Post: {}-{}  input: {}", id, attribute, input);
+                }
                 JsonObject object = ds.getObject(id);
                 boolean canExecute = false;
                 boolean canWrite = false;
@@ -478,6 +614,9 @@ public class ResourceSample {
                     if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
                         return Response.status(Status.FORBIDDEN)
                                 .entity("User is not allowed to change its own status").build();
+                    } else if (!canChangeOwnPasswordHere(ds, attribute)) {
+                        return Response.status(Status.FORBIDDEN)
+                                .entity(OWN_PASSWORD_MESSAGE).build();
                     } else {
                         canWrite = true;
                     }
@@ -579,101 +718,6 @@ public class ResourceSample {
             }
         } else {
             return Response.status(Status.NO_CONTENT).build();
-        }
-    }
-
-    /**
-     * Deletes samples for the given object/attribute within the specified time range.
-     *
-     * <p>If neither {@code from} nor {@code until} is provided, all samples are deleted.
-     *
-     * @param httpHeaders HTTP headers (used for authentication)
-     * @param request     JAX-RS request context
-     * @param url         URI info context
-     * @param id          JEVis object ID
-     * @param attribute   attribute name
-     * @param start       ISO-8601 / yyyyMMdd'T'HHmmss lower bound, or {@code null}
-     * @param end         ISO-8601 / yyyyMMdd'T'HHmmss upper bound, or {@code null}
-     * @param onlyLatest  reserved (currently unused)
-     * @return 200 OK on success, 401 UNAUTHORIZED, or 500 on error
-     */
-    @DELETE
-    @Logged
-    public Response deleteSamples(
-            @Context HttpHeaders httpHeaders,
-            @Context Request request,
-            @Context UriInfo url,
-            @PathParam("id") long id,
-            @PathParam("attribute") String attribute,
-            @QueryParam("from") String start,
-            @QueryParam("until") String end,
-            @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest) {
-
-        try {
-            logger.debug("Delete Sample: {}:{} from:{} to:{}", id, attribute, start, end);
-            ds = new SQLDataSource(httpHeaders, request, url);
-
-            JsonObject object = ds.getObject(id);
-
-            if (object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()) {
-                if (attribute.equals("Sys Admin")) {
-                    throw new JEVisException("permission denied", 3023);
-                }
-            }
-
-            if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
-                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                    throw new JEVisException("permission denied", 3022);
-                }
-            } else if (object.getJevisClass().equals("Data Notes") || object.getJevisClass().equals("User Data")) {
-                if (!ds.getUserManager().canExecuteWOE(object)) {
-                    ds.getUserManager().canDelete(object);
-                }
-            } else {
-                ds.getUserManager().canDelete(object);
-            }
-            DateTime startDate = null;
-            DateTime endDate = null;
-            if (onlyLatest) {
-
-                //TODO
-            } else {
-                // define the timerange to delete samples from
-                if (start != null) {
-                    startDate = fmt.parseDateTime(start);
-                }
-                if (end != null) {
-                    endDate = fmt.parseDateTime(end);
-                }
-            }
-
-            if (startDate == null && endDate == null) {
-                logger.debug("Delete All");
-                ds.deleteAllSample(object.getId(), attribute);
-            } else {
-                logger.debug("Delete Between");
-                ds.deleteSamplesBetween(object.getId(), attribute, startDate, endDate);
-            }
-
-            ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE, String.format("%s:%s|%s -> %s", id, attribute, startDate, endDate));
-
-            try {
-                CachedAccessControl.getInstance(ds,true).checkForChanges(object, attribute, CachedAccessControl.Change.DELETE);
-            } catch (Exception ex) {
-                logger.error(ex, ex);
-            }
-
-
-            return Response.status(Status.OK).build();
-
-        } catch (AuthenticationException ex) {
-            logger.catching(ex);
-            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
-        } catch (Exception jex) {
-            logger.catching(jex);
-            return Response.serverError().build();
-        } finally {
-            Config.CloseDS(ds);
         }
     }
 

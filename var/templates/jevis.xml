@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  Configuration of the JEVis services (JEDataCollector, JEDataProcessor, JECalc, JEReport, ...).
+  Keep this file readable only by the jevis user: chmod 600 etc/jevis.xml
+-->
 <configuration>
     <jevis>
         <datasource>
@@ -8,9 +12,16 @@
     </jevis>
 
     <authentication>
-        <jevisuser>Sys Admin</jevisuser>
-        <jevispass>jevis</jevispass>    
+        <!--
+          API key of a service account (a JEVis user with only the rights the services need, not "Sys Admin").
+          Create it with:  bin/jevis-create-apikey "<service user name>" "<key name>"
+          or in the Control Center (user object, "API keys"). The environment variable JEVIS_API_KEY overrides it.
+        -->
+        <apikeyfile>/home/jevis/jevis/etc/service.key</apikeyfile>
+        <!-- <apikey>jvk_...</apikey> -->
+
+        <!-- deprecated: login with user name and password -->
+        <!-- <jevisuser></jevisuser> -->
+        <!-- <jevispass></jevispass> -->
     </authentication>
 </configuration>
-
-

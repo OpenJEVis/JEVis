@@ -71,7 +71,7 @@ public class CMDClient {
                 UsernameProvider usernameProvider = new UsernameProvider(username, password);
                 opcClient.setEndpoints(endpointDescription);
                 if (!username.isEmpty() && !password.isEmpty()) {
-                    System.out.println("Useing Username/password: " + username + "/" + password);
+                    System.out.println("Using username: " + username);
                     opcClient.setIdentification(usernameProvider);
                 }
                 opcClient.connect();

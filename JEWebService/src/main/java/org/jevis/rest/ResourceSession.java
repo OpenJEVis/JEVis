@@ -32,8 +32,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.*;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * TODO: is this service in use yet?
@@ -64,7 +68,7 @@ public class ResourceSession {
                 throw new AuthenticationException("token header is missing");
             }
             String token = httpHeaders.getRequestHeader("token").get(0);
-            logger.debug("SSO login attempt: token: {}", token);
+            logger.debug("SSO login attempt");
 
             CachedAccessControl cac = CachedAccessControl.getInstance(ds, true);
             MSOauth2 msOauth2 = new MSOauth2(Config.getEntraAUTHORITY(), Config.getEntraClientID(), Config.getEntraClientSecret());
@@ -107,9 +111,9 @@ public class ResourceSession {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } catch (Exception jex) {
             if (logger.isDebugEnabled()) {
-                logger.error("SSO Login failed for Token: {}", httpHeaders.getRequestHeader("token"), jex);
+                logger.error("SSO Login failed", jex);
             } else {
-                logger.error("SSO Login failed for Token: {}", httpHeaders.getRequestHeader("token"), jex.getMessage());
+                logger.error("SSO Login failed: {}", jex.getMessage());
             }
             return Response.serverError().build();
         } finally {
@@ -129,7 +133,11 @@ public class ResourceSession {
 
 
         try {
-            if (Config.getEntraConfigToken().equals(httpHeaders.getRequestHeader("token").get(0))) {
+            List<String> tokenHeader = httpHeaders.getRequestHeader("token");
+            String configToken = Config.getEntraConfigToken();
+            if (tokenHeader != null && !tokenHeader.isEmpty() && tokenHeader.get(0) != null
+                    && configToken != null && !configToken.isEmpty()
+                    && MessageDigest.isEqual(configToken.getBytes(StandardCharsets.UTF_8), tokenHeader.get(0).getBytes(StandardCharsets.UTF_8))) {
                 JsonSSOConfig config = new JsonSSOConfig();
                 config.setAuthority(Config.getEntraAUTHORITY());
                 config.setClientID(Config.getEntraClientID());
@@ -159,11 +167,21 @@ public class ResourceSession {
 
 
         try {
-            logger.error("Sessions:");
             ds = new SQLDataSource(httpHeaders, request, url);
+            if (!ds.getCurrentUser().isSysAdmin()) {
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
             CachedAccessControl cac = CachedAccessControl.getInstance(ds, false);
 
-            return Response.ok(cac.getSessions()).build();
+            /* only expose who is logged in, never the session ids (they are bearer credentials) */
+            List<Map<String, Object>> sessions = new ArrayList<>();
+            for (Session session : cac.getSessions().asMap().values()) {
+                Map<String, Object> entry = new LinkedHashMap<>();
+                entry.put("name", session.getDisplayName());
+                entry.put("user", session.getJevisUser() != null ? session.getJevisUser().getAccountName() : null);
+                sessions.add(entry);
+            }
+            return Response.ok(sessions).build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } catch (Exception jex) {

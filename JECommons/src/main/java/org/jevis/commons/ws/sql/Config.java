@@ -29,6 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.ws.json.JsonJEVisClass;
+import org.jevis.commons.ws.sql.auth.AuthConfig;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -346,6 +347,7 @@ public class Config {
                     entraTenantID = getParameter(config, "entra.tenant", "");
                     entraConfigToken = getParameter(config, "entra.configtoken", "");
                     sessiontimeout = Integer.parseInt(getParameter(config, "webservice.sessiontimeout", "15"));
+                    AuthConfig.read(config);
 
                     fileIsLoaded = true;
                 } else {

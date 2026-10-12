@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <jevis>
-        <user>Sys Admin</user>
-        <password>jevis</password>
+        <user>CHANGE_ME</user>
+        <password>CHANGE_ME</password>
         <server>192.168.2.55</server>
         <port>3306</port>
         <schema>jevis</schema>
         <dbuser>jevis</dbuser>
-        <dbpassword>jevistest</dbpassword>
+        <dbpassword>CHANGE_ME</dbpassword>
     </jevis>
     <sender>
         <user>notification@jevis.de</user>

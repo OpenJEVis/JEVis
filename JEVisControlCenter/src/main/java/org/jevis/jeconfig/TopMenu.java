@@ -38,18 +38,19 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.ws.json.JsonLoginResult;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.FavoriteAnalysis;
 import org.jevis.jeconfig.application.Chart.data.FavoriteAnalysisHandler;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeItem;
+import org.jevis.jeconfig.application.login.ApiKeyDialog;
+import org.jevis.jeconfig.application.login.TwoFactorDialogs;
 import org.jevis.jeconfig.application.tools.JEVisHelp;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 import org.jevis.jeconfig.dialog.AboutDialog;
@@ -555,7 +556,32 @@ public class TopMenu extends MenuBar {
         changePassword.setOnAction(event -> {
             PasswordDialog dia = new PasswordDialog();
             try {
-                if (dia.show(JEConfig.getStage(), JEConfig.getDataSource().getCurrentUser().getUserObject()) == PasswordDialog.Response.YES) {
+                if (dia.show(JEConfig.getStage(), JEConfig.getDataSource().getCurrentUser().getUserObject()) != PasswordDialog.Response.YES) {
+                    return;
+                }
+                JEVisDataSource mainDS = JEConfig.getDataSource();
+                if (mainDS instanceof JEVisDataSourceWS && ((JEVisDataSourceWS) mainDS).isTokenLogin()) {
+                    /* the server checks the old password and signs out all other sessions */
+                    JEVisDataSourceWS ws = (JEVisDataSourceWS) mainDS;
+                    JsonLoginResult result = ws.changePassword(dia.getOldPassword(), dia.getPassword());
+                    if (result.getStatus() == JsonLoginResult.Status.SUCCESS) {
+                        Preferences loginPref = Preferences.userRoot().node("JEVis");
+                        if (loginPref.get("JEVisRefreshToken", null) != null && ws.getRefreshToken() != null) {
+                            loginPref.put("JEVisRefreshToken", ws.getRefreshToken());
+                        }
+                        Alert info = new Alert(Alert.AlertType.INFORMATION, I18n.getInstance().getString("tool.dialog.passworddialog.title"), ButtonType.OK);
+                        info.initOwner(JEConfig.getStage());
+                        info.setHeaderText(null);
+                        info.setContentText("OK");
+                        info.showAndWait();
+                    } else {
+                        Alert error = new Alert(Alert.AlertType.ERROR, result.getMessage(), ButtonType.OK);
+                        error.initOwner(JEConfig.getStage());
+                        error.setHeaderText(null);
+                        error.showAndWait();
+                    }
+                } else {
+                    /* legacy webservice with Basic auth */
                     String note = String.format("Password set by %s", getActivePlugin().getDataSource().getCurrentUser().getAccountName());
 
                     JEVisSample sample;
@@ -654,7 +680,23 @@ public class TopMenu extends MenuBar {
             threadCount.getItems().add(cmi);
         }
 
-        options.getItems().addAll(changePassword, enablePreview, welcome, expertMode);
+        options.getItems().add(changePassword);
+        JEVisDataSource loginDS = JEConfig.getDataSource();
+        if (loginDS instanceof JEVisDataSourceWS && ((JEVisDataSourceWS) loginDS).isTokenLogin()) {
+            MenuItem twoFactor = new MenuItem(I18n.getInstance().getString("app.login.mfa.title"));
+            twoFactor.setOnAction(event -> TwoFactorDialogs.showManageDialog(JEConfig.getStage(), (JEVisDataSourceWS) loginDS));
+            options.getItems().add(twoFactor);
+            try {
+                if (loginDS.getCurrentUser().isSysAdmin()) {
+                    MenuItem apiKeys = new MenuItem(I18n.getInstance().getString("app.login.apikeys.title"));
+                    apiKeys.setOnAction(event -> ApiKeyDialog.show(JEConfig.getStage(), (JEVisDataSourceWS) loginDS));
+                    options.getItems().add(apiKeys);
+                }
+            } catch (Exception ex) {
+                logger.error("Could not check sys admin rights", ex);
+            }
+        }
+        options.getItems().addAll(enablePreview, welcome, expertMode);
 
         if (JEConfig.getExpert()) {
             options.getItems().add(threadCount);

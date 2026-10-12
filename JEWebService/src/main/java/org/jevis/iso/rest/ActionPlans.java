@@ -97,7 +97,6 @@ public class ActionPlans {
         SQLDataSource ds = null;
         try {
 
-            Login l = new Login();
             ds = new SQLDataSource(httpHeaders, request, url);
 
             ISO50001 iso = new ISO50001(ds);

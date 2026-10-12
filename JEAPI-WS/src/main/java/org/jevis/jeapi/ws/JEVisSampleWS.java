@@ -429,7 +429,7 @@ public class JEVisSampleWS implements JEVisSample {
      */
     @Override
     public void commit() throws JEVisException {
-        logger.trace("Commit: {} {}", getTimestamp(), getValueAsString());
+        logger.trace("Commit sample: {}", getTimestamp());
         List<JEVisSample> tmp = new ArrayList<>();
         tmp.add(this);
         getAttribute().addSamples(tmp);

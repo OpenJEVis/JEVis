@@ -54,6 +54,7 @@ import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.datasource.DataSourceLoader;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.ws.json.JsonLoginResult;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.ParameterHelper;
@@ -67,6 +68,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.prefs.BackingStoreException;
@@ -108,6 +112,17 @@ public class FXLogin extends AnchorPane {
     private JFXComboBox<Locale> langSelect;
     private boolean hasCredentials = false;
     private String token = null;
+    private static final String PREF_USER = "JEVisUser";
+    private static final String PREF_REFRESH_TOKEN = "JEVisRefreshToken";
+    private static final String PREF_LEGACY_PASSWORD = "JEVisPW";
+    /**
+     * Single-use login code of the JEVis Launcher.
+     */
+    private String handoff = null;
+    /**
+     * Refresh token of "remember me", replaces the formerly stored plaintext password.
+     */
+    private String storedRefreshToken = null;
 
     private FXLogin() {
         this.mainStage = null;
@@ -142,6 +157,7 @@ public class FXLogin extends AnchorPane {
         }
 
         setStyleSheet();
+        removeLegacyPassword();
 
         try {
             this._ds = loadDataSource(this.configuration);
@@ -181,6 +197,21 @@ public class FXLogin extends AnchorPane {
         this(stage, parameters, new ApplicationInfo("FXLogin", ""));
     }
 
+    /**
+     * Runs a dialog on the JavaFX thread and waits for its result.
+     */
+    private static <T> T onFxThread(Callable<T> callable) throws Exception {
+        if (Platform.isFxApplicationThread()) return callable.call();
+        FutureTask<T> task = new FutureTask<>(callable);
+        Platform.runLater(task);
+        try {
+            return task.get();
+        } catch (ExecutionException ex) {
+            if (ex.getCause() instanceof Exception) throw (Exception) ex.getCause();
+            throw ex;
+        }
+    }
+
     private boolean hasLoginCredentials(List<JEVisOption> configuration) {
 
         AtomicBoolean hasUsername = new AtomicBoolean(false);
@@ -200,6 +231,8 @@ public class FXLogin extends AnchorPane {
                         this.selectedLocale = Locale.forLanguageTag(jeVisOption.getValue());
                     } else if (jeVisOption.getKey().equals(CommonOptions.DataSource.TOKEN.getKey())) {
                         this.token = jeVisOption.getValue();
+                    } else if (jeVisOption.getKey().equals(CommonOptions.DataSource.HANDOFF.getKey())) {
+                        this.handoff = jeVisOption.getValue();
                     }
                 });
             }
@@ -216,12 +249,17 @@ public class FXLogin extends AnchorPane {
                 this.selectedLocale = Locale.forLanguageTag(opt.getValue());
             } else if (opt.getKey().equals(CommonOptions.DataSource.TOKEN.getKey())) {
                 this.token = opt.getValue();
+            } else if (opt.getKey().equals(CommonOptions.DataSource.HANDOFF.getKey())) {
+                this.handoff = opt.getValue();
             }
 
 
         }
 
-        if (token != null && !token.isEmpty()) {
+        if (handoff != null && !handoff.isEmpty()) {
+            /* the launcher passes a single-use code, the SSO token is only a fallback for old webservices */
+            return true;
+        } else if (token != null && !token.isEmpty()) {
             return true;
         } else return hasUsername.get() && hasPassword.get();
     }
@@ -241,39 +279,56 @@ public class FXLogin extends AnchorPane {
 
         Runnable runnable = () -> {
             try {
+                JEVisDataSourceWS ws = this._ds instanceof JEVisDataSourceWS ? (JEVisDataSourceWS) this._ds : null;
+                boolean success;
+                boolean formLogin = false;
 
-                if (token != null) {
-                    if (this._ds.connect(token)) {
-                        logger.trace("Token Login succeeded");
-
-                        Platform.runLater(() -> {
-                            this.loginStatus.setValue(Boolean.TRUE);
-                            this.statusDialog.hide();
-                        });
-
-                    } else {
-                        I18n.getInstance().selectBundle(getSelectedLocale());
-                        throw new RuntimeException(I18n.getInstance().getString("app.login.exception.runtime"));
+                if (handoff != null && !handoff.isEmpty() && ws != null) {
+                    String code = handoff;
+                    handoff = null;
+                    success = ws.connectWithHandoff(code);
+                    if (!success && token != null) {
+                        /* old webservice without handoff: use the SSO token of the launcher */
+                        success = this._ds.connect(token);
                     }
+                } else if (token != null) {
+                    success = this._ds.connect(token);
+                } else if (storedRefreshToken != null && ws != null) {
+                    String refreshToken = storedRefreshToken;
+                    storedRefreshToken = null;
+                    success = ws.connectWithRefreshToken(refreshToken);
+                    if (!success) {
+                        /* expired or revoked: show the form */
+                        logger.info("Stored login is not valid anymore");
+                        this.jevisPref.remove(PREF_REFRESH_TOKEN);
+                        Platform.runLater(this::resetLoginForm);
+                        return;
+                    }
+                    formLogin = true;
+                } else if (ws != null) {
+                    success = passwordLogin(ws);
+                    formLogin = true;
                 } else {
-                    if (this._ds.connect(this.userName.getText(), this.userPassword.getText())) {
-                        logger.trace("Login succeeded");
-                        if (this.storeConfig.isSelected()) {
-                            storePreference();
-                        }
-
-                        Platform.runLater(() -> {
-                            this.loginStatus.setValue(Boolean.TRUE);
-                            this.statusDialog.hide();
-                        });
-
-                    } else {
-                        I18n.getInstance().selectBundle(getSelectedLocale());
-                        throw new RuntimeException(I18n.getInstance().getString("app.login.exception.runtime"));
-                    }
+                    success = this._ds.connect(this.userName.getText(), this.userPassword.getText());
                 }
 
+                if (success) {
+                    logger.trace("Login succeeded");
+                    if (formLogin && ws != null) {
+                        storePreference(ws);
+                    }
+                    Platform.runLater(() -> {
+                        this.userPassword.clear();
+                        this.loginStatus.setValue(Boolean.TRUE);
+                        this.statusDialog.hide();
+                    });
+                } else {
+                    I18n.getInstance().selectBundle(getSelectedLocale());
+                    throw new RuntimeException(I18n.getInstance().getString("app.login.exception.runtime"));
+                }
 
+            } catch (LoginCancelledException ex) {
+                Platform.runLater(this::resetLoginForm);
             } catch (Exception ex) {
                 I18n.getInstance().selectBundle(getSelectedLocale());
                 logger.trace("{}: {}", I18n.getInstance().getString("app.login.error.message"), ex, ex);
@@ -298,6 +353,80 @@ public class FXLogin extends AnchorPane {
         Thread thread = new Thread(runnable);
         thread.start();
 
+    }
+
+    /**
+     * Login with the form, including the second factor if the account needs it.
+     */
+    private boolean passwordLogin(JEVisDataSourceWS ws) throws Exception {
+        JsonLoginResult result = ws.login(this.userName.getText(), this.userPassword.getText());
+        switch (result.getStatus()) {
+            case SUCCESS:
+                return true;
+            case MFA_REQUIRED:
+                String message = null;
+                for (int attempt = 0; attempt < 5; attempt++) {
+                    final String previousError = message;
+                    String code = onFxThread(() -> TwoFactorDialogs.askCode(this.mainStage, previousError));
+                    if (code == null) throw new LoginCancelledException();
+                    JsonLoginResult mfa = ws.completeMfa(result.getMfaToken(), code);
+                    if (mfa.getStatus() == JsonLoginResult.Status.SUCCESS) return true;
+                    message = mfa.getMessage() != null ? mfa.getMessage() : I18n.getInstance().getString("app.login.mfa.wrongcode");
+                }
+                throw new RuntimeException(message);
+            case MFA_ENROLLMENT_REQUIRED:
+                Boolean enrolled = onFxThread(() -> TwoFactorDialogs.enrollDuringLogin(this.mainStage, ws, result.getMfaToken()));
+                if (!Boolean.TRUE.equals(enrolled)) throw new LoginCancelledException();
+                return true;
+            default:
+                throw new RuntimeException(result.getMessage() != null ? result.getMessage() : I18n.getInstance().getString("app.login.exception.runtime"));
+        }
+    }
+
+    private void resetLoginForm() {
+        this.loginButton.setDisable(false);
+        this.authGrid.setDisable(false);
+        this.progress.setVisible(false);
+        this.statusDialog.hide();
+    }
+
+    /**
+     * @return {@code true} if a login is possible without user input (parameters or "remember me")
+     */
+    public boolean canAutoLogin() {
+        return hasCredentials || storedRefreshToken != null;
+    }
+
+    /**
+     * Older versions stored the plaintext password in the preferences, remove it.
+     */
+    private void removeLegacyPassword() {
+        try {
+            if (this.jevisPref.get(PREF_LEGACY_PASSWORD, null) != null) {
+                this.jevisPref.remove(PREF_LEGACY_PASSWORD);
+                this.jevisPref.sync();
+                logger.info("Removed stored plaintext password of an older version");
+            }
+        } catch (Exception ex) {
+            logger.error("Could not remove legacy password", ex);
+        }
+    }
+
+    /**
+     * Load usersettings from Prederence.
+     *
+     * @param showServer
+     */
+    private void loadPreference(boolean showServer) {
+//        logger.info("load from disk");
+        if (!this.jevisPref.get(PREF_USER, "").isEmpty() && !hasCredentials) {
+            this.storeConfig.setSelected(true);
+            this.userName.setText(this.jevisPref.get(PREF_USER, ""));
+            String refreshToken = this.jevisPref.get(PREF_REFRESH_TOKEN, null);
+            this.storedRefreshToken = refreshToken != null && !refreshToken.isEmpty() ? refreshToken : null;
+        } else {
+            this.storeConfig.setSelected(false);
+        }
     }
 
     private String getJEVisError(Exception ex) {
@@ -853,19 +982,28 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Load usersettings from Prederence.
-     *
-     * @param showServer
+     * "Remember me": stores the user name and the refresh token, never the password. The refresh token can be
+     * revoked on the server and expires. Without "remember me" both are removed.
      */
-    private void loadPreference(boolean showServer) {
-//        logger.info("load from disk");
-        if (!this.jevisPref.get("JEVisUser", "").isEmpty() && !hasCredentials) {
-            this.storeConfig.setSelected(true);
-//            logger.info("username: " + jevisPref.get("JEVisUser", ""));
-            this.userName.setText(this.jevisPref.get("JEVisUser", ""));
-            this.userPassword.setText(this.jevisPref.get("JEVisPW", ""));
+    private void storePreference(JEVisDataSourceWS ws) {
+        String refreshToken = ws.getRefreshToken();
+        if (this.storeConfig.isSelected() && refreshToken != null) {
+            this.jevisPref.put(PREF_USER, this.userName.getText());
+            this.jevisPref.put(PREF_REFRESH_TOKEN, refreshToken);
+            /* keep the stored token valid when the application is closed */
+            ws.setKeepRefreshTokenOnDisconnect(true);
+        } else if (this.storeConfig.isSelected()) {
+            /* legacy webservice without tokens: only remember the user name */
+            this.jevisPref.put(PREF_USER, this.userName.getText());
+            this.jevisPref.remove(PREF_REFRESH_TOKEN);
         } else {
-            this.storeConfig.setSelected(false);
+            this.jevisPref.remove(PREF_USER);
+            this.jevisPref.remove(PREF_REFRESH_TOKEN);
+        }
+        try {
+            this.jevisPref.sync();
+        } catch (BackingStoreException ex) {
+            logger.fatal(ex);
         }
     }
 
@@ -1021,33 +1159,9 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Store the current setting like username and password in the java
-     * preference context. Warning the password is in plaintext i guess, maye be
-     * find a better solution but the JEVisDataSource needs an plaintext pw.
+     * Thrown if the user cancels the second login step.
      */
-    private void storePreference() {
-        final String jevisUser = this.userName.getText();
-        final String jevisPW = this.userPassword.getText();
-
-        this.jevisPref.put("JEVisUser", jevisUser);
-        this.jevisPref.put("JEVisPW", jevisPW);
-        try {
-            this.jevisPref.sync();
-        } catch (BackingStoreException ex) {
-            logger.fatal(ex);
-        }
-
-    }
-
-    /**
-     * Temporary solution the get the clear text password. The JEConfig will use this
-     * to login into the ISO 50001 webservice. Will be reloaded if an better way
-     * is found. Maybe the JEVisDataSource will give acces to it.
-     *
-     * @return
-     */
-    public String getUserPassword() {
-        return this.userPassword.getText();
+    private static class LoginCancelledException extends Exception {
     }
 
     public boolean hasCredentials() {

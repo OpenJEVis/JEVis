@@ -109,6 +109,11 @@ public class RLF implements ContainerRequestFilter, ContainerResponseFilter {
             return "No User";
         }
 
+        if (auth.regionMatches(true, 0, "Bearer ", 0, 7)) {
+            /* never log tokens, only their type */
+            return auth.length() > 11 ? "token " + auth.substring(7, 11) : "token";
+        }
+
         try {
             auth = auth.replaceFirst("[Bb]asic ", "");
             //byte[] decoded = Base64.decodeBase64(auth);

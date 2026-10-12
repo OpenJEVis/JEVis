@@ -16,6 +16,23 @@
         <classdir>/home/jevis/jevis/var/classes/</classdir>
         <freemarkerdir>/home/jevis/jevis/var/freemarker/</freemarkerdir>
         <jeccversion>3.9.12</jeccversion>
+        <auth>
+            <!-- legacy HTTP Basic auth for old clients, switch off once all JECC/launcher/services are updated -->
+            <basic>true</basic>
+            <!-- access token idle timeout in minutes, "remember me" duration in days -->
+            <accesstimeout>480</accesstimeout>
+            <refreshtimeout>30</refreshtimeout>
+            <lockout>
+                <threshold>5</threshold>
+                <minutes>15</minutes>
+            </lockout>
+            <mfa>
+                <!-- who must use two-factor authentication: none | sysadmin | all -->
+                <required>none</required>
+                <!-- key to encrypt the 2FA secrets, created on first use; back it up together with the database -->
+                <keyfile>/home/jevis/jevis/etc/mfa.key</keyfile>
+            </mfa>
+        </auth>
         <registration>
             <root>1</root>
             <demogroup>1</demogroup>

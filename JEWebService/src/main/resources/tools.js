@@ -117,26 +117,82 @@ function connect(url, bauth, target) {
     xhr.send();
 }
 
+/**
+ * Starts the UI with the value of the Authorization header ("Bearer jvs_..." or legacy "Basic ...").
+ * The credential is only kept in the session storage of this tab, never in cookies.
+ */
+function startSession(bauth) {
+    try {
+        sessionStorage.setItem("bauth", bauth);
+    } catch (e) {
+        // session storage not available, the credential is only kept in memory
+    }
+    /* remove credentials stored by older versions */
+    setCookie("username", "", -1);
+    setCookie("password", "", -1);
+    setCookie("bauth", "", -1);
+
+    var theme = getParameterByName('theme');
+    if (theme == "lcars.css") {
+        connect("./navbar", bauth, "bodyfornav");
+        document.getElementById('navigation-menu').className += ' lcars-column start-space lcars-u-1';
+    } else {
+        connect("./navbar", bauth, "bodyfornav");
+    }
+}
+
+/**
+ * Login with an access token of another client, e.g. the JEVis Control Center.
+ */
+function loginWithToken(authorizationHeader) {
+    startSession(authorizationHeader);
+}
+
+function postJson(url, data, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            var json = null;
+            try {
+                json = JSON.parse(this.responseText);
+            } catch (e) {
+                json = null;
+            }
+            callback(this.status, json);
+        }
+    };
+    xhr.open("POST", url);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify(data));
+}
+
+function handleLoginResult(status, json, user, pwd) {
+    if (status == 404 || status == 503) {
+        /* webservice without token login */
+        startSession("Basic " + btoa(user + ":" + pwd));
+    } else if (json != null && json.status == "SUCCESS") {
+        startSession("Bearer " + json.accessToken);
+    } else if (json != null && json.status == "MFA_REQUIRED") {
+        var code = window.prompt("Code of your authenticator app (or a recovery code):");
+        if (code) {
+            postJson("./auth/login/mfa", {mfaToken: json.mfaToken, code: code}, function (s, j) {
+                handleLoginResult(s, j, user, pwd);
+            });
+        }
+    } else if (json != null && json.status == "MFA_ENROLLMENT_REQUIRED") {
+        alert("Two-factor authentication is required for this account. Please set it up in the JEVis Control Center first.");
+    } else {
+        alert(json != null && json.message ? json.message : "Login failed");
+    }
+}
+
 function login() {
     if (document.getElementById("input-username").value != "") {
         var user = document.getElementById("input-username").value;
         var pwd = document.getElementById("input-password").value;
-        var token = user + ":" + pwd;
-        var hash = btoa(token);
-        var bauth = "Basic " + hash;
-        var gbauth = getCookie("bauth");
-
-        setCookie("username", user, 1);
-        setCookie("password", pwd, 1);
-        setCookie("bauth", bauth, 1);
-
-        var theme = getParameterByName('theme');
-        if (theme == "lcars.css") {
-            connect("./navbar", bauth, "bodyfornav");
-            document.getElementById('navigation-menu').className += ' lcars-column start-space lcars-u-1';
-        } else {
-            connect("./navbar", bauth, "bodyfornav");
-        }
+        postJson("./auth/login", {username: user, password: pwd, remember: false}, function (status, json) {
+            handleLoginResult(status, json, user, pwd);
+        });
     }
 }
 

@@ -28,10 +28,12 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.ws.json.JsonFactory;
+import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.sql.PasswordHash;
 import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.commons.ws.sql.SQLtoJsonFactory;
+import org.jevis.commons.ws.sql.auth.AuthService;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -53,6 +55,11 @@ import java.util.Locale;
  * @author Florian Simon<florian.simon@envidatec.com>
  */
 public class SampleTable {
+
+    /**
+     * Value of {@code Password} samples of users, the real hash is stored in {@code user_credential}.
+     */
+    public static final String PASSWORD_MARKER = "********";
 
     /**
      * Name of the database table managed by this class.
@@ -137,6 +144,12 @@ public class SampleTable {
 
         int count = 0;
 
+        /* user passwords are stored in user_credential, the sample only keeps a marker for the history */
+        boolean credentialStored = false;
+        if (priType == JEVisConstants.PrimitiveType.PASSWORD_PBKDF2 && !samples.isEmpty()) {
+            credentialStored = storeUserPassword(object, samples);
+        }
+
         StringBuilder build = new StringBuilder(sql);
 
         for (int i = 0; i < samples.size(); i++) {
@@ -166,7 +179,11 @@ public class SampleTable {
                 ps.setTimestamp(++p, new Timestamp(ts.getMillis()));
                 switch (priType) {
                     case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
-                        ps.setString(++p, PasswordHash.createHash(sample.getValue()));
+                        if (credentialStored) {
+                            ps.setString(++p, PASSWORD_MARKER);
+                        } else {
+                            ps.setString(++p, PasswordHash.createHash(sample.getValue()));
+                        }
                         break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
                         if (sample.getValue().equals("1") || sample.getValue().equals("2")) {
@@ -217,6 +234,42 @@ public class SampleTable {
             throw new JEVisException("Invalid key spec. Error while inserting Sample ", 4234, e);
         }
 
+    }
+
+    /**
+     * Stores the newest password of the given samples in {@code user_credential} if the object is a user and the
+     * auth tables exist. All sessions of the user are signed out.
+     *
+     * @return {@code true} if the password was stored there and only a marker has to be written to the samples
+     */
+    private boolean storeUserPassword(long object, List<JsonSample> samples) throws JEVisException {
+        try {
+            JsonObject obj = _connection.getObjectTable().getObject(object);
+            if (obj == null || !"User".equals(obj.getJevisClass())) {
+                return false;
+            }
+            JsonSample newest = samples.get(0);
+            for (JsonSample sample : samples) {
+                if (JsonFactory.sampleDTF.parseDateTime(sample.getTs()).isAfter(JsonFactory.sampleDTF.parseDateTime(newest.getTs()))) {
+                    newest = sample;
+                }
+            }
+            if (newest.getValue() == null || newest.getValue().isEmpty()) {
+                throw new JEVisException("Empty password is not allowed", 4235);
+            }
+            if (PASSWORD_MARKER.equals(newest.getValue())) {
+                /* masked value read back from the API (e.g. copy/import of a user), keep the current password */
+                logger.warn("Ignoring masked password value for user {}", object);
+                if (!AuthService.isAvailable(_connection)) {
+                    throw new JEVisException("A masked password can not be stored", 4237);
+                }
+                return true;
+            }
+            return AuthService.setPassword(_connection, object, newest.getValue());
+        } catch (SQLException ex) {
+            logger.error(ex);
+            throw new JEVisException("Error while storing password", 4236, ex);
+        }
     }
 
     /**

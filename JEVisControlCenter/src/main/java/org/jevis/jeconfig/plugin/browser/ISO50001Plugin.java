@@ -23,6 +23,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.Icon;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -31,7 +32,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.w3c.dom.html.HTMLFormElement;
-import org.w3c.dom.html.HTMLInputElement;
 import org.w3c.dom.html.HTMLSelectElement;
 
 import java.net.URI;
@@ -68,8 +68,7 @@ public class ISO50001Plugin implements Plugin {
     @Override
     public void setHasFocus() {
         try {
-            final String username = ds.getCurrentUser().getAccountName();
-            final String password = JEConfig.userpassword;
+            final String authorization = ds instanceof JEVisDataSourceWS ? ((JEVisDataSourceWS) ds).getAuthorizationHeader() : null;
 
             final BooleanProperty loggedIn = new SimpleBooleanProperty(false);
             final WebView page = new WebView();
@@ -113,32 +112,6 @@ public class ISO50001Plugin implements Plugin {
 
                             HTMLFormElement form = (HTMLFormElement) doc.getElementById("form-login");
 
-                            NodeList nodes = form.getElementsByTagName("input");
-                            logger.info("form: " + form);
-                            for (int i = 0; i < form.getElements().getLength(); i++) {
-                                try {
-                                    org.w3c.dom.Node node = nodes.item(i);
-                                    if (node != null) {
-                                        logger.info("Node.name: " + "  - " + node);
-                                        HTMLInputElement input = (HTMLInputElement) node;
-                                        if (input.getId() != null) {
-                                            switch (input.getId()) {
-                                                case "input-username":
-                                                    input.setValue(username);
-                                                    break;
-                                                case "input-password":
-                                                    input.setValue(password);
-                                                    break;
-                                            }
-
-                                        }
-                                    }
-
-                                } catch (NullPointerException nex) {
-                                    nex.printStackTrace();
-                                }
-                            }
-
                             webEngine.executeScript("setLanguage(\"german\")");
                             NodeList nodesSelect = form.getElementsByTagName("select");
                             try {
@@ -151,7 +124,10 @@ public class ISO50001Plugin implements Plugin {
                             }
 
                             loggedIn.setValue(Boolean.TRUE);
-                            webEngine.executeScript("login()");
+                            if (authorization != null) {
+                                /* reuse the login of the Control Center, no password is needed */
+                                webEngine.executeScript("loginWithToken('" + authorization.replace("\\", "").replace("'", "") + "')");
+                            }
                         }
                     }
             );

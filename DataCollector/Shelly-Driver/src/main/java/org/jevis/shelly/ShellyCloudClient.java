@@ -36,7 +36,10 @@ public class ShellyCloudClient {
         String line;
 
         JEVisDataSource ds = new JEVisDataSourceWS(config.jevisServer);
-        if (ds.connect(config.jevisUser, config.jevisPassword)) {
+        boolean connected = !config.jevisApiKey.isEmpty()
+                ? ds.connectWithApiKey(config.jevisApiKey)
+                : ds.connect(config.jevisUser, config.jevisPassword);
+        if (connected) {
             while ((line = reader.readLine()) != null) {
                 System.out.println("Data:" + line);
                 ObjectMapper mapper = new ObjectMapper();

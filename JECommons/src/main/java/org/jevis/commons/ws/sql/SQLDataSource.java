@@ -9,10 +9,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisFile;
+import org.jevis.api.JEVisRelationship;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
+import org.jevis.commons.ws.sql.auth.AuthService;
 import org.jevis.commons.ws.sql.tables.*;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -59,6 +63,7 @@ public class SQLDataSource {
 
     private final Connection dbConn;
     private JEVisUserSQL user;
+    private AuthMethod authMethod;
     private LoginTable lTable;
     private ObjectTable oTable;
     private AttributeTable aTable;
@@ -430,8 +435,9 @@ public class SQLDataSource {
                 Session cachSession = cac.getSessions().getIfPresent(session);
 
                 if (cachSession != null) {
-                    System.out.println("Session Found: " + cachSession);
+                    logger.debug("Session found for user: {}", cachSession.getDisplayName());
                     this.user = cachSession.getJevisUser();
+                    this.authMethod = AuthMethod.SESSION;
                     return;
                 } else {
                     throw new AuthenticationException("Invalid Session.");
@@ -449,42 +455,65 @@ public class SQLDataSource {
 
 
         String auth = httpHeaders.getRequestHeader("authorization").get(0);
-        if (auth != null && !auth.isEmpty()) {
-
-            auth = auth.replaceFirst("[Bb]asic ", "");
-            byte[] decoded = Base64.getDecoder().decode(auth);
-            try {
-                String decodeS = (new String(decoded, StandardCharsets.UTF_8));
-                String[] dauth = decodeS.split(":");
-                if (dauth.length == 2) {
-
-                    String username = dauth[0];
-                    String password = dauth[1];
-                    try {
-                        logger.debug("User: {}  PW: {}", username, password);
-                        CachedAccessControl fastUserManager = CachedAccessControl.getInstance(this, false);
-                        this.user = fastUserManager.getUser(username);
-
-                        logger.debug("FastUserManager PW Check: {} User: {}", fastUserManager.validLogin(username, password), this.user);
-                        if (!fastUserManager.validLogin(username, password)) {
-                            throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
-                        }
-
-                    } catch (Exception ex) {
-                        logger.error(ex, ex);
-                        throw new AuthenticationException("Username/Password is not correct.");
-                    }
-                } else {
-                    throw ErrorBuilder.ErrorBuilder(Response.Status.BAD_REQUEST.getStatusCode(), 2002, "The HTML authorization header is not correct format");
-                }
-            } catch (NullPointerException nex) {
-                throw new AuthenticationException("Username/Password is not correct.");
-            }
-        } else {
+        if (auth == null || auth.trim().isEmpty()) {
             throw new AuthenticationException("Authorization header is missing");
         }
+        auth = auth.trim();
 
+        if (auth.regionMatches(true, 0, "Bearer ", 0, 7)) {
+            String token = auth.substring(7).trim();
+            this.user = AuthService.authenticateBearer(this, token);
+            this.authMethod = token.startsWith(AuthService.PREFIX_API_KEY) ? AuthMethod.API_KEY : AuthMethod.ACCESS_TOKEN;
+            return;
+        }
 
+        /* legacy Basic auth, old clients also sent the base64 value without the "Basic " prefix */
+        if (auth.regionMatches(true, 0, "Basic ", 0, 6)) {
+            auth = auth.substring(6).trim();
+        }
+        String decodeS;
+        try {
+            decodeS = new String(Base64.getDecoder().decode(auth), StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException ex) {
+            throw new AuthenticationException("The authorization header has not the correct format");
+        }
+        /* limit 2: the password itself may contain ':' */
+        String[] dauth = decodeS.split(":", 2);
+        if (dauth.length != 2) {
+            throw ErrorBuilder.ErrorBuilder(Response.Status.BAD_REQUEST.getStatusCode(), 2002, "The HTML authorization header is not correct format");
+        }
+        logger.debug("Basic login for user: {}", dauth[0]);
+        this.user = AuthService.authenticateBasic(this, dauth[0], dauth[1]);
+        this.authMethod = AuthMethod.BASIC;
+    }
+
+    /**
+     * @return how the current request was authenticated, or {@code null} for requests without login
+     */
+    public AuthMethod getAuthMethod() {
+        return authMethod;
+    }
+
+    /**
+     * The credential type used to authenticate a request.
+     */
+    public enum AuthMethod {
+        /**
+         * Entra SSO session header
+         */
+        SESSION,
+        /**
+         * access token from /auth/login
+         */
+        ACCESS_TOKEN,
+        /**
+         * API key of a service account
+         */
+        API_KEY,
+        /**
+         * deprecated HTTP Basic auth
+         */
+        BASIC
     }
 
     /**

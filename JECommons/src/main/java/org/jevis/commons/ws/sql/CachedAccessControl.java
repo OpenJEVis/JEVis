@@ -10,10 +10,7 @@ import org.jevis.commons.ws.json.JsonRelationship;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,7 +32,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CachedAccessControl {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CachedAccessControl.class);
-    private static CachedAccessControl fastUserManager = null;
+    /**
+     * User attributes that affect authentication/authorization and require a cache refresh.
+     */
+    private static final Set<String> AUTH_ATTRIBUTES = new HashSet<>(Arrays.asList("Password", "Enabled", "Sys Admin", "Entra ID Group"));
+    private static volatile CachedAccessControl fastUserManager = null;
     /**
      * Per-user group memberships, keyed by user ID.
      */
@@ -43,7 +44,11 @@ public class CachedAccessControl {
     /** Flag set when a structural change (membership/password) requires a cache refresh. */
     private final AtomicBoolean needUpdate = new AtomicBoolean(false);
     /** All known users, keyed by lowercase account name. */
-    private Map<String, JEVisUserSQL> users;
+    private volatile Map<String, JEVisUserSQL> users;
+    /**
+     * All known users, keyed by object ID.
+     */
+    private volatile Map<Long, JEVisUserSQL> usersById = new ConcurrentHashMap<>();
     /** Active HTTP sessions. Entries expire after write and after access. */
     private final Cache<String, Session> sessions;
     private SQLDataSource ds;
@@ -71,17 +76,21 @@ public class CachedAccessControl {
      * @throws Exception if cache initialization or refresh fails
      */
     public static CachedAccessControl getInstance(SQLDataSource ds, boolean supportSSO) throws Exception {
-        if (fastUserManager != null) {
-            if (fastUserManager.needUpdate()) fastUserManager.updateCache(ds);
-            return fastUserManager;
-        } else {
-            fastUserManager = new CachedAccessControl();
-            fastUserManager.updateCache(ds);
-            fastUserManager.ds = ds;
-            return fastUserManager;
+        CachedAccessControl instance = fastUserManager;
+        if (instance == null) {
+            synchronized (CachedAccessControl.class) {
+                instance = fastUserManager;
+                if (instance == null) {
+                    instance = new CachedAccessControl();
+                    instance.updateCache(ds);
+                    instance.ds = ds;
+                    fastUserManager = instance;
+                    return instance;
+                }
+            }
         }
-
-
+        if (instance.needUpdate()) instance.updateCache(ds);
+        return instance;
     }
 
 
@@ -92,7 +101,16 @@ public class CachedAccessControl {
      * @throws JEVisException if the query fails
      */
     public synchronized void updateUser(SQLDataSource dataSource) throws JEVisException {
-        users = dataSource.getLoginTable().getAllUser();
+        setUsers(dataSource.getLoginTable().getAllUser());
+    }
+
+    private void setUsers(Map<String, JEVisUserSQL> newUsers) {
+        Map<Long, JEVisUserSQL> byId = new ConcurrentHashMap<>();
+        for (JEVisUserSQL user : newUsers.values()) {
+            byId.put(user.getUserID(), user);
+        }
+        users = newUsers;
+        usersById = byId;
     }
 
     /**
@@ -105,7 +123,7 @@ public class CachedAccessControl {
     public synchronized void updateCache(SQLDataSource dataSource) throws Exception {
         logger.error("Update Access Control Cache");
         needUpdate.set(false);
-        users = dataSource.getLoginTable().getAllUser();
+        setUsers(dataSource.getLoginTable().getAllUser());
         groupMemberships.clear();
 
         users.forEach((s, jeVisUserNew) -> {
@@ -202,7 +220,7 @@ public class CachedAccessControl {
      */
     public void checkForChanges(JsonObject object, String attribute, Change change) {
         try {
-            if (attribute.equals("Password") && object.getJevisClass().equals("User")) {
+            if (AUTH_ATTRIBUTES.contains(attribute) && object.getJevisClass().equals("User")) {
                 needUpdate.set(true);
             }
 
@@ -220,9 +238,9 @@ public class CachedAccessControl {
      */
     public void checkForChanges(JsonObject object, Change change) {
         try {
-            if (object.getName().equals("User") && (change == Change.DELETE || change == Change.ADD || change == Change.CHANGE)) {
+            if (object.getJevisClass().equals("User") && (change == Change.DELETE || change == Change.ADD || change == Change.CHANGE)) {
                 needUpdate.set(true);
-            } else if (object.getName().equals("Group") && (change == Change.DELETE || change == Change.ADD)) {
+            } else if (object.getJevisClass().equals("Group") && (change == Change.DELETE || change == Change.ADD)) {
                 needUpdate.set(true);
             }
 
@@ -261,6 +279,23 @@ public class CachedAccessControl {
     }
 
     /**
+     * Returns the cached {@link JEVisUserSQL} with the given object ID, or {@code null}.
+     *
+     * @param userID the user's object ID
+     * @return the user, or {@code null}
+     */
+    public JEVisUserSQL getUserById(long userID) {
+        return usersById.get(userID);
+    }
+
+    /**
+     * Marks the cache as stale so the next request reloads users and memberships.
+     */
+    public void invalidate() {
+        needUpdate.set(true);
+    }
+
+    /**
      * Returns the full user map, keyed by lowercase account name.
      *
      * @return an unmodifiable view of all cached users
@@ -281,12 +316,19 @@ public class CachedAccessControl {
      */
     public boolean validLogin(String userName, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         JEVisUserSQL user = users.get(userName.toLowerCase(Locale.ROOT));
-        if (user != null && PasswordHash.validatePassword(password, user.getPassword())) {
-            return true;
-        } else {
-            logger.error("Wrong PW for: '{}", userName);
+        if (user == null || user.getPassword() == null) {
+            logger.warn("Login failed, unknown user: '{}'", userName);
             return false;
         }
+        if (!PasswordHash.validatePassword(password, user.getPassword())) {
+            logger.warn("Login failed, wrong password for: '{}'", userName);
+            return false;
+        }
+        if (!user.isEnabled()) {
+            logger.warn("Login failed, user is disabled: '{}'", userName);
+            return false;
+        }
+        return true;
 
     }
 

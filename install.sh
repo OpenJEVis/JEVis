@@ -58,6 +58,15 @@ copytemplate ${JEVIS_TEMPLATE}/log4j.properties ${JEVIS_HOME}/etc/log4j.properti
 copytemplate ${JEVIS_TEMPLATE}/log4j2.xml ${JEVIS_HOME}/etc/log4j2.xml
 copytemplate ${JEVIS_TEMPLATE}/webservice.xml ${JEVIS_HOME}/etc/webservice.xml
 
+# config files contain database passwords and API keys
+chmod 600 ${JEVIS_HOME}/etc/*.xml ${JEVIS_HOME}/etc/jevis.conf
+chmod +x ${JEVIS_HOME}/bin/jevis-create-apikey
+
+echo -e "\nService login: the JEVis services log in with an API key of a service account."
+echo "1. Apply the database migrations (mysqldb: mvn flyway:migrate)"
+echo "2. Create a user for the services in the Control Center and give it the needed rights (not Sys Admin)"
+echo "3. Run: bin/jevis-create-apikey \"<service user name>\""
+
 # Output the installed version for later updates
 echo "3.4" > ${JEVIS_HOME}/etc/version
 

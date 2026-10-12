@@ -50,6 +50,8 @@ public interface CommonOptions {
         JEVisOption SSLTRUST = OptionFactory.BuildOption(DataSource, "ssltrust", "system", "SSL certificates trust mode. ALLWAY if you wish to trust signed ssl certificates");
         JEVisOption CONNECTION = OptionFactory.BuildOption(DataSource, "connection", "jevistest", "Password to the data source");
         JEVisOption TOKEN = OptionFactory.BuildOption(DataSource, "token", "jevistest", "Password to the data source");
+        JEVisOption HANDOFF = OptionFactory.BuildOption(DataSource, "handoff", "", "Single-use login code created by the JEVis Launcher");
+        JEVisOption APIKEY = OptionFactory.BuildOption(DataSource, "apikey", "", "API key of a service account");
     }
 
     /**

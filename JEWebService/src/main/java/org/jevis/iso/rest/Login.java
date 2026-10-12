@@ -17,10 +17,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -30,49 +28,6 @@ import java.util.jar.JarFile;
  */
 @Path("/JEWebService/v1/login")
 public class Login {
-
-    private final String dsUserName = "jevis";
-    private final String dsPassword = "jevispw";
-
-    public String getBasicAuth() throws UnsupportedEncodingException {
-        String encoded = "Basic ";
-        String b = dsUserName + ":" + dsPassword;
-        encoded += Base64.getEncoder().encodeToString(b.getBytes(StandardCharsets.UTF_8));
-        return encoded;
-    }
-
-    public String getServer() {
-        String server = "localhost";
-        return server;
-    }
-
-    public String getPort() {
-        String port = "3306";
-        return port;
-    }
-
-    public String getSchema() {
-        String schema = "jevis";
-        return schema;
-    }
-
-    public String getUser() {
-        String user = "root";
-        return user;
-    }
-
-    public String getPassword() {
-        String password = "jevis";
-        return password;
-    }
-
-    public String getDsUserName() {
-        return dsUserName;
-    }
-
-    public String getDsPassword() {
-        return dsPassword;
-    }
 
     /**
      * @param theme

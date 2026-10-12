@@ -42,7 +42,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.dialog.DialogHeader;
 
@@ -146,17 +145,9 @@ public class PasswordDialog {
             }
         });
 
-        oldPass.setOnKeyReleased(event -> {
-            try {
-                if (oldUser != null) {
-                    String currentUsername = oldUser.getDataSource().getCurrentUser().getAccountName();
-                    JEVisDataSourceWS dsWS = (JEVisDataSourceWS) oldUser.getDataSource();
-                    correctOldPass = dsWS.confirmPassword(currentUsername, oldPass.getText());
-                }
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        });
+        /* the old password is checked by the server when the new one is stored, not per key stroke
+           (every check would count as a failed login) */
+        oldPass.setOnKeyReleased(event -> checkPW());
 
         newPass.setOnKeyReleased(new EventHandler<KeyEvent>() {
 
@@ -199,13 +190,18 @@ public class PasswordDialog {
         return newPass.getText();
     }
 
+    /**
+     * @return the entered current password, empty if the dialog did not ask for it
+     */
+    public String getOldPassword() {
+        return oldPass.getText();
+    }
 
     private void checkPW() {
-        if (!newPass.getText().isEmpty() && !confirmNew.getText().isEmpty()) {
-            if (newPass.getText().equals(confirmNew.getText()) && correctOldPass) {
-                ok.setDisable(false);
-            }
-        }
-
+        boolean oldPassGiven = correctOldPass || !oldPass.getText().isEmpty();
+        boolean valid = !newPass.getText().isEmpty()
+                && newPass.getText().equals(confirmNew.getText())
+                && oldPassGiven;
+        ok.setDisable(!valid);
     }
 }

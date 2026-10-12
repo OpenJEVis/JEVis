@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -104,7 +105,13 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private final int SAMPLE_REQUEST_SIZE = 10000;
     private final ConcurrentHashMap<Long, List<JEVisAttribute>> attributeCache = new ConcurrentHashMap<>();
     private String host = "http://localhost";
+    /**
+     * Path of the token login endpoints below {@link REQUEST#API_PATH_V1}.
+     */
+    private static final String AUTH_PATH = "auth/";
     private HTTPConnection con;
+    private volatile JsonLoginResult lastLoginResult;
+    private volatile boolean keepRefreshTokenOnDisconnect = false;
     /*
      * Connection to check if the connection is alive
      */
@@ -600,8 +607,18 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         }
     }
 
+    private static boolean isTokenLoginUnsupported(HTTPConnection.HttpResult response) {
+        /* 404/405: old webservice without /auth, 503: auth tables not migrated yet */
+        return response.getCode() == HttpURLConnection.HTTP_NOT_FOUND
+                || response.getCode() == HttpURLConnection.HTTP_BAD_METHOD
+                || response.getCode() == HttpURLConnection.HTTP_UNAVAILABLE;
+    }
+
     /**
-     * Authenticates using HTTP Basic credentials and initialises the current-user context.
+     * Logs in with user name and password and initialises the current-user context.
+     *
+     * <p>Returns {@code false} if the login failed or needs a second factor, see {@link #getLastLoginResult()} and
+     * {@link #login(String, String)}.
      *
      * @param username the account name
      * @param password the plaintext password
@@ -610,29 +627,414 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      */
     @Override
     public boolean connect(String username, String password) throws JEVisException {
-        logger.debug("Connect with user {} to: {}", username, this.host);
+        return login(username, password).getStatus() == JsonLoginResult.Status.SUCCESS;
+    }
 
-        this.con = new HTTPConnection(this.host, username, password, sslTrustMode);
-
+    /**
+     * First login step with user name and password. The password is not kept after the login, all further
+     * requests use an access token which is renewed automatically with the refresh token.
+     *
+     * <p>Falls back to HTTP Basic authentication for webservices without token login.
+     *
+     * @return the login result, check the status for {@code MFA_REQUIRED} or {@code MFA_ENROLLMENT_REQUIRED}
+     * @throws JEVisException if the server is unreachable
+     */
+    public JsonLoginResult login(String username, String password) throws JEVisException {
+        logger.debug("Login with user {} to: {}", username, this.host);
+        HTTPConnection connection = new HTTPConnection(this.host, null, null, sslTrustMode);
         try {
-            String resource
-                    = REQUEST.API_PATH_V1
-                    + REQUEST.JEVISUSER.PATH;
-
-
-            InputStream inputStream = this.con.getInputStreamRequest(resource);
-            if (inputStream != null) {
-                JsonObject json = this.objectMapper.readValue(inputStream, JsonObject.class);
-                inputStream.close();
-                this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json));
-                return true;
-            } else {
-                return false;
+            ObjectNode body = this.objectMapper.createObjectNode();
+            body.put("username", username);
+            body.put("password", password);
+            /* the refresh token is kept in memory to renew the access token; clients decide if they store it */
+            body.put("remember", true);
+            HTTPConnection.HttpResult response = connection.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "login", this.objectMapper.writeValueAsString(body), false);
+            if (isTokenLoginUnsupported(response)) {
+                logger.warn("Webservice does not support token login (HTTP {}), using Basic authentication", response.getCode());
+                return legacyBasicLogin(username, password);
             }
+            return applyLoginResult(connection, response);
+        } catch (IOException ex) {
+            logger.catching(ex);
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
 
+    /**
+     * Second login step with the code of the authenticator app or a recovery code.
+     *
+     * @param mfaToken the token of the {@code MFA_REQUIRED} result
+     */
+    public JsonLoginResult completeMfa(String mfaToken, String code) throws JEVisException {
+        HTTPConnection connection = new HTTPConnection(this.host, null, null, sslTrustMode);
+        try {
+            ObjectNode body = this.objectMapper.createObjectNode();
+            body.put("mfaToken", mfaToken);
+            body.put("code", code);
+            body.put("remember", true);
+            return applyLoginResult(connection, connection.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "login/mfa", this.objectMapper.writeValueAsString(body), false));
+        } catch (IOException ex) {
+            logger.catching(ex);
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
 
+    /**
+     * Logs in with a stored refresh token ("remember me").
+     *
+     * @return {@code true} if the token is still valid
+     */
+    public boolean connectWithRefreshToken(String refreshToken) throws JEVisException {
+        HTTPConnection connection = new HTTPConnection(this.host, null, null, sslTrustMode);
+        try {
+            ObjectNode body = this.objectMapper.createObjectNode();
+            body.put("refreshToken", refreshToken);
+            HTTPConnection.HttpResult response = connection.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "refresh", this.objectMapper.writeValueAsString(body), false);
+            if (isTokenLoginUnsupported(response)) return false;
+            return applyLoginResult(connection, response).getStatus() == JsonLoginResult.Status.SUCCESS;
+        } catch (IOException ex) {
+            logger.catching(ex);
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * Logs in with a single-use code created by another client of the same user, e.g. the JEVis Launcher.
+     */
+    public boolean connectWithHandoff(String code) throws JEVisException {
+        HTTPConnection connection = new HTTPConnection(this.host, null, null, sslTrustMode);
+        try {
+            ObjectNode body = this.objectMapper.createObjectNode();
+            body.put("code", code);
+            return applyLoginResult(connection, connection.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "handoff/redeem", this.objectMapper.writeValueAsString(body), false))
+                    .getStatus() == JsonLoginResult.Status.SUCCESS;
+        } catch (IOException ex) {
+            logger.catching(ex);
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * Connects with the API key of a service account. API keys do not expire with the session, they are revoked
+     * by an administrator.
+     */
+    @Override
+    public boolean connectWithApiKey(String apiKey) throws JEVisException {
+        logger.debug("Connect with API key to: {}", this.host);
+        if (apiKey == null || apiKey.trim().isEmpty()) return false;
+        HTTPConnection connection = new HTTPConnection(this.host, null, null, sslTrustMode);
+        connection.setBearerToken(apiKey.trim());
+        this.con = connection;
+        try {
+            return loadCurrentUser();
         } catch (Exception ex) {
             logger.catching(ex);
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * @return the result of the last login call, e.g. to show why {@link #connect(String, String)} returned false
+     */
+    public JsonLoginResult getLastLoginResult() {
+        return lastLoginResult;
+    }
+
+    /**
+     * @return the current refresh token, store it (protected) to log in again without password, or {@code null}
+     */
+    public String getRefreshToken() {
+        return this.con != null ? this.con.getRefreshToken() : null;
+    }
+
+    /**
+     * @return the current access token, or {@code null} for Basic auth and SSO sessions
+     */
+    public String getAccessToken() {
+        return this.con != null ? this.con.getBearerToken() : null;
+    }
+
+    /**
+     * @return the Authorization header value of the current login, e.g. to log in an embedded web view
+     */
+    public String getAuthorizationHeader() {
+        return this.con != null ? this.con.getAuthorizationHeader() : null;
+    }
+
+    /**
+     * @return {@code true} if the connection uses token login (not legacy Basic auth)
+     */
+    public boolean isTokenLogin() {
+        return getAccessToken() != null;
+    }
+
+    private JsonLoginResult parseLoginResult(HTTPConnection.HttpResult response) {
+        JsonLoginResult result = null;
+        try {
+            result = this.objectMapper.readValue(response.getBody(), JsonLoginResult.class);
+        } catch (Exception ex) {
+            logger.debug("Could not parse login result", ex);
+        }
+        if (result == null || result.getStatus() == null) {
+            result = JsonLoginResult.failure("HTTP " + response.getCode() + ": " + response.getBody());
+        }
+        return result;
+    }
+
+    private JsonLoginResult applyLoginResult(HTTPConnection connection, HTTPConnection.HttpResult response) throws JEVisException {
+        JsonLoginResult result = parseLoginResult(response);
+        this.lastLoginResult = result;
+        if (result.getStatus() == JsonLoginResult.Status.SUCCESS) {
+            connection.setBearerToken(result.getAccessToken());
+            if (result.getRefreshToken() != null) {
+                connection.setRefreshToken(result.getRefreshToken());
+            }
+            if (this.con != connection) {
+                /* services log in again every cycle, sign out the previous session of this data source */
+                disconnect();
+            }
+            this.con = connection;
+            try {
+                if (!loadCurrentUser()) {
+                    result = JsonLoginResult.failure("Could not load the current user");
+                    this.lastLoginResult = result;
+                }
+            } catch (Exception ex) {
+                logger.catching(ex);
+                throw new JEVisException(ex.getMessage(), 402, ex);
+            }
+        } else if (result.getStatus() == JsonLoginResult.Status.FAILURE) {
+            logger.warn("Login failed: {}", result.getMessage());
+        }
+        return result;
+    }
+
+    private boolean loadCurrentUser() throws Exception {
+        InputStream inputStream = this.con.getInputStreamRequest(REQUEST.API_PATH_V1 + REQUEST.JEVISUSER.PATH);
+        if (inputStream == null) return false;
+        try {
+            JsonObject json = this.objectMapper.readValue(inputStream, JsonObject.class);
+            this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json));
+            return true;
+        } finally {
+            inputStream.close();
+        }
+    }
+
+    private JsonLoginResult legacyBasicLogin(String username, String password) throws JEVisException {
+        this.con = new HTTPConnection(this.host, username, password, sslTrustMode);
+        try {
+            JsonLoginResult result = new JsonLoginResult();
+            if (loadCurrentUser()) {
+                result.setStatus(JsonLoginResult.Status.SUCCESS);
+                result.setUserName(username);
+            } else {
+                result = JsonLoginResult.failure("Username/Password is not correct.");
+            }
+            this.lastLoginResult = result;
+            return result;
+        } catch (Exception ex) {
+            logger.catching(ex);
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * Changes the password of the current user. The server signs out all sessions, this connection continues with
+     * the new tokens of the result.
+     *
+     * @return the result, {@code FAILURE} if the old password is wrong
+     * @throws JEVisException if the server does not support it (old webservice) or is not reachable
+     */
+    public JsonLoginResult changePassword(String oldPassword, String newPassword) throws JEVisException {
+        try {
+            ObjectNode body = this.objectMapper.createObjectNode();
+            body.put("oldPassword", oldPassword);
+            body.put("newPassword", newPassword);
+            body.put("remember", true);
+            HTTPConnection.HttpResult response = this.con.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "password", this.objectMapper.writeValueAsString(body), true);
+            if (response.getCode() == HttpURLConnection.HTTP_NOT_FOUND || response.getCode() == HttpURLConnection.HTTP_UNAVAILABLE) {
+                throw new JEVisException("Password change is not supported by this webservice", response.getCode());
+            }
+            if (response.getCode() == HttpURLConnection.HTTP_BAD_REQUEST) {
+                return JsonLoginResult.failure(response.getBody());
+            }
+            JsonLoginResult result = parseLoginResult(response);
+            if (result.getStatus() == JsonLoginResult.Status.SUCCESS) {
+                this.con.setBearerToken(result.getAccessToken());
+                if (result.getRefreshToken() != null) this.con.setRefreshToken(result.getRefreshToken());
+            }
+            return result;
+        } catch (IOException ex) {
+            logger.catching(ex);
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * @return the two-factor state of the current user
+     */
+    public JsonMfaStatus getMfaStatus() throws JEVisException {
+        try (InputStream inputStream = this.con.getInputStreamRequest(REQUEST.API_PATH_V1 + AUTH_PATH + "mfa")) {
+            if (inputStream == null)
+                throw new JEVisException("Two-factor authentication is not supported by this webservice", 404);
+            return this.objectMapper.readValue(inputStream, JsonMfaStatus.class);
+        } catch (IOException | InterruptedException ex) {
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * Starts the TOTP setup for the logged-in user.
+     *
+     * @param password the current password
+     * @return secret and otpauth URI for the QR code
+     */
+    public JsonMfaStatus setupTotp(String password) throws JEVisException {
+        ObjectNode body = this.objectMapper.createObjectNode();
+        body.put("password", password);
+        return postMfaSetup(body, true);
+    }
+
+    /**
+     * Starts the TOTP setup during login, when the policy requires 2FA ({@code MFA_ENROLLMENT_REQUIRED}).
+     */
+    public JsonMfaStatus setupTotpForEnrollment(String mfaToken) throws JEVisException {
+        ObjectNode body = this.objectMapper.createObjectNode();
+        body.put("mfaToken", mfaToken);
+        HTTPConnection connection = this.con != null ? this.con : new HTTPConnection(this.host, null, null, sslTrustMode);
+        try {
+            return readMfaSetup(connection.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "mfa/totp/setup", this.objectMapper.writeValueAsString(body), false));
+        } catch (IOException ex) {
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    private JsonMfaStatus postMfaSetup(ObjectNode body, boolean withAuth) throws JEVisException {
+        try {
+            return readMfaSetup(this.con.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "mfa/totp/setup", this.objectMapper.writeValueAsString(body), withAuth));
+        } catch (IOException ex) {
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    private JsonMfaStatus readMfaSetup(HTTPConnection.HttpResult response) throws JEVisException, IOException {
+        if (response.getCode() != HttpURLConnection.HTTP_OK) {
+            throw new JEVisException(parseLoginResult(response).getMessage(), response.getCode());
+        }
+        return this.objectMapper.readValue(response.getBody(), JsonMfaStatus.class);
+    }
+
+    /**
+     * Activates the TOTP setup with a first code. All sessions are signed out; this connection continues with the
+     * new tokens. The result contains the recovery codes, which must be shown to the user once.
+     *
+     * @param mfaToken the login token for an enrollment during login, or {@code null} for a logged-in user
+     */
+    public JsonLoginResult confirmTotp(String code, String mfaToken) throws JEVisException {
+        ObjectNode body = this.objectMapper.createObjectNode();
+        body.put("code", code);
+        body.put("remember", true);
+        boolean withAuth = mfaToken == null;
+        if (mfaToken != null) body.put("mfaToken", mfaToken);
+        HTTPConnection connection = withAuth ? this.con : new HTTPConnection(this.host, null, null, sslTrustMode);
+        try {
+            HTTPConnection.HttpResult response = connection.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "mfa/totp/confirm", this.objectMapper.writeValueAsString(body), withAuth);
+            return applyLoginResult(connection, response);
+        } catch (IOException ex) {
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * Removes two-factor authentication of the current user.
+     *
+     * @return {@code true} if password and code were correct
+     */
+    public boolean disableMfa(String password, String code) throws JEVisException {
+        try {
+            ObjectNode body = this.objectMapper.createObjectNode();
+            body.put("password", password);
+            body.put("code", code);
+            HTTPConnection.HttpResult response = this.con.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "mfa/disable", this.objectMapper.writeValueAsString(body), true);
+            if (response.getCode() == HttpURLConnection.HTTP_FORBIDDEN) {
+                throw new JEVisException(response.getBody(), response.getCode());
+            }
+            return response.getCode() == HttpURLConnection.HTTP_NO_CONTENT;
+        } catch (IOException ex) {
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * Sys Admin only: removes the two-factor authentication of a user who lost the device and the recovery codes.
+     */
+    public boolean resetMfa(long userId) throws JEVisException {
+        return deleteAuthResource("mfa/" + userId);
+    }
+
+    /**
+     * Creates a single-use code (valid 60 s) to start another client for the same user without password.
+     */
+    public String createHandoff() throws JEVisException {
+        try {
+            HTTPConnection.HttpResult response = this.con.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "handoff", "{}", true);
+            if (response.getCode() != HttpURLConnection.HTTP_OK) {
+                throw new JEVisException("Could not create login code: HTTP " + response.getCode(), response.getCode());
+            }
+            return this.objectMapper.readTree(response.getBody()).path("code").asText(null);
+        } catch (IOException ex) {
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * Sys Admin only: lists the API keys (without secrets).
+     */
+    public List<JsonApiKey> listApiKeys() throws JEVisException {
+        try (InputStream inputStream = this.con.getInputStreamRequest(REQUEST.API_PATH_V1 + AUTH_PATH + "apikeys")) {
+            if (inputStream == null) throw new JEVisException("API keys are not available", 403);
+            return Arrays.asList(this.objectMapper.readValue(inputStream, JsonApiKey[].class));
+        } catch (IOException | InterruptedException ex) {
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * Sys Admin only: creates an API key for a (service) user. The returned key is shown only once.
+     *
+     * @param expires expiry in milliseconds since epoch, or {@code null} for no expiry
+     */
+    public JsonApiKey createApiKey(long userId, String name, Long expires) throws JEVisException {
+        try {
+            ObjectNode body = this.objectMapper.createObjectNode();
+            body.put("userId", userId);
+            body.put("name", name);
+            if (expires != null) body.put("expires", expires);
+            HTTPConnection.HttpResult response = this.con.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "apikeys", this.objectMapper.writeValueAsString(body), true);
+            if (response.getCode() != HttpURLConnection.HTTP_OK) {
+                throw new JEVisException("Could not create API key: HTTP " + response.getCode() + " " + response.getBody(), response.getCode());
+            }
+            return this.objectMapper.readValue(response.getBody(), JsonApiKey.class);
+        } catch (IOException ex) {
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
+    }
+
+    /**
+     * Sys Admin only: revokes an API key, services using it lose access immediately.
+     */
+    public boolean revokeApiKey(String keyId) throws JEVisException {
+        return deleteAuthResource("apikeys/" + keyId);
+    }
+
+    private boolean deleteAuthResource(String path) throws JEVisException {
+        try {
+            HttpURLConnection conn = this.con.getDeleteConnection(REQUEST.API_PATH_V1 + AUTH_PATH + path);
+            int code = conn.getResponseCode();
+            conn.disconnect();
+            return code == HttpURLConnection.HTTP_NO_CONTENT || code == HttpURLConnection.HTTP_OK;
+        } catch (IOException ex) {
             throw new JEVisException(ex.getMessage(), 402, ex);
         }
     }
@@ -649,7 +1051,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public boolean connect(String token) throws JEVisException {
         // get Session
-        logger.debug("Connect with MS Token {} to: {}", token, this.host);
+        logger.debug("Connect with SSO token to: {}", this.host);
 
         this.con = new HTTPConnection(this.host, null, null, sslTrustMode);
         this.con.setTokenLogin(token);
@@ -677,9 +1079,34 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         }
     }
 
+    /**
+     * @param keep {@code true} if the client stored the refresh token ("remember me"), then {@link #disconnect()}
+     *             only revokes the access token
+     */
+    public void setKeepRefreshTokenOnDisconnect(boolean keep) {
+        this.keepRefreshTokenOnDisconnect = keep;
+    }
+
+    /**
+     * Signs out: revokes the access token and, unless it is kept for "remember me", the refresh token.
+     */
     @Override
     public boolean disconnect() {
-        //TODO: implement
+        HTTPConnection connection = this.con;
+        if (connection == null || connection.getBearerToken() == null || !connection.getBearerToken().startsWith("jvs_")) {
+            return true;
+        }
+        try {
+            ObjectNode body = this.objectMapper.createObjectNode();
+            if (!keepRefreshTokenOnDisconnect) {
+                body.put("refreshToken", connection.getRefreshToken());
+            }
+            connection.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "logout", this.objectMapper.writeValueAsString(body), true);
+        } catch (Exception ex) {
+            logger.warn("Logout failed: {}", ex.getMessage());
+        }
+        connection.setBearerToken(null);
+        connection.setRefreshToken(null);
         return true;
     }
 
@@ -1921,9 +2348,29 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public boolean confirmPassword(String username, String password) throws JEVisException {
-        HTTPConnection httpConnection = new HTTPConnection(this.host, username, password, sslTrustMode);
+        HTTPConnection httpConnection = new HTTPConnection(this.host, null, null, sslTrustMode);
+        try {
+            ObjectNode body = this.objectMapper.createObjectNode();
+            body.put("username", username);
+            body.put("password", password);
+            body.put("remember", false);
+            HTTPConnection.HttpResult response = httpConnection.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "login", this.objectMapper.writeValueAsString(body), false);
+            if (!isTokenLoginUnsupported(response)) {
+                JsonLoginResult result = parseLoginResult(response);
+                if (result.getAccessToken() != null) {
+                    /* only a check, sign out the new session right away */
+                    httpConnection.setBearerToken(result.getAccessToken());
+                    httpConnection.postJson(REQUEST.API_PATH_V1 + AUTH_PATH + "logout", "{}", true);
+                }
+                return result.getStatus() != JsonLoginResult.Status.FAILURE;
+            }
+        } catch (IOException ex) {
+            logger.catching(ex);
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
 
-
+        /* legacy webservice without token login */
+        httpConnection = new HTTPConnection(this.host, username, password, sslTrustMode);
         try {
             String resource
                     = REQUEST.API_PATH_V1

@@ -103,10 +103,6 @@ public class JEConfig extends Application {
     private final static Configuration _config = new Configuration();
     private static final Logger logger = LogManager.getLogger(JEConfig.class);
     private static final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
-    /**
-     * Dangerous workaround to get the password to the ISOBrowser Plugin.
-     */
-    public static String userpassword;
     public static Date startDate = new Date();
     static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", JEConfig.class.getPackage().getImplementationVersion());//can be ignored
     private static Stage _primaryStage;
@@ -463,7 +459,6 @@ public class JEConfig extends Application {
                 login.addLoginMessage(I18n.getInstance().getString("app.login.start"), false);
                 login.addLoginMessage(FXLogin.checkMarkSymbol, true);
 
-                JEConfig.userpassword = login.getUserPassword();
 
                 try {
                     preload(login);
@@ -625,7 +620,7 @@ public class JEConfig extends Application {
 
         });
 
-        if (login.hasCredentials()) {
+        if (login.canAutoLogin()) {
             login.doLogin();
         }
 

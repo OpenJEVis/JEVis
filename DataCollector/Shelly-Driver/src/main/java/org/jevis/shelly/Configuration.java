@@ -21,6 +21,10 @@ public class Configuration {
     public String jevisServer = "";
     public String jevisUser = "";
     public String jevisPassword = "";
+    /**
+     * API key of a JEVis service account, preferred over user/password
+     */
+    public String jevisApiKey = "";
 
     public String jsonNode = "total_act";
 
@@ -40,7 +44,7 @@ public class Configuration {
 
         jevisServer = getParameter(config, "jevis.server", "");
         jevisUser = getParameter(config, "jevis.user", "");
-        jevisPassword = getParameter(config, "jevis.password", "");
+        jevisApiKey = getParameter(config, "jevis.apikey", "");
         jevisPassword = getParameter(config, "jevis.password", "");
 
         List<HierarchicalConfiguration> dps = config.configurationsAt("mapping.dp");
@@ -53,8 +57,8 @@ public class Configuration {
             }
         }
 
-        System.out.printf("Server: %s\nDevice: %s\napikey: %s\njevis: %s\nuser: %s\npw: %s%n",
-                server, deviceid, apikey, jevisServer, jevisUser, jevisPassword);
+        System.out.printf("Server: %s\nDevice: %s\njevis: %s\nuser: %s%n",
+                server, deviceid, jevisServer, jevisUser);
 
     }
 

@@ -56,7 +56,7 @@ public class LoginTable {
     }
 
     public JEVisUserSQL loginUser(String name, String pw) throws JEVisException {
-        logger.debug("Login {} {}", name, pw);
+        logger.debug("Login {}", name);
         String sqlUser = String.format("select * from %s where %s=? and %s =? limit 1", TABLE, COLUMN_LOGIN, COLUMN_ENABLED);
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sqlUser)) {

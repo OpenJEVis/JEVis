@@ -16,9 +16,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.EncodingFilter;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.utils.JEVisDates;
-import org.jevis.commons.ws.sql.Config;
-import org.jevis.commons.ws.sql.ConnectionFactory;
-import org.jevis.commons.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.*;
+import org.jevis.commons.ws.sql.auth.AuthService;
 import org.joda.time.DateTime;
 
 import javax.security.sasl.AuthenticationException;
@@ -70,6 +69,61 @@ public class Main {
      * @throws AuthenticationException if authentication cannot be configured
      * @throws JEVisException          if JEVis initialization fails
      */
+    /**
+     * Logs warnings for runtime settings that weaken the authentication.
+     */
+    private static void checkRuntime() {
+        String javaVersion = System.getProperty("java.version", "");
+        logger.info("Java version: {}", javaVersion);
+        try {
+            if (javax.crypto.Cipher.getMaxAllowedKeyLength("AES") < 256) {
+                logger.error("This Java runtime does not allow AES-256, two-factor authentication will not work. Use Java 8u161 or newer.");
+            }
+        } catch (Exception ex) {
+            logger.error("Could not check crypto policy", ex);
+        }
+        if (!Config.getURI().toLowerCase().startsWith("https")) {
+            String host = URI.create(Config.getURI()).getHost();
+            if (host != null && !host.equals("localhost") && !host.startsWith("127.") && !host.equals("0:0:0:0:0:0:0:1")) {
+                logger.warn("The webservice is not using HTTPS ({}). Passwords and tokens are sent unencrypted, "
+                        + "use HTTPS or a TLS reverse proxy.", Config.getURI());
+            }
+        }
+    }
+
+    /**
+     * Creates an API key for a (service) user without a running webservice, used by the installer.
+     * Prints only the key to stdout.
+     *
+     * @return process exit code
+     */
+    private static int createApiKey(String userName, String keyName) {
+        try {
+            ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW(), Config.getConnectionOptions());
+            try (Connection connection = ConnectionFactory.getInstance().getConnection()) {
+                SQLDataSource ds = new SQLDataSource(connection);
+                if (!AuthService.isAvailable(ds)) {
+                    System.err.println("The auth tables are missing, apply the database migration V10 first.");
+                    return 1;
+                }
+                JEVisUserSQL user = CachedAccessControl.getInstance(ds, false).getUser(userName);
+                if (user == null) {
+                    System.err.println("User not found: " + userName);
+                    return 1;
+                }
+                if (user.isSysAdmin()) {
+                    System.err.println("Warning: '" + userName + "' is a Sys Admin. Services should use an account with only the rights they need.");
+                }
+                System.out.println(AuthService.createApiKey(ds, user, keyName, null, null).getKey());
+                return 0;
+            }
+        } catch (Exception ex) {
+            logger.error("Could not create API key", ex);
+            System.err.println("Could not create API key: " + ex.getMessage());
+            return 1;
+        }
+    }
+
     public static void main(String[] args) throws SQLException, AuthenticationException, JEVisException {
         //read Config
         File configfile;
@@ -127,6 +181,15 @@ public class Main {
             }
         }
         Config.readConfigurationFile(configfile);
+        checkRuntime();
+
+        if (args.length > nextArgumentIndex && "--create-api-key".equals(args[nextArgumentIndex])) {
+            if (args.length < nextArgumentIndex + 3) {
+                System.err.println("Usage: JEWebService -c <config.xml> --create-api-key <user name> <key name>");
+                System.exit(2);
+            }
+            System.exit(createApiKey(args[nextArgumentIndex + 1], args[nextArgumentIndex + 2]));
+        }
 
         if (args.length > nextArgumentIndex) {
             cleanFiles = Boolean.parseBoolean(args[nextArgumentIndex]);

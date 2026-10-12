@@ -19,11 +19,15 @@
  */
 package org.jevis.jeapi.ws;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.ws.json.JsonLoginResult;
 import org.jevis.commons.ws.sql.Session;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -95,9 +99,14 @@ public class HTTPConnection {
     public static String RESOURCE_I18N = "i18n";
     /** Path segment for the access-control resource. */
     public static String RESOURCE_ACCESSCONTROL = "accesscontrol";
+    private static final ObjectMapper MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     private final String baseURL;
     private final String username;
     private final String password;
+    private final Object refreshLock = new Object();
+    private volatile String bearerToken = null;
+    private volatile String refreshToken = null;
     private final int readTimeout = 120000;//millis
     private final int connectTimeout = 30000;//millis
     private String SSOtoken = null;
@@ -283,7 +292,12 @@ public class HTTPConnection {
         }
     }
 
-    private void addAuth(HttpURLConnection conn, String username, String password) {
+    /**
+     * Adds the credentials to a request.
+     *
+     * @return the bearer token used for this request, or {@code null}
+     */
+    private String addAuth(HttpURLConnection conn) {
         if (session != null) {
             conn.setRequestProperty("session", session.getId());
         }
@@ -292,40 +306,121 @@ public class HTTPConnection {
             conn.setRequestProperty("token", this.SSOtoken);
         }
 
-        if (username != null && password != null) {
-            String auth = new String(Base64.encodeBase64((username + ":" + password).getBytes()));
-            conn.setRequestProperty("Authorization", "Basic " + auth);
+        String token = this.bearerToken;
+        if (token != null) {
+            conn.setRequestProperty("Authorization", "Bearer " + token);
+            return token;
         }
 
+        /* legacy Basic auth, only used against webservices without token login */
+        if (username != null && password != null && !username.isEmpty()) {
+            String auth = new String(Base64.encodeBase64((username + ":" + password).getBytes(StandardCharsets.UTF_8)), StandardCharsets.US_ASCII);
+            conn.setRequestProperty("Authorization", "Basic " + auth);
+        }
+        return null;
+    }
+
+    public String getBearerToken() {
+        return bearerToken;
     }
 
     /**
-     * Opens a raw {@link HttpURLConnection} to the given resource path (no auth header added).
-     * Spaces in the path are percent-encoded.
-     *
-     * @param resource the relative resource path (e.g., {@code "JEWebService/v1/objects"})
-     * @return an open but not yet connected {@link HttpURLConnection}
-     * @throws IOException if the URL is malformed or the connection cannot be opened
+     * Sets the bearer credential (access token {@code jvs_...} or API key {@code jvk_...}) for all requests.
      */
-    public HttpURLConnection getHTTPConnection(String resource) throws IOException {
-        resource = resource.replaceAll("\\s+", "%20");
-        URL url = new URL(this.baseURL + "/" + resource);
+    public void setBearerToken(String token) {
+        this.bearerToken = token;
+    }
 
-
-        HttpURLConnection conn;
-        if (proxy == null) {
-            conn = (HttpURLConnection) url.openConnection();
-        } else {
-            conn = (HttpURLConnection) url.openConnection(proxy);
-
+    /**
+     * @return the value of the Authorization header used by this connection, or {@code null}
+     */
+    public String getAuthorizationHeader() {
+        String token = this.bearerToken;
+        if (token != null) return "Bearer " + token;
+        if (username != null && password != null && !username.isEmpty()) {
+            return "Basic " + new String(Base64.encodeBase64((username + ":" + password).getBytes(StandardCharsets.UTF_8)), StandardCharsets.US_ASCII);
         }
+        return null;
+    }
 
-        conn.setConnectTimeout(this.connectTimeout);
-        conn.setReadTimeout(this.readTimeout);
+    public String getRefreshToken() {
+        return refreshToken;
+    }
 
-        return conn;
+    /**
+     * Sets the refresh token used to get a new access token when the current one expired.
+     */
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 
+    /**
+     * Called after a 401 answer. Gets a new access token with the refresh token, once for all threads.
+     *
+     * @param usedToken the access token of the failed request
+     * @return {@code true} if the request should be repeated with the new token
+     */
+    private boolean refreshAfterUnauthorized(String usedToken) {
+        if (usedToken == null || this.refreshToken == null) return false;
+        synchronized (refreshLock) {
+            if (!usedToken.equals(this.bearerToken)) {
+                /* another thread already refreshed the token */
+                return this.bearerToken != null;
+            }
+            try {
+                ObjectNode body = MAPPER.createObjectNode();
+                body.put("refreshToken", this.refreshToken);
+                HttpResult result = postJson(API_PATH_V1 + "auth/refresh", MAPPER.writeValueAsString(body), false);
+                if (result.getCode() == HttpURLConnection.HTTP_OK) {
+                    JsonLoginResult login = MAPPER.readValue(result.getBody(), JsonLoginResult.class);
+                    if (login.getAccessToken() != null) {
+                        this.bearerToken = login.getAccessToken();
+                        logger.info("Access token refreshed");
+                        return true;
+                    }
+                }
+                logger.error("Could not refresh the access token, HTTP {}", result.getCode());
+            } catch (Exception ex) {
+                logger.error("Could not refresh the access token", ex);
+            }
+            return false;
+        }
+    }
 
+    /**
+     * Sends a JSON POST and returns status and body, also for error responses.
+     *
+     * @param withAuth {@code true} to send the credentials of this connection
+     */
+    public HttpResult postJson(String resource, String json, boolean withAuth) throws IOException {
+        for (int attempt = 0; attempt < 2; attempt++) {
+            HttpURLConnection con = getHTTPConnection(resource);
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            con.setRequestProperty("Accept", "application/json");
+            con.setRequestProperty("User-Agent", "JEAPI-WS");
+            con.setDoOutput(true);
+            String usedToken = withAuth ? addAuth(con) : null;
+            logger.debug("HTTP POST request {}", con.getURL());
+            try (OutputStream out = con.getOutputStream()) {
+                out.write(json.getBytes(StandardCharsets.UTF_8));
+            }
+            int code = con.getResponseCode();
+            if (code == HttpURLConnection.HTTP_UNAUTHORIZED && withAuth && attempt == 0 && refreshAfterUnauthorized(usedToken)) {
+                con.disconnect();
+                continue;
+            }
+            InputStream stream = code < 400 ? con.getInputStream() : con.getErrorStream();
+            String body = "";
+            if (stream != null) {
+                try (InputStream in = stream) {
+                    body = IOUtils.toString(in, StandardCharsets.UTF_8);
+                }
+            }
+            con.disconnect();
+            return new HttpResult(code, body);
+        }
+        throw new IOException("Unreachable");
     }
 
     /**
@@ -341,6 +436,7 @@ public class HTTPConnection {
     public InputStream getInputStreamRequest(String resource) throws IOException, InterruptedException {
         int retry = 0;
         boolean delay = false;
+        boolean refreshed = false;
         do {
             if (delay) {
                 Thread.sleep(RETRY_DELAY_MS);
@@ -352,7 +448,7 @@ public class HTTPConnection {
             conn.setRequestProperty("Accept-Encoding", "gzip");
             conn.setReadTimeout(this.readTimeout);
             //System.out.println("Using Proxy?" + conn.usingProxy());
-            addAuth(conn, this.username, this.password);
+            String usedToken = addAuth(conn);
 
             conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
@@ -360,6 +456,15 @@ public class HTTPConnection {
             logger.debug("Response: {}   {}", conn.getResponseCode(), conn.getResponseMessage());
 
             switch (conn.getResponseCode()) {
+                case HttpURLConnection.HTTP_UNAUTHORIZED:
+                    conn.disconnect();
+                    if (!refreshed && refreshAfterUnauthorized(usedToken)) {
+                        refreshed = true;
+                        delay = false;
+                        continue;
+                    }
+                    logger.warn(resource + "**unauthorized**");
+                    return null;
                 case HttpURLConnection.HTTP_NOT_FOUND:
                     logger.warn(resource + "**not found**");
                     return null;
@@ -402,6 +507,35 @@ public class HTTPConnection {
     }
 
     /**
+     * Opens a raw {@link HttpURLConnection} to the given resource path (no auth header added).
+     * Spaces in the path are percent-encoded.
+     *
+     * @param resource the relative resource path (e.g., {@code "JEWebService/v1/objects"})
+     * @return an open but not yet connected {@link HttpURLConnection}
+     * @throws IOException if the URL is malformed or the connection cannot be opened
+     */
+    public HttpURLConnection getHTTPConnection(String resource) throws IOException {
+        resource = resource.replaceAll("\\s+", "%20");
+        URL url = new URL(this.baseURL + "/" + resource);
+
+
+        HttpURLConnection conn;
+        if (proxy == null) {
+            conn = (HttpURLConnection) url.openConnection();
+        } else {
+            conn = (HttpURLConnection) url.openConnection(proxy);
+
+        }
+
+        conn.setConnectTimeout(this.connectTimeout);
+        conn.setReadTimeout(this.readTimeout);
+
+        return conn;
+
+
+    }
+
+    /**
      * Performs an authenticated GET request and decodes the response as a {@link BufferedImage}.
      *
      * @param resource the relative resource path
@@ -412,13 +546,21 @@ public class HTTPConnection {
         Date start = new Date();
         HttpURLConnection conn = getHTTPConnection(resource);
         conn.setRequestMethod("GET");
-        addAuth(conn, this.username, this.password);
+        String usedToken = addAuth(conn);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
         logger.debug("HTTP request {}", conn.getURL());
 
         int responseCode = conn.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED && refreshAfterUnauthorized(usedToken)) {
+            conn.disconnect();
+            conn = getHTTPConnection(resource);
+            conn.setRequestMethod("GET");
+            addAuth(conn);
+            conn.setRequestProperty("User-Agent", "JEAPI-WS");
+            responseCode = conn.getResponseCode();
+        }
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
@@ -450,12 +592,13 @@ public class HTTPConnection {
      */
     public byte[] getByteRequest(String resource) throws IOException {
         int retry = 0;
+        boolean refreshed = false;
 
         while (true) {
             try {
                 HttpURLConnection conn = getHTTPConnection(resource);
                 conn.setRequestMethod("GET");
-                addAuth(conn, this.username, this.password);
+                String usedToken = addAuth(conn);
 
                 conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
@@ -463,6 +606,12 @@ public class HTTPConnection {
 
                 int responseCode = conn.getResponseCode();
                 logger.trace("responseCode {}", responseCode);
+
+                if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED && !refreshed && refreshAfterUnauthorized(usedToken)) {
+                    refreshed = true;
+                    conn.disconnect();
+                    continue;
+                }
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     InputStream inputStream = conn.getInputStream();
@@ -505,28 +654,14 @@ public class HTTPConnection {
      */
     public StringBuffer postRequest(String resource, String json) throws IOException, JEVisException {
         Date start = new Date();
-        HttpURLConnection con = getHTTPConnection(resource);
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-//        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setRequestProperty("User-Agent", "JEAPI-WS");
-        con.setRequestProperty("Accept-Charset", "UTF-8");
-        con.setRequestProperty("Accept-Encoding", "gzip");
-        con.setDoOutput(true);
-        con.setDoInput(true);
-        addAuth(con, this.username, this.password);
-
-        logger.debug("HTTP POST request {}", con.getURL());
-        con.connect();
-
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8));
-        writer.write(json);
-        writer.close();
-        wr.close();
-
+        String usedToken = this.bearerToken;
+        HttpURLConnection con = openPost(resource, json);
         int responseCode = con.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED && refreshAfterUnauthorized(usedToken)) {
+            con.disconnect();
+            con = openPost(resource, json);
+            responseCode = con.getResponseCode();
+        }
         logger.debug("Post status: {}", responseCode);
 
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
@@ -567,6 +702,60 @@ public class HTTPConnection {
 
     }
 
+    private HttpURLConnection openPost(String resource, String json) throws IOException {
+        HttpURLConnection con = getHTTPConnection(resource);
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        con.setRequestProperty("Accept", "application/json");
+        con.setRequestProperty("User-Agent", "JEAPI-WS");
+        con.setRequestProperty("Accept-Charset", "UTF-8");
+        con.setRequestProperty("Accept-Encoding", "gzip");
+        con.setDoOutput(true);
+        con.setDoInput(true);
+        addAuth(con);
+
+        logger.debug("HTTP POST request {}", con.getURL());
+        con.connect();
+
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8))) {
+            writer.write(json);
+        }
+        return con;
+    }
+
+    /**
+     * Opens an authenticated POST connection configured for binary file upload
+     * ({@code Content-Type: application/octet-stream}).
+     * The caller is responsible for writing to and closing the connection's output stream.
+     *
+     * @param resource the relative resource path
+     * @return a connected {@link HttpURLConnection} ready for streaming
+     * @throws MalformedURLException if {@code resource} produces an invalid URL
+     * @throws ProtocolException     if the HTTP method cannot be set
+     * @throws IOException           if the connection cannot be opened
+     */
+    public HttpURLConnection getPostFileConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
+        Date start = new Date();
+        HttpURLConnection conn = getHTTPConnection(resource);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/octet-stream");
+        conn.setRequestProperty("User-Agent", "JEAPI-WS");
+
+//        con.setRequestProperty("Accept-Encoding", "gzip");
+        conn.setDoOutput(true);
+//        conn.setDoInput(true);
+        addAuth(conn);
+
+        conn.setRequestProperty("User-Agent", "JEAPI-WS");
+
+        logger.debug("HTTP request {}", conn.getURL());
+
+//        int responseCode = conn.getResponseCode();
+//        logger.trace("resonseCode {}", responseCode);
+        return conn;
+
+    }
+
     /**
      * Performs a GET request (without auth) and returns the response body.
      *
@@ -604,39 +793,6 @@ public class HTTPConnection {
     }
 
     /**
-     * Opens an authenticated POST connection configured for binary file upload
-     * ({@code Content-Type: application/octet-stream}).
-     * The caller is responsible for writing to and closing the connection's output stream.
-     *
-     * @param resource the relative resource path
-     * @return a connected {@link HttpURLConnection} ready for streaming
-     * @throws MalformedURLException if {@code resource} produces an invalid URL
-     * @throws ProtocolException     if the HTTP method cannot be set
-     * @throws IOException           if the connection cannot be opened
-     */
-    public HttpURLConnection getPostFileConnection(String resource) throws MalformedURLException, ProtocolException, IOException {
-        Date start = new Date();
-        HttpURLConnection conn = getHTTPConnection(resource);
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/octet-stream");
-        conn.setRequestProperty("User-Agent", "JEAPI-WS");
-
-//        con.setRequestProperty("Accept-Encoding", "gzip");
-        conn.setDoOutput(true);
-//        conn.setDoInput(true);
-        addAuth(conn, this.username, this.password);
-
-        conn.setRequestProperty("User-Agent", "JEAPI-WS");
-
-        logger.debug("HTTP request {}", conn.getURL());
-
-//        int responseCode = conn.getResponseCode();
-//        logger.trace("resonseCode {}", responseCode);
-        return conn;
-
-    }
-
-    /**
      * Opens an authenticated POST connection configured for PNG icon upload
      * ({@code Content-Type: image/png}).
      * The caller is responsible for writing to and closing the connection's output stream.
@@ -657,7 +813,7 @@ public class HTTPConnection {
 //        con.setRequestProperty("Accept-Encoding", "gzip");
         conn.setDoOutput(true);
 //        conn.setDoInput(true);
-        addAuth(conn, this.username, this.password);
+        addAuth(conn);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
@@ -678,20 +834,35 @@ public class HTTPConnection {
      * @throws IOException if the connection or request fails
      */
     public HttpURLConnection getGetConnection(String resource) throws IOException {
-        Date start = new Date();
-        HttpURLConnection conn = getHTTPConnection(resource);
-        conn.setRequestMethod("GET");
-        addAuth(conn, this.username, this.password);
+        return executeWithRefresh(resource, "GET");
+    }
 
-        conn.setRequestProperty("User-Agent", "JEAPI-WS");
-        conn.setRequestProperty("Accept-Encoding", "gzip");
+    /**
+     * Executes a request without body; repeats it once with a new access token after a 401.
+     */
+    private HttpURLConnection executeWithRefresh(String resource, String method) throws IOException {
+        HttpURLConnection conn = null;
+        for (int attempt = 0; attempt < 2; attempt++) {
+            conn = getHTTPConnection(resource);
+            conn.setRequestMethod(method);
+            String usedToken = addAuth(conn);
 
-        logger.debug("HTTP request {}", conn.getURL());
+            conn.setRequestProperty("User-Agent", "JEAPI-WS");
+            if ("GET".equals(method)) {
+                conn.setRequestProperty("Accept-Encoding", "gzip");
+            }
 
-        int responseCode = conn.getResponseCode();
-        logger.trace("responseCode {}", responseCode);
+            logger.debug("HTTP {} request {}", method, conn.getURL());
+
+            int responseCode = conn.getResponseCode();
+            logger.trace("responseCode {}", responseCode);
+            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED && attempt == 0 && refreshAfterUnauthorized(usedToken)) {
+                conn.disconnect();
+                continue;
+            }
+            break;
+        }
         return conn;
-
     }
 
     /**
@@ -703,20 +874,28 @@ public class HTTPConnection {
      * @throws IOException if the connection or request fails
      */
     public HttpURLConnection getDeleteConnection(String resource) throws IOException {
-        Date start = new Date();
-        //replace spaces
-        HttpURLConnection conn = getHTTPConnection(resource);
-        conn.setRequestMethod("DELETE");
-        addAuth(conn, this.username, this.password);
+        return executeWithRefresh(resource, "DELETE");
+    }
 
-        conn.setRequestProperty("User-Agent", "JEAPI-WS");
+    /**
+     * Status code and body of a request.
+     */
+    public static class HttpResult {
+        private final int code;
+        private final String body;
 
-        logger.debug("HTTP DELETE request {}", conn.getURL());
+        public HttpResult(int code, String body) {
+            this.code = code;
+            this.body = body;
+        }
 
-        int responseCode = conn.getResponseCode();
-        logger.trace("resonseCode {}", responseCode);
-        return conn;
+        public int getCode() {
+            return code;
+        }
 
+        public String getBody() {
+            return body;
+        }
     }
 
     /**

@@ -43,7 +43,7 @@ public class Login {
 
     public JEVisDataSource getDS() throws JEVisException {
         logger.info("getDS");
-        logger.info("Connect as: " + txUserName.getText() + "/" + txPassword.getText());
+        logger.info("Connect as: " + txUserName.getText());
         _ds.connect(txUserName.getText(), txPassword.getText());
 
         logger.info("Object: " + _ds.getObject(1l));

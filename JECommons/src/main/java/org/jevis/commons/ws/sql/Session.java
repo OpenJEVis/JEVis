@@ -56,7 +56,10 @@ public class Session {
         this.jevisUser = jevisUser;
     }
 
-    @XmlElement(name = "token")
+    /**
+     * The Entra access token is only needed server side and must never be serialized.
+     */
+    @JsonIgnore
     public String getEntraToken() {
         return entraToken;
     }
@@ -66,8 +69,6 @@ public class Session {
         return "Session{" +
                 "isEntraID=" + isEntraID +
                 ", displayName='" + displayName + '\'' +
-                ", id='" + id + '\'' +
-                ", entraToken='" + entraToken + '\'' +
                 '}';
     }
 }
