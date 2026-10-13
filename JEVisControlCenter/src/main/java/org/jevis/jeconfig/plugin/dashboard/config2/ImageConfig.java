@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -14,11 +15,15 @@ import javafx.stage.FileChooser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisFile;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.tool.SvgImages;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -69,6 +74,14 @@ public class ImageConfig {
         this.objectID = objectID;
     }
 
+    private static Label errorLabel(Throwable t) {
+        Label label = new Label(SvgImages.describeError(t));
+        label.setWrapText(true);
+        label.setMaxWidth(400);
+        label.setStyle("-fx-text-fill: firebrick;");
+        return label;
+    }
+
     public Tab getConfigTab() {
         ImageTab tab = new ImageTab(I18n.getInstance().getString("plugin.dashboard.imagewidget.tab")
                 , this);
@@ -86,7 +99,9 @@ public class ImageConfig {
         Button fileButton = new Button();
         fileButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Pictures", "*.png", "*.gif", "*.jpg", "*.bmp"));
+            FileChooser.ExtensionFilter pictures = new FileChooser.ExtensionFilter("Pictures", "*.png", "*.gif", "*.jpg", "*.jpeg", "*.bmp", "*.svg");
+            fileChooser.getExtensionFilters().add(pictures);
+            fileChooser.setSelectedExtensionFilter(pictures);
             File newBackground = fileChooser.showOpenDialog(JEConfig.getStage());
             if (newBackground != null) {
                 try {
@@ -94,11 +109,10 @@ public class ImageConfig {
                     //javafx.scene.image.Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
 
                     JEVisClass fileClass = dashboardControl.getDataSource().getJEVisClass("File");
-                    JEVisObject fileObject;
+                    JEVisObject fileObject = getFileObject();
 
-                    if (objectID >= 1) {
-                        fileObject = dashboardControl.getDataSource().getObject(objectID);
-                    } else {
+                    if (fileObject == null) {
+                        /* no image yet, or the stored one was deleted: create a new file object */
                         fileObject = dashboardControl.getActiveDashboard().getDashboardObject().buildObject(FilenameUtils.removeExtension(newBackground.getName()), fileClass);
                         fileObject.commit();
                         objectID = fileObject.getID();
@@ -111,32 +125,21 @@ public class ImageConfig {
 
                     fileSizeField.setText(jeVisFile.getBytes().length + " bytes");
 
-                    InputStream in = new ByteArrayInputStream(jeVisFile.getBytes());
-                    ImageView imageView = new ImageView(new Image(in));
-                    imageView.setPreserveRatio(true);
-                    imageView.setFitHeight(200);
-                    fileButton.setGraphic(imageView);
+                    fileButton.setGraphic(createPreview(jeVisFile));
 
                 } catch (Exception e) {
-                    logger.error("Failed to load image preview from file", e);
+                    logger.error("Failed to upload image file {}", newBackground, e);
+                    fileButton.setGraphic(errorLabel(e));
                 }
 
             }
 
         });
 
-        if (objectID > 1) {
-            try {
-                JEVisAttribute imageAttribute = dashboardControl.getDataSource().getObject(objectID).getAttribute("File");
-                InputStream in = new ByteArrayInputStream(imageAttribute.getLatestSample().getValueAsFile().getBytes());
-                ImageView imageView = new ImageView(new Image(in));
-                imageView.setPreserveRatio(true);
-                imageView.setFitHeight(200);
-                fileButton.setGraphic(imageView);
-                fileSizeField.setText(imageAttribute.getLatestSample().getValueAsFile().getBytes().length + " bytes");
-            } catch (Exception ex) {
-                logger.error(ex, ex);
-            }
+        JEVisFile currentFile = getCurrentFile();
+        if (currentFile != null) {
+            fileButton.setGraphic(createPreview(currentFile));
+            fileSizeField.setText(currentFile.getBytes().length + " bytes");
         } else {
             fileButton.setGraphic(new Label(I18n.getInstance().getString("plugin.dashboard.imagewidget.filenew")));
         }
@@ -151,6 +154,68 @@ public class ImageConfig {
         return tab;
     }
 
+    /**
+     * @return the configured file object, or {@code null} if none is set or it does not exist anymore
+     * (deleted, or not readable for the current user)
+     */
+    public JEVisObject getFileObject() {
+        if (objectID == null || objectID < 1) {
+            return null;
+        }
+        try {
+            JEVisObject object = dashboardControl.getDataSource().getObject(objectID);
+            if (object == null || object.getAttribute("File") == null) {
+                logger.warn("Image object {} of the image widget does not exist", objectID);
+                return null;
+            }
+            return object;
+        } catch (Exception ex) {
+            logger.warn("Could not load image object {}", objectID, ex);
+            return null;
+        }
+    }
+
+    /**
+     * @return the latest image file, or {@code null} if there is none
+     */
+    public JEVisFile getCurrentFile() {
+        JEVisObject object = getFileObject();
+        if (object == null) {
+            return null;
+        }
+        try {
+            JEVisSample sample = object.getAttribute("File").getLatestSample();
+            return sample != null ? sample.getValueAsFile() : null;
+        } catch (Exception ex) {
+            logger.warn("Could not load image file of object {}", objectID, ex);
+            return null;
+        }
+    }
+
+    /**
+     * @return the preview of the image, or a label with the reason if the image can not be shown
+     */
+    private Node createPreview(JEVisFile file) {
+        try {
+            Image image;
+            if (SvgImages.isSvg(file.getFilename(), file.getBytes())) {
+                image = SvgImages.render(file.getBytes(), 200, 200);
+            } else {
+                InputStream in = new ByteArrayInputStream(file.getBytes());
+                image = new Image(in);
+                if (image.isError()) {
+                    throw new IllegalArgumentException("Unsupported image format: " + file.getFilename(), image.getException());
+                }
+            }
+            ImageView imageView = new ImageView(image);
+            imageView.setPreserveRatio(true);
+            imageView.setFitHeight(200);
+            return imageView;
+        } catch (Throwable t) {
+            logger.error("Failed to show image {}", file.getFilename(), t);
+            return errorLabel(t);
+        }
+    }
 
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();

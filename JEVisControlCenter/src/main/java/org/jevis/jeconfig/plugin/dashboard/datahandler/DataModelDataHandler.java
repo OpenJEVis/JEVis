@@ -10,13 +10,11 @@ import javafx.scene.control.TabPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.TopMenu;
 import org.jevis.jeconfig.application.Chart.ChartTools;
 import org.jevis.jeconfig.application.Chart.ChartType;
@@ -271,6 +269,22 @@ public class DataModelDataHandler {
         return null;
     }
 
+    /**
+     * Rows with a rate unit (e.g. kW) must not be aggregated automatically: an aggregated row is shown in its
+     * sum unit (kW becomes kWh, see XYChartSerie), so the unit selected by the user would be ignored.
+     * Without aggregation the row behaves like in the chart plugin.
+     */
+    private static boolean hasSumUnit(ChartDataRow chartDataRow) {
+        try {
+            JEVisUnit unit = chartDataRow.getUnit();
+            JEVisUnit sumUnit = new QuantityUnits().getSumUnit(unit);
+            return sumUnit != null && !sumUnit.equals(unit);
+        } catch (Exception ex) {
+            logger.warn("Could not check unit of {}", chartDataRow.getName(), ex);
+            return false;
+        }
+    }
+
     private void setInterval(Interval interval) {
         if (!this.dataModel.getForcedInterval().isEmpty()) {
 
@@ -345,7 +359,8 @@ public class DataModelDataHandler {
                     // check if data row period is bigger than requested period
                     chartDataRow.setAggregationPeriod(AggregationPeriod.NONE);
                 } else if (initialAggregation == AggregationPeriod.NONE && widgetType.equals(ChartWidget.WIDGET_ID)
-                        && chartDataRow.getChartType() != ChartType.HEAT_MAP && dataModel.getChartModels().get(0).getChartType() != ChartType.HEAT_MAP) {
+                        && chartDataRow.getChartType() != ChartType.HEAT_MAP && dataModel.getChartModels().get(0).getChartType() != ChartType.HEAT_MAP
+                        && !hasSumUnit(chartDataRow)) {
                     // exception for chart widgets for better visualisation and performance
                     AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
                     chartDataRow.setAggregationPeriod(aggregationPeriod);

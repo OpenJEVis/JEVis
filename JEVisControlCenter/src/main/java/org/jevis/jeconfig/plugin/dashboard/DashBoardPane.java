@@ -44,7 +44,7 @@ public class DashBoardPane extends Pane {
     private final Background defaultBackground;
     Rectangle dragBox = new Rectangle(0, 0, 0, 0);
     private DashboardPojo analysis;
-    private boolean gridIsVisible = false;
+    private volatile boolean gridIsVisible = false;
     private double mouseDownX;
     private double mouseDownY;
     private double lastGridWidth = -1;
@@ -177,6 +177,13 @@ public class DashBoardPane extends Pane {
 
     public void clearView() {
         getChildren().clear();
+        /* the grid lines were removed with the children: hide the grid and force setSize() to rebuild it */
+        visibleGrid.clear();
+        gridIsVisible = false;
+        lastGridWidth = -1;
+        lastGridHeight = -1;
+        lastXInterval = -1;
+        lastYInterval = -1;
         setBackground(this.defaultBackground);
         Region filler = new Region();
         Layouts.setAnchor(filler, 0);
@@ -357,7 +364,8 @@ public class DashBoardPane extends Pane {
             lastGridHeight = h;
             lastXInterval = xi;
             lastYInterval = yi;
-            createGrid(xi / 4, yi / 4, new ArrayList<>(), xGridsFine, yGridsFine);
+            /* the fine grid is only used for snapping (DragResizeMod), it has no visible lines */
+            createGrid(xi / 4, yi / 4, null, xGridsFine, yGridsFine);
             createGrid(xi, yi, visibleGrid, xGrids, yGrids);
         }
     }
@@ -380,7 +388,8 @@ public class DashBoardPane extends Pane {
 
     public void showGrid(boolean show) {
         gridIsVisible = show;
-        Platform.runLater(() -> this.visibleGrid.forEach(line -> line.setVisible(show)));
+        /* use the state at execution time, a later call (e.g. clearView) may have changed it meanwhile */
+        Platform.runLater(() -> this.visibleGrid.forEach(line -> line.setVisible(gridIsVisible)));
     }
 
     /**
@@ -390,12 +399,16 @@ public class DashBoardPane extends Pane {
      *
      * @param xGridInterval
      * @param yGridInterval
+     * @param visibleGrid   list for the lines shown in the pane, {@code null} to only calculate the positions
      */
     public void createGrid(double xGridInterval, double yGridInterval, List<Line> visibleGrid, List<Double> xGrid, List<Double> yGrid) {
         logger.debug("createGrid: {},{}", xGridInterval, yGridInterval);
 
         // Remove old lines from scene graph before rebuilding
-        getChildren().removeAll(visibleGrid);
+        if (visibleGrid != null) {
+            getChildren().removeAll(visibleGrid);
+            visibleGrid.clear();
+        }
 
         double totalHeight = analysis.getSize().getHeight();
         double totalWidth = analysis.getSize().getWidth();
@@ -406,12 +419,12 @@ public class DashBoardPane extends Pane {
 
         xGrid.clear();
         yGrid.clear();
-        visibleGrid.clear();
 
         /** vertical lines (columns) **/
         for (int i = 0; i < maxColumns; i++) {
             double xPos = i * xGridInterval;
             xGrid.add(xPos);
+            if (visibleGrid == null) continue;
 
             Line line = new Line(xPos, 0.0, xPos, totalHeight);
             line.setId("grid");
@@ -427,6 +440,7 @@ public class DashBoardPane extends Pane {
         for (int i = 0; i < maxRows; i++) {
             double yPos = i * yGridInterval;
             yGrid.add(yPos);
+            if (visibleGrid == null) continue;
 
             Line line = new Line(0, yPos, totalWidth, yPos);
             line.setId("grid");
@@ -439,7 +453,9 @@ public class DashBoardPane extends Pane {
         }
 
         // Add lines to scene graph once — visibility toggled via setVisible(), not add/remove
-        getChildren().addAll(visibleGrid);
+        if (visibleGrid != null) {
+            getChildren().addAll(visibleGrid);
+        }
     }
 
 

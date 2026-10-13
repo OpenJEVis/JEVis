@@ -493,6 +493,7 @@ public class DashboardControl {
             this.newBackgroundFile = null;
             this.selectionController.clearSelection();
             this.showGridProperty.setValue(false);
+            this.dashboardPane.showGrid(false);
 
 
             showConfig();//if list is empty=reset

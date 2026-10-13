@@ -36,5 +36,9 @@ fi
 
 echo "$KEY" > "$KEY_FILE"
 chmod 600 "$KEY_FILE"
+# when run via sudo, the services (running as the owner of JEVIS_HOME) must still be able to read the key
+if [ "$(id -u)" -eq 0 ]; then
+	chown "$(stat -c '%U:%G' "${JEVIS_HOME}")" "$KEY_FILE"
+fi
 echo "API key for '$USER_NAME' written to $KEY_FILE"
 echo "Restart the JEVis services to use it."

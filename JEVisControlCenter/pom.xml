@@ -191,6 +191,12 @@
             <artifactId>core</artifactId>
             <version>3.5.3</version>
         </dependency>
+        <!-- SVG images in the dashboard image widget; same version as used by chartfx (javafxsvg) -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>1.8</version>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

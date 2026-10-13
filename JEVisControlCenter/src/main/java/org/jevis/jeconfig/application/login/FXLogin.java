@@ -293,7 +293,7 @@ public class FXLogin extends AnchorPane {
                     }
                 } else if (token != null) {
                     success = this._ds.connect(token);
-                } else if (storedRefreshToken != null && ws != null) {
+                } else if (canUseStoredLogin() && ws != null) {
                     String refreshToken = storedRefreshToken;
                     storedRefreshToken = null;
                     success = ws.connectWithRefreshToken(refreshToken);
@@ -301,7 +301,10 @@ public class FXLogin extends AnchorPane {
                         /* expired or revoked: show the form */
                         logger.info("Stored login is not valid anymore");
                         this.jevisPref.remove(PREF_REFRESH_TOKEN);
-                        Platform.runLater(this::resetLoginForm);
+                        Platform.runLater(() -> {
+                            this.userPassword.setPromptText(null);
+                            resetLoginForm();
+                        });
                         return;
                     }
                     formLogin = true;
@@ -391,10 +394,20 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * @return {@code true} if a login is possible without user input (parameters or "remember me")
+     * @return {@code true} if a login is possible without user input (startup parameters).
+     * A "remember me" login is not started automatically, the user still clicks Login.
      */
     public boolean canAutoLogin() {
-        return hasCredentials || storedRefreshToken != null;
+        return hasCredentials;
+    }
+
+    /**
+     * The stored "remember me" login is used when the password field is left empty and the user name was not changed.
+     */
+    private boolean canUseStoredLogin() {
+        return storedRefreshToken != null
+                && this.userPassword.getText().isEmpty()
+                && this.userName.getText().equals(this.jevisPref.get(PREF_USER, ""));
     }
 
     /**
@@ -424,6 +437,9 @@ public class FXLogin extends AnchorPane {
             this.userName.setText(this.jevisPref.get(PREF_USER, ""));
             String refreshToken = this.jevisPref.get(PREF_REFRESH_TOKEN, null);
             this.storedRefreshToken = refreshToken != null && !refreshToken.isEmpty() ? refreshToken : null;
+            if (this.storedRefreshToken != null) {
+                this.userPassword.setPromptText(I18n.getInstance().getString("app.login.remembered"));
+            }
         } else {
             this.storeConfig.setSelected(false);
         }

@@ -2,19 +2,20 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterables;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.TreeHelper;
@@ -23,6 +24,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.ImageConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.tool.SvgImages;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -41,6 +43,8 @@ public class ImageWidget extends Widget {
     private ImageConfig imageConfig;
     public static String IMAGE_NODE_NAME = "image";
     private ImageView imageView;
+    private final PauseTransition svgResizeDelay = new PauseTransition(Duration.millis(300));
+    private volatile byte[] svgBytes;
 
 
     public ImageWidget(DashboardControl control, WidgetPojo config) {
@@ -80,28 +84,27 @@ public class ImageWidget extends Widget {
 
     @Override
     public void updateConfig() {
-        logger.error("UpdateConfig");
+        logger.debug("UpdateConfig");
         Platform.runLater(() -> {
             try {
 
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 rootPane.setBackground(bgColor);
 
-                if (this.imageConfig.getObjectID() > 1) {
-                    JEVisAttribute imageAttribute = getDataSource().getObject(this.imageConfig.getObjectID()).getAttribute("File");
-
-                    if (imageAttribute != null) {
-                        JEVisSample imageSample = imageAttribute.getLatestSample();
-
-                        JEVisFile imageFile = imageSample.getValueAsFile();
+                JEVisFile imageFile = this.imageConfig.getCurrentFile();
+                if (imageFile != null) {
+                    if (SvgImages.isSvg(imageFile.getFilename(), imageFile.getBytes())) {
+                        svgBytes = imageFile.getBytes();
+                        renderSvg();
+                    } else {
+                        svgBytes = null;
                         InputStream in = new ByteArrayInputStream(imageFile.getBytes());
                         imageView.setImage(new Image(in));
                     }
-
                 }
                 updateImage();
             } catch (Exception ex) {
-                logger.error(ex);
+                logger.error("Failed to load image of widget {}", this.config.getTitle(), ex);
             }
         });
     }
@@ -127,6 +130,15 @@ public class ImageWidget extends Widget {
         imageView.fitWidthProperty().bind(rootPane.widthProperty());
         imageView.fitHeightProperty().bind(rootPane.heightProperty());
         setGraphic(rootPane);
+
+        /* vector images are rendered at the widget size, render again when the size changes */
+        svgResizeDelay.setOnFinished(event -> renderSvg());
+        rootPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            if (svgBytes != null) svgResizeDelay.playFromStart();
+        });
+        rootPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            if (svgBytes != null) svgResizeDelay.playFromStart();
+        });
 
 
         try {
@@ -202,6 +214,42 @@ public class ImageWidget extends Widget {
         return JEConfig.getImage("widget/ImageWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
+
+    /**
+     * Renders the SVG in the background at the current widget size.
+     */
+    private void renderSvg() {
+        final byte[] svg = svgBytes;
+        final double width = rootPane.getWidth();
+        final double height = rootPane.getHeight();
+        if (svg == null) {
+            return;
+        }
+
+        Thread renderThread = new Thread(() -> {
+            try {
+                Image image = SvgImages.render(svg, width, height);
+                Platform.runLater(() -> {
+                    if (svg == svgBytes) {
+                        imageView.setImage(image);
+                        rootPane.setCenter(imageView);
+                    }
+                });
+            } catch (Throwable t) {
+                logger.error("Failed to render SVG image", t);
+                Platform.runLater(() -> {
+                    if (svg == svgBytes) {
+                        Label error = new Label(SvgImages.describeError(t));
+                        error.setWrapText(true);
+                        error.setStyle("-fx-text-fill: firebrick;");
+                        rootPane.setCenter(error);
+                    }
+                });
+            }
+        }, "ImageWidget-SVG");
+        renderThread.setDaemon(true);
+        renderThread.start();
+    }
 
     private void updateImage() {
         Platform.runLater(() -> {
