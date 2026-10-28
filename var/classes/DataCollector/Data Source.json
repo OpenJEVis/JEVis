@@ -56,6 +56,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Data Source"
+    },
+    {
+      "name": "VPN Connection",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Source"
     }
   ]
 }

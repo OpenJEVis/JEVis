@@ -31,6 +31,16 @@
       "start": "E-Mail Notification",
       "end": "CSV Export",
       "type": 3
+    },
+    {
+      "start": "E-Mail Notification",
+      "end": "JEDataCollector",
+      "type": 3
+    },
+    {
+      "start": "E-Mail Notification",
+      "end": "VPN Connection",
+      "type": 3
     }
   ],
   "types": [

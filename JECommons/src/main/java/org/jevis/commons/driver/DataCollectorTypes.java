@@ -166,6 +166,7 @@ public interface DataCollectorTypes {
         String MAX_THREAD_TIME = "Max thread time";
         String LAST_RUN = "Last Run";
         String CYCLE_TIME = "Cycle Time";
+        String VPN_CONNECTION = "VPN Connection";
 
         interface DataServer extends DataSource {
 
@@ -231,6 +232,27 @@ public interface DataCollectorTypes {
             }
 
         }
+    }
+
+    interface VpnConnection {
+
+        String NAME = "VPN Connection";
+        String ENABLED = "Enabled";
+        String PROFILE = "Profile";
+        String USER = "User";
+        String PASSWORD = "Password";
+        String CONNECT_TIMEOUT = "Connect Timeout";
+        String MAX_RETRIES = "Max Retries";
+        String RETRY_DELAY = "Retry Delay";
+        String CHECK_HOST = "Check Host";
+        String CHECK_PORT = "Check Port";
+        String IDLE_TIMEOUT = "Idle Timeout";
+        String MAX_SESSION_TIME = "Max Session Time";
+        String NOTIFY_ON_CONNECT_ERROR = "Notify On Connect Error";
+        String LAST_CONNECT = "Last Connect";
+        String LAST_ERROR = "Last Error";
+        String BYTES_IN = "Bytes In";
+        String BYTES_OUT = "Bytes Out";
     }
 
     interface Channel {

@@ -87,6 +87,39 @@
         "en": "State",
         "ar": "الحالة"
       }
+    },
+    {
+      "type": "Notification ID",
+      "descriptions": {
+        "de": "ID des E-Mail-Treiber-Objekts (SMTP-Konfiguration), über das VPN-Alarme versendet werden.",
+        "en": "ID of the e-mail driver object (SMTP configuration) used to send VPN alerts."
+      },
+      "names": {
+        "de": "Benachrichtigungs-ID",
+        "en": "Notification ID"
+      }
+    },
+    {
+      "type": "Max VPN Sessions",
+      "descriptions": {
+        "de": "Maximale Anzahl gleichzeitig geöffneter VPN-Verbindungen. 0 = unbegrenzt, 1 bei überlappenden Standortnetzen.",
+        "en": "Maximum number of VPN connections open at the same time. 0 = unlimited, 1 if site networks overlap."
+      },
+      "names": {
+        "de": "Max. VPN-Sitzungen",
+        "en": "Max VPN Sessions"
+      }
+    },
+    {
+      "type": "VPN Alert Reminder Interval",
+      "descriptions": {
+        "de": "Abstand in Sekunden, in dem ein weiterhin bestehendes VPN-Problem erneut per E-Mail gemeldet wird (Standard 14400 = 4 h).",
+        "en": "Interval in seconds after which a persisting VPN problem is reported again by e-mail (default 14400 = 4 h)."
+      },
+      "names": {
+        "de": "VPN-Alarm Erinnerungsintervall",
+        "en": "VPN Alert Reminder Interval"
+      }
     }
   ]
 }

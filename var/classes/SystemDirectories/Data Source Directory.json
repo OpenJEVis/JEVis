@@ -62,6 +62,11 @@
       "start": "VIDA350",
       "end": "Data Source Directory",
       "type": 3
+    },
+    {
+      "start": "VPN Connection",
+      "end": "Data Source Directory",
+      "type": 3
     }
   ]
 }

@@ -185,7 +185,7 @@ public class TreeExporter {
 
                     while (zipFileEntries.hasMoreElements()) {
                         ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
-                        Path destinationPath = tmpDir.resolve(entry.getName()).normalize();
+                        Path destinationPath = tmpDir.resolve(toLocalEntryPath(entry.getName())).normalize();
                         if (!destinationPath.startsWith(tmpDir)) {
                             throw new IOException("Unsafe ZIP entry outside import directory: " + entry.getName());
                         }
@@ -1005,8 +1005,8 @@ public class TreeExporter {
 
             for (Path folderPath : folderPaths) {
                 try {
-                    String objectString = folderPath.getFileName().toString().substring(2);
-                    String folderName = Paths.get(objectString).getFileName().toString();
+                    String objectString = decodeEntrySegment(folderPath.getFileName().toString()).substring(2);
+                    String folderName = objectString;
                     int indexOf = folderName.indexOf("_");
                     long oldObjectId = Long.parseLong(folderName.substring(0, indexOf));
                     String attributeString = folderName.substring(indexOf + 1);
@@ -1044,7 +1044,7 @@ public class TreeExporter {
                             for (File listFile : files) {
                                 DateTime dateTime = parseFileSampleTimestamp(
                                         fileDateFolderPath.getFileName().toString());
-                                JEVisFile jeVisFile = new JEVisFileImp(listFile.getName(), listFile);
+                                JEVisFile jeVisFile = new JEVisFileImp(decodeEntrySegment(listFile.getName()), listFile);
                                 fileSamples.add(jevisAttribute.buildSample(dateTime, jeVisFile));
                             }
                         } catch (Exception e) {
@@ -1696,6 +1696,62 @@ public class TreeExporter {
             throw new IOException("Unsafe " + description + " for ZIP entry: " + value);
         }
         return value;
+    }
+
+    /**
+     * Maps a ZIP entry name to a path that can be created on the local file system. Archives may
+     * contain names with characters that are illegal on Windows (e.g. a literal '?' left over from a
+     * broken umlaut encoding on the server). Such characters, and '%' itself, are percent-encoded per
+     * path segment so extraction succeeds; {@link #decodeEntrySegment} restores the original name.
+     */
+    private String toLocalEntryPath(String entryName) {
+        String[] segments = entryName.replace('\\', '/').split("/", -1);
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < segments.length; i++) {
+            if (i > 0) {
+                result.append('/');
+            }
+            result.append(encodeEntrySegment(segments[i]));
+        }
+        return result.toString();
+    }
+
+    private String encodeEntrySegment(String segment) {
+        if (segment.equals(".") || segment.equals("..")) {
+            return segment;
+        }
+        StringBuilder result = new StringBuilder(segment.length());
+        for (int i = 0; i < segment.length(); i++) {
+            char c = segment.charAt(i);
+            boolean trailingDotOrSpace = i == segment.length() - 1 && (c == '.' || c == ' ');
+            if (c < 0x20 || c == '%' || "<>:\"|?*".indexOf(c) >= 0 || trailingDotOrSpace) {
+                result.append(String.format("%%%02X", (int) c));
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
+    }
+
+    private String decodeEntrySegment(String segment) {
+        if (segment.indexOf('%') < 0) {
+            return segment;
+        }
+        StringBuilder result = new StringBuilder(segment.length());
+        for (int i = 0; i < segment.length(); i++) {
+            char c = segment.charAt(i);
+            if (c == '%' && i + 2 < segment.length()) {
+                try {
+                    result.append((char) Integer.parseInt(segment.substring(i + 1, i + 3), 16));
+                    i += 2;
+                    continue;
+                } catch (NumberFormatException ignored) {
+                    // not an escape sequence, keep literal '%'
+                }
+            }
+            result.append(c);
+        }
+        return result.toString();
     }
 
     private String sanitizeFileName(String filename) throws IOException {

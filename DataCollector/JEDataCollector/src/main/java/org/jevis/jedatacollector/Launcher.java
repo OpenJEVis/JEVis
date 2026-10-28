@@ -17,6 +17,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
+import org.jevis.jedatacollector.vpn.*;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
@@ -40,6 +41,9 @@ public class Launcher extends AbstractCliApp {
     private boolean firstRun = true;
     private final SampleHandler sampleHandler = new SampleHandler();
     private final ConcurrentHashMap<Long, DateTime> lastRunTimes = new ConcurrentHashMap<>();
+    private static final String MAX_VPN_SESSIONS = "Max VPN Sessions";
+    private static final String VPN_ALERT_REMINDER_INTERVAL = "VPN Alert Reminder Interval";
+    private VpnSessionManager vpnManager;
 
     /**
      * @param args the command line arguments
@@ -131,6 +135,7 @@ public class Launcher extends AbstractCliApp {
     private void runDataSource(JEVisObject object, DataSource dataSource, boolean finish) {
         boolean success = false;
         String errorMessage = "";
+        VpnSessionManager.Lease vpnLease = VpnSessionManager.Lease.NONE;
         try {
             runningJobs.put(object.getID(), new DateTime());
             LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
@@ -138,6 +143,7 @@ public class Launcher extends AbstractCliApp {
             logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
 
+            vpnLease = vpnManager.acquire(object);
             dataSource.initialize(object);
             LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
             dataSource.run();
@@ -156,6 +162,7 @@ public class Launcher extends AbstractCliApp {
             errorMessage = msg.length() > 200 ? msg.substring(0, 200) : msg;
 
         } finally {
+            vpnLease.close();
             try {
                 LogTaskManager.getInstance().getTask(object.getID()).setStatus(success ? Task.Status.FINISHED : Task.Status.FAILED);
             } catch (Exception e) {
@@ -192,6 +199,29 @@ public class Launcher extends AbstractCliApp {
         APP_SERVICE_CLASS_NAME = "JEDataCollector";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
         DriverHelper.loadDriver(ds, commands.driverFolder);
+        initializeVpn();
+    }
+
+    private void initializeVpn() {
+        JEVisObject serviceObject = null;
+        try {
+            List<JEVisObject> services = ds.getObjects(ds.getJEVisClass(APP_SERVICE_CLASS_NAME), false);
+            if (!services.isEmpty()) serviceObject = services.get(0);
+        } catch (Exception e) {
+            logger.error("Could not load service object for VPN settings", e);
+        }
+
+        long maxSessions = 0;
+        long reminderInterval = 14400;
+        if (serviceObject != null) {
+            maxSessions = sampleHandler.getLastSample(serviceObject, MAX_VPN_SESSIONS, 0L);
+            reminderInterval = sampleHandler.getLastSample(serviceObject, VPN_ALERT_REMINDER_INTERVAL, reminderInterval);
+        }
+
+        ThrottlingAlertNotifier notifier = new ThrottlingAlertNotifier(new EmailVpnAlertSender(ds, serviceObject), reminderInterval * 1000);
+        vpnManager = new VpnSessionManager(new OpenVpnBackend(), notifier, new VpnStatusWriter(), (int) maxSessions);
+        vpnManager.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(vpnManager::shutdown, "vpn-shutdown-hook"));
     }
 
     @Override
@@ -212,8 +242,10 @@ public class Launcher extends AbstractCliApp {
                 logger.info("Try adding Single Mode for ID " + id);
                 JEVisObject dataSourceObject = ds.getObject(id);
                 DataSource dataSource = DataSourceFactory.getDataSource(dataSourceObject);
-                dataSource.initialize(dataSourceObject);
-                dataSource.run();
+                try (VpnSessionManager.Lease ignored = vpnManager.acquire(dataSourceObject)) {
+                    dataSource.initialize(dataSourceObject);
+                    dataSource.run();
+                }
             } catch (Exception ex) {
                 logger.error("Error while loading DataSource", ex);
             }
@@ -285,7 +317,7 @@ public class Launcher extends AbstractCliApp {
 
         Collections.shuffle(enabledDataSources);
 
-        return enabledDataSources;
+        return VpnSessionManager.groupByVpn(enabledDataSources);
     }
 
 

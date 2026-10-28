@@ -1,0 +1,143 @@
+#!/bin/bash
+#
+# jevis-vpn - starts and stops OpenVPN tunnels for the JEDataCollector (VPN on demand).
+#
+# Runs as root via sudo. Install root-owned and not writable by the collector user:
+#   install -o root -g root -m 0755 bin/jevis-vpn /usr/local/sbin/jevis-vpn
+# See DataCollector/JEDataCollector/docs/VPN.md
+#
+# Usage: jevis-vpn start|stop|status <profile>
+#        jevis-vpn list
+#
+# Exit codes: 0 ok/running, 1 error, 2 usage, 3 not running, 4 profile missing, 5 profile not allowed, 6 already running
+
+set -u
+umask 007
+
+CONF_DIR=/etc/jevis/vpn
+RUN_DIR=/run/jevis-vpn
+LOG_DIR=/var/log/jevis-vpn
+CLIENT_USER=jevis
+CLIENT_GROUP=jevis
+STOP_TIMEOUT=10
+START_TIMEOUT=10
+OPENVPN=$(command -v openvpn || echo /usr/sbin/openvpn)
+
+# optional root-owned overrides of the settings above
+[ -f /etc/jevis/jevis-vpn.conf ] && . /etc/jevis/jevis-vpn.conf
+
+usage() {
+    echo "usage: $0 start|stop|status <profile> | list" >&2
+    exit 2
+}
+
+action=${1:-}
+profile=${2:-}
+case "$action" in
+    list) ;;
+    start|stop|status) [[ "$profile" =~ ^[A-Za-z0-9_-]{1,64}$ ]] || usage ;;
+    *) usage ;;
+esac
+
+conf="$CONF_DIR/$profile.ovpn"
+sock="$RUN_DIR/$profile.sock"
+pidf="$RUN_DIR/$profile.pid"
+log="$LOG_DIR/$profile.log"
+pid=""
+
+# true if the pid file points to the running OpenVPN process of this profile
+pid_running() {
+    local p="${1:-$pidf}"
+    [ -f "$p" ] || return 1
+    pid=$(cat "$p" 2>/dev/null)
+    [[ "$pid" =~ ^[0-9]+$ ]] || return 1
+    kill -0 "$pid" 2>/dev/null || return 1
+    tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -q -- "--writepid $p " || return 1
+    return 0
+}
+
+case "$action" in
+start)
+    [ -r "$conf" ] || { echo "profile not found: $conf"; exit 4; }
+    if grep -Eiq '^[[:space:]]*(management|daemon|writepid|log|log-append)([[:space:]]|$)' "$conf"; then
+        echo "profile must not contain management, daemon, writepid or log directives (set by jevis-vpn)"
+        exit 5
+    fi
+    if pid_running; then
+        echo "already running (pid $pid)"
+        exit 6
+    fi
+
+    install -d -m 2770 -o root -g "$CLIENT_GROUP" "$RUN_DIR"
+    install -d -m 2750 -o root -g "$CLIENT_GROUP" "$LOG_DIR"
+    rm -f "$sock" "$pidf"
+    : > "$log"
+    chgrp "$CLIENT_GROUP" "$log"
+    chmod 0640 "$log"
+
+    # own session so the tunnel survives the end of this script and of sudo
+    setsid "$OPENVPN" --config "$conf" --cd "$CONF_DIR" \
+        --writepid "$pidf" --log "$log" \
+        --management "$sock" unix --management-client-user "$CLIENT_USER" \
+        --management-hold --management-query-passwords \
+        --auth-nocache --auth-retry none \
+        < /dev/null > /dev/null 2>&1 &
+
+    for _ in $(seq 1 $((START_TIMEOUT * 10))); do
+        [ -S "$sock" ] && break
+        sleep 0.1
+    done
+    if [ ! -S "$sock" ]; then
+        echo "management socket not created, see $log:"
+        tail -n 5 "$log"
+        pid_running && kill -TERM "$pid"
+        exit 1
+    fi
+    chgrp "$CLIENT_GROUP" "$sock" "$pidf" 2>/dev/null
+    chmod 0660 "$sock"
+    chmod 0640 "$pidf" 2>/dev/null
+    exit 0
+    ;;
+
+stop)
+    if ! pid_running; then
+        rm -f "$sock" "$pidf"
+        exit 0
+    fi
+    kill -TERM "$pid"
+    for _ in $(seq 1 $((STOP_TIMEOUT * 10))); do
+        pid_running || break
+        sleep 0.1
+    done
+    if pid_running; then
+        echo "pid $pid did not stop after SIGTERM, sending SIGKILL"
+        kill -KILL "$pid"
+        sleep 1
+    fi
+    if pid_running; then
+        echo "could not stop pid $pid"
+        exit 1
+    fi
+    rm -f "$sock" "$pidf"
+    exit 0
+    ;;
+
+status)
+    if pid_running; then
+        echo "running (pid $pid)"
+        exit 0
+    fi
+    echo "not running"
+    exit 3
+    ;;
+
+list)
+    for f in "$RUN_DIR"/*.pid; do
+        [ -e "$f" ] || continue
+        if pid_running "$f"; then
+            echo "$(basename "$f" .pid) $pid"
+        fi
+    done
+    exit 0
+    ;;
+esac

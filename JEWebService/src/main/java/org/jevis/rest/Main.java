@@ -216,6 +216,14 @@ public class Main {
             System.exit(1);
         }
 
+        /* file samples are stored on disk, a missing write permission otherwise only shows up when saving a file */
+        File fileDir = Config.getFileDir();
+        logger.info("File directory: {} (running as user '{}')", fileDir.getAbsolutePath(), System.getProperty("user.name"));
+        if (!fileDir.isDirectory() || !fileDir.canWrite()) {
+            logger.error("File directory {} does not exist or is not writable for user '{}', file samples (analyses, dashboards, ...) can not be saved",
+                    fileDir.getAbsolutePath(), System.getProperty("user.name"));
+        }
+
 
         final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest", "org.jevis.iso.rest", "org.jevis.web");
         rc.setApplicationName("JEWebservice");

@@ -32,6 +32,11 @@
       "start": "Parser Driver Directory",
       "end": "JEDataCollector",
       "type": 3
+    },
+    {
+      "start": "E-Mail Notification",
+      "end": "JEDataCollector",
+      "type": 3
     }
   ],
   "types": [
@@ -71,6 +76,33 @@
     {
       "name": "Status",
       "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEDataCollector"
+    },
+    {
+      "name": "Notification ID",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEDataCollector"
+    },
+    {
+      "name": "Max VPN Sessions",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEDataCollector"
+    },
+    {
+      "name": "VPN Alert Reminder Interval",
+      "primitiveType": 2,
+      "guiType": "Number",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,

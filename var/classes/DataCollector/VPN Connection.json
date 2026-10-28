@@ -1,0 +1,163 @@
+{
+  "name": "VPN Connection",
+  "description": "OpenVPN connection which the JEDataCollector opens on demand before reading the data sources referencing it and closes afterwards.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "VPN Connection",
+      "end": "Data Source Directory",
+      "type": 3
+    },
+    {
+      "start": "E-Mail Notification",
+      "end": "VPN Connection",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Profile",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 2,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "guiposition": 3,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Connect Timeout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 4,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Max Retries",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 5,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Retry Delay",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 6,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Check Host",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 7,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Check Port",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 8,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Idle Timeout",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 9,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Max Session Time",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 10,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Notify On Connect Error",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 11,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Last Connect",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "guiposition": 12,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Last Error",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 13,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Bytes In",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 14,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    },
+    {
+      "name": "Bytes Out",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 15,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "VPN Connection"
+    }
+  ]
+}

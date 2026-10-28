@@ -1,0 +1,5 @@
+# Allows the JEDataCollector (user jevis) to start and stop its OpenVPN tunnels.
+# Install with: visudo -f /etc/sudoers.d/jevis-vpn
+# The wrapper only accepts profile names and only uses profiles from /etc/jevis/vpn.
+Defaults!/usr/local/sbin/jevis-vpn !requiretty
+jevis ALL=(root) NOPASSWD: /usr/local/sbin/jevis-vpn

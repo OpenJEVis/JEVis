@@ -229,6 +229,22 @@
             <artifactId>jlibmodbus</artifactId>
             <version>1.2.9.11</version>
         </dependency>
+        <!-- VPN on demand: alert mails and OpenVPN management socket (unix sockets on Java 8) -->
+        <dependency>
+            <groupId>org.jevis.jenotifier.notifier</groupId>
+            <artifactId>Notifier-EP</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.kohlschutter.junixsocket</groupId>
+            <artifactId>junixsocket-common</artifactId>
+            <version>2.6.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.kohlschutter.junixsocket</groupId>
+            <artifactId>junixsocket-native-common</artifactId>
+            <version>2.6.2</version>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>

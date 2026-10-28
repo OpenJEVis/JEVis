@@ -111,6 +111,17 @@
         "en": "Latest back reported",
         "ar": "ذكرت آخر مرة"
       }
+    },
+    {
+      "type": "VPN Connection",
+      "descriptions": {
+        "de": "Optionale VPN-Verbindung, die der JEDataCollector vor dem Auslesen dieser Datenquelle aufbaut und danach wieder trennt.",
+        "en": "Optional VPN connection which the JEDataCollector opens before reading this data source and closes afterwards."
+      },
+      "names": {
+        "de": "VPN-Verbindung",
+        "en": "VPN Connection"
+      }
     }
   ]
 }

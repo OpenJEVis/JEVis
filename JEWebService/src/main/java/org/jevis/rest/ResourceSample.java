@@ -116,20 +116,15 @@ public class ResourceSample {
         return absoluteFileDir;
     }
 
-    private void saveToFile(InputStream uploadedInputStream, String uploadedFileLocation) {
-        try {
-            OutputStream out = null;
-            int read = 0;
-            byte[] bytes = new byte[1024];
+    private void saveToFile(InputStream uploadedInputStream, String uploadedFileLocation) throws IOException {
+        int read;
+        byte[] bytes = new byte[1024];
 
-            out = new FileOutputStream(new File(uploadedFileLocation));
+        try (OutputStream out = new FileOutputStream(new File(uploadedFileLocation))) {
             while ((read = uploadedInputStream.read(bytes)) != -1) {
                 out.write(bytes, 0, read);
             }
             out.flush();
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -175,16 +170,22 @@ public class ResourceSample {
                 ds.getUserManager().canRead(obj);
             }
 
-            DateTime ts = null;
-            if (!timestamp.equals("latest")) {
-                ts = fmt.parseDateTime(timestamp).withZone(DateTimeZone.UTC);
+            JsonSample sample = null;
+            if (timestamp.equals("latest")) {
+                JsonAttribute att = ds.getAttribute(id, attribute);
+                if (att != null) {
+                    sample = att.getLatestValue();
+                }
+            } else {
+                DateTime ts = fmt.parseDateTime(timestamp).withZone(DateTimeZone.UTC);
+                List<JsonSample> samples = ds.getSamples(id, attribute, ts, ts, 1);
+                if (!samples.isEmpty()) {
+                    sample = samples.get(0);
+                }
             }
 
-            List<JsonSample> samples = ds.getSamples(id, attribute, ts, ts, 1);
-
-            if (!samples.isEmpty()) {
-                JsonSample sample = samples.get(0);
-                DateTime dbTS = JsonFactory.sampleDTF.parseDateTime(samples.get(0).getTs());
+            if (sample != null) {
+                DateTime dbTS = JsonFactory.sampleDTF.parseDateTime(sample.getTs());
 
                 //Pattern  /path/to/filedir/yyyyMMdd/ID_HHmmss_filename
                 String fileName = createFilePattern(id, attribute, sample.getValue(), dbTS);
@@ -196,7 +197,8 @@ public class ResourceSample {
                             .header(HttpHeaders.LAST_MODIFIED, new Date(file.lastModified()));
                     return response.build();
                 } else {
-                    Response.status(Status.INTERNAL_SERVER_ERROR).build();
+                    logger.error("File of sample {}:{} at {} is missing or not readable: {}", id, attribute, sample.getTs(), file.getAbsolutePath());
+                    return Response.status(Status.NOT_FOUND).entity("File of sample is missing on the server").build();
                 }
             }
 
@@ -389,12 +391,19 @@ public class ResourceSample {
             if (objFile.exists()) {
                 objFile.delete();
             } else {
-                if (!objFile.getParentFile().exists()) {
-                    objFile.getParentFile().mkdirs();
+                if (!objFile.getParentFile().exists() && !objFile.getParentFile().mkdirs()) {
+                    logger.error("Could not create directory for file sample {}:{}: {}", id, attribute, objFile.getParentFile().getAbsolutePath());
+                    return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Could not store file on the server").build();
                 }
             }
 
-            saveToFile(payload, uploadedFileLocation);
+            /* only add the sample if the file exists, otherwise the sample points to a missing file */
+            try {
+                saveToFile(payload, uploadedFileLocation);
+            } catch (IOException ex) {
+                logger.error("Could not write file sample {}:{} to {}", id, attribute, uploadedFileLocation, ex);
+                return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Could not store file on the server").build();
+            }
 
             JsonSample sample = new JsonSample();
             sample.setTs(JsonFactory.sampleDTF.print(fmt.parseDateTime(timestamp)));

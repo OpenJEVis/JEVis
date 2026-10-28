@@ -1,0 +1,189 @@
+{
+  "jevisclass": "VPN Connection",
+  "names": {
+    "de": "VPN-Verbindung",
+    "en": "VPN Connection"
+  },
+  "descriptions": {
+    "de": "OpenVPN-Verbindung, die der JEDataCollector nur für das Auslesen der referenzierenden Datenquellen aufbaut und danach wieder trennt.",
+    "en": "OpenVPN connection which the JEDataCollector only opens while reading the data sources referencing it and closes afterwards."
+  },
+  "types": [
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Aktiviert die VPN-Verbindung. Deaktiviert werden die Datenquellen ohne VPN ausgelesen.",
+        "en": "Enables the VPN connection. If disabled, the data sources are read without VPN."
+      },
+      "names": {
+        "de": "Aktiviert",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "Profile",
+      "descriptions": {
+        "de": "Name des OpenVPN-Profils auf dem Server (/etc/jevis/vpn/<Profil>.ovpn). Erlaubt: A-Z, a-z, 0-9, _ und -.",
+        "en": "Name of the OpenVPN profile on the server (/etc/jevis/vpn/<profile>.ovpn). Allowed: A-Z, a-z, 0-9, _ and -."
+      },
+      "names": {
+        "de": "Profil",
+        "en": "Profile"
+      }
+    },
+    {
+      "type": "User",
+      "descriptions": {
+        "de": "Optionaler Benutzername, falls das Profil auth-user-pass verwendet.",
+        "en": "Optional user name if the profile uses auth-user-pass."
+      },
+      "names": {
+        "de": "Benutzer",
+        "en": "User"
+      }
+    },
+    {
+      "type": "Password",
+      "descriptions": {
+        "de": "Optionales Passwort für auth-user-pass bzw. für einen verschlüsselten privaten Schlüssel.",
+        "en": "Optional password for auth-user-pass or for an encrypted private key."
+      },
+      "names": {
+        "de": "Passwort",
+        "en": "Password"
+      }
+    },
+    {
+      "type": "Connect Timeout",
+      "descriptions": {
+        "de": "Maximale Zeit in Sekunden für einen Verbindungsversuch (Standard 60).",
+        "en": "Maximum time in seconds for one connection attempt (default 60)."
+      },
+      "names": {
+        "de": "Verbindungszeitlimit",
+        "en": "Connect Timeout"
+      }
+    },
+    {
+      "type": "Max Retries",
+      "descriptions": {
+        "de": "Anzahl der Wiederholungen nach einem fehlgeschlagenen Verbindungsversuch (Standard 2).",
+        "en": "Number of retries after a failed connection attempt (default 2)."
+      },
+      "names": {
+        "de": "Max. Wiederholungen",
+        "en": "Max Retries"
+      }
+    },
+    {
+      "type": "Retry Delay",
+      "descriptions": {
+        "de": "Wartezeit in Sekunden vor einer Wiederholung, steigt mit jedem Versuch (Standard 30).",
+        "en": "Delay in seconds before a retry, growing with every attempt (default 30)."
+      },
+      "names": {
+        "de": "Wiederholungsverzögerung",
+        "en": "Retry Delay"
+      }
+    },
+    {
+      "type": "Check Host",
+      "descriptions": {
+        "de": "Optionaler Host im Standortnetz, dessen Erreichbarkeit nach dem Verbindungsaufbau geprüft wird.",
+        "en": "Optional host in the site network whose reachability is checked after connecting."
+      },
+      "names": {
+        "de": "Prüf-Host",
+        "en": "Check Host"
+      }
+    },
+    {
+      "type": "Check Port",
+      "descriptions": {
+        "de": "TCP-Port für die Erreichbarkeitsprüfung, z. B. 502 für Modbus.",
+        "en": "TCP port for the reachability check, e.g. 502 for Modbus."
+      },
+      "names": {
+        "de": "Prüf-Port",
+        "en": "Check Port"
+      }
+    },
+    {
+      "type": "Idle Timeout",
+      "descriptions": {
+        "de": "Sekunden, die der Tunnel nach der letzten Datenquelle offen bleibt, damit weitere Datenquellen ihn nutzen (Standard 10, 0 = sofort trennen).",
+        "en": "Seconds the tunnel stays open after the last data source so that further data sources can use it (default 10, 0 = close immediately)."
+      },
+      "names": {
+        "de": "Leerlaufzeit",
+        "en": "Idle Timeout"
+      }
+    },
+    {
+      "type": "Max Session Time",
+      "descriptions": {
+        "de": "Maximale Dauer einer Sitzung in Sekunden (Standard 1800). Danach wird zwangsweise getrennt und ein Alarm gesendet.",
+        "en": "Maximum duration of a session in seconds (default 1800). The tunnel is then closed forcibly and an alert is sent."
+      },
+      "names": {
+        "de": "Max. Sitzungsdauer",
+        "en": "Max Session Time"
+      }
+    },
+    {
+      "type": "Notify On Connect Error",
+      "descriptions": {
+        "de": "Sendet zusätzlich eine E-Mail, wenn die Verbindung nach allen Wiederholungen nicht aufgebaut werden konnte.",
+        "en": "Additionally sends an e-mail if the connection could not be established after all retries."
+      },
+      "names": {
+        "de": "Bei Verbindungsfehler benachrichtigen",
+        "en": "Notify On Connect Error"
+      }
+    },
+    {
+      "type": "Last Connect",
+      "descriptions": {
+        "de": "Zeitpunkt des letzten erfolgreichen Verbindungsaufbaus.",
+        "en": "Time of the last successful connection."
+      },
+      "names": {
+        "de": "Letzte Verbindung",
+        "en": "Last Connect"
+      }
+    },
+    {
+      "type": "Last Error",
+      "descriptions": {
+        "de": "Letzter Fehler beim Verbindungsaufbau.",
+        "en": "Last connection error."
+      },
+      "names": {
+        "de": "Letzter Fehler",
+        "en": "Last Error"
+      }
+    },
+    {
+      "type": "Bytes In",
+      "descriptions": {
+        "de": "Empfangene Bytes je Sitzung (Verlauf zur Überwachung des Datenvolumens).",
+        "en": "Bytes received per session (history for monitoring the data volume)."
+      },
+      "names": {
+        "de": "Bytes empfangen",
+        "en": "Bytes In"
+      }
+    },
+    {
+      "type": "Bytes Out",
+      "descriptions": {
+        "de": "Gesendete Bytes je Sitzung (Verlauf zur Überwachung des Datenvolumens).",
+        "en": "Bytes sent per session (history for monitoring the data volume)."
+      },
+      "names": {
+        "de": "Bytes gesendet",
+        "en": "Bytes Out"
+      }
+    }
+  ]
+}

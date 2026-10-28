@@ -211,7 +211,11 @@ public class JEVisAttributeWS implements JEVisAttribute {
                     }
                     int responseCode = connection.getResponseCode();
                     connection.disconnect();
-                    imported = 1;/** TODO: fix server side, missing response **/
+                    if (responseCode >= 200 && responseCode < 300) {
+                        imported = 1;
+                    } else {
+                        logger.error("Upload of file '{}' to {} failed with HTTP {}", s.getValueAsFile().getFilename(), resource, responseCode);
+                    }
                 } catch (Exception ex) {
                     logger.catching(ex);
                 }
